@@ -1,0 +1,187 @@
+<form class="babonus">
+    <h1>Extended Traits</h1>
+
+    <!-- BUILD-A-BONUS -->
+    <div class="build-a-bonus">
+
+        <h2>Build a Bonus</h2>
+        <div class="babonus-required-fields">
+        
+            <div class="form-group">
+                <label class="babonus-label">Identifiers</label>
+                <div class="form-fields">
+                    <span class="sep babonus-sep">Bonus Name:</span>
+                    <input type="text" name="babonus-label" placeholder="Label...">
+                    <span class="sep babonus-sep">Identifier:</span>
+                    <input type="text" name="babonus-identifier" placeholder="Identifier...">
+                </div>
+            </div>
+            <hr>
+            <!-- bonus type to apply to: attack, damage, saveDC -->
+            <div class="form-group">
+                <label class="babonus-label">Bonus Target</label>
+                <div class="form-fields">
+                    <select name="babonus-bonus-target">
+                        {{#each bonusTargets as |type|}}
+                        <option value="{{type.value}}">{{type.label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+            <!-- what kind of bonus to apply: addition to roll or save dc, or a modifier on the dice -->
+            <div class="form-group">
+                <label class="babonus-label"></label>
+                <div class="form-fields">
+                    <select name="babonus-bonus-type">
+                        {{#each bonusTypes as |type|}}
+                        <option value="{{type.value}}">{{type.label}}</option>
+                        {{/each}}
+                    </select>
+                    <span class="sep babonus-sep">Bonus:</span>
+                    <input type="text" name="babonus-value">
+                </div>
+            </div>
+            <!-- description -->
+            <div class="form-group">
+                <label class="babonus-label">Description</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-description" placeholder="Description...">
+                </div>
+            </div>
+        </div>
+        
+        <!-- filters -->
+        <h3>Filters</h3>
+        <div class="babonus-filters">
+
+            <div class="form-group">
+                <label class="babonus-label-m">Item Types</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-itemTypes">
+                    <button class="babonus-keys" data-type="itemTypes">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="babonus-label-m">Base Items</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-baseItems">
+                    <button class="babonus-keys" data-type="baseItems">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="babonus-label-m">Damage Types</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-damageTypes">
+                    <button class="babonus-keys" data-type="damageTypes">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="babonus-label-m">Spell Schools</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-spellSchools">
+                    <button class="babonus-keys" data-type="spellSchools">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="babonus-label-m">Abilities</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-abilities">
+                    <button class="babonus-keys" data-type="abilities">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="babonus-label-m">Spell Components</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-spellComponents">
+                    <select name="babonus-spellComponents-match">
+                        <option value="ANY">Match at least one</option>
+                        <option value="ALL">Match all selected</option>
+                    </select>
+                    <button class="babonus-keys" data-type="spellComponents">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group" id="babonus-spellLevels">
+                <label class="babonus-label-m">Spell Levels</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-spellLevels">
+                    <button class="babonus-keys" data-type="spellLevels">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="babonus-label-m">Action Types</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-actionTypes">
+                    <button class="babonus-keys" data-type="actionTypes">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="babonus-label-m">Weapon Properties</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-weaponProperties-required">
+                    <input type="text" name="babonus-weaponProperties-unfit">
+                    <button class="babonus-keys" data-type="weaponProperties">
+                        <i class="fas fa-key"></i> Keys
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="babonus-warning" name="babonus-warning"></div>
+        
+        <!-- save a bonus -->
+        <div class="babonus-save-new">
+            <div class="form-group">
+                <button name="babonus-save-button">
+                    <i class="fas fa-save"></i> Save this bonus
+                </button>
+            </div>
+        </div>
+    </div>  
+
+
+    <!-- CURRENT BONUSES -->
+    <div class="current-bonuses">
+        <h2>Current Bonuses</h2>
+
+        {{#each bonuses as |bonus|}}
+        <div class="form-group">
+            <label class="babonus-label">
+                {{bonus.label}}
+            </label>
+            <div class="babonus-bonus-details">
+                <div class="form-fields">
+                    <p class="babonus-identifier">
+                        {{bonus.identifier}}
+                    </p>
+                    <button class="babonus-edit">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="babonus-delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <p class="babonus-description">
+                    {{bonus.description}}
+                </p>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+
+</form>

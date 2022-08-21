@@ -1,0 +1,55 @@
+.build-a-bonus .babonus-required-fields label.babonus-label {
+    flex: 1;
+    font-weight: bolder;
+}
+.build-a-bonus .babonus-filters label.babonus-label-m {
+    flex: 1;
+}
+.current-bonuses .form-group label.babonus-label {
+    flex: 1;
+    font-weight: bolder;
+}
+.babonus-identifier {
+    font-style: italic;
+    /*font-weight: bold;*/
+    color: gray;
+}
+.babonus-description {
+    font-style: italic;
+}
+
+button.babonus-keys {
+    min-width: 100px;
+    flex: 0;
+}
+.babonus-checkbox {
+    border-radius: 10px;
+    min-width: fit-content;
+    background-color: cadetblue;
+    padding: 3px 5px 3px 5px;
+    margin: 0 3px 0 0;
+}
+.babonus-checkbox:last-child {
+    margin-right: 3px;
+}
+
+.babonus-warning {
+    display: none;
+}
+.babonus-warning.active {
+    display: block;
+    color: red;
+    font-style: italic;
+    background-color: yellow;
+    text-align: center;
+    height: 40px;
+    padding: 9px 0 0 0;
+    border-radius: 10px;
+    border-bottom: ridge;
+    border-right: ridge;
+    font-size: 16px;
+}
+
+.babonus-checkbox-100 {
+    min-width: 100px;
+}
