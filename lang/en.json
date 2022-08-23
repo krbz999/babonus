@@ -1,5 +1,21 @@
 {
     "BABONUS": {
+        "DELETE": {
+            "DELETE_BONUS": "Delete Bonus: {label}",
+            "ARE_YOU_SURE": "Are you sure that you want to delete '{label}'? This action cannot be undone.",
+            "YES": "Yes",
+            "NO": "No"
+        },
+        "WARNINGS": {
+            "MISSING_LABEL": "Your bonus needs a label!",
+            "MISSING_ID": "Your bonus needs an identifier!",
+            "DUPLICATE_ID": "A bonus with that identifier already exists!",
+            "MISSING_TARGET": "You must designate where the bonus should apply!",
+            "MISSING_BONUS": "The bonus needs actual bonuses!",
+            "MISSING_DESC": "Your bonus needs a description!",
+            "MISSING_TYPE": "You must select at least one item type!",
+            "MISSING_FILTER": "Your bonus needs at least one filter!"
+        },
         "LABELS":{
             "IDENTIFIERS": "Identifiers",
             "ID_LABEL": "Label",

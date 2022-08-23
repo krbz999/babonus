@@ -309,18 +309,18 @@ export class TRAIT_MAKER extends FormApplication {
 
         const warningField = html.querySelector("[name='babonus-warning']");
 
-        if ( !inputs.label?.length ) return this.displayWarning(warningField, "Your bonus needs a label!");
-        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, "Your bonus needs an identifier!");
+        if ( !inputs.label?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_LABEL"));
+        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_ID"));
         const alreadyIdentifierExist = this.actor.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
         if ( alreadyIdentifierExist && !html.closest("form.babonus").classList.contains("editMode") ){
-            return this.displayWarning(warningField, "A bonus with that identifier already exists!");
+            return this.displayWarning(warningField, game.i18n.localize("DUPLICATE_ID"));
         }
-        if ( !inputs.target?.length ) return this.displayWarning(warningField, "You must designate a bonus target!");
+        if ( !inputs.target?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_TARGET"));
 
-        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, "The bonus needs actual bonuses!");
-        if ( !inputs.description?.length ) return this.displayWarning(warningField, "Your bonus needs a description!");
-        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, "You must select at least one item type!");
-        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, "Your bonus needs at least one filter!");
+        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, game.i18n.localize("MISSING_BONUS"));
+        if ( !inputs.description?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_DESC"));
+        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_TYPE"));
+        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, game.i18n.localize("MISSING_FILTER"));
         
 
         // if inputs are valid:
@@ -343,17 +343,17 @@ export class TRAIT_MAKER extends FormApplication {
 
         const prompt = await  new Promise(resolve => {
             new Dialog({
-                title: `Delete Bonus: ${label}`,
-                content: `<p>Are you sure that you want to delete '${label}'? This action cannot be undone.</p>`,
+                title: game.i18n.format("BABONUS.DELETE.DELETE_BONUS", {label}),
+                content: game.i18n.format("BABONUS.DELETE.ARE_YOU_SURE", {label}),
                 buttons: {
                     yes: {
                         icon: `<i class="fas fa-trash"></i>`,
-                        label: "Yes",
+                        label: game.i18n.localize("BABONUS.DELETE.YES"),
                         callback: () => resolve(true)
                     },
                     no: {
                         icon: `<i class="fas fa-times"></i>`,
-                        label: "No",
+                        label: game.i18n.localize("BABONUS.DELETE.NO"),
                         callback: () => resolve(false)
                     }
                 },
