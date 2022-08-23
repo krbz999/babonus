@@ -2,16 +2,19 @@ import { MATCH } from "./constants.mjs";
 
 
 /*
-flags.babonus.bonuses.damage: {
-    "special-fire-spell-bonus": {
+flags.babonus.bonuses.<damage/attack/save>: {
+    <identifier>: {
         enabled: true,
         label: "Special Fire Spell Bonus",
         description: "This is a special fire spell bonus.",
-        value: "1d4 + @abilities.int.mod",
-        type: "bonus", // or 'modifier'
+        itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"],
+        values: {
+            bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
+            criticalBonusDice: "5",             // numbers only, 'damage' only
+            criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
+        },
         filters: {
-            itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"],
-            baseItems: ["dagger", "lance", "shortsword"],
+            baseweapons: ["dagger", "lance", "shortsword"],
             damageTypes: ["fire", "cold", "bludgeoning"],
             spellSchools: ["evo", "con"],
             abilities: ["int"],
@@ -27,22 +30,21 @@ flags.babonus.bonuses.damage: {
 export class FILTER {
     static filterFn = {
         itemType: this.itemType,
-        baseItem: this.baseItem,
+        baseWeapon: this.baseWeapon,
         damageType: this.damageType,
         spellSchool: this.spellSchool,
         ability: this.ability,
-        components: this.components,
+        spellComponents: this.spellComponents,
         spellLevel: this.spellLevel,
         actionType: this.actionType,
-        weaponProperty: this.weaponProperty,
-        //quantity: this.quantity
+        weaponProperty: this.weaponProperty
     }
 
 
-    static mainCheck(item, data){
-        // hook type is either 'use' (to increase save dc), 'attack', 'damage'
+    static mainCheck(item, hookType){
+        // hook type is either 'save' (to increase save dc), 'attack', 'damage'
         // are saving throws vs specific circumstances possible?
-        const flag = item.actor.getFlag("babonus", `bonuses.${data.hookType}`);
+        const flag = item.actor.getFlag("babonus", `bonuses.${hookType}`);
         if ( !flag ) return [];
         const bonuses = Object.entries(flag);
         if( !bonuses.length ) return [];
@@ -51,7 +53,7 @@ export class FILTER {
             if ( !enabled ) return acc;
             
             for( let key in filters ){
-                let validity = filterFn[key](item, filters[key], data);
+                let validity = filterFn[key](item, filters[key]);
                 if( !validity ) return acc;
             }
             acc.push(values);
@@ -61,39 +63,72 @@ export class FILTER {
 
     }
 
-    static itemType(item, filter, data){
+    static itemType(item, filter){
         const itemType = item.type;
-        if ( !filter?.length ) return true;
+        if ( !filter?.length ) return false; // this one is false, because this field is required.
         return filter.includes(itemType);
     }
 
-    static baseItem(item, filter, data){
-        const baseItem = item.system.baseItem;
+    static baseWeapon(item, filter){
+        const baseWeapon = item.system.baseItem;
         if ( !filter?.length ) return true;
-        return filter.includes(baseItem);
+        return filter.includes(baseWeapon);
     }
 
-    static damageType(item, filter, data){
+    static damageType(item, filter){
         if ( !filter?.length ) return true;
-        const damageTypes = data.damageTypes.filter(type => {
-            return filter.includes(type);
-        });
+        const damageTypes = item.system.damage.parts.reduce((acc, [_, type]) => {
+            if ( filter.includes(type) ) acc.push(type);
+            return acc;
+        }, []);
         return damageTypes.length > 0;
     }
 
-    static spellSchool(item, filter, data){
+    static spellSchool(item, filter){
         const spellSchool = item.system.school;
         if ( !filter?.length ) return true;
         return filter.includes(spellSchool);
     }
 
-    static ability(item, filter, data){
+    static ability(item, filter){
+        // if the item has no actionType, it has no ability.
+        if ( !item.system.actionType ) return false;
+
         const ability = item.system.ability;
         if ( !filter?.length ) return true;
+
+        // special consideration for items set to use 'Default':
+        if ( item.system.ability === "" ){
+            const {abilities, attributes} = item.actor.system;
+
+            /* If a weapon is Finesse, then a bonus applying to STR or DEX should
+            apply if the relevant modifier is higher than the other. */
+            if ( item.system.weaponProperties?.fin ){
+                if ( filter.includes("str") && abilities.str.mod >= abilities.dex.mod ){
+                    return true;
+                }
+                if ( filter.includes("dex") && abilities.dex.mod >= abilities.str.mod ){
+                    return true;
+                }
+            }
+            /* If it is a melee weapon attack, then a bonus applying to STR should apply. */
+            if ( item.system.actionType === "mwak" ){
+                if ( filter.includes("str") ) return true;
+            }
+            /* If it is a ranged weapon attack, then a bonus applying to DEX should apply. */
+            if ( item.system.actionType === "rwak" ){
+                if ( filter.includes("dex") ) return true;
+            }
+            /* If it is a spell attack, then bonuses applying to the actor's spellcasting ability should apply. */
+            if ( ["msak", "rsak"].includes(item.system.actionType) ){
+                if ( filter.includes(attributes.spellcasting) ) return true;
+            }
+        }
+
         return filter.includes(ability);
     }
 
-    static components(item, {types, match}, data){
+    static spellComponents(item, {types, match}){
         const components = item.system.components;
         if ( match === MATCH.ALL ){
             for(let key of types){
@@ -111,39 +146,37 @@ export class FILTER {
         }
     }
 
-    static spellLevel(item, filter, data){
-        const spellLevel = data.spellLevel;
+    static spellLevel(item, filter){
+        // this is always the clone, so the level is what it was cast at.
+        const level = item.system.level;
         if ( !filter.length ) return true;
-        return filter.map(i => Number(i)).includes(spellLevel);
+        return filter.map(i => Number(i)).includes(level);
     }
 
-    static actionType(item, filter, data){
+    static actionType(item, filter){
         const actionType = item.system.actionType;
         if ( !filter?.length ) return true;
         return filter.includes(actionType);
     }
     
-    static weaponProperty(item, {needed, unfit}, data){
+    static weaponProperty(item, {needed, unfit}){
         const properties = Object.entries(item.system.properties);
         
         if ( unfit?.length ){
-            const matchUnfits = properties.filter(([key, bool]) => {
-                if ( bool && unfit.includes(key) ) return false;
-                return true;
+            const matchUnfits = properties.some(([key, bool]) => {
+                return bool && unfit.includes(key);
             });
-            if ( matchUnfits.length ) return false;
+            if ( matchUnfits ) return false;
         }
 
         if ( needed?.length ){
-            const matchNeeded = properties.filter(([key, bool]) => {
-                if ( !bool && needed.includes(key) ) return false;
-                return true;
+            const matchNeeded = properties.some(([key, bool]) => {
+                return bool && needed.includes(key);
             });
-            if ( !matchNeeded.length ) return false;
+            if ( !matchNeeded ) return false;
         }
 
         return true;
     }
-
 
 }

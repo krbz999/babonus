@@ -1,1 +1,95 @@
-{}
+{
+    "BABONUS": {
+        "LABELS":{
+            "IDENTIFIERS": "Identifiers",
+            "ID_LABEL": "Label",
+            "ID_IDENTIFIER": "Identifier",
+            "TARGETS": "Targets",
+            "BONUS": "Bonus",
+            "CRIT_BONUS": "Critical Bonus",
+            "CRIT_BONUS_DICE": "Dice",
+            "CRIT_BONUS_DAMAGE": "Damage",
+            "DESCRIPTION": "Description",
+            "ITEM_TYPES": "Item Types",
+            "DAMAGE_TYPES": "Damage Types",
+            "ABILITIES": "Abilities",
+            "ACTION_TYPES": "Action Types",
+            "COMPONENTS": "Components",
+            "SPELL_LEVELS": "Spell Levels",
+            "SPELL_SCHOOLS": "Spell Schools",
+            "WEAPONS": "Weapons",
+            "PROPERTIES": "Properties"
+        },
+        "VALUES": {
+            "PH_LABEL": "label...",
+            "PH_ID": "identifier...",
+            "PH_DESCRIPTION": "description...",
+            "TARGET_ATTACK": "Attack Rolls",
+            "TARGET_DAMAGE": "Damage Rolls",
+            "TARGET_SAVE": "Save DC",
+            "MATCH_ANY": "Match any",
+            "MATCH_ALL": "Match all"
+        },
+        "BUTTONS": {
+            "KEYS": "Keys",
+            "SAVE": "Save this bonus"
+        },
+        "HEADERS": {
+            "BUILD_A_BONUS": "Build-a-Bonus",
+            "REQUIRED_FIELDS": "Required Fields",
+            "FILTERS": "Filters",
+            "CURRENT_BONUSES": "Current Bonuses"
+        },
+        "KEY": {
+            "APPLY": "Apply Keys",
+
+            "ITEM_TYPES_DESC": "Select any item type that this bonus should apply to. You must select at least one.",
+            "ITEM_TYPES_NAME": "Item Type",
+            "ITEM_TYPES_BOX": "Include",
+            "itemTypes_TITLE": "Keys: Item Types",
+
+            "ABILITIES_DESC": "Select the ability score that is used by the item. This filter respects spellcasting abilities, finesse weapons, and default values.",
+            "ABILITIES_NAME": "Ability",
+            "ABILITIES_BOX": "Include",
+            "abilities_TITLE": "Keys: Abilities",
+
+            "ACTION_TYPES_DESC": "Select the Action Type that should be set in the item's Details.",
+            "ACTION_TYPES_NAME": "Action Type",
+            "ACTION_TYPES_BOX": "Include",
+            "actionTypes_TITLE": "Keys: Action Types",
+
+            "DAMAGE_TYPES_DESC": "Select a damage type. If the item has a formula with at least one of the selected damage types, the bonus will apply.",
+            "DAMAGE_TYPES_NAME": "Item Type",
+            "DAMAGE_TYPES_BOX": "Include",
+            "damageTypes_TITLE": "Keys: Damage Types",
+            
+            "COMPONENTS_DESC": "Select any spell component that the item must have. You can choose whether the spell must have all or at least one of the selected options.",
+            "COMPONENTS_NAME": "Spell Components",
+            "COMPONENTS_BOX": "Include",
+            "spellComponents_TITLE": "Keys: Spell Components",
+
+            "SPELL_LEVELS_DESC": "Select the spell levels that the bonus should apply to. This is the level at which the spell was cast, not the base level.",
+            "SPELL_LEVELS_NAME": "Spell Levels",
+            "SPELL_LEVELS_BOX": "Include",
+            "spellLevels_TITLE": "Keys: Spell Levels",
+
+            "SPELL_SCHOOLS_DESC": "Select the spell schools that the spell must be a member of.",
+            "SPELL_SCHOOLS_NAME": "Spell Schools",
+            "SPELL_SCHOOLS_BOX": "Include",
+            "spellSchools_TITLE": "Keys: Spell Schools",
+
+            "WEAPONS_DESC": "Select the type of weapons that the bonus should apply to.",
+            "WEAPONS_NAME": "Base Weapons",
+            "WEAPONS_BOX": "Include",
+            "baseWeapons_TITLE": "Keys: Base Weapons",
+
+            "PROPERTIES_DESC": "Select weapon properties that should be required for the weapon (the bonus will apply if the weapon has at least one of them) or any properties that must not appear on the weapon.",
+            "PROPERTIES_NAME": "Weapon Properties",
+            "PROPERTIES_NEED": "Needed",
+            "PROPERTIES_UNFIT": "Unfit",
+            "weaponProperties_TITLE": "Keys: Weapon Properties"
+        }
+    }
+
+    
+}

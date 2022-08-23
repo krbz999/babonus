@@ -1,145 +1,176 @@
 <form class="babonus">
-    <h1>Extended Traits</h1>
+    <h1 class="babonus-h1">{{localize "BABONUS.HEADERS.BUILD_A_BONUS"}}</h1>
 
     <!-- BUILD-A-BONUS -->
     <div class="build-a-bonus">
 
-        <h2>Build a Bonus</h2>
+        <h2>{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</h2>
         <div class="babonus-required-fields">
         
+            <!-- Identifiers: label and id -->
             <div class="form-group">
-                <label class="babonus-label">Identifiers</label>
+                <label class="babonus-label">{{localize "BABONUS.LABELS.IDENTIFIERS"}}</label>
                 <div class="form-fields">
-                    <span class="sep babonus-sep">Bonus Name:</span>
-                    <input type="text" name="babonus-label" placeholder="Label...">
-                    <span class="sep babonus-sep">Identifier:</span>
-                    <input type="text" name="babonus-identifier" placeholder="Identifier...">
+                    <span class="sep babonus-sep">{{localize "BABONUS.LABELS.ID_LABEL"}}</span>
+                    <input type="text" name="babonus-label" placeholder="{{localize 'BABONUS.VALUES.PH_LABEL'}}">
+                    <span class="sep babonus-sep">{{localize "BABONUS.LABELS.ID_IDENTIFIER"}}</span>
+                    <input type="text" name="babonus-identifier" placeholder="{{localize 'BABONUS.VALUES.PH_ID'}}">
                 </div>
             </div>
-            <hr>
             <!-- bonus type to apply to: attack, damage, saveDC -->
             <div class="form-group">
-                <label class="babonus-label">Bonus Target</label>
+                <label class="babonus-label">{{localize "BABONUS.LABELS.TARGETS"}}</label>
                 <div class="form-fields">
-                    <select name="babonus-bonus-target">
-                        {{#each bonusTargets as |type|}}
+                    <select name="babonus-target">
+                        <option value="">&mdash;</option>
+                        {{#each targets as |type|}}
                         <option value="{{type.value}}">{{type.label}}</option>
                         {{/each}}
                     </select>
                 </div>
             </div>
-            <!-- what kind of bonus to apply: addition to roll or save dc, or a modifier on the dice -->
-            <div class="form-group">
-                <label class="babonus-label"></label>
-                <div class="form-fields">
-                    <select name="babonus-bonus-type">
-                        {{#each bonusTypes as |type|}}
-                        <option value="{{type.value}}">{{type.label}}</option>
-                        {{/each}}
-                    </select>
-                    <span class="sep babonus-sep">Bonus:</span>
-                    <input type="text" name="babonus-value">
+            <!-- attack bonuses -->
+            <div class="babonus-bonuses-attack">
+                <div class="form-group bonus-type-attack">
+                    <label class="babonus-label">{{localize "BABONUS.LABELS.BONUS"}}</label>
+                    <div class="form-fields">
+                        <input type="text" name="babonus-value">
+                    </div>
+                </div>
+            </div>
+            <!-- save dc -->
+            <div class="babonus-bonuses-save">
+                <div class="form-group bonus-type-save">
+                    <label class="babonus-label">{{localize "BABONUS.LABELS.BONUS"}}</label>
+                    <div class="form-fields">
+                        <input type="number" name="babonus-value">
+                    </div>
+                </div>
+            </div>
+            <!-- damage bonuses -->
+            <div class="babonus-bonuses-damage">
+                <div class="form-group bonus-type-damage">
+                    <label class="babonus-label">{{localize "BABONUS.LABELS.BONUS"}}</label>
+                    <div class="form-fields">
+                        <input type="text" name="babonus-value">
+                    </div>
+                </div>
+                <div class="form-group bonus-type-damage-critical">
+                    <label class="babonus-label">{{localize "BABONUS.LABELS.CRIT_BONUS"}}</label>
+                    <div class="form-fields">
+                        <span class="sep babonus-sep">{{localize "BABONUS.LABELS.CRIT_BONUS_DICE"}}</span>
+                        <input type="number" name="babonus-critical-dice">
+                        <span class="sep babonus-sep">{{localize "BABONUS.LABELS.CRIT_BONUS_DAMAGE"}}</span>
+                        <input type="text" name="babonus-critical-damage">
+                    </div>
                 </div>
             </div>
             <!-- description -->
             <div class="form-group">
-                <label class="babonus-label">Description</label>
+                <label class="babonus-label">{{localize "BABONUS.LABELS.DESCRIPTION"}}</label>
                 <div class="form-fields">
-                    <input type="text" name="babonus-description" placeholder="Description...">
+                    <input type="text" name="babonus-description" placeholder="{{localize 'BABONUS.VALUES.PH_DESCRIPTION'}}">
+                </div>
+            </div>
+            <!-- Item Types: spell, feat, weapon, equipment, consumable -->
+            <div class="form-group">
+                <label class="babonus-label">{{localize "BABONUS.LABELS.ITEM_TYPES"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-itemTypes">
+                    <button class="babonus-keys" data-type="itemTypes">
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                    </button>
                 </div>
             </div>
         </div>
         
         <!-- filters -->
-        <h3>Filters</h3>
+        <h3>{{localize "BABONUS.HEADERS.FILTERS"}}</h3>
         <div class="babonus-filters">
 
-            <div class="form-group">
-                <label class="babonus-label-m">Item Types</label>
-                <div class="form-fields">
-                    <input type="text" name="babonus-itemTypes">
-                    <button class="babonus-keys" data-type="itemTypes">
-                        <i class="fas fa-key"></i> Keys
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="babonus-label-m">Base Items</label>
-                <div class="form-fields">
-                    <input type="text" name="babonus-baseItems">
-                    <button class="babonus-keys" data-type="baseItems">
-                        <i class="fas fa-key"></i> Keys
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="babonus-label-m">Damage Types</label>
+            <!-- always visible -->
+            <div class="form-group damageTypes">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.DAMAGE_TYPES"}}</label>
                 <div class="form-fields">
                     <input type="text" name="babonus-damageTypes">
                     <button class="babonus-keys" data-type="damageTypes">
-                        <i class="fas fa-key"></i> Keys
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                     </button>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="babonus-label-m">Spell Schools</label>
-                <div class="form-fields">
-                    <input type="text" name="babonus-spellSchools">
-                    <button class="babonus-keys" data-type="spellSchools">
-                        <i class="fas fa-key"></i> Keys
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="babonus-label-m">Abilities</label>
+            <div class="form-group abilities">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.ABILITIES"}}</label>
                 <div class="form-fields">
                     <input type="text" name="babonus-abilities">
                     <button class="babonus-keys" data-type="abilities">
-                        <i class="fas fa-key"></i> Keys
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                     </button>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="babonus-label-m">Spell Components</label>
-                <div class="form-fields">
-                    <input type="text" name="babonus-spellComponents">
-                    <select name="babonus-spellComponents-match">
-                        <option value="ANY">Match at least one</option>
-                        <option value="ALL">Match all selected</option>
-                    </select>
-                    <button class="babonus-keys" data-type="spellComponents">
-                        <i class="fas fa-key"></i> Keys
-                    </button>
-                </div>
-            </div>
-            <div class="form-group" id="babonus-spellLevels">
-                <label class="babonus-label-m">Spell Levels</label>
-                <div class="form-fields">
-                    <input type="text" name="babonus-spellLevels">
-                    <button class="babonus-keys" data-type="spellLevels">
-                        <i class="fas fa-key"></i> Keys
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="babonus-label-m">Action Types</label>
+            <div class="form-group actionTypes">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.ACTION_TYPES"}}</label>
                 <div class="form-fields">
                     <input type="text" name="babonus-actionTypes">
                     <button class="babonus-keys" data-type="actionTypes">
-                        <i class="fas fa-key"></i> Keys
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                     </button>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="babonus-label-m">Weapon Properties</label>
+
+            <!-- spells only -->
+            <div class="form-group spellComponents">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.COMPONENTS"}}</label>
                 <div class="form-fields">
-                    <input type="text" name="babonus-weaponProperties-required">
+                    <input type="text" name="babonus-spellComponents">
+                    <select name="babonus-spellComponents-match">
+                        <option value="ANY">{{localize "BABONUS.VALUES.MATCH_ANY"}}</option>
+                        <option value="ALL">{{localize "BABONUS.VALUES.MATCH_ALL"}}</option>
+                    </select>
+                    <button class="babonus-keys" data-type="spellComponents">
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                    </button>
+                </div>
+            </div>
+            <div class="form-group spellLevels">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.SPELL_LEVELS"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-spellLevels">
+                    <button class="babonus-keys" data-type="spellLevels">
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                    </button>
+                </div>
+            </div>
+            <div class="form-group spellSchools">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.SPELL_SCHOOLS"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-spellSchools">
+                    <button class="babonus-keys" data-type="spellSchools">
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                    </button>
+                </div>
+            </div>
+
+            <!-- weapons only -->
+            <div class="form-group baseWeapons">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.WEAPONS"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-baseWeapons">
+                    <button class="babonus-keys" data-type="baseWeapons">
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                    </button>
+                </div>
+            </div>
+            <div class="form-group weaponProperties">
+                <label class="babonus-label-m">{{localize "BABONUS.LABELS.PROPERTIES"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-weaponProperties-needed">
                     <input type="text" name="babonus-weaponProperties-unfit">
                     <button class="babonus-keys" data-type="weaponProperties">
-                        <i class="fas fa-key"></i> Keys
+                        <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                     </button>
                 </div>
             </div>
+
         </div>
 
         <div class="babonus-warning" name="babonus-warning"></div>
@@ -148,7 +179,7 @@
         <div class="babonus-save-new">
             <div class="form-group">
                 <button name="babonus-save-button">
-                    <i class="fas fa-save"></i> Save this bonus
+                    <i class="fas fa-save"></i> {{localize "BABONUS.BUTTONS.SAVE"}}
                 </button>
             </div>
         </div>
@@ -157,10 +188,12 @@
 
     <!-- CURRENT BONUSES -->
     <div class="current-bonuses">
-        <h2>Current Bonuses</h2>
+        {{#if bonuses.length}}
+        <h2>{{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}</h2>
+        {{/if}}
 
         {{#each bonuses as |bonus|}}
-        <div class="form-group">
+        <div class="form-group" data-id="{{bonus.type}}.{{bonus.identifier}}">
             <label class="babonus-label">
                 {{bonus.label}}
             </label>
@@ -169,10 +202,13 @@
                     <p class="babonus-identifier">
                         {{bonus.identifier}}
                     </p>
-                    <button class="babonus-edit">
+                    <button class="babonus-copy" name="babonus-copy-button">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="babonus-edit" name="babonus-edit-button">
                         <i class="fas fa-cog"></i>
                     </button>
-                    <button class="babonus-delete">
+                    <button class="babonus-delete" name="babonus-delete-button">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>

@@ -1,3 +1,9 @@
+.babonus-h1 {
+    text-align: center;
+    font-size: 40px;
+    border-bottom: 0px;
+}
+
 .build-a-bonus .babonus-required-fields label.babonus-label {
     flex: 1;
     font-weight: bolder;
@@ -11,7 +17,6 @@
 }
 .babonus-identifier {
     font-style: italic;
-    /*font-weight: bold;*/
     color: gray;
 }
 .babonus-description {
@@ -50,6 +55,38 @@ button.babonus-keys {
     font-size: 16px;
 }
 
-.babonus-checkbox-100 {
-    min-width: 100px;
+/*.babonus-checkbox-100 { min-width: 100px; }*/
+.babonus td:not(:first-child) { text-align: center; }
+
+form.editMode [name='babonus-identifier'],
+form.editMode [name='babonus-label'],
+form.editMode [name='babonus-target'] {
+    pointer-events: none;
+    color:#AAA;
 }
+
+/* if weapon is in itemTypes... */
+form.babonus.weapon .form-group.baseWeapons,
+form.babonus.weapon .form-group.weaponProperties { display: flex; }
+form.babonus .form-group.baseWeapons,
+form.babonus .form-group.weaponProperties { display: none; }
+
+/* if spell is in itemTypes... */
+form.babonus.spell .form-group.spellComponents,
+form.babonus.spell .form-group.spellLevels,
+form.babonus.spell .form-group.spellSchools { display: flex; }
+form.babonus .form-group.spellComponents,
+form.babonus .form-group.spellLevels,
+form.babonus .form-group.spellSchools { display: none; }
+
+/* hide/unhide bonuses inputs */
+form.babonus.damage div.babonus-bonuses-damage { display: block; }
+form.babonus div.babonus-bonuses-damage { display: none; }
+
+form.babonus.attack div.babonus-bonuses-attack { display: block; }
+form.babonus div.babonus-bonuses-attack { display: none; }
+
+form.babonus.save div.babonus-bonuses-save { display: block; }
+form.babonus div.babonus-bonuses-save { display: none; }
+
+

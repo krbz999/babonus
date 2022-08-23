@@ -1,7 +1,31 @@
 export class TRAIT_MAKER extends FormApplication {
-    constructor(actor){
-        super();
+    constructor(actor, options){
+        super(actor, options);
         this.actor = actor;
+    }
+
+    static get defaultOptions(){
+        return foundry.utils.mergeObject(super.defaultOptions, {
+            closeOnSubmit: false,
+            width: 450,
+            template: "/modules/babonus/templates/buildflow.html",
+            height: "auto",
+            title: "Build-a-Bonus",
+            classes: ["babonus"]
+        });
+    }
+
+    get id(){
+        return `babonus-build-a-bonus-${this.actor.id}`;
+    }
+
+    // the types of bonuses ('attack', 'damage', 'save')
+    get targets(){
+        return [
+            {value: "attack", label: game.i18n.localize("BABONUS.VALUES.TARGET_ATTACK")},
+            {value: "damage", label: game.i18n.localize("BABONUS.VALUES.TARGET_DAMAGE")},
+            {value: "save", label: game.i18n.localize("BABONUS.VALUES.TARGET_SAVE")}
+        ];
     }
 
     // the current bonuses on the actor.
@@ -10,20 +34,14 @@ export class TRAIT_MAKER extends FormApplication {
         let bonuses = [];
         if ( flag ){
             const {attack, damage, save} = flag;
-            if( attack ) bonuses = bonuses.concat(Object.entries(attack).map(([
-                identifier, {description, label, value}
-            ]) => {
-                return {identifier, description, label, value};
+            if( attack ) bonuses = bonuses.concat(Object.entries(attack).map(([identifier, {description, label, values}]) => {
+                return {identifier, description, label, values, type: "attack"};
             }));
-            if( damage ) bonuses = bonuses.concat(Object.entries(damage).map(([
-                identifier, {description, label, value}
-            ]) => {
-                return {identifier, description, label, value};
+            if( damage ) bonuses = bonuses.concat(Object.entries(damage).map(([identifier, {description, label, values}]) => {
+                return {identifier, description, label, values, type: "damage"};
             }));
-            if( save ) bonuses = bonuses.concat(Object.entries(save).map(([
-                identifier, {description, label, value}
-            ]) => {
-                return {identifier, description, label, value};
+            if( save ) bonuses = bonuses.concat(Object.entries(save).map(([identifier, {description, label, values}]) => {
+                return {identifier, description, label, values, type: "save"};
             }));
         }
         return bonuses;
@@ -32,11 +50,11 @@ export class TRAIT_MAKER extends FormApplication {
     // valid item types; those that can have actions associated.
     get itemTypes(){
         const types = [
-            "weapon",
-            "equipment",
             "consumable",
+            "equipment",
+            "feat",
             "spell",
-            "feat"
+            "weapon"
         ];
         return types.map(i => {
             const string = `DND5E.ItemType${i.titleCase()}`;
@@ -45,7 +63,7 @@ export class TRAIT_MAKER extends FormApplication {
         });
     }
 
-    get baseItems(){
+    get baseWeapons(){
         const entries = Object.entries(CONFIG.DND5E.weaponIds);
         const weapons = entries.map(([value, uuid]) => {
             const split = uuid.split(".");
@@ -126,163 +144,155 @@ export class TRAIT_MAKER extends FormApplication {
 
     async getData(){
         const data = await super.getData();
+
         // filters:
-        data.itemTypes = this.itemTypes;
-        //data.toolTypes = this.baseItems_Tools;
-        data.weaponTypes = this.baseItems;
         data.damageTypes = this.damageTypes;
-        data.spellSchools = this.spellSchools;
         data.abilities = this.abilities;
+        data.actionTypes = this.actionTypes;
+        
         data.spellComponents = this.spellComponents;
         data.spellLevels = this.spellLevels;
-        data.actionTypes = this.actionTypes;
+        data.spellSchools = this.spellSchools;
+        data.weaponTypes = this.baseWeapons;
         data.weaponProperties = this.weaponProperties;
 
-        // current bonus being modified:
-        data.current = {
-            label: "name of the bonus...",
-            identifier: "identifier of the bonus..."
-        }
-
         // where to apply a bonus:
-        data.bonusTargets = [
-            {value: "attack", label: "Attack Rolls"},
-            {value: "damage", label: "Damage Rolls"},
-            {value: "save", label: "Save DC"}
-        ];
+        data.targets = this.targets;
         // what kind of bonus to apply:
-        data.bonusTypes = [
-            {value: "addition", label: "Addition"},
-            {value: "modifier", label: "Dice Modifier"}
-        ];
-
+        data.itemTypes = this.itemTypes;
+        // current bonuses.
         data.bonuses = this.bonuses;
 
         return data;
     }
-
-    static get defaultOptions(){
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            closeOnSubmit: false,
-            width: 600,
-            template: "/modules/babonus/templates/buildflow.html",
-            height: "auto",
-            title: "Extended Traits"
-        });
-    }
-
+    
     async _updateObject(event, obj){
 		event.stopPropagation();
 		const html = event.target;
 		const button = event.submitter;
-		if( !button ) return;
+		if ( !button ) return;
 
-		// save the bonus.
-		if( button.name === "babonus-save-button" ){
+		// save a bonus.
+		if ( button.name === "babonus-save-button" ){
 			let build = await this.build_a_bonus(html);
-            this.setPosition();
             if ( !build ) return;
 		}
+        // delete a bonus.
+        else if ( button.name === "babonus-delete-button" ){
+            button.setAttribute("disabled", "disabled");
+            let prompt = await this.delete_a_bonus(button);
+            button?.removeAttribute("disabled");
+            if ( !prompt ) return;
+        }
         else return;
         
         this.setPosition();
-        let data = await this.getData();
+        const data = await this.getData();
         this.render(true, data);
 	}
 
 	activateListeners(html){
 		super.activateListeners(html);
 		const app = this;
+
+        // KEYS buttons.
 		html[0].addEventListener("click", async (event) => {
 			const keyButton = event.target.closest("button.babonus-keys");
             if( !keyButton ) return;
 			const type = keyButton.dataset.type;
 
-            let before;
-            if( type !== "weaponProperties" ) {
-                before = `
-                <div class="form-group">
-                    <label>Name</label>
-                    <div class="form-fields">
-                        <label class="babonus-checkbox-100">Required</label>
-                    </div>
-                </div>`
-            }
-            else {
-                before = `
-                <div class="form-group">
-                    <label>Name</label>
-                    <div class="form-fields">
-                        <label class="babonus-checkbox-100">Required</label>
-                        <label class="babonus-checkbox-100">Unfit</label>
-                    </div>
-                </div>`
-            }
+            const template = `/modules/babonus/templates/keys_${type}.hbs`;
+            const content = await renderTemplate(template, {types: app[type]});
+            const title = game.i18n.localize(`BABONUS.KEY.${type}_TITLE`);
 
-            let semiList = await new Promise(resolve => {
-                const items = app[type];
-                const options = items.reduce((acc, {value, label}) => {
-                    let boxes;
-                    if( type !== "weaponProperties" ){
-                        boxes = `<input class="babonus-checkbox-100" type="checkbox" id="${value}">`;
-                    }
-                    else {
-                        boxes = `
-                        <input class="babonus-checkbox-100" type="checkbox" id="${value}" data-property="required">
-                        <input class="babonus-checkbox-100" type="checkbox" id="${value}" data-property="unfit">
-                        `
-                    }
-                    return acc + `
-                    <div class="form-group">
-                        <label class="babonus-checkbox-100">${label}</label>
-                        <div class="form-fields">
-                            ${boxes}
-                        </div>
-                    </div>`;
-                }, before);
-                const content = `<form>${options}</form>`;
-                new Dialog({
-                    title: `Keys: ${type}`,
-                    content,
-                    buttons: {
-                        apply: {
-                            icon: `<i class="fas fa-check"></i>`,
-                            label: "Apply Keys",
-                            callback: (elements) => {
-                                const nodes = elements[0].querySelectorAll("input[type='checkbox']:checked");
-                                const checked = Array.from(nodes);
-                                if ( type !== "weaponProperties" ){
-                                    const keyString = checked.map(i => i.id).join(";");
-                                    resolve(keyString);
-                                }
-                                else {
-                                    const required = checked.filter(i => i.dataset.property === "required");
-                                    const unfit = checked.filter(i => i.dataset.property === "unfit");
-                                    resolve({
-                                        required: required.map(i => i.id).join(";"),
-                                        unfit: unfit.map(i => i.id).join(";")
-                                    });
-                                }
-                            }
-                        }
-                    },
-                    close: () => resolve(false)
-                }).render(true);
-            });
+            keyButton.setAttribute("disabled", "disabled");
+
+            let semiList = await app.applyKeys(title, content, type);
+
+            keyButton.removeAttribute("disabled");
+            
             if( !semiList ) return;
 
             if ( type !== "weaponProperties" ) {
                 const input = html[0].querySelector(`[name="babonus-${type}"]`);
                 input.value = semiList;
+                if ( type === "itemTypes" ) this.refreshForm();
             }
             else {
-                const required = html[0].querySelector("[name='babonus-weaponProperties-required']");
+                const needed = html[0].querySelector("[name='babonus-weaponProperties-needed']");
                 const unfit = html[0].querySelector("[name='babonus-weaponProperties-unfit']");
-                required.value = semiList.required;
+                needed.value = semiList.needed;
                 unfit.value = semiList.unfit;
             }
 		});
+
+        // EDIT buttons.
+        html[0].addEventListener("click", async (event) => {
+            const editButton = event.target.closest("button.babonus-edit");
+            if( !editButton ) return;
+			const formGroup = editButton.closest(".form-group");
+            const bonusId = formGroup.dataset.id;
+            const bonus = this.actor.getFlag("babonus", `bonuses.${bonusId}`);
+            
+            // populate form:
+            this.pasteValues(html, bonus, bonusId, true);
+        });
+
+        // COPY buttons.
+        html[0].addEventListener("click", async (event) => {
+            const copyButton = event.target.closest("button.babonus-copy");
+            if( !copyButton ) return;
+			const formGroup = copyButton.closest(".form-group");
+            const bonusId = formGroup.dataset.id;
+            const bonus = this.actor.getFlag("babonus", `bonuses.${bonusId}`);
+            
+            // populate form:
+            this.pasteValues(html, bonus, bonusId, false);
+        });
+
+        // slugify identifier.
+        let idInput = html[0].querySelector("[name='babonus-identifier']");
+        idInput.addEventListener("change", () => {
+            idInput.value = idInput.value.slugify();
+        });
+
+        // on change listener for mandatory ItemTypes field, which populates the html with new inputs.
+        // just set a class in the 'div.form'.
+        const itemTypeInput = html[0].querySelector("[name='babonus-itemTypes']");
+        itemTypeInput.addEventListener("change", () => this.refreshForm());
+        const targetInput = html[0].querySelector("[name='babonus-target']");
+        targetInput.addEventListener("change", () => this.refreshForm());
 	}
+
+    async applyKeys(title, content, type){
+        return new Promise(resolve => {
+            new Dialog({title, content,
+                buttons: {
+                    apply: {
+                        icon: `<i class="fas fa-check"></i>`,
+                        label: game.i18n.localize("BABONUS.KEY.APPLY"),
+                        callback: (html) => {
+                            const nodes = html[0].querySelectorAll("input[type='checkbox']:checked");
+                            const checked = Array.from(nodes);
+                            if ( type !== "weaponProperties" ){
+                                const keyString = checked.map(i => i.id).join(";");
+                                resolve(keyString);
+                            }
+                            else {
+                                const needed = checked.filter(i => i.dataset.property === "needed");
+                                const unfit = checked.filter(i => i.dataset.property === "unfit");
+                                resolve({
+                                    needed: needed.map(i => i.id).join(";"),
+                                    unfit: unfit.map(i => i.id).join(";")
+                                });
+                            }
+                        }
+                    }
+                },
+                close: () => resolve(false)
+            }).render(true);
+        });
+    }
 
     // helper function to only use valid keys when setting flag.
     validateKeys(list, type){
@@ -293,63 +303,124 @@ export class TRAIT_MAKER extends FormApplication {
     }
 
     async build_a_bonus(html){
-        // base info:
-        const bonusTarget = html.querySelector("[name='babonus-bonus-target']").value;
-        const identifier = html.querySelector("[name='babonus-identifier']").value;
-        const label = html.querySelector("[name='babonus-label']").value;
-        const description = html.querySelector("[name='babonus-description']").value;
-        const value = html.querySelector("[name='babonus-value']").value;
-        const type = html.querySelector("[name='babonus-bonus-type']").value;
+
+        // gather inputs.
+        const inputs = this.retrieveValues(html);
 
         const warningField = html.querySelector("[name='babonus-warning']");
-        if ( !label ){
-            warningField.innerText = "Your bonus needs a label!";
-            warningField.classList.add("active");
-            return false;
-        }
-        if ( !identifier ){
-            warningField.innerText = "Your bonus needs an identifier!";
-            warningField.classList.add("active");
-            return false;
-        }
-        const alreadyIdentifierExist = this.actor.getFlag("babonus", `bonuses.${bonusTarget}.${identifier}`);
-        if ( alreadyIdentifierExist && !this.editMode ){
-            warningField.innerText = "A bonus with that identifier already exists!";
-            warningField.classList.add("active");
-            return false;
-        }
-        if ( !value ){
-            warningField.innerText = "Your bonus needs a value!";
-            warningField.classList.add("active");
-            return false;
-        }
-        if ( !description ){
-            warningField.innerText = "Your bonus needs a description!";
-            warningField.classList.add("active");
-            return false;
-        }
 
+        if ( !inputs.label?.length ) return this.displayWarning(warningField, "Your bonus needs a label!");
+        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, "Your bonus needs an identifier!");
+        const alreadyIdentifierExist = this.actor.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
+        if ( alreadyIdentifierExist && !html.closest("form.babonus").classList.contains("editMode") ){
+            return this.displayWarning(warningField, "A bonus with that identifier already exists!");
+        }
+        if ( !inputs.target?.length ) return this.displayWarning(warningField, "You must designate a bonus target!");
 
+        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, "The bonus needs actual bonuses!");
+        if ( !inputs.description?.length ) return this.displayWarning(warningField, "Your bonus needs a description!");
+        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, "You must select at least one item type!");
+        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, "Your bonus needs at least one filter!");
+        
+
+        // if inputs are valid:
+        inputs.enabled = true;
+        const id = inputs.identifier;
+        delete inputs.identifier;
+        
+        warningField.classList.remove("active");
+        await this.actor.update({[`flags.babonus.bonuses.${inputs.target}.-=${id}`]: null});
+        await this.actor.setFlag("babonus", `bonuses.${inputs.target}.${id}`, inputs);
+        html.closest("form.babonus").classList.remove("editMode");
+        return true;
+    }
+
+    async delete_a_bonus(button){
+        const formGroup = button.closest(".form-group");
+        const bonusId = formGroup.dataset.id;
+        const bonus = this.actor.getFlag("babonus", `bonuses.${bonusId}`);
+        const label = bonus.label;
+
+        const prompt = await  new Promise(resolve => {
+            new Dialog({
+                title: `Delete Bonus: ${label}`,
+                content: `<p>Are you sure that you want to delete '${label}'? This action cannot be undone.</p>`,
+                buttons: {
+                    yes: {
+                        icon: `<i class="fas fa-trash"></i>`,
+                        label: "Yes",
+                        callback: () => resolve(true)
+                    },
+                    no: {
+                        icon: `<i class="fas fa-times"></i>`,
+                        label: "No",
+                        callback: () => resolve(false)
+                    }
+                },
+                close: () => resolve(false)
+            }).render(true);
+        });
+        if ( !prompt ) return false;
+
+        const target = bonusId.split(".")[0];
+        const identifier = bonusId.split(".")[1];
+        await this.actor.update({[`flags.babonus.bonuses.${target}.-=${identifier}`]: null});
+        return true;
+    }
+
+    displayWarning(field, warn){
+        field.innerText = warn;
+        field.classList.add("active");
+        this.setPosition();
+        return false;
+    }
+
+    // function that takes the html and returns all the values.
+    retrieveValues(html){
+
+        // mandatory fields:
+        const label = html.querySelector("[name='babonus-label']").value;
+        const identifier = html.querySelector("[name='babonus-identifier']").value;
+        const target = html.querySelector("[name='babonus-target']").value;
+        const description = html.querySelector("[name='babonus-description']").value;
+        let itemTypes = html.querySelector("[name='babonus-itemTypes']").value;
+        itemTypes = this.validateKeys(itemTypes, "itemTypes");
+        const values = {};
+        if ( target === "damage" ){
+            const bonus = html.querySelector(".babonus-bonuses-damage [name='babonus-value']").value;
+            if ( bonus ) values["bonus"] = bonus;
+            const critDice = html.querySelector(".babonus-bonuses-damage [name='babonus-critical-dice']").value;
+            if ( critDice ) values["criticalBonusDice"] = critDice;
+            const critDamage = html.querySelector(".babonus-bonuses-damage [name='babonus-critical-damage']").value;
+            if ( critDamage ) values["criticalBonusDamage"] = critDamage;
+        }
+        else if ( target === "attack" ){
+            const bonus = html.querySelector(".babonus-bonuses-attack [name='babonus-value']").value;
+            if ( bonus ) values["bonus"] = bonus;
+        }
+        else if ( target === "save" ){
+            const bonus = html.querySelector(".babonus-bonuses-save [name='babonus-value']").value;
+            if ( bonus ) values["bonus"] = bonus;
+        }
 
         // filters:
         let filters = {};
         for( let filter of [
-            "itemTypes", "baseItems", "damageTypes", "spellSchools",
-            "abilities", "actionTypes", "spellLevels"
+            "baseWeapons", "damageTypes", "spellSchools", "abilities", "actionTypes", "spellLevels"
         ] ){
-            let list = html.querySelector(`[name="babonus-${filter}"]`).value;
-            if( !list ) continue;
-            list = this.validateKeys(list, filter);
+            let list = html.querySelector(`[name="babonus-${filter}"]`);
+            if( !list.value || list.offsetParent === null ) continue; // if hidden
+            list = this.validateKeys(list.value, filter);
             if( list.length ) filters[filter] = list;
         }
         // these take special handling:
         for ( let filter of [
-            "spellComponents", "weaponProperties-required", "weaponProperties-unfit"
+            "spellComponents", "weaponProperties-needed", "weaponProperties-unfit"
         ] ){
             if ( filter === "spellComponents" ){
-                let list = html.querySelector("[name='babonus-spellComponents']").value;
-                if ( !list ) continue;
-                list = this.validateKeys(list, "spellComponents");
+                let list = html.querySelector("[name='babonus-spellComponents']");
+                if ( !list.value || list.offsetParent === null ) continue; // if hidden
+                list = this.validateKeys(list.value, "spellComponents");
                 if( list.length ){
                     const matchType = html.querySelector("[name='babonus-spellComponents-match']").value;
                     filters["spellComponents"] = {
@@ -359,12 +430,13 @@ export class TRAIT_MAKER extends FormApplication {
                 }
             }
             else if ( filter.startsWith("weaponProperties") ){
-                let listRequired = html.querySelector("[name='babonus-weaponProperties-required']").value;
-                let listUnfit = html.querySelector("[name='babonus-weaponProperties-unfit']").value;
-                listRequired = this.validateKeys(listRequired, "weaponProperties");
-                listUnfit = this.validateKeys(listUnfit, "weaponProperties");
+                let listNeeded = html.querySelector("[name='babonus-weaponProperties-needed']");
+                let listUnfit = html.querySelector("[name='babonus-weaponProperties-unfit']");
+                if ( listNeeded.offsetParent === null ) continue; // if hidden
+                listNeeded = this.validateKeys(listNeeded.value, "weaponProperties");
+                listUnfit = this.validateKeys(listUnfit.value, "weaponProperties");
                 let weaponPropertes = {}
-                if ( listRequired.length ) weaponPropertes.needed = listRequired;
+                if ( listNeeded.length ) weaponPropertes.needed = listNeeded;
                 if ( listUnfit.length ) weaponPropertes.unfit = listUnfit;
                 if ( !foundry.utils.isEmpty(weaponPropertes) ){
                     filters["weaponProperties"] = weaponPropertes;
@@ -372,25 +444,71 @@ export class TRAIT_MAKER extends FormApplication {
             }
         }
 
-        if ( foundry.utils.isEmpty(filters) ){
-            warningField.innerText = "Your bonus needs at least one filter!";
-            warningField.classList.add("active");
-            return false;
-        }
-
-        const data = {
-            enabled: true,
-            label,
-            description,
-            value,
-            type,
+        return {
+            label, identifier, target, values, description, itemTypes,
+            /* and for the filters ...? */
             filters
         }
-        
-        warningField.classList.remove("active");
-        await this.actor.setFlag("babonus", `bonuses.${bonusTarget}.${identifier}`, data);
-        return true;
     }
 
-    
+    // function that takes the html, an object (the bonus), and its id and pastes the values into the form.
+    // edit: are we editing or copying?
+    pasteValues(html, bonus, id, edit = true){
+        const label = edit ? bonus.label : "";
+        const target = id.split(".")[0];
+        const identifier = edit ? id.split(".")[1] : "";
+        
+        // populate form:
+        html[0].querySelector("[name='babonus-label']").value = label;
+        html[0].querySelector("[name='babonus-identifier']").value = identifier;
+        html[0].querySelector("[name='babonus-target']").value = target;
+        html[0].querySelector("[name='babonus-description']").value = bonus.description;
+        html[0].querySelector("[name='babonus-itemTypes']").value = bonus.itemTypes.join(";");
+        if ( target === "damage" ){
+            html[0].querySelector(".babonus-bonuses-damage [name='babonus-value']").value = bonus.values.bonus ?? "";
+            html[0].querySelector(".babonus-bonuses-damage [name='babonus-critical-dice']").value = bonus.values.criticalBonusDice ?? "";
+            html[0].querySelector(".babonus-bonuses-damage [name='babonus-critical-damage']").value = bonus.values.criticalBonusDamage ?? "";
+        }
+        else if ( target === "attack" ){
+            html[0].querySelector(".babonus-bonuses-attack [name='babonus-value']").value = bonus.values.bonus ?? "";
+        }
+        else if ( target === "save" ){
+            html[0].querySelector(".babonus-bonuses-save [name='babonus-value']").value = bonus.values.bonus ?? "";
+        }
+        
+        for(let filter of ["baseWeapons", "damageTypes", "spellSchools", "abilities", "actionTypes", "spellLevels"]){
+            let string = bonus.filters[filter]?.join(";");
+            html[0].querySelector(`[name="babonus-${filter}"]`).value = string ? string : "";
+        }
+        if ( bonus.filters["spellComponents"] ){
+            html[0].querySelector("[name='babonus-spellComponents']").value = bonus.filters["spellComponents"].types.join(";");
+            html[0].querySelector("[name='babonus-spellComponents-match']").value = bonus.filters["spellComponents"].match;
+        }
+        if ( bonus.filters["weaponProperties"] ){
+            html[0].querySelector("[name='babonus-weaponProperties-needed']").value = bonus.filters["weaponProperties"].needed?.join(";") ?? "";
+            html[0].querySelector("[name='babonus-weaponProperties-unfit']").value = bonus.filters["weaponProperties"].unfit?.join(";") ?? "";
+        }
+        
+        if( !edit ) html[0].closest("form.babonus").classList.remove("editMode");
+        else html[0].closest("form.babonus").classList.add("editMode");
+        this.refreshForm();
+    }
+
+    refreshForm(){
+        const html = this.element;
+        const itemTypeInput = html[0].querySelector("[name='babonus-itemTypes']");
+        const targetInput = html[0].querySelector("[name='babonus-target']");
+        const values = itemTypeInput.value.split(";").map(i => i.trim());
+        const form = itemTypeInput.closest("form.babonus");
+        for( let {value} of this.itemTypes ){
+            if ( values.includes(value) ) form.classList.add(value);
+            else form.classList.remove(value);
+        }
+        for ( let {value} of this.targets ){
+            if ( targetInput.value === value ) form.classList.add(value);
+            else form.classList.remove(value);
+        }
+        this.setPosition();
+    }
+
 }
