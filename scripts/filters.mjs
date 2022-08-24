@@ -63,40 +63,46 @@ export class FILTER {
 
     }
 
+    // return whether item is one of the applicable item types.
+    // this field is required, so bail out if none exist.
     static itemType(item, filter){
+        if ( !filter?.length ) return false;
         const itemType = item.type;
-        if ( !filter?.length ) return false; // this one is false, because this field is required.
         return filter.includes(itemType);
     }
 
+    // return whether item is one of the applicable weapon types.
     static baseWeapon(item, filter){
-        const baseWeapon = item.system.baseItem;
         if ( !filter?.length ) return true;
+        if ( item.type !== "weapon") return false;
+        const baseWeapon = item.system.baseItem;
         return filter.includes(baseWeapon);
     }
 
+    // return whether item has one of the applicable damage types.
     static damageType(item, filter){
         if ( !filter?.length ) return true;
-        const damageTypes = item.system.damage.parts.reduce((acc, [_, type]) => {
-            if ( filter.includes(type) ) acc.push(type);
-            return acc;
-        }, []);
-        return damageTypes.length > 0;
+        const damageTypes = !!item.labels.derivedDamage?.some(({damageType}) => {
+            return filter.includes(damageType);
+        });
+        return damageTypes;
     }
 
+    // return whether item belongs to the spell school.
     static spellSchool(item, filter){
-        const spellSchool = item.system.school;
         if ( !filter?.length ) return true;
+        if ( item.type !== "spell" ) return false;
+        const spellSchool = item.system.school;
         return filter.includes(spellSchool);
     }
 
+    // return whether item uses one of the applicable abilities.
     static ability(item, filter){
-        // if the item has no actionType, it has no ability.
-        if ( !item.system.actionType ) return false;
-
-        const ability = item.system.ability;
         if ( !filter?.length ) return true;
 
+        // if the item has no actionType, it has no ability.
+        if ( !item.system.actionType ) return false;
+        
         // special consideration for items set to use 'Default':
         if ( item.system.ability === "" ){
             const {abilities, attributes} = item.actor.system;
@@ -128,52 +134,62 @@ export class FILTER {
         return filter.includes(ability);
     }
 
+    // return whether item has either ALL of the required spell components
+    // or matches at least one of the required spell components.
     static spellComponents(item, {types, match}){
+        if ( !types?.length ) return true;
+
+        // if item is not a spell, it has no components.
+        if ( item.type !== "spell") return false;
+
         const components = item.system.components;
         if ( match === MATCH.ALL ){
-            for(let key of types){
-                if ( !components[key] ) return false;
-                continue;
-            }
-            return true;
+            // return whether types is a subset of item's components.
+            return types.every(type => components[type]);
         }
         else if ( match === MATCH.ANY ){
-            for( let key of types ){
-                if ( components[key] ) return true;
-                continue;
-            }
-            return false;
+            // return whether there is a proper union of the two.
+            return types.some(type => components[type]);
         }
+        return false;
     }
 
+    // return whether item was cast at any of the required spell levels.
+    // this is always the clone, so the level is what it was cast at.
     static spellLevel(item, filter){
-        // this is always the clone, so the level is what it was cast at.
-        const level = item.system.level;
-        if ( !filter.length ) return true;
+        if ( !filter?.length ) return true;
+        if ( item.type !== "spell" ) return false;
+        const level = Number(item.system.level);
         return filter.map(i => Number(i)).includes(level);
     }
 
+    // return whether item has any of the requred actionTypes.
     static actionType(item, filter){
-        const actionType = item.system.actionType;
         if ( !filter?.length ) return true;
+        const actionType = item.system.actionType;
+        if ( !actionType ) return false;
         return filter.includes(actionType);
     }
     
+    // return whether item has any of the needed weaponProperties
+    // while not having any of the unfit weaponProperties
     static weaponProperty(item, {needed, unfit}){
-        const properties = Object.entries(item.system.properties);
+        if ( !needed?.length && !unfit?.length ) return true;
         
+        // if it is not a weapon, it has no weaponProperties
+        if ( !item.type !== "weapon" ) false;
+        
+        const properties = item.system.properties;
         if ( unfit?.length ){
-            const matchUnfits = properties.some(([key, bool]) => {
-                return bool && unfit.includes(key);
-            });
-            if ( matchUnfits ) return false;
+            // does item have any of the unfit properties?
+            const isUnfit = unfit.some((property) => properties[property]);
+            if ( isUnfit ) return false;
         }
 
         if ( needed?.length ){
-            const matchNeeded = properties.some(([key, bool]) => {
-                return bool && needed.includes(key);
-            });
-            if ( !matchNeeded ) return false;
+            // does item have any of the needed properties?
+            const isFit = needed.some((property) => properties[property]);
+            if ( !isFit ) return false;
         }
 
         return true;

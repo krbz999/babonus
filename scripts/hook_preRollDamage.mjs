@@ -12,7 +12,15 @@ Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
         }
         if ( criticalBonusDice?.length ){
             const totalCBD = criticalBonusDice.reduce((acc, e) => {
-                return acc + Number(e);
+                try {
+                    const formula = Roll.replaceFormulaData(e, rollConfig.data);
+                    const total = Roll.safeEval(formula);
+                    return acc + total;
+
+                }
+                catch {
+                    return acc;
+                }
             }, (rollConfig.criticalBonusDice ?? 0));
             rollConfig.criticalBonusDice = totalCBD;
         }
