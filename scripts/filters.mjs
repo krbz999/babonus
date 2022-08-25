@@ -71,8 +71,6 @@ export class FILTER {
     static itemType(item, filter){
         if ( !filter?.length ) return false;
         const itemType = item.type;
-        console.log(filter);
-        console.log(filter.includes(item.type));
         return filter.includes(itemType);
     }
 
