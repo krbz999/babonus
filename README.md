@@ -4,7 +4,6 @@ After installing this module, you can find a 'Build-a-Bonus' application in any 
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/50169243/186771931-0aa81f95-7258-4f03-b418-98a66ea45ea9.png">
-  <img src="https://user-images.githubusercontent.com/50169243/186772217-e06465d0-a832-46b0-9196-0f3ad3d78e58.png">
 </p>
 
 For example:
@@ -16,6 +15,10 @@ Options are open to you.
 
 ## How to Use
 Open any actor's sheet, then find the Special Traits (on the main tab of the actor sheet if using the core `dnd5e` sheet). In here, you find a link to the Build-a-Bonus application. Fill out the required fields, then start narrowing down what the bonuses should apply to using the available filters. If you need hints, hover over the labels of the required fields, or see the detailed description in the `Keys`, which also help you fill out the forms.
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/50169243/186772217-e06465d0-a832-46b0-9196-0f3ad3d78e58.png">
+</p>
 
 Finally, save the bonus, and your actor should now have their bonus apply when they use an item with a saving throw attached, or when they roll attack or damage with an item.
 
