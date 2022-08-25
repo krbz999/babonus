@@ -29,12 +29,23 @@
             "ITEM_TYPES": "Item Types",
             "DAMAGE_TYPES": "Damage Types",
             "ABILITIES": "Abilities",
-            "ACTION_TYPES": "Action Types",
+            "SAVE_ABILITIES": "Save Ability",
+            "ATTACK_TYPES": "Attack Types",
             "COMPONENTS": "Components",
             "SPELL_LEVELS": "Spell Levels",
             "SPELL_SCHOOLS": "Spell Schools",
             "WEAPONS": "Weapons",
             "PROPERTIES": "Properties"
+        },
+        "TITLES": {
+            "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
+            "TARGETS": "What the bonus should apply to.",
+            "DESCRIPTION": "A description of the bonus for your convenience.",
+            "ITEM_TYPES": "The types of items the bonus should apply to.",
+            "SAVE_BONUS": "An integer to add onto the DC of a saving throw.",
+            "ATTACK_BONUS": "Additional parts to add on top of the attack roll.",
+            "DAMAGE_BONUS": "Additional parts to add on top of the damage roll.",
+            "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits."
         },
         "VALUES": {
             "PH_LABEL": "label...",
@@ -69,13 +80,18 @@
             "ABILITIES_BOX": "Include",
             "abilities_TITLE": "Keys: Abilities",
 
-            "ACTION_TYPES_DESC": "Select the Action Type that should be set in the item's Details.",
-            "ACTION_TYPES_NAME": "Action Type",
-            "ACTION_TYPES_BOX": "Include",
-            "actionTypes_TITLE": "Keys: Action Types",
+            "SAVE_ABILITIES_DESC": "Select the ability score that is used by the item to set the saving throw's DC. This filter respects spellcasting abilities.",
+            "SAVE_ABILITIES_NAME": "Ability",
+            "SAVE_ABILITIES_BOX": "Include",
+            "saveAbilities_TITLE": "Keys: Save Abilities",
+
+            "ATTACK_TYPES_DESC": "Select the types of attacks the bonus should apply to. Leaving it empty will apply the bonus to all attacks.",
+            "ATTACK_TYPES_NAME": "Attack Type",
+            "ATTACK_TYPES_BOX": "Include",
+            "attackTypes_TITLE": "Keys: Attack Types",
 
             "DAMAGE_TYPES_DESC": "Select a damage type. If the item has a formula with at least one of the selected damage types, the bonus will apply.",
-            "DAMAGE_TYPES_NAME": "Item Type",
+            "DAMAGE_TYPES_NAME": "Damage Type",
             "DAMAGE_TYPES_BOX": "Include",
             "damageTypes_TITLE": "Keys: Damage Types",
             
@@ -104,6 +120,16 @@
             "PROPERTIES_NEED": "Needed",
             "PROPERTIES_UNFIT": "Unfit",
             "weaponProperties_TITLE": "Keys: Weapon Properties"
+        },
+        "TRAITS": {
+            "SECTION": "Build-a-Bonus",
+            "NAME": "Build-a-Bonus Workshop",
+            "HINT": "Open the Build-a-Bonus workshop. Here you can create very niche bonuses that apply when you use an item with a saving throw (increasing or decreasing the DC), when you roll an attack roll (adding modifiers on top), or roll damage (adding modifiers on top, a well as critical dice and critical damage).",
+            "LABEL": "Build-a-Bonus Workshop"
+        },
+        "BONUS": {
+            "ENABLED": "Enabled",
+            "DISABLED": "Disabled"
         }
     }
 

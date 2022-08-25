@@ -1,4 +1,1 @@
-export const MATCH = {
-    ANY: "ANY",
-    ALL: "ALL"
-}
+export const MATCH = { ANY: "ANY", ALL: "ALL" }

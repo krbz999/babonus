@@ -34,14 +34,14 @@ export class TRAIT_MAKER extends FormApplication {
         let bonuses = [];
         if ( flag ){
             const {attack, damage, save} = flag;
-            if( attack ) bonuses = bonuses.concat(Object.entries(attack).map(([identifier, {description, label, values}]) => {
-                return {identifier, description, label, values, type: "attack"};
+            if( attack ) bonuses = bonuses.concat(Object.entries(attack).map(([identifier, {description, label, values, enabled}]) => {
+                return {identifier, description, label, values, type: "attack", enabled};
             }));
-            if( damage ) bonuses = bonuses.concat(Object.entries(damage).map(([identifier, {description, label, values}]) => {
-                return {identifier, description, label, values, type: "damage"};
+            if( damage ) bonuses = bonuses.concat(Object.entries(damage).map(([identifier, {description, label, values, enabled}]) => {
+                return {identifier, description, label, values, type: "damage", enabled};
             }));
-            if( save ) bonuses = bonuses.concat(Object.entries(save).map(([identifier, {description, label, values}]) => {
-                return {identifier, description, label, values, type: "save"};
+            if( save ) bonuses = bonuses.concat(Object.entries(save).map(([identifier, {description, label, values, enabled}]) => {
+                return {identifier, description, label, values, type: "save", enabled};
             }));
         }
         return bonuses;
@@ -103,6 +103,10 @@ export class TRAIT_MAKER extends FormApplication {
             return {value, label};
         });
     }
+    // this uses the same as ability modifier.
+    get saveAbilities(){
+        return this.abilities;
+    }
 
     // get spell component types.
     get spellComponents(){
@@ -121,13 +125,10 @@ export class TRAIT_MAKER extends FormApplication {
         });
     }
 
-    // get action types (subset of CONFIG.DND5E.itemActionTypes).
-    get actionTypes(){
+    // get attack types.
+    get attackTypes(){
         const {itemActionTypes} = CONFIG.DND5E;
-        const actions = [
-            "heal", "msak", "mwak",
-            "rsak", "rwak", "save"
-        ];
+        const actions = ["msak", "mwak", "rsak", "rwak"];
         return actions.map(value => {
             const label = itemActionTypes[value];
             return {value, label};
@@ -148,7 +149,7 @@ export class TRAIT_MAKER extends FormApplication {
         // filters:
         data.damageTypes = this.damageTypes;
         data.abilities = this.abilities;
-        data.actionTypes = this.actionTypes;
+        data.attackTypes = this.attackTypes;
         
         data.spellComponents = this.spellComponents;
         data.spellLevels = this.spellLevels;
@@ -184,6 +185,9 @@ export class TRAIT_MAKER extends FormApplication {
             button?.removeAttribute("disabled");
             if ( !prompt ) return;
         }
+        else if ( button.name === "babonus-toggle-button" ){
+            await this.toggle_a_bonus(button);
+        }
         else return;
         
         this.setPosition();
@@ -201,17 +205,30 @@ export class TRAIT_MAKER extends FormApplication {
             if( !keyButton ) return;
 			const type = keyButton.dataset.type;
 
+            const types = foundry.utils.duplicate(app[type]);
+            // find list.
+            if ( type !== "weaponProperties") {
+                let values = html[0].querySelector(`[name="babonus-${type}"]`).value.split(";");
+                for( let t of types ){
+                    if ( values.includes(t.value) ) t.checked = true;
+                }
+            }
+            else {
+                let needed = html[0].querySelector(`[name="babonus-weaponProperties-needed"]`).value.split(";");
+                let unfit = html[0].querySelector(`[name="babonus-weaponProperties-unfit"]`).value.split(";");
+                for ( let t of types ){
+                    if ( needed.includes(t.value) ) t.needed = true;
+                    if ( unfit.includes(t.value) ) t.unfit = true;
+                }
+            }
+
             const template = `/modules/babonus/templates/keys_${type}.hbs`;
-            const content = await renderTemplate(template, {types: app[type]});
+            const content = await renderTemplate(template, {types});
             const title = game.i18n.localize(`BABONUS.KEY.${type}_TITLE`);
 
-            keyButton.setAttribute("disabled", "disabled");
+            const semiList = await app.applyKeys(title, content, type);
 
-            let semiList = await app.applyKeys(title, content, type);
-
-            keyButton.removeAttribute("disabled");
-            
-            if( !semiList ) return;
+            if( !semiList || foundry.utils.isEmpty(semiList) ) return;
 
             if ( type !== "weaponProperties" ) {
                 const input = html[0].querySelector(`[name="babonus-${type}"]`);
@@ -221,8 +238,8 @@ export class TRAIT_MAKER extends FormApplication {
             else {
                 const needed = html[0].querySelector("[name='babonus-weaponProperties-needed']");
                 const unfit = html[0].querySelector("[name='babonus-weaponProperties-unfit']");
-                needed.value = semiList.needed;
-                unfit.value = semiList.unfit;
+                if ( semiList.needed ) needed.value = semiList.needed;
+                if ( semiList.unfit) unfit.value = semiList.unfit;
             }
 		});
 
@@ -264,9 +281,27 @@ export class TRAIT_MAKER extends FormApplication {
         targetInput.addEventListener("change", () => this.refreshForm());
 	}
 
+    // async dialog helper for the Keys dialogs.
     async applyKeys(title, content, type){
+        const app = this;
+        class KeysDialog extends Dialog {
+            constructor(obj, options){
+                super(obj, options);
+                this.actor = obj.actor;
+                this.type = type;
+            }
+            get id(){
+                return `babonus-keys-dialog-${this.actor.id}-${this.type}`;
+            }
+            /*async getData(){
+                const data = super.getData();
+                if ( this.type !== "weaponProperties" ){
+                    data.checked = app.element[0].querySelector(`[name="babonus-${type}"]`).value.split(";");
+                }
+            }*/
+        }
         return new Promise(resolve => {
-            new Dialog({title, content,
+            new KeysDialog({actor: app.actor, title, content,
                 buttons: {
                     apply: {
                         icon: `<i class="fas fa-check"></i>`,
@@ -279,12 +314,13 @@ export class TRAIT_MAKER extends FormApplication {
                                 resolve(keyString);
                             }
                             else {
-                                const needed = checked.filter(i => i.dataset.property === "needed");
-                                const unfit = checked.filter(i => i.dataset.property === "unfit");
-                                resolve({
-                                    needed: needed.map(i => i.id).join(";"),
-                                    unfit: unfit.map(i => i.id).join(";")
-                                });
+                                const needed = checked.filter(i => i.dataset.property === "needed").map(i => i.id).join(";");
+                                const unfit = checked.filter(i => i.dataset.property === "unfit").map(i => i.id).join(";");
+                                const res = {};
+                                if ( needed ) res["needed"] = needed;
+                                if ( unfit ) res["unfit"] = unfit;
+
+                                resolve(res);
                             }
                         }
                     }
@@ -302,6 +338,7 @@ export class TRAIT_MAKER extends FormApplication {
         return validIds;
     }
 
+    // method to take html, gather the inputs, and either update an existing bonus or create a new one.
     async build_a_bonus(html){
 
         // gather inputs.
@@ -309,18 +346,17 @@ export class TRAIT_MAKER extends FormApplication {
 
         const warningField = html.querySelector("[name='babonus-warning']");
 
-        if ( !inputs.label?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_LABEL"));
-        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_ID"));
+        if ( !inputs.label?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_LABEL"));
+        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_ID"));
         const alreadyIdentifierExist = this.actor.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
         if ( alreadyIdentifierExist && !html.closest("form.babonus").classList.contains("editMode") ){
-            return this.displayWarning(warningField, game.i18n.localize("DUPLICATE_ID"));
+            return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.DUPLICATE_ID"));
         }
-        if ( !inputs.target?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_TARGET"));
-
-        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, game.i18n.localize("MISSING_BONUS"));
-        if ( !inputs.description?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_DESC"));
-        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, game.i18n.localize("MISSING_TYPE"));
-        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, game.i18n.localize("MISSING_FILTER"));
+        if ( !inputs.target?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_TARGET"));
+        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_BONUS"));
+        if ( !inputs.description?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_DESC"));
+        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_TYPE"));
+        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_FILTER"));
         
 
         // if inputs are valid:
@@ -335,6 +371,7 @@ export class TRAIT_MAKER extends FormApplication {
         return true;
     }
 
+    // method to delete a bonus when hitting the Trashcan button.
     async delete_a_bonus(button){
         const formGroup = button.closest(".form-group");
         const bonusId = formGroup.dataset.id;
@@ -368,6 +405,14 @@ export class TRAIT_MAKER extends FormApplication {
         return true;
     }
 
+    async toggle_a_bonus(button){
+        const formGroup = button.closest(".form-group");
+        const bonusId = formGroup.dataset.id;
+        const state = this.actor.getFlag("babonus", `bonuses.${bonusId}.enabled`);
+        return this.actor.setFlag("babonus", `bonuses.${bonusId}.enabled`, !state);
+    }
+
+    // helper method to place a warning in the BAB.
     displayWarning(field, warn){
         field.innerText = warn;
         field.classList.add("active");
@@ -406,7 +451,7 @@ export class TRAIT_MAKER extends FormApplication {
         // filters:
         let filters = {};
         for( let filter of [
-            "baseWeapons", "damageTypes", "spellSchools", "abilities", "actionTypes", "spellLevels"
+            "baseWeapons", "damageTypes", "spellSchools", "abilities", "attackTypes", "spellLevels", "saveAbilities"
         ] ){
             let list = html.querySelector(`[name="babonus-${filter}"]`);
             if( !list.value || list.offsetParent === null ) continue; // if hidden
@@ -452,7 +497,7 @@ export class TRAIT_MAKER extends FormApplication {
     }
 
     // function that takes the html, an object (the bonus), and its id and pastes the values into the form.
-    // edit: are we editing or copying?
+    // "edit": are we editing or copying?
     pasteValues(html, bonus, id, edit = true){
         const label = edit ? bonus.label : "";
         const target = id.split(".")[0];
@@ -476,7 +521,7 @@ export class TRAIT_MAKER extends FormApplication {
             html[0].querySelector(".babonus-bonuses-save [name='babonus-value']").value = bonus.values.bonus ?? "";
         }
         
-        for(let filter of ["baseWeapons", "damageTypes", "spellSchools", "abilities", "actionTypes", "spellLevels"]){
+        for(let filter of ["baseWeapons", "damageTypes", "spellSchools", "abilities", "attackTypes", "spellLevels", "saveAbilities"]){
             let string = bonus.filters[filter]?.join(";");
             html[0].querySelector(`[name="babonus-${filter}"]`).value = string ? string : "";
         }
@@ -494,6 +539,7 @@ export class TRAIT_MAKER extends FormApplication {
         this.refreshForm();
     }
 
+    // helper method to populate the BAB with new fields depending on the itemTypes selected.
     refreshForm(){
         const html = this.element;
         const itemTypeInput = html[0].querySelector("[name='babonus-itemTypes']");

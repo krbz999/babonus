@@ -19,7 +19,7 @@ flags.babonus.bonuses.<damage/attack/save>: {
             spellSchools: ["evo", "con"],
             abilities: ["int"],
             spellComponents: {types: ["concentration", "vocal"], match: "ALL"},
-            actionTypes: ["mwak", "rwak", "save", "msak", "rsak"],
+            attackTypes: ["mwak", "rwak", "msak", "rsak"],                      // only when set to 'attack'
             weaponProperties: {needed: ["fin", "lgt"], unfit: ["two", "ver"]},
             spellLevel: ['0','1','2','3','4','5','6','7','8','9'],
         }
@@ -29,15 +29,16 @@ flags.babonus.bonuses.<damage/attack/save>: {
 
 export class FILTER {
     static filterFn = {
-        itemType: this.itemType,
-        baseWeapon: this.baseWeapon,
-        damageType: this.damageType,
-        spellSchool: this.spellSchool,
-        ability: this.ability,
+        itemTypes: this.itemType,
+        attackTypes: this.attackType,
+        baseWeapons: this.baseWeapon,
+        damageTypes: this.damageType,
+        spellSchools: this.spellSchool,
+        abilities: this.ability,
         spellComponents: this.spellComponents,
-        spellLevel: this.spellLevel,
-        actionType: this.actionType,
-        weaponProperty: this.weaponProperty
+        spellLevels: this.spellLevel,
+        weaponProperties: this.weaponProperty,
+        saveAbilities: this.saveAbility
     }
 
 
@@ -49,16 +50,20 @@ export class FILTER {
         const bonuses = Object.entries(flag);
         if( !bonuses.length ) return [];
         
+        console.log(bonuses);
         const valids = bonuses.reduce((acc, [id, {enabled, values, filters}]) => {
+            console.log(acc);
             if ( !enabled ) return acc;
             
             for( let key in filters ){
-                let validity = filterFn[key](item, filters[key]);
+                console.log("KEY:", key);
+                let validity = FILTER.filterFn[key](item, filters[key]);
+                console.log(key, validity);
                 if( !validity ) return acc;
             }
             acc.push(values);
             return acc;
-        });
+        }, []);
         return valids;
 
     }
@@ -131,7 +136,7 @@ export class FILTER {
             }
         }
 
-        return filter.includes(ability);
+        return filter.includes(item.system.ability);
     }
 
     // return whether item has either ALL of the required spell components
@@ -163,8 +168,8 @@ export class FILTER {
         return filter.map(i => Number(i)).includes(level);
     }
 
-    // return whether item has any of the requred actionTypes.
-    static actionType(item, filter){
+    // return whether item has any of the required attack types.
+    static attackType(item, filter){
         if ( !filter?.length ) return true;
         const actionType = item.system.actionType;
         if ( !actionType ) return false;
@@ -193,6 +198,21 @@ export class FILTER {
         }
 
         return true;
+    }
+
+    // return whether the DC is set using any of the required abilities.
+    // special consideration for Spellcasting ("spell") but not Flat ("flat").
+    static saveAbility(item, filter){
+        if ( !filter?.length ) return true;
+
+        const scaling = item.system.save?.scaling;
+        const spellcasting = item.actor.system.attributes.spellcasting;
+        if ( !scaling ) return false;
+
+        if ( scaling === "spell" ){
+            return filter.includes(spellcasting);
+        }
+        return filter.includes(scaling);
     }
 
 }

@@ -13,8 +13,8 @@
         {{#each types as |type|}}
         <tr>
             <td>{{type.label}}</td>
-            <td><input type="checkbox" class="babonus-checkbox-100" id="{{type.value}}" data-property="needed"></td>
-            <td><input type="checkbox" class="babonus-checkbox-100" id="{{type.value}}" data-property="unfit"></td>
+            <td><input type="checkbox" class="babonus-checkbox-100" id="{{type.value}}" data-property="needed" {{#if type.needed}}checked{{/if}}></td>
+            <td><input type="checkbox" class="babonus-checkbox-100" id="{{type.value}}" data-property="unfit" {{#if type.unfit}}checked{{/if}}></td>
         </tr>
         {{/each}}
     </tbody>
