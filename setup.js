@@ -11,19 +11,16 @@ Hooks.on("setup", () => {
 });
 
 Hooks.on("renderActorSheetFlags", (sheet, html, flagData) => {
-	const input = html[0].querySelector("input[name='flags.dnd5e.babonus']");
-	const button = document.createElement("A");
-	button.name = "flags.dnd5e.babonus";
+    const input = html[0].querySelector("input[name='flags.dnd5e.babonus']");
+    const button = document.createElement("A");
+    button.name = "flags.dnd5e.babonus";
     const label = game.i18n.localize("BABONUS.TRAITS.LABEL");
-	button.innerHTML = `<i class="fas fa-atlas"></i> ${label}`;
-	input.replaceWith(button);
-	
-	button.addEventListener("click", async () => {
+    button.innerHTML = `<i class="fas fa-atlas"></i> ${label}`;
+    input.replaceWith(button);
+    button.addEventListener("click", async () => {
         new TRAIT_MAKER(sheet.object).render(true);
     });
 });
-
-
 
 Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
     // get bonus:
@@ -40,7 +37,7 @@ Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
             return acc;
         }
     }, 0);
-
+    
     // get all buttons.
     const html = chatData.content;
     const temp = document.createElement("DIV");
@@ -52,7 +49,7 @@ Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
     const abl = CONFIG.DND5E.abilities[save.ability] ?? "";
     const savingThrow = game.i18n.localize("DND5E.ActionSave");
     const label = game.i18n.format("DND5E.SaveDC", {dc: save.dc + totalBonus || "", ability: abl});
-
+    
     for(let btn of saveButtons) btn.innerText = `${savingThrow} ${label}`;
     chatData.content = temp.innerHTML;
 });
