@@ -2,6 +2,10 @@
 
 After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits. This gives you the ability to apply a bonus to any attack roll, damage roll, or saving throw DC, under specific circumstances.
 
+<p style="text-align:center;">
+  <img src="https://user-images.githubusercontent.com/50169243/186771931-0aa81f95-7258-4f03-b418-98a66ea45ea9.png"
+</p>
+
 For example:
 - you can implement the alchemist artificer's feature that adds their intelligence modifier (`@abilities.int.mod`) on top of any spells that deal specific types of damage, but only if the spells have a material component.
 - you can increase the save DC of all divination spells on an actor.
