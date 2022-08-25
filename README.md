@@ -2,7 +2,7 @@
 
 After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits. This gives you the ability to apply a bonus to any attack roll, damage roll, or saving throw DC, under specific circumstances.
 
-<p style="text-align:center;">
+<p style="center">
   <img src="https://user-images.githubusercontent.com/50169243/186771931-0aa81f95-7258-4f03-b418-98a66ea45ea9.png"
 </p>
 
