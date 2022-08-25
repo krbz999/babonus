@@ -191,8 +191,7 @@ export class TRAIT_MAKER extends FormApplication {
         else return;
         
         this.setPosition();
-        const data = await this.getData();
-        this.render(true, data);
+        this.render()
 	}
 
 	activateListeners(html){
