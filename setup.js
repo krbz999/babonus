@@ -59,8 +59,6 @@ Hooks.on("dnd5e.preRollAttack", (item, rollConfig) => {
     const bonuses = FILTER.mainCheck(item, "attack");
     if ( !bonuses.length ) return;
 
-    console.log(bonuses);
-    
     // add to parts.
     const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));
     rollConfig.parts = parts;
@@ -69,7 +67,6 @@ Hooks.on("dnd5e.preRollAttack", (item, rollConfig) => {
 Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
     // get bonus:
     const values = FILTER.mainCheck(item, "damage");
-    console.log(values);
     
     // add to rollConfig.
     for( let {bonus, criticalBonusDice, criticalBonusDamage} of values ){
@@ -78,22 +75,19 @@ Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
             rollConfig.parts = parts;
         }
         if ( criticalBonusDice?.length ){
-            const totalCBD = [criticalBonusDice].reduce((acc, e) => {
-                try {
-                    const formula = Roll.replaceFormulaData(e, rollConfig.data);
-                    const total = Roll.safeEval(formula);
-                    return acc + total;
-                }
-                catch {
-                    return acc;
-                }
-            }, (rollConfig.criticalBonusDice ?? 0));
-            rollConfig.criticalBonusDice = totalCBD;
+            let totalCBD;
+            try {
+                const formula = Roll.replaceFormulaData(criticalBonusDice, rollConfig.data);
+                totalCBD = Roll.safeEval(formula);
+            } catch {
+                totalCBD = 0;
+            }
+            const oldValue = rollConfig.criticalBonusDice ?? 0;
+            rollConfig.criticalBonusDice = oldValue + totalCBD;
         }
         if ( criticalBonusDamage?.length ){
-            const totalCBD = [criticalBonusDamage].reduce((acc, e) => {
-                return `${acc} + ${e}`;
-            }, (rollConfig.criticalBonusDamage ?? "0"));
+            const oldValue = rollConfig.criticalBonusDamage;
+            const totalCBD = oldValue ? `${oldValue} + ${criticalBonusDamage}` : criticalBonusDamage;
             rollConfig.criticalBonusDamage = totalCBD;
         }
     }

@@ -50,15 +50,13 @@ export class FILTER {
         const bonuses = Object.entries(flag);
         if( !bonuses.length ) return [];
         
-        console.log(bonuses);
-        const valids = bonuses.reduce((acc, [id, {enabled, values, filters}]) => {
-            console.log(acc);
+        const valids = bonuses.reduce((acc, [id, {enabled, values, filters, itemTypes}]) => {
             if ( !enabled ) return acc;
+
+            filters["itemTypes"] = itemTypes;
             
             for( let key in filters ){
-                console.log("KEY:", key);
                 let validity = FILTER.filterFn[key](item, filters[key]);
-                console.log(key, validity);
                 if( !validity ) return acc;
             }
             acc.push(values);
@@ -73,6 +71,8 @@ export class FILTER {
     static itemType(item, filter){
         if ( !filter?.length ) return false;
         const itemType = item.type;
+        console.log(filter);
+        console.log(filter.includes(item.type));
         return filter.includes(itemType);
     }
 
@@ -180,9 +180,9 @@ export class FILTER {
     // while not having any of the unfit weaponProperties
     static weaponProperty(item, {needed, unfit}){
         if ( !needed?.length && !unfit?.length ) return true;
-        
+
         // if it is not a weapon, it has no weaponProperties
-        if ( !item.type !== "weapon" ) false;
+        if ( item.type !== "weapon" ) return false;
         
         const properties = item.system.properties;
         if ( unfit?.length ){
