@@ -26,4 +26,4 @@ Finally, save the bonus, and your actor should now have their bonus apply when t
 The bonuses are more complex in their structure than the usual ActiveEffects. However, you can modify specific fields of a bonus using effects, and even toggle the bonus on or off.
 
 ### Toggling a Bonus
-When you create a bonus, you are prompted to give it an identifier (the label, its name, is for human eyes only). You can either toggle a bonus on or off using the button in the Build-a-Bonus application, or you can create an active effect with this attribute key: `flags.babonus.bonuses.<identifier>.enabled | Override | <true or false>`.
+When you create a bonus, you are prompted to give it an identifier (the label, its name, is for human eyes only). You can either toggle a bonus on or off using the button in the Build-a-Bonus application, or you can create an active effect with this attribute key: `flags.babonus.bonuses.<attack/damage/save>.<identifier>.enabled | Override | <true or false>`.
