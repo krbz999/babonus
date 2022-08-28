@@ -10,7 +10,7 @@ flags.babonus.bonuses.<damage/attack/save>: {
         itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"],
         values: {
             bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
-            criticalBonusDice: "5",             // numbers only, 'damage' only
+            criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
             criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
         },
         filters: {
@@ -18,10 +18,21 @@ flags.babonus.bonuses.<damage/attack/save>: {
             damageTypes: ["fire", "cold", "bludgeoning"],
             spellSchools: ["evo", "con"],
             abilities: ["int"],
-            spellComponents: {types: ["concentration", "vocal"], match: "ALL"},
+            spellComponents: {
+                types: ["concentration", "vocal"],
+                match: "ALL" // or ANY
+            },
             attackTypes: ["mwak", "rwak", "msak", "rsak"],                      // only when set to 'attack'
-            weaponProperties: {needed: ["fin", "lgt"], unfit: ["two", "ver"]},
+            weaponProperties: {
+                needed: ["fin", "lgt"],
+                unfit: ["two", "ver"]
+            },
             spellLevel: ['0','1','2','3','4','5','6','7','8','9'],
+            arbitraryComparison: {
+                one: "@item.uses.value",
+                other: "@abilities.int.mod",
+                operator: "EQ" // or LE, GE, LT, GT
+            }
         }
     }
 }
@@ -38,7 +49,8 @@ export class FILTER {
         spellComponents: this.spellComponents,
         spellLevels: this.spellLevel,
         weaponProperties: this.weaponProperty,
-        saveAbilities: this.saveAbility
+        saveAbilities: this.saveAbility,
+        arbitraryComparison: this.arbitraryComparison
     }
 
 
@@ -211,6 +223,29 @@ export class FILTER {
             return filter.includes(spellcasting);
         }
         return filter.includes(scaling);
+    }
+
+    // return whether VALUE and OTHER have the correct relation.
+    static arbitraryComparison(item, {one, other, operator}){
+        if ( !one || !other ) return false;
+
+        const rollData = item.getRollData();
+
+        try {
+            let left = Roll.replaceFormulaData(one, rollData);
+            let right = Roll.replaceFormulaData(one, rollData);
+            left = Roll.safeEval(left);
+            right = Roll.safeEval(right);
+            if ( operator === "EQ" ) return left === right;
+            if ( operator === "LT" ) return left < right;
+            if ( operator === "GT" ) return left > right;
+            if ( operator === "LE" ) return left <= right;
+            if ( operator === "GE" ) return left >= right;
+            return false;
+        }
+        catch {
+            return false;
+        }
     }
 
 }

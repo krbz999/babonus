@@ -12,7 +12,7 @@
         {{#each types as |type|}}
         <tr>
             <td>{{type.label}}</td>
-            <td><input type="checkbox" class="babonus-checkbox-100" id="{{type.value}}" {{#if type.checked}}checked{{/if}}></td>
+            <td><input type="checkbox" class="babonus-checkbox-100" id="{{type.value}}" {{checked type.checked}}></td>
         </tr>
         {{/each}}
     </tbody>

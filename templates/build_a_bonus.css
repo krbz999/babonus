@@ -21,6 +21,8 @@
 .babonus-description { font-style: italic; }
 .current-bonuses hr:last-child { display: none; }
 
+.babonus .babonus-filters .babonus-select { flex: 0; }
+
 button.babonus-keys { min-width: 100px; flex: 0; }
 .babonus-checkbox {
     border-radius: 10px;

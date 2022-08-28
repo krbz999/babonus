@@ -1,4 +1,6 @@
-export class TRAIT_MAKER extends FormApplication {
+import { handlingRegular, handlingSpecial } from "./constants.mjs";
+
+export class Build_a_Bonus extends FormApplication {
     constructor(actor, options){
         super(actor, options);
         this.actor = actor;
@@ -8,7 +10,7 @@ export class TRAIT_MAKER extends FormApplication {
         return foundry.utils.mergeObject(super.defaultOptions, {
             closeOnSubmit: false,
             width: 450,
-            template: "/modules/babonus/templates/buildflow.html",
+            template: "/modules/babonus/templates/build_a_bonus.html",
             height: "auto",
             title: "Build-a-Bonus",
             classes: ["babonus"]
@@ -292,12 +294,6 @@ export class TRAIT_MAKER extends FormApplication {
             get id(){
                 return `babonus-keys-dialog-${this.actor.id}-${this.type}`;
             }
-            /*async getData(){
-                const data = super.getData();
-                if ( this.type !== "weaponProperties" ){
-                    data.checked = app.element[0].querySelector(`[name="babonus-${type}"]`).value.split(";");
-                }
-            }*/
         }
         return new Promise(resolve => {
             new KeysDialog({actor: app.actor, title, content,
@@ -345,17 +341,17 @@ export class TRAIT_MAKER extends FormApplication {
 
         const warningField = html.querySelector("[name='babonus-warning']");
 
-        if ( !inputs.label?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_LABEL"));
-        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_ID"));
+        if ( !inputs.label?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_LABEL");
+        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_ID");
         const alreadyIdentifierExist = this.actor.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
         if ( alreadyIdentifierExist && !html.closest("form.babonus").classList.contains("editMode") ){
-            return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.DUPLICATE_ID"));
+            return this.displayWarning(warningField, "BABONUS.WARNINGS.DUPLICATE_ID");
         }
-        if ( !inputs.target?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_TARGET"));
-        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_BONUS"));
-        if ( !inputs.description?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_DESC"));
-        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_TYPE"));
-        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, game.i18n.localize("BABONUS.WARNINGS.MISSING_FILTER"));
+        if ( !inputs.target?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_TARGET");
+        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_BONUS");
+        if ( !inputs.description?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_DESC");
+        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_TYPE");
+        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_FILTER");
         
 
         // if inputs are valid:
@@ -377,19 +373,19 @@ export class TRAIT_MAKER extends FormApplication {
         const bonus = this.actor.getFlag("babonus", `bonuses.${bonusId}`);
         const label = bonus.label;
 
-        const prompt = await  new Promise(resolve => {
+        const prompt = await new Promise(resolve => {
             new Dialog({
                 title: game.i18n.format("BABONUS.DELETE.DELETE_BONUS", {label}),
                 content: game.i18n.format("BABONUS.DELETE.ARE_YOU_SURE", {label}),
                 buttons: {
                     yes: {
                         icon: `<i class="fas fa-trash"></i>`,
-                        label: game.i18n.localize("BABONUS.DELETE.YES"),
+                        label: game.i18n.localize("Yes"),
                         callback: () => resolve(true)
                     },
                     no: {
                         icon: `<i class="fas fa-times"></i>`,
-                        label: game.i18n.localize("BABONUS.DELETE.NO"),
+                        label: game.i18n.localize("No"),
                         callback: () => resolve(false)
                     }
                 },
@@ -413,7 +409,7 @@ export class TRAIT_MAKER extends FormApplication {
 
     // helper method to place a warning in the BAB.
     displayWarning(field, warn){
-        field.innerText = warn;
+        field.innerText = game.i18n.localize(warn);
         field.classList.add("active");
         this.setPosition();
         return false;
@@ -449,28 +445,21 @@ export class TRAIT_MAKER extends FormApplication {
 
         // filters:
         let filters = {};
-        for( let filter of [
-            "baseWeapons", "damageTypes", "spellSchools", "abilities", "attackTypes", "spellLevels", "saveAbilities"
-        ] ){
+        for( let filter of handlingRegular ){
             let list = html.querySelector(`[name="babonus-${filter}"]`);
             if( !list.value || list.offsetParent === null ) continue; // if hidden
             list = this.validateKeys(list.value, filter);
             if( list.length ) filters[filter] = list;
         }
         // these take special handling:
-        for ( let filter of [
-            "spellComponents", "weaponProperties-needed", "weaponProperties-unfit"
-        ] ){
+        for ( let filter of handlingSpecial ){
             if ( filter === "spellComponents" ){
                 let list = html.querySelector("[name='babonus-spellComponents']");
                 if ( !list.value || list.offsetParent === null ) continue; // if hidden
                 list = this.validateKeys(list.value, "spellComponents");
                 if( list.length ){
                     const matchType = html.querySelector("[name='babonus-spellComponents-match']").value;
-                    filters["spellComponents"] = {
-                        types: list,
-                        match: matchType
-                    }
+                    filters["spellComponents"] = { types: list, match: matchType }
                 }
             }
             else if ( filter.startsWith("weaponProperties") ){
@@ -486,11 +475,18 @@ export class TRAIT_MAKER extends FormApplication {
                     filters["weaponProperties"] = weaponPropertes;
                 }
             }
+            else if ( filter === "arbitraryComparison" ){
+                let one = html.querySelector("[name='babonus-arbitraryComparisonOne']").value;
+                let other = html.querySelector("[name='babonus-arbitraryComparisonOther']").value;
+                let operator = html.querySelector("[name='babonus-arbitraryComparisonOperator']").value;
+                if ( !one || !other ) continue;
+                filters["arbitraryComparison"] = {one, other, operator};
+            }
         }
 
         return {
             label, identifier, target, values, description, itemTypes,
-            /* and for the filters ...? */
+            /* and for the filters */
             filters
         }
     }
@@ -520,7 +516,7 @@ export class TRAIT_MAKER extends FormApplication {
             html[0].querySelector(".babonus-bonuses-save [name='babonus-value']").value = bonus.values.bonus ?? "";
         }
         
-        for(let filter of ["baseWeapons", "damageTypes", "spellSchools", "abilities", "attackTypes", "spellLevels", "saveAbilities"]){
+        for( let filter of handlingRegular ){
             let string = bonus.filters[filter]?.join(";");
             html[0].querySelector(`[name="babonus-${filter}"]`).value = string ? string : "";
         }
@@ -531,6 +527,12 @@ export class TRAIT_MAKER extends FormApplication {
         if ( bonus.filters["weaponProperties"] ){
             html[0].querySelector("[name='babonus-weaponProperties-needed']").value = bonus.filters["weaponProperties"].needed?.join(";") ?? "";
             html[0].querySelector("[name='babonus-weaponProperties-unfit']").value = bonus.filters["weaponProperties"].unfit?.join(";") ?? "";
+        }
+        if ( bonus.filters["arbitraryComparison"] ){
+            const {one, other, operator} = bonus.filters["arbitraryComparison"];
+            html[0].querySelector("[name='babonus-arbitraryComparisonOne']").value = one;
+            html[0].querySelector("[name='babonus-arbitraryComparisonOther']").value = other;
+            html[0].querySelector("[name='babonus-arbitraryComparisonOperator']").value = operator;
         }
         
         if( !edit ) html[0].closest("form.babonus").classList.remove("editMode");

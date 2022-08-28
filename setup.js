@@ -1,5 +1,5 @@
 import { FILTER } from "./scripts/filters.mjs";
-import { TRAIT_MAKER } from "./scripts/trait-maker.mjs";
+import { Build_a_Bonus } from "./scripts/build_a_bonus.mjs";
 
 Hooks.on("setup", () => {
     CONFIG.DND5E.characterFlags["babonus"] = {
@@ -18,7 +18,7 @@ Hooks.on("renderActorSheetFlags", (sheet, html, flagData) => {
     button.innerHTML = `<i class="fas fa-atlas"></i> ${label}`;
     input.replaceWith(button);
     button.addEventListener("click", async () => {
-        new TRAIT_MAKER(sheet.object).render(true);
+        new Build_a_Bonus(sheet.object).render(true);
     });
 });
 
@@ -46,9 +46,10 @@ Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
     
     // create label (innertext)
     const save = item.system.save;
-    const abl = CONFIG.DND5E.abilities[save.ability] ?? "";
+    const ability = CONFIG.DND5E.abilities[save.ability] ?? "";
     const savingThrow = game.i18n.localize("DND5E.ActionSave");
-    const label = game.i18n.format("DND5E.SaveDC", {dc: save.dc + totalBonus || "", ability: abl});
+    const dc = save.dc + totalBonus || "";
+    const label = game.i18n.format("DND5E.SaveDC", {dc, ability});
     
     for(let btn of saveButtons) btn.innerText = `${savingThrow} ${label}`;
     chatData.content = temp.innerHTML;
@@ -92,5 +93,3 @@ Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
         }
     }
 });
-
-// if there are modifiers to apply, I could just loop over each die in 'parts'.

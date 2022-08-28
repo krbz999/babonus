@@ -2,9 +2,7 @@
     "BABONUS": {
         "DELETE": {
             "DELETE_BONUS": "Delete Bonus: {label}",
-            "ARE_YOU_SURE": "Are you sure that you want to delete '{label}'? This action cannot be undone.",
-            "YES": "Yes",
-            "NO": "No"
+            "ARE_YOU_SURE": "Are you sure that you want to delete '{label}'? This action cannot be undone."
         },
         "WARNINGS": {
             "MISSING_LABEL": "Your bonus needs a label!",
@@ -27,6 +25,7 @@
             "CRIT_BONUS_DAMAGE": "Damage",
             "DESCRIPTION": "Description",
             "ITEM_TYPES": "Item Types",
+
             "DAMAGE_TYPES": "Damage Types",
             "ABILITIES": "Abilities",
             "SAVE_ABILITIES": "Save Ability",
@@ -35,7 +34,8 @@
             "SPELL_LEVELS": "Spell Levels",
             "SPELL_SCHOOLS": "Spell Schools",
             "WEAPONS": "Weapons",
-            "PROPERTIES": "Properties"
+            "PROPERTIES": "Properties",
+            "ARBITRARY_COMPARISON": "Comparison"
         },
         "TITLES": {
             "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
@@ -45,7 +45,8 @@
             "SAVE_BONUS": "An integer to add onto the DC of a saving throw.",
             "ATTACK_BONUS": "Additional parts to add on top of the attack roll.",
             "DAMAGE_BONUS": "Additional parts to add on top of the damage roll.",
-            "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits."
+            "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits.",
+            "ARBITRARY_COMPARISON": "Insert numbers of rollData properties that must be in this relationship for the bonus to apply."
         },
         "VALUES": {
             "PH_LABEL": "label...",
@@ -55,7 +56,9 @@
             "TARGET_DAMAGE": "Damage Rolls",
             "TARGET_SAVE": "Save DC",
             "MATCH_ANY": "Match any",
-            "MATCH_ALL": "Match all"
+            "MATCH_ALL": "Match all",
+            "ARBITRARY_COMPARISON_ONE": "value...",
+            "ARBITRARY_COMPARISON_OTHER": "other value..."
         },
         "BUTTONS": {
             "KEYS": "Keys",

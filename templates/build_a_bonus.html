@@ -9,7 +9,9 @@
         
             <!-- Identifiers: label and id -->
             <div class="form-group">
-                <label title="{{localize 'BABONUS.TITLES.IDENTIFIERS'}}" class="babonus-label">{{localize "BABONUS.LABELS.IDENTIFIERS"}}</label>
+                <label title="{{localize 'BABONUS.TITLES.IDENTIFIERS'}}" class="babonus-label">
+                    {{localize "BABONUS.LABELS.IDENTIFIERS"}}
+                </label>
                 <div class="form-fields">
                     <span class="sep babonus-sep">{{localize "BABONUS.LABELS.ID_LABEL"}}</span>
                     <input type="text" name="babonus-label" placeholder="{{localize 'BABONUS.VALUES.PH_LABEL'}}">
@@ -19,7 +21,9 @@
             </div>
             <!-- bonus type to apply to: attack, damage, saveDC -->
             <div class="form-group">
-                <label title="{{localize 'BABONUS.TITLES.TARGETS'}}" class="babonus-label">{{localize "BABONUS.LABELS.TARGETS"}}</label>
+                <label title="{{localize 'BABONUS.TITLES.TARGETS'}}" class="babonus-label">
+                    {{localize "BABONUS.LABELS.TARGETS"}}
+                </label>
                 <div class="form-fields">
                     <select name="babonus-target">
                         <option value="">&mdash;</option>
@@ -32,7 +36,9 @@
             <!-- attack bonuses -->
             <div class="babonus-bonuses-attack">
                 <div class="form-group bonus-type-attack">
-                    <label  title="{{localize 'BABONUS.TITLES.ATTACK_BONUS'}}"class="babonus-label">{{localize "BABONUS.LABELS.BONUS"}}</label>
+                    <label  title="{{localize 'BABONUS.TITLES.ATTACK_BONUS'}}" class="babonus-label">
+                        {{localize "BABONUS.LABELS.BONUS"}}
+                    </label>
                     <div class="form-fields">
                         <input type="text" name="babonus-value">
                     </div>
@@ -41,7 +47,9 @@
             <!-- save dc -->
             <div class="babonus-bonuses-save">
                 <div class="form-group bonus-type-save">
-                    <label title="{{localize 'BABONUS.TITLES.SAVE_BONUS'}}" class="babonus-label">{{localize "BABONUS.LABELS.BONUS"}}</label>
+                    <label title="{{localize 'BABONUS.TITLES.SAVE_BONUS'}}" class="babonus-label">
+                        {{localize "BABONUS.LABELS.BONUS"}}
+                    </label>
                     <div class="form-fields">
                         <input type="text" name="babonus-value">
                     </div>
@@ -50,13 +58,17 @@
             <!-- damage bonuses -->
             <div class="babonus-bonuses-damage">
                 <div class="form-group bonus-type-damage">
-                    <label title="{{localize 'BABONUS.TITLES.DAMAGE_BONUS'}}" class="babonus-label">{{localize "BABONUS.LABELS.BONUS"}}</label>
+                    <label title="{{localize 'BABONUS.TITLES.DAMAGE_BONUS'}}" class="babonus-label">
+                        {{localize "BABONUS.LABELS.BONUS"}}
+                    </label>
                     <div class="form-fields">
                         <input type="text" name="babonus-value">
                     </div>
                 </div>
                 <div class="form-group bonus-type-damage-critical">
-                    <label title="{{localize 'BABONUS.TITLES.DAMAGE_CRIT'}}" class="babonus-label">{{localize "BABONUS.LABELS.CRIT_BONUS"}}</label>
+                    <label title="{{localize 'BABONUS.TITLES.DAMAGE_CRIT'}}" class="babonus-label">
+                        {{localize "BABONUS.LABELS.CRIT_BONUS"}}
+                    </label>
                     <div class="form-fields">
                         <span class="sep babonus-sep">{{localize "BABONUS.LABELS.CRIT_BONUS_DICE"}}</span>
                         <input type="text" name="babonus-critical-dice">
@@ -67,14 +79,18 @@
             </div>
             <!-- description -->
             <div class="form-group">
-                <label title="{{localize 'BABONUS.TITLES.DESCRIPTION'}}" class="babonus-label">{{localize "BABONUS.LABELS.DESCRIPTION"}}</label>
+                <label title="{{localize 'BABONUS.TITLES.DESCRIPTION'}}" class="babonus-label">
+                    {{localize "BABONUS.LABELS.DESCRIPTION"}}
+                </label>
                 <div class="form-fields">
                     <input type="text" name="babonus-description" placeholder="{{localize 'BABONUS.VALUES.PH_DESCRIPTION'}}">
                 </div>
             </div>
             <!-- Item Types: spell, feat, weapon, equipment, consumable -->
             <div class="form-group">
-                <label title="{{localize 'BABONUS.TITLES.ITEM_TYPES'}}" class="babonus-label">{{localize "BABONUS.LABELS.ITEM_TYPES"}}</label>
+                <label title="{{localize 'BABONUS.TITLES.ITEM_TYPES'}}" class="babonus-label">
+                    {{localize "BABONUS.LABELS.ITEM_TYPES"}}
+                </label>
                 <div class="form-fields">
                     <input type="text" name="babonus-itemTypes">
                     <button class="babonus-keys" data-type="itemTypes">
@@ -107,6 +123,22 @@
                     </button>
                 </div>
             </div>
+            <div class="form-group arbitraryComparison">
+                <label class="babonus-label-m" title="{{localize 'BABONUS.TITLES.ARBITRARY_COMPARISON'}}">
+                    {{localize "BABONUS.LABELS.ARBITRARY_COMPARISON"}}
+                </label>
+                <div class="form-fields">
+                    <input type="text" name="babonus-arbitraryComparisonOne" placeholder="{{localize 'BABONUS.VALUES.ARBITRARY_COMPARISON_ONE'}}">
+                    <select name="babonus-arbitraryComparisonOperator" class="babonus-select">
+                        <option value="EQ">=</option>
+                        <option value="LT">&lt;</option>
+                        <option value="GT">&gt;</option>
+                        <option value="LE">&le;</option>
+                        <option value="GE">&ge;</option>
+                    </select>
+                    <input type="text" name="babonus-arbitraryComparisonOther" placeholder="{{localize 'BABONUS.VALUES.ARBITRARY_COMPARISON_OTHER'}}">
+                </div>
+            </div>
             <!-- only if 'attack' -->
             <div class="form-group attackTypes">
                 <label class="babonus-label-m">{{localize "BABONUS.LABELS.ATTACK_TYPES"}}</label>
@@ -133,7 +165,7 @@
                 <label class="babonus-label-m">{{localize "BABONUS.LABELS.COMPONENTS"}}</label>
                 <div class="form-fields">
                     <input type="text" name="babonus-spellComponents">
-                    <select name="babonus-spellComponents-match">
+                    <select name="babonus-spellComponents-match" class="babonus-select">
                         <option value="ANY">{{localize "BABONUS.VALUES.MATCH_ANY"}}</option>
                         <option value="ALL">{{localize "BABONUS.VALUES.MATCH_ALL"}}</option>
                     </select>
