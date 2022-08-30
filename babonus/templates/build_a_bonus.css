@@ -1,0 +1,87 @@
+.babonus-h1 {
+    text-align: center;
+    font-size: 40px;
+    border-bottom: 0px;
+}
+
+.build-a-bonus .babonus-required-fields label.babonus-label {
+    flex: 1;
+    font-weight: bolder;
+}
+.build-a-bonus .babonus-filters label.babonus-label-m { flex: 1; }
+.current-bonuses .form-group label.babonus-label {
+    flex: 2;
+    align-self: flex-start;
+    text-align: center;
+}
+/*.current-bonuses .form-group label.babonus-label:not(.disabled) { font-weight: bolder; }*/
+.current-bonuses .form-group label.babonus-label.disabled { text-decoration: line-through; }
+
+.babonus-identifier { font-style: italic; color: gray; }
+.babonus-description { font-style: italic; }
+.current-bonuses hr:last-child { display: none; }
+
+.babonus .babonus-filters .babonus-select { flex: 0; }
+
+button.babonus-keys { min-width: 100px; flex: 0; }
+.babonus-checkbox {
+    border-radius: 10px;
+    min-width: fit-content;
+    background-color: cadetblue;
+    padding: 3px 5px 3px 5px;
+    margin: 0 3px 0 0;
+}
+.babonus-checkbox:last-child { margin-right: 3px; }
+
+.babonus-warning { display: none; }
+.babonus-warning.active {
+    display: block;
+    color: red;
+    font-style: italic;
+    background-color: yellow;
+    text-align: center;
+    height: 40px;
+    padding: 9px 0 0 0;
+    border-radius: 10px;
+    border-bottom: ridge;
+    border-right: ridge;
+    font-size: 16px;
+}
+
+/*.babonus-checkbox-100 { min-width: 100px; }*/
+.babonus td:not(:first-child) { text-align: center; }
+
+form.editMode [name='babonus-identifier'],
+form.editMode [name='babonus-label'],
+form.editMode [name='babonus-target'] {
+    pointer-events: none;
+    color:#AAA;
+}
+
+/* if weapon is in itemTypes... */
+form.babonus.weapon .form-group.baseWeapons,
+form.babonus.weapon .form-group.weaponProperties { display: flex; }
+form.babonus .form-group.baseWeapons,
+form.babonus .form-group.weaponProperties { display: none; }
+
+/* if spell is in itemTypes... */
+form.babonus.spell .form-group.spellComponents,
+form.babonus.spell .form-group.spellLevels,
+form.babonus.spell .form-group.spellSchools { display: flex; }
+form.babonus .form-group.spellComponents,
+form.babonus .form-group.spellLevels,
+form.babonus .form-group.spellSchools { display: none; }
+
+/* hide/unhide bonuses inputs */
+form.babonus.damage div.babonus-bonuses-damage { display: block; }
+form.babonus div.babonus-bonuses-damage { display: none; }
+
+form.babonus.attack div.babonus-bonuses-attack { display: block; }
+form.babonus div.babonus-bonuses-attack { display: none; }
+form.babonus.attack div.form-group.attackTypes { display: flex; }
+form.babonus div.form-group.attackTypes { display: none; }
+
+form.babonus.save div.babonus-bonuses-save { display: block; }
+form.babonus div.babonus-bonuses-save { display: none; }
+form.babonus.save div.form-group.saveAbilities { display: flex; }
+form.babonus div.form-group.saveAbilities { display: none; }
