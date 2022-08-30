@@ -46,7 +46,7 @@
             "ATTACK_BONUS": "Additional parts to add on top of the attack roll.",
             "DAMAGE_BONUS": "Additional parts to add on top of the damage roll.",
             "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits.",
-            "ARBITRARY_COMPARISON": "Insert numbers of rollData properties that must be in this relationship for the bonus to apply."
+            "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply."
         },
         "VALUES": {
             "PH_LABEL": "label...",

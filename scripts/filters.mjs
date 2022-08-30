@@ -97,7 +97,8 @@ export class FILTER {
     // return whether item has one of the applicable damage types.
     static damageType(item, filter){
         if ( !filter?.length ) return true;
-        const damageTypes = !!item.labels.derivedDamage?.some(({damageType}) => {
+        
+        const damageTypes = item.getDerivedDamageLabel().some(({damageType}) => {
             return filter.includes(damageType);
         });
         return damageTypes;
@@ -247,5 +248,4 @@ export class FILTER {
             return false;
         }
     }
-
 }
