@@ -13,6 +13,7 @@ flags.babonus.bonuses.<damage/attack/save>: {
             criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
             criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
         },
+        itemRequirements: {equipped: true, attuned: false} // for bonuses stored on items only.
         filters: {
             baseweapons: ["dagger", "lance", "shortsword"],
             damageTypes: ["fire", "cold", "bludgeoning"],
@@ -22,7 +23,7 @@ flags.babonus.bonuses.<damage/attack/save>: {
                 types: ["concentration", "vocal"],
                 match: "ALL" // or ANY
             },
-            attackTypes: ["mwak", "rwak", "msak", "rsak"],                      // only when set to 'attack'
+            attackTypes: ["mwak", "rwak", "msak", "rsak"], // only when set to 'attack'
             weaponProperties: {
                 needed: ["fin", "lgt"],
                 unfit: ["two", "ver"]
@@ -57,11 +58,45 @@ export class FILTER {
     static mainCheck(item, hookType){
         // hook type is either 'save' (to increase save dc), 'attack', 'damage'
         // are saving throws vs specific circumstances possible?
+
+        // add bonuses from actor.
         const flag = item.actor.getFlag("babonus", `bonuses.${hookType}`);
-        if ( !flag ) return [];
-        const bonuses = Object.entries(flag);
+        let bonuses = Object.entries(flag);
+
+        // add bonuses from items.
+        for ( const it of item.actor.items ) {
+            const itemFlag = it.getFlag("babonus", `bonuses.${hookType}`);
+            if ( !itemFlag ) continue;
+            
+            const itemBonuses = Object.entries(itemFlag);
+            const {equipped, attunement} = it.system;
+            const validItemBonuses = itemBonuses.filter(([id, {enabled, itemRequirements}]) => {
+                if ( !enabled ) return false;
+                const {equipped: needsEq, attuned: needsAtt} = itemRequirements;
+                if ( !equipped && needsEq ) return false;
+                if ( attunement !== CONFIG.DND5E.attunementTypes.ATTUNED && needsAtt ) return false;
+                return true;
+            });
+            
+            bonuses = bonuses.concat(validItemBonuses);
+        }
+        // add bonuses from effects.
+        for ( const eff of item.actor.effects ) {
+            if ( eff.disabled || eff.isSuppressed ) continue;
+            const effectFlag = eff.getFlag("babonus", `bonuses.${hookType}`);
+            if ( !effectFlag ) continue;
+
+            const effectBonuses = Object.entries(effectFlag);
+            const validEffectBonuses = effectBonuses.filter(([id, {enabled}]) => {
+                return enabled;
+            });
+            bonuses = bonuses.concat(validEffectBonuses);
+        }
+
+        // bail out early if none found.
         if( !bonuses.length ) return [];
         
+        // the final filtering.
         const valids = bonuses.reduce((acc, [id, {enabled, values, filters, itemTypes}]) => {
             if ( !enabled ) return acc;
 
@@ -75,7 +110,6 @@ export class FILTER {
             return acc;
         }, []);
         return valids;
-
     }
 
     // return whether item is one of the applicable item types.

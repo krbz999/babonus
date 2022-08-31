@@ -4,6 +4,7 @@
     <!-- BUILD-A-BONUS -->
     <div class="build-a-bonus">
 
+        <!-- REQUIRED FIELDS -->
         <h2>{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</h2>
         <div class="babonus-required-fields">
         
@@ -98,9 +99,31 @@
                     </button>
                 </div>
             </div>
+
+            <!-- ITEM-SPECIFIC FIELDS -->
+            {{#if (and isItem (or canEquip canAttune) )}}
+            <div class="form-group item-specific">
+                <label title="{{localize 'BABONUS.TITLES.ITEM_SPECIFIC'}}" class="babonus-label">
+                    {{localize "BABONUS.LABELS.ITEM_SPECIFIC"}}
+                </label>
+                <div class="form-fields">
+                    {{#if canEquip}}
+                    <span class="sep babonus-sep">{{localize "BABONUS.LABELS.EQUIPPED"}}</span>
+                    <input type="checkbox" name="babonus-equipped">
+                    {{/if}}
+                    {{#if canAttune}}
+                    <span class="sep babonus-sep">{{localize "BABONUS.LABELS.ATTUNED"}}</span>
+                    <input type="checkbox" name="babonus-attuned">
+                    {{/if}}
+                </div>
+            </div>
+            {{/if}}
         </div>
+
+
         
-        <!-- filters -->
+        
+        <!-- FILTER A BONUS -->
         <h3>{{localize "BABONUS.HEADERS.FILTERS"}}</h3>
         <div class="babonus-filters">
 
@@ -216,9 +239,10 @@
 
         </div>
 
+        <!-- WARN ABOUT A BONUS -->
         <div class="babonus-warning" name="babonus-warning"></div>
         
-        <!-- save a bonus -->
+        <!-- SAVE A BONUS -->
         <div class="babonus-save-new">
             <div class="form-group">
                 <button name="babonus-save-button">

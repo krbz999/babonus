@@ -1,9 +1,9 @@
 import { handlingRegular, handlingSpecial } from "./constants.mjs";
 
 export class Build_a_Bonus extends FormApplication {
-    constructor(actor, options){
-        super(actor, options);
-        this.actor = actor;
+    constructor(object, options){
+        super(object, options);
+        this.isItem = object.documentName === "Item";
     }
 
     static get defaultOptions(){
@@ -12,13 +12,12 @@ export class Build_a_Bonus extends FormApplication {
             width: 450,
             template: "/modules/babonus/templates/build_a_bonus.html",
             height: "auto",
-            title: "Build-a-Bonus",
             classes: ["babonus"]
         });
     }
 
     get id(){
-        return `babonus-build-a-bonus-${this.actor.id}`;
+        return `babonus-build-a-bonus-${this.object.id}`;
     }
 
     // the types of bonuses ('attack', 'damage', 'save')
@@ -32,7 +31,7 @@ export class Build_a_Bonus extends FormApplication {
 
     // the current bonuses on the actor.
     get bonuses(){
-        const flag = this.actor.getFlag("babonus", "bonuses");
+        const flag = this.object.getFlag("babonus", "bonuses");
         let bonuses = [];
         if ( flag ){
             const {attack, damage, save} = flag;
@@ -148,6 +147,13 @@ export class Build_a_Bonus extends FormApplication {
     async getData(){
         const data = await super.getData();
 
+        data.isItem = this.isItem;
+        if ( data.isItem ) {
+            data.canEquip = foundry.utils.hasProperty(this.object, "system.equipped");
+            const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
+            data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
+        }
+
         // filters:
         data.damageTypes = this.damageTypes;
         data.abilities = this.abilities;
@@ -250,7 +256,7 @@ export class Build_a_Bonus extends FormApplication {
             if( !editButton ) return;
 			const formGroup = editButton.closest(".form-group");
             const bonusId = formGroup.dataset.id;
-            const bonus = this.actor.getFlag("babonus", `bonuses.${bonusId}`);
+            const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
             
             // populate form:
             this.pasteValues(html, bonus, bonusId, true);
@@ -262,7 +268,7 @@ export class Build_a_Bonus extends FormApplication {
             if( !copyButton ) return;
 			const formGroup = copyButton.closest(".form-group");
             const bonusId = formGroup.dataset.id;
-            const bonus = this.actor.getFlag("babonus", `bonuses.${bonusId}`);
+            const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
             
             // populate form:
             this.pasteValues(html, bonus, bonusId, false);
@@ -288,15 +294,15 @@ export class Build_a_Bonus extends FormApplication {
         class KeysDialog extends Dialog {
             constructor(obj, options){
                 super(obj, options);
-                this.actor = obj.actor;
+                this.object = obj.object;
                 this.type = type;
             }
             get id(){
-                return `babonus-keys-dialog-${this.actor.id}-${this.type}`;
+                return `babonus-keys-dialog-${this.object.id}-${this.type}`;
             }
         }
         return new Promise(resolve => {
-            new KeysDialog({actor: app.actor, title, content,
+            new KeysDialog({object: app.object, title, content,
                 buttons: {
                     apply: {
                         icon: `<i class="fas fa-check"></i>`,
@@ -343,7 +349,7 @@ export class Build_a_Bonus extends FormApplication {
 
         if ( !inputs.label?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_LABEL");
         if ( !inputs.identifier?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_ID");
-        const alreadyIdentifierExist = this.actor.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
+        const alreadyIdentifierExist = this.object.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
         if ( alreadyIdentifierExist && !html.closest("form.babonus").classList.contains("editMode") ){
             return this.displayWarning(warningField, "BABONUS.WARNINGS.DUPLICATE_ID");
         }
@@ -360,8 +366,8 @@ export class Build_a_Bonus extends FormApplication {
         delete inputs.identifier;
         
         warningField.classList.remove("active");
-        await this.actor.update({[`flags.babonus.bonuses.${inputs.target}.-=${id}`]: null});
-        await this.actor.setFlag("babonus", `bonuses.${inputs.target}.${id}`, inputs);
+        await this.object.update({[`flags.babonus.bonuses.${inputs.target}.-=${id}`]: null});
+        await this.object.setFlag("babonus", `bonuses.${inputs.target}.${id}`, inputs);
         html.closest("form.babonus").classList.remove("editMode");
         return true;
     }
@@ -370,7 +376,7 @@ export class Build_a_Bonus extends FormApplication {
     async delete_a_bonus(button){
         const formGroup = button.closest(".form-group");
         const bonusId = formGroup.dataset.id;
-        const bonus = this.actor.getFlag("babonus", `bonuses.${bonusId}`);
+        const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
         const label = bonus.label;
 
         const prompt = await new Promise(resolve => {
@@ -396,24 +402,18 @@ export class Build_a_Bonus extends FormApplication {
 
         const target = bonusId.split(".")[0];
         const identifier = bonusId.split(".")[1];
-        await this.actor.update({[`flags.babonus.bonuses.${target}.-=${identifier}`]: null});
+        await this.object.update({[`flags.babonus.bonuses.${target}.-=${identifier}`]: null});
         return true;
     }
 
     async toggle_a_bonus(button){
         const formGroup = button.closest(".form-group");
         const bonusId = formGroup.dataset.id;
-        const state = this.actor.getFlag("babonus", `bonuses.${bonusId}.enabled`);
-        return this.actor.setFlag("babonus", `bonuses.${bonusId}.enabled`, !state);
+        const state = this.object.getFlag("babonus", `bonuses.${bonusId}.enabled`);
+        return this.object.setFlag("babonus", `bonuses.${bonusId}.enabled`, !state);
     }
 
-    // helper method to place a warning in the BAB.
-    displayWarning(field, warn){
-        field.innerText = game.i18n.localize(warn);
-        field.classList.add("active");
-        this.setPosition();
-        return false;
-    }
+    
 
     // function that takes the html and returns all the values.
     retrieveValues(html){
@@ -441,6 +441,10 @@ export class Build_a_Bonus extends FormApplication {
         else if ( target === "save" ){
             const bonus = html.querySelector(".babonus-bonuses-save [name='babonus-value']").value;
             if ( bonus ) values["bonus"] = bonus;
+        }
+        const itemRequirements = {
+            equipped: !!html.querySelector("[name='babonus-equipped']")?.checked,
+            attuned: !!html.querySelector("[name='babonus-attuned']")?.checked
         }
 
         // filters:
@@ -484,11 +488,17 @@ export class Build_a_Bonus extends FormApplication {
             }
         }
 
-        return {
-            label, identifier, target, values, description, itemTypes,
-            /* and for the filters */
-            filters
-        }
+        const finalObject = {label, identifier, target, values, description, itemTypes, filters};
+        if ( this.isItem ) finalObject.itemRequirements = itemRequirements;
+        return finalObject;
+    }
+
+    // helper method to place a warning in the BAB.
+    displayWarning(field, warn){
+        field.innerText = game.i18n.localize(warn);
+        field.classList.add("active");
+        this.setPosition();
+        return false;
     }
 
     // function that takes the html, an object (the bonus), and its id and pastes the values into the form.
@@ -504,6 +514,14 @@ export class Build_a_Bonus extends FormApplication {
         html[0].querySelector("[name='babonus-target']").value = target;
         html[0].querySelector("[name='babonus-description']").value = bonus.description;
         html[0].querySelector("[name='babonus-itemTypes']").value = bonus.itemTypes.join(";");
+        if ( this.isItem ) {
+            const equipped = html[0].querySelector("[name='babonus-equipped']");
+            if ( equipped ) equipped.checked = bonus.itemRequirements?.equipped;
+            const attuned = html[0].querySelector("[name='babonus-attuned']");
+            if ( attuned ) attuned.checked = bonus.itemRequirements?.attuned;
+        }
+
+
         if ( target === "damage" ){
             html[0].querySelector(".babonus-bonuses-damage [name='babonus-value']").value = bonus.values.bonus ?? "";
             html[0].querySelector(".babonus-bonuses-damage [name='babonus-critical-dice']").value = bonus.values.criticalBonusDice ?? "";

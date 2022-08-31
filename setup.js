@@ -1,5 +1,6 @@
 import { FILTER } from "./scripts/filters.mjs";
 import { Build_a_Bonus } from "./scripts/build_a_bonus.mjs";
+import { itemsWithoutBonuses } from "./scripts/constants.mjs";
 
 Hooks.on("setup", () => {
     CONFIG.DND5E.characterFlags["babonus"] = {
@@ -8,9 +9,18 @@ Hooks.on("setup", () => {
         section: game.i18n.localize("BABONUS.TRAITS.SECTION"),
         type: Boolean
     }
+
+    game.settings.register("babonus", "headerLabel", {
+		name: game.i18n.localize("BABONUS.SETTINGS.DISPLAY_LABEL.NAME"),
+		hint: game.i18n.localize("BABONUS.SETTINGS.DISPLAY_LABEL.HINT"),
+		scope: "world",
+		config: true,
+		type: Boolean,
+		default: true
+	});
 });
 
-Hooks.on("renderActorSheetFlags", (sheet, html, flagData) => {
+Hooks.on("renderActorSheetFlags", (app, html, flagData) => {
     const input = html[0].querySelector("input[name='flags.dnd5e.babonus']");
     const button = document.createElement("A");
     button.name = "flags.dnd5e.babonus";
@@ -18,7 +28,9 @@ Hooks.on("renderActorSheetFlags", (sheet, html, flagData) => {
     button.innerHTML = `<i class="fas fa-atlas"></i> ${label}`;
     input.replaceWith(button);
     button.addEventListener("click", async () => {
-        new Build_a_Bonus(sheet.object).render(true);
+        new Build_a_Bonus(app.object, {
+            title: `Build-a-Bonus: ${app.object.name}`
+        }).render(true);
     });
 });
 
@@ -42,7 +54,7 @@ Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
     const html = chatData.content;
     const temp = document.createElement("DIV");
     temp.innerHTML = html;
-    const saveButtons = temp.querySelectorAll("button[data-action=save]");
+    const saveButtons = temp.querySelectorAll("button[data-action='save']");
     
     // create label (innertext)
     const save = item.system.save;
@@ -51,7 +63,7 @@ Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
     const dc = save.dc + totalBonus || "";
     const label = game.i18n.format("DND5E.SaveDC", {dc, ability});
     
-    for(let btn of saveButtons) btn.innerText = `${savingThrow} ${label}`;
+    for ( let btn of saveButtons ) btn.innerText = `${savingThrow} ${label}`;
     chatData.content = temp.innerHTML;
 });
 
@@ -88,8 +100,51 @@ Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
         }
         if ( criticalBonusDamage?.length ){
             const oldValue = rollConfig.criticalBonusDamage;
-            const totalCBD = oldValue ? `${oldValue} + ${criticalBonusDamage}` : criticalBonusDamage;
+            let totalCBD;
+            if ( oldValue ) totalCBD = `${oldValue} + ${criticalBonusDamage}`;
+            else totalCBD = criticalBonusDamage;
             rollConfig.criticalBonusDamage = totalCBD;
         }
     }
+});
+
+// header button on items.
+Hooks.on("getItemSheetHeaderButtons", (app, array) => {
+    if ( itemsWithoutBonuses.includes(app.object.type) ) return;
+    const label = game.settings.get("babonus", "headerLabel");
+
+    const headerButton = {
+        class: "babonus",
+        icon: "fas fa-atlas",
+        onclick: async () => {
+            new Build_a_Bonus(app.object, {
+                title: `Build-a-Bonus: ${app.object.name}`
+            }).render(true);
+        }
+    }
+    if ( label ) {
+        const header = "BABONUS.SETTINGS.DISPLAY_LABEL.HEADER";
+        headerButton.label = game.i18n.localize(header);
+    }
+    array.unshift(headerButton);
+});
+
+// header button on effects.
+Hooks.on("getActiveEffectConfigHeaderButtons", (app, array) => {
+    const label = game.settings.get("babonus", "headerLabel");
+
+    const headerButton = {
+        class: "babonus",
+        icon: "fas fa-atlas",
+        onclick: async () => {
+            new Build_a_Bonus(app.object, {
+                title: `Build-a-Bonus: ${app.object.label}`
+            }).render(true);
+        }
+    }
+    if ( label ) {
+        const header = "BABONUS.SETTINGS.DISPLAY_LABEL.HEADER";
+        headerButton.label = game.i18n.localize(header);
+    }
+    array.unshift(headerButton);
 });

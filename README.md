@@ -1,6 +1,6 @@
 # Build-a-Bonus
 
-After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits. This gives you the ability to apply a bonus to any attack roll, damage roll, or saving throw DC, under specific circumstances.
+After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits. This gives you the ability to apply a bonus to any attack roll, damage roll, or saving throw DC, under specific circumstances. You can also find this in the header of items and active effects.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/50169243/186771931-0aa81f95-7258-4f03-b418-98a66ea45ea9.png">
@@ -14,7 +14,7 @@ For example:
 Options are open to you.
 
 ## How to Use
-Open any actor's sheet, then find the Special Traits (on the main tab of the actor sheet if using the core `dnd5e` sheet). In here, you find a link to the Build-a-Bonus application. Fill out the required fields, then start narrowing down what the bonuses should apply to using the available filters. If you need hints, hover over the labels of the required fields, or see the detailed description in the `Keys`, which also help you fill out the forms.
+Open any actor's sheet, then find the Special Traits (on the main tab of the actor sheet if using the core `dnd5e` sheet). In here, you find a link to the Build-a-Bonus application. Fill out the required fields, then start narrowing down what the bonuses should apply to using the available filters. If you need hints, hover over the labels of the required fields, or see the detailed description in the `Keys`, which also help you fill out the forms. On item sheets or effect configs, look at the header.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/50169243/186772217-e06465d0-a832-46b0-9196-0f3ad3d78e58.png">

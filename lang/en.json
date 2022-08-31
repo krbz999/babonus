@@ -25,6 +25,9 @@
             "CRIT_BONUS_DAMAGE": "Damage",
             "DESCRIPTION": "Description",
             "ITEM_TYPES": "Item Types",
+            "ITEM_SPECIFIC": "Requirements",
+            "EQUIPPED": "Equipped",
+            "ATTUNED": "Attuned",
 
             "DAMAGE_TYPES": "Damage Types",
             "ABILITIES": "Abilities",
@@ -46,7 +49,8 @@
             "ATTACK_BONUS": "Additional parts to add on top of the attack roll.",
             "DAMAGE_BONUS": "Additional parts to add on top of the damage roll.",
             "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits.",
-            "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply."
+            "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
+            "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor"
         },
         "VALUES": {
             "PH_LABEL": "label...",
@@ -133,6 +137,13 @@
         "BONUS": {
             "ENABLED": "Enabled",
             "DISABLED": "Disabled"
+        },
+        "SETTINGS": {
+            "DISPLAY_LABEL": {
+                "NAME": "Display Label",
+                "HINT": "If checked, the label is displayed in the header of applicable items and effects.",
+                "HEADER": "Build-a-Bonus"
+            }
         }
     }
 
