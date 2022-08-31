@@ -59,7 +59,7 @@ export class FILTER {
         // hook type is either 'save' (to increase save dc), 'attack', 'damage'
         // are saving throws vs specific circumstances possible?
 
-        let bonuses;
+        let bonuses = [];
 
         // add bonuses from actor.
         const flag = item.actor.getFlag("babonus", `bonuses.${hookType}`);
