@@ -156,12 +156,12 @@ export class FILTER {
         if ( !item.system.actionType ) return false;
         
         // special consideration for items set to use 'Default':
-        if ( item.system.ability === "" ){
+        if ( !item.system.ability ){
             const {abilities, attributes} = item.actor.system;
 
             /* If a weapon is Finesse, then a bonus applying to STR or DEX should
             apply if the relevant modifier is higher than the other. */
-            if ( item.system.weaponProperties?.fin ){
+            if ( item.system.properties?.fin ){
                 if ( filter.includes("str") && abilities.str.mod >= abilities.dex.mod ){
                     return true;
                 }
