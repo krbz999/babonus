@@ -267,20 +267,23 @@ export class FILTER {
         if ( !one || !other ) return false;
 
         const rollData = item.getRollData();
+        let left = Roll.replaceFormulaData(one, rollData);
+        let right = Roll.replaceFormulaData(other, rollData);
 
         try {
-            let left = Roll.replaceFormulaData(one, rollData);
-            let right = Roll.replaceFormulaData(one, rollData);
-            left = Roll.safeEval(left);
-            right = Roll.safeEval(right);
-            if ( operator === "EQ" ) return left === right;
-            if ( operator === "LT" ) return left < right;
-            if ( operator === "GT" ) return left > right;
-            if ( operator === "LE" ) return left <= right;
-            if ( operator === "GE" ) return left >= right;
+            // try comparing numbers.
+            let nLeft = Roll.safeEval(left);
+            let nRight = Roll.safeEval(right);
+            if ( operator === "EQ" ) return nLeft === nRight;
+            if ( operator === "LT" ) return nLeft < nRight;
+            if ( operator === "GT" ) return nLeft > nRight;
+            if ( operator === "LE" ) return nLeft <= nRight;
+            if ( operator === "GE" ) return nLeft >= nRight;
             return false;
         }
         catch {
+            // try comparing strings.
+            if ( operator === "EQ" ) return left == right;
             return false;
         }
     }
