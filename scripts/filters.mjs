@@ -59,7 +59,7 @@ export class FILTER {
         // hook type is either 'save' (to increase save dc), 'attack', 'damage'
         // are saving throws vs specific circumstances possible?
 
-        let bonuses;
+        let bonuses = [];
 
         // add bonuses from actor.
         const flag = item.actor.getFlag("babonus", `bonuses.${hookType}`);
@@ -156,12 +156,12 @@ export class FILTER {
         if ( !item.system.actionType ) return false;
         
         // special consideration for items set to use 'Default':
-        if ( item.system.ability === "" ){
+        if ( !item.system.ability ){
             const {abilities, attributes} = item.actor.system;
 
             /* If a weapon is Finesse, then a bonus applying to STR or DEX should
             apply if the relevant modifier is higher than the other. */
-            if ( item.system.weaponProperties?.fin ){
+            if ( item.system.properties?.fin ){
                 if ( filter.includes("str") && abilities.str.mod >= abilities.dex.mod ){
                     return true;
                 }
@@ -267,20 +267,23 @@ export class FILTER {
         if ( !one || !other ) return false;
 
         const rollData = item.getRollData();
+        let left = Roll.replaceFormulaData(one, rollData);
+        let right = Roll.replaceFormulaData(other, rollData);
 
         try {
-            let left = Roll.replaceFormulaData(one, rollData);
-            let right = Roll.replaceFormulaData(one, rollData);
-            left = Roll.safeEval(left);
-            right = Roll.safeEval(right);
-            if ( operator === "EQ" ) return left === right;
-            if ( operator === "LT" ) return left < right;
-            if ( operator === "GT" ) return left > right;
-            if ( operator === "LE" ) return left <= right;
-            if ( operator === "GE" ) return left >= right;
+            // try comparing numbers.
+            let nLeft = Roll.safeEval(left);
+            let nRight = Roll.safeEval(right);
+            if ( operator === "EQ" ) return nLeft === nRight;
+            if ( operator === "LT" ) return nLeft < nRight;
+            if ( operator === "GT" ) return nLeft > nRight;
+            if ( operator === "LE" ) return nLeft <= nRight;
+            if ( operator === "GE" ) return nLeft >= nRight;
             return false;
         }
         catch {
+            // try comparing strings.
+            if ( operator === "EQ" ) return left == right;
             return false;
         }
     }
