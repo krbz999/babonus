@@ -125,9 +125,9 @@ export class FILTER {
     // return whether item is one of the applicable weapon types.
     static baseWeapon(item, filter){
         if ( !filter?.length ) return true;
-        // only weapons can be a type of weapon...
         if ( item.type !== "weapon") return false;
-        return filter.includes(item.system.baseItem);
+        const baseWeapon = item.system.baseItem;
+        return filter.includes(baseWeapon);
     }
 
     // return whether item has one of the applicable damage types.
@@ -143,45 +143,47 @@ export class FILTER {
     // return whether item belongs to the spell school.
     static spellSchool(item, filter){
         if ( !filter?.length ) return true;
-        // only spells have schools...
         if ( item.type !== "spell" ) return false;
-        return filter.includes(item.system.school);
+        const spellSchool = item.system.school;
+        return filter.includes(spellSchool);
     }
 
     // return whether item uses one of the applicable abilities.
     static ability(item, filter){
         if ( !filter?.length ) return true;
 
-        const {actionType, ability, properties} = item.system;
-
         // if the item has no actionType, it has no ability.
-        if ( !actionType ) return false;
+        if ( !item.system.actionType ) return false;
         
         // special consideration for items set to use 'Default':
-        if ( !ability ){
+        if ( !item.system.ability ){
             const {abilities, attributes} = item.actor.system;
 
             /* If a weapon is Finesse, then a bonus applying to STR or DEX should
             apply if the relevant modifier is higher than the other. */
-            if ( item.type === "weapon" && properties.fin ){
-                const str = abilities.str.mod;
-                const dex = abilities.dex.mod;
-                if ( filter.includes("str") && str >= dex ) return true;
-                if ( filter.includes("dex") && dex >= str ) return true;
+            if ( item.system.properties?.fin ){
+                if ( filter.includes("str") && abilities.str.mod >= abilities.dex.mod ){
+                    return true;
+                }
+                if ( filter.includes("dex") && abilities.dex.mod >= abilities.str.mod ){
+                    return true;
+                }
             }
             /* If it is a melee weapon attack, then a bonus applying to STR should apply. */
-            if ( actionType === "mwak" && filter.includes("str") ) return true;
+            if ( item.system.actionType === "mwak" ){
+                if ( filter.includes("str") ) return true;
+            }
             /* If it is a ranged weapon attack, then a bonus applying to DEX should apply. */
-            if ( actionType === "rwak" && filter.includes("dex") ) return true;
-            /* If it is a spell attack or saving throw, then bonuses applying to the
-            actor's spellcasting ability should apply. When actionType='save', the ability
-            used is always the spellcasting ability. No matter what the itemType is. */
-            if ( ["msak", "rsak", "save"].includes(actionType) ){
+            if ( item.system.actionType === "rwak" ){
+                if ( filter.includes("dex") ) return true;
+            }
+            /* If it is a spell attack, then bonuses applying to the actor's spellcasting ability should apply. */
+            if ( ["msak", "rsak"].includes(item.system.actionType) ){
                 if ( filter.includes(attributes.spellcasting) ) return true;
             }
         }
 
-        return filter.includes(ability);
+        return filter.includes(item.system.ability);
     }
 
     // return whether item has either ALL of the required spell components
@@ -192,13 +194,13 @@ export class FILTER {
         // if item is not a spell, it has no components.
         if ( item.type !== "spell") return false;
 
-        const {components} = item.system;
+        const components = item.system.components;
         if ( match === MATCH.ALL ){
             // return whether types is a subset of item's components.
             return types.every(type => components[type]);
         }
         else if ( match === MATCH.ANY ){
-            // return whether there is an intersection of the two.
+            // return whether there is a proper union of the two.
             return types.some(type => components[type]);
         }
         return false;
@@ -229,7 +231,7 @@ export class FILTER {
         // if it is not a weapon, it has no weaponProperties
         if ( item.type !== "weapon" ) return false;
         
-        const {properties} = item.system;
+        const properties = item.system.properties;
         if ( unfit?.length ){
             // does item have any of the unfit properties?
             const isUnfit = unfit.some((property) => properties[property]);
@@ -251,7 +253,7 @@ export class FILTER {
         if ( !filter?.length ) return true;
 
         const scaling = item.system.save?.scaling;
-        const {spellcasting} = item.actor.system.attributes;
+        const spellcasting = item.actor.system.attributes.spellcasting;
         if ( !scaling ) return false;
 
         if ( scaling === "spell" ){
