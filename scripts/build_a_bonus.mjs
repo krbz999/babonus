@@ -1,4 +1,4 @@
-import { handlingRegular, handlingSpecial } from "./constants.mjs";
+import { handlingRegular, handlingSpecial, MATCH, MODULE } from "./constants.mjs";
 
 export class Build_a_Bonus extends FormApplication {
     constructor(object, options){
@@ -10,14 +10,14 @@ export class Build_a_Bonus extends FormApplication {
         return foundry.utils.mergeObject(super.defaultOptions, {
             closeOnSubmit: false,
             width: 450,
-            template: "/modules/babonus/templates/build_a_bonus.html",
+            template: `/modules/${MODULE}/templates/build_a_bonus.html`,
             height: "auto",
-            classes: ["babonus"]
+            classes: [MODULE]
         });
     }
 
     get id(){
-        return `babonus-build-a-bonus-${this.object.id}`;
+        return `${MODULE}-build-a-bonus-${this.object.id}`;
     }
 
     // the types of bonuses ('attack', 'damage', 'save')
@@ -31,7 +31,7 @@ export class Build_a_Bonus extends FormApplication {
 
     // the current bonuses on the actor.
     get bonuses(){
-        const flag = this.object.getFlag("babonus", "bonuses");
+        const flag = this.object.getFlag(MODULE, "bonuses");
         let bonuses = [];
         if ( flag ){
             const {attack, damage, save} = flag;
@@ -144,6 +144,16 @@ export class Build_a_Bonus extends FormApplication {
         });
     }
 
+    // get all status effects.
+    get statusEffects(){
+        const effects = CONFIG.statusEffects;
+        const ids = effects.reduce((acc, {id}) => {
+            if ( id ) acc.push(id);
+            return acc;
+        }, []);
+        return ids.map((id) => ({ value: id, label: id }));
+    }
+
     async getData(){
         const data = await super.getData();
 
@@ -153,110 +163,107 @@ export class Build_a_Bonus extends FormApplication {
             const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
             data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
         }
-
-        // filters:
-        data.damageTypes = this.damageTypes;
-        data.abilities = this.abilities;
-        data.attackTypes = this.attackTypes;
-        
-        data.spellComponents = this.spellComponents;
-        data.spellLevels = this.spellLevels;
-        data.spellSchools = this.spellSchools;
-        data.weaponTypes = this.baseWeapons;
-        data.weaponProperties = this.weaponProperties;
-
-        // where to apply a bonus:
         data.targets = this.targets;
-        // what kind of bonus to apply:
-        data.itemTypes = this.itemTypes;
-        // current bonuses.
         data.bonuses = this.bonuses;
 
         return data;
     }
     
-    async _updateObject(event, obj){
-		event.stopPropagation();
-		const html = event.target;
-		const button = event.submitter;
-		if ( !button ) return;
+    async _updateObject(event, formData){
+        event.stopPropagation();
+        const button = event.submitter;
+        if ( !button ) return;
 
-		// save a bonus.
-		if ( button.name === "babonus-save-button" ){
-			let build = await this.build_a_bonus(html);
+        // save a bonus.
+        if ( button.name === "babonus-save-button" ) {
+            const build = await this.build_a_bonus(formData);
             if ( !build ) return;
-		}
-        // delete a bonus.
-        else if ( button.name === "babonus-delete-button" ){
-            button.setAttribute("disabled", "disabled");
-            let prompt = await this.delete_a_bonus(button);
-            button?.removeAttribute("disabled");
-            if ( !prompt ) return;
         }
-        else if ( button.name === "babonus-toggle-button" ){
-            await this.toggle_a_bonus(button);
-        }
+        
         else return;
         
         this.setPosition();
         this.render()
-	}
+    }
 
-	activateListeners(html){
-		super.activateListeners(html);
-		const app = this;
+    async _onChangeInput(event){
+        if ( event ) {
+            await super._onChangeInput(event);
+            // hide/unhide some elements.
+            if ( ["target", "itemTypes"].includes(event.target.name) ) {
+                this.refreshForm();
+            }
+        }
+        // enable/disable all shown/hidden elements.
+        const inputs = ["INPUT", "SELECT"];
+        for ( const input of inputs ) {
+            const elements = this.element[0].getElementsByTagName(input);
+            for ( const element of elements ) {
+                element.disabled = element.offsetParent === null;
+            }
+        }
+    }
+
+    activateListeners(html){
+        super.activateListeners(html);
+        const app = this;
 
         // KEYS buttons.
-		html[0].addEventListener("click", async (event) => {
-			const keyButton = event.target.closest("button.babonus-keys");
+        html[0].addEventListener("click", async (event) => {
+            const keyButton = event.target.closest("button.babonus-keys");
             if( !keyButton ) return;
-			const type = keyButton.dataset.type;
+            const type = keyButton.dataset.type;
 
             const types = foundry.utils.duplicate(app[type]);
             // find list.
             if ( type !== "weaponProperties") {
-                let values = html[0].querySelector(`[name="babonus-${type}"]`).value.split(";");
-                for( let t of types ){
-                    if ( values.includes(t.value) ) t.checked = true;
+                let input = html[0].querySelector(`[name="filters.${type}"]`);
+                if ( !input ) input = html[0].querySelector(`[name="${type}"]`);
+                if ( !input ) input = html[0].querySelector(`[name="filters.${type}.types"]`); // for spellComps.
+                const values = input.value.split(";");
+                for( const t of types ) {
+                    t.checked = values.includes(t.value);
                 }
-            }
-            else {
-                let needed = html[0].querySelector(`[name="babonus-weaponProperties-needed"]`).value.split(";");
-                let unfit = html[0].querySelector(`[name="babonus-weaponProperties-unfit"]`).value.split(";");
-                for ( let t of types ){
-                    if ( needed.includes(t.value) ) t.needed = true;
-                    if ( unfit.includes(t.value) ) t.unfit = true;
+            } else {
+                const needed = html[0].querySelector(`[name="filters.weaponProperties.needed"]`).value.split(";");
+                const unfit = html[0].querySelector(`[name="filters.weaponProperties.unfit"]`).value.split(";");
+                // for checkboxes:
+                for ( const t of types ) {
+                    t.needed = needed.includes(t.value);
+                    t.unfit = unfit.includes(t.value);
                 }
             }
 
-            const template = `/modules/babonus/templates/keys_${type}.hbs`;
+            const template = `/modules/${MODULE}/templates/keys_${type}.hbs`;
             const content = await renderTemplate(template, {types});
             const title = game.i18n.localize(`BABONUS.KEY.${type}_TITLE`);
 
             const semiList = await app.applyKeys(title, content, type);
 
-            if( !semiList || foundry.utils.isEmpty(semiList) ) return;
+            if ( semiList === false || foundry.utils.isEmpty(semiList) ) return;
 
             if ( type !== "weaponProperties" ) {
-                const input = html[0].querySelector(`[name="babonus-${type}"]`);
+                let input = html[0].querySelector(`[name="filters.${type}"]`);
+                if ( !input ) input = html[0].querySelector(`[name="${type}"]`);
+                if ( !input ) input = html[0].querySelector(`[name="filters.${type}.types"]`); // for spellComps.
                 input.value = semiList;
                 if ( type === "itemTypes" ) this.refreshForm();
             }
             else {
-                const needed = html[0].querySelector("[name='babonus-weaponProperties-needed']");
-                const unfit = html[0].querySelector("[name='babonus-weaponProperties-unfit']");
-                if ( semiList.needed ) needed.value = semiList.needed;
-                if ( semiList.unfit) unfit.value = semiList.unfit;
+                const needed = html[0].querySelector("[name='filters.weaponProperties.needed']");
+                const unfit = html[0].querySelector("[name='filters.weaponProperties.unfit']");
+                needed.value = semiList.needed;
+                unfit.value = semiList.unfit;
             }
-		});
+        });
 
         // EDIT buttons.
         html[0].addEventListener("click", async (event) => {
-            const editButton = event.target.closest("button.babonus-edit");
+            const editButton = event.target.closest("a.babonus-edit");
             if( !editButton ) return;
-			const formGroup = editButton.closest(".form-group");
+            const formGroup = editButton.closest(".form-group");
             const bonusId = formGroup.dataset.id;
-            const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
+            const bonus = this.object.getFlag(MODULE, `bonuses.${bonusId}`);
             
             // populate form:
             this.pasteValues(html, bonus, bonusId, true);
@@ -264,29 +271,45 @@ export class Build_a_Bonus extends FormApplication {
 
         // COPY buttons.
         html[0].addEventListener("click", async (event) => {
-            const copyButton = event.target.closest("button.babonus-copy");
+            const copyButton = event.target.closest("a.babonus-copy");
             if( !copyButton ) return;
-			const formGroup = copyButton.closest(".form-group");
+            const formGroup = copyButton.closest(".form-group");
             const bonusId = formGroup.dataset.id;
-            const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
+            const bonus = this.object.getFlag(MODULE, `bonuses.${bonusId}`);
             
             // populate form:
             this.pasteValues(html, bonus, bonusId, false);
         });
 
+        // TOGGLE buttons.
+        html[0].addEventListener("click", async (event) => {
+            const toggleButton = event.target.closest("a.babonus-toggle");
+            if ( !toggleButton ) return;
+            await this.toggle_a_bonus(toggleButton);
+            
+            this.setPosition();
+            this.render();
+        });
+
+        // DELETE buttons.
+        html[0].addEventListener("click", async (event) => {
+            const deleteButton = event.target.closest("a.babonus-delete");
+            if ( !deleteButton ) return;
+            deleteButton.style.pointerEvents = "none";
+            const prompt = await this.delete_a_bonus(deleteButton);
+            if ( deleteButton ) deleteButton.style.pointerEvents = "";
+            if ( !prompt ) return;
+
+            this.setPosition();
+            this.render();
+        });
+
         // slugify identifier.
-        let idInput = html[0].querySelector("[name='babonus-identifier']");
+        let idInput = html[0].querySelector("[name='identifier']");
         idInput.addEventListener("change", () => {
             idInput.value = idInput.value.slugify();
         });
-
-        // on change listener for mandatory ItemTypes field, which populates the html with new inputs.
-        // just set a class in the 'div.form'.
-        const itemTypeInput = html[0].querySelector("[name='babonus-itemTypes']");
-        itemTypeInput.addEventListener("change", () => this.refreshForm());
-        const targetInput = html[0].querySelector("[name='babonus-target']");
-        targetInput.addEventListener("change", () => this.refreshForm());
-	}
+    }
 
     // async dialog helper for the Keys dialogs.
     async applyKeys(title, content, type){
@@ -298,7 +321,7 @@ export class Build_a_Bonus extends FormApplication {
                 this.type = type;
             }
             get id(){
-                return `babonus-keys-dialog-${this.object.id}-${this.type}`;
+                return `${MODULE}-keys-dialog-${this.object.id}-${this.type}`;
             }
         }
         return new Promise(resolve => {
@@ -311,15 +334,13 @@ export class Build_a_Bonus extends FormApplication {
                             const nodes = html[0].querySelectorAll("input[type='checkbox']:checked");
                             const checked = Array.from(nodes);
                             if ( type !== "weaponProperties" ){
-                                const keyString = checked.map(i => i.id).join(";");
+                                const keyString = checked.map(i => i.id).join(";") ?? "";
                                 resolve(keyString);
                             }
                             else {
                                 const needed = checked.filter(i => i.dataset.property === "needed").map(i => i.id).join(";");
                                 const unfit = checked.filter(i => i.dataset.property === "unfit").map(i => i.id).join(";");
-                                const res = {};
-                                if ( needed ) res["needed"] = needed;
-                                if ( unfit ) res["unfit"] = unfit;
+                                const res = { needed, unfit };
 
                                 resolve(res);
                             }
@@ -333,6 +354,7 @@ export class Build_a_Bonus extends FormApplication {
 
     // helper function to only use valid keys when setting flag.
     validateKeys(list, type){
+        if ( !list ) return [];
         const ids = list.split(";");
         const values = this[type].map(i => i.value);
         const validIds = ids.filter(i => values.includes(i));
@@ -340,24 +362,36 @@ export class Build_a_Bonus extends FormApplication {
     }
 
     // method to take html, gather the inputs, and either update an existing bonus or create a new one.
-    async build_a_bonus(html){
-
+    async build_a_bonus(formData){
         // gather inputs.
-        const inputs = this.retrieveValues(html);
+        const inputs = this.retrieveValues(formData);
 
-        const warningField = html.querySelector("[name='babonus-warning']");
+        // the bonus needs a label.
+        if ( !inputs.label?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_LABEL");
 
-        if ( !inputs.label?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_LABEL");
-        if ( !inputs.identifier?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_ID");
-        const alreadyIdentifierExist = this.object.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
-        if ( alreadyIdentifierExist && !html.closest("form.babonus").classList.contains("editMode") ){
-            return this.displayWarning(warningField, "BABONUS.WARNINGS.DUPLICATE_ID");
+        // the bonus needs an identifier.
+        if ( !inputs.identifier?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_ID");
+
+        // the bonus cannot have a duplicate identifier (unless in edit mode).
+        const alreadyIdentifierExist = this.object.getFlag(MODULE, `bonuses.${inputs.target}.${inputs.identifier}`);
+        if ( alreadyIdentifierExist && !this.element[0].querySelector("form.babonus").classList.contains("editMode") ) {
+            return this.displayWarning("BABONUS.WARNINGS.DUPLICATE_ID");
         }
-        if ( !inputs.target?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_TARGET");
-        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_BONUS");
-        if ( !inputs.description?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_DESC");
-        if ( !inputs.itemTypes?.length ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_TYPE");
-        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning(warningField, "BABONUS.WARNINGS.MISSING_FILTER");
+
+        // the bonus needs a target.
+        if ( !inputs.target?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_TARGET");
+
+        // the bonus needs a bonus.
+        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning("BABONUS.WARNINGS.MISSING_BONUS");
+
+        // the bonus needs a description.
+        if ( !inputs.description?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_DESC");
+
+        // the bonus needs item types.
+        if ( !inputs.itemTypes?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_TYPE");
+
+        // the bonus needs at least one filter.
+        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning("BABONUS.WARNINGS.MISSING_FILTER");
         
 
         // if inputs are valid:
@@ -365,10 +399,13 @@ export class Build_a_Bonus extends FormApplication {
         const id = inputs.identifier;
         delete inputs.identifier;
         
-        warningField.classList.remove("active");
-        await this.object.update({[`flags.babonus.bonuses.${inputs.target}.-=${id}`]: null});
-        await this.object.setFlag("babonus", `bonuses.${inputs.target}.${id}`, inputs);
-        html.closest("form.babonus").classList.remove("editMode");
+        // remove the warning field.
+        this.displayWarning(false);
+
+        // replace the old bonus (doesn't matter if it existed before).
+        await this.object.update({[`flags.${MODULE}.bonuses.${inputs.target}.-=${id}`]: null});
+        await this.object.setFlag(MODULE, `bonuses.${inputs.target}.${id}`, inputs);
+        this.element[0].classList.remove("editMode");
         return true;
     }
 
@@ -376,7 +413,7 @@ export class Build_a_Bonus extends FormApplication {
     async delete_a_bonus(button){
         const formGroup = button.closest(".form-group");
         const bonusId = formGroup.dataset.id;
-        const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
+        const bonus = this.object.getFlag(MODULE, `bonuses.${bonusId}`);
         const label = bonus.label;
 
         const prompt = await new Promise(resolve => {
@@ -402,158 +439,135 @@ export class Build_a_Bonus extends FormApplication {
 
         const target = bonusId.split(".")[0];
         const identifier = bonusId.split(".")[1];
-        await this.object.update({[`flags.babonus.bonuses.${target}.-=${identifier}`]: null});
+        await this.object.update({[`flags.${MODULE}.bonuses.${target}.-=${identifier}`]: null});
         return true;
     }
 
     async toggle_a_bonus(button){
         const formGroup = button.closest(".form-group");
         const bonusId = formGroup.dataset.id;
-        const state = this.object.getFlag("babonus", `bonuses.${bonusId}.enabled`);
-        return this.object.setFlag("babonus", `bonuses.${bonusId}.enabled`, !state);
+        const state = this.object.getFlag(MODULE, `bonuses.${bonusId}.enabled`);
+        await this.object.setFlag(MODULE, `bonuses.${bonusId}.enabled`, !state);
+        this.render();
+        return true;
     }
-
     
+    // function that takes the formData and scrubs unwanted or empty values.
+    retrieveValues(formData){
 
-    // function that takes the html and returns all the values.
-    retrieveValues(html){
-
-        // mandatory fields:
-        const label = html.querySelector("[name='babonus-label']").value;
-        const identifier = html.querySelector("[name='babonus-identifier']").value;
-        const target = html.querySelector("[name='babonus-target']").value;
-        const description = html.querySelector("[name='babonus-description']").value;
-        let itemTypes = html.querySelector("[name='babonus-itemTypes']").value;
-        itemTypes = this.validateKeys(itemTypes, "itemTypes");
-        const values = {};
-        if ( target === "damage" ){
-            const bonus = html.querySelector(".babonus-bonuses-damage [name='babonus-value']").value;
-            if ( bonus ) values["bonus"] = bonus;
-            const critDice = html.querySelector(".babonus-bonuses-damage [name='babonus-critical-dice']").value;
-            if ( critDice ) values["criticalBonusDice"] = critDice;
-            const critDamage = html.querySelector(".babonus-bonuses-damage [name='babonus-critical-damage']").value;
-            if ( critDamage ) values["criticalBonusDamage"] = critDamage;
+        const bonusData = foundry.utils.expandObject(formData);
+        bonusData.itemTypes = this.validateKeys(bonusData.itemTypes, "itemTypes");
+        if ( bonusData.values?.bonus ) {
+            bonusData.values.bonus = bonusData.values?.bonus.find(i => i);
+            if ( !Object.values(bonusData.values).filter(i => !!i).length ) {
+                delete bonusData.values;
+            }
         }
-        else if ( target === "attack" ){
-            const bonus = html.querySelector(".babonus-bonuses-attack [name='babonus-value']").value;
-            if ( bonus ) values["bonus"] = bonus;
-        }
-        else if ( target === "save" ){
-            const bonus = html.querySelector(".babonus-bonuses-save [name='babonus-value']").value;
-            if ( bonus ) values["bonus"] = bonus;
-        }
-        const itemRequirements = {
-            equipped: !!html.querySelector("[name='babonus-equipped']")?.checked,
-            attuned: !!html.querySelector("[name='babonus-attuned']")?.checked
-        }
-
+        
         // filters:
-        let filters = {};
-        for( let filter of handlingRegular ){
-            let list = html.querySelector(`[name="babonus-${filter}"]`);
-            if( !list.value || list.offsetParent === null ) continue; // if hidden
-            list = this.validateKeys(list.value, filter);
-            if( list.length ) filters[filter] = list;
+        for ( const filter of handlingRegular ) {
+            bonusData.filters[filter] = this.validateKeys(bonusData.filters[filter], filter);
+            if ( !bonusData.filters[filter]?.length ) delete bonusData.filters[filter];
         }
+        
         // these take special handling:
-        for ( let filter of handlingSpecial ){
-            if ( filter === "spellComponents" ){
-                let list = html.querySelector("[name='babonus-spellComponents']");
-                if ( !list.value || list.offsetParent === null ) continue; // if hidden
-                list = this.validateKeys(list.value, "spellComponents");
-                if( list.length ){
-                    const matchType = html.querySelector("[name='babonus-spellComponents-match']").value;
-                    filters["spellComponents"] = { types: list, match: matchType }
-                }
-            }
-            else if ( filter.startsWith("weaponProperties") ){
-                let listNeeded = html.querySelector("[name='babonus-weaponProperties-needed']");
-                let listUnfit = html.querySelector("[name='babonus-weaponProperties-unfit']");
-                if ( listNeeded.offsetParent === null ) continue; // if hidden
-                listNeeded = this.validateKeys(listNeeded.value, "weaponProperties");
-                listUnfit = this.validateKeys(listUnfit.value, "weaponProperties");
-                let weaponPropertes = {}
-                if ( listNeeded.length ) weaponPropertes.needed = listNeeded;
-                if ( listUnfit.length ) weaponPropertes.unfit = listUnfit;
-                if ( !foundry.utils.isEmpty(weaponPropertes) ){
-                    filters["weaponProperties"] = weaponPropertes;
-                }
-            }
-            else if ( filter === "arbitraryComparison" ){
-                let one = html.querySelector("[name='babonus-arbitraryComparisonOne']").value;
-                let other = html.querySelector("[name='babonus-arbitraryComparisonOther']").value;
-                let operator = html.querySelector("[name='babonus-arbitraryComparisonOperator']").value;
-                if ( !one || !other ) continue;
-                filters["arbitraryComparison"] = {one, other, operator};
+        for ( const filter of handlingSpecial ) {
+            if ( filter === "spellComponents" ) {
+                const as = bonusData.filters[filter];
+                if ( !as ) continue;
+                as.types = this.validateKeys(as.types, filter);
+                if ( !as.types.length ) delete bonusData.filters[filter];
+            } else if ( filter === "weaponProperties" ) {
+                const as = bonusData.filters["weaponProperties"];
+                if ( !as ) continue;
+                as.needed = this.validateKeys(as.needed, "weaponProperties");
+                as.unfit = this.validateKeys(as.unfit, "weaponProperties");
+                if ( !as.needed.length ) delete bonusData.filters["weaponProperties"].needed;
+                if ( !as.unfit.length ) delete bonusData.filters["weaponProperties"].unfit;
+                if ( foundry.utils.isEmpty(as) ) delete bonusData.filters["weaponProperties"];
+            } else if ( filter === "arbitraryComparison" ) {
+                const { one, other } = bonusData.filters[filter];
+                if ( !one || !other ) delete bonusData.filters[filter];
             }
         }
 
-        const finalObject = {label, identifier, target, values, description, itemTypes, filters};
-        if ( this.isItem ) finalObject.itemRequirements = itemRequirements;
-        return finalObject;
+        return bonusData;
     }
 
-    // helper method to place a warning in the BAB.
-    displayWarning(field, warn){
+    // helper method to place or remove a warning in the BAB.
+    displayWarning(warn){
+        const field = this.element[0].querySelector("[name='babonus-warning']");
+        if ( warn === false ) {
+            field.classList.remove("active");
+            return true;
+        }
         field.innerText = game.i18n.localize(warn);
         field.classList.add("active");
         this.setPosition();
         return false;
     }
 
-    // function that takes the html, an object (the bonus), and its id and pastes the values into the form.
-    // "edit": are we editing or copying?
-    pasteValues(html, bonus, id, edit = true){
-        const label = edit ? bonus.label : "";
-        const target = id.split(".")[0];
-        const identifier = edit ? id.split(".")[1] : "";
+    /**
+     * A helper function to fill out the form with an existing bonus from the document.
+     * 
+     * @param {HTML} html           The html of the form.
+     * @param {Object} flagBonus    The bonus of the document.
+     * @param {String} id           The id of the bonus, also contains the target.
+     * @param {Boolean} edit        Whether this is a bonus being edited or copied.
+     */
+    pasteValues(html, flagBonus, id, edit = true){
+        const bonus = foundry.utils.duplicate(flagBonus);
+
+        if ( edit ) {
+            bonus.identifier = id.split(".")[1];
+        } else {
+            bonus.label = "";
+            bonus.identifier = "";
+        }
+        bonus.target = id.split(".")[0];
+
+        /**
+         * Paste values into the form for the basic string inputs
+         * that are not converted between strings and arrays.
+         */
+        for ( const key of ["label", "identifier", "target", "description"] ) {
+            html[0].querySelector(`[name='${key}']`).value = bonus[key];
+        }
+        html[0].querySelector("[name='itemTypes']").value = bonus.itemTypes.join(";");
         
-        // populate form:
-        html[0].querySelector("[name='babonus-label']").value = label;
-        html[0].querySelector("[name='babonus-identifier']").value = identifier;
-        html[0].querySelector("[name='babonus-target']").value = target;
-        html[0].querySelector("[name='babonus-description']").value = bonus.description;
-        html[0].querySelector("[name='babonus-itemTypes']").value = bonus.itemTypes.join(";");
         if ( this.isItem ) {
-            const equipped = html[0].querySelector("[name='babonus-equipped']");
-            if ( equipped ) equipped.checked = bonus.itemRequirements?.equipped;
-            const attuned = html[0].querySelector("[name='babonus-attuned']");
-            if ( attuned ) attuned.checked = bonus.itemRequirements?.attuned;
-        }
-
-
-        if ( target === "damage" ){
-            html[0].querySelector(".babonus-bonuses-damage [name='babonus-value']").value = bonus.values.bonus ?? "";
-            html[0].querySelector(".babonus-bonuses-damage [name='babonus-critical-dice']").value = bonus.values.criticalBonusDice ?? "";
-            html[0].querySelector(".babonus-bonuses-damage [name='babonus-critical-damage']").value = bonus.values.criticalBonusDamage ?? "";
-        }
-        else if ( target === "attack" ){
-            html[0].querySelector(".babonus-bonuses-attack [name='babonus-value']").value = bonus.values.bonus ?? "";
-        }
-        else if ( target === "save" ){
-            html[0].querySelector(".babonus-bonuses-save [name='babonus-value']").value = bonus.values.bonus ?? "";
+            const equipped = html[0].querySelector("[name='itemRequirements.equipped']");
+            if ( equipped ) equipped.checked = !!bonus.itemRequirements?.equipped;
+            const attuned = html[0].querySelector("[name='itemRequirements.attuned']");
+            if ( attuned ) attuned.checked = !!bonus.itemRequirements?.attuned;
         }
         
-        for( let filter of handlingRegular ){
-            let string = bonus.filters[filter]?.join(";");
-            html[0].querySelector(`[name="babonus-${filter}"]`).value = string ? string : "";
-        }
-        if ( bonus.filters["spellComponents"] ){
-            html[0].querySelector("[name='babonus-spellComponents']").value = bonus.filters["spellComponents"].types.join(";");
-            html[0].querySelector("[name='babonus-spellComponents-match']").value = bonus.filters["spellComponents"].match;
-        }
-        if ( bonus.filters["weaponProperties"] ){
-            html[0].querySelector("[name='babonus-weaponProperties-needed']").value = bonus.filters["weaponProperties"].needed?.join(";") ?? "";
-            html[0].querySelector("[name='babonus-weaponProperties-unfit']").value = bonus.filters["weaponProperties"].unfit?.join(";") ?? "";
-        }
-        if ( bonus.filters["arbitraryComparison"] ){
-            const {one, other, operator} = bonus.filters["arbitraryComparison"];
-            html[0].querySelector("[name='babonus-arbitraryComparisonOne']").value = one;
-            html[0].querySelector("[name='babonus-arbitraryComparisonOther']").value = other;
-            html[0].querySelector("[name='babonus-arbitraryComparisonOperator']").value = operator;
+        if ( bonus.target === "damage" ) {
+            html[0].querySelector(".babonus-bonuses-damage [name='values.bonus']").value = bonus.values.bonus ?? "";
+            html[0].querySelector("[name='values.criticalBonusDice']").value = bonus.values.criticalBonusDice ?? "";
+            html[0].querySelector("[name='values.criticalBonusDamage']").value = bonus.values.criticalBonusDamage ?? "";
+        } else if ( bonus.target === "attack" ) {
+            html[0].querySelector(".babonus-bonuses-attack [name='values.bonus']").value = bonus.values.bonus ?? "";
+        } else if ( bonus.target === "save" ) {
+            html[0].querySelector(".babonus-bonuses-save [name='values.bonus']").value = bonus.values.bonus ?? "";
         }
         
-        if( !edit ) html[0].closest("form.babonus").classList.remove("editMode");
+        // filters whose values should just be joined by semicolon in a text field.
+        for ( const filter of handlingRegular ) {
+            const string = bonus.filters[filter]?.join(";");
+            html[0].querySelector(`[name="filters.${filter}"]`).value = string ?? "";
+        }
+        // special handling.
+        html[0].querySelector("[name='filters.spellComponents.types']").value = bonus.filters["spellComponents"]?.types.join(";") ?? "";
+        html[0].querySelector("[name='filters.spellComponents.match']").value = bonus.filters["spellComponents"]?.match ?? MATCH.ANY;
+        html[0].querySelector("[name='filters.weaponProperties.needed']").value = bonus.filters["weaponProperties"]?.needed?.join(";") ?? "";
+        html[0].querySelector("[name='filters.weaponProperties.unfit']").value = bonus.filters["weaponProperties"]?.unfit?.join(";") ?? "";
+        const {one, other, operator} = bonus.filters["arbitraryComparison"] ?? {};
+        html[0].querySelector("[name='filters.arbitraryComparison.one']").value = one ?? "";
+        html[0].querySelector("[name='filters.arbitraryComparison.other']").value = other ?? "";
+        html[0].querySelector("[name='filters.arbitraryComparison.operator']").value = operator ?? "EQ";
+        
+        if ( !edit ) html[0].closest("form.babonus").classList.remove("editMode");
         else html[0].closest("form.babonus").classList.add("editMode");
         this.refreshForm();
     }
@@ -561,19 +575,20 @@ export class Build_a_Bonus extends FormApplication {
     // helper method to populate the BAB with new fields depending on the itemTypes selected.
     refreshForm(){
         const html = this.element;
-        const itemTypeInput = html[0].querySelector("[name='babonus-itemTypes']");
-        const targetInput = html[0].querySelector("[name='babonus-target']");
+        const itemTypeInput = html[0].querySelector("[name='itemTypes']");
+        const targetInput = html[0].querySelector("[name='target']");
         const values = itemTypeInput.value.split(";").map(i => i.trim());
         const form = itemTypeInput.closest("form.babonus");
-        for( let {value} of this.itemTypes ){
+        for ( const {value} of this.itemTypes ) {
             if ( values.includes(value) ) form.classList.add(value);
             else form.classList.remove(value);
         }
-        for ( let {value} of this.targets ){
+        for ( const {value} of this.targets ) {
             if ( targetInput.value === value ) form.classList.add(value);
             else form.classList.remove(value);
         }
         this.setPosition();
+        this._onChangeInput();
     }
 
 }

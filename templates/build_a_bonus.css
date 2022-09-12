@@ -1,7 +1,7 @@
-.babonus-h1 {
+form.babonus h1 {
     text-align: center;
     font-size: 40px;
-    border-bottom: 0px;
+    border-bottom: none;
 }
 
 .build-a-bonus .babonus-required-fields label.babonus-label {
@@ -14,7 +14,7 @@
     align-self: flex-start;
     text-align: center;
 }
-/*.current-bonuses .form-group label.babonus-label:not(.disabled) { font-weight: bolder; }*/
+
 .current-bonuses .form-group label.babonus-label.disabled { text-decoration: line-through; }
 
 .babonus-identifier { font-style: italic; color: gray; }
@@ -48,12 +48,12 @@ button.babonus-keys { min-width: 100px; flex: 0; }
     font-size: 16px;
 }
 
-/*.babonus-checkbox-100 { min-width: 100px; }*/
-.babonus td:not(:first-child) { text-align: center; }
+/* center all table columns that are not first (i.e., all columns with a checkbox) */
+table.babonus td:not(:first-child) { text-align: center; }
 
-form.editMode [name='babonus-identifier'],
-form.editMode [name='babonus-label'],
-form.editMode [name='babonus-target'] {
+form.babonus.editMode [name='identifier'],
+form.babonus.editMode [name='label'],
+form.babonus.editMode [name='target'] {
     pointer-events: none;
     color:#AAA;
 }
@@ -85,3 +85,11 @@ form.babonus.save div.babonus-bonuses-save { display: block; }
 form.babonus div.babonus-bonuses-save { display: none; }
 form.babonus.save div.form-group.saveAbilities { display: flex; }
 form.babonus div.form-group.saveAbilities { display: none; }
+
+/* buttons */
+form.babonus .babonus-bonus-details a {
+    text-align: end;
+    width: fit-content;
+    max-width: fit-content;
+    padding: 3px;
+}
