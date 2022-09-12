@@ -17,7 +17,7 @@ Options are open to you.
 Open any actor's sheet, then find the Special Traits (on the main tab of the actor sheet if using the core `dnd5e` sheet). In here, you find a link to the Build-a-Bonus application. Fill out the required fields, then start narrowing down what the bonuses should apply to, and when they should apply, using the available filters. If you need hints, hover over the labels of the required fields, or see the detailed description in the 'Keys', which also help you fill out the forms. On item sheets or effect configs, look at the header to find the Build-a-Bonus application.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/50169243/186772217-e06465d0-a832-46b0-9196-0f3ad3d78e58.png">
+  <img src="https://i.imgur.com/PvnTRRH.png">
 </p>
 
 Once you are done creating the bonus, save it and your actor should now have their bonus apply when they use an item with a saving throw attached, or when they roll attack or damage with an item, given that they match the filters of the bonus.
