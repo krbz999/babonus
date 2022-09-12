@@ -1,3 +1,4 @@
+export const MODULE = "babonus";
 export const MATCH = { ANY: "ANY", ALL: "ALL" }
 export const handlingRegular = [
     "baseWeapons",

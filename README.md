@@ -24,3 +24,27 @@ Once you are done creating the bonus, save it and your actor should now have the
 
 ## Toggling a Bonus via Active Effects
 The bonuses are more complex in their structure than the usual ActiveEffects. However, you can modify specific fields of a bonus using effects, and even toggle the bonus on or off. When you create a bonus, you are prompted to give it an identifier (the label is for human eyes only). You can either toggle a bonus on or off using the button in the Build-a-Bonus application, or you can create an active effect with this attribute key: `flags.babonus.bonuses.<attack/damage/save>.<identifier>.enabled | Override | <true or false>`.
+
+## The Full Choice List
+This is the full array of filters and choices you can make in the Build-a-Bonus.
+
+Required fields:
+- Identifiers (label and identifier): the human-readable name of the bonus (you can put anything you like here), and the unique identifier the module uses to refer to the bonus, which is also used in Active Effects.
+- Targets: what kind of bonus you are making. Either Attack Rolls, Damage Rolls, or Save DC.
+- Bonus: the bonus to add on top of the target. This can be dice rolls (for attack and damage rolls), but Save DC only supports numbers, though using roll data is supported in either case. For damage rolls there is also critical bonuses; dice and damage for additional dice to add on top of critical hits (e.g., increasing the number of weapon dice) and for regular additional damage on top. This supports all attack types, not just weapons.
+- Description: a human-readable blurb descriping the bonus. You can put anything you like here.
+- Item Types: the type of item the bonus should apply to. E.g., if you want to increase the save DC globally but only for equipment type items, not spells.
+- Requirements: two checks that show up in the Build-a-Bonus for items only, to filter whether the item should apply its bonus to the actor by requiring attunement or being equipped.
+
+Filters:
+- Damage Types: to filter the bonus to only apply to items that have a damage formula with this kind of damage type.
+- Abilities: to filter the bonus to only apply to items that have set the used ability to be one of these types. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons.
+- Comparison: an arbitrary comparison you can use for anything that is not covered in the Build-a-Bonus natively. This supports both roll data and strings. If you enter strings, the inequality will attempt to match substrings. It will otherwise attempt to determine numeric values after replacing roll data with the roll data of the item and actor.
+- Status Effects: to filter the bonus to only apply if the actor is affected by a specific status condition. This uses the `flags.core.statusId` string stored in most status conditions. As such, you can technically add all you want here, and the field is not filtered against valid values.
+- Attack Types: to filter the bonus to only apply to attack rolls of a certain kind. This entry only shows up if the Target is set to Attack Rolls.
+- Save Ability: to filter the bonus to save DC such that it only applies if the DC is set using a specific ability score. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.
+- Components: to filter the bonus to only apply if the item is a spell that has any one (or all) of the given components.
+- Spell Levels: to filter the bonus to only apply if the item is a spell and is cast at one of the given levels.
+- Spell Schools: to filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.
+- Weapons: to filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'.
+- Properties: to filter the bonus to only apply if the item is a weapon that has at least one of the required weapon properties (if any) while having none of the unfit properties (if any).

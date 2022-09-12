@@ -1,4 +1,4 @@
-import { MATCH } from "./constants.mjs";
+import { MATCH, MODULE } from "./constants.mjs";
 
 /**
  * An example bonus, as it would be
@@ -81,7 +81,7 @@ export class FILTER {
         let bonuses = [];
 
         // add bonuses from actor.
-        const flag = item.actor.getFlag("babonus", `bonuses.${hookType}`);
+        const flag = item.actor.getFlag(MODULE, `bonuses.${hookType}`);
         if ( flag ) bonuses = Object.entries(flag);
 
         /**
@@ -91,7 +91,7 @@ export class FILTER {
          * properties, such as feature type items.
          */
         for ( const it of item.actor.items ) {
-            const itemFlag = it.getFlag("babonus", `bonuses.${hookType}`);
+            const itemFlag = it.getFlag(MODULE, `bonuses.${hookType}`);
             if ( !itemFlag ) continue;
             
             const itemBonuses = Object.entries(itemFlag);
@@ -114,7 +114,7 @@ export class FILTER {
          */
         for ( const eff of item.actor.effects ) {
             if ( eff.disabled || eff.isSuppressed ) continue;
-            const effectFlag = eff.getFlag("babonus", `bonuses.${hookType}`);
+            const effectFlag = eff.getFlag(MODULE, `bonuses.${hookType}`);
             if ( !effectFlag ) continue;
 
             const effectBonuses = Object.entries(effectFlag);

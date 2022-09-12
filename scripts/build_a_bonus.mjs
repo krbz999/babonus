@@ -1,4 +1,4 @@
-import { handlingRegular, handlingSpecial, MATCH } from "./constants.mjs";
+import { handlingRegular, handlingSpecial, MATCH, MODULE } from "./constants.mjs";
 
 export class Build_a_Bonus extends FormApplication {
     constructor(object, options){
@@ -10,14 +10,14 @@ export class Build_a_Bonus extends FormApplication {
         return foundry.utils.mergeObject(super.defaultOptions, {
             closeOnSubmit: false,
             width: 450,
-            template: "/modules/babonus/templates/build_a_bonus.html",
+            template: `/modules/${MODULE}/templates/build_a_bonus.html`,
             height: "auto",
-            classes: ["babonus"]
+            classes: [MODULE]
         });
     }
 
     get id(){
-        return `babonus-build-a-bonus-${this.object.id}`;
+        return `${MODULE}-build-a-bonus-${this.object.id}`;
     }
 
     // the types of bonuses ('attack', 'damage', 'save')
@@ -31,7 +31,7 @@ export class Build_a_Bonus extends FormApplication {
 
     // the current bonuses on the actor.
     get bonuses(){
-        const flag = this.object.getFlag("babonus", "bonuses");
+        const flag = this.object.getFlag(MODULE, "bonuses");
         let bonuses = [];
         if ( flag ){
             const {attack, damage, save} = flag;
@@ -163,23 +163,7 @@ export class Build_a_Bonus extends FormApplication {
             const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
             data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
         }
-
-        // filters:
-        /*data.damageTypes = this.damageTypes;
-        data.abilities = this.abilities;
-        data.attackTypes = this.attackTypes;
-        
-        data.spellComponents = this.spellComponents;
-        data.spellLevels = this.spellLevels;
-        data.spellSchools = this.spellSchools;
-        data.weaponTypes = this.baseWeapons;
-        data.weaponProperties = this.weaponProperties;*/
-
-        // where to apply a bonus:
         data.targets = this.targets;
-        // what kind of bonus to apply:
-        //data.itemTypes = this.itemTypes;
-        // current bonuses.
         data.bonuses = this.bonuses;
 
         return data;
@@ -187,20 +171,20 @@ export class Build_a_Bonus extends FormApplication {
     
     async _updateObject(event, formData){
         event.stopPropagation();
-		const button = event.submitter;
-		if ( !button ) return;
+        const button = event.submitter;
+        if ( !button ) return;
 
-		// save a bonus.
-		if ( button.name === "babonus-save-button" ) {
+        // save a bonus.
+        if ( button.name === "babonus-save-button" ) {
             const build = await this.build_a_bonus(formData);
             if ( !build ) return;
-		}
+        }
         
         else return;
         
         this.setPosition();
         this.render()
-	}
+    }
 
     async _onChangeInput(event){
         if ( event ) {
@@ -220,15 +204,15 @@ export class Build_a_Bonus extends FormApplication {
         }
     }
 
-	activateListeners(html){
-		super.activateListeners(html);
-		const app = this;
+    activateListeners(html){
+        super.activateListeners(html);
+        const app = this;
 
         // KEYS buttons.
-		html[0].addEventListener("click", async (event) => {
-			const keyButton = event.target.closest("button.babonus-keys");
+        html[0].addEventListener("click", async (event) => {
+            const keyButton = event.target.closest("button.babonus-keys");
             if( !keyButton ) return;
-			const type = keyButton.dataset.type;
+            const type = keyButton.dataset.type;
 
             const types = foundry.utils.duplicate(app[type]);
             // find list.
@@ -250,7 +234,7 @@ export class Build_a_Bonus extends FormApplication {
                 }
             }
 
-            const template = `/modules/babonus/templates/keys_${type}.hbs`;
+            const template = `/modules/${MODULE}/templates/keys_${type}.hbs`;
             const content = await renderTemplate(template, {types});
             const title = game.i18n.localize(`BABONUS.KEY.${type}_TITLE`);
 
@@ -271,15 +255,15 @@ export class Build_a_Bonus extends FormApplication {
                 needed.value = semiList.needed;
                 unfit.value = semiList.unfit;
             }
-		});
+        });
 
         // EDIT buttons.
         html[0].addEventListener("click", async (event) => {
             const editButton = event.target.closest("a.babonus-edit");
             if( !editButton ) return;
-			const formGroup = editButton.closest(".form-group");
+            const formGroup = editButton.closest(".form-group");
             const bonusId = formGroup.dataset.id;
-            const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
+            const bonus = this.object.getFlag(MODULE, `bonuses.${bonusId}`);
             
             // populate form:
             this.pasteValues(html, bonus, bonusId, true);
@@ -289,9 +273,9 @@ export class Build_a_Bonus extends FormApplication {
         html[0].addEventListener("click", async (event) => {
             const copyButton = event.target.closest("a.babonus-copy");
             if( !copyButton ) return;
-			const formGroup = copyButton.closest(".form-group");
+            const formGroup = copyButton.closest(".form-group");
             const bonusId = formGroup.dataset.id;
-            const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
+            const bonus = this.object.getFlag(MODULE, `bonuses.${bonusId}`);
             
             // populate form:
             this.pasteValues(html, bonus, bonusId, false);
@@ -325,7 +309,7 @@ export class Build_a_Bonus extends FormApplication {
         idInput.addEventListener("change", () => {
             idInput.value = idInput.value.slugify();
         });
-	}
+    }
 
     // async dialog helper for the Keys dialogs.
     async applyKeys(title, content, type){
@@ -337,7 +321,7 @@ export class Build_a_Bonus extends FormApplication {
                 this.type = type;
             }
             get id(){
-                return `babonus-keys-dialog-${this.object.id}-${this.type}`;
+                return `${MODULE}-keys-dialog-${this.object.id}-${this.type}`;
             }
         }
         return new Promise(resolve => {
@@ -389,7 +373,7 @@ export class Build_a_Bonus extends FormApplication {
         if ( !inputs.identifier?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_ID");
 
         // the bonus cannot have a duplicate identifier (unless in edit mode).
-        const alreadyIdentifierExist = this.object.getFlag("babonus", `bonuses.${inputs.target}.${inputs.identifier}`);
+        const alreadyIdentifierExist = this.object.getFlag(MODULE, `bonuses.${inputs.target}.${inputs.identifier}`);
         if ( alreadyIdentifierExist && !this.element[0].querySelector("form.babonus").classList.contains("editMode") ) {
             return this.displayWarning("BABONUS.WARNINGS.DUPLICATE_ID");
         }
@@ -419,8 +403,8 @@ export class Build_a_Bonus extends FormApplication {
         this.displayWarning(false);
 
         // replace the old bonus (doesn't matter if it existed before).
-        await this.object.update({[`flags.babonus.bonuses.${inputs.target}.-=${id}`]: null});
-        await this.object.setFlag("babonus", `bonuses.${inputs.target}.${id}`, inputs);
+        await this.object.update({[`flags.${MODULE}.bonuses.${inputs.target}.-=${id}`]: null});
+        await this.object.setFlag(MODULE, `bonuses.${inputs.target}.${id}`, inputs);
         this.element[0].classList.remove("editMode");
         return true;
     }
@@ -429,7 +413,7 @@ export class Build_a_Bonus extends FormApplication {
     async delete_a_bonus(button){
         const formGroup = button.closest(".form-group");
         const bonusId = formGroup.dataset.id;
-        const bonus = this.object.getFlag("babonus", `bonuses.${bonusId}`);
+        const bonus = this.object.getFlag(MODULE, `bonuses.${bonusId}`);
         const label = bonus.label;
 
         const prompt = await new Promise(resolve => {
@@ -455,15 +439,15 @@ export class Build_a_Bonus extends FormApplication {
 
         const target = bonusId.split(".")[0];
         const identifier = bonusId.split(".")[1];
-        await this.object.update({[`flags.babonus.bonuses.${target}.-=${identifier}`]: null});
+        await this.object.update({[`flags.${MODULE}.bonuses.${target}.-=${identifier}`]: null});
         return true;
     }
 
     async toggle_a_bonus(button){
         const formGroup = button.closest(".form-group");
         const bonusId = formGroup.dataset.id;
-        const state = this.object.getFlag("babonus", `bonuses.${bonusId}.enabled`);
-        await this.object.setFlag("babonus", `bonuses.${bonusId}.enabled`, !state);
+        const state = this.object.getFlag(MODULE, `bonuses.${bonusId}.enabled`);
+        await this.object.setFlag(MODULE, `bonuses.${bonusId}.enabled`, !state);
         this.render();
         return true;
     }
