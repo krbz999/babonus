@@ -21,6 +21,7 @@ Hooks.on("setup", () => {
 });
 
 Hooks.on("renderActorSheetFlags", (app, html, flagData) => {
+    if ( !app.isEditable ) return;
     const input = html[0].querySelector("input[name='flags.dnd5e.babonus']");
     const button = document.createElement("A");
     button.name = "flags.dnd5e.babonus";
@@ -39,7 +40,7 @@ Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
     const data = item.getRollData();
     const bonuses = FILTER.mainCheck(item, "save");
     if ( !bonuses.length ) return;
-    const totalBonus = bonuses.reduce((acc, {bonus}) => {
+    const totalBonus = bonuses.reduce((acc, { bonus }) => {
         try {
             const formula = Roll.replaceFormulaData(bonus, data);
             const total = Roll.safeEval(formula);
@@ -61,9 +62,9 @@ Hooks.on("dnd5e.preDisplayCard", (item, chatData, options) => {
     const ability = CONFIG.DND5E.abilities[save.ability] ?? "";
     const savingThrow = game.i18n.localize("DND5E.ActionSave");
     const dc = save.dc + totalBonus || "";
-    const label = game.i18n.format("DND5E.SaveDC", {dc, ability});
+    const label = game.i18n.format("DND5E.SaveDC", { dc, ability });
     
-    for ( let btn of saveButtons ) btn.innerText = `${savingThrow} ${label}`;
+    for ( const btn of saveButtons ) btn.innerText = `${savingThrow} ${label}`;
     chatData.content = temp.innerHTML;
 });
 
@@ -82,12 +83,12 @@ Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
     const values = FILTER.mainCheck(item, "damage");
     
     // add to rollConfig.
-    for( let {bonus, criticalBonusDice, criticalBonusDamage} of values ){
-        if ( bonus?.length ){
+    for( const {bonus, criticalBonusDice, criticalBonusDamage} of values ) {
+        if ( bonus?.length ) {
             const parts = rollConfig.parts.concat(bonus);
             rollConfig.parts = parts;
         }
-        if ( criticalBonusDice?.length ){
+        if ( criticalBonusDice?.length ) {
             let totalCBD;
             try {
                 const formula = Roll.replaceFormulaData(criticalBonusDice, rollConfig.data);
@@ -98,7 +99,7 @@ Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
             const oldValue = rollConfig.criticalBonusDice ?? 0;
             rollConfig.criticalBonusDice = oldValue + totalCBD;
         }
-        if ( criticalBonusDamage?.length ){
+        if ( criticalBonusDamage?.length ) {
             const oldValue = rollConfig.criticalBonusDamage;
             let totalCBD;
             if ( oldValue ) totalCBD = `${oldValue} + ${criticalBonusDamage}`;
@@ -111,6 +112,7 @@ Hooks.on("dnd5e.preRollDamage", (item, rollConfig) => {
 // header button on items.
 Hooks.on("getItemSheetHeaderButtons", (app, array) => {
     if ( itemsWithoutBonuses.includes(app.object.type) ) return;
+    if ( !app.isEditable ) return;
     const label = game.settings.get("babonus", "headerLabel");
 
     const headerButton = {
@@ -131,6 +133,7 @@ Hooks.on("getItemSheetHeaderButtons", (app, array) => {
 
 // header button on effects.
 Hooks.on("getActiveEffectConfigHeaderButtons", (app, array) => {
+    if ( !app.isEditable ) return;
     const label = game.settings.get("babonus", "headerLabel");
 
     const headerButton = {
