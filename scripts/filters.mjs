@@ -95,10 +95,11 @@ export class FILTER {
             if ( !itemFlag ) continue;
             
             const itemBonuses = Object.entries(itemFlag);
-            const {equipped, attunement} = it.system;
-            const {ATTUNED} = CONFIG.DND5E.attunementTypes;
+            const { equipped, attunement } = it.system;
+            const { ATTUNED } = CONFIG.DND5E.attunementTypes;
             const validItemBonuses = itemBonuses.filter(([id, {enabled, itemRequirements}]) => {
                 if ( !enabled ) return false;
+                if ( !itemRequirements ) return true;
                 const {equipped: needsEq, attuned: needsAtt} = itemRequirements;
                 if ( !equipped && needsEq ) return false;
                 if ( attunement !== ATTUNED && needsAtt ) return false;
@@ -118,7 +119,7 @@ export class FILTER {
             if ( !effectFlag ) continue;
 
             const effectBonuses = Object.entries(effectFlag);
-            const validEffectBonuses = effectBonuses.filter(([id, {enabled}]) => {
+            const validEffectBonuses = effectBonuses.filter(([id, { enabled }]) => {
                 return enabled;
             });
             bonuses = bonuses.concat(validEffectBonuses);
@@ -131,7 +132,7 @@ export class FILTER {
         if( !bonuses.length ) return [];
         
         // the final filtering.
-        const valids = bonuses.reduce((acc, [id, {enabled, values, filters, itemTypes}]) => {
+        const valids = bonuses.reduce((acc, [id, { enabled, values, filters, itemTypes }]) => {
             /**
              * The bonus must be enabled. This can be disabled
              * either via ActiveEffects or directly in the BAB.
@@ -202,7 +203,7 @@ export class FILTER {
     static damageType(item, filter){
         if ( !filter?.length ) return true;
 
-        const damageTypes = item.getDerivedDamageLabel().some(({damageType}) => {
+        const damageTypes = item.getDerivedDamageLabel().some(({ damageType }) => {
             return filter.includes(damageType);
         });
         return damageTypes;
@@ -246,7 +247,7 @@ export class FILTER {
          * but should always be falsy.
          */
         if ( !ability ) {
-            const {abilities, attributes} = item.actor.system;
+            const { abilities, attributes } = item.actor.system;
 
             /**
              * If a weapon is Finesse, then a bonus applying to Strength
@@ -296,7 +297,7 @@ export class FILTER {
      * @param {String} match    The type of matching, either ALL or ANY.
      * @returns {Boolean}       Whether the item had any/all of the components.
      */
-    static spellComponents(item, {types, match}){
+    static spellComponents(item, { types, match }){
         if ( !types?.length ) return true;
         if ( item.type !== "spell") return false;
 
@@ -360,7 +361,7 @@ export class FILTER {
      * @param {Array} unfit     The weapon properties that the item must have none of.
      * @returns {Boolean}       Whether the item has any of the needed properties, and none of the unfit properties.
      */
-    static weaponProperty(item, {needed, unfit}){
+    static weaponProperty(item, { needed, unfit }){
         if ( !needed?.length && !unfit?.length ) return true;
         if ( item.type !== "weapon" ) return false;
         
@@ -415,7 +416,7 @@ export class FILTER {
      * @param {String} other        The right-side value from the BAB.
      * @param {String} operator     The relation that the two values should have.
      */
-    static arbitraryComparison(item, {one, other, operator}){
+    static arbitraryComparison(item, { one, other, operator }){
         /**
          * This method immediately returns false
          */
