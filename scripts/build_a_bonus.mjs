@@ -160,7 +160,7 @@ export class Build_a_Bonus extends FormApplication {
         data.isItem = this.isItem;
         if ( data.isItem ) {
             data.canEquip = foundry.utils.hasProperty(this.object, "system.equipped");
-            const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
+            const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
             data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
         }
         data.targets = this.targets;
@@ -496,7 +496,7 @@ export class Build_a_Bonus extends FormApplication {
 
     // helper method to place or remove a warning in the BAB.
     displayWarning(warn){
-        const field = this.element[0].querySelector("[name='babonus-warning']");
+        const field = this.element[0].querySelector("#babonus-warning");
         if ( warn === false ) {
             field.classList.remove("active");
             return true;

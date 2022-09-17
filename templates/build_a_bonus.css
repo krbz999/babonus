@@ -4,26 +4,63 @@ form.babonus h1 {
     border-bottom: none;
 }
 
+/* Headers */
+form.babonus header {
+    height: 28px;
+    font-weight: bold;
+    border: 1px solid var(--color-border-light-tertiary);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+form.babonus .title {
+    padding: 5px 0 0 5px;
+}
+
+form.babonus .current-bonuses header.current {
+    margin-top: 10px;
+}
+
 .build-a-bonus .babonus-required-fields label.babonus-label {
     flex: 1;
     font-weight: bolder;
 }
-.build-a-bonus .babonus-filters label.babonus-label-m { flex: 1; }
+
+.build-a-bonus .babonus-filters label.babonus-label-m {
+    flex: 1;
+}
+
 .current-bonuses .form-group label.babonus-label {
     flex: 2;
     align-self: flex-start;
     text-align: center;
 }
 
-.current-bonuses .form-group label.babonus-label.disabled { text-decoration: line-through; }
+.current-bonuses .form-group label.babonus-label.disabled {
+    text-decoration: line-through;
+}
 
-.babonus-identifier { font-style: italic; color: gray; }
-.babonus-description { font-style: italic; }
-.current-bonuses hr:last-child { display: none; }
+.babonus-identifier {
+    font-style: italic;
+    color: gray;
+}
 
-.babonus .babonus-filters .babonus-select { flex: 0; }
+.babonus-description {
+    font-style: italic;
+}
 
-button.babonus-keys { min-width: 100px; flex: 0; }
+.current-bonuses hr:last-child {
+    display: none;
+}
+
+.babonus .babonus-filters .babonus-select {
+    flex: 0;
+}
+
+button.babonus-keys {
+    min-width: 100px;
+    flex: 0;
+}
+
 .babonus-checkbox {
     border-radius: 10px;
     min-width: fit-content;
@@ -31,9 +68,15 @@ button.babonus-keys { min-width: 100px; flex: 0; }
     padding: 3px 5px 3px 5px;
     margin: 0 3px 0 0;
 }
-.babonus-checkbox:last-child { margin-right: 3px; }
 
-.babonus-warning { display: none; }
+.babonus-checkbox:last-child {
+    margin-right: 3px;
+}
+
+.babonus-warning {
+    display: none;
+}
+
 .babonus-warning.active {
     display: block;
     color: red;
@@ -43,48 +86,86 @@ button.babonus-keys { min-width: 100px; flex: 0; }
     height: 40px;
     padding: 9px 0 0 0;
     border-radius: 10px;
-    border-bottom: ridge;
-    border-right: ridge;
     font-size: 16px;
+    box-shadow: inset 0 0 5px black;
 }
 
 /* center all table columns that are not first (i.e., all columns with a checkbox) */
-table.babonus td:not(:first-child) { text-align: center; }
+table.babonus td:not(:first-child) {
+    text-align: center;
+}
 
 form.babonus.editMode [name='identifier'],
 form.babonus.editMode [name='label'],
 form.babonus.editMode [name='target'] {
     pointer-events: none;
-    color:#AAA;
+    color: #AAA;
 }
 
 /* if weapon is in itemTypes... */
 form.babonus.weapon .form-group.baseWeapons,
-form.babonus.weapon .form-group.weaponProperties { display: flex; }
+form.babonus.weapon .form-group.weaponProperties {
+    display: flex;
+}
+
 form.babonus .form-group.baseWeapons,
-form.babonus .form-group.weaponProperties { display: none; }
+form.babonus .form-group.weaponProperties {
+    display: none;
+}
 
 /* if spell is in itemTypes... */
 form.babonus.spell .form-group.spellComponents,
 form.babonus.spell .form-group.spellLevels,
-form.babonus.spell .form-group.spellSchools { display: flex; }
+form.babonus.spell .form-group.spellSchools {
+    display: flex;
+}
+
 form.babonus .form-group.spellComponents,
 form.babonus .form-group.spellLevels,
-form.babonus .form-group.spellSchools { display: none; }
+form.babonus .form-group.spellSchools {
+    display: none;
+}
 
 /* hide/unhide bonuses inputs */
-form.babonus.damage div.babonus-bonuses-damage { display: block; }
-form.babonus div.babonus-bonuses-damage { display: none; }
+form.babonus.damage div.babonus-bonuses-damage {
+    display: block;
+}
 
-form.babonus.attack div.babonus-bonuses-attack { display: block; }
-form.babonus div.babonus-bonuses-attack { display: none; }
-form.babonus.attack div.form-group.attackTypes { display: flex; }
-form.babonus div.form-group.attackTypes { display: none; }
+form.babonus div.babonus-bonuses-damage {
+    display: none;
+}
 
-form.babonus.save div.babonus-bonuses-save { display: block; }
-form.babonus div.babonus-bonuses-save { display: none; }
-form.babonus.save div.form-group.saveAbilities { display: flex; }
-form.babonus div.form-group.saveAbilities { display: none; }
+form.babonus.attack div.babonus-bonuses-attack {
+    display: block;
+}
+
+form.babonus div.babonus-bonuses-attack {
+    display: none;
+}
+
+form.babonus.attack div.form-group.attackTypes {
+    display: flex;
+}
+
+form.babonus div.form-group.attackTypes {
+    display: none;
+}
+
+form.babonus.save div.babonus-bonuses-save {
+    display: block;
+}
+
+form.babonus div.babonus-bonuses-save {
+    display: none;
+}
+
+form.babonus.save div.form-group.saveAbilities {
+    display: flex;
+}
+
+form.babonus div.form-group.saveAbilities {
+    display: none;
+}
 
 /* buttons */
 form.babonus .babonus-bonus-details a {

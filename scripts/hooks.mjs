@@ -83,7 +83,7 @@ export function _preRollDamage(item, rollConfig){
     const values = FILTER.mainCheck(item, "damage");
     
     // add to rollConfig.
-    for( const {bonus, criticalBonusDice, criticalBonusDamage} of values ) {
+    for ( const { bonus, criticalBonusDice, criticalBonusDamage } of values ) {
         if ( bonus?.length ) {
             const parts = rollConfig.parts.concat(bonus);
             rollConfig.parts = parts;

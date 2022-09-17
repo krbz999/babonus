@@ -5,7 +5,7 @@
     <div class="build-a-bonus">
 
         <!-- REQUIRED FIELDS -->
-        <h2>{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</h2>
+        <header class="required"><div class="title">{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</div></header>
         <div class="babonus-required-fields">
         
             <!-- Identifiers: label and id -->
@@ -121,7 +121,7 @@
         </div>
         
         <!-- FILTER A BONUS -->
-        <h3>{{localize "BABONUS.HEADERS.FILTERS"}}</h3>
+        <header class="filter"><div class="title">{{localize "BABONUS.HEADERS.FILTERS"}}</div></header>
         <div class="babonus-filters">
 
             <!-- always visible -->
@@ -248,7 +248,7 @@
         </div>
 
         <!-- WARN ABOUT A BONUS -->
-        <div class="babonus-warning" name="babonus-warning"></div>
+        <div class="babonus-warning" id="babonus-warning"></div>
         
         <!-- SAVE A BONUS -->
         <div class="babonus-save-new">
@@ -265,7 +265,7 @@
     <!-- CURRENT BONUSES -->
     <div class="current-bonuses">
         {{#if bonuses.length}}
-        <h2>{{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}</h2>
+        <header class="current"><div class="title">{{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}</div></header>
         {{/if}}
 
         {{#each bonuses as |bonus|}}
