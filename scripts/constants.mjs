@@ -8,7 +8,8 @@ export const handlingRegular = [
     "attackTypes",
     "spellLevels",
     "saveAbilities",
-    "statusEffects"
+    "statusEffects",
+    "targetEffects"
 ];
 export const handlingSpecial = [
     "spellComponents",
