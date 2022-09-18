@@ -39,7 +39,8 @@
             "WEAPONS": "Weapons",
             "PROPERTIES": "Properties",
             "ARBITRARY_COMPARISON": "Comparison",
-            "STATUS_EFFECTS": "Status Effects"
+            "ACTOR_EFFECTS": "Actor Effects",
+            "TARGET_EFFECTS": "Target Effects"
         },
         "TITLES": {
             "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
@@ -118,10 +119,15 @@
             "SPELL_SCHOOLS_BOX": "Include",
             "spellSchools_TITLE": "Keys: Spell Schools",
 
-            "STATUS_EFFECTS_DESC": "Select the status conditions that the actor must be afflicted by. The bonus will apply if the actor is afflicted by at least one of the selected conditions.",
-            "STATUS_EFFECTS_NAME": "Status Effects",
-            "STATUS_EFFECTS_BOX": "Include",
-            "statusEffects_TITLE": "Keys: Status Effects",
+            "ACTOR_EFFECTS_DESC": "Select the status conditions that the actor must be afflicted by. The bonus will apply if the actor is afflicted by at least one of the selected conditions.",
+            "ACTOR_EFFECTS_NAME": "Status Effects",
+            "ACTOR_EFFECTS_BOX": "Include",
+            "statusEffects_TITLE": "Keys: Actor Status Effects",
+
+            "TARGET_EFFECTS_DESC": "Select the status conditions that the target actor must be afflicted by. The bonus will apply if the target actor is afflicted by at least one of teh selected conditions.",
+            "TARGET_EFFECTS_NAME": "Status Effects",
+            "TARGET_EFFECTS_BOX": "Include",
+            "targetEffects_TITLE": "Keys: Target Status Effects",
 
             "WEAPONS_DESC": "Select the type of weapons that the bonus should apply to.",
             "WEAPONS_NAME": "Base Weapons",

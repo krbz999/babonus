@@ -23,9 +23,18 @@ export class Build_a_Bonus extends FormApplication {
     // the types of bonuses ('attack', 'damage', 'save')
     get targets(){
         return [
-            {value: "attack", label: game.i18n.localize("BABONUS.VALUES.TARGET_ATTACK")},
-            {value: "damage", label: game.i18n.localize("BABONUS.VALUES.TARGET_DAMAGE")},
-            {value: "save", label: game.i18n.localize("BABONUS.VALUES.TARGET_SAVE")}
+            {
+                value: "attack",
+                label: game.i18n.localize("BABONUS.VALUES.TARGET_ATTACK")
+            },
+            {
+                value: "damage",
+                label: game.i18n.localize("BABONUS.VALUES.TARGET_DAMAGE")
+            },
+            {
+                value: "save",
+                label: game.i18n.localize("BABONUS.VALUES.TARGET_SAVE")
+            }
         ];
     }
 
@@ -34,15 +43,15 @@ export class Build_a_Bonus extends FormApplication {
         const flag = this.object.getFlag(MODULE, "bonuses");
         let bonuses = [];
         if ( flag ){
-            const {attack, damage, save} = flag;
-            if( attack ) bonuses = bonuses.concat(Object.entries(attack).map(([identifier, {description, label, values, enabled}]) => {
-                return {identifier, description, label, values, type: "attack", enabled};
+            const { attack, damage, save } = flag;
+            if ( attack ) bonuses = bonuses.concat(Object.entries(attack).map(([identifier, {description, label, values, enabled}]) => {
+                return { identifier, description, label, values, type: "attack", enabled };
             }));
-            if( damage ) bonuses = bonuses.concat(Object.entries(damage).map(([identifier, {description, label, values, enabled}]) => {
-                return {identifier, description, label, values, type: "damage", enabled};
+            if ( damage ) bonuses = bonuses.concat(Object.entries(damage).map(([identifier, {description, label, values, enabled}]) => {
+                return { identifier, description, label, values, type: "damage", enabled };
             }));
-            if( save ) bonuses = bonuses.concat(Object.entries(save).map(([identifier, {description, label, values, enabled}]) => {
-                return {identifier, description, label, values, type: "save", enabled};
+            if ( save ) bonuses = bonuses.concat(Object.entries(save).map(([identifier, {description, label, values, enabled}]) => {
+                return { identifier, description, label, values, type: "save", enabled };
             }));
         }
         return bonuses;
@@ -129,7 +138,7 @@ export class Build_a_Bonus extends FormApplication {
     // get attack types.
     get attackTypes(){
         const {itemActionTypes} = CONFIG.DND5E;
-        const actions = ["msak", "mwak", "rsak", "rwak"];
+        const actions = ["mwak", "rwak", "msak", "rsak"];
         return actions.map(value => {
             const label = itemActionTypes[value];
             return {value, label};
@@ -152,6 +161,9 @@ export class Build_a_Bonus extends FormApplication {
             return acc;
         }, []);
         return ids.map((id) => ({ value: id, label: id }));
+    }
+    get targetEffects(){
+        return this.statusEffects;
     }
 
     async getData(){
@@ -338,8 +350,12 @@ export class Build_a_Bonus extends FormApplication {
                                 resolve(keyString);
                             }
                             else {
-                                const needed = checked.filter(i => i.dataset.property === "needed").map(i => i.id).join(";");
-                                const unfit = checked.filter(i => i.dataset.property === "unfit").map(i => i.id).join(";");
+                                const needed = checked.filter(i => {
+                                    return i.dataset.property === "needed";
+                                }).map(i => i.id).join(";");
+                                const unfit = checked.filter(i => {
+                                    return i.dataset.property === "unfit";
+                                }).map(i => i.id).join(";");
                                 const res = { needed, unfit };
 
                                 resolve(res);
@@ -357,6 +373,10 @@ export class Build_a_Bonus extends FormApplication {
         if ( !list ) return [];
         const ids = list.split(";");
         const values = this[type].map(i => i.value);
+
+        // effects are not filtered.
+        if ( ["statusEffects", "targetEffects"].includes(type) ) return ids;
+
         const validIds = ids.filter(i => values.includes(i));
         return validIds;
     }
@@ -367,33 +387,47 @@ export class Build_a_Bonus extends FormApplication {
         const inputs = this.retrieveValues(formData);
 
         // the bonus needs a label.
-        if ( !inputs.label?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_LABEL");
-
+        if ( !inputs.label?.length ) {
+            this.displayWarning("BABONUS.WARNINGS.MISSING_LABEL");
+            return false;
+        }
         // the bonus needs an identifier.
-        if ( !inputs.identifier?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_ID");
-
+        if ( !inputs.identifier?.length ) {
+            this.displayWarning("BABONUS.WARNINGS.MISSING_ID");
+            return false;
+        }
         // the bonus cannot have a duplicate identifier (unless in edit mode).
         const alreadyIdentifierExist = this.object.getFlag(MODULE, `bonuses.${inputs.target}.${inputs.identifier}`);
         if ( alreadyIdentifierExist && !this.element[0].querySelector("form.babonus").classList.contains("editMode") ) {
-            return this.displayWarning("BABONUS.WARNINGS.DUPLICATE_ID");
+            this.displayWarning("BABONUS.WARNINGS.DUPLICATE_ID");
+            return false;
         }
-
         // the bonus needs a target.
-        if ( !inputs.target?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_TARGET");
-
+        if ( !inputs.target?.length ) {
+            this.displayWarning("BABONUS.WARNINGS.MISSING_TARGET");
+            return false;
+        }
         // the bonus needs a bonus.
-        if ( foundry.utils.isEmpty(inputs.values) ) return this.displayWarning("BABONUS.WARNINGS.MISSING_BONUS");
-
+        if ( foundry.utils.isEmpty(inputs.values) ) {
+            this.displayWarning("BABONUS.WARNINGS.MISSING_BONUS");
+            return false;
+        }
         // the bonus needs a description.
-        if ( !inputs.description?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_DESC");
-
+        if ( !inputs.description?.length ) {
+            this.displayWarning("BABONUS.WARNINGS.MISSING_DESC");
+            return false;
+        }
         // the bonus needs item types.
-        if ( !inputs.itemTypes?.length ) return this.displayWarning("BABONUS.WARNINGS.MISSING_TYPE");
-
+        if ( !inputs.itemTypes?.length ) {
+            this.displayWarning("BABONUS.WARNINGS.MISSING_TYPE");
+            return false;
+        }
         // the bonus needs at least one filter.
-        if ( foundry.utils.isEmpty(inputs.filters) ) return this.displayWarning("BABONUS.WARNINGS.MISSING_FILTER");
+        if ( foundry.utils.isEmpty(inputs.filters) ) {
+            this.displayWarning("BABONUS.WARNINGS.MISSING_FILTER");
+            return false;
+        }
         
-
         // if inputs are valid:
         inputs.enabled = true;
         const id = inputs.identifier;
@@ -402,8 +436,8 @@ export class Build_a_Bonus extends FormApplication {
         // remove the warning field.
         this.displayWarning(false);
 
-        // replace the old bonus (doesn't matter if it existed before).
-        await this.object.update({[`flags.${MODULE}.bonuses.${inputs.target}.-=${id}`]: null});
+        // replace the old bonus (does not matter if it existed before).
+        await this.object.update({ [`flags.${MODULE}.bonuses.${inputs.target}.-=${id}`]: null });
         await this.object.setFlag(MODULE, `bonuses.${inputs.target}.${id}`, inputs);
         this.element[0].classList.remove("editMode");
         return true;
@@ -439,7 +473,7 @@ export class Build_a_Bonus extends FormApplication {
 
         const target = bonusId.split(".")[0];
         const identifier = bonusId.split(".")[1];
-        await this.object.update({[`flags.${MODULE}.bonuses.${target}.-=${identifier}`]: null});
+        await this.object.update({ [`flags.${MODULE}.bonuses.${target}.-=${identifier}`]: null });
         return true;
     }
 
@@ -507,14 +541,7 @@ export class Build_a_Bonus extends FormApplication {
         return false;
     }
 
-    /**
-     * A helper function to fill out the form with an existing bonus from the document.
-     * 
-     * @param {HTML} html           The html of the form.
-     * @param {Object} flagBonus    The bonus of the document.
-     * @param {String} id           The id of the bonus, also contains the target.
-     * @param {Boolean} edit        Whether this is a bonus being edited or copied.
-     */
+    // A helper function to fill out the form with an existing bonus from the document.
     pasteValues(html, flagBonus, id, edit = true){
         const bonus = foundry.utils.duplicate(flagBonus);
 

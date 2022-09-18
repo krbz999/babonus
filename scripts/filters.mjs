@@ -29,6 +29,7 @@ import { MATCH, MODULE } from "./constants.mjs";
                     operator: "EQ" // or LE, GE, LT, GT
                 },
                 statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
+                targetEffects: ["blind", "dead", prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
                 attackTypes: ["mwak", "rwak", "msak", "rsak"], // only when set to 'attack'
                 saveAbilities: ["int", "cha", "..."],
                 spellComponents: {
@@ -64,7 +65,8 @@ export class FILTER {
         weaponProperties: this.weaponProperty,
         saveAbilities: this.saveAbility,
         arbitraryComparison: this.arbitraryComparison,
-        statusEffects: this.statusEffects
+        statusEffects: this.statusEffects,
+        targetEffects: this.targetEffects
     }
 
 
@@ -458,6 +460,27 @@ export class FILTER {
         if ( !filter?.length ) return true;
         const conditions = filter.some(id => {
             return !!item.actor.effects.find(eff => {
+                if ( eff.disabled || eff.isSuppressed ) return false;
+                return eff.getFlag("core", "statusId") === id;
+            });
+        });
+        return conditions;
+    }
+
+    /**
+     * Find out if the target actor has any of the status conditions required.
+     * The bonus will apply if the target actor exists and has at least one.
+     * 
+     * @param {Item5e} item     The item used. Not relevant in this case.
+     * @param {Array} filter    The array of effect status ids.
+     * @returns {Boolean}       Whether the target actor has any of the status effects.
+     */
+    static targetEffects(item, filter){
+        if ( !filter?.length ) return true;
+        const target = game.user.targets.first();
+        if ( !target ) return false;
+        const conditions = filter.some(id => {
+            return target.actor.effects.find(eff => {
                 if ( eff.disabled || eff.isSuppressed ) return false;
                 return eff.getFlag("core", "statusId") === id;
             });
