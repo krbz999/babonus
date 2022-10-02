@@ -1,21 +1,21 @@
 <p class="babonus-key-description">
-    {{localize "BABONUS.KEY.PROPERTIES_DESC"}}
+  {{localize "BABONUS.KEY.PROPERTIES_DESC"}}
 </p>
 <table class="babonus">
-    <thead>
-        <tr>
-            <th>{{localize "BABONUS.KEY.PROPERTIES_NAME"}}</th>
-            <th>{{localize "BABONUS.KEY.PROPERTIES_NEED"}}</th>
-            <th>{{localize "BABONUS.KEY.PROPERTIES_UNFIT"}}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each types as |type|}}
-        <tr>
-            <td>{{type.label}}</td>
-            <td><input type="checkbox" id="{{type.value}}" data-property="needed" {{checked type.needed}}></td>
-            <td><input type="checkbox" id="{{type.value}}" data-property="unfit" {{checked type.unfit}}></td>
-        </tr>
-        {{/each}}
-    </tbody>
+  <thead>
+    <tr>
+      <th>{{localize "BABONUS.KEY.PROPERTIES_NAME"}}</th>
+      <th>{{localize "BABONUS.KEY.PROPERTIES_NEED"}}</th>
+      <th>{{localize "BABONUS.KEY.PROPERTIES_UNFIT"}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each types as |type|}}
+    <tr>
+      <td>{{type.label}}</td>
+      <td><input type="checkbox" id="{{type.value}}" data-property="needed" {{checked type.needed}}></td>
+      <td><input type="checkbox" id="{{type.value}}" data-property="unfit" {{checked type.unfit}}></td>
+    </tr>
+    {{/each}}
+  </tbody>
 </table>
