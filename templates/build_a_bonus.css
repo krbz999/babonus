@@ -126,7 +126,7 @@ table.babonus td:not(:first-child) {
 }
 
 form.babonus.editMode [name='identifier'],
-form.babonus.editMode [name='label'],
+/*form.babonus.editMode [name='label'],*/
 form.babonus.editMode [name='target'] {
   pointer-events: none;
   color: #AAA;

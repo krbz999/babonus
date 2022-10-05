@@ -37,7 +37,6 @@ export function validateData(formData) {
   for (const [values, property] of scsv) {
     validateValues(formData, values, property);
   }
-  console.log("POST VALIDATE VALUES", formData);
 
   // special cases:
 

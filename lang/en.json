@@ -56,7 +56,19 @@
       "THROW_BONUS": "Additional parts to add on top of the saving throw.",
       "HITDIE_BONUS": "Additional parts to add on top of the hit die roll.",
       "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
-      "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor."
+      "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor.",
+      "THROW_TYPES": "The type of saving throw the bonus should apply to.",
+      "DAMAGE_TYPES": "The type of damage the item must deal for the bonus to apply.",
+      "ABILITIES": "The ability score used by the item.",
+      "ACTOR_CONDITIONS": "The conditions the actor must be affected by.",
+      "TARGET_CONDITIONS": "The conditions the target actor must be affected by.",
+      "ATTACK_TYPES": "The types of attack rolls the bonus should apply to.",
+      "SAVE_ABILITIES": "The ability that must be used to set the saving throw DC of the item for the bonus to apply.",
+      "SPELL_COMPONENTS": "The components the spell must have for the bonus to apply.",
+      "SPELL_LEVELS": "The level at which the spell must be cast for the bonus to apply.",
+      "SPELL_SCHOOLS": "The school the spell must belong to for the bonus to apply.",
+      "WEAPON_TYPES": "The type of weapon the item must be for the bonus to apply.",
+      "WEAPON_PROPERTIES": "The weapon properties the item either must have or cannot have for the bonus to apply."
     },
     "VALUES": {
       "PH_LABEL": "label...",

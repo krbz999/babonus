@@ -11,6 +11,10 @@ import {
   _preRollHitDie
 } from "./scripts/hooks.mjs";
 
+Hooks.once("init", () => {
+  console.log("ZHELL | Initializing Build-a-Bonus");
+});
+
 Hooks.once("setup", _setup);
 Hooks.on("renderActorSheetFlags", _renderActorSheetFlags);
 Hooks.on("getItemSheetHeaderButtons", _getItemSheetHeaderButtons);

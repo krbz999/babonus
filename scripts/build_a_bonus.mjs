@@ -42,7 +42,6 @@ export class Build_a_Bonus extends FormApplication {
   }
 
   async _updateObject(event, formData) {
-    console.log("UPDATEOBJECT:", formData);
     event.stopPropagation();
     const button = event.submitter;
     if (!button) return;
@@ -86,8 +85,6 @@ export class Build_a_Bonus extends FormApplication {
       const keyButton = event.target.closest("button.babonus-keys");
       if (!keyButton) return;
       const type = keyButton.dataset.type;
-      console.log(type);
-      console.log(KeyGetter[type]);
 
       const types = foundry.utils.duplicate(KeyGetter[type]);
       // find list.
@@ -234,7 +231,6 @@ export class Build_a_Bonus extends FormApplication {
 
     const editMode = this.element[0].querySelector("form.babonus").classList.contains("editMode");
     const { valid, error } = dataHasAllRequirements(formData, this.object, editMode);
-    console.log("FORMDATA AFTER 'hasAllReq':", formData);
 
     if (!valid) {
       this.displayWarning(`BABONUS.WARNINGS.${error}`);
