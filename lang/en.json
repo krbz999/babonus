@@ -45,6 +45,10 @@
       "THROW_TYPES": "Saving Throws"
     },
     "TITLES": {
+      "TOGGLE_THIS": "Toggle this bonus on or off.",
+      "COPY_THIS": "Copy this bonus into the builder.",
+      "EDIT_THIS": "Edit this bonus in the builder.",
+      "DELETE_THIS": "Delete this bonus.",
       "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
       "TARGETS": "What the bonus should apply to.",
       "DESCRIPTION": "A description of the bonus for your convenience.",
