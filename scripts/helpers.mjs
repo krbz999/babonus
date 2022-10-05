@@ -180,14 +180,14 @@ export function getActorItemBonuses(actor, hookType) {
  * Add bonuses from effects. Any effect-only filtering happens here,
  * such as checking whether the effect is disabled or unavailable.
  */
-export function getActorEffectBonuses(actor, hookType){
+export function getActorEffectBonuses(actor, hookType) {
   const boni = [];
-  for(const effect of actor.effects){
-    if(effect.disabled || effect.isSuppressed) continue;
+  for (const effect of actor.effects) {
+    if (effect.disabled || effect.isSuppressed) continue;
     const flag = effect.getFlag(MODULE, `bonuses.${hookType}`);
-    if(!flag) continue;
+    if (!flag) continue;
     const effectBonuses = Object.entries(flag);
-    const validEffectBonuses = effectBonuses.filter(([id, {enabled}]) => {
+    const validEffectBonuses = effectBonuses.filter(([id, { enabled }]) => {
       return enabled;
     });
     boni.push(...validEffectBonuses);
@@ -195,17 +195,17 @@ export function getActorEffectBonuses(actor, hookType){
   return boni;
 }
 
-export function finalFilterBonuses(bonuses, object, type, details={}){
+export function finalFilterBonuses(bonuses, object, type, details = {}) {
   const funcs = FILTER.filterFunctions[type];
 
   const valids = bonuses.reduce((acc, [id, atts]) => {
-    if(!atts.enabled) return acc;
-    if(atts.itemTypes) atts.filters["itemTypes"] = atts.itemTypes;
-    if(atts.throwTypes) atts.filters["throwTypes"] = atts.throwTypes;
+    if (!atts.enabled) return acc;
+    if (atts.itemTypes) atts.filters["itemTypes"] = atts.itemTypes;
+    if (atts.throwTypes) atts.filters["throwTypes"] = atts.throwTypes;
 
-    for(const key in atts.filters){
+    for (const key in atts.filters) {
       const validity = funcs[key](object, atts.filters[key], details);
-      if(!validity) return acc;
+      if (!validity) return acc;
     }
     delete atts.filters["itemTypes"];
     delete atts.filters["throwTypes"];

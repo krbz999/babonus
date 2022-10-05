@@ -1,12 +1,16 @@
 import { MATCH, MODULE } from "./constants.mjs";
-import { finalFilterBonuses, getActorEffectBonuses, getActorItemBonuses } from "./helpers.mjs";
+import {
+  finalFilterBonuses,
+  getActorEffectBonuses,
+  getActorItemBonuses
+} from "./helpers.mjs";
 
 /**
  * An example bonus, as it would be
  * stored on an actor, effect, or item.
  * Includes all fields.
  * 
-  flags.babonus.bonuses.<damage/attack/save/throw/hitdie/init>: {
+  flags.babonus.bonuses.<damage/attack/save/throw/hitdie>: {
     <identifier>: {
       enabled: true,
       label: "Special Fire Spell Bonus",
@@ -22,9 +26,7 @@ import { finalFilterBonuses, getActorEffectBonuses, getActorItemBonuses } from "
         attuned: false
       },
       filters: {
-        damageTypes: ["fire", "cold", "bludgeoning"],
-        abilities: ["int"], // if attack/damage/save
-        throwTypes: ["int", "con", "death"], // if 'throw'
+        // UNIVERSAL:
         arbitraryComparison: {
           one: "@item.uses.value",
           other: "@abilities.int.mod",
@@ -32,16 +34,29 @@ import { finalFilterBonuses, getActorEffectBonuses, getActorItemBonuses } from "
         },
         statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
         targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
-        attackTypes: ["mwak", "rwak", "msak", "rsak"], // only when set to 'attack'
-        saveAbilities: ["int", "cha", "..."], // if attack/damage/save
-        spellComponents: { // if itemTypes.spell
+
+        // ATTACK:
+        attackTypes: ["mwak", "rwak", "msak", "rsak"],
+
+        // ATTACK, DAMAGE, SAVE:
+        damageTypes: ["fire", "cold", "bludgeoning"],
+        abilities: ["int"],
+        saveAbilities: ["int", "cha", "con"],
+
+        // THROW:
+        throwTypes: ["int", "con", "death"],
+
+        // SPELL:
+        spellComponents: {
           types: ["concentration", "vocal"],
           match: "ALL" // or 'ANY'
         },
-        spellLevels: ['0','1','2','3','4','5','6','7','8','9'], // if itemTypes.spell
-        spellSchools: ["evo", "con"], // if itemTypes.spell
-        baseweapons: ["dagger", "lance", "shortsword"], // if itemTypes.weapon
-        weaponProperties: { // if itemTypes.weapon
+        spellLevels: ['0','1','2','3','4','5','6','7','8','9'],
+        spellSchools: ["evo", "con"],
+
+        // WEAPON
+        baseweapons: ["dagger", "lance", "shortsword"],
+        weaponProperties: {
           needed: ["fin", "lgt"],
           unfit: ["two", "ver"]
         }
@@ -57,16 +72,16 @@ export class FILTER {
    */
   static filterFunctions = {
     item: { // attack, damage, save
-      itemTypes: this.itemType,
-      attackTypes: this.attackType,
-      baseWeapons: this.baseWeapon,
-      damageTypes: this.damageType,
-      spellSchools: this.spellSchool,
-      abilities: this.ability,
+      itemTypes: this.itemTypes,
+      attackTypes: this.attackTypes,
+      baseWeapons: this.baseWeapons,
+      damageTypes: this.damageTypes,
+      spellSchools: this.spellSchools,
+      abilities: this.abilities,
       spellComponents: this.spellComponents,
-      spellLevels: this.spellLevel,
-      weaponProperties: this.weaponProperty,
-      saveAbilities: this.saveAbility,
+      spellLevels: this.spellLevels,
+      weaponProperties: this.weaponProperties,
+      saveAbilities: this.saveAbilities,
       arbitraryComparison: this.arbitraryComparison,
       statusEffects: this.statusEffects,
       targetEffects: this.targetEffects
@@ -76,54 +91,45 @@ export class FILTER {
       statusEffects: this.statusEffects,
       targetEffects: this.targetEffects,
       throwTypes: this.throwTypes
+    },
+    misc: { // hitdie
+      arbitraryComparison: this.arbitraryComparison,
+      statusEffects: this.statusEffects,
+      targetEffects: this.targetEffects
     }
   }
 
-  static throwCheck(actor, abilityId){
+  // hitdie rolls
+  static hitDieCheck(actor) {
     let bonuses = [];
-    // add bonuses from actor.
+    const flag = actor.getFlag(MODULE, `bonuses.hitdie`);
+    if (flag) bonuses = Object.entries(flag);
+    bonuses = bonuses.concat(getActorItemBonuses(actor, "hitdie"));
+    bonuses = bonuses.concat(getActorEffectBonuses(actor, "hitdie"));
+    if (!bonuses.length) return [];
+    return finalFilterBonuses(bonuses, actor, "misc");
+  }
+
+  // saving throws
+  static throwCheck(actor, abilityId) {
+    let bonuses = [];
     const flag = actor.getFlag(MODULE, `bonuses.throw`);
-    if(flag) bonuses=Object.entries(flag);
-
-    // add bonuses from items.
+    if (flag) bonuses = Object.entries(flag);
     bonuses = bonuses.concat(getActorItemBonuses(actor, "throw"));
-
-    // add bonuses from effects.
     bonuses = bonuses.concat(getActorEffectBonuses(actor, "throw"));
-
-    // if none found
-    if(!bonuses.length) return [];
-
-    return finalFilterBonuses(bonuses, actor, "throw", {throwType: abilityId});
+    if (!bonuses.length) return [];
+    return finalFilterBonuses(bonuses, actor, "throw", { throwType: abilityId });
   }
 
 
-  /**
-   * The main function that loops through all applicable filter functions and returns the bonuses to apply.
-   * 
-   * @param {Item5e} item         The item being used or displayed.
-   * @param {String} hookType     The type of action happening, which tells the filter what
-   *                              bonus types to look for. This is either 'save' (on displayCard),
-   *                              'attack' or 'damage' for when an item is rolled in this way.
-   * @returns {Array}             The array of valid bonuses.
-   */
+  // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
     let bonuses = [];
-
-    // add bonuses from actor.
     const flag = item.actor.getFlag(MODULE, `bonuses.${hookType}`);
     if (flag) bonuses = Object.entries(flag);
-    
-    // get bonuses from items.
     bonuses = bonuses.concat(getActorItemBonuses(item.parent, hookType));
-
-    // get bonuses from effects.
     bonuses = bonuses.concat(getActorEffectBonuses(item.parent, hookType));
-    
-    // After finding all valid bonuses, if none found, no need to filter anything.
     if (!bonuses.length) return [];
-
-    // the final filtering.
     return finalFilterBonuses(bonuses, item, "item");
   }
 
@@ -135,7 +141,7 @@ export class FILTER {
    * @param {Array} filter    The array of item type keys.
    * @returns {Boolean}       Whether the item's type was in the filter.
    */
-  static itemType(item, filter) {
+  static itemTypes(item, filter) {
     if (!filter?.length) return false;
     const itemType = item.type;
     return filter.includes(itemType);
@@ -148,7 +154,7 @@ export class FILTER {
    * @param {Array} filter    The array of weapon baseItem keys.
    * @returns {Boolean}       Whether the item's baseItem was in the filter.
    */
-  static baseWeapon(item, filter) {
+  static baseWeapons(item, filter) {
     if (!filter?.length) return true;
     // only weapons can be a type of weapon...
     if (item.type !== "weapon") return false;
@@ -162,7 +168,7 @@ export class FILTER {
    * @param {Array} filter    The array of damage types.
    * @returns {Boolean}       Whether the item's damage types overlap with the filter.
    */
-  static damageType(item, filter) {
+  static damageTypes(item, filter) {
     if (!filter?.length) return true;
 
     const damageTypes = item.getDerivedDamageLabel().some(({ damageType }) => {
@@ -178,7 +184,7 @@ export class FILTER {
    * @param {Array} filter    The array of spell schools.
    * @returns {Boolean}       Whether the item is a spell and is of one of these schools.
    */
-  static spellSchool(item, filter) {
+  static spellSchools(item, filter) {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
     return filter.includes(item.system.school);
@@ -195,7 +201,7 @@ export class FILTER {
    * @param {Array} filter    The array of abilities.
    * @returns {Boolean}       Whether item is using one of the abilities.
    */
-  static ability(item, filter) {
+  static abilities(item, filter) {
     if (!filter?.length) return true;
 
     const { actionType, ability, properties } = item.system;
@@ -292,7 +298,7 @@ export class FILTER {
    * @param {Array} filter    The array of spell levels in the filter.
    * @returns {Boolean}       Whether the item is of one of the appropriate levels.
    */
-  static spellLevel(item, filter) {
+  static spellLevels(item, filter) {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
     const level = Number(item.system.level);
@@ -307,7 +313,7 @@ export class FILTER {
    * @param {Array} filter    The array of attack types.
    * @returns {Boolean}       Whether the item has any of the required attack types.
    */
-  static attackType(item, filter) {
+  static attackTypes(item, filter) {
     if (!filter?.length) return true;
     const actionType = item.system.actionType;
     if (!actionType) return false;
@@ -323,7 +329,7 @@ export class FILTER {
    * @param {Array} unfit     The weapon properties that the item must have none of.
    * @returns {Boolean}       Whether the item has any of the needed properties, and none of the unfit properties.
    */
-  static weaponProperty(item, { needed, unfit }) {
+  static weaponProperties(item, { needed, unfit }) {
     if (!needed?.length && !unfit?.length) return true;
     if (item.type !== "weapon") return false;
 
@@ -351,7 +357,7 @@ export class FILTER {
    * @param {Array} filter    The ability that is used to set the DC of the item's saving throw.
    * @returns {Boolean}       Whether the item's saving throw is set using an ability in the filter.
    */
-  static saveAbility(item, filter) {
+  static saveAbilities(item, filter) {
     if (!filter?.length) return true;
 
     const scaling = item.system.save?.scaling;
@@ -458,9 +464,9 @@ export class FILTER {
    * @param {String}  throwType The id of the ability, can be 'death'.
    * @returns {Boolean}         Whether the throw type is in the filter.
    */
-  static throwTypes(actor, filter, {throwType}){
-    if(!filter?.length) return false;
-    if(!throwType) return false;
+  static throwTypes(actor, filter, { throwType }) {
+    if (!filter?.length) return false;
+    if (!throwType) return false;
     return filter.includes(throwType);
   }
 }

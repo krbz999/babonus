@@ -6,7 +6,6 @@ export const targetTypes = [
   "save", // bonuses to the save DC
   "throw", // bonuses to a saving throw
   "hitdie", // bonuses to hit die rolls
-  "init", // bonses to initiative rolls
 ];
 export const attackTypes = ["mwak", "rwak", "msak", "rsak"];
 

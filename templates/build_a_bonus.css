@@ -139,8 +139,8 @@ form.babonus:not(.attack) .hide-attack,
 form.babonus:not(.save) .hide-save,
 form.babonus:not(.throw) .hide-throw,
 form.babonus:not(.hitdie) .hide-hitdie,
-form.babonus:not(.init) .hide-init,
 form.babonus:not(.attack, .damage, .save) .hide-attack-damage-save,
+form.babonus:not(.attack, .damage, .save, .throw, .hitdie) .hide-any,
 .current-bonuses .bonus:last-child hr,
 .babonus .components .builder .warning {
   display: none;

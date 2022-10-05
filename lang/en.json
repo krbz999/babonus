@@ -55,7 +55,6 @@
       "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits.",
       "THROW_BONUS": "Additional parts to add on top of the saving throw.",
       "HITDIE_BONUS": "Additional parts to add on top of the hit die roll.",
-      "INIT_BONUS": "Additional parts to add on top of the initiative roll.",
       "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
       "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor."
     },
@@ -72,7 +71,6 @@
         "DAMAGE": "Damage Rolls",
         "SAVE": "Save DC",
         "THROW": "Saving Throws",
-        "INIT": "Initiative Rolls",
         "HITDIE": "Hit Die Rolls"
       }
     },

@@ -154,22 +154,31 @@ export function _preRollDamage(item, rollConfig) {
   }
 }
 
-export function _preRollDeathSave(actor, rollConfig){
+export function _preRollDeathSave(actor, rollConfig) {
   // get bonus:
   const bonuses = FILTER.throwCheck(actor, "death");
-  if(!bonuses.length) return;
+  if (!bonuses.length) return;
 
   // add to parts:
   const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));
   rollConfig.parts = parts;
 }
 
-export function _preRollAbilitySave(actor, rollConfig, abilityId){
+export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   // get bonus:
   const bonuses = FILTER.throwCheck(actor, abilityId);
-  if(!bonuses.length)return;
+  if (!bonuses.length) return;
 
   // add to parts:
   const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));
   rollConfig.parts = parts;
+}
+
+export function _preRollHitDie(actor, rollConfig, denomination) {
+  const bonuses = FILTER.hitDieCheck(actor);
+  if (!bonuses.length) return;
+  const denom = bonuses.reduce((acc, { bonus }) => {
+    return `${acc} + ${bonus}`;
+  }, denomination);
+  rollConfig.formula = rollConfig.formula.replace(denomination, denom);
 }

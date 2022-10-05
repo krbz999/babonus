@@ -23,7 +23,7 @@
               <input type="text" name="identifier" placeholder="{{localize 'BABONUS.VALUES.PH_ID'}}">
             </div>
           </div>
-          <!-- bonus type to apply to: attack, damage, save, throw, hitdie, init -->
+          <!-- bonus type to apply to: attack, damage, save, throw, hitdie -->
           <div class="form-group">
             <label title="{{localize 'BABONUS.TITLES.TARGETS'}}" class="label">
               {{localize "BABONUS.LABELS.TARGETS"}}
@@ -38,7 +38,7 @@
             </div>
           </div>
           <!-- primary bonus field -->
-          <div class="form-group">
+          <div class="form-group hide-any">
             <label title="{{localize 'BABONUS.TITLES.ATTACK_BONUS'}}" class="hide-attack label">
               {{localize "BABONUS.LABELS.BONUS"}}
             </label>
@@ -52,9 +52,6 @@
               {{localize "BABONUS.LABELS.BONUS"}}
             </label>
             <label title="{{localize 'BABONUS.TITLES.HITDIE_BONUS'}}" class="hide-hitdie label">
-              {{localize "BABONUS.LABELS.BONUS"}}
-            </label>
-            <label title="{{localize 'BABONUS.TITLES.INIT_BONUS'}}" class="hide-init label">
               {{localize "BABONUS.LABELS.BONUS"}}
             </label>
             <div class="form-fields">
@@ -104,7 +101,7 @@
             <div class="form-group throwTypes">
               <label class="label">{{localize "BABONUS.LABELS.THROW_TYPES"}}</label>
               <div class="form-fields">
-                <input type="text" name="filters.throwTypes">
+                <input type="text" name="throwTypes">
                 <button class="babonus-keys" data-type="throwTypes">
                   <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
@@ -159,7 +156,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="form-group arbitraryComparison">
             <label class="label" title="{{localize 'BABONUS.TITLES.ARBITRARY_COMPARISON'}}">
               {{localize "BABONUS.LABELS.ARBITRARY_COMPARISON"}}
@@ -224,7 +221,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- spells only -->
           <div class="hide-spell">
             <div class="form-group spellComponents">

@@ -7,7 +7,8 @@ import {
   _getItemSheetHeaderButtons,
   _getActiveEffectConfigHeaderButtons,
   _preRollDeathSave,
-  _preRollAbilitySave
+  _preRollAbilitySave,
+  _preRollHitDie
 } from "./scripts/hooks.mjs";
 
 Hooks.once("setup", _setup);
@@ -19,3 +20,4 @@ Hooks.on("dnd5e.preRollAttack", _preRollAttack);
 Hooks.on("dnd5e.preRollDamage", _preRollDamage);
 Hooks.on("dnd5e.preRollDeathSave", _preRollDeathSave);
 Hooks.on("dnd5e.preRollAbilitySave", _preRollAbilitySave);
+Hooks.on("dnd5e.preRollHitDie", _preRollHitDie);
