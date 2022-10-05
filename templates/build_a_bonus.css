@@ -37,6 +37,7 @@
 .babonus .current .current-bonuses {
   overflow-y: auto;
   max-height: 600px;
+  height: 600px;
 }
 
 .babonus .current .current-bonuses .bonus:first-child {
@@ -131,20 +132,16 @@ form.babonus.editMode [name='target'] {
   color: #AAA;
 }
 
-form.babonus:not(.weapon) .baseWeapons,
-form.babonus:not(.weapon) .weaponProperties,
-form.babonus:not(.spell) .spellComponents,
-form.babonus:not(.spell) .spellLevels,
-form.babonus:not(.spell) .spellSchools,
+form.babonus:not(.weapon) .hide-weapon,
+form.babonus:not(.spell) .hide-spell,
 form.babonus:not(.damage) .hide-damage,
 form.babonus:not(.attack) .hide-attack,
-form.babonus:not(.attack) .attackTypes,
 form.babonus:not(.save) .hide-save,
-form.babonus:not(.save, .throw) .saveAbilities,
 form.babonus:not(.throw) .hide-throw,
 form.babonus:not(.check) .hide-check,
 form.babonus:not(.hitdie) .hide-hitdie,
 form.babonus:not(.init) .hide-init,
+form.babonus:not(.attack, .damage, .save) .hide-attack-damage-save,
 .current-bonuses .bonus:last-child hr,
 .babonus .components .builder .warning {
   display: none;

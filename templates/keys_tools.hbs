@@ -1,0 +1,19 @@
+<p class="babonus-key-description">
+  {{localize "BABONUS.KEY.TOOLS_DESC"}}
+</p>
+<table class="babonus">
+  <thead>
+    <tr>
+      <th>{{localize "BABONUS.KEY.TOOLS_NAME"}}</th>
+      <th>{{localize "BABONUS.KEY.TOOLS_BOX"}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each types as |type|}}
+    <tr>
+      <td>{{type.label}}</td>
+      <td><input type="checkbox" id="{{type.value}}" {{checked type.checked}}></td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>

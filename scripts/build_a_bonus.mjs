@@ -337,8 +337,8 @@ export class Build_a_Bonus extends FormApplication {
     const values = itemTypeInput.value.split(";").map(i => i.trim());
     const form = itemTypeInput.closest("form.babonus");
     for (const type of itemsValidForAttackDamageSave) {
-      if (values.includes(type)) form.classList.add(type);
-      else form.classList.remove(type);
+      if(itemTypeInput.disabled) form.classList.remove(type);
+      else if (values.includes(type)) form.classList.add(type);
     }
     for (const type of targetTypes) {
       if (targetInput.value === type) form.classList.add(type);

@@ -3,7 +3,7 @@ import { attackTypes, itemsValidForAttackDamageSave, MODULE, targetTypes } from 
 // Really, really, really slugify a string.
 // it may only contain a-z, 0-9, and -.
 export function superSlugify(id) {
-  const regex = new RegExp(/[^a-z0-9-]+/gmi);
+  const regex = new RegExp(/[^a-z0-9- ]+/gmi);
   return id.replaceAll(regex, "").slugify();
 }
 
@@ -90,6 +90,18 @@ export class KeyGetter {
   static get saveAbilities() {
     return this.abilities;
   }
+  static get checkAbilities(){
+    return this.abilities;
+  }
+
+  static get throwTypes() {
+    const abl = this.abilities;
+    abl.push({
+      value: "death",
+      label: game.i18n.localize("DND5E.DeathSave")
+    });
+    return abl;
+  }
 
   // spell component types.
   static get spellComponents() {
@@ -131,5 +143,26 @@ export class KeyGetter {
   }
   static get targetEffects() {
     return this.statusEffects;
+  }
+
+  // all tool types
+  static get tools() {
+    const entries = Object.entries(CONFIG.DND5E.toolIds);
+    return entries.map(([value, uuid]) => {
+      const split = uuid.split(".");
+      const id = split.pop();
+      const packKey = split.length ? split.join(".") : "dnd5e.items";
+      const { index } = game.packs.get(packKey);
+      const { name: label } = index.find(({ _id }) => {
+        return _id === id;
+      }) ?? {};
+      return { value, label };
+    });
+  }
+
+  // all skills
+  static get skills() {
+    const entries = Object.entries(CONFIG.DND5E.skills);
+    return entries.map(([value, { label }]) => ({ value, label }));
   }
 }

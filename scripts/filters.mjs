@@ -53,7 +53,7 @@ export class FILTER {
    * An object mapping filter keys to the relevant filtering
    * function found in this class. Mainly used for an overview.
    */
-  static filterFn = {
+  static itemFunctions = {
     itemTypes: this.itemType,
     attackTypes: this.attackType,
     baseWeapons: this.baseWeapon,
@@ -79,7 +79,7 @@ export class FILTER {
    *                              'attack' or 'damage' for when an item is rolled in this way.
    * @returns {Array}             The array of valid bonuses.
    */
-  static mainCheck(item, hookType) {
+  static itemCheck(item, hookType) {
     let bonuses = [];
 
     // add bonuses from actor.
@@ -154,7 +154,7 @@ export class FILTER {
        * If any of these filters are empty, it is due to ActiveEffects.
        */
       for (const key in filters) {
-        const validity = FILTER.filterFn[key](item, filters[key]);
+        const validity = FILTER.itemFunctions[key](item, filters[key]);
         if (!validity) return acc;
       }
 

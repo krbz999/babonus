@@ -13,8 +13,9 @@
       "MISSING_DESC": "Your bonus needs a description!",
       "MISSING_ITEM_TYPES": "You must select at least one item type!",
       "MISSING_ABILITY_TYPES": "You must select at least one ability!",
-      "MISSING_CHECK_TYPES": "An ability check must specify either an ability, a skill, or a tool type!",
-      "MISSING_FILTER": "Your bonus needs at least one filter!"
+      "MISSING_CHECK_TYPES": "You must specify an ability, skill, or tool type!",
+      "MISSING_FILTER": "Your bonus needs at least one filter!",
+      "MISSING_THROW_TYPES": "You must select at least one type of saving throw!"
     },
     "LABELS": {
       "IDENTIFIERS": "Identifiers",
@@ -41,7 +42,11 @@
       "PROPERTIES": "Properties",
       "ARBITRARY_COMPARISON": "Comparison",
       "ACTOR_CONDITIONS": "Actor Cond.",
-      "TARGET_CONDITIONS": "Target Cond."
+      "TARGET_CONDITIONS": "Target Cond.",
+      "THROW_TYPES": "Saving Throws",
+      "TOOLS": "Tools",
+      "SKILLS": "Skills",
+      "CHECK_ABILITIES": "Abilities"
     },
     "TITLES": {
       "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
@@ -57,7 +62,7 @@
       "HITDIE_BONUS": "Additional parts to add on top of the hit die roll.",
       "INIT_BONUS": "Additional parts to add on top of the initiative roll.",
       "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
-      "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor"
+      "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor."
     },
     "VALUES": {
       "PH_LABEL": "label...",
@@ -137,7 +142,23 @@
       "PROPERTIES_NAME": "Weapon Properties",
       "PROPERTIES_NEED": "Needed",
       "PROPERTIES_UNFIT": "Unfit",
-      "weaponProperties_TITLE": "Keys: Weapon Properties"
+      "weaponProperties_TITLE": "Keys: Weapon Properties",
+      "throwTypes_TITLE": "Keys: Saving Throw Types",
+      "THROW_TYPES_DESC": "Select the types of saving throws the bonus should apply to.",
+      "THROW_TYPES_NAME": "Saving Throw Types",
+      "THROW_TYPES_BOX": "Include",
+      "tools_TITLE": "Keys: Tools",
+      "TOOLS_DESC": "Select the types of tools that the bonus should apply to.",
+      "TOOLS_NAME": "Tool Type",
+      "TOOLS_BOX": "Include",
+      "skills_TITLE": "Keys: Skills",
+      "SKILLS_DESC": "Select the skill check that the bonus should apply to.",
+      "SKILLS_NAME": "Skill",
+      "SKILLS_BOX": "Include",
+      "checkAbilities_TITLE": "Abilities",
+      "CHECK_ABILITIES_DESC": "Select the ability score that is used in the check.",
+      "CHECK_ABILITIES_NAME": "Ability",
+      "CHECK_ABILITIES_BOX": "Include"
     },
     "TRAITS": {
       "SECTION": "Build-a-Bonus",

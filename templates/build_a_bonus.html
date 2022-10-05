@@ -23,7 +23,7 @@
               <input type="text" name="identifier" placeholder="{{localize 'BABONUS.VALUES.PH_ID'}}">
             </div>
           </div>
-          <!-- bonus type to apply to: attack, damage, saveDC -->
+          <!-- bonus type to apply to: attack, damage, save, throw, check, hitdie, init -->
           <div class="form-group">
             <label title="{{localize 'BABONUS.TITLES.TARGETS'}}" class="label">
               {{localize "BABONUS.LABELS.TARGETS"}}
@@ -88,15 +88,18 @@
             </div>
           </div>
           <!-- Item Types: spell, feat, weapon, equipment, consumable -->
-          <div class="form-group hide-attack hide-damage hide-save">
-            <label title="{{localize 'BABONUS.TITLES.ITEM_TYPES'}}" class="label">
-              {{localize "BABONUS.LABELS.ITEM_TYPES"}}
-            </label>
-            <div class="form-fields">
-              <input type="text" name="itemTypes">
-              <button class="babonus-keys" data-type="itemTypes">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+
+          <div class="hide-attack-damage-save">
+            <div class="form-group">
+              <label title="{{localize 'BABONUS.TITLES.ITEM_TYPES'}}" class="label">
+                {{localize "BABONUS.LABELS.ITEM_TYPES"}}
+              </label>
+              <div class="form-fields">
+                <input type="text" name="itemTypes">
+                <button class="babonus-keys" data-type="itemTypes">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -124,25 +127,42 @@
         <header class="filter">{{localize "BABONUS.HEADERS.FILTERS"}}</header>
         <div class="babonus-filters">
 
-          <!-- always visible -->
-          <div class="form-group damageTypes">
-            <label class="label">{{localize "BABONUS.LABELS.DAMAGE_TYPES"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.damageTypes">
-              <button class="babonus-keys" data-type="damageTypes">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+          <div class="hide-attack-damage-save">
+            <div class="form-group damageTypes">
+              <label class="label">{{localize "BABONUS.LABELS.DAMAGE_TYPES"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.damageTypes">
+                <button class="babonus-keys" data-type="damageTypes">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
-          <div class="form-group abilities">
-            <label class="label">{{localize "BABONUS.LABELS.ABILITIES"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.abilities">
-              <button class="babonus-keys" data-type="abilities">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+
+          <div class="hide-attack-damage-save">
+            <div class="form-group abilities">
+              <label class="label">{{localize "BABONUS.LABELS.ABILITIES"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.abilities">
+                <button class="babonus-keys" data-type="abilities">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
+
+          <div class="hide-check">
+            <div class="form-group checkAbilities">
+              <label class="label">{{localize "BABONUS.LABELS.CHECK_ABILITIES"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.checkAbilities">
+                <button class="babonus-keys" data-type="checkAbilities">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group arbitraryComparison">
             <label class="label" title="{{localize 'BABONUS.TITLES.ARBITRARY_COMPARISON'}}">
               {{localize "BABONUS.LABELS.ARBITRARY_COMPARISON"}}
@@ -161,6 +181,7 @@
                 placeholder="{{localize 'BABONUS.VALUES.ARBITRARY_COMPARISON_OTHER'}}">
             </div>
           </div>
+
           <div class="form-group statusEffects">
             <label class="label">{{localize "BABONUS.LABELS.ACTOR_CONDITIONS"}}</label>
             <div class="form-fields">
@@ -170,6 +191,7 @@
               </button>
             </div>
           </div>
+
           <div class="form-group targetEffects">
             <label class="label">{{localize "BABONUS.LABELS.TARGET_CONDITIONS"}}</label>
             <div class="form-fields">
@@ -181,80 +203,124 @@
           </div>
 
           <!-- only if 'attack' -->
-          <div class="form-group attackTypes">
-            <label class="label">{{localize "BABONUS.LABELS.ATTACK_TYPES"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.attackTypes">
-              <button class="babonus-keys" data-type="attackTypes">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+          <div class="hide-attack">
+            <div class="form-group attackTypes">
+              <label class="label">{{localize "BABONUS.LABELS.ATTACK_TYPES"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.attackTypes">
+                <button class="babonus-keys" data-type="attackTypes">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- only if 'save' -->
-          <div class="form-group saveAbilities">
-            <label class="label">{{localize "BABONUS.LABELS.SAVE_ABILITIES"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.saveAbilities">
-              <button class="babonus-keys" data-type="saveAbilities">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+          <div class="hide-save">
+            <div class="form-group saveAbilities">
+              <label class="label">{{localize "BABONUS.LABELS.SAVE_ABILITIES"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.saveAbilities">
+                <button class="babonus-keys" data-type="saveAbilities">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- only if 'throw' -->
+          <div class="hide-throw">
+            <div class="form-group throwTypes">
+              <label class="label">{{localize "BABONUS.LABELS.THROW_TYPES"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.throwTypes">
+                <button class="babonus-keys" data-type="throwTypes">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- spells only -->
-          <div class="form-group spellComponents">
-            <label class="label">{{localize "BABONUS.LABELS.COMPONENTS"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.spellComponents.types">
-              <select name="filters.spellComponents.match" class="babonus-select">
-                <option value="ANY">{{localize "BABONUS.VALUES.MATCH_ANY"}}</option>
-                <option value="ALL">{{localize "BABONUS.VALUES.MATCH_ALL"}}</option>
-              </select>
-              <button class="babonus-keys" data-type="spellComponents">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+          <div class="hide-spell">
+            <div class="form-group spellComponents">
+              <label class="label">{{localize "BABONUS.LABELS.COMPONENTS"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.spellComponents.types">
+                <select name="filters.spellComponents.match" class="babonus-select">
+                  <option value="ANY">{{localize "BABONUS.VALUES.MATCH_ANY"}}</option>
+                  <option value="ALL">{{localize "BABONUS.VALUES.MATCH_ALL"}}</option>
+                </select>
+                <button class="babonus-keys" data-type="spellComponents">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="form-group spellLevels">
-            <label class="label">{{localize "BABONUS.LABELS.SPELL_LEVELS"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.spellLevels">
-              <button class="babonus-keys" data-type="spellLevels">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+            <div class="form-group spellLevels">
+              <label class="label">{{localize "BABONUS.LABELS.SPELL_LEVELS"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.spellLevels">
+                <button class="babonus-keys" data-type="spellLevels">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="form-group spellSchools">
-            <label class="label">{{localize "BABONUS.LABELS.SPELL_SCHOOLS"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.spellSchools">
-              <button class="babonus-keys" data-type="spellSchools">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+            <div class="form-group spellSchools">
+              <label class="label">{{localize "BABONUS.LABELS.SPELL_SCHOOLS"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.spellSchools">
+                <button class="babonus-keys" data-type="spellSchools">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- weapons only -->
-          <div class="form-group baseWeapons">
-            <label class="label">{{localize "BABONUS.LABELS.WEAPONS"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.baseWeapons">
-              <button class="babonus-keys" data-type="baseWeapons">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+          <div class="hide-weapon">
+            <div class="form-group baseWeapons">
+              <label class="label">{{localize "BABONUS.LABELS.WEAPONS"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.baseWeapons">
+                <button class="babonus-keys" data-type="baseWeapons">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
+            </div>
+            <div class="form-group weaponProperties">
+              <label class="label">{{localize "BABONUS.LABELS.PROPERTIES"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.weaponProperties.needed">
+                <input type="text" name="filters.weaponProperties.unfit">
+                <button class="babonus-keys" data-type="weaponProperties">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
-          <div class="form-group weaponProperties">
-            <label class="label">{{localize "BABONUS.LABELS.PROPERTIES"}}</label>
-            <div class="form-fields">
-              <input type="text" name="filters.weaponProperties.needed">
-              <input type="text" name="filters.weaponProperties.unfit">
-              <button class="babonus-keys" data-type="weaponProperties">
-                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-              </button>
+
+          <!-- check only -->
+          <div class="hide-check">
+            <div class="form-group tools">
+              <label class="label">{{localize "BABONUS.LABELS.TOOLS"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.tools">
+                <button class="babonus-keys" data-type="tools">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
+            </div>
+            <div class="form-group skills">
+              <label class="label">{{localize "BABONUS.LABELS.SKILLS"}}</label>
+              <div class="form-fields">
+                <input type="text" name="filters.skills">
+                <button class="babonus-keys" data-type="skills">
+                  <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+                </button>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
