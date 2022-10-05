@@ -1,10 +1,14 @@
 import { attackTypes, itemsValidForAttackDamageSave, MODULE, targetTypes } from "./constants.mjs";
+import { FILTER } from "./filters.mjs";
 
 // Really, really, really slugify a string.
 // it may only contain a-z, 0-9, and -.
 export function superSlugify(id) {
-  const regex = new RegExp(/[^a-z0-9- ]+/gmi);
-  return id.replaceAll(regex, "").slugify();
+  const regex = new RegExp(/[^a-z- ]+/gmi);
+  let idf = id.replaceAll(regex, "").slugify();
+  if (idf.length < 2) return "";
+  if (!new RegExp(/[a-z]/).test(idf)) return "";
+  return idf;
 }
 
 // the types of bonuses ('attack', 'damage', 'save', etc)
@@ -90,9 +94,6 @@ export class KeyGetter {
   static get saveAbilities() {
     return this.abilities;
   }
-  static get checkAbilities(){
-    return this.abilities;
-  }
 
   static get throwTypes() {
     const abl = this.abilities;
@@ -144,25 +145,72 @@ export class KeyGetter {
   static get targetEffects() {
     return this.statusEffects;
   }
+}
 
-  // all tool types
-  static get tools() {
-    const entries = Object.entries(CONFIG.DND5E.toolIds);
-    return entries.map(([value, uuid]) => {
-      const split = uuid.split(".");
-      const id = split.pop();
-      const packKey = split.length ? split.join(".") : "dnd5e.items";
-      const { index } = game.packs.get(packKey);
-      const { name: label } = index.find(({ _id }) => {
-        return _id === id;
-      }) ?? {};
-      return { value, label };
+/**
+ * Add bonuses from items. Any item-only filtering happens here,
+ * such as checking if the item is currently, and requires being,
+ * equipped and/or attuned. Not all valid item types have these
+ * properties, such as feature type items.
+ */
+export function getActorItemBonuses(actor, hookType) {
+  const { ATTUNED } = CONFIG.DND5E.attunementTypes;
+  const boni = [];
+
+  for (const item of actor.items) {
+    const flag = item.getFlag(MODULE, `bonuses.${hookType}`);
+    if (!flag) continue;
+
+    const itemBonuses = Object.entries(flag);
+    const { equipped, attunement } = item.system;
+    const validItemBonuses = itemBonuses.filter(([id, { enabled, itemRequirements }]) => {
+      if (!enabled) return false;
+      if (!itemRequirements) return true;
+      const { equipped: needsEq, attuned: needsAtt } = itemRequirements;
+      if (!equipped && needsEq) return false;
+      if (attunement !== ATTUNED && needsAtt) return false;
+      return true;
     });
+    boni.push(...validItemBonuses);
   }
+  return boni;
+}
 
-  // all skills
-  static get skills() {
-    const entries = Object.entries(CONFIG.DND5E.skills);
-    return entries.map(([value, { label }]) => ({ value, label }));
+/**
+ * Add bonuses from effects. Any effect-only filtering happens here,
+ * such as checking whether the effect is disabled or unavailable.
+ */
+export function getActorEffectBonuses(actor, hookType){
+  const boni = [];
+  for(const effect of actor.effects){
+    if(effect.disabled || effect.isSuppressed) continue;
+    const flag = effect.getFlag(MODULE, `bonuses.${hookType}`);
+    if(!flag) continue;
+    const effectBonuses = Object.entries(flag);
+    const validEffectBonuses = effectBonuses.filter(([id, {enabled}]) => {
+      return enabled;
+    });
+    boni.push(...validEffectBonuses);
   }
+  return boni;
+}
+
+export function finalFilterBonuses(bonuses, object, type, details={}){
+  const funcs = FILTER.filterFunctions[type];
+
+  const valids = bonuses.reduce((acc, [id, atts]) => {
+    if(!atts.enabled) return acc;
+    if(atts.itemTypes) atts.filters["itemTypes"] = atts.itemTypes;
+    if(atts.throwTypes) atts.filters["throwTypes"] = atts.throwTypes;
+
+    for(const key in atts.filters){
+      const validity = funcs[key](object, atts.filters[key], details);
+      if(!validity) return acc;
+    }
+    delete atts.filters["itemTypes"];
+    delete atts.filters["throwTypes"];
+    acc.push(atts.values);
+    return acc;
+  }, []);
+  return valids;
 }

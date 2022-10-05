@@ -14,9 +14,7 @@ export function validateData(formData) {
     spellComponents,
     spellTags,
     spellSchools,
-    weaponProperties,
-    toolIds,
-    skills
+    weaponProperties
   } = CONFIG.DND5E;
   const statusIds = CONFIG.statusEffects.map(i => i.id);
 
@@ -34,9 +32,7 @@ export function validateData(formData) {
     [Object.keys(weaponProperties), "filters.weaponProperties.unfit"],
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],
-    [Object.keys(toolIds), "filters.tools"],
-    [Object.keys(skills), "filters.skills"],
-    [Object.keys(abilities).concat(["death"]), "filters.throwTypes"]
+    [Object.keys(abilities).concat(["death"]), "throwTypes"]
   ];
   for (const [values, property] of scsv) {
     validateValues(formData, values, property);
@@ -131,7 +127,6 @@ export function dataHasAllRequirements(formData, object, editMode = false) {
   }
 
   // does data have any bonus?
-
   if (!dupe.values) {
     return { valid: false, error: "MISSING_BONUS" };
   }
@@ -150,15 +145,8 @@ export function dataHasAllRequirements(formData, object, editMode = false) {
 
   // if throw, does bonus have throwTypes?
   if (["throw"].includes(dupe.target)) {
-    if (!dupe.filters?.throwTypes) {
+    if (!dupe.throwTypes) {
       return { valid: false, error: "MISSING_THROW_TYPES" };
-    }
-  }
-
-  // if check, does bonus have either checkAbilities, tools, or skills?
-  if (["check"].includes(dupe.target)) {
-    if (!dupe.filters?.checkAbilities && !dupe.filters?.tools && !dupe.filters?.skills) {
-      return { valid: false, error: "MISSING_CHECK_TYPES" };
     }
   }
 

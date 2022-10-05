@@ -5,7 +5,6 @@ export const targetTypes = [
   "damage", // bonuses to damage rolls, critical damage, critical bonus dice
   "save", // bonuses to the save DC
   "throw", // bonuses to a saving throw
-  "check", // bonuses to an ability check (or skill/tool check)
   "hitdie", // bonuses to hit die rolls
   "init", // bonses to initiative rolls
 ];

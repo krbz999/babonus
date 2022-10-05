@@ -154,10 +154,20 @@ export function _preRollDamage(item, rollConfig) {
   }
 }
 
-export function _preRollAbilityTest(actor, rollConfig, abilityId){
+export function _preRollDeathSave(actor, rollConfig){
   // get bonus:
-  const bonuses = FILTER.itemCheck(actor, "test");
+  const bonuses = FILTER.throwCheck(actor, "death");
   if(!bonuses.length) return;
+
+  // add to parts:
+  const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));
+  rollConfig.parts = parts;
+}
+
+export function _preRollAbilitySave(actor, rollConfig, abilityId){
+  // get bonus:
+  const bonuses = FILTER.throwCheck(actor, abilityId);
+  if(!bonuses.length)return;
 
   // add to parts:
   const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));

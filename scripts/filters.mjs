@@ -1,11 +1,12 @@
 import { MATCH, MODULE } from "./constants.mjs";
+import { finalFilterBonuses, getActorEffectBonuses, getActorItemBonuses } from "./helpers.mjs";
 
 /**
  * An example bonus, as it would be
  * stored on an actor, effect, or item.
  * Includes all fields.
  * 
-  flags.babonus.bonuses.<damage/attack/save>: {
+  flags.babonus.bonuses.<damage/attack/save/throw/hitdie/init>: {
     <identifier>: {
       enabled: true,
       label: "Special Fire Spell Bonus",
@@ -22,7 +23,8 @@ import { MATCH, MODULE } from "./constants.mjs";
       },
       filters: {
         damageTypes: ["fire", "cold", "bludgeoning"],
-        abilities: ["int"],
+        abilities: ["int"], // if attack/damage/save
+        throwTypes: ["int", "con", "death"], // if 'throw'
         arbitraryComparison: {
           one: "@item.uses.value",
           other: "@abilities.int.mod",
@@ -31,15 +33,15 @@ import { MATCH, MODULE } from "./constants.mjs";
         statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
         targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
         attackTypes: ["mwak", "rwak", "msak", "rsak"], // only when set to 'attack'
-        saveAbilities: ["int", "cha", "..."],
-        spellComponents: {
+        saveAbilities: ["int", "cha", "..."], // if attack/damage/save
+        spellComponents: { // if itemTypes.spell
           types: ["concentration", "vocal"],
           match: "ALL" // or 'ANY'
         },
-        spellLevels: ['0','1','2','3','4','5','6','7','8','9'],
-        spellSchools: ["evo", "con"],
-        baseweapons: ["dagger", "lance", "shortsword"],
-        weaponProperties: {
+        spellLevels: ['0','1','2','3','4','5','6','7','8','9'], // if itemTypes.spell
+        spellSchools: ["evo", "con"], // if itemTypes.spell
+        baseweapons: ["dagger", "lance", "shortsword"], // if itemTypes.weapon
+        weaponProperties: { // if itemTypes.weapon
           needed: ["fin", "lgt"],
           unfit: ["two", "ver"]
         }
@@ -53,20 +55,46 @@ export class FILTER {
    * An object mapping filter keys to the relevant filtering
    * function found in this class. Mainly used for an overview.
    */
-  static itemFunctions = {
-    itemTypes: this.itemType,
-    attackTypes: this.attackType,
-    baseWeapons: this.baseWeapon,
-    damageTypes: this.damageType,
-    spellSchools: this.spellSchool,
-    abilities: this.ability,
-    spellComponents: this.spellComponents,
-    spellLevels: this.spellLevel,
-    weaponProperties: this.weaponProperty,
-    saveAbilities: this.saveAbility,
-    arbitraryComparison: this.arbitraryComparison,
-    statusEffects: this.statusEffects,
-    targetEffects: this.targetEffects
+  static filterFunctions = {
+    item: { // attack, damage, save
+      itemTypes: this.itemType,
+      attackTypes: this.attackType,
+      baseWeapons: this.baseWeapon,
+      damageTypes: this.damageType,
+      spellSchools: this.spellSchool,
+      abilities: this.ability,
+      spellComponents: this.spellComponents,
+      spellLevels: this.spellLevel,
+      weaponProperties: this.weaponProperty,
+      saveAbilities: this.saveAbility,
+      arbitraryComparison: this.arbitraryComparison,
+      statusEffects: this.statusEffects,
+      targetEffects: this.targetEffects
+    },
+    throw: { // throw
+      arbitraryComparison: this.arbitraryComparison,
+      statusEffects: this.statusEffects,
+      targetEffects: this.targetEffects,
+      throwTypes: this.throwTypes
+    }
+  }
+
+  static throwCheck(actor, abilityId){
+    let bonuses = [];
+    // add bonuses from actor.
+    const flag = actor.getFlag(MODULE, `bonuses.throw`);
+    if(flag) bonuses=Object.entries(flag);
+
+    // add bonuses from items.
+    bonuses = bonuses.concat(getActorItemBonuses(actor, "throw"));
+
+    // add bonuses from effects.
+    bonuses = bonuses.concat(getActorEffectBonuses(actor, "throw"));
+
+    // if none found
+    if(!bonuses.length) return [];
+
+    return finalFilterBonuses(bonuses, actor, "throw", {throwType: abilityId});
   }
 
 
@@ -85,86 +113,18 @@ export class FILTER {
     // add bonuses from actor.
     const flag = item.actor.getFlag(MODULE, `bonuses.${hookType}`);
     if (flag) bonuses = Object.entries(flag);
+    
+    // get bonuses from items.
+    bonuses = bonuses.concat(getActorItemBonuses(item.parent, hookType));
 
-    /**
-     * Add bonuses from items. Any item-only filtering happens here,
-     * such as checking if the item is currently, and requires being,
-     * equipped and/or attuned. Not all valid item types have these
-     * properties, such as feature type items.
-     */
-    for (const it of item.actor.items) {
-      const itemFlag = it.getFlag(MODULE, `bonuses.${hookType}`);
-      if (!itemFlag) continue;
-
-      const itemBonuses = Object.entries(itemFlag);
-      const { equipped, attunement } = it.system;
-      const { ATTUNED } = CONFIG.DND5E.attunementTypes;
-      const validItemBonuses = itemBonuses.filter(([id, { enabled, itemRequirements }]) => {
-        if (!enabled) return false;
-        if (!itemRequirements) return true;
-        const { equipped: needsEq, attuned: needsAtt } = itemRequirements;
-        if (!equipped && needsEq) return false;
-        if (attunement !== ATTUNED && needsAtt) return false;
-        return true;
-      });
-
-      bonuses = bonuses.concat(validItemBonuses);
-    }
-
-    /**
-     * Add bonuses from effects. Any effect-only filtering happens here,
-     * such as checking whether the effect is disabled or unavailable.
-     */
-    for (const eff of item.actor.effects) {
-      if (eff.disabled || eff.isSuppressed) continue;
-      const effectFlag = eff.getFlag(MODULE, `bonuses.${hookType}`);
-      if (!effectFlag) continue;
-
-      const effectBonuses = Object.entries(effectFlag);
-      const validEffectBonuses = effectBonuses.filter(([id, { enabled }]) => {
-        return enabled;
-      });
-      bonuses = bonuses.concat(validEffectBonuses);
-    }
-
-    /**
-     * After finding all valid bonuses, if none
-     * are found, we have no need to filter anything.
-     */
+    // get bonuses from effects.
+    bonuses = bonuses.concat(getActorEffectBonuses(item.parent, hookType));
+    
+    // After finding all valid bonuses, if none found, no need to filter anything.
     if (!bonuses.length) return [];
 
     // the final filtering.
-    const valids = bonuses.reduce((acc, [id, { enabled, values, filters, itemTypes }]) => {
-      /**
-       * The bonus must be enabled. This can be disabled
-       * either via ActiveEffects or directly in the BAB.
-       */
-      if (!enabled) return acc;
-
-      /**
-       * Add itemTypes to the filter temporarily to allow it to be checked against
-       * as well. This normally does not live in the 'filters' object of a bonus.
-       */
-      filters["itemTypes"] = itemTypes;
-
-      /**
-       * Check if the bonus is a valid bonus for each key in the filter object.
-       * Not every filter has all keys; they contain only those keys that the 
-       * BAB has verified (e.g., removed empty bonuses or invalid keys).
-       * If any of these filters are empty, it is due to ActiveEffects.
-       */
-      for (const key in filters) {
-        const validity = FILTER.itemFunctions[key](item, filters[key]);
-        if (!validity) return acc;
-      }
-
-      // delete temporary key.
-      delete filters["itemTypes"];
-
-      acc.push(values);
-      return acc;
-    }, []);
-    return valids;
+    return finalFilterBonuses(bonuses, item, "item");
   }
 
   /**
@@ -413,18 +373,18 @@ export class FILTER {
    * will mean 'is a substring'. String comparison happens after 
    * replacing any rollData attributes.
    * 
-   * @param {Item5e} item         The item being filtered against.
-   * @param {String} one          The left-side value from the BAB.
-   * @param {String} other        The right-side value from the BAB.
-   * @param {String} operator     The relation that the two values should have.
+   * @param {Item5e|Actor5e} object   The item or actor being filtered against.
+   * @param {String} one              The left-side value from the BAB.
+   * @param {String} other            The right-side value from the BAB.
+   * @param {String} operator         The relation that the two values should have.
    */
-  static arbitraryComparison(item, { one, other, operator }) {
+  static arbitraryComparison(object, { one, other, operator }) {
     /**
      * This method immediately returns false
      */
     if (!one || !other) return false;
 
-    const rollData = item.getRollData();
+    const rollData = object.getRollData();
     let left = Roll.replaceFormulaData(one, rollData);
     let right = Roll.replaceFormulaData(other, rollData);
 
@@ -452,14 +412,15 @@ export class FILTER {
    * Find out if the actor has any of the status conditions required.
    * The bonus will apply if the actor has at least one.
    * 
-   * @param {Item5e} item     The item being filtered against.
-   * @param {Array} filter    The array of effect status ids.
-   * @returns {Boolean}       Whether the actor has any of the status effects.
+   * @param {Item5e|Actor5e} object The item or actor being filtered against.
+   * @param {Array} filter          The array of effect status ids.
+   * @returns {Boolean}             Whether the actor has any of the status effects.
    */
-  static statusEffects(item, filter) {
+  static statusEffects(object, filter) {
     if (!filter?.length) return true;
+    const obj = object.parent ?? object;
     const conditions = filter.some(id => {
-      return !!item.actor.effects.find(eff => {
+      return !!obj.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
         return eff.getFlag("core", "statusId") === id;
       });
@@ -471,11 +432,11 @@ export class FILTER {
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
    * 
-   * @param {Item5e} item     The item used. Not relevant in this case.
-   * @param {Array} filter    The array of effect status ids.
-   * @returns {Boolean}       Whether the target actor has any of the status effects.
+   * @param {Item5e|Actor5e} object The item or actor. Not relevant in this case.
+   * @param {Array} filter          The array of effect status ids.
+   * @returns {Boolean}             Whether the target actor has any of the status effects.
    */
-  static targetEffects(item, filter) {
+  static targetEffects(object, filter) {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
     if (!target) return false;
@@ -486,5 +447,20 @@ export class FILTER {
       });
     });
     return conditions;
+  }
+
+  /**
+   * Find out if the bonus should apply to this type of saving throw.
+   * This filter is required, so an empty filter returns false.
+   * 
+   * @param {Actor5e} actor     The actor making the saving throw.
+   * @param {Array}   filter    The array of saving throw types to check for.
+   * @param {String}  throwType The id of the ability, can be 'death'.
+   * @returns {Boolean}         Whether the throw type is in the filter.
+   */
+  static throwTypes(actor, filter, {throwType}){
+    if(!filter?.length) return false;
+    if(!throwType) return false;
+    return filter.includes(throwType);
   }
 }
