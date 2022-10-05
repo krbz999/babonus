@@ -1,4 +1,4 @@
-import { itemsWithBonusesApplying, MODULE, targetTypes } from "./constants.mjs";
+import { attackTypes, itemsValidForAttackDamageSave, MODULE, targetTypes } from "./constants.mjs";
 
 // Really, really, really slugify a string.
 // it may only contain a-z, 0-9, and -.
@@ -45,7 +45,7 @@ export class KeyGetter {
 
   // valid item types; those that can have actions associated.
   static get itemTypes() {
-    return itemsWithBonusesApplying.map(value => {
+    return itemsValidForAttackDamageSave.map(value => {
       const upper = value.titleCase();
       const string = `DND5E.ItemType${upper}`;
       const label = game.i18n.localize(string);
@@ -107,7 +107,7 @@ export class KeyGetter {
   // attack types.
   static get attackTypes() {
     const { itemActionTypes } = CONFIG.DND5E;
-    const actions = ["mwak", "rwak", "msak", "rsak"];
+    const actions = attackTypes;
     return actions.map(value => {
       const label = itemActionTypes[value];
       return { value, label };
@@ -129,7 +129,7 @@ export class KeyGetter {
     }, []);
     return ids.map((id) => ({ value: id, label: id }));
   }
-  static get targetEffects(){
+  static get targetEffects() {
     return this.statusEffects;
   }
 }

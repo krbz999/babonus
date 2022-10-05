@@ -10,22 +10,6 @@ export const targetTypes = [
   "init", // bonses to initiative rolls
 ];
 export const attackTypes = ["mwak", "rwak", "msak", "rsak"];
-export const handlingRegular = [
-  "baseWeapons",
-  "damageTypes",
-  "spellSchools",
-  "abilities",
-  "attackTypes",
-  "spellLevels",
-  "saveAbilities",
-  "statusEffects",
-  "targetEffects"
-];
-export const handlingSpecial = [
-  "spellComponents",
-  "weaponProperties",
-  "arbitraryComparison"
-];
 
 // item types that cannot GRANT a bonus.
 export const itemsWithoutBonuses = [
@@ -35,8 +19,8 @@ export const itemsWithoutBonuses = [
   "spell"
 ];
 
-// item types that a bonus can apply to.
-export const itemsWithBonusesApplying = [
+// item types that can get a bonus when rolling attack, damage, or showing a save dc.
+export const itemsValidForAttackDamageSave = [
   "consumable",
   "equipment",
   "feat",

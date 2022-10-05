@@ -1,4 +1,4 @@
-import { attackTypes, itemsWithBonusesApplying, MODULE } from "./constants.mjs";
+import { attackTypes, itemsValidForAttackDamageSave, MODULE } from "./constants.mjs";
 
 /**
  * The big functon to remove empty values and turn semicolon-
@@ -19,7 +19,7 @@ export function validateData(formData) {
   const statusIds = CONFIG.statusEffects.map(i => i.id);
 
   const scsv = [
-    [itemsWithBonusesApplying, "itemTypes"],
+    [itemsValidForAttackDamageSave, "itemTypes"],
     [Object.keys(abilities), "filters.abilities"],
     [Object.keys(weaponIds), "filters.baseWeapons"],
     [Object.keys(damageTypes).concat(Object.keys(healingTypes)), "filters.damageTypes"],
@@ -143,10 +143,17 @@ export function dataHasAllRequirements(formData, object, editMode = false) {
     }
   }
 
-  // if check/throw, does bonus have abilityTypes?
-  if (["check", "throw"].includes(dupe.target)) {
-    if (!dupe.abilityTypes) {
+  // if throw, does bonus have saveAbilities?
+  if (["throw"].includes(dupe.target)) {
+    if (!dupe.saveAbilities) {
       return { valid: false, error: "MISSING_ABILITY_TYPES" };
+    }
+  }
+
+  // if check, does bonus have either abilities, tools, or skills?
+  if (["check"].includes(dupe.target)) {
+    if (!dupe.abilities && !dupe.tools && !dupe.skills) {
+      return { valid: false, error: "MISSING_CHECK_TYPES" };
     }
   }
 

@@ -1,4 +1,4 @@
-import { itemsWithBonusesApplying, MODULE, targetTypes } from "./constants.mjs";
+import { itemsValidForAttackDamageSave, MODULE, targetTypes } from "./constants.mjs";
 import { superSlugify, getBonuses, getTargets, KeyGetter } from "./helpers.mjs";
 import { dataHasAllRequirements, finalizeData, validateData } from "./validator.mjs";
 
@@ -233,15 +233,15 @@ export class Build_a_Bonus extends FormApplication {
     validateData(formData);
 
     const editMode = this.element[0].querySelector("form.babonus").classList.contains("editMode");
-    const {valid, error} = dataHasAllRequirements(formData, this.object, editMode);
+    const { valid, error } = dataHasAllRequirements(formData, this.object, editMode);
     console.log("FORMDATA AFTER 'hasAllReq':", formData);
 
-    if ( !valid ){
+    if (!valid) {
       this.displayWarning(`BABONUS.WARNINGS.${error}`);
       return false;
     }
 
-    const {key, value, del} = finalizeData(formData);
+    const { key, value, del } = finalizeData(formData);
 
     // remove the warning field.
     this.displayWarning(false);
@@ -315,15 +315,15 @@ export class Build_a_Bonus extends FormApplication {
     formData.target = id.split(".")[0];
 
     // turn arrays into strings.
-    for(const key in formData){
-      if (formData[key] instanceof Array){
+    for (const key in formData) {
+      if (formData[key] instanceof Array) {
         formData[key] = formData[key].join(";");
       }
       const inp = html[0].querySelector(`[name="${key}"]`);
-      if ( !inp) continue;
+      if (!inp) continue;
       inp.value = formData[key];
     }
-    
+
     if (!edit) html[0].closest("form.babonus").classList.remove("editMode");
     else html[0].closest("form.babonus").classList.add("editMode");
     this.refreshForm();
@@ -336,7 +336,7 @@ export class Build_a_Bonus extends FormApplication {
     const targetInput = html[0].querySelector("[name='target']");
     const values = itemTypeInput.value.split(";").map(i => i.trim());
     const form = itemTypeInput.closest("form.babonus");
-    for (const type of itemsWithBonusesApplying) {
+    for (const type of itemsValidForAttackDamageSave) {
       if (values.includes(type)) form.classList.add(type);
       else form.classList.remove(type);
     }
@@ -349,7 +349,7 @@ export class Build_a_Bonus extends FormApplication {
   }
 
   // helper method to clear the form before pasting data.
-  clearForm(){
+  clearForm() {
     const elements = this.element[0].getElementsByTagName("INPUT");
     for (const element of elements) element.value = "";
   }

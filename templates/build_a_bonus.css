@@ -131,16 +131,16 @@ form.babonus.editMode [name='target'] {
   color: #AAA;
 }
 
-form.babonus:not(.weapon) .form-group.baseWeapons,
-form.babonus:not(.weapon) .form-group.weaponProperties,
-form.babonus:not(.spell) .form-group.spellComponents,
-form.babonus:not(.spell) .form-group.spellLevels,
-form.babonus:not(.spell) .form-group.spellSchools,
+form.babonus:not(.weapon) .baseWeapons,
+form.babonus:not(.weapon) .weaponProperties,
+form.babonus:not(.spell) .spellComponents,
+form.babonus:not(.spell) .spellLevels,
+form.babonus:not(.spell) .spellSchools,
 form.babonus:not(.damage) .hide-damage,
 form.babonus:not(.attack) .hide-attack,
-form.babonus:not(.attack) div.form-group.attackTypes,
+form.babonus:not(.attack) .attackTypes,
 form.babonus:not(.save) .hide-save,
-form.babonus:not(.save) div.form-group.saveAbilities,
+form.babonus:not(.save, .throw) .saveAbilities,
 form.babonus:not(.throw) .hide-throw,
 form.babonus:not(.check) .hide-check,
 form.babonus:not(.hitdie) .hide-hitdie,

@@ -13,6 +13,7 @@
       "MISSING_DESC": "Your bonus needs a description!",
       "MISSING_ITEM_TYPES": "You must select at least one item type!",
       "MISSING_ABILITY_TYPES": "You must select at least one ability!",
+      "MISSING_CHECK_TYPES": "An ability check must specify either an ability, a skill, or a tool type!",
       "MISSING_FILTER": "Your bonus needs at least one filter!"
     },
     "LABELS": {
