@@ -36,8 +36,8 @@
 
 .babonus .current .current-bonuses {
   overflow-y: auto;
-  max-height: 600px;
-  height: 600px;
+  max-height: 650px;
+  height: 650px;
 }
 
 .babonus .current .current-bonuses .bonus:first-child {

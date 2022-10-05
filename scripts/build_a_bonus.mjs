@@ -64,6 +64,8 @@ export class Build_a_Bonus extends FormApplication {
       // hide/unhide some elements.
       if (["target", "itemTypes"].includes(event.target.name)) {
         this.refreshForm();
+      } else if (["aura.range"].includes(event.target.name)) {
+        event.target.value = Math.clamped(event.target.value, 0, 100);
       }
     }
     // enable/disable all shown/hidden elements.
@@ -317,7 +319,8 @@ export class Build_a_Bonus extends FormApplication {
       }
       const inp = html[0].querySelector(`[name="${key}"]`);
       if (!inp) continue;
-      inp.value = formData[key];
+      if (inp.type === "checkbox") inp.checked = formData[key];
+      else inp.value = formData[key];
     }
 
     if (!edit) html[0].closest("form.babonus").classList.remove("editMode");
@@ -335,6 +338,7 @@ export class Build_a_Bonus extends FormApplication {
     for (const type of itemsValidForAttackDamageSave) {
       if (itemTypeInput.disabled) form.classList.remove(type);
       else if (values.includes(type)) form.classList.add(type);
+      else form.classList.remove(type);
     }
     for (const type of targetTypes) {
       if (targetInput.value === type) form.classList.add(type);
@@ -347,7 +351,10 @@ export class Build_a_Bonus extends FormApplication {
   // helper method to clear the form before pasting data.
   clearForm() {
     const elements = this.element[0].getElementsByTagName("INPUT");
-    for (const element of elements) element.value = "";
+    for (const element of elements) {
+      if (element.type === "checkbox") element.checked = false;
+      else element.value = "";
+    }
   }
 
 }

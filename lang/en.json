@@ -42,7 +42,8 @@
       "ARBITRARY_COMPARISON": "Comparison",
       "ACTOR_CONDITIONS": "Actor Cond.",
       "TARGET_CONDITIONS": "Target Cond.",
-      "THROW_TYPES": "Saving Throws"
+      "THROW_TYPES": "Saving Throws",
+      "AURAS": "Aura"
     },
     "TITLES": {
       "TOGGLE_THIS": "Toggle this bonus on or off.",
@@ -72,7 +73,8 @@
       "SPELL_LEVELS": "The level at which the spell must be cast for the bonus to apply.",
       "SPELL_SCHOOLS": "The school the spell must belong to for the bonus to apply.",
       "WEAPON_TYPES": "The type of weapon the item must be for the bonus to apply.",
-      "WEAPON_PROPERTIES": "The weapon properties the item either must have or cannot have for the bonus to apply."
+      "WEAPON_PROPERTIES": "The weapon properties the item either must have or cannot have for the bonus to apply.",
+      "AURAS": "Whether this transfers to other characters in range, within what range, and to what kind of targets."
     },
     "VALUES": {
       "PH_LABEL": "label...",
@@ -82,6 +84,9 @@
       "MATCH_ALL": "Match all",
       "ARBITRARY_COMPARISON_ONE": "value...",
       "ARBITRARY_COMPARISON_OTHER": "other value...",
+      "PH_RANGE": "range...",
+      "DISPOSITION_FRIENDLY": "Friendly Targets",
+      "DISPOSITION_HOSTILE": "Hostile Targets",
       "TARGET": {
         "ATTACK": "Attack Rolls",
         "DAMAGE": "Damage Rolls",

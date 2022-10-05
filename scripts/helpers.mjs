@@ -147,6 +147,15 @@ export class KeyGetter {
   }
 }
 
+export function getAllActorBonuses(actor, hookType){
+  // special traits:
+  const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
+  let bonuses = flag ? Object.entries(flag) : [];
+  bonuses = bonuses.concat(getActorItemBonuses(actor, hookType));
+  bonuses = bonuses.concat(getActorEffectBonuses(actor, hookType));
+  return bonuses;
+}
+
 /**
  * Add bonuses from items. Any item-only filtering happens here,
  * such as checking if the item is currently, and requires being,

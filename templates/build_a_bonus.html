@@ -135,6 +135,20 @@
         <header class="filter">{{localize "BABONUS.HEADERS.FILTERS"}}</header>
         <div class="babonus-filters">
 
+          <div class="form-group aura">
+            <label title="{{localize 'BABONUS.TITLES.AURAS'}}" class="label">
+              {{localize "BABONUS.LABELS.AURAS"}}
+            </label>
+            <div class="form-fields">
+              <input type="checkbox" name="aura.enabled">
+              <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.VALUES.PH_RANGE'}}">
+              <select name="aura.disposition">
+                <option value="FRIENDLY">{{localize "BABONUS.VALUES.DISPOSITION_FRIENDLY"}}</option>
+                <option value="HOSTILE">{{localize "BABONUS.VALUES.DISPOSITION_HOSTILE"}}</option>
+              </select>
+            </div>
+          </div>
+
           <div class="hide-attack-damage-save">
             <div class="form-group damageTypes">
               <label title="{{localize 'BABONUS.TITLES.DAMAGE_TYPES'}}" class="label">

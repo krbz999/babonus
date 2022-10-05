@@ -40,6 +40,16 @@ export function validateData(formData) {
 
   // special cases:
 
+  // aura:
+  const e = "aura.enabled";
+  const r = "aura.range";
+  const d = "aura.disposition";
+  if(!formData[e] || !formData[r] || formData[r] < 0 || !formData[d]){
+    delete formData[e];
+    delete formData[r];
+    delete formData[d];
+  }
+
   // spellcomponents:
   if (!formData["filters.spellComponents.types"]) {
     delete formData["filters.spellComponents.match"];

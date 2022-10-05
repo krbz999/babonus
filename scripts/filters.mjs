@@ -1,3 +1,4 @@
+import { getAllAurasOnScene } from "./aura_helper.mjs";
 import { MATCH, MODULE } from "./constants.mjs";
 import {
   finalFilterBonuses,
@@ -106,6 +107,7 @@ export class FILTER {
     if (flag) bonuses = Object.entries(flag);
     bonuses = bonuses.concat(getActorItemBonuses(actor, "hitdie"));
     bonuses = bonuses.concat(getActorEffectBonuses(actor, "hitdie"));
+    bonuses = bonuses.concat(getAllAurasOnScene(actor, "hitdie"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "misc");
   }
@@ -117,6 +119,8 @@ export class FILTER {
     if (flag) bonuses = Object.entries(flag);
     bonuses = bonuses.concat(getActorItemBonuses(actor, "throw"));
     bonuses = bonuses.concat(getActorEffectBonuses(actor, "throw"));
+    bonuses = bonuses.concat(getAllAurasOnScene(actor, "throw"));
+    console.log(bonuses);
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "throw", { throwType: abilityId });
   }
@@ -129,6 +133,7 @@ export class FILTER {
     if (flag) bonuses = Object.entries(flag);
     bonuses = bonuses.concat(getActorItemBonuses(item.parent, hookType));
     bonuses = bonuses.concat(getActorEffectBonuses(item.parent, hookType));
+    bonuses = bonuses.concat(getAllAurasOnScene(item.parent, hookType));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, item, "item");
   }
