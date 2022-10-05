@@ -5,47 +5,47 @@ import { MATCH, MODULE } from "./constants.mjs";
  * stored on an actor, effect, or item.
  * Includes all fields.
  * 
-    flags.babonus.bonuses.<damage/attack/save>: {
-        <identifier>: {
-            enabled: true,
-            label: "Special Fire Spell Bonus",
-            description: "This is a special fire spell bonus.",
-            itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"], // if attack/damage/save
-            values: {
-                bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
-                criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
-                criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
-            },
-            itemRequirements: { // for bonuses stored on items only.
-                equipped: true,
-                attuned: false
-            },
-            filters: {
-                damageTypes: ["fire", "cold", "bludgeoning"],
-                abilities: ["int"],
-                arbitraryComparison: {
-                    one: "@item.uses.value",
-                    other: "@abilities.int.mod",
-                    operator: "EQ" // or LE, GE, LT, GT
-                },
-                statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
-                targetEffects: ["blind", "dead", prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
-                attackTypes: ["mwak", "rwak", "msak", "rsak"], // only when set to 'attack'
-                saveAbilities: ["int", "cha", "..."],
-                spellComponents: {
-                    types: ["concentration", "vocal"],
-                    match: "ALL" // or 'ANY'
-                },
-                spellLevels: ['0','1','2','3','4','5','6','7','8','9'],
-                spellSchools: ["evo", "con"],
-                baseweapons: ["dagger", "lance", "shortsword"],
-                weaponProperties: {
-                    needed: ["fin", "lgt"],
-                    unfit: ["two", "ver"]
-                }
-            }
+  flags.babonus.bonuses.<damage/attack/save>: {
+    <identifier>: {
+      enabled: true,
+      label: "Special Fire Spell Bonus",
+      description: "This is a special fire spell bonus.",
+      itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"], // if attack/damage/save
+      values: {
+        bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
+        criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
+        criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
+      },
+      itemRequirements: { // for bonuses stored on items only.
+        equipped: true,
+        attuned: false
+      },
+      filters: {
+        damageTypes: ["fire", "cold", "bludgeoning"],
+        abilities: ["int"],
+        arbitraryComparison: {
+          one: "@item.uses.value",
+          other: "@abilities.int.mod",
+          operator: "EQ" // or LE, GE, LT, GT
+        },
+        statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
+        targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
+        attackTypes: ["mwak", "rwak", "msak", "rsak"], // only when set to 'attack'
+        saveAbilities: ["int", "cha", "..."],
+        spellComponents: {
+          types: ["concentration", "vocal"],
+          match: "ALL" // or 'ANY'
+        },
+        spellLevels: ['0','1','2','3','4','5','6','7','8','9'],
+        spellSchools: ["evo", "con"],
+        baseweapons: ["dagger", "lance", "shortsword"],
+        weaponProperties: {
+          needed: ["fin", "lgt"],
+          unfit: ["two", "ver"]
         }
+      }
     }
+  }
  */
 
 export class FILTER {

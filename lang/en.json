@@ -11,7 +11,8 @@
       "MISSING_TARGET": "You must designate where the bonus should apply!",
       "MISSING_BONUS": "The bonus needs actual bonuses!",
       "MISSING_DESC": "Your bonus needs a description!",
-      "MISSING_TYPE": "You must select at least one item type!",
+      "MISSING_ITEM_TYPES": "You must select at least one item type!",
+      "MISSING_ABILITY_TYPES": "You must select at least one ability!",
       "MISSING_FILTER": "Your bonus needs at least one filter!"
     },
     "LABELS": {
@@ -38,8 +39,8 @@
       "WEAPONS": "Weapons",
       "PROPERTIES": "Properties",
       "ARBITRARY_COMPARISON": "Comparison",
-      "ACTOR_EFFECTS": "Actor Effects",
-      "TARGET_EFFECTS": "Target Effects"
+      "ACTOR_CONDITIONS": "Actor Cond.",
+      "TARGET_CONDITIONS": "Target Cond."
     },
     "TITLES": {
       "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
@@ -50,6 +51,10 @@
       "ATTACK_BONUS": "Additional parts to add on top of the attack roll.",
       "DAMAGE_BONUS": "Additional parts to add on top of the damage roll.",
       "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits.",
+      "THROW_BONUS": "Additional parts to add on top of the saving throw.",
+      "CHECK_BONUS": "Additional parts to add on top of the ability check.",
+      "HITDIE_BONUS": "Additional parts to add on top of the hit die roll.",
+      "INIT_BONUS": "Additional parts to add on top of the initiative roll.",
       "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
       "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor"
     },
@@ -57,13 +62,19 @@
       "PH_LABEL": "label...",
       "PH_ID": "identifier...",
       "PH_DESCRIPTION": "description...",
-      "TARGET_ATTACK": "Attack Rolls",
-      "TARGET_DAMAGE": "Damage Rolls",
-      "TARGET_SAVE": "Save DC",
       "MATCH_ANY": "Match any",
       "MATCH_ALL": "Match all",
       "ARBITRARY_COMPARISON_ONE": "value...",
-      "ARBITRARY_COMPARISON_OTHER": "other value..."
+      "ARBITRARY_COMPARISON_OTHER": "other value...",
+      "TARGET": {
+        "ATTACK": "Attack Rolls",
+        "DAMAGE": "Damage Rolls",
+        "SAVE": "Save DC",
+        "THROW": "Saving Throws",
+        "CHECK": "Ability Checks",
+        "INIT": "Initiative Rolls",
+        "HITDIE": "Hit Die Rolls"
+      }
     },
     "BUTTONS": {
       "KEYS": "Keys",
@@ -109,13 +120,13 @@
       "SPELL_SCHOOLS_NAME": "Spell Schools",
       "SPELL_SCHOOLS_BOX": "Include",
       "spellSchools_TITLE": "Keys: Spell Schools",
-      "ACTOR_EFFECTS_DESC": "Select the status conditions that the actor must be afflicted by. The bonus will apply if the actor is afflicted by at least one of the selected conditions.",
-      "ACTOR_EFFECTS_NAME": "Status Effects",
-      "ACTOR_EFFECTS_BOX": "Include",
+      "ACTOR_CONDITIONS_DESC": "Select the status conditions that the actor must be afflicted by. The bonus will apply if the actor is afflicted by at least one of the selected conditions.",
+      "ACTOR_CONDITIONS_NAME": "Status Effects",
+      "ACTOR_CONDITIONS_BOX": "Include",
       "statusEffects_TITLE": "Keys: Actor Status Effects",
-      "TARGET_EFFECTS_DESC": "Select the status conditions that the target actor must be afflicted by. The bonus will apply if the target actor is afflicted by at least one of the selected conditions.",
-      "TARGET_EFFECTS_NAME": "Status Effects",
-      "TARGET_EFFECTS_BOX": "Include",
+      "TARGET_CONDITIONS_DESC": "Select the status conditions that the target actor must be afflicted by. The bonus will apply if the target actor is afflicted by at least one of the selected conditions.",
+      "TARGET_CONDITIONS_NAME": "Status Effects",
+      "TARGET_CONDITIONS_BOX": "Include",
       "targetEffects_TITLE": "Keys: Target Status Effects",
       "WEAPONS_DESC": "Select the type of weapons that the bonus should apply to.",
       "WEAPONS_NAME": "Base Weapons",

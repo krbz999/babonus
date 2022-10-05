@@ -1,46 +1,54 @@
-form.babonus h1 {
+.babonus h1 {
   text-align: center;
   font-size: 40px;
   border-bottom: none;
 }
 
+.babonus .components {
+  display: grid;
+  grid-template-columns: 49% 49%;
+  justify-content: space-around;
+}
+
+.babonus .components .builder {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 /* Headers */
-form.babonus header {
-  height: 28px;
+.babonus .components header {
+  height: 30px;
+  line-height: 28px;
   font-weight: bold;
   border: 1px solid var(--color-border-light-tertiary);
   background: rgba(0, 0, 0, 0.1);
-  line-height: 26px;
-}
-
-form.babonus .title {
-  padding: 0 0 0 5px;
   display: inline-block;
-  vertical-align: middle;
-  line-height: normal;
+  width: 100%;
+  padding-left: 0.5em;
+  border-radius: 2px;
 }
 
-.build-a-bonus .babonus-required-fields label.babonus-label {
+.babonus .builder .label {
   flex: 1;
   font-weight: bolder;
 }
 
-.build-a-bonus .babonus-filters label.babonus-label-m {
-  flex: 1;
+.babonus .current .current-bonuses {
+  overflow-y: auto;
+  max-height: 600px;
 }
 
-.current-bonuses {
-  overflow-y: scroll;
-  max-height: 300px;
-  margin-top: 0.5em;
+.babonus .current .current-bonuses .bonus:first-child {
+  margin-top: 1em;
 }
 
-.babonus .current-bonuses .babonus-bonus-details .functions {
-  max-width: fit-content;
-  margin-right: 1em;
+.babonus .current .current-bonuses .bonus .header {
+  display: grid;
+  grid-template-columns: 75% 25%;
 }
 
-.current-bonuses .form-group label.babonus-label {
+.babonus .current .current-bonuses .bonus .header .label {
   flex: 2;
   align-self: flex-start;
   text-align: center;
@@ -48,16 +56,25 @@ form.babonus .title {
   font-size: 18px;
 }
 
-.current-bonuses .form-group label.babonus-label.disabled {
+.babonus .current .current-bonuses .bonus .header .label.disabled {
   text-decoration: line-through;
 }
 
-.babonus-identifier {
+.babonus .current .current-bonuses .bonus .header .details {
+  text-align: center;
+}
+
+.babonus .current .current-bonuses .bonus .header .details .identifier {
   font-style: italic;
   color: gray;
 }
 
-.babonus-description {
+
+
+
+
+
+.babonus .bonus .description {
   font-style: italic;
   margin: 0.5em;
   border-radius: 5px;
@@ -87,17 +104,19 @@ button.babonus-keys {
   margin-right: 3px;
 }
 
-.babonus-warning.active {
-  display: block;
+.babonus .components .builder .warning.active {
+  display: inline-block;
+  width: 100%;
   color: red;
   font-style: italic;
   background-color: yellow;
   text-align: center;
   height: 40px;
-  padding: 9px 0 0 0;
+  line-height: 40px;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 1.25em;
   box-shadow: inset 0 0 5px black;
+  margin-bottom: 0.5em;
 }
 
 /* center all table columns that are not first (i.e., all columns with a checkbox) */
@@ -112,40 +131,27 @@ form.babonus.editMode [name='target'] {
   color: #AAA;
 }
 
-form.babonus.weapon .form-group.baseWeapons,
-form.babonus.weapon .form-group.weaponProperties,
-form.babonus.spell .form-group.spellComponents,
-form.babonus.spell .form-group.spellLevels,
-form.babonus.spell .form-group.spellSchools,
-form.babonus.attack div.form-group.attackTypes,
-form.babonus.save div.form-group.saveAbilities {
-  display: flex;
-}
-
-form.babonus .form-group.baseWeapons,
-form.babonus .form-group.weaponProperties,
-form.babonus .form-group.spellComponents,
-form.babonus .form-group.spellLevels,
-form.babonus .form-group.spellSchools,
-form.babonus div.babonus-bonuses-damage,
-form.babonus div.babonus-bonuses-attack,
-form.babonus div.form-group.attackTypes,
-form.babonus div.babonus-bonuses-save,
-form.babonus div.form-group.saveAbilities,
-.current-bonuses hr:last-child,
-.babonus-warning {
+form.babonus:not(.weapon) .form-group.baseWeapons,
+form.babonus:not(.weapon) .form-group.weaponProperties,
+form.babonus:not(.spell) .form-group.spellComponents,
+form.babonus:not(.spell) .form-group.spellLevels,
+form.babonus:not(.spell) .form-group.spellSchools,
+form.babonus:not(.damage) .hide-damage,
+form.babonus:not(.attack) .hide-attack,
+form.babonus:not(.attack) div.form-group.attackTypes,
+form.babonus:not(.save) .hide-save,
+form.babonus:not(.save) div.form-group.saveAbilities,
+form.babonus:not(.throw) .hide-throw,
+form.babonus:not(.check) .hide-check,
+form.babonus:not(.hitdie) .hide-hitdie,
+form.babonus:not(.init) .hide-init,
+.current-bonuses .bonus:last-child hr,
+.babonus .components .builder .warning {
   display: none;
 }
 
-/* hide/unhide bonuses inputs */
-form.babonus.damage div.babonus-bonuses-damage,
-form.babonus.attack div.babonus-bonuses-attack,
-form.babonus.save div.babonus-bonuses-save {
-  display: block;
-}
-
 /* buttons */
-form.babonus .babonus-bonus-details a {
+form.babonus .current .details a {
   text-align: end;
   width: fit-content;
   max-width: fit-content;
