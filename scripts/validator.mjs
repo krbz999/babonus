@@ -44,7 +44,7 @@ export function validateData(formData) {
   const e = "aura.enabled";
   const r = "aura.range";
   const d = "aura.disposition";
-  if(!formData[e] || !formData[r] || formData[r] < 0 || !formData[d]){
+  if (!formData[e] || !formData[r] || formData[r] < 0 || !formData[d]) {
     delete formData[e];
     delete formData[r];
     delete formData[d];

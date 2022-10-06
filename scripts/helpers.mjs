@@ -147,8 +147,12 @@ export class KeyGetter {
   }
 }
 
-export function getAllActorBonuses(actor, hookType){
-  // special traits:
+/**
+ * Get all the bonuses on the actor, their items, and their effects.
+ * This method does NOT filter by aura properties.
+ * That is done in 'getAllOwnBonuses'.
+ */
+export function getAllActorBonuses(actor, hookType) {
   const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
   let bonuses = flag ? Object.entries(flag) : [];
   bonuses = bonuses.concat(getActorItemBonuses(actor, hookType));
@@ -157,12 +161,27 @@ export function getAllActorBonuses(actor, hookType){
 }
 
 /**
+ * Get all bonuses that apply to self.
+ * This is all bonuses that either do not have 'aura' property,
+ * or do have it and are set to affect self.
+ */
+export function getAllOwnBonuses(actor, hookType) {
+  const bonuses = getAllActorBonuses(actor, hookType);
+  const filtered = bonuses.filter(([key, val]) => {
+    if (!val.aura) return true;
+    if (val.aura.self) return true;
+    return false;
+  });
+  return filtered;
+}
+
+/**
  * Add bonuses from items. Any item-only filtering happens here,
  * such as checking if the item is currently, and requires being,
  * equipped and/or attuned. Not all valid item types have these
  * properties, such as feature type items.
  */
-export function getActorItemBonuses(actor, hookType) {
+function getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
   const boni = [];
 
@@ -189,7 +208,7 @@ export function getActorItemBonuses(actor, hookType) {
  * Add bonuses from effects. Any effect-only filtering happens here,
  * such as checking whether the effect is disabled or unavailable.
  */
-export function getActorEffectBonuses(actor, hookType) {
+function getActorEffectBonuses(actor, hookType) {
   const boni = [];
   for (const effect of actor.effects) {
     if (effect.disabled || effect.isSuppressed) continue;

@@ -1,9 +1,8 @@
 import { getAllAurasOnScene } from "./aura_helper.mjs";
-import { MATCH, MODULE } from "./constants.mjs";
+import { MATCH } from "./constants.mjs";
 import {
   finalFilterBonuses,
-  getActorEffectBonuses,
-  getActorItemBonuses
+  getAllOwnBonuses
 } from "./helpers.mjs";
 
 /**
@@ -102,11 +101,7 @@ export class FILTER {
 
   // hitdie rolls
   static hitDieCheck(actor) {
-    let bonuses = [];
-    const flag = actor.getFlag(MODULE, `bonuses.hitdie`);
-    if (flag) bonuses = Object.entries(flag);
-    bonuses = bonuses.concat(getActorItemBonuses(actor, "hitdie"));
-    bonuses = bonuses.concat(getActorEffectBonuses(actor, "hitdie"));
+    let bonuses = getAllOwnBonuses(actor, "hitdie");
     bonuses = bonuses.concat(getAllAurasOnScene(actor, "hitdie"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "misc");
@@ -114,13 +109,8 @@ export class FILTER {
 
   // saving throws
   static throwCheck(actor, abilityId) {
-    let bonuses = [];
-    const flag = actor.getFlag(MODULE, `bonuses.throw`);
-    if (flag) bonuses = Object.entries(flag);
-    bonuses = bonuses.concat(getActorItemBonuses(actor, "throw"));
-    bonuses = bonuses.concat(getActorEffectBonuses(actor, "throw"));
+    let bonuses = getAllOwnBonuses(actor, "throw")
     bonuses = bonuses.concat(getAllAurasOnScene(actor, "throw"));
-    console.log(bonuses);
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "throw", { throwType: abilityId });
   }
@@ -128,11 +118,7 @@ export class FILTER {
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
-    let bonuses = [];
-    const flag = item.actor.getFlag(MODULE, `bonuses.${hookType}`);
-    if (flag) bonuses = Object.entries(flag);
-    bonuses = bonuses.concat(getActorItemBonuses(item.parent, hookType));
-    bonuses = bonuses.concat(getActorEffectBonuses(item.parent, hookType));
+    let bonuses = getAllOwnBonuses(item.parent, hookType);
     bonuses = bonuses.concat(getAllAurasOnScene(item.parent, hookType));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, item, "item");

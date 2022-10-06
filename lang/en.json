@@ -43,7 +43,8 @@
       "ACTOR_CONDITIONS": "Actor Cond.",
       "TARGET_CONDITIONS": "Target Cond.",
       "THROW_TYPES": "Saving Throws",
-      "AURAS": "Aura"
+      "AURAS": "Aura",
+      "AURA_SELF": "Affect Self"
     },
     "TITLES": {
       "TOGGLE_THIS": "Toggle this bonus on or off.",

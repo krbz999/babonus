@@ -1,5 +1,8 @@
 import { getAllActorBonuses } from "./helpers.mjs";
 
+/**
+ * Gets all auras that apply to the actor on this scene.
+ */
 export function getAllAurasOnScene(actor, hookType) {
   const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
   if (!tokenDoc) return [];
