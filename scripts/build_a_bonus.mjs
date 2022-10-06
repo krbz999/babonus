@@ -248,6 +248,8 @@ export class Build_a_Bonus extends FormApplication {
     await this.object.update({ [del]: null });
     await this.object.setFlag(MODULE, key, value);
     this.element[0].classList.remove("editMode");
+    this.element[0].querySelector("[name=identifier]").removeAttribute("tabindex");
+    this.element[0].querySelector("[name=target]").removeAttribute("tabindex");
     return true;
   }
 
@@ -323,8 +325,15 @@ export class Build_a_Bonus extends FormApplication {
       else inp.value = formData[key];
     }
 
-    if (!edit) html[0].closest("form.babonus").classList.remove("editMode");
-    else html[0].closest("form.babonus").classList.add("editMode");
+    if (!edit) {
+      html[0].closest("form.babonus").classList.remove("editMode");
+      html[0].closest("form.babonus").querySelector("[name=identifier]").removeAttribute("tabindex");
+      html[0].closest("form.babonus").querySelector("[name=target]").removeAttribute("tabindex");
+    } else {
+      html[0].closest("form.babonus").classList.add("editMode");
+      html[0].closest("form.babonus").querySelector("[name=identifier]").setAttribute("tabindex", "-1");
+      html[0].closest("form.babonus").querySelector("[name=target]").setAttribute("tabindex", "-1");
+    }
     this.refreshForm();
   }
 

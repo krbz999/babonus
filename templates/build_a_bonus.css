@@ -68,14 +68,11 @@
 .babonus .current .current-bonuses .bonus .header .details .identifier {
   font-style: italic;
   color: gray;
+  white-space: nowrap;
+  overflow-x: hidden;
 }
 
-
-
-
-
-
-.babonus .bonus .description {
+.babonus .current .current-bonuses .bonus .description {
   font-style: italic;
   margin: 0.5em;
   border-radius: 5px;
@@ -83,7 +80,7 @@
   background-color: rgba(181, 179, 164, 0.5);
 }
 
-.babonus .babonus-filters .babonus-select {
+.babonus .builder .inputs .filters .form-fields .select {
   flex: 0;
   min-width: fit-content;
 }
@@ -91,18 +88,6 @@
 button.babonus-keys {
   min-width: 100px;
   flex: 0;
-}
-
-.babonus-checkbox {
-  border-radius: 10px;
-  min-width: fit-content;
-  background-color: cadetblue;
-  padding: 3px 5px 3px 5px;
-  margin: 0 3px 0 0;
-}
-
-.babonus-checkbox:last-child {
-  margin-right: 3px;
 }
 
 .babonus .components .builder .warning.active {
@@ -120,7 +105,32 @@ button.babonus-keys {
   margin-bottom: 0.5em;
 }
 
-/* center all table columns that are not first (i.e., all columns with a checkbox) */
+
+table.babonus {
+  overflow: hidden;
+  display: grid;
+}
+
+table.babonus tbody {
+  max-height: 500px;
+  overflow: auto;
+}
+
+table.babonus.two-col tr {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+table.babonus.three-col tr {
+  display: grid;
+  grid-template-columns: 50% 25% 25%;
+}
+
+table.babonus td:first-child {
+  padding-left: 1em;
+  align-self: center;
+}
+
 table.babonus td:not(:first-child) {
   text-align: center;
 }
