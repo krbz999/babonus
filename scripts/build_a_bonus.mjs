@@ -61,11 +61,16 @@ export class Build_a_Bonus extends FormApplication {
   async _onChangeInput(event) {
     if (event) {
       await super._onChangeInput(event);
-      // hide/unhide some elements.
+
       if (["target", "itemTypes"].includes(event.target.name)) {
+        // hide/unhide some elements.
         this.refreshForm();
       } else if (["aura.range"].includes(event.target.name)) {
+        // clamp aura range between 0 and 100.
         event.target.value = Math.clamped(event.target.value, 0, 100);
+      } else if (["identifier"].includes(event.target.name)) {
+        // slugify identifier.
+        event.target.value = superSlugify(event.target.value);
       }
     }
     // enable/disable all shown/hidden elements.
@@ -159,12 +164,14 @@ export class Build_a_Bonus extends FormApplication {
       }
     });
 
-
-    // slugify identifier.
-    const idInput = html[0].querySelector("[name='identifier']");
-    idInput.addEventListener("change", () => {
-      idInput.value = superSlugify(idInput.value);
+    // Collapse description.
+    html[0].addEventListener("click", (event) => {
+      const label = event.target.closest(".bonus .header .label");
+      if (!label) return;
+      const bonus = label.closest(".bonus");
+      bonus.classList.toggle("collapsed");
     });
+
   }
 
   // async dialog helper for the Keys dialogs.
@@ -365,5 +372,4 @@ export class Build_a_Bonus extends FormApplication {
       else element.value = "";
     }
   }
-
 }

@@ -24,10 +24,9 @@ export function getTargets() {
 // current bonuses on the document
 export function getBonuses(doc) {
   const flag = doc.getFlag(MODULE, "bonuses");
-
   if (!flag) return [];
 
-  return targetTypes.reduce((acc, type) => {
+  const bonuses = targetTypes.reduce((acc, type) => {
     if (!flag[type]) return acc;
     const e = Object.entries(flag[type]);
     const map = e.map(([id, val]) => {
@@ -41,7 +40,10 @@ export function getBonuses(doc) {
     });
     acc = acc.concat(map);
     return acc;
-  }, []);
+  }, []).sort((a, b) => {
+    return a.label.localeCompare(b.label);
+  });
+  return bonuses;
 }
 
 
@@ -223,6 +225,10 @@ function getActorEffectBonuses(actor, hookType) {
   return boni;
 }
 
+/**
+ * Filters the collected array of bonuses using the function objects in filters.mjs.
+ * Returns the reduced array.
+ */
 export function finalFilterBonuses(bonuses, object, type, details = {}) {
   const funcs = FILTER.filterFunctions[type];
 

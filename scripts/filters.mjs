@@ -13,9 +13,16 @@ import {
   flags.babonus.bonuses.<damage/attack/save/throw/hitdie>: {
     <identifier>: {
       enabled: true,
+      aura: {
+        enabled: true,  // whether this is an aura.
+        range: 60,      // the range ofthe aura (in ft)
+        self: false,    // whether the aura affects the owner, too
+        disposition: 1  // or -1 for non-allies. What token actors within range to affect.
+      },
       label: "Special Fire Spell Bonus",
       description: "This is a special fire spell bonus.",
       itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"], // if attack/damage/save
+      throwTypes: ["con", "int", "death"], // if 'throw'
       values: {
         bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
         criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
@@ -35,16 +42,13 @@ import {
         statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
         targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
 
-        // ATTACK:
+        // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],
 
         // ATTACK, DAMAGE, SAVE:
         damageTypes: ["fire", "cold", "bludgeoning"],
         abilities: ["int"],
         saveAbilities: ["int", "cha", "con"],
-
-        // THROW:
-        throwTypes: ["int", "con", "death"],
 
         // SPELL:
         spellComponents: {
@@ -298,7 +302,6 @@ export class FILTER {
 
   /**
    * Find out if the item's action type is set to any of the required types.
-   * This filter only applies to attack rolls and will not be filtered against otherwise.
    * 
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of attack types.
@@ -341,7 +344,7 @@ export class FILTER {
 
   /**
    * Find out if the saving throw in the item is set using an ability in the filter.
-   * This filter is only available for bonuses applying specifically to saving throws.
+   * This filter is only available for bonuses applying specifically to saving throw DCs.
    * Special consideration is made for items with save DC set using spellcasting ability.
    * 
    * @param {Item5e} item     The item being filterd against.

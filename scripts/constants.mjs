@@ -25,3 +25,7 @@ export const itemsValidForAttackDamageSave = [
   "spell",
   "weapon"
 ];
+export const auraTargets = {
+  FRIENDLY: 1,
+  HOSTILE: -1
+}

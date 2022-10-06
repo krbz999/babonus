@@ -1,3 +1,4 @@
+import { auraTargets } from "./constants.mjs";
 import { getAllActorBonuses } from "./helpers.mjs";
 
 /**
@@ -29,7 +30,7 @@ export function getAllAurasOnScene(actor, hookType) {
     if (!friend.actor) return acc;
     const auras = getAllActorBonuses(friend.actor, hookType);
     const valid = auras.filter(([id, val]) => {
-      if (val.aura?.disposition !== "FRIENDLY") return false;
+      if (val.aura?.disposition !== auraTargets.FRIENDLY) return false;
       return auraWithinRange(tokenDoc, friend, val.aura);
     });
     return acc.concat(valid);
@@ -38,7 +39,7 @@ export function getAllAurasOnScene(actor, hookType) {
     if (!enemy.actor) return acc;
     const auras = getAllActorBonuses(enemy.actor, hookType);
     const valid = auras.filter(([id, val]) => {
-      if (val.aura?.disposition !== "HOSTILE") return false;
+      if (val.aura?.disposition !== auraTargets.HOSTILE) return false;
       return auraWithinRange(tokenDoc, enemy, val.aura);
     });
     return acc.concat(valid);

@@ -48,6 +48,7 @@ export function validateData(formData) {
     delete formData[e];
     delete formData[r];
     delete formData[d];
+    delete formData["aura.self"];
   }
 
   // spellcomponents:
