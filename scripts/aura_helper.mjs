@@ -20,23 +20,17 @@ export function getAurasThatApplyToMe(tokenDoc, hookType) {
   const { hostiles, friendlies, neutrals } = _splitTokensByDisposition(they);
 
   let auras = [];
+  const { HOSTILE: h, FRIENDLY: f, ALL: a } = auraTargets;
   if (me === HOSTILE) {
-    // get auras from hostile tokens that target allies.
-    auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, auraTargets.FRIENDLY, hookType));
-    // get auras from friendly tokens that target enemies.
-    auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, auraTargets.HOSTILE, hookType));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, f, hookType));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, h, hookType));
   } else if (me === FRIENDLY) {
-    // get auras from hostile tokens that target enemies.
-    auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, auraTargets.HOSTILE, hookType));
-    // get auras from friendly tokens that target allies.
-    auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, auraTargets.FRIENDLY, hookType));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, h, hookType));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, f, hookType));
   } else if (me === NEUTRAL) {
-    // get auras from neutral tokens that target allies.
-    auras = auras.concat(getAurasByDisposition(tokenDoc, neutrals, auraTargets.FRIENDLY, hookType));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, neutrals, f, hookType));
   }
-
-  // lastly get auras from ALL tokens that target all.
-  auras = auras.concat(getAurasByDisposition(tokenDoc, they, auraTargets.ALL, hookType));
+  auras = auras.concat(getAurasByDisposition(tokenDoc, they, a, hookType));
   return auras;
 }
 
@@ -46,7 +40,7 @@ export function getAurasThatApplyToMe(tokenDoc, hookType) {
  * @returns {Object<Array>}   An object of the three arrays.
  */
 function _splitTokensByDisposition(sceneTokens) {
-  const { HOSTILE, FRIENDLY, NEUTRAL } = CONST.TOKEN_DISPOSITIONS;
+  const { HOSTILE, FRIENDLY } = CONST.TOKEN_DISPOSITIONS;
 
   const hostiles = [];
   const friendlies = [];
@@ -64,10 +58,10 @@ function _splitTokensByDisposition(sceneTokens) {
  * From each token document in the array, get the actor's auras
  * if the aura has the given target type and is within range.
  * @param {TokenDocument5e} tokenDoc  The target of the auras.
- * @param {Array} tokenDocs     An array of token documents.
- * @param {Number} disposition  The target type.
- * @param {String} hookType     The type of hook that is called.
- * @returns {Array}             The array of auras that apply.
+ * @param {Array} tokenDocs           An array of token documents.
+ * @param {Number} disposition        The target type.
+ * @param {String} hookType           The type of hook that is called.
+ * @returns {Array}                   The array of auras that apply.
  */
 function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType) {
   const auras = tokenDocs.reduce((acc, doc) => {
@@ -111,7 +105,9 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   // get active effects on the actor.
   const efIds = actor.effects.filter(effect => {
     return effect.modifiesActor;
-  }).map(effect => effect.getFlag("core", "statusId")).filter(id => !!id);
+  }).map(effect => {
+    return effect.getFlag("core", "statusId");
+  }).filter(id => !!id);
 
   // get whether you have any of the blockers.
   const blocked = blockers.some(s => efIds.includes(s));
@@ -130,15 +126,16 @@ function _auraFilterUtility(actor, disp, aura = {}) {
  */
 function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR BONUSES
-  const flag = tokenDoc.actor.getFlag(MODULE, `bonuses.${hookType}`);
+  const actor = tokenDoc.actor;
+  const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
   let bonuses = flag ? Object.entries(flag) : [];
   // then filter if the bonus is an aura and if the disp matches.
-  bonuses = bonuses.filter(([id, vals]) => {
-    return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
+  bonuses = bonuses.filter(([id, { aura, filters }]) => {
+    return _auraFilterUtility(actor, disposition, aura, filters);
   });
 
   // replace formula data with this actor's data.
-  const data = tokenDoc.actor.getRollData();
+  const data = actor.getRollData();
   bonuses = foundry.utils.duplicate(bonuses).map(b => {
     const vals = b[1].values;
     for (const key in vals) {

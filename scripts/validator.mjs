@@ -22,14 +22,26 @@ export function validateData(formData) {
     [itemsValidForAttackDamageSave, "itemTypes"],
     [Object.keys(abilities), "filters.abilities"],
     [Object.keys(weaponIds), "filters.baseWeapons"],
-    [Object.keys(damageTypes).concat(Object.keys(healingTypes)), "filters.damageTypes"],
-    [Object.keys(spellComponents).concat(Object.keys(spellTags)), "filters.spellComponents.types"],
+    [
+      Object.keys(damageTypes).concat(Object.keys(healingTypes)),
+      "filters.damageTypes"
+    ],
+    [
+      Object.keys(spellComponents).concat(Object.keys(spellTags)),
+      "filters.spellComponents.types"
+    ],
     [Array.fromRange(10), "filters.spellLevels"],
     [Object.keys(spellSchools), "filters.spellSchools"],
     [statusIds, "filters.statusEffects"],
     [statusIds, "filters.targetEffects"],
-    [Object.keys(weaponProperties), "filters.weaponProperties.needed"],
-    [Object.keys(weaponProperties), "filters.weaponProperties.unfit"],
+    [
+      Object.keys(weaponProperties),
+      "filters.weaponProperties.needed"
+    ],
+    [
+      Object.keys(weaponProperties),
+      "filters.weaponProperties.unfit"
+    ],
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],
     [Object.keys(abilities).concat(["death"]), "throwTypes"],

@@ -1,5 +1,5 @@
 import { Build_a_Bonus } from "./build_a_bonus.mjs";
-import { itemsWithoutBonuses, MODULE, SETTING_AURABLOCKERS, SETTING_HEADERLABEL } from "./constants.mjs";
+import { itemsWithoutBonuses, MODULE, SETTING_HEADERLABEL } from "./constants.mjs";
 
 export function _setup() {
   CONFIG.DND5E.characterFlags[MODULE] = {

@@ -19,6 +19,7 @@ import {
         range: 60,      // the range ofthe aura (in ft)
         self: false,    // whether the aura affects the owner, too
         disposition: 1  // or -1 for non-allies. What token actors within range to affect.
+        blockers: ["dead", "unconscious"] // array of conditions that stop auras from being transferred.
       },
       label: "Special Fire Spell Bonus",
       description: "This is a special fire spell bonus.",
@@ -170,8 +171,8 @@ export class FILTER {
   static damageTypes(item, filter) {
     if (!filter?.length) return true;
 
-    const damageTypes = item.getDerivedDamageLabel().some(({ damageType }) => {
-      return filter.includes(damageType);
+    const damageTypes = item.getDerivedDamageLabel().some(i => {
+      return filter.includes(i.damageType);
     });
     return damageTypes;
   }
@@ -334,12 +335,12 @@ export class FILTER {
     const { properties } = item.system;
 
     if (unfit?.length) {
-      const isUnfit = unfit.some((property) => properties[property]);
+      const isUnfit = unfit.some((p) => properties[p]);
       if (isUnfit) return false;
     }
 
     if (needed?.length) {
-      const isFit = needed.some((property) => properties[property]);
+      const isFit = needed.some((p) => properties[p]);
       if (!isFit) return false;
     }
 
@@ -406,8 +407,11 @@ export class FILTER {
     catch {
       // try comparing strings.
       if (operator === "EQ") return left == right;
-      if (["LT", "LE"].includes(operator)) return right.includes(left);
-      if (["GT", "GE"].includes(operator)) return left.includes(right);
+      if (["LT", "LE"].includes(operator)) {
+        return right.includes(left);
+      } else if (["GT", "GE"].includes(operator)) {
+        return left.includes(right);
+      }
       return false;
     }
   }

@@ -1,5 +1,6 @@
 import { itemsValidForAttackDamageSave, MODULE, targetTypes } from "./constants.mjs";
 import { superSlugify, getBonuses, getTargets, KeyGetter } from "./helpers.mjs";
+import { KeysDialog } from "./keys_dialog.mjs";
 import { dataHasAllRequirements, finalizeData, validateData } from "./validator.mjs";
 
 export class Build_a_Bonus extends FormApplication {
@@ -180,46 +181,36 @@ export class Build_a_Bonus extends FormApplication {
   // async dialog helper for the Keys dialogs.
   async applyKeys(title, content, type) {
     const app = this;
-    class KeysDialog extends Dialog {
-      constructor(obj, options) {
-        super(obj, options);
-        this.object = obj.object;
-        this.type = type;
-      }
-      get id() {
-        return `${MODULE}-keys-dialog-${this.object.id}-${this.type}`;
-      }
+    const apply = {};
+    const obj = {
+      object: app.object,
+      type, title, content,
+      buttons: { apply }
     }
-    return new Promise(resolve => {
-      new KeysDialog({
-        object: app.object, title, content,
-        buttons: {
-          apply: {
-            icon: `<i class="fas fa-check"></i>`,
-            label: game.i18n.localize("BABONUS.KEY.APPLY"),
-            callback: (html) => {
-              const nodes = html[0].querySelectorAll("input[type='checkbox']:checked");
-              const checked = Array.from(nodes);
-              if (type !== "weaponProperties") {
-                const keyString = checked.map(i => i.id).join(";") ?? "";
-                resolve(keyString);
-              }
-              else {
-                const needed = checked.filter(i => {
-                  return i.dataset.property === "needed";
-                }).map(i => i.id).join(";");
-                const unfit = checked.filter(i => {
-                  return i.dataset.property === "unfit";
-                }).map(i => i.id).join(";");
-                const res = { needed, unfit };
 
-                resolve(res);
-              }
-            }
-          }
-        },
-        close: () => resolve(false)
-      }).render(true);
+    return new Promise(resolve => {
+
+      apply.icon = "<i class='fas fa-check'></i>";
+      apply.label = game.i18n.localize("BABONUS.KEY.APPLY");
+      apply.callback = (html) => {
+        const selector = "input[type='checkbox']:checked";
+        const nodes = html[0].querySelectorAll(selector);
+        const checked = Array.from(nodes);
+        if (obj.type !== "weaponProperties") {
+          const keyString = checked.map(i => i.id).join(";") ?? "";
+          resolve(keyString);
+        } else {
+          const res = checked.reduce((acc, e) => {
+            acc[e.dataset.property].push(e.id);
+            return acc;
+          }, { needed: [], unfit: [] });
+          for (const key in res) res[key] = res[key].join(";");
+          resolve(res);
+        }
+      }
+      obj.close = () => resolve(false);
+
+      new KeysDialog(obj).render(true);
     });
   }
 
@@ -271,29 +262,16 @@ export class Build_a_Bonus extends FormApplication {
   async delete_a_bonus(id) {
     const { label } = this.object.getFlag(MODULE, `bonuses.${id}`);
 
-    const prompt = await new Promise(resolve => {
-      new Dialog({
-        title: game.i18n.format("BABONUS.DELETE.DELETE_BONUS", { label }),
-        content: game.i18n.format("BABONUS.DELETE.ARE_YOU_SURE", { label }),
-        buttons: {
-          yes: {
-            icon: `<i class="fas fa-trash"></i>`,
-            label: game.i18n.localize("Yes"),
-            callback: () => resolve(true)
-          },
-          no: {
-            icon: `<i class="fas fa-times"></i>`,
-            label: game.i18n.localize("No"),
-            callback: () => resolve(false)
-          }
-        },
-        close: () => resolve(false)
-      }).render(true);
+    const prompt = await Dialog.confirm({
+      title: game.i18n.format("BABONUS.DELETE.DELETE_BONUS", { label }),
+      content: game.i18n.format("BABONUS.DELETE.ARE_YOU_SURE", { label }),
+      defaultYes: false
     });
     if (!prompt) return false;
 
     const [target, identifier] = id.split(".");
-    return this.object.update({ [`flags.${MODULE}.bonuses.${target}.-=${identifier}`]: null });
+    const path = `flags.${MODULE}.bonuses.${target}.-=${identifier}`
+    return this.object.update({ [path]: null });
   }
 
   async toggle_a_bonus(id) {
@@ -378,9 +356,13 @@ export class Build_a_Bonus extends FormApplication {
   // helper method to clear the form before pasting data.
   clearForm() {
     const elements = this.element[0].getElementsByTagName("INPUT");
+    const selects = this.element[0].getElementsByTagName("SELECT");
     for (const element of elements) {
       if (element.type === "checkbox") element.checked = false;
       else element.value = "";
+    }
+    for (const select of selects) {
+      select.selectedIndex = 0;
     }
   }
 }

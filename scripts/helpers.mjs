@@ -149,7 +149,7 @@ export class KeyGetter {
   }
 
   // aura blockers.
-  static get blockers(){
+  static get blockers() {
     return this.statusEffects;
   }
 }
