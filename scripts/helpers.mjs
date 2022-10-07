@@ -147,6 +147,11 @@ export class KeyGetter {
   static get targetEffects() {
     return this.statusEffects;
   }
+
+  // aura blockers.
+  static get blockers(){
+    return this.statusEffects;
+  }
 }
 
 /**

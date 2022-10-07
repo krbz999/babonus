@@ -1,4 +1,4 @@
-import { auraTargets, MODULE, SETTING_AURABLOCKERS } from "./constants.mjs";
+import { auraTargets, MODULE } from "./constants.mjs";
 import { getActorEffectBonuses, getActorItemBonuses } from "./helpers.mjs";
 
 /**
@@ -11,7 +11,11 @@ import { getActorEffectBonuses, getActorItemBonuses } from "./helpers.mjs";
 export function getAurasThatApplyToMe(tokenDoc, hookType) {
   const { HOSTILE, FRIENDLY, NEUTRAL } = CONST.TOKEN_DISPOSITIONS;
   const me = tokenDoc.disposition;
-  const they = tokenDoc.parent.tokens.filter(t => t !== tokenDoc);
+  const they = tokenDoc.parent.tokens.filter(t => {
+    if (t === tokenDoc) return false;
+    if (t.hidden) return false;
+    return true;
+  });
 
   const { hostiles, friendlies, neutrals } = _splitTokensByDisposition(they);
 
@@ -85,7 +89,7 @@ function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType) {
 /**
  * Utility function to filter auras.
  * Returns true if the aura is enabled, if its disposition matches,
- * and if the owner is not dead/unconscious (as per the setting).
+ * and if the owner does not have any of the blockers that prevent the aura.
  * @param {Actor5e} actor The actor document that is the source of the auras.
  * @param {Number} disp   The disposition to match for.
  * @param {Object} aura   The aura object from the bonus in the flag.
@@ -101,8 +105,8 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   if (!d) return false;
 
   // get blockers
-  const setting = game.settings.get(MODULE, SETTING_AURABLOCKERS);
-  const blockers = setting.split(";").map(c => c.trim());
+  const blockers = aura.blockers ?? [];
+  if (!blockers.length) return true;
 
   // get active effects on the actor.
   const efIds = actor.effects.filter(effect => {
@@ -110,7 +114,10 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   }).map(effect => effect.getFlag("core", "statusId")).filter(id => !!id);
 
   // get whether you have any of the blockers.
-  return !blockers.some(s => efIds.includes(s));
+  const blocked = blockers.some(s => efIds.includes(s));
+  if (blocked) return false;
+
+  return true;
 }
 
 /**

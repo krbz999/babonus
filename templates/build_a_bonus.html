@@ -131,20 +131,36 @@
           {{/if}}
         </div>
 
-        <div class="form-group aura">
-          <label title="{{localize 'BABONUS.TITLES.AURAS'}}" class="label">
-            {{localize "BABONUS.LABELS.AURAS"}}
-          </label>
-          <div class="form-fields">
-            <input type="checkbox" name="aura.enabled">
-            <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.VALUES.PH_RANGE'}}">
-            <select name="aura.disposition" data-dtype="Number">
-              <option value="2">{{localize "BABONUS.VALUES.DISPOSITION.ALL"}}</option>
-              <option value="1">{{localize "BABONUS.VALUES.DISPOSITION.FRIENDLY"}}</option>
-              <option value="-1">{{localize "BABONUS.VALUES.DISPOSITION.HOSTILE"}}</option>
-            </select>
-            <span class="sep">{{localize "BABONUS.LABELS.AURA_SELF"}}</span>
-            <input type="checkbox" name="aura.self">
+        <header class="aura">
+          <div class="content">{{localize "BABONUS.HEADERS.AURA"}}</div>
+          <input type="checkbox" title="{{localize 'BABONUS.TITLES.AURA_ENABLED'}}" name="aura.enabled">
+        </header>
+        <div class="hide-aura">
+          <div class="form-group aura">
+            <label title="{{localize 'BABONUS.TITLES.AURA_FIELDS'}}" class="label">
+              {{localize "BABONUS.LABELS.AURA_ENABLED"}}
+            </label>
+            <div class="form-fields">
+              <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.VALUES.PH_RANGE'}}">
+              <select name="aura.disposition" data-dtype="Number">
+                <option value="2">{{localize "BABONUS.VALUES.DISPOSITION.ALL"}}</option>
+                <option value="1">{{localize "BABONUS.VALUES.DISPOSITION.FRIENDLY"}}</option>
+                <option value="-1">{{localize "BABONUS.VALUES.DISPOSITION.HOSTILE"}}</option>
+              </select>
+              <span class="sep">{{localize "BABONUS.LABELS.AURA_SELF"}}</span>
+              <input type="checkbox" name="aura.self">
+            </div>
+          </div>
+          <div class="form-group aura">
+            <label title="{{localize 'BABONUS.TITLES.AURA_BLOCKERS'}}" class="label">
+              {{localize "BABONUS.LABELS.AURA_BLOCKERS"}}
+            </label>
+            <div class="form-fields">
+              <input type="text" name="aura.blockers">
+              <button class="babonus-keys" data-type="blockers">
+                <i class="fas fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+              </button>
+            </div>
           </div>
         </div>
 

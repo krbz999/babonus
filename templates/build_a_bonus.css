@@ -34,6 +34,11 @@
   font-weight: bolder;
 }
 
+.babonus .builder header.aura {
+  display: flex;
+  justify-content: space-between;
+}
+
 .babonus .current .bonuses {
   overflow-y: auto;
   max-height: 650px;
@@ -147,6 +152,7 @@ form.babonus .current .details a {
 
 form.babonus:not(.weapon) .hide-weapon,
 form.babonus:not(.spell) .hide-spell,
+form.babonus:not(.aura) .hide-aura,
 form.babonus:not(.damage) .hide-damage,
 form.babonus:not(.attack) .hide-attack,
 form.babonus:not(.save) .hide-save,

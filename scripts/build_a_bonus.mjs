@@ -62,7 +62,7 @@ export class Build_a_Bonus extends FormApplication {
     if (event) {
       await super._onChangeInput(event);
 
-      if (["target", "itemTypes"].includes(event.target.name)) {
+      if (["target", "itemTypes", "aura.enabled"].includes(event.target.name)) {
         // hide/unhide some elements.
         this.refreshForm();
       } else if (["aura.range"].includes(event.target.name)) {
@@ -100,6 +100,7 @@ export class Build_a_Bonus extends FormApplication {
         let input = html[0].querySelector(`[name="filters.${type}"]`);
         if (!input) input = html[0].querySelector(`[name="${type}"]`);
         if (!input) input = html[0].querySelector(`[name="filters.${type}.types"]`); // for spellComps.
+        if (!input) input = html[0].querySelector(`[name="aura.${type}"]`); // for aura.blockers
         const values = input.value.split(";");
         for (const t of types) {
           t.checked = values.includes(t.value);
@@ -126,6 +127,7 @@ export class Build_a_Bonus extends FormApplication {
         let input = html[0].querySelector(`[name="filters.${type}"]`);
         if (!input) input = html[0].querySelector(`[name="${type}"]`);
         if (!input) input = html[0].querySelector(`[name="filters.${type}.types"]`); // for spellComps.
+        if (!input) input = html[0].querySelector(`[name="aura.${type}"]`); // for aura.blockers
         input.value = semiList;
         if (type === "itemTypes") this.refreshForm();
       }
@@ -228,7 +230,11 @@ export class Build_a_Bonus extends FormApplication {
     const values = this[type].map(i => i.value);
 
     // effects are not filtered.
-    if (["statusEffects", "targetEffects"].includes(type)) return ids;
+    if ([
+      "statusEffects",
+      "targetEffects",
+      "blockers"
+    ].includes(type)) return ids;
 
     const validIds = ids.filter(i => values.includes(i));
     return validIds;
@@ -350,6 +356,7 @@ export class Build_a_Bonus extends FormApplication {
     const html = this.element;
     const itemTypeInput = html[0].querySelector("[name='itemTypes']");
     const targetInput = html[0].querySelector("[name='target']");
+    const auraEnabledInput = html[0].querySelector("[name='aura.enabled']");
     const values = itemTypeInput.value.split(";").map(i => i.trim());
     const form = itemTypeInput.closest("form.babonus");
     for (const type of itemsValidForAttackDamageSave) {
@@ -361,6 +368,9 @@ export class Build_a_Bonus extends FormApplication {
       if (targetInput.value === type) form.classList.add(type);
       else form.classList.remove(type);
     }
+    if (auraEnabledInput.checked) form.classList.add("aura");
+    else form.classList.remove("aura");
+
     this.setPosition();
     this._onChangeInput();
   }

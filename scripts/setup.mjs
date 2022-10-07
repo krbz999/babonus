@@ -17,15 +17,6 @@ export function _setup() {
     type: Boolean,
     default: true
   });
-
-  game.settings.register(MODULE, SETTING_AURABLOCKERS, {
-    name: game.i18n.localize("BABONUS.SETTINGS.PREVENT_AURA.NAME"),
-    hint: game.i18n.localize("BABONUS.SETTINGS.PREVENT_AURA.HINT"),
-    scope: "world",
-    config: true,
-    type: String,
-    default: "dead;unconscious"
-  });
 }
 
 export function _renderActorSheetFlags(app, html) {

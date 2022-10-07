@@ -43,8 +43,9 @@
       "ACTOR_CONDITIONS": "Actor Cond.",
       "TARGET_CONDITIONS": "Target Cond.",
       "THROW_TYPES": "Saving Throws",
-      "AURAS": "Aura",
-      "AURA_SELF": "Affect Self"
+      "AURA_ENABLED": "Enabled",
+      "AURA_SELF": "Affect Self",
+      "AURA_BLOCKERS": "Blockers"
     },
     "TITLES": {
       "TOGGLE_THIS": "Toggle this bonus on or off.",
@@ -75,7 +76,9 @@
       "SPELL_SCHOOLS": "The school the spell must belong to for the bonus to apply.",
       "WEAPON_TYPES": "The type of weapon the item must be for the bonus to apply.",
       "WEAPON_PROPERTIES": "The weapon properties the item either must have or cannot have for the bonus to apply.",
-      "AURAS": "Whether this transfers to other characters in range (use '-1' for unlimited range), to what kind of targets, and if the aura affects the actor as well."
+      "AURA_ENABLED": "Whether this bonus should transfer to other token actors on a scene.",
+      "AURA_FIELDS": "The range of the aura (-1 for unlimited), the targets of the aura, and whether it should affect the actor as well.",
+      "AURA_BLOCKERS": "The status conditions that block an aura from being transferred."
     },
     "VALUES": {
       "PH_LABEL": "label...",
@@ -106,6 +109,7 @@
     "HEADERS": {
       "BUILD_A_BONUS": "Build-a-Bonus",
       "REQUIRED_FIELDS": "Required Fields",
+      "AURA": "Aura",
       "FILTERS": "Filters",
       "CURRENT_BONUSES": "Current Bonuses"
     },
@@ -163,12 +167,16 @@
       "throwTypes_TITLE": "Keys: Saving Throw Types",
       "THROW_TYPES_DESC": "Select the types of saving throws the bonus should apply to.",
       "THROW_TYPES_NAME": "Saving Throw Types",
-      "THROW_TYPES_BOX": "Include"
+      "THROW_TYPES_BOX": "Include",
+      "blockers_TITLE": "Keys: Aura Blockers",
+      "AURA_BLOCKERS_DESC": "Select the status conditions that will prevent the benefits of the aura from being transferred to the actor and other actors.",
+      "AURA_BLOCKERS_NAME": "Status Effects",
+      "AURA_BLOCKERS_BOX": "Include"
     },
     "TRAITS": {
       "SECTION": "Build-a-Bonus",
       "NAME": "Build-a-Bonus Workshop",
-      "HINT": "Open the Build-a-Bonus workshop. Here you can create situational bonuses that should apply automatically for various rolls, such as saving throws, damage rols, and hit die rolls.",
+      "HINT": "Open the Build-a-Bonus workshop. Here you can create situational bonuses that should apply automatically for various rolls, such as saving throws, damage rolls, and hit die rolls.",
       "LABEL": "Build-a-Bonus Workshop"
     },
     "BONUS": {
@@ -180,10 +188,6 @@
         "NAME": "Display Label",
         "HINT": "If checked, the label is displayed in the header of applicable items and effects.",
         "HEADER": "Build-a-Bonus"
-      },
-      "PREVENT_AURA": {
-        "NAME": "Aura Blockers",
-        "HINT": "Input a semicolon-separated list of status ids for any effects that globally prevent an aura from applying to the aura's target and source. Default value: 'dead;unconscious'."
       }
     }
   }

@@ -32,7 +32,8 @@ export function validateData(formData) {
     [Object.keys(weaponProperties), "filters.weaponProperties.unfit"],
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],
-    [Object.keys(abilities).concat(["death"]), "throwTypes"]
+    [Object.keys(abilities).concat(["death"]), "throwTypes"],
+    [statusIds, "aura.blockers"]
   ];
   for (const [values, property] of scsv) {
     validateValues(formData, values, property);
@@ -43,12 +44,12 @@ export function validateData(formData) {
   // aura:
   const e = "aura.enabled";
   const r = "aura.range";
-  const d = "aura.disposition";
-  if (!formData[e] || !formData[r] || !formData[d]) {
+  if (!formData[e] || !formData[r]) {
     delete formData[e];
     delete formData[r];
-    delete formData[d];
+    delete formData["aura.disposition"];
     delete formData["aura.self"];
+    delete formData["aura.blockers"];
   }
 
   // spellcomponents:
