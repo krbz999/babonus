@@ -143,7 +143,7 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType){
 
 /**
  * Given token documents and an array of auras, find all those
- * that have a big enough range. This can be Infinity.
+ * that have a big enough range. This can be Infinity (-1).
  * @param {TokenDocument5e} me    The target of the auras.
  * @param {TokenDocument5e} you   The source of the auras.
  * @param {Array}           auras The array of auras.
@@ -152,7 +152,7 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType){
 function _filterAurasByRange(me, you, auras){
   const distance = _measureDistance(me, you);
   const filtered = auras.filter(([id, {aura}]) => {
-    if ( aura.range === Infinity ) return true;
+    if ( aura.range === -1 ) return true;
     return aura.range >= distance;
   });
   return filtered;

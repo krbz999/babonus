@@ -66,8 +66,9 @@ export class Build_a_Bonus extends FormApplication {
         // hide/unhide some elements.
         this.refreshForm();
       } else if (["aura.range"].includes(event.target.name)) {
-        // clamp aura range between 0 and 100.
-        event.target.value = Math.clamped(event.target.value, 0, 100);
+        // clamp aura range between -1 and 500 after rounding to integer.
+        const val = Math.round(event.target.value);
+        event.target.value = Math.clamped(val, -1, 500);
       } else if (["identifier"].includes(event.target.name)) {
         // slugify identifier.
         event.target.value = superSlugify(event.target.value);

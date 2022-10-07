@@ -75,7 +75,7 @@
       "SPELL_SCHOOLS": "The school the spell must belong to for the bonus to apply.",
       "WEAPON_TYPES": "The type of weapon the item must be for the bonus to apply.",
       "WEAPON_PROPERTIES": "The weapon properties the item either must have or cannot have for the bonus to apply.",
-      "AURAS": "Whether this transfers to other characters in range, within what range, and to what kind of targets."
+      "AURAS": "Whether this transfers to other characters in range (use '-1' for unlimited range), to what kind of targets, and if the aura affects the actor as well."
     },
     "VALUES": {
       "PH_LABEL": "label...",
