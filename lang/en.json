@@ -168,7 +168,7 @@
     "TRAITS": {
       "SECTION": "Build-a-Bonus",
       "NAME": "Build-a-Bonus Workshop",
-      "HINT": "Open the Build-a-Bonus workshop. Here you can create very niche bonuses that apply when you use an item with a saving throw (increasing or decreasing the DC), when you roll an attack roll (adding modifiers on top), or roll damage (adding modifiers on top, a well as critical dice and critical damage).",
+      "HINT": "Open the Build-a-Bonus workshop. Here you can create situational bonuses that should apply automatically for various rolls, such as saving throws, damage rols, and hit die rolls.",
       "LABEL": "Build-a-Bonus Workshop"
     },
     "BONUS": {

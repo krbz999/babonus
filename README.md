@@ -3,7 +3,7 @@
 After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits, in the header of any item, or in the header of any Active Effect. This gives you the ability to apply a bonus to any attack roll, damage roll, saving throw DC, saving throw, or hit die roll, for bonuses that should apply only under specific circumstances. If a bonus is embedded in an item or effect, they transfer with the item/effect if placed on another actor.
 
 <p align="center">
-  <img src="https://i.imgur.com/UBpeNrX.png">
+  <img src="https://i.imgur.com/NgjVEHD.png">
 </p>
 
 Any bonuses you create will automatically be calculated when you perform an attack roll, damage roll, or when you use an item that has a saving throw. For example:
@@ -20,7 +20,7 @@ Open any actor's sheet, then find the Special Traits (on the main tab of the act
 Not all fields will be immediately visible, as some depend on selected filters or item types. Below is an example of a fully filled out bonus to spell damage.
 
 <p align="center">
-  <img src="https://i.imgur.com/Runy4yn.png">
+  <img src="https://i.imgur.com/iz2JAx3.png">
 </p>
 
 Once you are done creating the bonus, save it, and your actor should now have their bonus apply when they use an item with a saving throw attached, or when they roll attack or damage with an item, given that they match the filters of the bonus.
