@@ -1,8 +1,9 @@
-import { getAllAurasOnScene } from "./aura_helper.mjs";
+import { getAurasThatApplyToMe } from "./aura_helper.mjs";
 import { MATCH } from "./constants.mjs";
 import {
   finalFilterBonuses,
-  getAllOwnBonuses
+  getAllOwnBonuses,
+  getTokenFromActor
 } from "./helpers.mjs";
 
 /**
@@ -106,7 +107,8 @@ export class FILTER {
   // hitdie rolls
   static hitDieCheck(actor) {
     let bonuses = getAllOwnBonuses(actor, "hitdie");
-    bonuses = bonuses.concat(getAllAurasOnScene(actor, "hitdie"));
+    const t = getTokenFromActor(actor);
+    if(t)bonuses = bonuses.concat(getAurasThatApplyToMe(t, "hitdie"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "misc");
   }
@@ -114,7 +116,8 @@ export class FILTER {
   // saving throws
   static throwCheck(actor, abilityId) {
     let bonuses = getAllOwnBonuses(actor, "throw")
-    bonuses = bonuses.concat(getAllAurasOnScene(actor, "throw"));
+    const t = getTokenFromActor(actor);
+    if(t)bonuses = bonuses.concat(getAurasThatApplyToMe(t, "throw"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "throw", { throwType: abilityId });
   }
@@ -123,7 +126,8 @@ export class FILTER {
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
     let bonuses = getAllOwnBonuses(item.parent, hookType);
-    bonuses = bonuses.concat(getAllAurasOnScene(item.parent, hookType));
+    const t = getTokenFromActor(item.parent);
+    if(t)bonuses = bonuses.concat(getAurasThatApplyToMe(t, hookType));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, item, "item");
   }

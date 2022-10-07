@@ -183,7 +183,7 @@ export function getAllOwnBonuses(actor, hookType) {
  * equipped and/or attuned. Not all valid item types have these
  * properties, such as feature type items.
  */
-function getActorItemBonuses(actor, hookType) {
+export function getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
   const boni = [];
 
@@ -210,7 +210,7 @@ function getActorItemBonuses(actor, hookType) {
  * Add bonuses from effects. Any effect-only filtering happens here,
  * such as checking whether the effect is disabled or unavailable.
  */
-function getActorEffectBonuses(actor, hookType) {
+export function getActorEffectBonuses(actor, hookType) {
   const boni = [];
   for (const effect of actor.effects) {
     if (effect.disabled || effect.isSuppressed) continue;
@@ -247,4 +247,13 @@ export function finalFilterBonuses(bonuses, object, type, details = {}) {
     return acc;
   }, []);
   return valids;
+}
+
+/**
+ * Gets the token document from an actor document.
+ */
+export function getTokenFromActor(actor){
+  const token = actor.token?.object ?? actor.getActiveTokens()[0];
+  if(!token) return false;
+  return token.document;
 }

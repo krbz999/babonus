@@ -27,5 +27,6 @@ export const itemsValidForAttackDamageSave = [
 ];
 export const auraTargets = {
   FRIENDLY: 1,
-  HOSTILE: -1
+  HOSTILE: -1,
+  ALL: 2
 }

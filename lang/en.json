@@ -86,8 +86,11 @@
       "ARBITRARY_COMPARISON_ONE": "value...",
       "ARBITRARY_COMPARISON_OTHER": "other value...",
       "PH_RANGE": "range...",
-      "DISPOSITION_FRIENDLY": "Friendly Targets",
-      "DISPOSITION_HOSTILE": "Hostile Targets",
+      "DISPOSITION": {
+        "FRIENDLY": "Friendly Targets",
+        "HOSTILE": "Hostile Targets",
+        "ALL": "All Targets"
+      },
       "TARGET": {
         "ATTACK": "Attack Rolls",
         "DAMAGE": "Damage Rolls",
