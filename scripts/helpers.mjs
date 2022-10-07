@@ -157,8 +157,19 @@ export class KeyGetter {
 export function getAllActorBonuses(actor, hookType) {
   const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
   let bonuses = flag ? Object.entries(flag) : [];
-  bonuses = bonuses.concat(getActorItemBonuses(actor, hookType));
   bonuses = bonuses.concat(getActorEffectBonuses(actor, hookType));
+
+  // replace formula data with actor roll data for actor/effect bonuses.
+  const data = actor.getRollData();
+  bonuses = foundry.utils.duplicate(bonuses).map(b => {
+    const vals = b[1].values;
+    for (const key in vals) {
+      vals[key] = Roll.replaceFormulaData(vals[key], data);
+    }
+    return b;
+  });
+  bonuses = bonuses.concat(getActorItemBonuses(actor, hookType));
+
   return bonuses;
 }
 
@@ -185,7 +196,7 @@ export function getAllOwnBonuses(actor, hookType) {
  */
 export function getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
-  const boni = [];
+  let boni = [];
 
   for (const item of actor.items) {
     const flag = item.getFlag(MODULE, `bonuses.${hookType}`);
@@ -193,15 +204,25 @@ export function getActorItemBonuses(actor, hookType) {
 
     const itemBonuses = Object.entries(flag);
     const { equipped, attunement } = item.system;
-    const validItemBonuses = itemBonuses.filter(([id, { enabled, itemRequirements }]) => {
-      if (!enabled) return false;
-      if (!itemRequirements) return true;
-      const { equipped: needsEq, attuned: needsAtt } = itemRequirements;
+    const validItemBonuses = itemBonuses.filter(([id, vals]) => {
+      if (!vals.enabled) return false;
+      if (!vals.itemRequirements) return true;
+      const { equipped: needsEq, attuned: needsAtt } = vals.itemRequirements;
       if (!equipped && needsEq) return false;
       if (attunement !== ATTUNED && needsAtt) return false;
       return true;
     });
-    boni.push(...validItemBonuses);
+
+    // replace formula data.
+    const data = item.getRollData();
+    const bonuses = foundry.utils.duplicate(validItemBonuses).map(b => {
+      const vals = b[1].values;
+      for (const key in vals) {
+        vals[key] = Roll.replaceFormulaData(vals[key], data);
+      }
+      return b;
+    });
+    boni = boni.concat(bonuses);
   }
   return boni;
 }
@@ -252,8 +273,8 @@ export function finalFilterBonuses(bonuses, object, type, details = {}) {
 /**
  * Gets the token document from an actor document.
  */
-export function getTokenFromActor(actor){
+export function getTokenFromActor(actor) {
   const token = actor.token?.object ?? actor.getActiveTokens()[0];
-  if(!token) return false;
+  if (!token) return false;
   return token.document;
 }

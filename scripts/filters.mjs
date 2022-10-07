@@ -108,7 +108,7 @@ export class FILTER {
   static hitDieCheck(actor) {
     let bonuses = getAllOwnBonuses(actor, "hitdie");
     const t = getTokenFromActor(actor);
-    if(t)bonuses = bonuses.concat(getAurasThatApplyToMe(t, "hitdie"));
+    if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, "hitdie"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "misc");
   }
@@ -117,7 +117,7 @@ export class FILTER {
   static throwCheck(actor, abilityId) {
     let bonuses = getAllOwnBonuses(actor, "throw")
     const t = getTokenFromActor(actor);
-    if(t)bonuses = bonuses.concat(getAurasThatApplyToMe(t, "throw"));
+    if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, "throw"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "throw", { throwType: abilityId });
   }
@@ -127,7 +127,7 @@ export class FILTER {
   static itemCheck(item, hookType) {
     let bonuses = getAllOwnBonuses(item.parent, hookType);
     const t = getTokenFromActor(item.parent);
-    if(t)bonuses = bonuses.concat(getAurasThatApplyToMe(t, hookType));
+    if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, hookType));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, item, "item");
   }

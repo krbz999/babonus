@@ -65,15 +65,14 @@ function _splitTokensByDisposition(sceneTokens) {
  * @param {String} hookType     The type of hook that is called.
  * @returns {Array}             The array of auras that apply.
  */
-function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType){
+function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType) {
   const auras = tokenDocs.reduce((acc, doc) => {
-    if(!doc.actor) return acc;
-    // TODO: pre-evaluate these using the source's roll data.
+    if (!doc.actor) return acc;
     const a = _getActorAurasByDisposition(doc, disposition, hookType);
     const i = _getItemAurasByDisposition(doc, disposition, hookType);
     const e = _getEffectAurasByDisposition(doc, disposition, hookType);
     const docAuras = [].concat(a, i, e);
-    
+
     // filter by range.
     const f = _filterAurasByRange(tokenDoc, doc, docAuras);
     acc = acc.concat(f);
@@ -91,15 +90,26 @@ function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType){
  * @param {String}          hookType      The type of hook called.
  * @returns {Array} The array of bonuses.
  */
-function _getActorAurasByDisposition(tokenDoc, disposition, hookType){
+function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR BONUSES
   const flag = tokenDoc.actor.getFlag(MODULE, `bonuses.${hookType}`);
-  let bonuses = flag ? Object.entries(flag) : []; // TODO: replace formula data... duplicate?
+  let bonuses = flag ? Object.entries(flag) : [];
   // then filter if the bonus is an aura and if the target is in the Set
   bonuses = bonuses.filter(([id, vals]) => {
     if (!vals.aura?.enabled) return false;
     return disposition === vals.aura?.disposition;
   });
+
+  // replace formula data with this actor's data.
+  const data = tokenDoc.actor.getRollData();
+  bonuses = foundry.utils.duplicate(bonuses).map(b => {
+    const vals = b[1].values;
+    for (const key in vals) {
+      vals[key] = Roll.replaceFormulaData(vals[key], data);
+    }
+    return b;
+  });
+
   return bonuses;
 }
 
@@ -111,12 +121,12 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType){
  * @param {String}          hookType      The type of hook called.
  * @returns {Array} The array of bonuses.
  */
- function _getItemAurasByDisposition(tokenDoc, disposition, hookType){
+function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR ITEM BONUSES
-  let bonuses = getActorItemBonuses(tokenDoc.actor, hookType); // TODO: replace formula data inside that function
+  let bonuses = getActorItemBonuses(tokenDoc.actor, hookType);
   // then filter if the bonus is an aura and if the target is in the Set
   bonuses = bonuses.filter(([id, vals]) => {
-    if(!vals.aura?.enabled) return false;
+    if (!vals.aura?.enabled) return false;
     return disposition === vals.aura?.disposition;
   });
   return bonuses;
@@ -130,12 +140,12 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType){
  * @param {String}          hookType      The type of hook called.
  * @returns {Array} The array of bonuses.
  */
- function _getEffectAurasByDisposition(tokenDoc, disposition, hookType){
+function _getEffectAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR EFFECT BONUSES
-  let bonuses = getActorEffectBonuses(tokenDoc.actor, hookType); // TODO: replace formula data inside that function
+  let bonuses = getActorEffectBonuses(tokenDoc.actor, hookType);
   // then filter if the bonus is an aura and if the target is in the Set
   bonuses = bonuses.filter(([id, vals]) => {
-    if(!vals.aura?.enabled) return false;
+    if (!vals.aura?.enabled) return false;
     return disposition === vals.aura?.disposition;
   });
   return bonuses;
@@ -149,10 +159,10 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType){
  * @param {Array}           auras The array of auras.
  * @returns {Array} The filtered array of auras.
  */
-function _filterAurasByRange(me, you, auras){
+function _filterAurasByRange(me, you, auras) {
   const distance = _measureDistance(me, you);
-  const filtered = auras.filter(([id, {aura}]) => {
-    if ( aura.range === -1 ) return true;
+  const filtered = auras.filter(([id, { aura }]) => {
+    if (aura.range === -1) return true;
     return aura.range >= distance;
   });
   return filtered;
@@ -162,7 +172,7 @@ function _filterAurasByRange(me, you, auras){
  * Measure distance between two token documents.
  * @returns {Number}  An integer.
  */
-function _measureDistance(me, you){
+function _measureDistance(me, you) {
   const options = { gridSpaces: true };
   return canvas.grid.measureDistance(me.object, you.object, options);
 }
