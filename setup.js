@@ -1,11 +1,14 @@
 import {
+  _getActiveEffectConfigHeaderButtons,
+  _getItemSheetHeaderButtons,
+  _renderActorSheetFlags,
+  _setup
+} from "./scripts/setup.mjs";
+
+import {
   _preDisplayCard,
   _preRollDamage,
   _preRollAttack,
-  _renderActorSheetFlags,
-  _setup,
-  _getItemSheetHeaderButtons,
-  _getActiveEffectConfigHeaderButtons,
   _preRollDeathSave,
   _preRollAbilitySave,
   _preRollHitDie

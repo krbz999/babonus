@@ -1,4 +1,4 @@
-import { auraTargets, MODULE } from "./constants.mjs";
+import { auraTargets, MODULE, SETTING_AURABLOCKERS } from "./constants.mjs";
 import { getActorEffectBonuses, getActorItemBonuses } from "./helpers.mjs";
 
 /**
@@ -83,21 +83,51 @@ function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType) {
 }
 
 /**
+ * Utility function to filter auras.
+ * Returns true if the aura is enabled, if its disposition matches,
+ * and if the owner is not dead/unconscious (as per the setting).
+ * @param {Actor5e} actor The actor document that is the source of the auras.
+ * @param {Number} disp   The disposition to match for.
+ * @param {Object} aura   The aura object from the bonus in the flag.
+ * @returns {Boolean}     Whether the filter matches.
+ */
+function _auraFilterUtility(actor, disp, aura = {}) {
+  // aura is enabled
+  const e = aura.enabled;
+  if (!e) return false;
+
+  // target is correct.
+  const d = disp === aura.disposition;
+  if (!d) return false;
+
+  // get blockers
+  const setting = game.settings.get(MODULE, SETTING_AURABLOCKERS);
+  const blockers = setting.split(";").map(c => c.trim());
+
+  // get active effects on the actor.
+  const efIds = actor.effects.filter(effect => {
+    return effect.modifiesActor;
+  }).map(effect => effect.getFlag("core", "statusId")).filter(id => !!id);
+
+  // get whether you have any of the blockers.
+  return !blockers.some(s => efIds.includes(s));
+}
+
+/**
  * Get all auras from a token document's actor, given that the aura
  * has the given target type.
- * @param {TokenDocument5e} tokenDoc      The token document with the actor.
- * @param {Number}          disposition   The target type.
- * @param {String}          hookType      The type of hook called.
- * @returns {Array} The array of bonuses.
+ * @param {TokenDocument5e} tokenDoc    The token document with the actor.
+ * @param {Number}          disposition The target type.
+ * @param {String}          hookType    The type of hook called.
+ * @returns {Array}                     The array of bonuses.
  */
 function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR BONUSES
   const flag = tokenDoc.actor.getFlag(MODULE, `bonuses.${hookType}`);
   let bonuses = flag ? Object.entries(flag) : [];
-  // then filter if the bonus is an aura and if the target is in the Set
+  // then filter if the bonus is an aura and if the disp matches.
   bonuses = bonuses.filter(([id, vals]) => {
-    if (!vals.aura?.enabled) return false;
-    return disposition === vals.aura?.disposition;
+    return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
 
   // replace formula data with this actor's data.
@@ -124,10 +154,9 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
 function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR ITEM BONUSES
   let bonuses = getActorItemBonuses(tokenDoc.actor, hookType);
-  // then filter if the bonus is an aura and if the target is in the Set
+  // then filter if the bonus is an aura and if the disp matches.
   bonuses = bonuses.filter(([id, vals]) => {
-    if (!vals.aura?.enabled) return false;
-    return disposition === vals.aura?.disposition;
+    return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
   return bonuses;
 }
@@ -143,10 +172,9 @@ function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
 function _getEffectAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR EFFECT BONUSES
   let bonuses = getActorEffectBonuses(tokenDoc.actor, hookType);
-  // then filter if the bonus is an aura and if the target is in the Set
+  // then filter if the bonus is an aura and if the disp matches.
   bonuses = bonuses.filter(([id, vals]) => {
-    if (!vals.aura?.enabled) return false;
-    return disposition === vals.aura?.disposition;
+    return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
   return bonuses;
 }

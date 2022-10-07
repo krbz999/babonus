@@ -180,6 +180,10 @@
         "NAME": "Display Label",
         "HINT": "If checked, the label is displayed in the header of applicable items and effects.",
         "HEADER": "Build-a-Bonus"
+      },
+      "PREVENT_AURA": {
+        "NAME": "Aura Blockers",
+        "HINT": "Input a semicolon-separated list of status ids for any effects that globally prevent an aura from applying to the aura's target and source. Default value: 'dead;unconscious'."
       }
     }
   }

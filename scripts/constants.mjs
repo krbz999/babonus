@@ -1,4 +1,6 @@
 export const MODULE = "babonus";
+export const SETTING_HEADERLABEL = "headerLabel";
+export const SETTING_AURABLOCKERS = "auraBlockers";
 export const MATCH = { ANY: "ANY", ALL: "ALL" }
 export const targetTypes = [
   "attack", // bonuses to attack rolls
