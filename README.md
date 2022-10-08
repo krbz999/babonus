@@ -20,7 +20,7 @@ Open any actor's sheet, then find the Special Traits (on the main tab of the act
 Not all fields will be immediately visible, as some depend on selected filters or item types. Below is an example of a fully filled out bonus to spell damage.
 
 <p align="center">
-  <img src="https://i.imgur.com/iz2JAx3.png">
+  <img src="https://i.imgur.com/5xUWQUu.png">
 </p>
 
 Once you are done creating the bonus, save it, and your actor should now have their bonus apply when they use an item with a saving throw attached, or when they roll attack or damage with an item, given that they match the filters of the bonus.
