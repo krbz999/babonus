@@ -1,54 +1,54 @@
 {
-    "id": "babonus",
-    "title": "Build-a-Bonus",
-    "version": "10.0.6",
-    "authors": [
-        {
-            "name": "Zhell",
-            "url": "https://github.com/krbz999",
-            "discord": "Zhell#9201",
-            "ko-fi": "https://ko-fi.com/zhell"
-        }
-    ],
-    "compatibility": {
-        "minimum": "10",
-        "maximum": "10",
-        "verified": "10.285"
-    },
-    "esmodules": [
-        "setup.js"
-    ],
-    "styles": [
-        "templates/build_a_bonus.css"
-    ],
-    "relationships": {
-        "systems": [
-            {
-                "id": "dnd5e",
-                "type": "system",
-                "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
-                "compatibility": {}
-            }
-        ]
-    },
-    "languages": [
-        {
-            "lang": "en",
-            "name": "English",
-            "path": "lang/en.json",
-            "flags": {}
-        }
-    ],
-    "flags": {
-        "fvttdevleague": {
-            "package-jam": 2022
-        }
-    },
-    "url": "https://github.com/krbz999/babonus",
-    "license": "https://raw.githubusercontent.com/krbz999/babonus/main/LICENSE",
-    "manifest": "https://github.com/krbz999/babonus/releases/latest/download/module.json",
-    "download": "https://github.com/krbz999/babonus/releases/download/v10.0.6/module.zip",
-    "description": "This module provides an extension to actors' Special Traits for very particular and niche bonuses, as well as granting items and effects the ability for more rare bonuses.",
-    "name": "babonus",
-    "minimumCoreVersion": "10"
+  "id": "babonus",
+  "title": "Build-a-Bonus",
+  "version": "10.0.7",
+  "authors": [
+    {
+      "name": "Zhell",
+      "url": "https://github.com/krbz999",
+      "discord": "Zhell#9201",
+      "ko-fi": "https://ko-fi.com/zhell"
+    }
+  ],
+  "compatibility": {
+    "minimum": "10",
+    "maximum": "10",
+    "verified": "10.287"
+  },
+  "esmodules": [
+    "setup.js"
+  ],
+  "styles": [
+    "templates/build_a_bonus.css"
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
+        "compatibility": {}
+      }
+    ]
+  },
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json",
+      "flags": {}
+    }
+  ],
+  "flags": {
+    "fvttdevleague": {
+      "package-jam": 2022
+    }
+  },
+  "url": "https://github.com/krbz999/babonus",
+  "license": "https://raw.githubusercontent.com/krbz999/babonus/main/LICENSE",
+  "manifest": "https://github.com/krbz999/babonus/releases/latest/download/module.json",
+  "download": "https://github.com/krbz999/babonus/releases/download/v10.0.7/module.zip",
+  "description": "This module provides an extension to actors' Special Traits for very particular and niche bonuses, as well as granting items and effects the ability for more rare bonuses.",
+  "name": "babonus",
+  "minimumCoreVersion": "10"
 }

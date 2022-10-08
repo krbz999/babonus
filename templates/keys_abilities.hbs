@@ -1,19 +1,19 @@
 <p class="babonus-key-description">
-    {{localize "BABONUS.KEY.ABILITIES_DESC"}}
+  {{localize "BABONUS.KEY.ABILITIES_DESC"}}
 </p>
-<table class="babonus">
-    <thead>
-        <tr>
-            <th>{{localize "BABONUS.KEY.ABILITIES_NAME"}}</th>
-            <th>{{localize "BABONUS.KEY.ABILITIES_BOX"}}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each types as |type|}}
-        <tr>
-            <td>{{type.label}}</td>
-            <td><input type="checkbox" id="{{type.value}}" {{checked type.checked}}></td>
-        </tr>
-        {{/each}}
-    </tbody>
+<table class="babonus two-col">
+  <thead>
+    <tr>
+      <th>{{localize "BABONUS.KEY.ABILITIES_NAME"}}</th>
+      <th><a class="select-all" data-index="2">{{localize "BABONUS.KEY.ABILITIES_BOX"}}</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each types as |type|}}
+    <tr>
+      <td>{{type.label}}</td>
+      <td><input type="checkbox" id="{{type.value}}" {{checked type.checked}}></td>
+    </tr>
+    {{/each}}
+  </tbody>
 </table>

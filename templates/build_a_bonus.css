@@ -1,176 +1,197 @@
-form.babonus h1 {
-    text-align: center;
-    font-size: 40px;
-    border-bottom: none;
+.babonus h1 {
+  text-align: center;
+  font-size: 55px;
+  border-bottom: none;
+  font-family: "Modesto Condensed";
 }
 
-/* Headers */
-form.babonus header {
-    height: 28px;
-    font-weight: bold;
-    border: 1px solid var(--color-border-light-tertiary);
-    background: rgba(0, 0, 0, 0.1);
+.babonus .components {
+  display: grid;
+  grid-template-columns: 49% 49%;
+  justify-content: space-around;
 }
 
-form.babonus .title {
-    padding: 5px 0 0 5px;
+.babonus .components .builder {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-form.babonus .current-bonuses header.current {
-    margin-top: 10px;
+.babonus .components header {
+  height: 30px;
+  line-height: 28px;
+  font-weight: bold;
+  border: 1px solid var(--color-border-light-tertiary);
+  background: rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  width: 100%;
+  padding-left: 0.5em;
+  border-radius: 2px;
 }
 
-.build-a-bonus .babonus-required-fields label.babonus-label {
-    flex: 1;
-    font-weight: bolder;
+.babonus .builder .label {
+  flex: 1;
+  font-weight: bolder;
 }
 
-.build-a-bonus .babonus-filters label.babonus-label-m {
-    flex: 1;
+.babonus .builder header.aura {
+  display: flex;
+  justify-content: space-between;
 }
 
-.current-bonuses .form-group label.babonus-label {
-    flex: 2;
-    align-self: flex-start;
-    text-align: center;
+.babonus .current .bonuses {
+  overflow-y: auto;
+  max-height: 650px;
+  height: 650px;
 }
 
-.current-bonuses .form-group label.babonus-label.disabled {
-    text-decoration: line-through;
+.babonus .current .bonuses .bonus:first-child {
+  margin-top: 1em;
 }
 
-.babonus-identifier {
-    font-style: italic;
-    color: gray;
+.babonus .current .bonuses .bonus .header {
+  display: grid;
+  grid-template-columns: 75% 25%;
 }
 
-.babonus-description {
-    font-style: italic;
+.babonus .current .bonuses .bonus .header .label {
+  text-align: center;
+  line-height: normal;
+  font-size: 22px;
+  align-self: center;
+  font-family: 'Modesto Condensed';
+  cursor: pointer;
 }
 
-.current-bonuses hr:last-child {
-    display: none;
+.babonus .current .bonuses .bonus .header .label:hover {
+  text-shadow: 0 0 8px red;
 }
 
-.babonus .babonus-filters .babonus-select {
-    flex: 0;
+.babonus .current .bonuses .bonus .header .label.disabled {
+  text-decoration: line-through;
+}
+
+.babonus .current .bonuses .bonus .header .details {
+  text-align: center;
+}
+
+.babonus .current .bonuses .bonus .header .details .identifier {
+  font-style: italic;
+  color: gray;
+  white-space: nowrap;
+  overflow-x: hidden;
+  user-select: text;
+}
+
+.babonus .current .bonuses .bonus .description .content {
+  font-style: italic;
+  margin: 0.5em;
+  border-radius: 5px;
+  padding: 0.5em 0.75em;
+  background-color: rgba(181, 179, 164, 0.5);
+  user-select: text;
+  transition: 0.2s;
+  max-height: fit-content;
+  overflow: hidden;
+  opacity: 1;
+}
+
+.babonus .current .bonuses .bonus.collapsed .description .content {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 0.75em;
+}
+
+.babonus .builder .inputs select:not(:only-child) {
+  flex: 0;
+  min-width: fit-content;
+}
+
+.babonus .builder .inputs select {
+  height: calc(var(--form-field-height));
+}
+
+.babonus .builder .inputs .filters input[type="checkbox"]:focus {
+  box-shadow: 0 0 5px red;
+  filter: grayscale(0);
+  accent-color: #454545;
 }
 
 button.babonus-keys {
-    min-width: 100px;
-    flex: 0;
+  min-width: 100px;
+  flex: 0;
 }
 
-.babonus-checkbox {
-    border-radius: 10px;
-    min-width: fit-content;
-    background-color: cadetblue;
-    padding: 3px 5px 3px 5px;
-    margin: 0 3px 0 0;
-}
-
-.babonus-checkbox:last-child {
-    margin-right: 3px;
-}
-
-.babonus-warning {
-    display: none;
-}
-
-.babonus-warning.active {
-    display: block;
-    color: red;
-    font-style: italic;
-    background-color: yellow;
-    text-align: center;
-    height: 40px;
-    padding: 9px 0 0 0;
-    border-radius: 10px;
-    font-size: 16px;
-    box-shadow: inset 0 0 5px black;
-}
-
-/* center all table columns that are not first (i.e., all columns with a checkbox) */
-table.babonus td:not(:first-child) {
-    text-align: center;
+.babonus .components .builder .warning.active {
+  display: inline-block;
+  width: 100%;
+  color: red;
+  font-style: italic;
+  background-color: yellow;
+  text-align: center;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 10px;
+  font-size: 1.25em;
+  box-shadow: inset 0 0 5px black;
+  margin-bottom: 0.5em;
 }
 
 form.babonus.editMode [name='identifier'],
-form.babonus.editMode [name='label'],
 form.babonus.editMode [name='target'] {
-    pointer-events: none;
-    color: #AAA;
+  pointer-events: none;
+  color: #AAA;
 }
 
-/* if weapon is in itemTypes... */
-form.babonus.weapon .form-group.baseWeapons,
-form.babonus.weapon .form-group.weaponProperties {
-    display: flex;
+form.babonus .current .details a {
+  text-align: end;
+  width: fit-content;
+  max-width: fit-content;
+  padding: 3px;
 }
 
-form.babonus .form-group.baseWeapons,
-form.babonus .form-group.weaponProperties {
-    display: none;
+form.babonus:not(.weapon) .hide-weapon,
+form.babonus:not(.spell) .hide-spell,
+form.babonus:not(.aura) .hide-aura,
+form.babonus:not(.damage) .hide-damage,
+form.babonus:not(.attack) .hide-attack,
+form.babonus:not(.save) .hide-save,
+form.babonus:not(.throw) .hide-throw,
+form.babonus:not(.hitdie) .hide-hitdie,
+form.babonus:not(.attack, .damage) .hide-attack-damage,
+form.babonus:not(.attack, .damage, .save) .hide-attack-damage-save,
+form.babonus:not(.attack, .damage, .save, .throw, .hitdie) .hide-any,
+.bonuses .bonus:last-child hr,
+.babonus .components .builder .warning {
+  display: none;
 }
 
-/* if spell is in itemTypes... */
-form.babonus.spell .form-group.spellComponents,
-form.babonus.spell .form-group.spellLevels,
-form.babonus.spell .form-group.spellSchools {
-    display: flex;
+/* KEY DIALOGS TABLES */
+table.babonus {
+  overflow: hidden;
+  display: grid;
 }
 
-form.babonus .form-group.spellComponents,
-form.babonus .form-group.spellLevels,
-form.babonus .form-group.spellSchools {
-    display: none;
+table.babonus tbody {
+  max-height: 500px;
+  overflow: auto;
 }
 
-/* hide/unhide bonuses inputs */
-form.babonus.damage div.babonus-bonuses-damage {
-    display: block;
+table.babonus.two-col tr {
+  display: grid;
+  grid-template-columns: 50% 50%;
 }
 
-form.babonus div.babonus-bonuses-damage {
-    display: none;
+table.babonus.three-col tr {
+  display: grid;
+  grid-template-columns: 50% 25% 25%;
 }
 
-form.babonus.attack div.babonus-bonuses-attack {
-    display: block;
+table.babonus td:first-child {
+  padding-left: 1em;
+  align-self: center;
 }
 
-form.babonus div.babonus-bonuses-attack {
-    display: none;
-}
-
-form.babonus.attack div.form-group.attackTypes {
-    display: flex;
-}
-
-form.babonus div.form-group.attackTypes {
-    display: none;
-}
-
-form.babonus.save div.babonus-bonuses-save {
-    display: block;
-}
-
-form.babonus div.babonus-bonuses-save {
-    display: none;
-}
-
-form.babonus.save div.form-group.saveAbilities {
-    display: flex;
-}
-
-form.babonus div.form-group.saveAbilities {
-    display: none;
-}
-
-/* buttons */
-form.babonus .babonus-bonus-details a {
-    text-align: end;
-    width: fit-content;
-    max-width: fit-content;
-    padding: 3px;
+table.babonus td:not(:first-child) {
+  text-align: center;
 }

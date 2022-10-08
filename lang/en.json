@@ -1,161 +1,194 @@
 {
-    "BABONUS": {
-        "DELETE": {
-            "DELETE_BONUS": "Delete Bonus: {label}",
-            "ARE_YOU_SURE": "Are you sure that you want to delete '{label}'? This action cannot be undone."
-        },
-        "WARNINGS": {
-            "MISSING_LABEL": "Your bonus needs a label!",
-            "MISSING_ID": "Your bonus needs an identifier!",
-            "DUPLICATE_ID": "A bonus with that identifier already exists!",
-            "MISSING_TARGET": "You must designate where the bonus should apply!",
-            "MISSING_BONUS": "The bonus needs actual bonuses!",
-            "MISSING_DESC": "Your bonus needs a description!",
-            "MISSING_TYPE": "You must select at least one item type!",
-            "MISSING_FILTER": "Your bonus needs at least one filter!"
-        },
-        "LABELS":{
-            "IDENTIFIERS": "Identifiers",
-            "ID_LABEL": "Label",
-            "ID_IDENTIFIER": "Identifier",
-            "TARGETS": "Targets",
-            "BONUS": "Bonus",
-            "CRIT_BONUS": "Critical Bonus",
-            "CRIT_BONUS_DICE": "Dice",
-            "CRIT_BONUS_DAMAGE": "Damage",
-            "DESCRIPTION": "Description",
-            "ITEM_TYPES": "Item Types",
-            "ITEM_SPECIFIC": "Requirements",
-            "EQUIPPED": "Equipped",
-            "ATTUNED": "Attuned",
-
-            "DAMAGE_TYPES": "Damage Types",
-            "ABILITIES": "Abilities",
-            "SAVE_ABILITIES": "Save Ability",
-            "ATTACK_TYPES": "Attack Types",
-            "COMPONENTS": "Components",
-            "SPELL_LEVELS": "Spell Levels",
-            "SPELL_SCHOOLS": "Spell Schools",
-            "WEAPONS": "Weapons",
-            "PROPERTIES": "Properties",
-            "ARBITRARY_COMPARISON": "Comparison",
-            "ACTOR_EFFECTS": "Actor Effects",
-            "TARGET_EFFECTS": "Target Effects"
-        },
-        "TITLES": {
-            "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
-            "TARGETS": "What the bonus should apply to.",
-            "DESCRIPTION": "A description of the bonus for your convenience.",
-            "ITEM_TYPES": "The types of items the bonus should apply to.",
-            "SAVE_BONUS": "An integer to add onto the DC of a saving throw.",
-            "ATTACK_BONUS": "Additional parts to add on top of the attack roll.",
-            "DAMAGE_BONUS": "Additional parts to add on top of the damage roll.",
-            "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits.",
-            "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
-            "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor"
-        },
-        "VALUES": {
-            "PH_LABEL": "label...",
-            "PH_ID": "identifier...",
-            "PH_DESCRIPTION": "description...",
-            "TARGET_ATTACK": "Attack Rolls",
-            "TARGET_DAMAGE": "Damage Rolls",
-            "TARGET_SAVE": "Save DC",
-            "MATCH_ANY": "Match any",
-            "MATCH_ALL": "Match all",
-            "ARBITRARY_COMPARISON_ONE": "value...",
-            "ARBITRARY_COMPARISON_OTHER": "other value..."
-        },
-        "BUTTONS": {
-            "KEYS": "Keys",
-            "SAVE": "Save this bonus"
-        },
-        "HEADERS": {
-            "BUILD_A_BONUS": "Build-a-Bonus",
-            "REQUIRED_FIELDS": "Required Fields",
-            "FILTERS": "Filters",
-            "CURRENT_BONUSES": "Current Bonuses"
-        },
-        "KEY": {
-            "APPLY": "Apply Keys",
-
-            "ITEM_TYPES_DESC": "Select any item type that this bonus should apply to. You must select at least one.",
-            "ITEM_TYPES_NAME": "Item Type",
-            "ITEM_TYPES_BOX": "Include",
-            "itemTypes_TITLE": "Keys: Item Types",
-
-            "ABILITIES_DESC": "Select the ability score that is used by the item. This filter respects spellcasting abilities, finesse weapons, and default values.",
-            "ABILITIES_NAME": "Ability",
-            "ABILITIES_BOX": "Include",
-            "abilities_TITLE": "Keys: Abilities",
-
-            "SAVE_ABILITIES_DESC": "Select the ability score that is used by the item to set the saving throw's DC. This filter respects spellcasting abilities.",
-            "SAVE_ABILITIES_NAME": "Ability",
-            "SAVE_ABILITIES_BOX": "Include",
-            "saveAbilities_TITLE": "Keys: Save Abilities",
-
-            "ATTACK_TYPES_DESC": "Select the types of attacks the bonus should apply to. Leaving it empty will apply the bonus to all attacks.",
-            "ATTACK_TYPES_NAME": "Attack Type",
-            "ATTACK_TYPES_BOX": "Include",
-            "attackTypes_TITLE": "Keys: Attack Types",
-
-            "DAMAGE_TYPES_DESC": "Select a damage type. If the item has a formula with at least one of the selected damage types, the bonus will apply.",
-            "DAMAGE_TYPES_NAME": "Damage Type",
-            "DAMAGE_TYPES_BOX": "Include",
-            "damageTypes_TITLE": "Keys: Damage Types",
-            
-            "COMPONENTS_DESC": "Select any spell component that the item must have. You can choose whether the spell must have all or at least one of the selected options.",
-            "COMPONENTS_NAME": "Spell Components",
-            "COMPONENTS_BOX": "Include",
-            "spellComponents_TITLE": "Keys: Spell Components",
-
-            "SPELL_LEVELS_DESC": "Select the spell levels that the bonus should apply to. This is the level at which the spell was cast, not the base level.",
-            "SPELL_LEVELS_NAME": "Spell Levels",
-            "SPELL_LEVELS_BOX": "Include",
-            "spellLevels_TITLE": "Keys: Spell Levels",
-
-            "SPELL_SCHOOLS_DESC": "Select the spell schools that the spell must be a member of.",
-            "SPELL_SCHOOLS_NAME": "Spell Schools",
-            "SPELL_SCHOOLS_BOX": "Include",
-            "spellSchools_TITLE": "Keys: Spell Schools",
-
-            "ACTOR_EFFECTS_DESC": "Select the status conditions that the actor must be afflicted by. The bonus will apply if the actor is afflicted by at least one of the selected conditions.",
-            "ACTOR_EFFECTS_NAME": "Status Effects",
-            "ACTOR_EFFECTS_BOX": "Include",
-            "statusEffects_TITLE": "Keys: Actor Status Effects",
-
-            "TARGET_EFFECTS_DESC": "Select the status conditions that the target actor must be afflicted by. The bonus will apply if the target actor is afflicted by at least one of teh selected conditions.",
-            "TARGET_EFFECTS_NAME": "Status Effects",
-            "TARGET_EFFECTS_BOX": "Include",
-            "targetEffects_TITLE": "Keys: Target Status Effects",
-
-            "WEAPONS_DESC": "Select the type of weapons that the bonus should apply to.",
-            "WEAPONS_NAME": "Base Weapons",
-            "WEAPONS_BOX": "Include",
-            "baseWeapons_TITLE": "Keys: Base Weapons",
-
-            "PROPERTIES_DESC": "Select weapon properties that should be required for the weapon (the bonus will apply if the weapon has at least one of them) or any properties that must not appear on the weapon.",
-            "PROPERTIES_NAME": "Weapon Properties",
-            "PROPERTIES_NEED": "Needed",
-            "PROPERTIES_UNFIT": "Unfit",
-            "weaponProperties_TITLE": "Keys: Weapon Properties"
-        },
-        "TRAITS": {
-            "SECTION": "Build-a-Bonus",
-            "NAME": "Build-a-Bonus Workshop",
-            "HINT": "Open the Build-a-Bonus workshop. Here you can create very niche bonuses that apply when you use an item with a saving throw (increasing or decreasing the DC), when you roll an attack roll (adding modifiers on top), or roll damage (adding modifiers on top, a well as critical dice and critical damage).",
-            "LABEL": "Build-a-Bonus Workshop"
-        },
-        "BONUS": {
-            "ENABLED": "Enabled",
-            "DISABLED": "Disabled"
-        },
-        "SETTINGS": {
-            "DISPLAY_LABEL": {
-                "NAME": "Display Label",
-                "HINT": "If checked, the label is displayed in the header of applicable items and effects.",
-                "HEADER": "Build-a-Bonus"
-            }
-        }
+  "BABONUS": {
+    "DELETE": {
+      "DELETE_BONUS": "Delete Bonus: {label}",
+      "ARE_YOU_SURE": "Are you sure that you want to delete '{label}'? This action cannot be undone."
+    },
+    "WARNINGS": {
+      "MISSING_LABEL": "Your bonus needs a label!",
+      "MISSING_ID": "Your bonus needs an identifier!",
+      "DUPLICATE_ID": "A bonus with that identifier already exists!",
+      "MISSING_TARGET": "You must designate where the bonus should apply!",
+      "MISSING_BONUS": "The bonus needs actual bonuses!",
+      "MISSING_DESC": "Your bonus needs a description!",
+      "MISSING_ITEM_TYPES": "You must select at least one item type!",
+      "MISSING_ABILITY_TYPES": "You must select at least one ability!",
+      "MISSING_FILTER": "Your bonus needs at least one filter!",
+      "MISSING_THROW_TYPES": "You must select at least one type of saving throw!"
+    },
+    "LABELS": {
+      "IDENTIFIERS": "Identifiers",
+      "ID_LABEL": "Label",
+      "ID_IDENTIFIER": "Identifier",
+      "TARGETS": "Targets",
+      "BONUS": "Bonus",
+      "CRIT_BONUS": "Critical Bonus",
+      "CRIT_BONUS_DICE": "Dice",
+      "CRIT_BONUS_DAMAGE": "Damage",
+      "DESCRIPTION": "Description",
+      "ITEM_TYPES": "Item Types",
+      "ITEM_SPECIFIC": "Requirements",
+      "EQUIPPED": "Equipped",
+      "ATTUNED": "Attuned",
+      "DAMAGE_TYPES": "Damage Types",
+      "ABILITIES": "Abilities",
+      "SAVE_ABILITIES": "Save Ability",
+      "ATTACK_TYPES": "Attack Types",
+      "COMPONENTS": "Components",
+      "SPELL_LEVELS": "Spell Levels",
+      "SPELL_SCHOOLS": "Spell Schools",
+      "WEAPONS": "Weapons",
+      "PROPERTIES": "Properties",
+      "ARBITRARY_COMPARISON": "Comparison",
+      "ACTOR_CONDITIONS": "Actor Cond.",
+      "TARGET_CONDITIONS": "Target Cond.",
+      "THROW_TYPES": "Saving Throws",
+      "AURA_ENABLED": "Enabled",
+      "AURA_SELF": "Affect Self",
+      "AURA_BLOCKERS": "Blockers"
+    },
+    "TITLES": {
+      "TOGGLE_THIS": "Toggle this bonus on or off.",
+      "COPY_THIS": "Copy this bonus into the builder.",
+      "EDIT_THIS": "Edit this bonus in the builder.",
+      "DELETE_THIS": "Delete this bonus.",
+      "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus by effects.",
+      "TARGETS": "What the bonus should apply to.",
+      "DESCRIPTION": "A description of the bonus for your convenience.",
+      "ITEM_TYPES": "The types of items the bonus should apply to.",
+      "SAVE_BONUS": "An integer to add onto the DC of a saving throw.",
+      "ATTACK_BONUS": "Additional parts to add on top of the attack roll.",
+      "DAMAGE_BONUS": "Additional parts to add on top of the damage roll.",
+      "DAMAGE_CRIT": "An additional number of dice that should be rolled on a critical hit, and additional parts to add on top of the damage roll, only on critical hits.",
+      "THROW_BONUS": "Additional parts to add on top of the saving throw.",
+      "HITDIE_BONUS": "Additional parts to add on top of the hit die roll.",
+      "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
+      "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor.",
+      "THROW_TYPES": "The type of saving throw the bonus should apply to.",
+      "DAMAGE_TYPES": "The type of damage the item must deal for the bonus to apply.",
+      "ABILITIES": "The ability score used by the item.",
+      "ACTOR_CONDITIONS": "The conditions the actor must be affected by.",
+      "TARGET_CONDITIONS": "The conditions the target actor must be affected by.",
+      "ATTACK_TYPES": "The type of attack roll the item must have for the bonus to apply.",
+      "SAVE_ABILITIES": "The ability that must be used to set the saving throw DC of the item for the bonus to apply.",
+      "SPELL_COMPONENTS": "The components the spell must have for the bonus to apply.",
+      "SPELL_LEVELS": "The level at which the spell must be cast for the bonus to apply.",
+      "SPELL_SCHOOLS": "The school the spell must belong to for the bonus to apply.",
+      "WEAPON_TYPES": "The type of weapon the item must be for the bonus to apply.",
+      "WEAPON_PROPERTIES": "The weapon properties the item either must have or cannot have for the bonus to apply.",
+      "AURA_ENABLED": "Whether this bonus should transfer to other token actors on a scene.",
+      "AURA_FIELDS": "The range of the aura (-1 for unlimited), the targets of the aura, and whether it should affect the actor as well.",
+      "AURA_BLOCKERS": "The status conditions that block an aura from being transferred."
+    },
+    "VALUES": {
+      "PH_LABEL": "label...",
+      "PH_ID": "identifier...",
+      "PH_DESCRIPTION": "description...",
+      "MATCH_ANY": "Match any",
+      "MATCH_ALL": "Match all",
+      "ARBITRARY_COMPARISON_ONE": "value...",
+      "ARBITRARY_COMPARISON_OTHER": "other value...",
+      "PH_RANGE": "range...",
+      "DISPOSITION": {
+        "FRIENDLY": "Friendly Targets",
+        "HOSTILE": "Hostile Targets",
+        "ALL": "All Targets"
+      },
+      "TARGET": {
+        "ATTACK": "Attack Rolls",
+        "DAMAGE": "Damage Rolls",
+        "SAVE": "Save DC",
+        "THROW": "Saving Throws",
+        "HITDIE": "Hit Die Rolls"
+      }
+    },
+    "BUTTONS": {
+      "KEYS": "Keys",
+      "SAVE": "Save this bonus"
+    },
+    "HEADERS": {
+      "BUILD_A_BONUS": "Build-a-Bonus",
+      "REQUIRED_FIELDS": "Required Fields",
+      "AURA": "Aura",
+      "FILTERS": "Filters",
+      "CURRENT_BONUSES": "Current Bonuses"
+    },
+    "KEY": {
+      "APPLY": "Apply Keys",
+      "ITEM_TYPES_DESC": "Select any item type that this bonus should apply to. You must select at least one.",
+      "ITEM_TYPES_NAME": "Item Type",
+      "ITEM_TYPES_BOX": "Include",
+      "itemTypes_TITLE": "Keys: Item Types",
+      "ABILITIES_DESC": "Select the ability score that is used by the item. This filter respects spellcasting abilities, finesse weapons, and default values.",
+      "ABILITIES_NAME": "Ability",
+      "ABILITIES_BOX": "Include",
+      "abilities_TITLE": "Keys: Abilities",
+      "SAVE_ABILITIES_DESC": "Select the ability score that is used by the item to set the saving throw's DC. This filter respects spellcasting abilities.",
+      "SAVE_ABILITIES_NAME": "Ability",
+      "SAVE_ABILITIES_BOX": "Include",
+      "saveAbilities_TITLE": "Keys: Save Abilities",
+      "ATTACK_TYPES_DESC": "Select the type of attack the item must have for the bonus to apply.",
+      "ATTACK_TYPES_NAME": "Attack Type",
+      "ATTACK_TYPES_BOX": "Include",
+      "attackTypes_TITLE": "Keys: Attack Types",
+      "DAMAGE_TYPES_DESC": "Select a damage type. If the item has a formula with at least one of the selected damage types, the bonus will apply.",
+      "DAMAGE_TYPES_NAME": "Damage Type",
+      "DAMAGE_TYPES_BOX": "Include",
+      "damageTypes_TITLE": "Keys: Damage Types",
+      "COMPONENTS_DESC": "Select any spell component that the item must have. You can choose whether the spell must have all or at least one of the selected options.",
+      "COMPONENTS_NAME": "Spell Components",
+      "COMPONENTS_BOX": "Include",
+      "spellComponents_TITLE": "Keys: Spell Components",
+      "SPELL_LEVELS_DESC": "Select the spell levels that the bonus should apply to. This is the level at which the spell was cast, not the base level.",
+      "SPELL_LEVELS_NAME": "Spell Levels",
+      "SPELL_LEVELS_BOX": "Include",
+      "spellLevels_TITLE": "Keys: Spell Levels",
+      "SPELL_SCHOOLS_DESC": "Select the spell schools that the spell must be a member of.",
+      "SPELL_SCHOOLS_NAME": "Spell Schools",
+      "SPELL_SCHOOLS_BOX": "Include",
+      "spellSchools_TITLE": "Keys: Spell Schools",
+      "ACTOR_CONDITIONS_DESC": "Select the status conditions that the actor must be afflicted by. The bonus will apply if the actor is afflicted by at least one of the selected conditions.",
+      "ACTOR_CONDITIONS_NAME": "Status Effects",
+      "ACTOR_CONDITIONS_BOX": "Include",
+      "statusEffects_TITLE": "Keys: Actor Status Effects",
+      "TARGET_CONDITIONS_DESC": "Select the status conditions that the target actor must be afflicted by. The bonus will apply if the target actor is afflicted by at least one of the selected conditions.",
+      "TARGET_CONDITIONS_NAME": "Status Effects",
+      "TARGET_CONDITIONS_BOX": "Include",
+      "targetEffects_TITLE": "Keys: Target Status Effects",
+      "WEAPONS_DESC": "Select the type of weapons that the bonus should apply to.",
+      "WEAPONS_NAME": "Base Weapons",
+      "WEAPONS_BOX": "Include",
+      "baseWeapons_TITLE": "Keys: Base Weapons",
+      "PROPERTIES_DESC": "Select weapon properties that should be required for the weapon (the bonus will apply if the weapon has at least one of them) or any properties that must not appear on the weapon.",
+      "PROPERTIES_NAME": "Weapon Properties",
+      "PROPERTIES_NEED": "Needed",
+      "PROPERTIES_UNFIT": "Unfit",
+      "weaponProperties_TITLE": "Keys: Weapon Properties",
+      "throwTypes_TITLE": "Keys: Saving Throw Types",
+      "THROW_TYPES_DESC": "Select the types of saving throws the bonus should apply to.",
+      "THROW_TYPES_NAME": "Saving Throw Types",
+      "THROW_TYPES_BOX": "Include",
+      "blockers_TITLE": "Keys: Aura Blockers",
+      "AURA_BLOCKERS_DESC": "Select the status conditions that will prevent the benefits of the aura from being transferred to the actor and other actors.",
+      "AURA_BLOCKERS_NAME": "Status Effects",
+      "AURA_BLOCKERS_BOX": "Include"
+    },
+    "TRAITS": {
+      "SECTION": "Build-a-Bonus",
+      "NAME": "Build-a-Bonus Workshop",
+      "HINT": "Open the Build-a-Bonus workshop. Here you can create situational bonuses that should apply automatically for various rolls, such as saving throws, damage rolls, and hit die rolls.",
+      "LABEL": "Build-a-Bonus Workshop"
+    },
+    "BONUS": {
+      "ENABLED": "Enabled",
+      "DISABLED": "Disabled"
+    },
+    "SETTINGS": {
+      "DISPLAY_LABEL": {
+        "NAME": "Display Label",
+        "HINT": "If checked, the label is displayed in the header of applicable items and effects.",
+        "HEADER": "Build-a-Bonus"
+      }
     }
+  }
 }
