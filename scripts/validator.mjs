@@ -32,8 +32,8 @@ export function validateData(formData) {
     ],
     [Array.fromRange(10), "filters.spellLevels"],
     [Object.keys(spellSchools), "filters.spellSchools"],
-    [statusIds, "filters.statusEffects"],
-    [statusIds, "filters.targetEffects"],
+    [statusIds, "filters.statusEffects", false],
+    [statusIds, "filters.targetEffects", false],
     [
       Object.keys(weaponProperties),
       "filters.weaponProperties.needed"
@@ -45,10 +45,10 @@ export function validateData(formData) {
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],
     [Object.keys(abilities).concat(["death"]), "throwTypes"],
-    [statusIds, "aura.blockers"]
+    [statusIds, "aura.blockers", false]
   ];
-  for (const [values, property] of scsv) {
-    validateValues(formData, values, property);
+  for (const [values, property, validate] of scsv) {
+    validateValues(formData, values, property, validate);
   }
 
   // special cases:
@@ -95,10 +95,13 @@ export function validateData(formData) {
 }
 
 // mutate formData by turning semicolon-sep'd lists into arrays.
-function validateValues(formData, values, property) {
+function validateValues(formData, values, property, validate = true) {
   const ids = formData[property]?.split(";").map(i => {
     return i.trim();
-  }).filter(i => values.includes(i));
+  }).filter(i => {
+    if (validate) return values.includes(i);
+    return true;
+  });
   if (!ids?.length) delete formData[property];
   else formData[property] = ids;
 }
