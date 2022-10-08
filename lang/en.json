@@ -43,7 +43,7 @@
       "ACTOR_CONDITIONS": "Actor Cond.",
       "TARGET_CONDITIONS": "Target Cond.",
       "THROW_TYPES": "Saving Throws",
-      "AURA_ENABLED": "Enabled",
+      "AURA_FIELDS": "Targeting",
       "AURA_SELF": "Affect Self",
       "AURA_BLOCKERS": "Blockers"
     },
