@@ -62,7 +62,7 @@ export class Build_a_Bonus extends FormApplication {
   async _onChangeInput(event) {
     if (event) {
       await super._onChangeInput(event);
-      
+
       if (["target", "itemTypes", "aura.enabled"].includes(event.target.name)) {
         // hide/unhide some elements.
         this.refreshForm();
@@ -340,14 +340,14 @@ export class Build_a_Bonus extends FormApplication {
 
     const toRemove = [];
     const toAdd = [];
-    
+
     for (const type of targetTypes) {
       if (targetInput.value === type) toAdd.push(type);
       else toRemove.push(type);
     }
-    
+
     // if itemTypes input is shown
-    if(["attack", "damage", "save"].includes(targetInput.value)){
+    if (["attack", "damage", "save"].includes(targetInput.value)) {
       for (const type of itemsValidForAttackDamageSave) {
         if (values.includes(type)) toAdd.push(type);
         else toRemove.push(type);
@@ -355,13 +355,13 @@ export class Build_a_Bonus extends FormApplication {
     } else {
       toRemove.push(...itemsValidForAttackDamageSave);
     }
-    
+
     if (auraEnabledInput.checked) toAdd.push("aura");
     else toRemove.push("aura");
-    
+
     form.classList.add(...toAdd);
     form.classList.remove(...toRemove);
-    
+
     this.setPosition();
     this._onChangeInput();
   }
