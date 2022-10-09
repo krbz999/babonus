@@ -100,7 +100,7 @@ function validateValues(formData, values, property, validate = true) {
     return i.trim();
   }).filter(i => {
     if (validate) return values.includes(i);
-    return true;
+    return !!i;
   });
   if (!ids?.length) delete formData[property];
   else formData[property] = ids;
