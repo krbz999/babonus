@@ -58,7 +58,8 @@ export function validateData(formData) {
     "values.criticalBonusDice",
     "values.bonus",
     "values.criticalRange",
-    "values.fumbleRange"
+    "values.fumbleRange",
+    "values.deathSaveTargetValue"
   ];
   for (const value of dels) {
     deleteEmptyValue(formData, value);

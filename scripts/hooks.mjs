@@ -116,8 +116,21 @@ export function _preRollDeathSave(actor, rollConfig) {
   if (!bonuses.length) return;
 
   // add to parts:
-  const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));
-  rollConfig.parts = parts;
+  const parts = bonuses.map(i => i.bonus).filter(i => !!i);
+  if (parts.length) rollConfig.parts.push(...parts);
+
+  // modify targetValue:
+  const targetValue = bonuses.reduce((acc, { deathSaveTargetValue }) => {
+    if (!deathSaveTargetValue) return acc;
+    try {
+      let d = Roll.replaceFormulaData(deathSaveTargetValue, rollConfig.data);
+      d = Roll.safeEval(d);
+      return acc - Number(d);
+    } catch {
+      return acc;
+    }
+  }, rollConfig.targetValue ?? 10);
+  rollConfig.targetValue = Math.clamped(targetValue, 2, 19);
 }
 
 export function _preRollAbilitySave(actor, rollConfig, abilityId) {
@@ -126,8 +139,8 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   if (!bonuses.length) return;
 
   // add to parts:
-  const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));
-  rollConfig.parts = parts;
+  const parts = bonuses.map(i => i.bonus).filter(i => !!i);
+  if (parts.length) rollConfig.parts.push(...parts);
 }
 
 export function _preRollHitDie(actor, rollConfig, denomination) {

@@ -44,6 +44,7 @@
       "ACTOR_CONDITIONS": "Actor Cond.",
       "TARGET_CONDITIONS": "Target Cond.",
       "THROW_TYPES": "Saving Throws",
+      "DEATH_SAVE_TARGET_VALUE": "Death Target",
       "AURA_FIELDS": "Targeting",
       "AURA_SELF": "Affect Self",
       "AURA_BLOCKERS": "Blockers"
@@ -69,6 +70,7 @@
       "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
       "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor.",
       "THROW_TYPES": "The type of saving throw the bonus should apply to.",
+      "DEATH_SAVE_TARGET_VALUE": "An integer to lower the minimum requirement to pass a death saving throw.",
       "DAMAGE_TYPES": "The type of damage the item must deal for the bonus to apply.",
       "ABILITIES": "The ability score used by the item.",
       "ACTOR_CONDITIONS": "The conditions the actor must be affected by.",

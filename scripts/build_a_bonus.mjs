@@ -63,7 +63,7 @@ export class Build_a_Bonus extends FormApplication {
     if (event) {
       await super._onChangeInput(event);
 
-      if (["target", "itemTypes", "aura.enabled"].includes(event.target.name)) {
+      if (["target", "itemTypes", "throwTypes", "aura.enabled"].includes(event.target.name)) {
         // hide/unhide some elements.
         this.refreshForm();
       } else if (["aura.range"].includes(event.target.name)) {
@@ -130,7 +130,8 @@ export class Build_a_Bonus extends FormApplication {
         if (!input) input = html[0].querySelector(`[name="filters.${type}.types"]`); // for spellComps.
         if (!input) input = html[0].querySelector(`[name="aura.${type}"]`); // for aura.blockers
         input.value = semiList;
-        if (type === "itemTypes") this.refreshForm();
+        // refresh form for inputs that have values that reveal more fields.
+        if (["itemTypes", "throwTypes"].includes(type)) this.refreshForm();
       }
       else {
         const needed = html[0].querySelector("[name='filters.weaponProperties.needed']");
@@ -334,6 +335,7 @@ export class Build_a_Bonus extends FormApplication {
     const html = this.element;
     const itemTypeInput = html[0].querySelector("[name='itemTypes']");
     const targetInput = html[0].querySelector("[name='target']");
+    const throwTypeInput = html[0].querySelector("[name='throwTypes']");
     const auraEnabledInput = html[0].querySelector("[name='aura.enabled']");
     const values = itemTypeInput.value.split(";").map(i => i.trim());
     const form = itemTypeInput.closest("form.babonus");
@@ -356,6 +358,12 @@ export class Build_a_Bonus extends FormApplication {
       toRemove.push(...itemsValidForAttackDamageSave);
     }
 
+    // death save
+    if (targetInput.value === "throw" && throwTypeInput.value.includes("death")) {
+      toAdd.push("death");
+    } else toRemove.push("death");
+
+    // aura enabled.
     if (auraEnabledInput.checked) toAdd.push("aura");
     else toRemove.push("aura");
 
