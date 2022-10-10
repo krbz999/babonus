@@ -51,6 +51,21 @@ export function validateData(formData) {
     validateValues(formData, values, property, validate);
   }
 
+  // values that just get deleted if they are falsy:
+  const dels = [
+    "values.criticalBonusDamage",
+    "values.criticalBonusDice",
+    "values.criticalBonusDice",
+    "values.bonus",
+    "values.criticalRange",
+    "values.fumbleRange"
+  ];
+  for (const value of dels) {
+    deleteEmptyValue(formData, value);
+  }
+
+
+
   // special cases:
 
   // aura:
@@ -78,20 +93,14 @@ export function validateData(formData) {
     delete formData[b];
     delete formData[c];
   }
-
-  // values:
-  if (!formData["values.criticalBonusDamage"]) {
-    delete formData["values.criticalBonusDamage"];
-  }
-  if (!formData["values.criticalBonusDice"]) {
-    delete formData["values.criticalBonusDice"];
-  }
-  if (!formData["values.bonus"]) {
-    delete formData["values.bonus"];
-  }
-
+  
   // itemRequirements:
   // ... no attention needed.
+}
+
+// delete values that do not exist.
+function deleteEmptyValue(formData, value) {
+  if (!formData[value]) delete formData[value];
 }
 
 // mutate formData by turning semicolon-sep'd lists into arrays.

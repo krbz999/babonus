@@ -39,8 +39,42 @@ export function _preRollAttack(item, rollConfig) {
   if (!bonuses.length) return;
 
   // add to parts.
-  const parts = rollConfig.parts.concat(bonuses.map(i => i.bonus));
-  rollConfig.parts = parts;
+  const attacks = bonuses.map(i => i.bonus).filter(i => i);
+  if (attacks.length) {
+    rollConfig.parts = rollConfig.parts.concat(attacks);
+  }
+
+  // subtract from crit range.
+  const ranges = bonuses.map(i => i.criticalRange);
+  const range = ranges.reduce((acc, e) => {
+    if (!e) return acc;
+    try {
+      let r = Roll.replaceFormulaData(e, rollConfig.data);
+      r = Roll.safeEval(r);
+      acc = acc - Number(r);
+    } catch {
+      return acc;
+    }
+    return acc;
+  }, rollConfig.critical);
+  if (range > 20) rollConfig.critical = null;
+  else rollConfig.critical = Math.clamped(range, 1, 20);
+
+  // add to fumble range.
+  const fumbles = bonuses.map(i => i.fumbleRange);
+  const fumble = fumbles.reduce((acc, e) => {
+    if (!e) return acc;
+    try {
+      let r = Roll.replaceFormulaData(e, rollConfig.data);
+      r = Roll.safeEval(r);
+      acc = acc + Number(r);
+    } catch {
+      return acc;
+    }
+    return acc;
+  }, rollConfig.fumble ?? 1);
+  if (fumble < 1) rollConfig.fumble = null;
+  else rollConfig.fumble = Math.clamped(fumble, 1, 20);
 }
 
 export function _preRollDamage(item, rollConfig) {

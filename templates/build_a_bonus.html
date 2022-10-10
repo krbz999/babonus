@@ -58,16 +58,40 @@
               <input type="text" name="values.bonus">
             </div>
           </div>
-          <!-- damage-only bonuses -->
-          <div class="hide-damage">
-            <div class="form-group bonus-type-damage-critical">
-              <label title="{{localize 'BABONUS.TITLES.DAMAGE_CRIT'}}" class="label">
-                {{localize "BABONUS.LABELS.CRIT_BONUS"}}
+          <!-- attack-only bonuses -->
+          <div class="hide-attack">
+            <div class="form-group bonus-critical-range">
+              <label title="{{localize 'BABONUS.TITLES.CRITICAL_RANGE'}}" class="label">
+                {{localize "BABONUS.LABELS.CRITICAL_RANGE"}}
               </label>
               <div class="form-fields">
-                <span class="sep">{{localize "BABONUS.LABELS.CRIT_BONUS_DICE"}}</span>
+                <input type="text" name="values.criticalRange">
+              </div>
+            </div>
+            <div class="form-group bonus-fumble-range">
+              <label title="{{localize 'BABONUS.TITLES.FUMBLE_RANGE'}}" class="label">
+                {{localize "BABONUS.LABELS.FUMBLE_RANGE"}}
+              </label>
+              <div class="form-fields">
+                <input type="text" name="values.fumbleRange">
+              </div>
+            </div>
+          </div>
+          <!-- damage-only bonuses -->
+          <div class="hide-damage">
+            <div class="form-group">
+              <label title="{{localize 'BABONUS.TITLES.CRIT_BONUS_DICE'}}" class="label">
+                {{localize "BABONUS.LABELS.CRIT_BONUS_DICE"}}
+              </label>
+              <div class="form-fields">
                 <input type="text" name="values.criticalBonusDice">
-                <span class="sep">{{localize "BABONUS.LABELS.CRIT_BONUS_DAMAGE"}}</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label title="{{localize 'BABONUS.TITLES.CRIT_BONUS_DAMAGE'}}" class="label">
+                {{localize "BABONUS.LABELS.CRIT_BONUS_DAMAGE"}}
+              </label>
+              <div class="form-fields">
                 <input type="text" name="values.criticalBonusDamage">
               </div>
             </div>
