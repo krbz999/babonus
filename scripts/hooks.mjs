@@ -1,6 +1,7 @@
+import { MODULE } from "./constants.mjs";
 import { FILTER } from "./filters.mjs";
 
-export function _preDisplayCard(item, chatData) {
+export function _preDisplayCard(item, chatData, config) {
   // get bonus:
   const data = item.getRollData();
   const bonuses = FILTER.itemCheck(item, "save");
@@ -27,6 +28,7 @@ export function _preDisplayCard(item, chatData) {
   const ability = CONFIG.DND5E.abilities[save.ability] ?? "";
   const savingThrow = game.i18n.localize("DND5E.ActionSave");
   const dc = save.dc + totalBonus || "";
+  chatData.flags[MODULE] = { saveDC: dc };
   const label = game.i18n.format("DND5E.SaveDC", { dc, ability });
 
   for (const btn of saveButtons) btn.innerText = `${savingThrow} ${label}`;
