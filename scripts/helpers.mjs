@@ -46,7 +46,6 @@ export function getBonuses(doc) {
   return bonuses;
 }
 
-
 export class KeyGetter {
 
   // valid item types; those that can have actions associated.
@@ -110,7 +109,11 @@ export class KeyGetter {
   static get spellComponents() {
     const { spellComponents: s, spellTags: t } = CONFIG.DND5E;
     const entries = Object.entries(s).concat(Object.entries(t));
-    return entries.map(([value, { label }]) => ({ value, label }));
+    return entries.map(([value, { label }]) => {
+      return { value, label };
+    }).sort((a, b) => {
+      return a.label.localeCompare(b.label);
+    });
   }
 
   // spell levels.
@@ -141,8 +144,12 @@ export class KeyGetter {
     const ids = effects.reduce((acc, { id }) => {
       if (id) acc.push(id);
       return acc;
-    }, []);
-    return ids.map((id) => ({ value: id, label: id }));
+    }, []).map((id) => {
+      return { value: id, label: id };
+    }).sort((a, b) => {
+      return a.value.localeCompare(b.value);
+    });
+    return ids;
   }
   static get targetEffects() {
     return this.statusEffects;
@@ -158,6 +165,7 @@ export class KeyGetter {
  * Get all the bonuses on the actor, their items, and their effects.
  * This method does NOT filter by aura properties.
  * That is done in 'getAllOwnBonuses'.
+ * This method replaces roll data.
  */
 export function getAllActorBonuses(actor, hookType) {
   const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
@@ -194,10 +202,10 @@ export function getAllOwnBonuses(actor, hookType) {
 }
 
 /**
- * Add bonuses from items. Any item-only filtering happens here,
- * such as checking if the item is currently, and requires being,
- * equipped and/or attuned. Not all valid item types have these
- * properties, such as feature type items.
+ * Add bonuses from items. Any item-only filtering happens here, such as checking
+ * if the item is currently, and requires being, equipped and/or attuned.
+ * Not all valid item types have these properties, such as feature type items.
+ * This method replaces roll data.
  */
 export function getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;

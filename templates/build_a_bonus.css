@@ -96,6 +96,10 @@
   opacity: 1;
 }
 
+.babonus .current .bonuses .bonus.instant .description .content {
+  transition: 0.0s;
+}
+
 .babonus .current .bonuses .bonus.collapsed .description .content {
   max-height: 0;
   opacity: 0;

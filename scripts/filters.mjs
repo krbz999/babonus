@@ -116,7 +116,7 @@ export class FILTER {
 
   // saving throws
   static throwCheck(actor, abilityId) {
-    let bonuses = getAllOwnBonuses(actor, "throw")
+    let bonuses = getAllOwnBonuses(actor, "throw");
     const t = getTokenFromActor(actor);
     if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, "throw"));
     if (!bonuses.length) return [];

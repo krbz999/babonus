@@ -174,6 +174,7 @@ export class Build_a_Bonus extends FormApplication {
       const label = event.target.closest(".bonus .header .label");
       if (!label) return;
       const bonus = label.closest(".bonus");
+      bonus.classList.remove("instant");
       bonus.classList.toggle("collapsed");
     });
 
@@ -385,5 +386,36 @@ export class Build_a_Bonus extends FormApplication {
     for (const select of selects) {
       select.selectedIndex = 0;
     }
+  }
+
+  async _render(force, options) {
+    if (!force) this.saveScrollPosition();
+    await super._render(force, options);
+    this.setScrollPosition();
+  }
+
+  close(...T) {
+    this.saveScrollPosition();
+    super.close(...T);
+  }
+
+  // save scroll position and collapsed elements.
+  saveScrollPosition() {
+    const el = this.element[0];
+    const top = el.querySelector(".current .bonuses").scrollTop;
+    const collapsed = el.querySelectorAll(".current .bonuses .bonus.collapsed");
+    const ids = Array.from(collapsed).map(c => c.dataset.id);
+    this.object.sheet[MODULE] = { top, collapsed: ids };
+  }
+
+  // set scroll position and collapsed elements.
+  setScrollPosition() {
+    const el = this.element[0];
+    const { top = 0, collapsed = [] } = this.object.sheet[MODULE] ?? {};
+    collapsed.map(id => {
+      const bonus = el.querySelector(`.bonuses .bonus[data-id='${id}']`);
+      if (bonus) bonus.classList.add("collapsed", "instant");
+    });
+    el.querySelector(".current .bonuses").scrollTop = top;
   }
 }
