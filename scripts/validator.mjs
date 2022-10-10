@@ -30,7 +30,7 @@ export function validateData(formData) {
       Object.keys(spellComponents).concat(Object.keys(spellTags)),
       "filters.spellComponents.types"
     ],
-    [Array.fromRange(10), "filters.spellLevels"],
+    [Array.fromRange(10).map(n => n.toString()), "filters.spellLevels"],
     [Object.keys(spellSchools), "filters.spellSchools"],
     [statusIds, "filters.statusEffects", false],
     [statusIds, "filters.targetEffects", false],
