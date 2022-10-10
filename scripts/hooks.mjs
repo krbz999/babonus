@@ -1,11 +1,11 @@
 import { MODULE } from "./constants.mjs";
 import { FILTER } from "./filters.mjs";
 
-export function _preDisplayCard(item, chatData, config) {
+export function _preDisplayCard(item, chatData) {
   // get bonus:
-  const data = item.getRollData();
   const bonuses = FILTER.itemCheck(item, "save");
   if (!bonuses.length) return;
+  const data = item.getRollData();
   const totalBonus = bonuses.reduce((acc, { bonus }) => {
     try {
       const formula = Roll.replaceFormulaData(bonus, data);
