@@ -42,7 +42,7 @@ export function _preRollAttack(item, rollConfig) {
 
   // add to parts.
   const attacks = bonuses.map(i => i.bonus).filter(i => {
-    return Roll.validate(i);
+    return !!i && Roll.validate(i);
   });
   if (attacks.length) rollConfig.parts.push(...attacks);
 
@@ -84,7 +84,7 @@ export function _preRollDamage(item, rollConfig) {
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
-    return Roll.validate(i);
+    return !!i && Roll.validate(i);
   });
   if (parts.length) rollConfig.parts.push(...parts);
 
@@ -128,7 +128,7 @@ export function _preRollDeathSave(actor, rollConfig) {
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
-    return Roll.validate(i);
+    return !!i && Roll.validate(i);
   });
   if (parts.length) rollConfig.parts.push(...parts);
 
@@ -153,7 +153,7 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
-    return Roll.validate(i);
+    return !!i && Roll.validate(i);
   });
   if (parts.length) rollConfig.parts.push(...parts);
 }
