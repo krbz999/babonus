@@ -38,29 +38,31 @@
             </div>
           </div>
           <!-- primary bonus field -->
-          <div class="form-group hide-any">
-            <label title="{{localize 'BABONUS.TITLES.ATTACK_BONUS'}}" class="hide-attack label">
-              {{localize "BABONUS.LABELS.BONUS"}}
-            </label>
-            <label title="{{localize 'BABONUS.TITLES.SAVE_BONUS'}}" class="hide-save label">
-              {{localize "BABONUS.LABELS.BONUS"}}
-            </label>
-            <label title="{{localize 'BABONUS.TITLES.DAMAGE_BONUS'}}" class="hide-damage label">
-              {{localize "BABONUS.LABELS.BONUS"}}
-            </label>
-            <label title="{{localize 'BABONUS.TITLES.THROW_BONUS'}}" class="hide-throw label">
-              {{localize "BABONUS.LABELS.BONUS"}}
-            </label>
-            <label title="{{localize 'BABONUS.TITLES.HITDIE_BONUS'}}" class="hide-hitdie label">
-              {{localize "BABONUS.LABELS.BONUS"}}
-            </label>
-            <div class="form-fields">
-              <input type="text" name="values.bonus">
+          <div class="hide-any">
+            <div class="form-group">
+              <label title="{{localize 'BABONUS.TITLES.ATTACK_BONUS'}}" class="hide-attack label">
+                {{localize "BABONUS.LABELS.BONUS"}}
+              </label>
+              <label title="{{localize 'BABONUS.TITLES.SAVE_BONUS'}}" class="hide-save label">
+                {{localize "BABONUS.LABELS.BONUS"}}
+              </label>
+              <label title="{{localize 'BABONUS.TITLES.DAMAGE_BONUS'}}" class="hide-damage label">
+                {{localize "BABONUS.LABELS.BONUS"}}
+              </label>
+              <label title="{{localize 'BABONUS.TITLES.THROW_BONUS'}}" class="hide-throw label">
+                {{localize "BABONUS.LABELS.BONUS"}}
+              </label>
+              <label title="{{localize 'BABONUS.TITLES.HITDIE_BONUS'}}" class="hide-hitdie label">
+                {{localize "BABONUS.LABELS.BONUS"}}
+              </label>
+              <div class="form-fields">
+                <input type="text" name="values.bonus">
+              </div>
             </div>
           </div>
           <!-- attack-only bonuses -->
           <div class="hide-attack">
-            <div class="form-group bonus-critical-range">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.CRITICAL_RANGE'}}" class="label">
                 {{localize "BABONUS.LABELS.CRITICAL_RANGE"}}
               </label>
@@ -68,7 +70,7 @@
                 <input type="text" name="values.criticalRange">
               </div>
             </div>
-            <div class="form-group bonus-fumble-range">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.FUMBLE_RANGE'}}" class="label">
                 {{localize "BABONUS.LABELS.FUMBLE_RANGE"}}
               </label>
@@ -133,7 +135,7 @@
           </div>
           <!-- REQUIRED: only if throw -->
           <div class="hide-throw">
-            <div class="form-group throwTypes">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.THROW_TYPES'}}" class="label">
                 {{localize "BABONUS.LABELS.THROW_TYPES"}}
               </label>
@@ -148,7 +150,7 @@
 
           <!-- ITEM-SPECIFIC FIELDS -->
           {{#if (and isItem (or canEquip canAttune) )}}
-          <div class="form-group item-specific">
+          <div class="form-group">
             <label title="{{localize 'BABONUS.TITLES.ITEM_SPECIFIC'}}" class="label">
               {{localize "BABONUS.LABELS.ITEM_SPECIFIC"}}
             </label>
@@ -171,7 +173,7 @@
           <input type="checkbox" title="{{localize 'BABONUS.TITLES.AURA_ENABLED'}}" name="aura.enabled">
         </header>
         <div class="hide-aura">
-          <div class="form-group aura">
+          <div class="form-group">
             <label title="{{localize 'BABONUS.TITLES.AURA_FIELDS'}}" class="label">
               {{localize "BABONUS.LABELS.AURA_FIELDS"}}
             </label>
@@ -186,7 +188,7 @@
               <input type="checkbox" name="aura.self">
             </div>
           </div>
-          <div class="form-group aura">
+          <div class="form-group">
             <label title="{{localize 'BABONUS.TITLES.AURA_BLOCKERS'}}" class="label">
               {{localize "BABONUS.LABELS.AURA_BLOCKERS"}}
             </label>
@@ -204,7 +206,7 @@
         <div class="filters">
 
           <div class="hide-attack-damage-save">
-            <div class="form-group damageTypes">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.DAMAGE_TYPES'}}" class="label">
                 {{localize "BABONUS.LABELS.DAMAGE_TYPES"}}
               </label>
@@ -218,7 +220,7 @@
           </div>
 
           <div class="hide-attack-damage-save">
-            <div class="form-group abilities">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.ABILITIES'}}" class="label">
                 {{localize "BABONUS.LABELS.ABILITIES"}}
               </label>
@@ -231,7 +233,7 @@
             </div>
           </div>
 
-          <div class="form-group arbitraryComparison">
+          <div class="form-group">
             <label class="label" title="{{localize 'BABONUS.TITLES.ARBITRARY_COMPARISON'}}">
               {{localize "BABONUS.LABELS.ARBITRARY_COMPARISON"}}
             </label>
@@ -250,7 +252,7 @@
             </div>
           </div>
 
-          <div class="form-group statusEffects">
+          <div class="form-group">
             <label title="{{localize 'BABONUS.TITLES.ACTOR_CONDITIONS'}}" class="label">
               {{localize "BABONUS.LABELS.ACTOR_CONDITIONS"}}
             </label>
@@ -262,7 +264,7 @@
             </div>
           </div>
 
-          <div class="form-group targetEffects">
+          <div class="form-group">
             <label title="{{localize 'BABONUS.TITLES.TARGET_CONDITIONS'}}" class="label">
               {{localize "BABONUS.LABELS.TARGET_CONDITIONS"}}
             </label>
@@ -276,7 +278,7 @@
 
           <!-- only if 'attack' or 'damage' -->
           <div class="hide-attack-damage">
-            <div class="form-group attackTypes">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.ATTACK_TYPES'}}" class="label">
                 {{localize "BABONUS.LABELS.ATTACK_TYPES"}}
               </label>
@@ -291,7 +293,7 @@
 
           <!-- only if 'save' -->
           <div class="hide-save">
-            <div class="form-group saveAbilities">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.SAVE_ABILITIES'}}" class="label">
                 {{localize "BABONUS.LABELS.SAVE_ABILITIES"}}
               </label>
@@ -306,7 +308,7 @@
 
           <!-- spells only -->
           <div class="hide-spell">
-            <div class="form-group spellComponents">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.SPELL_COMPONENTS'}}" class="label">
                 {{localize "BABONUS.LABELS.COMPONENTS"}}
               </label>
@@ -321,7 +323,7 @@
                 </button>
               </div>
             </div>
-            <div class="form-group spellLevels">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.SPELL_LEVELS'}}" class="label">
                 {{localize "BABONUS.LABELS.SPELL_LEVELS"}}
               </label>
@@ -332,7 +334,7 @@
                 </button>
               </div>
             </div>
-            <div class="form-group spellSchools">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.SPELL_SCHOOLS'}}" class="label">
                 {{localize "BABONUS.LABELS.SPELL_SCHOOLS"}}
               </label>
@@ -347,7 +349,7 @@
 
           <!-- weapons only -->
           <div class="hide-weapon">
-            <div class="form-group baseWeapons">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.WEAPON_TYPES'}}" class="label">
                 {{localize "BABONUS.LABELS.WEAPONS"}}
               </label>
@@ -358,7 +360,7 @@
                 </button>
               </div>
             </div>
-            <div class="form-group weaponProperties">
+            <div class="form-group">
               <label title="{{localize 'BABONUS.TITLES.WEAPON_PROPERTIES'}}" class="label">
                 {{localize "BABONUS.LABELS.PROPERTIES"}}
               </label>

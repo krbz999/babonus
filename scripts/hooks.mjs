@@ -41,10 +41,10 @@ export function _preRollAttack(item, rollConfig) {
   if (!bonuses.length) return;
 
   // add to parts.
-  const attacks = bonuses.map(i => i.bonus).filter(i => i);
-  if (attacks.length) {
-    rollConfig.parts = rollConfig.parts.concat(attacks);
-  }
+  const attacks = bonuses.map(i => i.bonus).filter(i => {
+    return Roll.validate(i);
+  });
+  if (attacks.length) rollConfig.parts.push(...attacks);
 
   // subtract from crit range.
   const ranges = bonuses.map(i => i.criticalRange);
@@ -69,11 +69,10 @@ export function _preRollAttack(item, rollConfig) {
     try {
       let r = Roll.replaceFormulaData(e, rollConfig.data);
       r = Roll.safeEval(r);
-      acc = acc + Number(r);
+      return acc + Number(r);
     } catch {
       return acc;
     }
-    return acc;
   }, rollConfig.fumble ?? 1);
   if (fumble < 1) rollConfig.fumble = null;
   else rollConfig.fumble = Math.clamped(fumble, 1, 20);
@@ -81,32 +80,44 @@ export function _preRollAttack(item, rollConfig) {
 
 export function _preRollDamage(item, rollConfig) {
   // get bonus:
-  const values = FILTER.itemCheck(item, "damage");
+  const bonuses = FILTER.itemCheck(item, "damage");
 
-  // add to rollConfig.
-  for (const { bonus, criticalBonusDice, criticalBonusDamage } of values) {
-    if (bonus?.length) {
-      const parts = rollConfig.parts.concat(bonus);
-      rollConfig.parts = parts;
-    }
-    if (criticalBonusDice?.length) {
-      let totalCBD;
+  // add to parts:
+  const parts = bonuses.map(i => i.bonus).filter(i => {
+    return Roll.validate(i);
+  });
+  if (parts.length) rollConfig.parts.push(...parts);
+
+  // add to crit bonus dice:
+  const critDice = bonuses.map(i => i.criticalBonusDice);
+  if (critDice.length) {
+    const criticalBonusDice = critDice.reduce((acc, e) => {
+      if (!e) return acc;
       try {
-        const formula = Roll.replaceFormulaData(criticalBonusDice, rollConfig.data);
-        totalCBD = Roll.safeEval(formula);
+        let b = Roll.replaceFormulaData(e, rollConfig.data);
+        b = Roll.safeEval(b);
+        return acc + Number(b);
       } catch {
-        totalCBD = 0;
+        return acc;
       }
-      const oldValue = rollConfig.criticalBonusDice ?? 0;
-      rollConfig.criticalBonusDice = oldValue + totalCBD;
-    }
-    if (criticalBonusDamage?.length) {
-      const oldValue = rollConfig.criticalBonusDamage;
-      let totalCBD;
-      if (oldValue) totalCBD = `${oldValue} + ${criticalBonusDamage}`;
-      else totalCBD = criticalBonusDamage;
-      rollConfig.criticalBonusDamage = totalCBD;
-    }
+    }, rollConfig.criticalBonusDice ?? 0);
+    rollConfig.criticalBonusDice = Math.max(criticalBonusDice, 0);
+  }
+
+  // add to crit damage:
+  const critDamage = bonuses.map(i => i.criticalBonusDamage);
+  if (critDamage.length) {
+    const criticalBonusDamage = critDamage.reduce((acc, e) => {
+      if (!e) return acc;
+      try {
+        let f = Roll.replaceFormulaData(e, rollConfig.data);
+        if (!Roll.validate(f)) return acc;
+        return `${acc} + ${f}`;
+      } catch {
+        return acc;
+      }
+    }, rollConfig.criticalBonusDamage);
+    rollConfig.criticalBonusDamage = criticalBonusDamage;
   }
 }
 
@@ -116,7 +127,9 @@ export function _preRollDeathSave(actor, rollConfig) {
   if (!bonuses.length) return;
 
   // add to parts:
-  const parts = bonuses.map(i => i.bonus).filter(i => !!i);
+  const parts = bonuses.map(i => i.bonus).filter(i => {
+    return Roll.validate(i);
+  });
   if (parts.length) rollConfig.parts.push(...parts);
 
   // modify targetValue:
@@ -139,7 +152,9 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   if (!bonuses.length) return;
 
   // add to parts:
-  const parts = bonuses.map(i => i.bonus).filter(i => !!i);
+  const parts = bonuses.map(i => i.bonus).filter(i => {
+    return Roll.validate(i);
+  });
   if (parts.length) rollConfig.parts.push(...parts);
 }
 
@@ -147,6 +162,7 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
   const bonuses = FILTER.hitDieCheck(actor);
   if (!bonuses.length) return;
   const denom = bonuses.reduce((acc, { bonus }) => {
+    if (!Roll.validate(bonus)) return acc;
     return `${acc} + ${bonus}`;
   }, denomination);
   rollConfig.formula = rollConfig.formula.replace(denomination, denom);

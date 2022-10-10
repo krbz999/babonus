@@ -96,8 +96,8 @@
       "ARBITRARY_COMPARISON_OTHER": "other value...",
       "PH_RANGE": "range...",
       "DISPOSITION": {
-        "FRIENDLY": "Friendly Targets",
-        "HOSTILE": "Hostile Targets",
+        "FRIENDLY": "Allied Targets",
+        "HOSTILE": "Enemy Targets",
         "ALL": "All Targets"
       },
       "TARGET": {
