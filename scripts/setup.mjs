@@ -25,7 +25,7 @@ export function _renderActorSheetFlags(app, html) {
   const button = document.createElement("A");
   button.name = "flags.dnd5e.babonus";
   const label = game.i18n.localize("BABONUS.TRAITS.LABEL");
-  button.innerHTML = `<i class="fas fa-atlas"></i> ${label}`;
+  button.innerHTML = `<i class="fa-solid fa-book-atlas"></i> ${label}`;
   input.replaceWith(button);
   button.addEventListener("click", async () => {
     new Build_a_Bonus(app.object, {
@@ -41,7 +41,7 @@ export function _getItemSheetHeaderButtons(app, array) {
 
   const headerButton = {
     class: MODULE,
-    icon: "fas fa-atlas",
+    icon: "fa-solid fa-book-atlas",
     onclick: async () => {
       new Build_a_Bonus(app.object, {
         title: `Build-a-Bonus: ${app.object.name}`
@@ -61,7 +61,7 @@ export function _getActiveEffectConfigHeaderButtons(app, array) {
 
   const headerButton = {
     class: MODULE,
-    icon: "fas fa-atlas",
+    icon: "fa-solid fa-book-atlas",
     onclick: async () => {
       new Build_a_Bonus(app.object, {
         title: `Build-a-Bonus: ${app.object.label}`

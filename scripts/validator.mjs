@@ -17,6 +17,7 @@ export function validateData(formData) {
     weaponProperties
   } = CONFIG.DND5E;
   const statusIds = CONFIG.statusEffects.map(i => i.id);
+  const levels = Array.fromRange(10).map(n => n.toString());
 
   const scsv = [
     [itemsValidForAttackDamageSave, "itemTypes"],
@@ -30,18 +31,12 @@ export function validateData(formData) {
       Object.keys(spellComponents).concat(Object.keys(spellTags)),
       "filters.spellComponents.types"
     ],
-    [Array.fromRange(10).map(n => n.toString()), "filters.spellLevels"],
+    [levels, "filters.spellLevels"],
     [Object.keys(spellSchools), "filters.spellSchools"],
     [statusIds, "filters.statusEffects", false],
     [statusIds, "filters.targetEffects", false],
-    [
-      Object.keys(weaponProperties),
-      "filters.weaponProperties.needed"
-    ],
-    [
-      Object.keys(weaponProperties),
-      "filters.weaponProperties.unfit"
-    ],
+    [Object.keys(weaponProperties),"filters.weaponProperties.needed"],
+    [Object.keys(weaponProperties), "filters.weaponProperties.unfit"],
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],
     [Object.keys(abilities).concat(["death"]), "throwTypes"],

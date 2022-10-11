@@ -192,7 +192,7 @@ export class Build_a_Bonus extends FormApplication {
 
     return new Promise(resolve => {
 
-      apply.icon = "<i class='fas fa-check'></i>";
+      apply.icon = "<i class='fa-solid fa-check'></i>";
       apply.label = game.i18n.localize("BABONUS.KEY.APPLY");
       apply.callback = (html) => {
         const selector = "input[type='checkbox']:checked";
