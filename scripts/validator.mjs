@@ -50,7 +50,6 @@ export function validateData(formData) {
   const dels = [
     "values.criticalBonusDamage",
     "values.criticalBonusDice",
-    "values.criticalBonusDice",
     "values.bonus",
     "values.criticalRange",
     "values.fumbleRange",
@@ -89,7 +88,7 @@ export function validateData(formData) {
     delete formData[b];
     delete formData[c];
   }
-  
+
   // itemRequirements:
   // ... no attention needed.
 }

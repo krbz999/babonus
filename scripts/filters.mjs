@@ -10,13 +10,13 @@ import {
  * An example bonus, as it would be
  * stored on an actor, effect, or item.
  * Includes all fields.
- * 
+ *
   flags.babonus.bonuses.<damage/attack/save/throw/hitdie>: {
     <identifier>: {
       enabled: true,
       aura: {
         enabled: true,  // whether this is an aura.
-        range: 60,      // the range ofthe aura (in ft)
+        range: 60,      // the range of the aura (in ft)
         self: false,    // whether the aura affects the owner, too
         disposition: 1  // or -1 for non-allies. What token actors within range to affect.
         blockers: ["dead", "unconscious"] // array of conditions that stop auras from being transferred.
@@ -29,6 +29,9 @@ import {
         bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
         criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
         criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
+        deathSaveTargetValue: "12",         // strings that evaluate to numbers only (including rollData), 'throw' only, and if 'death' in throwTypes
+        criticalRange: "1",                 // a value (can be roll data) that lowers the crit range. 'attack' only.
+        fumbleRange: "3"                    // a value (can be roll data) that raises the fumble range. 'attack' only.
       },
       itemRequirements: { // for bonuses stored on items only.
         equipped: true,
@@ -136,7 +139,7 @@ export class FILTER {
   /**
    * Find out if the item's type is one of the valid ones in the filter.
    * This filter is required, so if the filter is empty, it returns false.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of item type keys.
    * @returns {Boolean}       Whether the item's type was in the filter.
@@ -149,7 +152,7 @@ export class FILTER {
 
   /**
    * Find out if the item's base weapon type is one of the valid ones in the filter.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of weapon baseItem keys.
    * @returns {Boolean}       Whether the item's baseItem was in the filter.
@@ -163,7 +166,7 @@ export class FILTER {
 
   /**
    * Find out if the item has any of the filter's damage types in its damage.parts.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of damage types.
    * @returns {Boolean}       Whether the item's damage types overlap with the filter.
@@ -179,7 +182,7 @@ export class FILTER {
 
   /**
    * Find out if the item is a spell and belongs to one of the filter's spell schools.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of spell schools.
    * @returns {Boolean}       Whether the item is a spell and is of one of these schools.
@@ -196,7 +199,7 @@ export class FILTER {
    * finesse weapons and spellcasting abilities.
    * Note that this is the ability set at the top level of the item's action,
    * and is NOT the ability used to determine the saving throw DC.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of abilities.
    * @returns {Boolean}       Whether item is using one of the abilities.
@@ -244,7 +247,7 @@ export class FILTER {
       /**
        * If the action type is a melee or ranged spell attack, or a saving throw,
        * then bonuses applying to the actor's spellcasting ability should apply.
-       * 
+       *
        * Unless explicitly set to something different, the ability for a saving throw
        * is always the spellcasting ability, no matter the item type.
        */
@@ -259,7 +262,7 @@ export class FILTER {
   /**
    * Find out if the item is a spell and has any, or all, of the required spell components.
    * The item must match either ALL or at least one, depending on what is set.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} types     The array of spell components in the filter.
    * @param {String} match    The type of matching, either ALL or ANY.
@@ -293,7 +296,7 @@ export class FILTER {
    * Find out if the item was cast at any of the required spell levels.
    * If a spell is upcast, the item is the cloned spell, so the level of the item
    * is always the level at which it was cast.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of spell levels in the filter.
    * @returns {Boolean}       Whether the item is of one of the appropriate levels.
@@ -307,7 +310,7 @@ export class FILTER {
 
   /**
    * Find out if the item's action type is set to any of the required types.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of attack types.
    * @returns {Boolean}       Whether the item has any of the required attack types.
@@ -322,7 +325,7 @@ export class FILTER {
   /**
    * Find out if the item has any of the needed weapon properties, while having none
    * of the unfit properties. Such as only magical weapons that are not two-handed.
-   * 
+   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} needed    The weapon properties that the item must have at least one of.
    * @param {Array} unfit     The weapon properties that the item must have none of.
@@ -351,7 +354,7 @@ export class FILTER {
    * Find out if the saving throw in the item is set using an ability in the filter.
    * This filter is only available for bonuses applying specifically to saving throw DCs.
    * Special consideration is made for items with save DC set using spellcasting ability.
-   * 
+   *
    * @param {Item5e} item     The item being filterd against.
    * @param {Array} filter    The ability that is used to set the DC of the item's saving throw.
    * @returns {Boolean}       Whether the item's saving throw is set using an ability in the filter.
@@ -375,9 +378,9 @@ export class FILTER {
    * Return whether ONE and OTHER have the correct relation.
    * If the two values do not evaluate to numbers, string comparison
    * will be used instead. Here 'less than' and 'less than or equal'
-   * will mean 'is a substring'. String comparison happens after 
+   * will mean 'is a substring'. String comparison happens after
    * replacing any rollData attributes.
-   * 
+   *
    * @param {Item5e|Actor5e} object   The item or actor being filtered against.
    * @param {String} one              The left-side value from the BAB.
    * @param {String} other            The right-side value from the BAB.
@@ -419,7 +422,7 @@ export class FILTER {
   /**
    * Find out if the actor has any of the status conditions required.
    * The bonus will apply if the actor has at least one.
-   * 
+   *
    * @param {Item5e|Actor5e} object The item or actor being filtered against.
    * @param {Array} filter          The array of effect status ids.
    * @returns {Boolean}             Whether the actor has any of the status effects.
@@ -439,7 +442,7 @@ export class FILTER {
   /**
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
-   * 
+   *
    * @param {Item5e|Actor5e} object The item or actor. Not relevant in this case.
    * @param {Array} filter          The array of effect status ids.
    * @returns {Boolean}             Whether the target actor has any of the status effects.
@@ -460,7 +463,7 @@ export class FILTER {
   /**
    * Find out if the bonus should apply to this type of saving throw.
    * This filter is required, so an empty filter returns false.
-   * 
+   *
    * @param {Actor5e} actor     The actor making the saving throw.
    * @param {Array}   filter    The array of saving throw types to check for.
    * @param {String}  throwType The id of the ability, can be 'death'.
