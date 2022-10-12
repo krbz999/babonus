@@ -1,5 +1,5 @@
 import { auraTargets, MODULE } from "./constants.mjs";
-import { getActorEffectBonuses, getActorItemBonuses } from "./helpers.mjs";
+import { getActorEffectBonuses, getActorItemBonuses, getMinimumDistanceBetweenTokens } from "./helpers.mjs";
 
 /**
  * Gets the auras that applies to a token using their disposition,
@@ -205,6 +205,5 @@ function _filterAurasByRange(me, you, auras) {
  * @returns {Number}  An integer.
  */
 function _measureDistance(me, you) {
-  const options = { gridSpaces: true };
-  return canvas.grid.measureDistance(me.object, you.object, options);
+  return getMinimumDistanceBetweenTokens(me.object, you.object);
 }

@@ -1,5 +1,5 @@
 import { MODULE } from "./constants.mjs";
-import { getTokenFromActor } from "./helpers.mjs";
+import { getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers.mjs";
 
 export function _createAPI() {
   game.modules.get(MODULE).api = {
@@ -146,9 +146,7 @@ function findTokensInRangeOfAura(object, id) {
   }
   return canvas.scene.tokens.filter(t => {
     if (t === tokenDoc) return false;
-    const distance = canvas.grid.measureDistance(t, tokenDoc, {
-      gridSpaces: true
-    });
+    const distance = getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
     return aura.range >= distance;
   });
 }

@@ -291,3 +291,41 @@ export function getTokenFromActor(actor) {
   if (!token) return false;
   return token.document;
 }
+
+/**
+ * Gets the minimum distance between two tokens,
+ * evaluating all grid spaces they occupy.
+ */
+export function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
+  const A = getAllTokenGridSpaces(tokenA);
+  const B = getAllTokenGridSpaces(tokenB);
+  const rays = A.flatMap(a => {
+    return B.map(b => {
+      return { ray: new Ray(a, b) };
+    });
+  });
+  const dist = canvas.scene.grid.distance; // 5ft.
+  const distances = canvas.grid.measureDistances(rays, {
+    gridSpaces: false
+  }).map(d => Math.round(d / dist) * dist);
+  return Math.min(...distances);
+}
+
+/**
+ * Get the upper left corners of all grid spaces a token occupies.
+ */
+function getAllTokenGridSpaces(token) {
+  const { width, height, x, y } = token.document;
+  if (width <= 1 && height <= 1) return [{ x, y }];
+  const centers = [];
+  const grid = canvas.grid.size;
+  for (let a = 0; a < width; a++) {
+    for (let b = 0; b < height; b++) {
+      centers.push({
+        x: x + a * grid,
+        y: y + b * grid
+      });
+    }
+  }
+  return centers;
+}
