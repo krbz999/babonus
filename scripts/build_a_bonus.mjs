@@ -25,7 +25,7 @@ export class Build_a_Bonus extends FormApplication {
     return `${MODULE}-build-a-bonus-${this.object.id}`;
   }
 
-  get isEditable(){
+  get isEditable() {
     return this.object.sheet.isEditable;
   }
 

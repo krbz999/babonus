@@ -35,7 +35,7 @@ export function validateData(formData) {
     [Object.keys(spellSchools), "filters.spellSchools"],
     [statusIds, "filters.statusEffects", false],
     [statusIds, "filters.targetEffects", false],
-    [Object.keys(weaponProperties),"filters.weaponProperties.needed"],
+    [Object.keys(weaponProperties), "filters.weaponProperties.needed"],
     [Object.keys(weaponProperties), "filters.weaponProperties.unfit"],
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],

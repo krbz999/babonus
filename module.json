@@ -13,7 +13,7 @@
   "compatibility": {
     "minimum": "10",
     "maximum": "10",
-    "verified": "10.287"
+    "verified": "10.288"
   },
   "esmodules": [
     "setup.js"
