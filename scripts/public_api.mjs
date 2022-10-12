@@ -27,7 +27,7 @@ function getBonusIds(object) {
 
 /**
  * Returns the bonus with the given id.
- * Returned in the form of [targetType, [id, values]].
+ * Returned in the form of [targetType, id, values].
  */
 function findBonus(object, id) {
   const flag = object.getFlag(MODULE, "bonuses");
@@ -89,12 +89,12 @@ async function moveBonus(original, other, id) {
  * Toggle the bonus with the given id on the document.
  * Returns null if the bonus was not found.
  */
-async function toggleBonus(object, id, state) {
+async function toggleBonus(object, id, state = null) {
   const bonus = findBonus(object, id);
   if (!bonus) return null;
   const [type, identifier, { enabled }] = bonus;
   const key = `bonuses.${type}.${identifier}.enabled`;
-  if (state) return object.setFlag(MODULE, key, !!state);
+  if (state !== null) return object.setFlag(MODULE, key, !!state);
   const r = await object.setFlag(MODULE, key, !enabled);
   _rerenderApp(object);
   return r;
