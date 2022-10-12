@@ -20,7 +20,6 @@ export function _setup() {
 }
 
 export function _renderActorSheetFlags(app, html) {
-  if (!app.isEditable) return;
   const input = html[0].querySelector("input[name='flags.dnd5e.babonus']");
   const button = document.createElement("A");
   button.name = "flags.dnd5e.babonus";
@@ -36,7 +35,6 @@ export function _renderActorSheetFlags(app, html) {
 
 export function _getItemSheetHeaderButtons(app, array) {
   if (itemsWithoutBonuses.includes(app.object.type)) return;
-  if (!app.isEditable) return;
   const label = game.settings.get(MODULE, "headerLabel");
 
   const headerButton = {
@@ -56,7 +54,6 @@ export function _getItemSheetHeaderButtons(app, array) {
 }
 
 export function _getActiveEffectConfigHeaderButtons(app, array) {
-  if (!app.isEditable) return;
   const label = game.settings.get(MODULE, "headerLabel");
 
   const headerButton = {

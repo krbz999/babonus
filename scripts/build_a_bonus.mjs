@@ -25,6 +25,10 @@ export class Build_a_Bonus extends FormApplication {
     return `${MODULE}-build-a-bonus-${this.object.id}`;
   }
 
+  get isEditable(){
+    return this.object.sheet.isEditable;
+  }
+
   async getData() {
     const data = await super.getData();
 
@@ -392,6 +396,9 @@ export class Build_a_Bonus extends FormApplication {
     if (!force) this.saveScrollPosition();
     await super._render(force, options);
     this.setScrollPosition();
+    if (!this.isEditable) {
+      this.element[0].querySelector("form").classList.add("locked");
+    }
   }
 
   close(...T) {

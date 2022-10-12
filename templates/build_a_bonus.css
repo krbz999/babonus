@@ -154,6 +154,10 @@ form.babonus .current .details a {
   padding: 3px;
 }
 
+form.babonus.locked .current .details a {
+  pointer-events: none;
+}
+
 form.babonus:not(.weapon) .hide-weapon,
 form.babonus:not(.spell) .hide-spell,
 form.babonus:not(.aura) .hide-aura,
