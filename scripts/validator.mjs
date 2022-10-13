@@ -19,6 +19,11 @@ export function validateData(formData) {
   const statusIds = CONFIG.statusEffects.map(i => i.id);
   const levels = Array.fromRange(10).map(n => n.toString());
 
+  const throwTypes = Object.keys(abilities).concat("death");
+  if (game.modules.get("concentrationnotifier")?.active) {
+    throwTypes.push("concentration");
+  }
+
   const scsv = [
     [itemsValidForAttackDamageSave, "itemTypes"],
     [Object.keys(abilities), "filters.abilities"],
@@ -39,7 +44,7 @@ export function validateData(formData) {
     [Object.keys(weaponProperties), "filters.weaponProperties.unfit"],
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],
-    [Object.keys(abilities).concat(["death"]), "throwTypes"],
+    [throwTypes, "throwTypes"],
     [statusIds, "aura.blockers", false]
   ];
   for (const [values, property, validate] of scsv) {

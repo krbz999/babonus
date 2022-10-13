@@ -117,13 +117,16 @@ export class FILTER {
     return finalFilterBonuses(bonuses, actor, "misc");
   }
 
-  // saving throws
-  static throwCheck(actor, abilityId) {
+  // saving throws (isConcSave for CN compatibility)
+  static throwCheck(actor, abilityId, { isConcSave }) {
     let bonuses = getAllOwnBonuses(actor, "throw");
     const t = getTokenFromActor(actor);
     if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, "throw"));
     if (!bonuses.length) return [];
-    return finalFilterBonuses(bonuses, actor, "throw", { throwType: abilityId });
+    return finalFilterBonuses(bonuses, actor, "throw", {
+      throwType: abilityId,
+      isConcSave
+    });
   }
 
 
@@ -464,14 +467,15 @@ export class FILTER {
    * Find out if the bonus should apply to this type of saving throw.
    * This filter is required, so an empty filter returns false.
    *
-   * @param {Actor5e} actor     The actor making the saving throw.
-   * @param {Array}   filter    The array of saving throw types to check for.
-   * @param {String}  throwType The id of the ability, can be 'death'.
-   * @returns {Boolean}         Whether the throw type is in the filter.
+   * @param {Actor5e} actor         The actor making the saving throw.
+   * @param {Array}   filter        The array of saving throw types to check for.
+   * @param {String}  throwType     The id of the ability, can be 'death'.
+   * @param {Booolean}  isConcSave  Whether the saving throw is a conc save.
+   * @returns {Boolean} Whether the throw type is in the filter.
    */
-  static throwTypes(actor, filter, { throwType }) {
+  static throwTypes(actor, filter, { throwType, isConcSave }) {
     if (!filter?.length) return false;
     if (!throwType) return false;
-    return filter.includes(throwType);
+    return filter.includes(throwType) || (filter.includes("concentration") && isConcSave);
   }
 }

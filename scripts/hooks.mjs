@@ -148,7 +148,9 @@ export function _preRollDeathSave(actor, rollConfig) {
 
 export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   // get bonus:
-  const bonuses = FILTER.throwCheck(actor, abilityId);
+  const bonuses = FILTER.throwCheck(actor, abilityId, {
+    isConcSave: rollConfig.isConcSave
+  });
   if (!bonuses.length) return;
 
   // add to parts:

@@ -102,6 +102,13 @@ export class KeyGetter {
       value: "death",
       label: game.i18n.localize("DND5E.DeathSave")
     });
+    // CN compatibility.
+    if (game.modules.get("concentrationnotifier")?.active) {
+      abl.push({
+        value: "concentration",
+        label: game.i18n.localize("CN.CONCENTRATION")
+      })
+    }
     return abl;
   }
 
