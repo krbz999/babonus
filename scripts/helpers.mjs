@@ -315,7 +315,9 @@ export function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   const distances = canvas.grid.measureDistances(rays, {
     gridSpaces: false
   }).map(d => Math.round(d / dist) * dist);
-  return Math.min(...distances);
+  const eles = [tokenA, tokenB].map(t => t.document.elevation);
+  const elevationDiff = Math.abs(eles[0] - eles[1]);
+  return Math.max(Math.min(...distances), elevationDiff);
 }
 
 /**
