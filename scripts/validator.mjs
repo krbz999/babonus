@@ -153,10 +153,9 @@ export function dataHasAllRequirements(formData, object, editMode = false) {
 
   // is the id unique?
   if (!editMode) {
-    const t = dupe.target;
-    const i = dupe.identifier;
-    const flag = object.getFlag(MODULE, `bonuses.${t}.${i}`);
-    if (flag) {
+    const api = game.modules.get(MODULE).api;
+    const hasBonus = !!api.findBonus(object, dupe.identifier);
+    if (hasBonus) {
       return { valid: false, error: "DUPLICATE_ID" };
     }
   }
