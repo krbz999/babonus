@@ -38,7 +38,7 @@ export function getBonuses(doc) {
         enabled: val.enabled
       };
     });
-    acc = acc.concat(map);
+    acc.push(...map);
     return acc;
   }, []).sort((a, b) => {
     return a.label.localeCompare(b.label);
@@ -216,7 +216,7 @@ export function getAllOwnBonuses(actor, hookType) {
  */
 export function getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
-  let boni = [];
+  const boni = [];
 
   for (const item of actor.items) {
     const flag = item.getFlag(MODULE, `bonuses.${hookType}`);
@@ -242,7 +242,7 @@ export function getActorItemBonuses(actor, hookType) {
       }
       return b;
     });
-    boni = boni.concat(bonuses);
+    boni.push(...bonuses);
   }
   return boni;
 }

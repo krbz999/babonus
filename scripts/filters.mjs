@@ -110,18 +110,18 @@ export class FILTER {
 
   // hitdie rolls
   static hitDieCheck(actor) {
-    let bonuses = getAllOwnBonuses(actor, "hitdie");
+    const bonuses = getAllOwnBonuses(actor, "hitdie");
     const t = getTokenFromActor(actor);
-    if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, "hitdie"));
+    if (t) bonuses.push(...getAurasThatApplyToMe(t, "hitdie"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "misc");
   }
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, abilityId, { isConcSave }) {
-    let bonuses = getAllOwnBonuses(actor, "throw");
+    const bonuses = getAllOwnBonuses(actor, "throw");
     const t = getTokenFromActor(actor);
-    if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, "throw"));
+    if (t) bonuses.push(...getAurasThatApplyToMe(t, "throw"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "throw", {
       throwType: abilityId,
@@ -132,9 +132,9 @@ export class FILTER {
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
-    let bonuses = getAllOwnBonuses(item.parent, hookType);
+    const bonuses = getAllOwnBonuses(item.parent, hookType);
     const t = getTokenFromActor(item.parent);
-    if (t) bonuses = bonuses.concat(getAurasThatApplyToMe(t, hookType));
+    if (t) bonuses.push(...getAurasThatApplyToMe(t, hookType));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, item, "item");
   }
@@ -390,27 +390,24 @@ export class FILTER {
    * @param {String} operator         The relation that the two values should have.
    */
   static arbitraryComparison(object, { one, other, operator }) {
-    /**
-     * This method immediately returns false
-     */
+    // This method immediately returns false if invalid data somehow.
     if (!one || !other) return false;
 
     const rollData = object.getRollData();
-    let left = Roll.replaceFormulaData(one, rollData);
-    let right = Roll.replaceFormulaData(other, rollData);
+    const left = Roll.replaceFormulaData(one, rollData);
+    const right = Roll.replaceFormulaData(other, rollData);
 
     try {
       // try comparing numbers.
-      let nLeft = Roll.safeEval(left);
-      let nRight = Roll.safeEval(right);
+      const nLeft = Roll.safeEval(left);
+      const nRight = Roll.safeEval(right);
       if (operator === "EQ") return nLeft === nRight;
       if (operator === "LT") return nLeft < nRight;
       if (operator === "GT") return nLeft > nRight;
       if (operator === "LE") return nLeft <= nRight;
       if (operator === "GE") return nLeft >= nRight;
       return false;
-    }
-    catch {
+    } catch {
       // try comparing strings.
       if (operator === "EQ") return left == right;
       if (["LT", "LE"].includes(operator)) {
@@ -433,13 +430,12 @@ export class FILTER {
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
     const obj = object.parent ?? object;
-    const conditions = filter.some(id => {
+    return filter.some(id => {
       return !!obj.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
         return eff.getFlag("core", "statusId") === id;
       });
     });
-    return conditions;
   }
 
   /**
@@ -454,13 +450,12 @@ export class FILTER {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
     if (!target) return false;
-    const conditions = filter.some(id => {
+    return filter.some(id => {
       return target.actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
         return eff.getFlag("core", "statusId") === id;
       });
     });
-    return conditions;
   }
 
   /**
@@ -470,7 +465,7 @@ export class FILTER {
    * @param {Actor5e} actor         The actor making the saving throw.
    * @param {Array}   filter        The array of saving throw types to check for.
    * @param {String}  throwType     The id of the ability, can be 'death'.
-   * @param {Booolean}  isConcSave  Whether the saving throw is a conc save.
+   * @param {Booolean}  isConcSave  Whether the saving throw is a conc save (if CN enabled).
    * @returns {Boolean} Whether the throw type is in the filter.
    */
   static throwTypes(actor, filter, { throwType, isConcSave }) {

@@ -233,8 +233,7 @@ export class Build_a_Bonus extends FormApplication {
       "blockers"
     ].includes(type)) return ids;
 
-    const validIds = ids.filter(i => values.includes(i));
-    return validIds;
+    return ids.filter(i => values.includes(i));
   }
 
   // method to take html, gather the inputs, and either update an existing bonus or create a new one.
@@ -312,7 +311,7 @@ export class Build_a_Bonus extends FormApplication {
     }
     formData.target = id.split(".")[0];
 
-    // turn arrays into strings.
+    // turn arrays into strings and tick all boxes.
     for (const key in formData) {
       if (formData[key] instanceof Array) {
         formData[key] = formData[key].join(";");

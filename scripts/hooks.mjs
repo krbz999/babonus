@@ -10,11 +10,10 @@ export function _preDisplayCard(item, chatData) {
     try {
       const formula = Roll.replaceFormulaData(bonus, data);
       const total = Roll.safeEval(formula);
-      return acc + total;
+      acc = acc + total;
     }
-    catch {
-      return acc;
-    }
+    catch { }
+    return acc;
   }, 0);
 
   // get all buttons.
@@ -54,9 +53,7 @@ export function _preRollAttack(item, rollConfig) {
       let r = Roll.replaceFormulaData(e, rollConfig.data);
       r = Roll.safeEval(r);
       acc = acc - Number(r);
-    } catch {
-      return acc;
-    }
+    } catch { }
     return acc;
   }, rollConfig.critical);
   if (range > 20) rollConfig.critical = null;
@@ -69,10 +66,9 @@ export function _preRollAttack(item, rollConfig) {
     try {
       let r = Roll.replaceFormulaData(e, rollConfig.data);
       r = Roll.safeEval(r);
-      return acc + Number(r);
-    } catch {
-      return acc;
-    }
+      acc = acc + Number(r);
+    } catch { }
+    return acc;
   }, rollConfig.fumble ?? 1);
   if (fumble < 1) rollConfig.fumble = null;
   else rollConfig.fumble = Math.clamped(fumble, 1, 20);
@@ -96,10 +92,9 @@ export function _preRollDamage(item, rollConfig) {
       try {
         let b = Roll.replaceFormulaData(e, rollConfig.data);
         b = Roll.safeEval(b);
-        return acc + Number(b);
-      } catch {
-        return acc;
-      }
+        acc = acc + Number(b);
+      } catch { }
+      return acc;
     }, rollConfig.criticalBonusDice ?? 0);
     rollConfig.criticalBonusDice = Math.max(criticalBonusDice, 0);
   }
@@ -110,7 +105,7 @@ export function _preRollDamage(item, rollConfig) {
     const criticalBonusDamage = critDamage.reduce((acc, e) => {
       if (!e) return acc;
       try {
-        let f = Roll.replaceFormulaData(e, rollConfig.data);
+        const f = Roll.replaceFormulaData(e, rollConfig.data);
         if (!Roll.validate(f)) return acc;
         return `${acc} + ${f}`;
       } catch {
@@ -138,10 +133,9 @@ export function _preRollDeathSave(actor, rollConfig) {
     try {
       let d = Roll.replaceFormulaData(deathSaveTargetValue, rollConfig.data);
       d = Roll.safeEval(d);
-      return acc - Number(d);
-    } catch {
-      return acc;
-    }
+      acc = acc - Number(d);
+    } catch { }
+    return acc;
   }, rollConfig.targetValue ?? 10);
   rollConfig.targetValue = Math.clamped(targetValue, 2, 19);
 }
