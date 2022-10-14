@@ -24,13 +24,18 @@ export function getAurasThatApplyToMe(tokenDoc, hookType) {
   if (me === HOSTILE) {
     auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, f, hookType));
     auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, h, hookType));
+    const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, theRest, a, hookType));
   } else if (me === FRIENDLY) {
     auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, h, hookType));
     auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, f, hookType));
+    const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, theRest, a, hookType));
   } else if (me === NEUTRAL) {
     auras = auras.concat(getAurasByDisposition(tokenDoc, neutrals, f, hookType));
+    auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles.concat(friendlies), a, hookType));
   }
-  auras = auras.concat(getAurasByDisposition(tokenDoc, they, a, hookType));
+  //auras = auras.concat(getAurasByDisposition(tokenDoc, they, a, hookType));
   return auras;
 }
 
@@ -95,7 +100,7 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   if (!e) return false;
 
   // target is correct.
-  const d = disp === aura.disposition;
+  const d = (disp === aura.disposition) || (aura.disposition === auraTargets.ALL);
   if (!d) return false;
 
   // get blockers
