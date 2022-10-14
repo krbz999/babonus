@@ -67,7 +67,7 @@
       "CRIT_BONUS_DAMAGE": "Additional parts to add on top of the damage roll on critical hits.",
       "THROW_BONUS": "Additional parts to add on top of the saving throw.",
       "HITDIE_BONUS": "Additional parts to add on top of the hit die roll.",
-      "ARBITRARY_COMPARISON": "Insert numbers or rollData properties that must be in this relationship for the bonus to apply.",
+      "ARBITRARY_COMPARISON": "Insert numbers, rollData properties, or strings that must be in this relationship for the bonus to apply. Can evaluate substrings.",
       "ITEM_SPECIFIC": "Whether the bonus from this item should require being equipped or attuned to apply to the actor.",
       "THROW_TYPES": "The type of saving throw the bonus should apply to.",
       "DEATH_SAVE_TARGET_VALUE": "An integer to lower the minimum requirement to pass a death saving throw.",

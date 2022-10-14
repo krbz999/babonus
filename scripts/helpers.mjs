@@ -148,15 +148,13 @@ export class KeyGetter {
   // all status effects.
   static get statusEffects() {
     const effects = CONFIG.statusEffects;
-    const ids = effects.reduce((acc, { id }) => {
-      if (id) acc.push(id);
+    return effects.reduce((acc, { id, icon }) => {
+      if (!id) return acc;
+      acc.push({ value: id, label: id, icon })
       return acc;
-    }, []).map((id) => {
-      return { value: id, label: id };
-    }).sort((a, b) => {
+    }, []).sort((a, b) => {
       return a.value.localeCompare(b.value);
     });
-    return ids;
   }
   static get targetEffects() {
     return this.statusEffects;
