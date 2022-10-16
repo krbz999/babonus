@@ -8,9 +8,9 @@ export function _preDisplayCard(item, chatData) {
   const data = item.getRollData();
   const totalBonus = bonuses.reduce((acc, { bonus }) => {
     try {
-      const formula = Roll.replaceFormulaData(bonus, data);
-      const total = Roll.safeEval(formula);
-      acc = acc + total;
+      const r = Roll.replaceFormulaData(bonus, data);
+      const s = Roll.safeEval(r);
+      acc = acc + s;
     }
     catch { }
     return acc;
@@ -20,63 +20,68 @@ export function _preDisplayCard(item, chatData) {
   const html = chatData.content;
   const temp = document.createElement("DIV");
   temp.innerHTML = html;
-  const saveButtons = temp.querySelectorAll("button[data-action='save']");
+  const selector = "button[data-action='save']";
+  const saveButtons = temp.querySelectorAll(selector);
 
   // create label (innertext)
   const save = item.system.save;
   const ability = CONFIG.DND5E.abilities[save.ability] ?? "";
   const savingThrow = game.i18n.localize("DND5E.ActionSave");
-  const dc = save.dc + totalBonus || "";
+  const dc = Math.max(1, save.dc + totalBonus) || "";
   chatData.flags[MODULE] = { saveDC: dc };
   const label = game.i18n.format("DND5E.SaveDC", { dc, ability });
 
-  for (const btn of saveButtons) btn.innerText = `${savingThrow} ${label}`;
+  for (const btn of saveButtons) {
+    btn.innerText = `${savingThrow} ${label}`;
+  }
   chatData.content = temp.innerHTML;
 }
 
 export function _preRollAttack(item, rollConfig) {
-  // get bonus:
+  // get bonuses:
   const bonuses = FILTER.itemCheck(item, "attack");
   if (!bonuses.length) return;
+  const data = rollConfig.data;
 
   // add to parts.
-  const attacks = bonuses.map(i => i.bonus).filter(i => {
-    return !!i && Roll.validate(i);
-  });
-  if (attacks.length) rollConfig.parts.push(...attacks);
+  bonuses.reduce((acc, i) => {
+    if (!i.bonus) return acc;
+    if (Roll.validate(i.bonus)) acc.push(i.bonus);
+    return acc;
+  }, rollConfig.parts);
 
   // subtract from crit range.
-  const ranges = bonuses.map(i => i.criticalRange);
-  const range = ranges.reduce((acc, e) => {
-    if (!e) return acc;
+  rollConfig.critical = bonuses.reduce((acc, i) => {
+    if (!i.criticalRange) return acc;
     try {
-      let r = Roll.replaceFormulaData(e, rollConfig.data);
-      r = Roll.safeEval(r);
-      acc = acc - Number(r);
+      const r = Roll.replaceFormulaData(i.criticalRange, data);
+      const s = Roll.safeEval(r);
+      acc = acc - Number(s);
     } catch { }
     return acc;
-  }, rollConfig.critical);
-  if (range > 20) rollConfig.critical = null;
-  else rollConfig.critical = Math.clamped(range, 1, 20);
+  }, rollConfig.critical ?? 20);
+  if (rollConfig.critical > 20) rollConfig.critical = null;
+  else rollConfig.critical = Math.clamped(rollConfig.critical, 1, 20);
 
   // add to fumble range.
-  const fumbles = bonuses.map(i => i.fumbleRange);
-  const fumble = fumbles.reduce((acc, e) => {
-    if (!e) return acc;
+  rollConfig.fumble = bonuses.reduce((acc, i) => {
+    if (!i.fumbleRange) return acc;
     try {
-      let r = Roll.replaceFormulaData(e, rollConfig.data);
-      r = Roll.safeEval(r);
-      acc = acc + Number(r);
+      const r = Roll.replaceFormulaData(i.fumbleRange, data);
+      const s = Roll.safeEval(r);
+      acc = acc + Number(s);
     } catch { }
     return acc;
   }, rollConfig.fumble ?? 1);
-  if (fumble < 1) rollConfig.fumble = null;
-  else rollConfig.fumble = Math.clamped(fumble, 1, 20);
+  if (rollConfig.fumble < 1) rollConfig.fumble = null;
+  else rollConfig.fumble = Math.clamped(rollConfig.fumble, 1, 20);
 }
 
 export function _preRollDamage(item, rollConfig) {
   // get bonus:
   const bonuses = FILTER.itemCheck(item, "damage");
+  if (!bonuses.length) return;
+  const data = rollConfig.data;
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
@@ -87,12 +92,12 @@ export function _preRollDamage(item, rollConfig) {
   // add to crit bonus dice:
   const critDice = bonuses.map(i => i.criticalBonusDice);
   if (critDice.length) {
-    const criticalBonusDice = critDice.reduce((acc, e) => {
-      if (!e) return acc;
+    const criticalBonusDice = critDice.reduce((acc, i) => {
+      if (!i) return acc;
       try {
-        let b = Roll.replaceFormulaData(e, rollConfig.data);
-        b = Roll.safeEval(b);
-        acc = acc + Number(b);
+        const r = Roll.replaceFormulaData(i, data);
+        const s = Roll.safeEval(r);
+        acc = acc + Number(s);
       } catch { }
       return acc;
     }, rollConfig.criticalBonusDice ?? 0);
@@ -102,24 +107,25 @@ export function _preRollDamage(item, rollConfig) {
   // add to crit damage:
   const critDamage = bonuses.map(i => i.criticalBonusDamage);
   if (critDamage.length) {
-    const criticalBonusDamage = critDamage.reduce((acc, e) => {
-      if (!e) return acc;
+    const criticalBonusDamage = critDamage.reduce((acc, i) => {
+      if (!i) return acc;
       try {
-        const f = Roll.replaceFormulaData(e, rollConfig.data);
-        if (!Roll.validate(f)) return acc;
-        return `${acc} + ${f}`;
+        const r = Roll.replaceFormulaData(i, data);
+        if (!Roll.validate(r)) return acc;
+        return `${acc} + ${r}`;
       } catch {
         return acc;
       }
-    }, rollConfig.criticalBonusDamage);
+    }, rollConfig.criticalBonusDamage ?? "");
     rollConfig.criticalBonusDamage = criticalBonusDamage;
   }
 }
 
 export function _preRollDeathSave(actor, rollConfig) {
   // get bonus:
-  const bonuses = FILTER.throwCheck(actor, "death");
+  const bonuses = FILTER.throwCheck(actor, "death", {});
   if (!bonuses.length) return;
+  const data = rollConfig.data;
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
@@ -131,9 +137,9 @@ export function _preRollDeathSave(actor, rollConfig) {
   const targetValue = bonuses.reduce((acc, { deathSaveTargetValue }) => {
     if (!deathSaveTargetValue) return acc;
     try {
-      let d = Roll.replaceFormulaData(deathSaveTargetValue, rollConfig.data);
-      d = Roll.safeEval(d);
-      acc = acc - Number(d);
+      const r = Roll.replaceFormulaData(deathSaveTargetValue, data);
+      const s = Roll.safeEval(r);
+      acc = acc - Number(s);
     } catch { }
     return acc;
   }, rollConfig.targetValue ?? 10);
