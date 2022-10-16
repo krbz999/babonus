@@ -17,7 +17,8 @@ export class Build_a_Bonus extends FormApplication {
       width: 900,
       height: "auto",
       template: `/modules/${MODULE}/templates/build_a_bonus.html`,
-      classes: [MODULE]
+      classes: [MODULE],
+      scrollY: [".current .bonuses"]
     });
   }
 
@@ -391,37 +392,18 @@ export class Build_a_Bonus extends FormApplication {
     }
   }
 
-  async _render(force, options) {
-    if (!force) this.saveScrollPosition();
-    await super._render(force, options);
-    this.setScrollPosition();
-    if (!this.isEditable) {
-      this.element[0].querySelector("form").classList.add("locked");
-    }
+  _saveScrollPositions(html) {
+    super._saveScrollPositions(html);
+    const selector = ".current .bonuses .bonus.collapsed";
+    const scrolls = html[0].querySelectorAll(selector);
+    this._collapsedBonuses = [...scrolls].map(c => c.dataset.id);
   }
 
-  close(...T) {
-    this.saveScrollPosition();
-    super.close(...T);
-  }
-
-  // save scroll position and collapsed elements.
-  saveScrollPosition() {
-    const el = this.element[0];
-    const top = el.querySelector(".current .bonuses").scrollTop;
-    const collapsed = el.querySelectorAll(".current .bonuses .bonus.collapsed");
-    const ids = Array.from(collapsed).map(c => c.dataset.id);
-    this.object.sheet[MODULE] = { top, collapsed: ids };
-  }
-
-  // set scroll position and collapsed elements.
-  setScrollPosition() {
-    const el = this.element[0];
-    const { top = 0, collapsed = [] } = this.object.sheet[MODULE] ?? {};
-    collapsed.map(id => {
-      const bonus = el.querySelector(`.bonuses .bonus[data-id='${id}']`);
-      if (bonus) bonus.classList.add("collapsed", "instant");
+  _restoreScrollPositions(html) {
+    super._restoreScrollPositions(html);
+    this._collapsedBonuses?.map(c => {
+      const selector = `.bonuses .bonus[data-id='${c}']`;
+      html[0].querySelector(selector)?.classList.add("collapsed", "instant");
     });
-    el.querySelector(".current .bonuses").scrollTop = top;
   }
 }
