@@ -1,3 +1,4 @@
+import { Build_a_Bonus } from "./build_a_bonus.mjs";
 import { MODULE } from "./constants.mjs";
 import { getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers.mjs";
 
@@ -11,7 +12,8 @@ export function _createAPI() {
     findEmbeddedDocumentsWithBonuses,
     changeBonusId,
     moveBonus,
-    findTokensInRangeOfAura
+    findTokensInRangeOfAura,
+    openBabonusWorkshop
   }
 }
 
@@ -149,6 +151,15 @@ function findTokensInRangeOfAura(object, id) {
     const distance = getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
     return aura.range >= distance;
   });
+}
+
+/**
+ * Renders the Build-a-Bonus workship for the document.
+ */
+function openBabonusWorkshop(object) {
+  new Build_a_Bonus(object, {
+    title: `Build-a-Bonus: ${object.name}`
+  }).render(true);
 }
 
 function _rerenderApp(object) {
