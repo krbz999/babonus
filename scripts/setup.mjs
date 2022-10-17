@@ -20,12 +20,11 @@ export function _setup() {
 }
 
 export function _renderActorSheetFlags(app, html) {
-  if (!app.isEditable) return;
   const input = html[0].querySelector("input[name='flags.dnd5e.babonus']");
   const button = document.createElement("A");
   button.name = "flags.dnd5e.babonus";
   const label = game.i18n.localize("BABONUS.TRAITS.LABEL");
-  button.innerHTML = `<i class="fas fa-atlas"></i> ${label}`;
+  button.innerHTML = `<i class="fa-solid fa-book-atlas"></i> ${label}`;
   input.replaceWith(button);
   button.addEventListener("click", async () => {
     new Build_a_Bonus(app.object, {
@@ -36,12 +35,11 @@ export function _renderActorSheetFlags(app, html) {
 
 export function _getItemSheetHeaderButtons(app, array) {
   if (itemsWithoutBonuses.includes(app.object.type)) return;
-  if (!app.isEditable) return;
   const label = game.settings.get(MODULE, "headerLabel");
 
   const headerButton = {
     class: MODULE,
-    icon: "fas fa-atlas",
+    icon: "fa-solid fa-book-atlas",
     onclick: async () => {
       new Build_a_Bonus(app.object, {
         title: `Build-a-Bonus: ${app.object.name}`
@@ -56,12 +54,11 @@ export function _getItemSheetHeaderButtons(app, array) {
 }
 
 export function _getActiveEffectConfigHeaderButtons(app, array) {
-  if (!app.isEditable) return;
   const label = game.settings.get(MODULE, "headerLabel");
 
   const headerButton = {
     class: MODULE,
-    icon: "fas fa-atlas",
+    icon: "fa-solid fa-book-atlas",
     onclick: async () => {
       new Build_a_Bonus(app.object, {
         title: `Build-a-Bonus: ${app.object.label}`

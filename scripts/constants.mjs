@@ -2,10 +2,10 @@ export const MODULE = "babonus";
 export const SETTING_HEADERLABEL = "headerLabel";
 export const MATCH = { ANY: "ANY", ALL: "ALL" }
 export const targetTypes = [
-  "attack", // bonuses to attack rolls
+  "attack", // bonuses to attack rolls, crit range, fumble range
   "damage", // bonuses to damage rolls, critical damage, critical bonus dice
   "save", // bonuses to the save DC
-  "throw", // bonuses to a saving throw
+  "throw", // bonuses to a saving throw, and death save target value
   "hitdie", // bonuses to hit die rolls
 ];
 export const attackTypes = ["mwak", "rwak", "msak", "rsak"];

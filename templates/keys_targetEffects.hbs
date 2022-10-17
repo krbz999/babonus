@@ -1,7 +1,7 @@
 <p class="babonus-key-description">
   {{localize "BABONUS.KEY.TARGET_CONDITIONS_DESC"}}
 </p>
-<table class="babonus two-col">
+<table class="babonus two-col has-image">
   <thead>
     <tr>
       <th>{{localize "BABONUS.KEY.TARGET_CONDITIONS_NAME"}}</th>
@@ -11,7 +11,7 @@
   <tbody>
     {{#each types as |type|}}
     <tr>
-      <td>{{type.label}}</td>
+      <td><img src="{{type.icon}}">{{type.label}}</td>
       <td><input type="checkbox" id="{{type.value}}" {{checked type.checked}}></td>
     </tr>
     {{/each}}

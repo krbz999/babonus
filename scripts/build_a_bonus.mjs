@@ -17,12 +17,17 @@ export class Build_a_Bonus extends FormApplication {
       width: 900,
       height: "auto",
       template: `/modules/${MODULE}/templates/build_a_bonus.html`,
-      classes: [MODULE]
+      classes: [MODULE],
+      scrollY: [".current .bonuses"]
     });
   }
 
   get id() {
     return `${MODULE}-build-a-bonus-${this.object.id}`;
+  }
+
+  get isEditable() {
+    return this.object.sheet.isEditable;
   }
 
   async getData() {
@@ -63,7 +68,7 @@ export class Build_a_Bonus extends FormApplication {
     if (event) {
       await super._onChangeInput(event);
 
-      if (["target", "itemTypes", "aura.enabled"].includes(event.target.name)) {
+      if (["target", "itemTypes", "throwTypes", "aura.enabled"].includes(event.target.name)) {
         // hide/unhide some elements.
         this.refreshForm();
       } else if (["aura.range"].includes(event.target.name)) {
@@ -98,22 +103,23 @@ export class Build_a_Bonus extends FormApplication {
       const types = foundry.utils.duplicate(KeyGetter[type]);
       // find list.
       if (type !== "weaponProperties") {
-        let input = html[0].querySelector(`[name="filters.${type}"]`);
-        if (!input) input = html[0].querySelector(`[name="${type}"]`);
-        if (!input) input = html[0].querySelector(`[name="filters.${type}.types"]`); // for spellComps.
-        if (!input) input = html[0].querySelector(`[name="aura.${type}"]`); // for aura.blockers
+        const selector = [
+          `[name="filters.${type}"]`,
+          `[name="${type}"]`,
+          `[name="filters.${type}.types"]`, // for spellComponents
+          `[name="aura.${type}"]` // for aura.blockers
+        ].join(", ");
+        const input = html[0].querySelector(selector);
         const values = input.value.split(";");
-        for (const t of types) {
-          t.checked = values.includes(t.value);
-        }
+        types.map(t => t.checked = values.includes(t.value));
       } else {
         const needed = html[0].querySelector(`[name="filters.weaponProperties.needed"]`).value.split(";");
         const unfit = html[0].querySelector(`[name="filters.weaponProperties.unfit"]`).value.split(";");
         // for checkboxes:
-        for (const t of types) {
+        types.map(t => {
           t.needed = needed.includes(t.value);
           t.unfit = unfit.includes(t.value);
-        }
+        });
       }
 
       const template = `/modules/${MODULE}/templates/keys_${type}.hbs`;
@@ -125,14 +131,17 @@ export class Build_a_Bonus extends FormApplication {
       if (semiList === false || foundry.utils.isEmpty(semiList)) return;
 
       if (type !== "weaponProperties") {
-        let input = html[0].querySelector(`[name="filters.${type}"]`);
-        if (!input) input = html[0].querySelector(`[name="${type}"]`);
-        if (!input) input = html[0].querySelector(`[name="filters.${type}.types"]`); // for spellComps.
-        if (!input) input = html[0].querySelector(`[name="aura.${type}"]`); // for aura.blockers
+        const selector = [
+          `[name="filters.${type}"]`,
+          `[name="${type}"]`,
+          `[name="filters.${type}.types"]`, // for spellComponents
+          `[name="aura.${type}"]` // for aura.blockers
+        ].join(", ");
+        const input = html[0].querySelector(selector);
         input.value = semiList;
-        if (type === "itemTypes") this.refreshForm();
-      }
-      else {
+        // refresh form for inputs that have values that reveal more fields.
+        if (["itemTypes", "throwTypes"].includes(type)) this.refreshForm();
+      } else {
         const needed = html[0].querySelector("[name='filters.weaponProperties.needed']");
         const unfit = html[0].querySelector("[name='filters.weaponProperties.unfit']");
         needed.value = semiList.needed;
@@ -173,6 +182,7 @@ export class Build_a_Bonus extends FormApplication {
       const label = event.target.closest(".bonus .header .label");
       if (!label) return;
       const bonus = label.closest(".bonus");
+      bonus.classList.remove("instant");
       bonus.classList.toggle("collapsed");
     });
 
@@ -190,12 +200,11 @@ export class Build_a_Bonus extends FormApplication {
 
     return new Promise(resolve => {
 
-      apply.icon = "<i class='fas fa-check'></i>";
+      apply.icon = "<i class='fa-solid fa-check'></i>";
       apply.label = game.i18n.localize("BABONUS.KEY.APPLY");
       apply.callback = (html) => {
         const selector = "input[type='checkbox']:checked";
-        const nodes = html[0].querySelectorAll(selector);
-        const checked = Array.from(nodes);
+        const checked = [...html[0].querySelectorAll(selector)];
         if (obj.type !== "weaponProperties") {
           const keyString = checked.map(i => i.id).join(";") ?? "";
           resolve(keyString);
@@ -227,8 +236,7 @@ export class Build_a_Bonus extends FormApplication {
       "blockers"
     ].includes(type)) return ids;
 
-    const validIds = ids.filter(i => values.includes(i));
-    return validIds;
+    return ids.filter(i => values.includes(i));
   }
 
   // method to take html, gather the inputs, and either update an existing bonus or create a new one.
@@ -306,8 +314,8 @@ export class Build_a_Bonus extends FormApplication {
     }
     formData.target = id.split(".")[0];
 
-    // turn arrays into strings.
-    for (const key in formData) {
+    // turn arrays into strings and tick all boxes.
+    for (const key of Object.keys(formData)) {
       if (formData[key] instanceof Array) {
         formData[key] = formData[key].join(";");
       }
@@ -317,14 +325,14 @@ export class Build_a_Bonus extends FormApplication {
       else inp.value = formData[key];
     }
 
+    const BAB = html[0].closest("form.babonus");
+    const elements = BAB.querySelectorAll("[name=identifier], [name=target]");
     if (!edit) {
-      html[0].closest("form.babonus").classList.remove("editMode");
-      html[0].closest("form.babonus").querySelector("[name=identifier]").removeAttribute("tabindex");
-      html[0].closest("form.babonus").querySelector("[name=target]").removeAttribute("tabindex");
+      BAB.classList.remove("editMode");
+      [...elements].map(e => e.removeAttribute("tabindex"));
     } else {
-      html[0].closest("form.babonus").classList.add("editMode");
-      html[0].closest("form.babonus").querySelector("[name=identifier]").setAttribute("tabindex", "-1");
-      html[0].closest("form.babonus").querySelector("[name=target]").setAttribute("tabindex", "-1");
+      BAB.classList.add("editMode");
+      [...elements].map(e => e.setAttribute("tabindex", "-1"));
     }
     this.refreshForm();
   }
@@ -334,6 +342,7 @@ export class Build_a_Bonus extends FormApplication {
     const html = this.element;
     const itemTypeInput = html[0].querySelector("[name='itemTypes']");
     const targetInput = html[0].querySelector("[name='target']");
+    const throwTypeInput = html[0].querySelector("[name='throwTypes']");
     const auraEnabledInput = html[0].querySelector("[name='aura.enabled']");
     const values = itemTypeInput.value.split(";").map(i => i.trim());
     const form = itemTypeInput.closest("form.babonus");
@@ -356,6 +365,12 @@ export class Build_a_Bonus extends FormApplication {
       toRemove.push(...itemsValidForAttackDamageSave);
     }
 
+    // death save
+    if (targetInput.value === "throw" && throwTypeInput.value.includes("death")) {
+      toAdd.push("death");
+    } else toRemove.push("death");
+
+    // aura enabled.
     if (auraEnabledInput.checked) toAdd.push("aura");
     else toRemove.push("aura");
 
@@ -370,12 +385,22 @@ export class Build_a_Bonus extends FormApplication {
   clearForm() {
     const elements = this.element[0].getElementsByTagName("INPUT");
     const selects = this.element[0].getElementsByTagName("SELECT");
-    for (const element of elements) {
-      if (element.type === "checkbox") element.checked = false;
-      else element.value = "";
-    }
-    for (const select of selects) {
-      select.selectedIndex = 0;
-    }
+    [...elements].map(e => e.type === "checkbox" ? e.checked = false : e.value = "");
+    [...selects].map(e => e.selectedIndex = 0);
+  }
+
+  _saveScrollPositions(html) {
+    super._saveScrollPositions(html);
+    const selector = ".current .bonuses .bonus.collapsed";
+    const scrolls = html[0].querySelectorAll(selector);
+    this._collapsedBonuses = [...scrolls].map(c => c.dataset.id);
+  }
+
+  _restoreScrollPositions(html) {
+    super._restoreScrollPositions(html);
+    this._collapsedBonuses?.map(c => {
+      const selector = `.bonuses .bonus[data-id='${c}']`;
+      html[0].querySelector(selector)?.classList.add("collapsed", "instant");
+    });
   }
 }

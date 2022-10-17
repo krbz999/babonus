@@ -1,5 +1,5 @@
 import { auraTargets, MODULE } from "./constants.mjs";
-import { getActorEffectBonuses, getActorItemBonuses } from "./helpers.mjs";
+import { getActorEffectBonuses, getActorItemBonuses, getMinimumDistanceBetweenTokens } from "./helpers.mjs";
 
 /**
  * Gets the auras that applies to a token using their disposition,
@@ -12,25 +12,27 @@ export function getAurasThatApplyToMe(tokenDoc, hookType) {
   const { HOSTILE, FRIENDLY, NEUTRAL } = CONST.TOKEN_DISPOSITIONS;
   const me = tokenDoc.disposition;
   const they = tokenDoc.parent.tokens.filter(t => {
-    if (t === tokenDoc) return false;
-    if (t.hidden) return false;
-    return true;
+    return t !== tokenDoc && !t.hidden;
   });
 
   const { hostiles, friendlies, neutrals } = _splitTokensByDisposition(they);
 
-  let auras = [];
+  const auras = [];
   const { HOSTILE: h, FRIENDLY: f, ALL: a } = auraTargets;
   if (me === HOSTILE) {
-    auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, f, hookType));
-    auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, h, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, hostiles, f, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, friendlies, h, hookType));
+    const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
+    auras.push(...getAurasByDisposition(tokenDoc, theRest, a, hookType));
   } else if (me === FRIENDLY) {
-    auras = auras.concat(getAurasByDisposition(tokenDoc, hostiles, h, hookType));
-    auras = auras.concat(getAurasByDisposition(tokenDoc, friendlies, f, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, hostiles, h, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, friendlies, f, hookType));
+    const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
+    auras.push(...getAurasByDisposition(tokenDoc, theRest, a, hookType));
   } else if (me === NEUTRAL) {
-    auras = auras.concat(getAurasByDisposition(tokenDoc, neutrals, f, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, neutrals, f, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, [...hostiles, ...friendlies], a, hookType));
   }
-  auras = auras.concat(getAurasByDisposition(tokenDoc, they, a, hookType));
   return auras;
 }
 
@@ -46,11 +48,11 @@ function _splitTokensByDisposition(sceneTokens) {
   const friendlies = [];
   const neutrals = [];
 
-  for (const tokenDoc of sceneTokens) {
+  sceneTokens.map(tokenDoc => {
     if (tokenDoc.disposition === HOSTILE) hostiles.push(tokenDoc);
     else if (tokenDoc.disposition === FRIENDLY) friendlies.push(tokenDoc);
     else neutrals.push(tokenDoc);
-  }
+  });
   return { hostiles, friendlies, neutrals };
 }
 
@@ -64,20 +66,14 @@ function _splitTokensByDisposition(sceneTokens) {
  * @returns {Array}                   The array of auras that apply.
  */
 function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType) {
-  const auras = tokenDocs.reduce((acc, doc) => {
+  return tokenDocs.reduce((acc, doc) => {
     if (!doc.actor) return acc;
     const a = _getActorAurasByDisposition(doc, disposition, hookType);
-    const i = _getItemAurasByDisposition(doc, disposition, hookType);
-    const e = _getEffectAurasByDisposition(doc, disposition, hookType);
-    const docAuras = [].concat(a, i, e);
-
-    // filter by range.
-    const f = _filterAurasByRange(tokenDoc, doc, docAuras);
-    acc = acc.concat(f);
+    const b = _getItemAurasByDisposition(doc, disposition, hookType);
+    const c = _getEffectAurasByDisposition(doc, disposition, hookType);
+    acc.push(..._filterAurasByRange(tokenDoc, doc, [...a, ...b, ...c]));
     return acc;
   }, []);
-
-  return auras;
 }
 
 /**
@@ -95,7 +91,7 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   if (!e) return false;
 
   // target is correct.
-  const d = disp === aura.disposition;
+  const d = (disp === aura.disposition) || (aura.disposition === auraTargets.ALL);
   if (!d) return false;
 
   // get blockers
@@ -156,13 +152,9 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
  * @returns {Array} The array of bonuses.
  */
 function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
-  // get all ACTOR ITEM BONUSES
-  let bonuses = getActorItemBonuses(tokenDoc.actor, hookType);
-  // then filter if the bonus is an aura and if the disp matches.
-  bonuses = bonuses.filter(([id, vals]) => {
+  return getActorItemBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
-  return bonuses;
 }
 
 /**
@@ -174,13 +166,9 @@ function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
  * @returns {Array} The array of bonuses.
  */
 function _getEffectAurasByDisposition(tokenDoc, disposition, hookType) {
-  // get all ACTOR EFFECT BONUSES
-  let bonuses = getActorEffectBonuses(tokenDoc.actor, hookType);
-  // then filter if the bonus is an aura and if the disp matches.
-  bonuses = bonuses.filter(([id, vals]) => {
+  return getActorEffectBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
-  return bonuses;
 }
 
 /**
@@ -202,9 +190,10 @@ function _filterAurasByRange(me, you, auras) {
 
 /**
  * Measure distance between two token documents.
- * @returns {Number}  An integer.
+ * @param {TokenDocument5e} me  One token document.
+ * @param {TokenDocument5e} you The other token document.
+ * @returns {Number} An integer.
  */
 function _measureDistance(me, you) {
-  const options = { gridSpaces: true };
-  return canvas.grid.measureDistance(me.object, you.object, options);
+  return getMinimumDistanceBetweenTokens(me.object, you.object);
 }

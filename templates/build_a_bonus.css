@@ -29,6 +29,11 @@
   border-radius: 2px;
 }
 
+.babonus .builder .inputs {
+  max-height: 550px;
+  overflow-y: auto;
+}
+
 .babonus .builder .label {
   flex: 1;
   font-weight: bolder;
@@ -96,6 +101,10 @@
   opacity: 1;
 }
 
+.babonus .current .bonuses .bonus.instant .description .content {
+  transition: 0.0s;
+}
+
 .babonus .current .bonuses .bonus.collapsed .description .content {
   max-height: 0;
   opacity: 0;
@@ -150,6 +159,10 @@ form.babonus .current .details a {
   padding: 3px;
 }
 
+form.babonus.locked .current .details a {
+  pointer-events: none;
+}
+
 form.babonus:not(.weapon) .hide-weapon,
 form.babonus:not(.spell) .hide-spell,
 form.babonus:not(.aura) .hide-aura,
@@ -157,6 +170,7 @@ form.babonus:not(.damage) .hide-damage,
 form.babonus:not(.attack) .hide-attack,
 form.babonus:not(.save) .hide-save,
 form.babonus:not(.throw) .hide-throw,
+form.babonus:not(.death) .hide-death,
 form.babonus:not(.hitdie) .hide-hitdie,
 form.babonus:not(.attack, .damage) .hide-attack-damage,
 form.babonus:not(.attack, .damage, .save) .hide-attack-damage-save,
@@ -187,9 +201,23 @@ table.babonus.three-col tr {
   grid-template-columns: 50% 25% 25%;
 }
 
+table.babonus td img {
+  height: 25px;
+  border: none;
+}
+
 table.babonus td:first-child {
   padding-left: 1em;
   align-self: center;
+}
+
+table.babonus.has-image td:first-child {
+  padding-left: 0.5em;
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  align-items: center;
+  gap: 0.75em;
 }
 
 table.babonus td:not(:first-child) {

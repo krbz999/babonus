@@ -13,12 +13,14 @@ import {
   _preRollAbilitySave,
   _preRollHitDie
 } from "./scripts/hooks.mjs";
+import { _createAPI } from "./scripts/public_api.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Build-a-Bonus");
 });
 
 Hooks.once("setup", _setup);
+Hooks.once("setup", _createAPI);
 Hooks.on("renderActorSheetFlags", _renderActorSheetFlags);
 Hooks.on("getItemSheetHeaderButtons", _getItemSheetHeaderButtons);
 Hooks.on("getActiveEffectConfigHeaderButtons", _getActiveEffectConfigHeaderButtons);

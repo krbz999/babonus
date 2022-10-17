@@ -1,7 +1,7 @@
 {
   "id": "babonus",
   "title": "Build-a-Bonus",
-  "version": "10.0.8.2",
+  "version": "10.0.9",
   "authors": [
     {
       "name": "Zhell",
@@ -13,7 +13,7 @@
   "compatibility": {
     "minimum": "10",
     "maximum": "10",
-    "verified": "10.287"
+    "verified": "10.288"
   },
   "esmodules": [
     "setup.js"
@@ -47,8 +47,8 @@
   "url": "https://github.com/krbz999/babonus",
   "license": "https://raw.githubusercontent.com/krbz999/babonus/main/LICENSE",
   "manifest": "https://github.com/krbz999/babonus/releases/latest/download/module.json",
-  "download": "https://github.com/krbz999/babonus/releases/download/v10.0.8.2/module.zip",
-  "description": "This module provides an extension to actors' Special Traits for very particular and niche bonuses, as well as granting items and effects the ability for more rare bonuses.",
+  "download": "https://github.com/krbz999/babonus/releases/download/v10.0.9/module.zip",
+  "description": "Make it easier to manage very particular and niche bonuses and auras, on actors, items, and effects.",
   "name": "babonus",
   "minimumCoreVersion": "10"
 }

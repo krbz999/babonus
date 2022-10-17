@@ -38,14 +38,13 @@ export function getBonuses(doc) {
         enabled: val.enabled
       };
     });
-    acc = acc.concat(map);
+    acc.push(...map);
     return acc;
   }, []).sort((a, b) => {
     return a.label.localeCompare(b.label);
   });
   return bonuses;
 }
-
 
 export class KeyGetter {
 
@@ -103,6 +102,13 @@ export class KeyGetter {
       value: "death",
       label: game.i18n.localize("DND5E.DeathSave")
     });
+    // CN compatibility.
+    if (game.modules.get("concentrationnotifier")?.active) {
+      abl.push({
+        value: "concentration",
+        label: game.i18n.localize("CN.CONCENTRATION")
+      })
+    }
     return abl;
   }
 
@@ -110,7 +116,11 @@ export class KeyGetter {
   static get spellComponents() {
     const { spellComponents: s, spellTags: t } = CONFIG.DND5E;
     const entries = Object.entries(s).concat(Object.entries(t));
-    return entries.map(([value, { label }]) => ({ value, label }));
+    return entries.map(([value, { label }]) => {
+      return { value, label };
+    }).sort((a, b) => {
+      return a.label.localeCompare(b.label);
+    });
   }
 
   // spell levels.
@@ -138,11 +148,13 @@ export class KeyGetter {
   // all status effects.
   static get statusEffects() {
     const effects = CONFIG.statusEffects;
-    const ids = effects.reduce((acc, { id }) => {
-      if (id) acc.push(id);
+    return effects.reduce((acc, { id, icon }) => {
+      if (!id) return acc;
+      acc.push({ value: id, label: id, icon })
       return acc;
-    }, []);
-    return ids.map((id) => ({ value: id, label: id }));
+    }, []).sort((a, b) => {
+      return a.value.localeCompare(b.value);
+    });
   }
   static get targetEffects() {
     return this.statusEffects;
@@ -158,6 +170,7 @@ export class KeyGetter {
  * Get all the bonuses on the actor, their items, and their effects.
  * This method does NOT filter by aura properties.
  * That is done in 'getAllOwnBonuses'.
+ * This method replaces roll data.
  */
 export function getAllActorBonuses(actor, hookType) {
   const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
@@ -194,14 +207,14 @@ export function getAllOwnBonuses(actor, hookType) {
 }
 
 /**
- * Add bonuses from items. Any item-only filtering happens here,
- * such as checking if the item is currently, and requires being,
- * equipped and/or attuned. Not all valid item types have these
- * properties, such as feature type items.
+ * Add bonuses from items. Any item-only filtering happens here, such as checking
+ * if the item is currently, and requires being, equipped and/or attuned.
+ * Not all valid item types have these properties, such as feature type items.
+ * This method replaces roll data.
  */
 export function getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
-  let boni = [];
+  const boni = [];
 
   for (const item of actor.items) {
     const flag = item.getFlag(MODULE, `bonuses.${hookType}`);
@@ -227,7 +240,7 @@ export function getActorItemBonuses(actor, hookType) {
       }
       return b;
     });
-    boni = boni.concat(bonuses);
+    boni.push(...bonuses);
   }
   return boni;
 }
@@ -282,4 +295,44 @@ export function getTokenFromActor(actor) {
   const token = actor.token?.object ?? actor.getActiveTokens()[0];
   if (!token) return false;
   return token.document;
+}
+
+/**
+ * Gets the minimum distance between two tokens,
+ * evaluating all grid spaces they occupy.
+ */
+export function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
+  const A = getAllTokenGridSpaces(tokenA);
+  const B = getAllTokenGridSpaces(tokenB);
+  const rays = A.flatMap(a => {
+    return B.map(b => {
+      return { ray: new Ray(a, b) };
+    });
+  });
+  const dist = canvas.scene.grid.distance; // 5ft.
+  const distances = canvas.grid.measureDistances(rays, {
+    gridSpaces: false
+  }).map(d => Math.round(d / dist) * dist);
+  const eles = [tokenA, tokenB].map(t => t.document.elevation);
+  const elevationDiff = Math.abs(eles[0] - eles[1]);
+  return Math.max(Math.min(...distances), elevationDiff);
+}
+
+/**
+ * Get the upper left corners of all grid spaces a token occupies.
+ */
+function getAllTokenGridSpaces(token) {
+  const { width, height, x, y } = token.document;
+  if (width <= 1 && height <= 1) return [{ x, y }];
+  const centers = [];
+  const grid = canvas.grid.size;
+  for (let a = 0; a < width; a++) {
+    for (let b = 0; b < height; b++) {
+      centers.push({
+        x: x + a * grid,
+        y: y + b * grid
+      });
+    }
+  }
+  return centers;
 }

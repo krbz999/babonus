@@ -17,6 +17,12 @@ export function validateData(formData) {
     weaponProperties
   } = CONFIG.DND5E;
   const statusIds = CONFIG.statusEffects.map(i => i.id);
+  const levels = Array.fromRange(10).map(n => n.toString());
+
+  const throwTypes = Object.keys(abilities).concat("death");
+  if (game.modules.get("concentrationnotifier")?.active) {
+    throwTypes.push("concentration");
+  }
 
   const scsv = [
     [itemsValidForAttackDamageSave, "itemTypes"],
@@ -30,26 +36,35 @@ export function validateData(formData) {
       Object.keys(spellComponents).concat(Object.keys(spellTags)),
       "filters.spellComponents.types"
     ],
-    [Array.fromRange(10).map(n => n.toString()), "filters.spellLevels"],
+    [levels, "filters.spellLevels"],
     [Object.keys(spellSchools), "filters.spellSchools"],
     [statusIds, "filters.statusEffects", false],
     [statusIds, "filters.targetEffects", false],
-    [
-      Object.keys(weaponProperties),
-      "filters.weaponProperties.needed"
-    ],
-    [
-      Object.keys(weaponProperties),
-      "filters.weaponProperties.unfit"
-    ],
+    [Object.keys(weaponProperties), "filters.weaponProperties.needed"],
+    [Object.keys(weaponProperties), "filters.weaponProperties.unfit"],
     [attackTypes, "filters.attackTypes"],
     [Object.keys(abilities), "filters.saveAbilities"],
-    [Object.keys(abilities).concat(["death"]), "throwTypes"],
+    [throwTypes, "throwTypes"],
     [statusIds, "aura.blockers", false]
   ];
   for (const [values, property, validate] of scsv) {
     validateValues(formData, values, property, validate);
   }
+
+  // values that just get deleted if they are falsy:
+  const dels = [
+    "values.criticalBonusDamage",
+    "values.criticalBonusDice",
+    "values.bonus",
+    "values.criticalRange",
+    "values.fumbleRange",
+    "values.deathSaveTargetValue"
+  ];
+  for (const value of dels) {
+    deleteEmptyValue(formData, value);
+  }
+
+
 
   // special cases:
 
@@ -79,19 +94,13 @@ export function validateData(formData) {
     delete formData[c];
   }
 
-  // values:
-  if (!formData["values.criticalBonusDamage"]) {
-    delete formData["values.criticalBonusDamage"];
-  }
-  if (!formData["values.criticalBonusDice"]) {
-    delete formData["values.criticalBonusDice"];
-  }
-  if (!formData["values.bonus"]) {
-    delete formData["values.bonus"];
-  }
-
   // itemRequirements:
   // ... no attention needed.
+}
+
+// delete values that do not exist.
+function deleteEmptyValue(formData, value) {
+  if (!formData[value]) delete formData[value];
 }
 
 // mutate formData by turning semicolon-sep'd lists into arrays.
@@ -144,10 +153,9 @@ export function dataHasAllRequirements(formData, object, editMode = false) {
 
   // is the id unique?
   if (!editMode) {
-    const t = dupe.target;
-    const i = dupe.identifier;
-    const flag = object.getFlag(MODULE, `bonuses.${t}.${i}`);
-    if (flag) {
+    const api = game.modules.get(MODULE).api;
+    const hasBonus = !!api.findBonus(object, dupe.identifier);
+    if (hasBonus) {
       return { valid: false, error: "DUPLICATE_ID" };
     }
   }
