@@ -113,8 +113,23 @@ function _auraFilterUtility(actor, disp, aura = {}) {
 }
 
 /**
+ * Utility function to replace roll data.
+ */
+function _replaceRollData(object, bonuses) {
+  const data = object.getRollData();
+  return bonuses.map(bonus => {
+    const vals = bonus[1].values;
+    for (const key in vals) {
+      vals[key] = Roll.replaceFormulaData(vals[key], data);
+    }
+    return bonus;
+  });
+}
+
+/**
  * Get all auras from a token document's actor, given that the aura
  * has the given target type.
+ * Replaces roll data.
  * @param {TokenDocument5e} tokenDoc    The token document with the actor.
  * @param {Number}          disposition The target type.
  * @param {String}          hookType    The type of hook called.
@@ -130,45 +145,40 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
     return _auraFilterUtility(actor, disposition, aura, filters);
   });
 
-  // replace formula data with this actor's data.
-  const data = actor.getRollData();
-  bonuses = foundry.utils.duplicate(bonuses).map(b => {
-    const vals = b[1].values;
-    for (const key in vals) {
-      vals[key] = Roll.replaceFormulaData(vals[key], data);
-    }
-    return b;
-  });
-
-  return bonuses;
+  return _replaceRollData(actor, bonuses);
 }
 
 /**
  * Get all auras from a token document's actor's items, given that the aura
  * has the given target type.
+ * Roll data is not replaced here because that happens in the inner method.
  * @param {TokenDocument5e} tokenDoc      The token document with the actor.
  * @param {Number}          disposition   The target type.
  * @param {String}          hookType      The type of hook called.
  * @returns {Array} The array of bonuses.
  */
 function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
-  return getActorItemBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
+  const bonuses = getActorItemBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
+  return bonuses;
 }
 
 /**
  * Get all auras from a token document's actor's effects, given that the aura
  * has the given target type.
+ * Replaces roll data.
  * @param {TokenDocument5e} tokenDoc      The token document with the actor.
  * @param {Number}          disposition   The target type.
  * @param {String}          hookType      The type of hook called.
  * @returns {Array} The array of bonuses.
  */
 function _getEffectAurasByDisposition(tokenDoc, disposition, hookType) {
-  return getActorEffectBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
+  const actor = tokenDoc.actor;
+  const bonuses = getActorEffectBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
+  return _replaceRollData(actor, bonuses);
 }
 
 /**
