@@ -394,6 +394,8 @@ export class FILTER {
     if (!one || !other) return false;
 
     const rollData = object.getRollData();
+    const target = game.user.targets.first();
+    if (target) rollData.target = target.actor.getRollData();
     const left = Roll.replaceFormulaData(one, rollData);
     const right = Roll.replaceFormulaData(other, rollData);
 
