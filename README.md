@@ -70,7 +70,7 @@ An API can be accessed at `game.modules.get("babonus").api`. The methods are cur
 - `copyBonus(original, other, id)` copies a bonus with the given id from one document to another.
 - `moveBonus(original, other, id)` copies a bonus with the given id from one document to another, then deletes the original bonus.
 - `toggleBonus(object, id, state)` enables or disabled a bonus, or sets it to state (true or false).
-- `findEmbeddedDocumentsWithBonuse(actor)` returns an object with two arrays containing items and effects on the given actor that have a bonus.
+- `findEmbeddedDocumentsWithBonused(actor)` returns an object with two arrays containing items and effects on the given actor that have a bonus.
 - `changeBonusId(object, oldId, newId)` changes the identifier of the bonus with the given id on the document to the new id.
 - `findTokensInRangeOfAura(object, id)` returns all token documents that are in range of an aura with the given id on the document.
 - `openBabonusWorkshop(object)` opens the Build-a-Bonus workshop for the given document.
