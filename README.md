@@ -40,13 +40,13 @@ This is the full array of filters and choices you can make in the Build-a-Bonus.
 Required fields:
 - Identifiers (label and identifier): the human-readable name of the bonus (you can put anything you like here), and the unique identifier the module uses to refer to the bonus, which is also used in Active Effects.
 - Targets: what kind of bonus you are making. Either Attack Rolls, Damage Rolls, or Save DC.
-- Bonus: the bonus to add on top of the target. This can be dice rolls (for attack and damage rolls), but Save DC only supports numbers, though using roll data is supported in either case. For damage rolls there is also critical bonuses; dice and damage for additional dice to add on top of critical hits (e.g., increasing the number of weapon dice) and for regular additional damage on top. This supports all attack types, not just weapons.
+- Bonus: The bonus to add on top of the targeted type. There are many different options here depending on what you are hoping to achieve. All types respect roll data values, however not all types accept dice rolls, such as critical range or save DCs.
 - Description: a human-readable blurb descriping the bonus. You can put anything you like here.
 - Item Types: the type of item the bonus should apply to. E.g., if you want to increase the save DC globally but only for equipment type items, not spells. Only present for 'Attack Rolls', 'Damage Rolls', and 'Save DC' bonuses.
-- Throw Types: the type of saving throw the bonusshuld apply to. Any ability score as well as death saving throws. Only present for 'Saving Throw'.
+- Throw Types: The type of saving throw the bonus should apply to. Any ability score as well as death saving throws. Only present for 'Saving Throw'. If you are using the module Concentration Notifier, you can also apply a bonus to specifically saves for maintaining concentration.
 - Requirements: two checks that show up in the Build-a-Bonus for items only, to filter whether the item should apply its bonus to the actor by requiring attunement or being equipped.
 
-Additionally, you can set the bonus to act as an aura within a set range, and define if the aura should apply to friendly targets, hostile targets, or all within range, and whether it applies to the owner or not. The bonus is applied whenever another token actor makes a relevant roll (acting as if they had the bonus in the first place, for all intents and purposes). In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious).
+Additionally, you can set the bonus to act as an aura within a set range, and define if the aura should apply to allied targets, enemy targets, or all within range, and whether it applies to the owner or not. The bonus is applied whenever another token actor makes a relevant roll (acting as if they had the bonus in the first place, for all intents and purposes). In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious).
 
 Filters:
 - Comparison: An arbitrary comparison you can use for anything that is not covered in the Build-a-Bonus natively. This supports both roll data and strings. If you enter strings, the inequality will attempt to match substrings. It will otherwise attempt to determine numeric values after replacing roll data with the roll data of the item and actor.
@@ -61,3 +61,16 @@ Filters:
 - Spell Schools: to filter the bonus to only apply if the item is a spell belonging to one of the given spell schools. This only shows up if 'spell' is included in Item Types above.
 - Weapons: to filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'. This only shows up if 'weapon' is included in Item Types above.
 - Properties: to filter the bonus to only apply if the item is a weapon that has at least one of the required weapon properties (if any) while having none of the unfit properties (if any). This only shows up if 'weapon' is included in Item Types above.
+
+# API
+An API can be accessed at `game.modules.get("babonus").api`. The methods are currently:
+- `getBonusIds(object)` returns the ids of all bonuses on the document (actor, item, effect).
+- `findBonus(object, id)` returns a 3-dimensional array with the bonus type, identifier, and the attributes of a bonus with the given id on the document.
+- `deleteBonus(object, id)` deletes the bonus with the given id on the document.
+- `copyBonus(original, other, id)` copies a bonus with the given id from one document to another.
+- `moveBonus(original, other, id)` copies a bonus with the given id from one document to another, then deletes the original bonus.
+- `toggleBonus(object, id, state)` enables or disabled a bonus, or sets it to state (true or false).
+- `findEmbeddedDocumentsWithBonuse(actor)` returns an object with two arrays containing items and effects on the given actor that have a bonus.
+- `changeBonusId(object, oldId, newId)` changes the identifier of the bonus with the given id on the document to the new id.
+- `findTokensInRangeOfAura(object, id)` returns all token documents that are in range of an aura with the given id on the document.
+- `openBabonusWorkshop(object)` opens the Build-a-Bonus workshop for the given document.
