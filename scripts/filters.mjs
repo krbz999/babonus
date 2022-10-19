@@ -14,6 +14,9 @@ import {
   flags.babonus.bonuses.<damage/attack/save/throw/hitdie>: {
     <identifier>: {
       enabled: true,
+      //config: {
+      //  whenTargeted: true   // this bonus applies to those targeting YOU, not yourself ('attack' and 'damage' only)
+      //},
       aura: {
         enabled: true,  // whether this is an aura.
         range: 60,      // the range of the aura (in ft)
