@@ -46,6 +46,8 @@ Required fields:
 - Throw Types: The type of saving throw the bonus should apply to. Any ability score as well as death saving throws. Only present for 'Saving Throw'. If you are using the module Concentration Notifier, you can also apply a bonus to specifically saves for maintaining concentration.
 - Requirements: two checks that show up in the Build-a-Bonus for items only, to filter whether the item should apply its bonus to the actor by requiring attunement or being equipped.
 
+Any fields that support roll data (such as bonuses above or Comparison fields detailed below), you can use the roll data of the target as well; use roll data as you normally would, simply prefixed with `@target`.
+
 Additionally, you can set the bonus to act as an aura within a set range, and define if the aura should apply to allied targets, enemy targets, or all within range, and whether it applies to the owner or not. The bonus is applied whenever another token actor makes a relevant roll (acting as if they had the bonus in the first place, for all intents and purposes). In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious).
 
 Filters:

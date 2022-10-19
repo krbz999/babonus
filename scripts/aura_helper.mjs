@@ -117,7 +117,8 @@ function _auraFilterUtility(actor, disp, aura = {}) {
  */
 function _replaceRollData(object, bonuses) {
   const data = object.getRollData();
-  return bonuses.map(bonus => {
+  const boni = foundry.utils.duplicate(bonuses);
+  return boni.map(bonus => {
     const vals = bonus[1].values;
     for (const key in vals) {
       vals[key] = Roll.replaceFormulaData(vals[key], data);

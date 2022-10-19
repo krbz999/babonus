@@ -6,6 +6,8 @@ export function _preDisplayCard(item, chatData) {
   const bonuses = FILTER.itemCheck(item, "save");
   if (!bonuses.length) return;
   const data = item.getRollData();
+  const target = game.user.targets.first();
+  if (target) data.target = target.actor.getRollData();
   const totalBonus = bonuses.reduce((acc, { bonus }) => {
     try {
       const r = Roll.replaceFormulaData(bonus, data);
@@ -42,6 +44,8 @@ export function _preRollAttack(item, rollConfig) {
   const bonuses = FILTER.itemCheck(item, "attack");
   if (!bonuses.length) return;
   const data = rollConfig.data;
+  const target = game.user.targets.first();
+  if (target) data.target = target.actor.getRollData();
 
   // add to parts.
   bonuses.reduce((acc, i) => {
@@ -82,6 +86,8 @@ export function _preRollDamage(item, rollConfig) {
   const bonuses = FILTER.itemCheck(item, "damage");
   if (!bonuses.length) return;
   const data = rollConfig.data;
+  const target = game.user.targets.first();
+  if (target) data.target = target.actor.getRollData();
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
@@ -126,6 +132,8 @@ export function _preRollDeathSave(actor, rollConfig) {
   const bonuses = FILTER.throwCheck(actor, "death", {});
   if (!bonuses.length) return;
   const data = rollConfig.data;
+  const target = game.user.targets.first();
+  if (target) data.target = target.actor.getRollData();
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
@@ -152,6 +160,8 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
     isConcSave: rollConfig.isConcSave
   });
   if (!bonuses.length) return;
+  const target = game.user.targets.first();
+  if (target) rollConfig.data.target = target.actor.getRollData();
 
   // add to parts:
   const parts = bonuses.map(i => i.bonus).filter(i => {
@@ -163,6 +173,8 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
 export function _preRollHitDie(actor, rollConfig, denomination) {
   const bonuses = FILTER.hitDieCheck(actor);
   if (!bonuses.length) return;
+  const target = game.user.targets.first();
+  if (target) rollConfig.data.target = target.actor.getRollData();
   const denom = bonuses.reduce((acc, { bonus }) => {
     if (!Roll.validate(bonus)) return acc;
     return `${acc} + ${bonus}`;

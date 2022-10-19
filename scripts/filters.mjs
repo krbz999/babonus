@@ -14,6 +14,9 @@ import {
   flags.babonus.bonuses.<damage/attack/save/throw/hitdie>: {
     <identifier>: {
       enabled: true,
+      //config: {
+      //  whenTargeted: true   // this bonus applies to those targeting YOU, not yourself ('attack' and 'damage' only)
+      //},
       aura: {
         enabled: true,  // whether this is an aura.
         range: 60,      // the range of the aura (in ft)
@@ -394,6 +397,8 @@ export class FILTER {
     if (!one || !other) return false;
 
     const rollData = object.getRollData();
+    const target = game.user.targets.first();
+    if (target) rollData.target = target.actor.getRollData();
     const left = Roll.replaceFormulaData(one, rollData);
     const right = Roll.replaceFormulaData(other, rollData);
 
