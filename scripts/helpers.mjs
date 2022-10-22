@@ -21,7 +21,7 @@ export function getTargets() {
   });
 }
 
-// current bonuses on the document
+// current bonuses on the document, for HTML purposes only.
 export function getBonuses(doc) {
   const flag = doc.getFlag(MODULE, "bonuses");
   if (!flag) return [];
@@ -194,14 +194,13 @@ export function getAllActorBonuses(actor, hookType) {
 /**
  * Get all bonuses that apply to self.
  * This is all bonuses that either do not have 'aura' property,
- * or do have it and are set to affect self.
+ * or do have it and are set to affect self and not template.
  */
 export function getAllOwnBonuses(actor, hookType) {
   const bonuses = getAllActorBonuses(actor, hookType);
   const filtered = bonuses.filter(([key, val]) => {
     if (!val.aura) return true;
-    if (val.aura.self) return true;
-    return false;
+    return !val.aura.isTemplate && val.aura.self;
   });
   return filtered;
 }
@@ -321,7 +320,7 @@ export function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
 /**
  * Get the upper left corners of all grid spaces a token occupies.
  */
-function getAllTokenGridSpaces(token) {
+export function getAllTokenGridSpaces(token) {
   const { width, height, x, y } = token.document;
   if (width <= 1 && height <= 1) return [{ x, y }];
   const centers = [];

@@ -14,6 +14,7 @@ import {
   _preRollHitDie
 } from "./scripts/hooks.mjs";
 import { _createAPI } from "./scripts/public_api.mjs";
+import { _preCreateMeasuredTemplate } from "./scripts/template_helper.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Build-a-Bonus");
@@ -30,3 +31,4 @@ Hooks.on("dnd5e.preRollDamage", _preRollDamage);
 Hooks.on("dnd5e.preRollDeathSave", _preRollDeathSave);
 Hooks.on("dnd5e.preRollAbilitySave", _preRollAbilitySave);
 Hooks.on("dnd5e.preRollHitDie", _preRollHitDie);
+Hooks.on("preCreateMeasuredTemplate", _preCreateMeasuredTemplate);

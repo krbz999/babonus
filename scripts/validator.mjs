@@ -69,14 +69,25 @@ export function validateData(formData) {
   // special cases:
 
   // aura:
-  const e = "aura.enabled";
-  const r = "aura.range";
-  if (!formData[e] || !formData[r]) {
-    delete formData[e];
-    delete formData[r];
+
+  // if not aura, or lacks both range and template, delete all aura stuff
+  const deleteAura = !formData["aura.enabled"] || (!formData["aura.range"] && !formData["aura.isTemplate"]);
+  if (deleteAura) {
+    delete formData["aura.enabled"];
+    delete formData["aura.range"];
+    delete formData["aura.isTemplate"];
     delete formData["aura.disposition"];
     delete formData["aura.self"];
     delete formData["aura.blockers"];
+  }
+  // if affects template, delete range and blockers.
+  else if (formData["aura.isTemplate"]) {
+    delete formData["aura.range"];
+    delete formData["aura.blockers"];
+  }
+  // if has range, delete template
+  else if (formData["aura.range"]) {
+    delete formData["aura.isTemplate"];
   }
 
   // spellcomponents:

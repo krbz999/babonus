@@ -46,6 +46,8 @@
       "TARGET_CONDITIONS": "Target Cond.",
       "THROW_TYPES": "Saving Throws",
       "DEATH_SAVE_TARGET_VALUE": "Death Target",
+      "AURA_RANGE": "Range",
+      "AURA_TEMPLATE": "Affect Template Instead",
       "AURA_FIELDS": "Targeting",
       "AURA_SELF": "Affect Self",
       "AURA_BLOCKERS": "Blockers"
@@ -85,8 +87,10 @@
       "WEAPON_TYPES": "The type of weapon the item must be for the bonus to apply.",
       "WEAPON_PROPERTIES": "The weapon properties the item either must have or cannot have for the bonus to apply. The weapon must have at least one of the needed properties, and none of the unfit properties.",
       "AURA_ENABLED": "Whether this bonus should transfer to other token actors on a scene.<br>A bonus transferred to another actor will still be evaluated against the filters below.",
-      "AURA_FIELDS": "The range of the aura, measured in feet (put in <span style='font-family: monospace;'>-1</span> for an unlimited range), which targets should benefit from the aura, and whether the aura should affect the source of it as well.",
-      "AURA_BLOCKERS": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious."
+      "AURA_RANGE": "The range of the aura, measured in feet (put in <span style='font-family: monospace;'>-1</span> for an unlimited range), or if the aura affects the area within a Measured Template instead (for items).",
+      "AURA_TEMPLATE": "Whether this aura affects token actors within the area of a Measured Template, rather than token actors within a range of this item's owner.",
+      "AURA_FIELDS": "Which targets should benefit from the aura, and whether the aura should affect its owner as well.",
+      "AURA_BLOCKERS": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious.<br>This has no effect if the aura is on a Measured Template."
     },
     "VALUES": {
       "PH_LABEL": "label...",

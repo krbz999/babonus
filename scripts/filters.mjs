@@ -5,6 +5,7 @@ import {
   getAllOwnBonuses,
   getTokenFromActor
 } from "./helpers.mjs";
+import { _getAllValidTemplateAuras } from "./template_helper.mjs";
 
 /**
  * An example bonus, as it would be
@@ -19,10 +20,11 @@ import {
       //},
       aura: {
         enabled: true,  // whether this is an aura.
-        range: 60,      // the range of the aura (in ft)
+        isTemplate: true, // whether this is a template aura, not a regular aura.
+        range: 60,      // the range of the aura (in ft), not relevant if template.
         self: false,    // whether the aura affects the owner, too
         disposition: 1  // or -1 for non-allies. What token actors within range to affect.
-        blockers: ["dead", "unconscious"] // array of conditions that stop auras from being transferred.
+        blockers: ["dead", "unconscious"] // array of conditions that stop auras from being transferred. Not relevant if template.
       },
       label: "Special Fire Spell Bonus",
       description: "This is a special fire spell bonus.",
@@ -116,6 +118,7 @@ export class FILTER {
     const bonuses = getAllOwnBonuses(actor, "hitdie");
     const t = getTokenFromActor(actor);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "hitdie"));
+    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "misc");
   }
@@ -125,6 +128,7 @@ export class FILTER {
     const bonuses = getAllOwnBonuses(actor, "throw");
     const t = getTokenFromActor(actor);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "throw"));
+    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, actor, "throw", {
       throwType: abilityId,
@@ -138,6 +142,7 @@ export class FILTER {
     const bonuses = getAllOwnBonuses(item.parent, hookType);
     const t = getTokenFromActor(item.parent);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, hookType));
+    if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));
     if (!bonuses.length) return [];
     return finalFilterBonuses(bonuses, item, "item");
   }

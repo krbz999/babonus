@@ -176,11 +176,22 @@
         </header>
         <div class="hide-aura">
           <div class="form-group">
+            <label data-tooltip="{{{localize 'BABONUS.TITLES.AURA_RANGE'}}}" class="label">
+              {{localize "BABONUS.LABELS.AURA_RANGE"}}
+            </label>
+            <div class="form-fields">
+              <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.VALUES.PH_RANGE'}}">
+              {{#if canPlaceTemplate}}
+              <span class="sep">{{localize "BABONUS.LABELS.AURA_TEMPLATE"}}</span>
+              <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TITLES.AURA_TEMPLATE'}}}" name="aura.isTemplate">
+              {{/if}}
+            </div>
+          </div>
+          <div class="form-group">
             <label data-tooltip="{{{localize 'BABONUS.TITLES.AURA_FIELDS'}}}" class="label">
               {{localize "BABONUS.LABELS.AURA_FIELDS"}}
             </label>
             <div class="form-fields">
-              <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.VALUES.PH_RANGE'}}">
               <select name="aura.disposition" data-dtype="Number">
                 <option value="2">{{localize "BABONUS.VALUES.DISPOSITION.ALL"}}</option>
                 <option value="1">{{localize "BABONUS.VALUES.DISPOSITION.FRIENDLY"}}</option>

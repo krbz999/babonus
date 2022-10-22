@@ -111,7 +111,7 @@
   padding: 0 0.75em;
 }
 
-.babonus .builder .inputs>:not(.required-fields) select:not(:only-child) {
+.babonus .builder .inputs .filters select {
   flex: 0;
   min-width: fit-content;
 }

@@ -1,6 +1,7 @@
 import { Build_a_Bonus } from "./build_a_bonus.mjs";
 import { MODULE } from "./constants.mjs";
 import { getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers.mjs";
+import { _getAllContainingTemplates } from "./template_helper.mjs";
 
 export function _createAPI() {
   game.modules.get(MODULE).api = {
@@ -13,7 +14,9 @@ export function _createAPI() {
     changeBonusId,
     moveBonus,
     findTokensInRangeOfAura,
-    openBabonusWorkshop
+    openBabonusWorkshop,
+    getBonuses,
+    getAllContainingTemplates
   }
 }
 
@@ -43,6 +46,21 @@ function findBonus(object, id) {
     }
   }
   return null;
+}
+
+/**
+ * Returns all bonuses on the document as an array
+ * each element in the form of [targetType, id, values].
+ */
+function getBonuses(object) {
+  return getBonusIds(object).map(id => findBonus(object, id));
+}
+
+/**
+ * Returns all templates on the scene that contains the token.
+ */
+function getAllContainingTemplates(tokenDoc) {
+  return _getAllContainingTemplates(tokenDoc.object);
 }
 
 /**
