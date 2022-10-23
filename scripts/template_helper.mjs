@@ -16,9 +16,8 @@ export function _preCreateMeasuredTemplate(templateDoc, templateData, context, u
   const item = fromUuidSync(origin);
   if (!item) return;
 
-  const flag = item.getFlag(MODULE, `bonuses.${hookType}`);
-  const bonuses = flag ? Object.entries(flag) : [];
-  const valids = bonuses.filter(([id, values]) => {
+  const bonuses = game.modules.get(MODULE).api.getBonuses(item);
+  const valids = bonuses.filter(([type, id, values]) => {
     return values.enabled && values.aura?.isTemplate;
   });
   const bonusData = valids.reduce((acc, [type, id, vals]) => {
@@ -62,6 +61,7 @@ export function _getAllValidTemplateAuras(tokenDoc, hookType) {
   const bonuses = [];
   const me = tokenDoc.disposition;
   for (const template of templates) {
+    if (template.hidden) continue;
     const tBoni = [];
     const { actor, token } = _mapTemplateToDocuments(template);
     const you = _mapTemplateToDisposition(template, token);
