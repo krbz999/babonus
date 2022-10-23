@@ -16,7 +16,7 @@ export class Build_a_Bonus extends FormApplication {
       closeOnSubmit: false,
       width: 900,
       height: "auto",
-      template: `/modules/${MODULE}/templates/build_a_bonus.html`,
+      template: `modules/${MODULE}/templates/build_a_bonus.html`,
       classes: [MODULE],
       scrollY: [".current .bonuses"]
     });
@@ -123,7 +123,7 @@ export class Build_a_Bonus extends FormApplication {
         });
       }
 
-      const template = `/modules/${MODULE}/templates/keys_${type}.hbs`;
+      const template = `modules/${MODULE}/templates/keys_${type}.hbs`;
       const content = await renderTemplate(template, { types });
       const title = game.i18n.localize(`BABONUS.KEY.${type}_TITLE`);
 

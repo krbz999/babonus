@@ -156,6 +156,8 @@ export class KeyGetter {
       return a.value.localeCompare(b.value);
     });
   }
+
+  // target status effects.
   static get targetEffects() {
     return this.statusEffects;
   }
@@ -270,17 +272,15 @@ export function getActorEffectBonuses(actor, hookType) {
 export function finalFilterBonuses(bonuses, object, type, details = {}) {
   const funcs = FILTER.filterFunctions[type];
 
-  const valids = bonuses.reduce((acc, [id, atts]) => {
+  const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, atts]) => {
     if (!atts.enabled) return acc;
     if (atts.itemTypes) atts.filters["itemTypes"] = atts.itemTypes;
     if (atts.throwTypes) atts.filters["throwTypes"] = atts.throwTypes;
 
-    for (const key in atts.filters) {
+    for (const key of Object.keys(atts.filters)) {
       const validity = funcs[key](object, atts.filters[key], details);
       if (!validity) return acc;
     }
-    delete atts.filters["itemTypes"];
-    delete atts.filters["throwTypes"];
     acc.push(atts.values);
     return acc;
   }, []);

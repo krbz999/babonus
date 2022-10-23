@@ -2,10 +2,6 @@ import { _replaceRollData } from "./aura_helper.mjs";
 import { auraTargets, MODULE } from "./constants.mjs";
 import { getAllTokenGridSpaces } from "./helpers.mjs";
 
-// helpers to get 'auras' that affect the templates you are standing on.
-// - should compare against the source of it.
-// - also fix regular aura finder function to ignore 'template' auras.
-
 /**
  * Get the item that created a template.
  * If found, get any 'template' auras on the item and merge the data.

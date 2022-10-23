@@ -14,7 +14,8 @@ export const attackTypes = ["mwak", "rwak", "msak", "rsak"];
 export const itemsWithoutBonuses = [
   "background",
   "class",
-  "subclass"
+  "subclass",
+  "race"
 ];
 
 // item types that can get a bonus when rolling attack, damage, or showing a save dc.
