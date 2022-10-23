@@ -40,7 +40,7 @@ export class Build_a_Bonus extends FormApplication {
       data.canEquip = foundry.utils.hasProperty(this.object, "system.equipped");
       const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
       data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
-      data.canPlaceTemplate = this.object.hasAreaTarget;
+      data.canConfigureTemplate = this.object.hasAreaTarget;
     }
     data.targets = getTargets();
     data.bonuses = getBonuses(this.object);
