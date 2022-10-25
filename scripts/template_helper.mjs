@@ -82,7 +82,7 @@ export function _getAllValidTemplateAuras(tokenDoc, hookType) {
 function _mapTemplateToDisposition(templateDoc, token) {
   const defaultDisp = templateDoc.getFlag(MODULE, "defaultDisposition");
   const disp = token?.document.disposition ?? defaultDisp;
-  return disp;
+  return disp ?? CONST.TOKEN_DISPOSITIONS.NEUTRAL;
 }
 
 /**

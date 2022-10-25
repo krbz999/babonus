@@ -1,6 +1,6 @@
 import { Build_a_Bonus } from "./build_a_bonus.mjs";
 import { MODULE } from "./constants.mjs";
-import { getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers.mjs";
+import { _getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers.mjs";
 import { _getAllContainingTemplates } from "./template_helper.mjs";
 
 export function _createAPI() {
@@ -16,7 +16,8 @@ export function _createAPI() {
     findTokensInRangeOfAura,
     openBabonusWorkshop,
     getBonuses,
-    getAllContainingTemplates
+    getAllContainingTemplates,
+    getMinimumDistanceBetweenTokens
   }
 }
 
@@ -57,7 +58,7 @@ function getBonuses(object) {
 }
 
 /**
- * Returns all templates on the scene that contains the token.
+ * Returns the ids of all templates on the scene that contain the TokenDocument.
  */
 function getAllContainingTemplates(tokenDoc) {
   return _getAllContainingTemplates(tokenDoc.object);
@@ -166,9 +167,17 @@ function findTokensInRangeOfAura(object, id) {
   }
   return canvas.scene.tokens.filter(t => {
     if (t === tokenDoc) return false;
-    const distance = getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
+    const distance = _getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
     return aura.range >= distance;
   });
+}
+
+/**
+ * Gets the minimum distance between two token placeables,
+ * evaluating all grid spaces they occupy.
+ */
+function getMinimumDistanceBetweenTokens(tokenA, tokenB){
+  return _getMinimumDistanceBetweenTokens(tokenA, tokenB);
 }
 
 /**

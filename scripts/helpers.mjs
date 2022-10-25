@@ -300,7 +300,7 @@ export function getTokenFromActor(actor) {
  * Gets the minimum distance between two tokens,
  * evaluating all grid spaces they occupy.
  */
-export function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
+export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   const A = getAllTokenGridSpaces(tokenA);
   const B = getAllTokenGridSpaces(tokenB);
   const rays = A.flatMap(a => {
