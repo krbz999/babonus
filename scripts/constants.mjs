@@ -26,8 +26,10 @@ export const itemsValidForAttackDamageSave = [
   "spell",
   "weapon"
 ];
+
+// the disposition of an aura (allies, enemies, or all).
 export const auraTargets = {
-  FRIENDLY: 1,
-  HOSTILE: -1,
-  ALL: 2
+  ALLY: 1,
+  ENEMY: -1,
+  ANY: 2
 }

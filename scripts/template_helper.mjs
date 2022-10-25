@@ -1,4 +1,4 @@
-import { _replaceRollData } from "./aura_helper.mjs";
+import { _replaceRollData } from "./helpers.mjs";
 import { auraTargets, MODULE } from "./constants.mjs";
 import { getAllTokenGridSpaces } from "./helpers.mjs";
 
@@ -102,11 +102,15 @@ function _mapTemplateToDocuments(templateDoc) {
  * the creator's disposition, and the disposition of the bonus.
  */
 function _filterTemplateBonusByDisposition(me, you, bonus) {
-  if (bonus === auraTargets.ALL) return true;
+  // if aura applies to any target.
+  if (bonus === auraTargets.ANY) return true;
 
+  // if aura applies to allies only.
+  if (bonus === auraTargets.ALLY) return me === you;
+
+  // if aura applies to enemies only.
   const { HOSTILE, FRIENDLY } = CONST.TOKEN_DISPOSITIONS;
-  if (bonus === auraTargets.FRIENDLY) return me === you;
-  if (bonus === auraTargets.HOSTILE) {
+  if (bonus === auraTargets.ENEMY) {
     return (me === HOSTILE && you === FRIENDLY) || (me === FRIENDLY && you === HOSTILE);
   }
 }

@@ -2,7 +2,7 @@ import { getAurasThatApplyToMe } from "./aura_helper.mjs";
 import { MATCH } from "./constants.mjs";
 import {
   finalFilterBonuses,
-  getAllOwnBonuses,
+  _getBonusesApplyingToSelf,
   getTokenFromActor
 } from "./helpers.mjs";
 import { _getAllValidTemplateAuras } from "./template_helper.mjs";
@@ -112,7 +112,7 @@ export class FILTER {
 
   // hitdie rolls
   static hitDieCheck(actor) {
-    const bonuses = getAllOwnBonuses(actor, "hitdie");
+    const bonuses = _getBonusesApplyingToSelf(actor, "hitdie");
     const t = getTokenFromActor(actor);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "hitdie"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
@@ -122,7 +122,7 @@ export class FILTER {
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, abilityId, { isConcSave }) {
-    const bonuses = getAllOwnBonuses(actor, "throw");
+    const bonuses = _getBonusesApplyingToSelf(actor, "throw");
     const t = getTokenFromActor(actor);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "throw"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
@@ -136,7 +136,7 @@ export class FILTER {
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
-    const bonuses = getAllOwnBonuses(item.parent, hookType);
+    const bonuses = _getBonusesApplyingToSelf(item.parent, hookType);
     const t = getTokenFromActor(item.parent);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, hookType));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));

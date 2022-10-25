@@ -100,9 +100,9 @@
       "ARBITRARY_COMPARISON_OTHER": "other value...",
       "PH_RANGE": "range...",
       "DISPOSITION": {
-        "FRIENDLY": "Allied Targets",
-        "HOSTILE": "Enemy Targets",
-        "ALL": "All Targets"
+        "ALLY": "Allied Targets",
+        "ENEMY": "Enemy Targets",
+        "ANY": "Any Targets"
       },
       "TARGET": {
         "ATTACK": "Attack Rolls",

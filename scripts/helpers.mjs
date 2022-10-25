@@ -1,4 +1,9 @@
-import { attackTypes, itemsValidForAttackDamageSave, MODULE, targetTypes } from "./constants.mjs";
+import {
+  attackTypes,
+  itemsValidForAttackDamageSave,
+  MODULE,
+  targetTypes
+} from "./constants.mjs";
 import { FILTER } from "./filters.mjs";
 
 // Really, really, really slugify a string.
@@ -169,42 +174,31 @@ export class KeyGetter {
 }
 
 /**
- * Get all the bonuses on the actor, their items, and their effects.
- * This method does NOT filter by aura properties.
- * That is done in 'getAllOwnBonuses'.
- * This method replaces roll data.
- */
-export function getAllActorBonuses(actor, hookType) {
-  const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
-  let bonuses = flag ? Object.entries(flag) : [];
-  bonuses = bonuses.concat(getActorEffectBonuses(actor, hookType));
-
-  // replace formula data with actor roll data for actor/effect bonuses.
-  const data = actor.getRollData();
-  bonuses = foundry.utils.duplicate(bonuses).map(b => {
-    const vals = b[1].values;
-    for (const key in vals) {
-      vals[key] = Roll.replaceFormulaData(vals[key], data);
-    }
-    return b;
-  });
-  bonuses = bonuses.concat(getActorItemBonuses(actor, hookType));
-
-  return bonuses;
-}
-
-/**
  * Get all bonuses that apply to self.
  * This is all bonuses that either do not have 'aura' property,
  * or do have it and are set to affect self and not template.
  */
-export function getAllOwnBonuses(actor, hookType) {
+export function _getBonusesApplyingToSelf(actor, hookType) {
   const bonuses = getAllActorBonuses(actor, hookType);
   const filtered = bonuses.filter(([key, val]) => {
     if (!val.aura) return true;
     return !val.aura.isTemplate && val.aura.self;
   });
   return filtered;
+}
+
+/**
+ * Get all the bonuses on the actor, their items, and their effects.
+ * This method does NOT filter by aura properties.
+ * That is done in '_getBonusesApplyingToSelf'.
+ * This method replaces roll data.
+ */
+ function getAllActorBonuses(actor, hookType) {
+  const flag = Object.entries(actor.getFlag(MODULE, `bonuses.${hookType}`) ?? {});
+  const bonuses = _replaceRollData(actor, flag);
+  bonuses.push(...getActorEffectBonuses(actor, hookType));
+  bonuses.push(...getActorItemBonuses(actor, hookType));
+  return bonuses;
 }
 
 /**
@@ -221,9 +215,8 @@ export function getActorItemBonuses(actor, hookType) {
     const flag = item.getFlag(MODULE, `bonuses.${hookType}`);
     if (!flag) continue;
 
-    const itemBonuses = Object.entries(flag);
     const { equipped, attunement } = item.system;
-    const validItemBonuses = itemBonuses.filter(([id, vals]) => {
+    const bonuses = Object.entries(flag).filter(([id, vals]) => {
       if (!vals.enabled) return false;
       if (!vals.itemRequirements) return true;
       const { equipped: needsEq, attuned: needsAtt } = vals.itemRequirements;
@@ -231,17 +224,7 @@ export function getActorItemBonuses(actor, hookType) {
       if (attunement !== ATTUNED && needsAtt) return false;
       return true;
     });
-
-    // replace formula data.
-    const data = item.getRollData();
-    const bonuses = foundry.utils.duplicate(validItemBonuses).map(b => {
-      const vals = b[1].values;
-      for (const key in vals) {
-        vals[key] = Roll.replaceFormulaData(vals[key], data);
-      }
-      return b;
-    });
-    boni.push(...bonuses);
+    boni.push(..._replaceRollData(item, bonuses));
   }
   return boni;
 }
@@ -249,6 +232,7 @@ export function getActorItemBonuses(actor, hookType) {
 /**
  * Add bonuses from effects. Any effect-only filtering happens here,
  * such as checking whether the effect is disabled or unavailable.
+ * Replaces roll data.
  */
 export function getActorEffectBonuses(actor, hookType) {
   const boni = [];
@@ -256,11 +240,10 @@ export function getActorEffectBonuses(actor, hookType) {
     if (effect.disabled || effect.isSuppressed) continue;
     const flag = effect.getFlag(MODULE, `bonuses.${hookType}`);
     if (!flag) continue;
-    const effectBonuses = Object.entries(flag);
-    const validEffectBonuses = effectBonuses.filter(([id, { enabled }]) => {
-      return enabled;
+    const bonuses = Object.entries(flag).filter(([id, vals]) => {
+      return vals.enabled;
     });
-    boni.push(...validEffectBonuses);
+    boni.push(..._replaceRollData(actor, bonuses));
   }
   return boni;
 }
@@ -334,4 +317,19 @@ export function getAllTokenGridSpaces(token) {
     }
   }
   return centers;
+}
+
+/**
+ * Utility function to replace roll data.
+ */
+ export function _replaceRollData(object, bonuses) {
+  const data = object?.getRollData() ?? {};
+  const boni = foundry.utils.duplicate(bonuses);
+  return boni.map(bonus => {
+    const vals = bonus[1].values;
+    for (const key in vals) {
+      vals[key] = Roll.replaceFormulaData(vals[key], data);
+    }
+    return bonus;
+  });
 }

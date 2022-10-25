@@ -2,7 +2,8 @@ import { auraTargets, MODULE } from "./constants.mjs";
 import {
   getActorEffectBonuses,
   getActorItemBonuses,
-  _getMinimumDistanceBetweenTokens
+  _getMinimumDistanceBetweenTokens,
+  _replaceRollData
 } from "./helpers.mjs";
 
 /**
@@ -22,20 +23,20 @@ export function getAurasThatApplyToMe(tokenDoc, hookType) {
   const { hostiles, friendlies, neutrals } = _splitTokensByDisposition(they);
 
   const auras = [];
-  const { HOSTILE: h, FRIENDLY: f, ALL: a } = auraTargets;
+  const { ENEMY, ALLY, ANY } = auraTargets;
   if (me === HOSTILE) {
-    auras.push(...getAurasByDisposition(tokenDoc, hostiles, f, hookType));
-    auras.push(...getAurasByDisposition(tokenDoc, friendlies, h, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, hostiles, ALLY, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, friendlies, ENEMY, hookType));
     const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
-    auras.push(...getAurasByDisposition(tokenDoc, theRest, a, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, theRest, ANY, hookType));
   } else if (me === FRIENDLY) {
-    auras.push(...getAurasByDisposition(tokenDoc, hostiles, h, hookType));
-    auras.push(...getAurasByDisposition(tokenDoc, friendlies, f, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, hostiles, ENEMY, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, friendlies, ALLY, hookType));
     const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
-    auras.push(...getAurasByDisposition(tokenDoc, theRest, a, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, theRest, ANY, hookType));
   } else if (me === NEUTRAL) {
-    auras.push(...getAurasByDisposition(tokenDoc, neutrals, f, hookType));
-    auras.push(...getAurasByDisposition(tokenDoc, [...hostiles, ...friendlies], a, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, neutrals, ALLY, hookType));
+    auras.push(...getAurasByDisposition(tokenDoc, [...hostiles, ...friendlies], ANY, hookType));
   }
   return auras;
 }
@@ -95,7 +96,7 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   if (!e) return false;
 
   // target is correct.
-  const d = (disp === aura.disposition) || (aura.disposition === auraTargets.ALL);
+  const d = (disp === aura.disposition) || (aura.disposition === auraTargets.ANY);
   if (!d) return false;
 
   // get blockers
@@ -114,21 +115,6 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   if (blocked) return false;
 
   return true;
-}
-
-/**
- * Utility function to replace roll data.
- */
-export function _replaceRollData(object, bonuses) {
-  const data = object?.getRollData() ?? {};
-  const boni = foundry.utils.duplicate(bonuses);
-  return boni.map(bonus => {
-    const vals = bonus[1].values;
-    for (const key in vals) {
-      vals[key] = Roll.replaceFormulaData(vals[key], data);
-    }
-    return bonus;
-  });
 }
 
 /**
