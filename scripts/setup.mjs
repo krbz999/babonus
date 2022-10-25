@@ -15,7 +15,7 @@ export function _setup() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: true
+    default: false
   });
 }
 
@@ -35,7 +35,7 @@ export function _renderActorSheetFlags(app, html) {
 
 export function _getItemSheetHeaderButtons(app, array) {
   if (itemsWithoutBonuses.includes(app.object.type)) return;
-  const label = game.settings.get(MODULE, "headerLabel");
+  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
 
   const headerButton = {
     class: MODULE,
@@ -54,7 +54,7 @@ export function _getItemSheetHeaderButtons(app, array) {
 }
 
 export function _getActiveEffectConfigHeaderButtons(app, array) {
-  const label = game.settings.get(MODULE, "headerLabel");
+  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
 
   const headerButton = {
     class: MODULE,

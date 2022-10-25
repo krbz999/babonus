@@ -115,8 +115,8 @@ function _auraFilterUtility(actor, disp, aura = {}) {
 /**
  * Utility function to replace roll data.
  */
-function _replaceRollData(object, bonuses) {
-  const data = object.getRollData();
+export function _replaceRollData(object, bonuses) {
+  const data = object?.getRollData() ?? {};
   const boni = foundry.utils.duplicate(bonuses);
   return boni.map(bonus => {
     const vals = bonus[1].values;

@@ -15,7 +15,7 @@ export const itemsWithoutBonuses = [
   "background",
   "class",
   "subclass",
-  "spell"
+  "race"
 ];
 
 // item types that can get a bonus when rolling attack, damage, or showing a save dc.

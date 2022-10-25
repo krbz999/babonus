@@ -4,14 +4,11 @@
   <div class="components">
 
     <div class="builder">
-      <!-- BUILD-A-BONUS -->
       <div class="inputs">
 
-        <!-- REQUIRED FIELDS -->
         <header class="required">{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</header>
         <div class="required-fields">
 
-          <!-- Identifiers: label and id -->
           <div class="form-group">
             <label data-tooltip="{{{localize 'BABONUS.TITLES.IDENTIFIERS'}}}" class="label">
               {{localize "BABONUS.LABELS.IDENTIFIERS"}}
@@ -35,8 +32,6 @@
                 <option value="{{type.value}}">{{type.label}}</option>
                 {{/each}}
               </select>
-              <!--<span class="sep hide-attack-damage" data-tooltip="{{{localize 'BABONUS.TITLES.WHEN_TARGETED'}}}">{{localize "BABONUS.LABELS.WHEN_TARGETED"}}</span>
-              <input class="hide-attack-damage" type="checkbox" name="config.whenTargeted">-->
             </div>
           </div>
           <!-- primary bonus field -->
@@ -176,11 +171,22 @@
         </header>
         <div class="hide-aura">
           <div class="form-group">
+            <label data-tooltip="{{{localize 'BABONUS.TITLES.AURA_RANGE'}}}" class="label">
+              {{localize "BABONUS.LABELS.AURA_RANGE"}}
+            </label>
+            <div class="form-fields">
+              <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.VALUES.PH_RANGE'}}">
+              {{#if canConfigureTemplate}}
+              <span class="sep">{{localize "BABONUS.LABELS.AURA_TEMPLATE"}}</span>
+              <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TITLES.AURA_TEMPLATE'}}}" name="aura.isTemplate">
+              {{/if}}
+            </div>
+          </div>
+          <div class="form-group">
             <label data-tooltip="{{{localize 'BABONUS.TITLES.AURA_FIELDS'}}}" class="label">
               {{localize "BABONUS.LABELS.AURA_FIELDS"}}
             </label>
             <div class="form-fields">
-              <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.VALUES.PH_RANGE'}}">
               <select name="aura.disposition" data-dtype="Number">
                 <option value="2">{{localize "BABONUS.VALUES.DISPOSITION.ALL"}}</option>
                 <option value="1">{{localize "BABONUS.VALUES.DISPOSITION.FRIENDLY"}}</option>

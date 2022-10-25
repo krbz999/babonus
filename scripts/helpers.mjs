@@ -21,7 +21,7 @@ export function getTargets() {
   });
 }
 
-// current bonuses on the document
+// current bonuses on the document, for HTML purposes only.
 export function getBonuses(doc) {
   const flag = doc.getFlag(MODULE, "bonuses");
   if (!flag) return [];
@@ -156,6 +156,8 @@ export class KeyGetter {
       return a.value.localeCompare(b.value);
     });
   }
+
+  // target status effects.
   static get targetEffects() {
     return this.statusEffects;
   }
@@ -194,14 +196,13 @@ export function getAllActorBonuses(actor, hookType) {
 /**
  * Get all bonuses that apply to self.
  * This is all bonuses that either do not have 'aura' property,
- * or do have it and are set to affect self.
+ * or do have it and are set to affect self and not template.
  */
 export function getAllOwnBonuses(actor, hookType) {
   const bonuses = getAllActorBonuses(actor, hookType);
   const filtered = bonuses.filter(([key, val]) => {
     if (!val.aura) return true;
-    if (val.aura.self) return true;
-    return false;
+    return !val.aura.isTemplate && val.aura.self;
   });
   return filtered;
 }
@@ -271,17 +272,15 @@ export function getActorEffectBonuses(actor, hookType) {
 export function finalFilterBonuses(bonuses, object, type, details = {}) {
   const funcs = FILTER.filterFunctions[type];
 
-  const valids = bonuses.reduce((acc, [id, atts]) => {
+  const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, atts]) => {
     if (!atts.enabled) return acc;
     if (atts.itemTypes) atts.filters["itemTypes"] = atts.itemTypes;
     if (atts.throwTypes) atts.filters["throwTypes"] = atts.throwTypes;
 
-    for (const key in atts.filters) {
+    for (const key of Object.keys(atts.filters)) {
       const validity = funcs[key](object, atts.filters[key], details);
       if (!validity) return acc;
     }
-    delete atts.filters["itemTypes"];
-    delete atts.filters["throwTypes"];
     acc.push(atts.values);
     return acc;
   }, []);
@@ -321,7 +320,7 @@ export function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
 /**
  * Get the upper left corners of all grid spaces a token occupies.
  */
-function getAllTokenGridSpaces(token) {
+export function getAllTokenGridSpaces(token) {
   const { width, height, x, y } = token.document;
   if (width <= 1 && height <= 1) return [{ x, y }];
   const centers = [];

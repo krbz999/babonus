@@ -64,19 +64,26 @@ export function validateData(formData) {
     deleteEmptyValue(formData, value);
   }
 
+  // SPECIAL CASES:
 
-
-  // special cases:
-
-  // aura:
-  const e = "aura.enabled";
-  const r = "aura.range";
-  if (!formData[e] || !formData[r]) {
-    delete formData[e];
-    delete formData[r];
+  // AURA: if not aura, or lacks both range and template, delete all aura stuff
+  const deleteAura = !formData["aura.enabled"] || (!formData["aura.range"] && !formData["aura.isTemplate"]);
+  if (deleteAura) {
+    delete formData["aura.enabled"];
+    delete formData["aura.range"];
+    delete formData["aura.isTemplate"];
     delete formData["aura.disposition"];
     delete formData["aura.self"];
     delete formData["aura.blockers"];
+  }
+  // if affects template, delete range and blockers.
+  else if (formData["aura.isTemplate"]) {
+    delete formData["aura.range"];
+    delete formData["aura.blockers"];
+  }
+  // if has range, delete template
+  else if (formData["aura.range"]) {
+    delete formData["aura.isTemplate"];
   }
 
   // spellcomponents:
@@ -131,8 +138,10 @@ export function finalizeData(formData) {
 
 }
 
-// returns true or false if the data passes the minimum requirements
-// this function is called after deleting empty fields and before expansion.
+/**
+ * Returns true or false if the data passes the minimum requirements.
+ * This function is called after deleting empty fields and before expansion.
+ */
 export function dataHasAllRequirements(formData, object, editMode = false) {
   const dupe = foundry.utils.expandObject(formData);
 
