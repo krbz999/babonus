@@ -98,7 +98,7 @@ function _mapTemplateToDocuments(templateDoc) {
 }
 
 /**
- * Returns whether a bonus should apply, given you disposition,
+ * Returns whether a bonus should apply, given your disposition,
  * the creator's disposition, and the disposition of the bonus.
  */
 function _filterTemplateBonusByDisposition(me, you, bonus) {
