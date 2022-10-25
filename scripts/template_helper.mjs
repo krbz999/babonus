@@ -64,6 +64,9 @@ export function _getAllValidTemplateAuras(tokenDoc, hookType) {
     const flag = template.getFlag(MODULE, `bonuses.${hookType}`);
     const templateBonuses = flag ? Object.entries(flag) : [];
     for (const [id, vals] of templateBonuses) {
+      if (token.actor === tokenDoc.actor) {
+        if (!vals.aura.self) continue;
+      }
       const bonus = vals.aura.disposition;
       const isIn = _filterTemplateBonusByDisposition(me, you, bonus);
       if (isIn) tBoni.push([id, vals]);
@@ -86,7 +89,7 @@ function _mapTemplateToDisposition(templateDoc, token) {
 }
 
 /**
- * Returns the item, actor, and token using the templateDoc origin.
+ * Returns the creating item, actor, and token using the templateDoc origin.
  */
 function _mapTemplateToDocuments(templateDoc) {
   const origin = templateDoc.getFlag("dnd5e", "origin");

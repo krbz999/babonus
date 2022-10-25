@@ -48,7 +48,7 @@ Required fields:
 
 Any fields that support roll data (such as bonuses above or Comparison fields detailed below), you can use the roll data of the target as well; use roll data as you normally would, simply prefixed with `@target`.
 
-Additionally, you can set the bonus to act as an aura within a set range, and define if the aura should apply to allied targets, enemy targets, or all within range, and whether it applies to the owner or not. The bonus is applied whenever another token actor makes a relevant roll (acting as if they had the bonus in the first place, for all intents and purposes). In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious).
+Additionally, you can set the bonus to act as an aura within a set range or on the template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not. The bonus is applied whenever another token actor makes a relevant roll (acting as if they had the bonus in the first place, for all intents and purposes). In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). This blocking feature does not apply to templates, however.
 
 Filters:
 - Comparison: An arbitrary comparison you can use for anything that is not covered in the Build-a-Bonus natively. This supports both roll data and strings. If you enter strings, the inequality will attempt to match substrings. It will otherwise attempt to determine numeric values after replacing roll data with the roll data of the item and actor.
@@ -76,3 +76,6 @@ An API can be accessed at `game.modules.get("babonus").api`. The methods are cur
 - `changeBonusId(object, oldId, newId)` changes the identifier of the bonus with the given id on the document to the new id.
 - `findTokensInRangeOfAura(object, id)` returns all token documents that are in range of an aura with the given id on the document.
 - `openBabonusWorkshop(object)` opens the Build-a-Bonus workshop for the given document.
+- `getBonuses(object)` returns all bonuses on the document as a nested array, in the same format as `findBonus`.
+- `getAllContainingTemplates(tokenDoc)` returns the ids of all templates on the scene that overlap with the Token Document.
+- `getMinimumDistanceBetweenTokens(tokenA, tokenB)` returns the minimum distance between two Token placeables, evaluating every grid cell that they occupy.
