@@ -44,6 +44,7 @@ export class Build_a_Bonus extends FormApplication {
     }
     data.targets = getTargets();
     data.bonuses = getBonuses(this.object);
+    data.spellLevels = Array.fromRange(10);
 
     return data;
   }
@@ -242,7 +243,7 @@ export class Build_a_Bonus extends FormApplication {
 
   // method to take html, gather the inputs, and either update an existing bonus or create a new one.
   async build_a_bonus(formData) {
-    // morph the formData.
+    // mutate the formData.
     validateData(formData);
 
     const editMode = this.element[0].querySelector("form.babonus").classList.contains("editMode");
@@ -254,6 +255,8 @@ export class Build_a_Bonus extends FormApplication {
     }
 
     const { key, value, del } = finalizeData(formData);
+
+    console.log(foundry.utils.duplicate(formData));
 
     // remove the warning field.
     this.displayWarning(false);
@@ -317,6 +320,7 @@ export class Build_a_Bonus extends FormApplication {
 
     // turn arrays into strings and tick all boxes.
     for (const key of Object.keys(formData)) {
+      if(key === "filters.spellLevels") continue;
       if (formData[key] instanceof Array) {
         formData[key] = formData[key].join(";");
       }
@@ -324,6 +328,9 @@ export class Build_a_Bonus extends FormApplication {
       if (!inp) continue;
       if (inp.type === "checkbox") inp.checked = formData[key];
       else inp.value = formData[key];
+    }
+    for(const n of formData["filters.spellLevels"] ?? []){
+      html[0].querySelector(`#spellLevel${n}`).checked = true;
     }
 
     const BAB = html[0].closest("form.babonus");

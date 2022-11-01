@@ -17,7 +17,6 @@ export function validateData(formData) {
     weaponProperties
   } = CONFIG.DND5E;
   const statusIds = CONFIG.statusEffects.map(i => i.id);
-  const levels = Array.fromRange(10).map(n => n.toString());
 
   const throwTypes = Object.keys(abilities).concat("death");
   if (game.modules.get("concentrationnotifier")?.active) {
@@ -36,7 +35,6 @@ export function validateData(formData) {
       Object.keys(spellComponents).concat(Object.keys(spellTags)),
       "filters.spellComponents.types"
     ],
-    [levels, "filters.spellLevels"],
     [Object.keys(spellSchools), "filters.spellSchools"],
     [statusIds, "filters.statusEffects", false],
     [statusIds, "filters.targetEffects", false],
@@ -62,6 +60,13 @@ export function validateData(formData) {
   ];
   for (const value of dels) {
     deleteEmptyValue(formData, value);
+  }
+
+  const toFilter = [
+    ["filters.spellLevels", Array.fromRange(10)]
+  ];
+  for (const [arr, values] of toFilter) {
+    filterArray(formData, arr, values);
   }
 
   // SPECIAL CASES:
@@ -105,9 +110,16 @@ export function validateData(formData) {
   // ... no attention needed.
 }
 
-// delete values that do not exist.
+// delete values that are falsy.
 function deleteEmptyValue(formData, value) {
-  if (!formData[value]) delete formData[value];
+  const k = formData[value]?.trim();
+  if (!k) delete formData[value];
+}
+
+// filter arrays, removing falsy values.
+function filterArray(formData, property, values) {
+  formData[property] = formData[property]?.filter(v => values.includes(v)) ?? [];
+  if (!formData[property]?.length) delete formData[property];
 }
 
 // mutate formData by turning semicolon-sep'd lists into arrays.

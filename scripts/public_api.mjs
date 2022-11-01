@@ -160,6 +160,7 @@ function findTokensInRangeOfAura(object, id) {
   if (!bonus) return null;
   const [type, identifier, { aura }] = bonus;
   if (!aura) return null;
+  if (aura.isTemplate) return null;
   const tokenDoc = getTokenFromActor(object.parent ?? object);
   if (!tokenDoc) return null;
   if (aura.range === -1) {
@@ -176,7 +177,7 @@ function findTokensInRangeOfAura(object, id) {
  * Gets the minimum distance between two token placeables,
  * evaluating all grid spaces they occupy.
  */
-function getMinimumDistanceBetweenTokens(tokenA, tokenB){
+function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   return _getMinimumDistanceBetweenTokens(tokenA, tokenB);
 }
 

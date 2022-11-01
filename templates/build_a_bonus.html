@@ -124,7 +124,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="itemTypes">
-                <button class="babonus-keys" data-type="itemTypes">
+                <button class="babonus-keys" data-type="itemTypes" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -138,7 +138,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="throwTypes">
-                <button class="babonus-keys" data-type="throwTypes">
+                <button class="babonus-keys" data-type="throwTypes" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -202,7 +202,7 @@
             </label>
             <div class="form-fields">
               <input type="text" name="aura.blockers">
-              <button class="babonus-keys" data-type="blockers">
+              <button class="babonus-keys" data-type="blockers" type="button">
                 <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
               </button>
             </div>
@@ -220,7 +220,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="filters.damageTypes">
-                <button class="babonus-keys" data-type="damageTypes">
+                <button class="babonus-keys" data-type="damageTypes" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -234,7 +234,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="filters.abilities">
-                <button class="babonus-keys" data-type="abilities">
+                <button class="babonus-keys" data-type="abilities" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -266,7 +266,7 @@
             </label>
             <div class="form-fields">
               <input type="text" name="filters.statusEffects">
-              <button class="babonus-keys" data-type="statusEffects">
+              <button class="babonus-keys" data-type="statusEffects" type="button">
                 <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
               </button>
             </div>
@@ -278,7 +278,7 @@
             </label>
             <div class="form-fields">
               <input type="text" name="filters.targetEffects">
-              <button class="babonus-keys" data-type="targetEffects">
+              <button class="babonus-keys" data-type="targetEffects" type="button">
                 <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
               </button>
             </div>
@@ -292,7 +292,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="filters.attackTypes">
-                <button class="babonus-keys" data-type="attackTypes">
+                <button class="babonus-keys" data-type="attackTypes" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -307,7 +307,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="filters.saveAbilities">
-                <button class="babonus-keys" data-type="saveAbilities">
+                <button class="babonus-keys" data-type="saveAbilities" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -326,7 +326,7 @@
                   <option value="ANY">{{localize "BABONUS.VALUES.MATCH_ANY"}}</option>
                   <option value="ALL">{{localize "BABONUS.VALUES.MATCH_ALL"}}</option>
                 </select>
-                <button class="babonus-keys" data-type="spellComponents">
+                <button class="babonus-keys" data-type="spellComponents" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -335,11 +335,13 @@
               <label data-tooltip="{{{localize 'BABONUS.TITLES.SPELL_LEVELS'}}}" class="label">
                 {{localize "BABONUS.LABELS.SPELL_LEVELS"}}
               </label>
-              <div class="form-fields">
-                <input type="text" name="filters.spellLevels">
-                <button class="babonus-keys" data-type="spellLevels">
-                  <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
-                </button>
+              <div class="form-fields spellLevels">
+                {{#each spellLevels as |lvl|}}
+                <label class="sep" for="spellLevel{{lvl}}" data-spell-level="true">
+                  <input type="checkbox" data-dtype="Number" name="filters.spellLevels" value="{{lvl}}" id="spellLevel{{lvl}}">
+                  <span class="spell-level-check">{{lvl}}</span>
+                </label>
+                {{/each}}
               </div>
             </div>
             <div class="form-group">
@@ -348,7 +350,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="filters.spellSchools">
-                <button class="babonus-keys" data-type="spellSchools">
+                <button class="babonus-keys" data-type="spellSchools" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -363,7 +365,7 @@
               </label>
               <div class="form-fields">
                 <input type="text" name="filters.baseWeapons">
-                <button class="babonus-keys" data-type="baseWeapons">
+                <button class="babonus-keys" data-type="baseWeapons" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -375,7 +377,7 @@
               <div class="form-fields">
                 <input type="text" name="filters.weaponProperties.needed">
                 <input type="text" name="filters.weaponProperties.unfit">
-                <button class="babonus-keys" data-type="weaponProperties">
+                <button class="babonus-keys" data-type="weaponProperties" type="button">
                   <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
                 </button>
               </div>
@@ -387,12 +389,12 @@
 
       <div class="utils">
         <!-- WARN ABOUT A BONUS -->
-        <div class="warning" id="babonus-warning"></div>
+        <div class="notification warning" id="babonus-warning"></div>
 
         <!-- SAVE A BONUS -->
         <div class="save-button">
-          <button data-type="save-button">
-            <i class="fa-soid fa-floppy-disk"></i> {{localize "BABONUS.BUTTONS.SAVE"}}
+          <button data-type="save-button" type="submit">
+            <i class="fa-solid fa-floppy-disk"></i> {{localize "BABONUS.BUTTONS.SAVE"}}
           </button>
         </div>
       </div>
