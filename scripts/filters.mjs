@@ -444,4 +444,22 @@ export class FILTER {
   static itemRequirements() {
     return true;
   }
+
+  /**
+   * Find out if the embedded script returns true.
+   */
+  static macroCondition(object, script) {
+    if (!script?.length) return true;
+    try {
+      const func = Function("actor", "object", "token", script);
+      const actor = object.parent instanceof Actor ? object.parent : object instanceof Actor ? object : null;
+      const obj = (object instanceof Item || object instanceof ActiveEffect) ? object : null;
+      const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
+      const valid = func.call({}, actor, obj, token) === true;
+      return valid;
+    } catch (err) {
+      ui.notifications.error("There was an error in your macro syntax. See the console (F12) for details");
+      return false;
+    }
+  }
 }
