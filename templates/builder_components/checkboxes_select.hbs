@@ -1,0 +1,23 @@
+<!--
+  SPELL COMPONENTS: only valid if ITEM TYPES includes 'spell'.
+-->
+<div class="form-group">
+  <label data-tooltip="{{{localize tooltip}}}" class="label">
+    {{localize label}}
+  </label>
+  <div class="form-fields checkboxes">
+    <div class="checkboxes">
+      {{#each array as |type|}}
+      <label class="sep" for="id-{{type.value}}" data-hide-input="true">
+        <input type="checkbox" name="filters.{{../name}}.types" value="{{type.value}}" id="id-{{type.value}}">
+        <span class="checkboxes-check">{{{type.label}}}</span>
+      </label>
+      {{/each}}
+    </div>
+    <select name="filters.{{name}}.match">
+      {{#each selectOptions as |option|}}
+      <option value="{{option.value}}">{{localize option.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { MODULE } from "./constants.mjs";
 
-export class KeysDialog extends Dialog {
+export class BabonusKeysDialog extends Dialog {
   constructor(obj, options) {
     super(obj, options);
     this.object = obj.object;

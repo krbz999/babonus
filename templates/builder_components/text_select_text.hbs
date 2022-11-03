@@ -1,0 +1,17 @@
+<!--
+  ARBITRARY COMPARISON: always valid.
+-->
+<div class="form-group">
+  <label class="label" data-tooltip="{{{localize tooltip}}}">
+    {{localize label}}
+  </label>
+  <div class="form-fields">
+    <input type="text" name="filters.{{name}}.one" placeholder="{{localize placeholderOne}}">
+    <select name="filters.{{name}}.operator">
+      {{#each selectOptions as |option|}}
+      <option value="{{option.value}}">{{{option.label}}}</option>
+      {{/each}}
+    </select>
+    <input type="text" name="filters.{{name}}.other" placeholder="{{localize placeholderOther}}">
+  </div>
+</div>

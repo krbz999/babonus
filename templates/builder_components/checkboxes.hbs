@@ -1,0 +1,18 @@
+<!--
+  SPELL LEVELS: only valid if ITEM TYPES includes 'spell'.
+  ITEM TYPES: only valid if 'attack', 'damage', 'save'.
+  ATTACK TYPES: only valid if 'attack', 'damage'.
+-->
+<div class="form-group">
+  <label data-tooltip="{{{localize tooltip}}}" class="label">
+    {{localize label}}
+  </label>
+  <div class="form-fields checkboxes">
+    {{#each array as |type|}}
+    <label class="sep" for="id-{{type.value}}" data-hide-input="true">
+      <input type="checkbox" data-dtype="{{../dtype}}" name="{{concat "filters." ../name}}" value="{{type.value}}" id="id-{{type.value}}">
+      <span class="checkboxes-check">{{{type.label}}}</span>
+    </label>
+    {{/each}}
+  </div>
+</div>

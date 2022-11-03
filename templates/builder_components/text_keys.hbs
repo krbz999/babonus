@@ -1,0 +1,23 @@
+<!--
+  DAMAGE TYPES: only valid for 'attack', 'damage', 'save'.
+  ABILITIES: only valid for 'attack', 'damage', 'save'.
+  ATTACK TYPES: only valid for 'attack', 'damage'.
+  SAVE ABILITIES: only valid for 'save'.
+  THROW TYPES: only valid for 'throw'.
+  ACTOR CONDITIONS: always.
+  TARGET CONDITIONS: always.
+  SPELL SCHOOLS: only if ITEM TYPES includes 'spell'.
+  WEAPONS: only if ITEM TYPES includes 'weapon'.
+  AURA BLOCKERS: only if aura enabled and not template.
+-->
+<div class="form-group">
+  <label data-tooltip="{{{localize tooltip}}}" class="label">
+    {{localize label}}
+  </label>
+  <div class="form-fields">
+    <input type="text" name="filters.{{name}}">
+    <button class="babonus-keys" data-type="{{name}}" type="button">
+      <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+    </button>
+  </div>
+</div>

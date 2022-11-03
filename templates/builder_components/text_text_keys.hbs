@@ -1,0 +1,15 @@
+<!--
+  WEAPON PROPERTIES: only valid if ITEM TYPES includes 'weapon'.
+-->
+<div class="form-group">
+  <label data-tooltip="{{{localize tooltip}}}" class="label">
+    {{localize label}}
+  </label>
+  <div class="form-fields">
+    <input type="text" name="filters.{{name}}.needed">
+    <input type="text" name="filters.{{name}}.unfit">
+    <button class="babonus-keys" data-type="{{name}}" type="button">
+      <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+    </button>
+  </div>
+</div>

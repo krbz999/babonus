@@ -1,0 +1,120 @@
+import { arbitraryOperators, attackTypes } from "../constants.mjs";
+
+/**
+ * Take a name of a filter and return an object with
+ * - header: the filter's proper name
+ * - description: a description of how the filter applies
+ * - name: the name itself.
+ * - requirements: what is required to make this option available (not shown for available effects).
+ */
+export function _constructFilterDataFromName(name) {
+  return {
+    name,
+    header: `BABONUS.FILTER_PICKER.HEADER.${name}`,
+    description: `BABONUS.FILTER_PICKER.DESCRIPTION.${name}`,
+    requirements: `BABONUS.FILTER_PICKER.REQUIREMENTS.${name}`
+  }
+}
+
+/**
+ * Returns whether a filter is available to be added to babonus.
+ */
+export function _isFilterAvailable(name, { addedFilters, target, item, itemTypes }) {
+  if (name === "arbitraryComparison") return true;
+  if (addedFilters.includes(name)) return false;
+
+  if (["itemTypes", "damageTypes", "abilities"].includes(name)) return ["attack", "damage", "save"].includes(target);
+  if (name === "attackTypes") return ["attack", "damage"].includes(target);
+  if (name === "throwTypes") return target === "throw";
+  if (name === "saveAbilities") return target === "save";
+  if (["spellComponents", "spellLevels", "spellSchools"].includes(name)) return itemTypes.includes("spell");
+  if (["baseWeapons", "weaponProperties"].includes(name)) return itemTypes.includes("weapon");
+  if (name === "itemRequirements") return (item instanceof Item) && _canEquipOrAttuneToItem(item);
+  if (["statusEffects", "targetEffects"].includes(name)) return true;
+
+  return false;
+}
+
+function _canEquipOrAttuneToItem(item) {
+  if (!item) return false;
+  return _canEquipItem(item) || _canAttuneToItem(item);
+}
+
+function _canEquipItem(item) {
+  if (!item) return false;
+  return foundry.utils.hasProperty(item, "system.equipped");
+}
+
+function _canAttuneToItem(item) {
+  if (!item) return false;
+  const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
+  return [REQUIRED, ATTUNED].includes(item.system.attunement);
+}
+
+export function _addToAddedFilters(app, name) {
+  const added = app._addedFilters ?? [];
+  added.push(name);
+  app._addedFilters = added;
+}
+
+export async function _employFilter(app, name) {
+  // what template and what data to use depends on the name of the filter.
+  let template = "modules/babonus/templates/builder_components/";
+  const item = app.object instanceof Item ? app.object : null;
+  const data = {
+    tooltip: `BABONUS.TOOLTIPS.${name}`,
+    label: `BABONUS.LABELS.${name}`,
+    name
+  };
+
+  if (name === "spellComponents") {
+    template += "checkboxes_select.hbs";
+    data.array =
+      Object.entries(CONFIG.DND5E.spellComponents)
+        .concat(Object.entries(CONFIG.DND5E.spellTags))
+        .map(([key, { abbr }]) => {
+          return { value: key, label: abbr };
+        });
+    data.selectOptions = [
+      { value: "ANY", label: "BABONUS.VALUES.MATCH_ANY" },
+      { value: "ALL", label: "BABONUS.VALUES.MATCH_ALL" }
+    ];
+  } else if (["spellLevels", "itemTypes", "attackTypes"].includes(name)) {
+    template += "checkboxes.hbs";
+    data.dtype = name === "spellLevels" ? "Number" : "String";
+    if (name === "spellLevels") {
+      data.array = Array.fromRange(10).map(n => ({ value: n, label: n }));
+    } else if (name === "itemTypes") {
+      data.array = [
+        { value: "consumable", label: "CONS" },
+        { value: "equipment", label: "EQPM" },
+        { value: "feat", label: "FEAT" },
+        { value: "spell", label: "SPLL" },
+        { value: "weapon", label: "WEPN" }
+      ];
+    } else if (name === "attackTypes") {
+      data.array = attackTypes.map(a => ({ value: a, label: a }));
+    }
+  } else if ("itemRequirements" === name) {
+    template += "label_checkbox_label_checkbox.hbs";
+    data.canEquip = _canEquipItem(item);
+    data.canAttune = _canAttuneToItem(item);
+  } else if (["damageTypes", "abilities", "saveAbilities", "throwTypes", "statusEffects", "targetEffects", "spellSchools", "baseWeapons"].includes(name)) {
+    template += "text_keys.hbs";
+  } else if ("arbitraryComparison" === name) {
+    template += "text_select_text.hbs";
+    const iter = app._comparisonFields ?? 0;
+    data.name = `${name}.${iter}`;
+    app._comparisonFields = iter + 1;
+    data.placeholderOne = `BABONUS.PLACEHOLDER.${name}.one`;
+    data.placeholderOther = `BABONUS.PLACEHOLDER.${name}.other`;
+    data.selectOptions = arbitraryOperators;
+  } else if ("weaponProperties" === name) {
+    template += "text_text_keys.hbs";
+  }
+
+  const DIV = document.createElement("DIV");
+  DIV.innerHTML = await renderTemplate(template, data);
+  app.element[0].querySelector("div.filters").appendChild(...DIV.children);
+  return true;
+}

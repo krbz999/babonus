@@ -1,11 +1,14 @@
+import { Babonus } from "./applications/dataModel.mjs";
+import { BabonusFilterPicker } from "./applications/filterPicker.mjs";
 import { itemsValidForAttackDamageSave, MODULE, targetTypes } from "./constants.mjs";
 import { superSlugify, getBonuses, getTargets, KeyGetter } from "./helpers.mjs";
-import { KeysDialog } from "./keys_dialog.mjs";
+import { BabonusKeysDialog } from "./keys_dialog.mjs";
 import { dataHasAllRequirements, finalizeData, validateData } from "./validator.mjs";
 
 export class Build_a_Bonus extends FormApplication {
   constructor(object, options) {
     super(object, options);
+    this.filterPicker = new BabonusFilterPicker(this, {});
     this.isItem = object.documentName === "Item";
     this.isEffect = object.documentName === "ActiveEffect";
     this.isActor = object.documentName === "Actor";
@@ -18,12 +21,12 @@ export class Build_a_Bonus extends FormApplication {
       height: "auto",
       template: `modules/${MODULE}/templates/build_a_bonus.html`,
       classes: [MODULE],
-      scrollY: [".current .bonuses"]
+      scrollY: []// [".current-bonuses .bonuses", ".available-filters", ".unavailable-filters"]
     });
   }
 
   get id() {
-    return `${MODULE}-build-a-bonus-${this.object.id}`;
+    return `${MODULE}-${this.object.id}`;
   }
 
   get isEditable() {
@@ -32,6 +35,8 @@ export class Build_a_Bonus extends FormApplication {
 
   async getData() {
     const data = await super.getData();
+    //const filterPickerData = await this.filterPicker.getData();
+    //foundry.utils.mergeObject(data, filterPickerData);
 
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
@@ -42,14 +47,18 @@ export class Build_a_Bonus extends FormApplication {
       data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
       data.canConfigureTemplate = this.object.hasAreaTarget;
     }
-    data.targets = getTargets();
+    //data.targets = getTargets();
     data.bonuses = getBonuses(this.object);
-    data.spellLevels = Array.fromRange(10);
+    //data.spellLevels = Array.fromRange(10);
 
     return data;
   }
 
   async _updateObject(event, formData) {
+    console.log(formData);
+    formData.type = this._target;
+    console.log(new Babonus(expandObject(formData)));
+    return;
     event.stopPropagation();
     const button = event.submitter;
     if (!button) return;
@@ -67,6 +76,10 @@ export class Build_a_Bonus extends FormApplication {
   }
 
   async _onChangeInput(event) {
+    const fp = this.element[0].querySelector(".right-side div.filter-picker");
+    if (fp) fp.innerHTML = await this.filterPicker.getHTML();
+    console.log(this);
+    return;
     if (event) {
       await super._onChangeInput(event);
 
@@ -94,6 +107,7 @@ export class Build_a_Bonus extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
+    this.filterPicker.activateListeners(html);
     const app = this;
 
     // KEYS buttons.
@@ -108,7 +122,7 @@ export class Build_a_Bonus extends FormApplication {
         const selector = [
           `[name="filters.${type}"]`,
           `[name="${type}"]`,
-          `[name="filters.${type}.types"]`, // for spellComponents
+          //`[name="filters.${type}.types"]`, // for spellComponents
           `[name="aura.${type}"]` // for aura.blockers
         ].join(", ");
         const input = html[0].querySelector(selector);
@@ -188,10 +202,37 @@ export class Build_a_Bonus extends FormApplication {
       bonus.classList.toggle("collapsed");
     });
 
+    // when you pick a TARGET, hide/unhide components.
+    html[0].addEventListener("click", async (event) => {
+      const a = event.target.closest(".left-side .select-target .targets a");
+      if (!a) return;
+      const target = a.dataset.type;
+      this._target = target;
+
+      // hide:
+      const hide = html[0].querySelectorAll(".left-side div.select-target, .right-side div.current-bonuses");
+      for (const h of hide) h.style.display = "none";
+      // show:
+      const show = html[0].querySelectorAll(".left-side div.inputs, .right-side div.filter-picker");
+      for (const s of show) s.style.display = "";
+
+      html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.filterPicker.getHTML();
+      const temp = "modules/babonus/templates/builder_components/_required_fields.hbs";
+      const locale = `BABONUS.VALUES.TYPE.${target}`;
+      html[0].querySelector(".left-side .required-fields .required").innerHTML = await renderTemplate(temp, {locale});
+    });
+
+    // when you pick an item type, add to _itemTypes.
+    html[0].addEventListener("click", (event) => {
+      const types = html[0].querySelectorAll("input[name='filters.itemTypes']:checked");
+      this._itemTypes = Array.from(types).map(t => t.value);
+    });
+
   }
 
   // async dialog helper for the Keys dialogs.
   async applyKeys(title, content, type) {
+    return;
     const app = this;
     const apply = {};
     const obj = {
@@ -221,12 +262,13 @@ export class Build_a_Bonus extends FormApplication {
       }
       obj.close = () => resolve(false);
 
-      new KeysDialog(obj).render(true);
+      new BabonusKeysDialog(obj).render(true);
     });
   }
 
   // helper function to only use valid keys when setting flag.
   validateKeys(list, type) {
+    return;
     if (!list) return [];
     const ids = list.split(";");
     const values = this[type].map(i => i.value);
@@ -243,6 +285,7 @@ export class Build_a_Bonus extends FormApplication {
 
   // method to take html, gather the inputs, and either update an existing bonus or create a new one.
   async build_a_bonus(formData) {
+    return;
     // mutate the formData.
     validateData(formData);
 
@@ -272,6 +315,7 @@ export class Build_a_Bonus extends FormApplication {
 
   // method to delete a bonus when hitting the Trashcan button.
   async delete_a_bonus(id) {
+    return;
     const { label } = this.object.getFlag(MODULE, `bonuses.${id}`);
 
     const prompt = await Dialog.confirm({
@@ -287,6 +331,7 @@ export class Build_a_Bonus extends FormApplication {
   }
 
   async toggle_a_bonus(id) {
+    return;
     const key = `bonuses.${id}.enabled`;
     const state = this.object.getFlag(MODULE, key);
     return this.object.setFlag(MODULE, key, !state);
@@ -307,6 +352,7 @@ export class Build_a_Bonus extends FormApplication {
 
   // A helper function to fill out the form with an existing bonus from the document.
   pasteValues(html, flagBonus, id, edit = true) {
+    return this.render();
     this.clearForm();
     const formData = foundry.utils.flattenObject(flagBonus);
 
@@ -320,7 +366,7 @@ export class Build_a_Bonus extends FormApplication {
 
     // turn arrays into strings and tick all boxes.
     for (const key of Object.keys(formData)) {
-      if(key === "filters.spellLevels") continue;
+      if (key === "filters.spellLevels") continue;
       if (formData[key] instanceof Array) {
         formData[key] = formData[key].join(";");
       }
@@ -329,7 +375,7 @@ export class Build_a_Bonus extends FormApplication {
       if (inp.type === "checkbox") inp.checked = formData[key];
       else inp.value = formData[key];
     }
-    for(const n of formData["filters.spellLevels"] ?? []){
+    for (const n of formData["filters.spellLevels"] ?? []) {
       html[0].querySelector(`#spellLevel${n}`).checked = true;
     }
 
@@ -347,6 +393,7 @@ export class Build_a_Bonus extends FormApplication {
 
   // helper method to populate the BAB with new fields depending on values selected.
   refreshForm() {
+    return;
     const html = this.element;
     const itemTypeInput = html[0].querySelector("[name='itemTypes']");
     const targetInput = html[0].querySelector("[name='target']");
@@ -391,6 +438,7 @@ export class Build_a_Bonus extends FormApplication {
 
   // helper method to clear the form before pasting data.
   clearForm() {
+    return;
     const elements = this.element[0].getElementsByTagName("INPUT");
     const selects = this.element[0].getElementsByTagName("SELECT");
     [...elements].map(e => e.type === "checkbox" ? e.checked = false : e.value = "");
@@ -399,6 +447,7 @@ export class Build_a_Bonus extends FormApplication {
 
   _saveScrollPositions(html) {
     super._saveScrollPositions(html);
+    return;
     const selector = ".current .bonuses .bonus.collapsed";
     const scrolls = html[0].querySelectorAll(selector);
     this._collapsedBonuses = [...scrolls].map(c => c.dataset.id);
@@ -406,9 +455,26 @@ export class Build_a_Bonus extends FormApplication {
 
   _restoreScrollPositions(html) {
     super._restoreScrollPositions(html);
+    return;
     this._collapsedBonuses?.map(c => {
       const selector = `.bonuses .bonus[data-id='${c}']`;
       html[0].querySelector(selector)?.classList.add("collapsed", "instant");
     });
+  }
+
+  render(...T) {
+    super.render(...T);
+    this._deleteTemporaryValues();
+  }
+
+  /**
+   * Delete temporary values from the BAB.
+   * These are only relevant while building a bonus
+   * and are used only by the FilterPicker.
+   */
+  _deleteTemporaryValues() {
+    delete this._target;
+    delete this._addedFilters;
+    delete this._itemTypes;
   }
 }

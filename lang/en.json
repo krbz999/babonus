@@ -17,39 +17,21 @@
       "MISSING_THROW_TYPES": "You must select at least one type of saving throw!"
     },
     "LABELS": {
-      "IDENTIFIERS": "Identifiers",
-      "ID_LABEL": "Label",
-      "ID_IDENTIFIER": "Identifier",
-      "TARGETS": "Targets",
-      "BONUS": "Bonus",
-      "CRITICAL_RANGE": "Critical Range",
-      "FUMBLE_RANGE": "Fumble Range",
-      "CRIT_BONUS_DICE": "Critical Dice",
-      "CRIT_BONUS_DAMAGE": "Critical Damage",
-      "DESCRIPTION": "Description",
-      "ITEM_TYPES": "Item Types",
-      "ITEM_SPECIFIC": "Requirements",
-      "EQUIPPED": "Equipped",
-      "ATTUNED": "Attuned",
-      "DAMAGE_TYPES": "Damage Types",
-      "ABILITIES": "Abilities",
-      "SAVE_ABILITIES": "Save Ability",
-      "ATTACK_TYPES": "Attack Types",
-      "COMPONENTS": "Components",
-      "SPELL_LEVELS": "Spell Levels",
-      "SPELL_SCHOOLS": "Spell Schools",
-      "WEAPONS": "Weapons",
-      "PROPERTIES": "Properties",
-      "ARBITRARY_COMPARISON": "Comparison",
-      "ACTOR_CONDITIONS": "Actor Cond.",
-      "TARGET_CONDITIONS": "Target Cond.",
-      "THROW_TYPES": "Saving Throws",
-      "DEATH_SAVE_TARGET_VALUE": "Death Target",
-      "AURA_RANGE": "Range",
-      "AURA_TEMPLATE": "Affect Template Instead",
-      "AURA_FIELDS": "Targeting",
-      "AURA_SELF": "Affect Self",
-      "AURA_BLOCKERS": "Blockers"
+      "itemTypes": "Item Types",
+      "spellSchools": "Spell Schools",
+      "spellLevels": "Spell Levels",
+      "spellComponents": "Spell Comps.",
+      "arbitraryComparison": "Comparison",
+      "statusEffects": "Actor Conds.",
+      "targetEffects": "Target Conds.",
+      "attackTypes": "Attack Types",
+      "damageTypes": "Damage Types",
+      "abilities": "Abilities",
+      "throwTypes": "Throw Types",
+      "itemRequirements": "Item Reqs.",
+      "saveAbilities": "Save Abilities",
+      "baseWeapons": "Weapons",
+      "weaponProperties": "Weapon Props."
     },
     "TITLES": {
       "TOGGLE_THIS": "Toggle this bonus on or off.<br>A bonus that is toggled off will be completely ignored, even if it is an aura.",
@@ -104,12 +86,12 @@
         "ENEMY": "Enemy Targets",
         "ANY": "Any Targets"
       },
-      "TARGET": {
-        "ATTACK": "Attack Rolls",
-        "DAMAGE": "Damage Rolls",
-        "SAVE": "Save DC",
-        "THROW": "Saving Throws",
-        "HITDIE": "Hit Die Rolls"
+      "TYPE": {
+        "attack": "Attack Rolls",
+        "damage": "Damage Rolls",
+        "save": "Save DC",
+        "throw": "Saving Throws",
+        "hitdie": "Hit Die Rolls"
       }
     },
     "BUTTONS": {
@@ -118,9 +100,12 @@
     },
     "HEADERS": {
       "BUILD_A_BONUS": "Build-a-Bonus",
+      "SELECT_TARGET": "Select a Target",
+      "AVAILABLE_FILTERS": "Available Filters",
+      "UNAVAILABLE_FILTERS": "Unavailable Filters",
       "REQUIRED_FIELDS": "Required Fields",
-      "AURA": "Aura",
-      "FILTERS": "Filters",
+      "AURA": "Aura Configuration",
+      "FILTERS": "Current Filters",
       "CURRENT_BONUSES": "Current Bonuses"
     },
     "KEY": {

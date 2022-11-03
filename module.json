@@ -19,7 +19,7 @@
     "setup.js"
   ],
   "styles": [
-    "templates/build_a_bonus.css"
+    "styles/babonus.css"
   ],
   "relationships": {
     "systems": [

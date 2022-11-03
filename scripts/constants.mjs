@@ -33,3 +33,29 @@ export const auraTargets = {
   ENEMY: -1,
   ANY: 2
 }
+
+export const FILTER_NAMES = [
+  "itemTypes",
+  "throwTypes",
+  "itemRequirements",
+  "arbitraryComparison",
+  "statusEffects",
+  "targetEffects",
+  "attackTypes",
+  "damageTypes",
+  "abilities",
+  "saveAbilities",
+  "spellComponents",
+  "spellLevels",
+  "spellSchools",
+  "baseWeapons",
+  "weaponProperties"
+];
+
+export const arbitraryOperators = [
+  { value: "EQ", label: "=" },
+  { value: "LT", label: "&lt;" },
+  { value: "GT", label: "&gt;" },
+  { value: "LE", label: "&le;" },
+  { value: "GE", label: "&ge;" }
+];

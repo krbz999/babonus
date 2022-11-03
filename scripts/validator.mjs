@@ -96,7 +96,7 @@ export function validateData(formData) {
     delete formData["filters.spellComponents.match"];
   }
 
-  // comparison:
+  // comparison: TODO (use conversion method below).
   const a = "filters.arbitraryComparison.one";
   const b = "filters.arbitraryComparison.other";
   const c = "filters.arbitraryComparison.operator";
@@ -211,4 +211,21 @@ export function dataHasAllRequirements(formData, object, editMode = false) {
   }
 
   return { valid: true };
+}
+
+// convert arbitraryComparisons to array instead of object
+// after the formdata is expanded.
+function _convertComparisonFieldsToArray(formData) {
+  if (!formData.filters?.arbitraryComparison) return null;
+
+  const obj = formData.filters.arbitraryComparison;
+
+  if (foundry.utils.getType(value) === "Object") {
+    const arr = [];
+    for (const [k, v] of Object.entries(obj)) {
+      const i = Number(k);
+      if (Number.isInteger(i) && (i >= 0)) arr[i] = v;
+    }
+    formData.filters.arbitraryComparison = arr;
+  }
 }
