@@ -9,26 +9,30 @@
       <div class="select-target">
         <header class="select-target">{{localize "BABONUS.HEADERS.SELECT_TARGET"}}</header>
         <div class="targets">
-          <a data-type="attack"><i class="fa-solid fa-hand-fist"></i> {{localize "BABONUS.VALUES.TYPE.ATTACK"}}</a>
-          <a data-type="damage"><i class="fa-solid fa-burst"></i> {{localize "BABONUS.VALUES.TYPE.DAMAGE"}}</a>
-          <a data-type="save"><i class="fa-solid fa-hand-sparkles"></i> {{localize "BABONUS.VALUES.TYPE.SAVE"}}</a>
-          <a data-type="throw"><i class="fa-solid fa-person-falling-burst"></i> {{localize "BABONUS.VALUES.TYPE.THROW"}}</a>
-          <a data-type="hitdie"><i class="fa-solid fa-heart-pulse"></i> {{localize "BABONUS.VALUES.TYPE.HITDIE"}}</a>
+          {{#each TYPES as |type|}}
+          <a data-type="{{type.value}}"><i class="{{type.icon}}"></i> {{localize type.label}}</a>
+          {{/each}}
         </div>
       </div>
 
       <div class="inputs" style="display: none;">
 
         <div class="bonus-config">
+
           <div class="required-fields">
             <header class="required-fields">{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</header>
             <div class="required"></div>
           </div>
 
+          <div class="bonuses-inputs">
+            <header class="bonuses-inputs">{{localize "BABONUS.HEADERS.BONUSES_INPUTS"}}</header>
+            <div class="bonuses"></div>
+          </div>
+
           <div class="aura-config">
             <header class="aura-config">
               <div class="content">{{localize "BABONUS.HEADERS.AURA"}}</div>
-              <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIP.AURA'}}}" name="aura.enabled">
+              <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA'}}}" name="aura.enabled">
             </header>
             <div class="aura"></div>
           </div>
@@ -70,18 +74,18 @@
               {{/if}}
               <div class="details">
                 <div class="functions">
-                  <a data-type="toggle" data-tooltip="{{{localize 'BABONUS.TITLES.TOGGLE_THIS'}}}">
+                  <a data-type="toggle" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.TOGGLE_THIS'}}}">
                     {{#if bonus.enabled}} <i class="fa-solid fa-toggle-on"></i>
                     {{else}} <i class="fa-solid fa-toggle-off"></i>
                     {{/if}}
                   </a>
-                  <a data-type="copy" data-tooltip="{{{localize 'BABONUS.TITLES.COPY_THIS'}}}">
+                  <a data-type="copy" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.COPY_THIS'}}}">
                     <i class="fa-solid fa-copy"></i>
                   </a>
-                  <a data-type="edit" data-tooltip="{{{localize 'BABONUS.TITLES.EDIT_THIS'}}}">
+                  <a data-type="edit" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.EDIT_THIS'}}}">
                     <i class="fa-solid fa-gear"></i>
                   </a>
-                  <a data-type="delete" data-tooltip="{{{localize 'BABONUS.TITLES.DELETE_THIS'}}}">
+                  <a data-type="delete" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.DELETE_THIS'}}}">
                     <i class="fa-solid fa-trash"></i>
                   </a>
                 </div>

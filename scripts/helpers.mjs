@@ -2,7 +2,7 @@ import {
   attackTypes,
   itemsValidForAttackDamageSave,
   MODULE,
-  targetTypes
+  TYPES
 } from "./constants.mjs";
 import { FILTER } from "./filters.mjs";
 
@@ -18,11 +18,11 @@ export function superSlugify(id) {
 
 // the types of bonuses ('attack', 'damage', 'save', etc)
 export function getTargets() {
-  return targetTypes.map(value => {
-    const upper = value.toUpperCase();
-    const string = `BABONUS.VALUES.TARGET.${upper}`;
-    const label = game.i18n.localize(string);
-    return { value, label };
+  return TYPES.map(t => {
+    return {
+      value: t.value,
+      label: game.i18n.localize(t.label)
+    };
   });
 }
 
@@ -31,15 +31,15 @@ export function getBonuses(doc) {
   const flag = doc.getFlag(MODULE, "bonuses");
   if (!flag) return [];
 
-  const bonuses = targetTypes.reduce((acc, type) => {
-    if (!flag[type]) return acc;
-    const e = Object.entries(flag[type]);
+  const bonuses = TYPES.reduce((acc, type) => {
+    if (!flag[type.value]) return acc;
+    const e = Object.entries(flag[type.value]);
     const map = e.map(([id, val]) => {
       return {
         identifier: id,
         description: val.description,
         label: val.label,
-        type,
+        type: type.value,
         enabled: val.enabled
       };
     });

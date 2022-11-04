@@ -295,6 +295,16 @@ table.babonus td:not(:first-child) {
   font-size: 60px;
 }
 
+.babonus .target-type {
+  font-size: 30px;
+  text-align: center;
+  margin: 0.4em;
+}
+
+.babonus .target-type-header {
+  font-size: 16px;
+}
+
 /* FILTER PICKER */
 .babonus .filter-picker .filter {
   display: grid;
@@ -303,6 +313,7 @@ table.babonus td:not(:first-child) {
     "c c"
     "d d";
   grid-template-columns: 1fr 0fr;
+  margin-bottom: 1em;
 }
 
 .babonus .filter-picker .filter-header {
@@ -310,19 +321,19 @@ table.babonus td:not(:first-child) {
   text-align: left;
   padding-left: 0.5em;
   grid-area: a;
+  margin-bottom: 0;
 }
 
 .babonus .filter-picker .filter-description {
-  font-style: italic;
   padding: 0 0.5em;
   grid-area: c;
 }
 
 .babonus .filter-picker .filter-requirements {
   font-style: italic;
-  padding: 0 1em;
+  padding: 0.5em 1em;
   font-size: 12px;
-  color: dimgray;
+  color: #523232;
   grid-area: d;
 }
 

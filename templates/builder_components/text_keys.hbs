@@ -7,10 +7,9 @@
   ACTOR CONDITIONS: always.
   TARGET CONDITIONS: always.
   SPELL SCHOOLS: only if ITEM TYPES includes 'spell'.
-  WEAPONS: only if ITEM TYPES includes 'weapon'.
-  AURA BLOCKERS: only if aura enabled and not template.
+  baseWeapons: only if ITEM TYPES includes 'weapon'.
 -->
-<div class="form-group">
+<div class="form-group" data-name="{{name}}">
   <label data-tooltip="{{{localize tooltip}}}" class="label">
     {{localize label}}
   </label>

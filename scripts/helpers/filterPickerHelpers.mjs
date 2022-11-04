@@ -10,9 +10,9 @@ import { arbitraryOperators, attackTypes } from "../constants.mjs";
 export function _constructFilterDataFromName(name) {
   return {
     name,
-    header: `BABONUS.FILTER_PICKER.HEADER.${name}`,
-    description: `BABONUS.FILTER_PICKER.DESCRIPTION.${name}`,
-    requirements: `BABONUS.FILTER_PICKER.REQUIREMENTS.${name}`
+    header: `BABONUS.FILTER_PICKER.${name}.HEADER`,
+    description: `BABONUS.TOOLTIPS.${name}`,
+    requirements: `BABONUS.FILTER_PICKER.${name}.REQUIREMENTS`
   }
 }
 
@@ -21,15 +21,15 @@ export function _constructFilterDataFromName(name) {
  */
 export function _isFilterAvailable(name, { addedFilters, target, item, itemTypes }) {
   if (name === "arbitraryComparison") return true;
-  if (addedFilters.includes(name)) return false;
+  if (addedFilters.has(name)) return false;
 
   if (["itemTypes", "damageTypes", "abilities"].includes(name)) return ["attack", "damage", "save"].includes(target);
   if (name === "attackTypes") return ["attack", "damage"].includes(target);
   if (name === "throwTypes") return target === "throw";
   if (name === "saveAbilities") return target === "save";
-  if (["spellComponents", "spellLevels", "spellSchools"].includes(name)) return itemTypes.includes("spell");
-  if (["baseWeapons", "weaponProperties"].includes(name)) return itemTypes.includes("weapon");
-  if (name === "itemRequirements") return (item instanceof Item) && _canEquipOrAttuneToItem(item);
+  if (["spellComponents", "spellLevels", "spellSchools"].includes(name)) return itemTypes.has("spell") && itemTypes.size === 1;
+  if (["baseWeapons", "weaponProperties"].includes(name)) return itemTypes.has("weapon") && itemTypes.size === 1;
+  if (name === "itemRequirements") return _canEquipOrAttuneToItem(item);
   if (["statusEffects", "targetEffects"].includes(name)) return true;
 
   return false;
@@ -52,8 +52,8 @@ function _canAttuneToItem(item) {
 }
 
 export function _addToAddedFilters(app, name) {
-  const added = app._addedFilters ?? [];
-  added.push(name);
+  const added = app._addedFilters ?? new Set();
+  added.add(name);
   app._addedFilters = added;
 }
 
@@ -106,8 +106,8 @@ export async function _employFilter(app, name) {
     const iter = app._comparisonFields ?? 0;
     data.name = `${name}.${iter}`;
     app._comparisonFields = iter + 1;
-    data.placeholderOne = `BABONUS.PLACEHOLDER.${name}.one`;
-    data.placeholderOther = `BABONUS.PLACEHOLDER.${name}.other`;
+    data.placeholderOne = `BABONUS.PLACEHOLDERS.${name}.one`;
+    data.placeholderOther = `BABONUS.PLACEHOLDERS.${name}.other`;
     data.selectOptions = arbitraryOperators;
   } else if ("weaponProperties" === name) {
     template += "text_text_keys.hbs";

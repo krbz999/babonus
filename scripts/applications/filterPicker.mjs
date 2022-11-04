@@ -1,4 +1,4 @@
-import { FILTER_NAMES, MODULE } from "../constants.mjs";
+import { BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
 import {
   _addToAddedFilters,
   _constructFilterDataFromName,
@@ -11,17 +11,6 @@ export class BabonusFilterPicker {
     this.object = object;
   }
 
-  /*static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      closeOnSubmit: false,
-      width: 400,
-      height: "auto",
-      template: `modules/${MODULE}/templates/build_a_bonus.html`,//,
-      classes: [MODULE],
-      scrollY: [".available-filters", ".unavailable-filters"]
-    });
-  }*/
-
   get id() {
     return `${MODULE}-filterPicker-${this.object.id}`;
   }
@@ -29,16 +18,16 @@ export class BabonusFilterPicker {
   async getData() {
     const data = {};
 
-    const addedFilters = this.object._addedFilters ?? [];
+    const addedFilters = this.object._addedFilters ?? new Set();
     const availableFilters = [];
     const unavailableFilters = [];
 
     for (const name of FILTER_NAMES) {
-      if (addedFilters.includes(name) && name!=="arbitraryComparison") continue;
+      if (addedFilters.has(name) && name !== "arbitraryComparison") continue;
       const filterData = _constructFilterDataFromName(name);
       const item = this.object.object;
       const target = this.object._target;
-      const itemTypes = this.object._itemTypes ?? [];
+      const itemTypes = this.object._itemTypes ?? new Set();
       if (_isFilterAvailable(name, { addedFilters, target, item, itemTypes })) {
         availableFilters.push(filterData);
       } else unavailableFilters.push(filterData);
@@ -50,14 +39,32 @@ export class BabonusFilterPicker {
     return data;
   }
 
-  async getHTML() {
-    const template = `modules/${MODULE}/templates/subapplications/filterPicker.hbs`;
+  async getHTMLFilters() {
+    const template = "modules/babonus/templates/subapplications/filterPicker.hbs";
     const data = await this.getData();
     return renderTemplate(template, data);
   }
 
+  async getHTMLRequired() {
+    const template = "modules/babonus/templates/builder_components/_required_fields.hbs";
+    const type = TYPES.find(t => t.value === this.object._target);
+    const data = { type, bonusTypes: BONUS_TYPES[this.object._target] };
+    return renderTemplate(template, data);
+  }
+
+  async getHTMLBonuses(){
+    const template = "modules/babonus/templates/builder_components/_bonuses.hbs";
+    const type = this.object._target;
+    const data = {bonuses: BONUS_TYPES[type]};
+    return renderTemplate(template, data);
+  }
+
+  async getHTMLAura(){
+    const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
+    return renderTemplate(template);
+  }
+
   activateListeners(html) {
-    //super.activateListeners(html);
     html[0].addEventListener("click", async (e) => {
       const a = e.target.closest(".filter-add");
       if (!a) return;
@@ -69,7 +76,7 @@ export class BabonusFilterPicker {
       // add the filter to babonus _addedFilters.
       _addToAddedFilters(this.object, name);
       // remove this filter.
-      html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.getHTML();
+      html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.getHTMLFilters();
     });
   }
 }

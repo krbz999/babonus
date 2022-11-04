@@ -1,6 +1,6 @@
-import { Babonus } from "./applications/dataModel.mjs";
+import { AttackBabonus, Babonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus } from "./applications/dataModel.mjs";
 import { BabonusFilterPicker } from "./applications/filterPicker.mjs";
-import { itemsValidForAttackDamageSave, MODULE, targetTypes } from "./constants.mjs";
+import { itemsValidForAttackDamageSave, itemTypeRequirements, MODULE, TYPES } from "./constants.mjs";
 import { superSlugify, getBonuses, getTargets, KeyGetter } from "./helpers.mjs";
 import { BabonusKeysDialog } from "./keys_dialog.mjs";
 import { dataHasAllRequirements, finalizeData, validateData } from "./validator.mjs";
@@ -21,7 +21,7 @@ export class Build_a_Bonus extends FormApplication {
       height: "auto",
       template: `modules/${MODULE}/templates/build_a_bonus.html`,
       classes: [MODULE],
-      scrollY: []// [".current-bonuses .bonuses", ".available-filters", ".unavailable-filters"]
+      scrollY: [".current-bonuses .bonuses", ".available-filters", ".unavailable-filters"]
     });
   }
 
@@ -49,15 +49,27 @@ export class Build_a_Bonus extends FormApplication {
     }
     //data.targets = getTargets();
     data.bonuses = getBonuses(this.object);
+    data.TYPES = TYPES;
     //data.spellLevels = Array.fromRange(10);
 
     return data;
   }
 
   async _updateObject(event, formData) {
-    console.log(formData);
+    for (const key of Object.keys(formData)) {
+      if (!formData[key]) delete formData[key];
+      else if (foundry.utils.isEmpty(formData[key])) delete formData[key];
+    }
     formData.type = this._target;
-    console.log(new Babonus(expandObject(formData)));
+    const BAB = new {
+      attack: AttackBabonus,
+      damage: DamageBabonus,
+      save: SaveBabonus,
+      throw: ThrowBabonus,
+      hitdie: HitDieBabonus
+    }[this._target](formData);
+    console.log("BABONUS:", BAB);
+    console.log("OBJECT:", BAB.toObject());
     return;
     event.stopPropagation();
     const button = event.submitter;
@@ -77,8 +89,15 @@ export class Build_a_Bonus extends FormApplication {
 
   async _onChangeInput(event) {
     const fp = this.element[0].querySelector(".right-side div.filter-picker");
-    if (fp) fp.innerHTML = await this.filterPicker.getHTML();
-    console.log(this);
+    if (fp) fp.innerHTML = await this.filterPicker.getHTMLFilters();
+
+    if (event.target.name === "aura.enabled") {
+      const body = this.element[0].querySelector(".left-side .aura-config .aura");
+      if (event.target.checked) body.innerHTML = await this.filterPicker.getHTMLAura();
+      else body.innerHTML = "";
+    }
+
+
     return;
     if (event) {
       await super._onChangeInput(event);
@@ -202,7 +221,7 @@ export class Build_a_Bonus extends FormApplication {
       bonus.classList.toggle("collapsed");
     });
 
-    // when you pick a TARGET, hide/unhide components.
+    // when you pick a TARGET.
     html[0].addEventListener("click", async (event) => {
       const a = event.target.closest(".left-side .select-target .targets a");
       if (!a) return;
@@ -216,16 +235,29 @@ export class Build_a_Bonus extends FormApplication {
       const show = html[0].querySelectorAll(".left-side div.inputs, .right-side div.filter-picker");
       for (const s of show) s.style.display = "";
 
-      html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.filterPicker.getHTML();
-      const temp = "modules/babonus/templates/builder_components/_required_fields.hbs";
-      const locale = `BABONUS.VALUES.TYPE.${target}`;
-      html[0].querySelector(".left-side .required-fields .required").innerHTML = await renderTemplate(temp, {locale});
+      html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.filterPicker.getHTMLFilters();
+      html[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired();
+      html[0].querySelector(".left-side .bonuses-inputs .bonuses").innerHTML = await this.filterPicker.getHTMLBonuses();
     });
 
     // when you pick an item type, add to _itemTypes.
     html[0].addEventListener("click", (event) => {
       const types = html[0].querySelectorAll("input[name='filters.itemTypes']:checked");
-      this._itemTypes = Array.from(types).map(t => t.value);
+      this._itemTypes = new Set(Array.from(types).map(t => t.value));
+
+      // if this means a filter you picked is no longer available, remove it.
+      // also remove it if you have more than 1 item type.
+      for (const key of Object.keys(itemTypeRequirements)) {
+        if (!this._itemTypes.has(key) || this._itemTypes.size > 1) {
+          for (const name of itemTypeRequirements[key]) {
+            const el = this.element[0].querySelector(`.left-side .form-group[data-name="${name}"]`);
+            if (el) {
+              el.remove();
+              this._addedFilters.delete(name);
+            }
+          }
+        }
+      }
     });
 
   }
@@ -298,8 +330,6 @@ export class Build_a_Bonus extends FormApplication {
     }
 
     const { key, value, del } = finalizeData(formData);
-
-    console.log(foundry.utils.duplicate(formData));
 
     // remove the warning field.
     this.displayWarning(false);
@@ -405,7 +435,7 @@ export class Build_a_Bonus extends FormApplication {
     const toRemove = [];
     const toAdd = [];
 
-    for (const type of targetTypes) {
+    for (const type of TYPES.map(t => t.value)) {
       if (targetInput.value === type) toAdd.push(type);
       else toRemove.push(type);
     }
