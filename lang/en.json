@@ -43,10 +43,11 @@
 
       "itemRequirements": "Item Reqs.",
 
-      "AURA_RANGE": "Range",
+      "AURA_RANGE": "Range (ft)",
       "AURA_FIELDS": "Valid Targets",
       "AURA_SELF": "Affects Self",
-      "AURA_BLOCKERS": "Blocking Conds."
+      "AURA_BLOCKERS": "Blocking Conds.",
+      "AURA_TEMPLATE": "Applies to Template"
     },
     "TOOLTIPS": {
       "TOGGLE_THIS": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
@@ -54,6 +55,7 @@
       "EDIT_THIS": "Edit this bonus in the builder. This clears all fields before adding all the data from this bonus.",
       "DELETE_THIS": "Delete this bonus from this document. Deletion is permanent and the bonus cannot be recovered.",
       "ADD_THIS_FILTER": "Add this filter to the builder.",
+      "DELETE_THIS_FILTER": "Remove this filter from the builder.",
 
       "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus internally and can only contain hyphens and lowercase letters.",
       "DESCRIPTION": "A description of the bonus for your convenience.",
@@ -100,7 +102,8 @@
       "AURA_RANGE": "The range of the aura, measured in feet (put in <span style='font-family: monospace;'>-1</span> for an unlimited range), and if the aura affects the area within a Measured Template instead (for items that are able to place a template).",
       "AURA_TEMPLATE": "Whether this aura affects token actors within the area of a Measured Template, rather than token actors within a range of this item's owner.",
       "AURA_FIELDS": "Which targets should benefit from the aura, and whether the aura should affect its owner as well. Allies are defined as tokens that have the same disposition as the owner; enemies are those with a Hostile disposition (if you are Friendly) or Friendly disposition (if you are Hostile).",
-      "AURA_BLOCKERS": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template."
+      "AURA_BLOCKERS": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template.",
+      "AURA_SELF": "Whether this aura should affect its owner as well."
     },
     "PLACEHOLDERS": {
       "NAME": "name...",

@@ -1,0 +1,114 @@
+<form class="babonus">
+  <h1>{{localize "BABONUS.HEADERS.BUILD_A_BONUS"}}</h1>
+
+  <div class="components">
+
+    <!-- LEFT SIDE -->
+    <div class="left-side">
+
+      <div class="select-target">
+        <header class="select-target">{{localize "BABONUS.HEADERS.SELECT_TARGET"}}</header>
+        <div class="targets">
+          {{#each TYPES as |type|}}
+          <a data-type="{{type.value}}"><i class="{{type.icon}}"></i> {{localize type.label}}</a>
+          {{/each}}
+        </div>
+      </div>
+
+      <div class="inputs" style="display: none;">
+
+        <div class="bonus-config">
+
+          <div class="required-fields">
+            <header class="required-fields">{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</header>
+            <div class="required"></div>
+          </div>
+
+          <div class="bonuses-inputs">
+            <header class="bonuses-inputs">{{localize "BABONUS.HEADERS.BONUSES_INPUTS"}}</header>
+            <div class="bonuses"></div>
+          </div>
+
+          <div class="aura-config">
+            <header class="aura-config">
+              <div class="content">{{localize "BABONUS.HEADERS.AURA"}}</div>
+              <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA'}}}" name="aura.enabled">
+            </header>
+            <div class="aura"></div>
+          </div>
+
+          <div class="bonus-filters">
+            <header class="bonus-filters">{{localize "BABONUS.HEADERS.FILTERS"}}</header>
+            <div class="filters"></div>
+          </div>
+        </div>
+
+        <div class="utils">
+          <div class="notification warning" id="babonus-warning"></div>
+          <div class="utils-buttons">
+            <button data-type="save-button" type="submit">
+              <i class="fa-solid fa-floppy-disk"></i> {{localize "BABONUS.BUTTONS.SAVE"}}
+            </button>
+            <button data-type="cancel-button" type="button">
+              <i class="fa-solid fa-ban"></i> {{localize "Cancel"}}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-side">
+
+      <div class="current-bonuses">
+        <header class="current-bonuses">{{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}</header>
+        <div class="bonuses">
+          {{#each bonuses as |bonus|}}
+          <div class="bonus" data-id="{{bonus.type}}.{{bonus.identifier}}">
+            <div class="header">
+              {{#if bonus.enabled}}
+              <div class="label">{{bonus.label}}</div>
+              {{else}}
+              <div class="label disabled">{{bonus.label}}</div>
+              {{/if}}
+              <div class="details">
+                <div class="functions">
+                  <a data-type="toggle" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.TOGGLE_THIS'}}}">
+                    {{#if bonus.enabled}} <i class="fa-solid fa-toggle-on"></i>
+                    {{else}} <i class="fa-solid fa-toggle-off"></i>
+                    {{/if}}
+                  </a>
+                  <a data-type="copy" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.COPY_THIS'}}}">
+                    <i class="fa-solid fa-copy"></i>
+                  </a>
+                  <a data-type="edit" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.EDIT_THIS'}}}">
+                    <i class="fa-solid fa-gear"></i>
+                  </a>
+                  <a data-type="delete" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.DELETE_THIS'}}}">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+                <div class="identifier">
+                  {{bonus.identifier}}
+                </div>
+              </div>
+            </div>
+            <div class="description">
+              <div class="content">
+                {{bonus.description}}
+              </div>
+            </div>
+            <hr class="divider">
+          </div>
+          {{/each}}
+        </div>
+      </div>
+
+      <div class="filter-picker" style="display: none;">
+      </div>
+
+    </div>
+  </div>
+</form>

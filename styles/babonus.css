@@ -67,8 +67,7 @@
 }
 
 /* headers that have a right-side input */
-.babonus .left-side header.aura-config,
-.babonus .left-side header.bonus-filters {
+.babonus .left-side header.aura-config {
   display: flex;
   justify-content: space-between;
 }
@@ -180,25 +179,16 @@
   accent-color: #454545;
 }
 
-button.babonus-keys {
+.babonus .form-group .form-fields button.babonus-keys {
   min-width: 100px;
   flex: 0;
 }
 
-/*.babonus .components .left-side .warning.active {
-  display: inline-block;
-  width: 100%;
-  color: red;
-  font-style: italic;
-  background-color: yellow;
-  text-align: center;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 10px;
-  font-size: 1.25em;
-  box-shadow: inset 0 0 5px black;
-  margin-bottom: 0.5em;
-}*/
+.babonus .utils-buttons {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 0.5em;
+}
 
 form.babonus.editMode [name='identifier'],
 form.babonus.editMode [name='target'] {
@@ -217,18 +207,6 @@ form.babonus.locked .right-side .details a {
   pointer-events: none;
 }
 
-/*form.babonus:not(.weapon) .hide-weapon,
-form.babonus:not(.spell) .hide-spell,
-form.babonus:not(.aura) .hide-aura,
-form.babonus:not(.damage) .hide-damage,
-form.babonus:not(.attack) .hide-attack,
-form.babonus:not(.save) .hide-save,
-form.babonus:not(.throw) .hide-throw,
-form.babonus:not(.death) .hide-death,
-form.babonus:not(.hitdie) .hide-hitdie,
-form.babonus:not(.attack, .damage) .hide-attack-damage,
-form.babonus:not(.attack, .damage, .save) .hide-attack-damage-save,
-form.babonus:not(.attack, .damage, .save, .throw, .hitdie) .hide-any,*/
 .babonus .bonuses .bonus:last-child hr,
 .babonus .components .left-side .warning:not(.active) {
   display: none;
@@ -349,4 +327,9 @@ table.babonus td:not(:first-child) {
 .babonus .unavailable-filters {
   height: 282px;
   overflow-y: auto;
+}
+
+.babonus .form-group a.filter-deletion {
+  flex: 0;
+  padding: 0 0.2em 0 0.5em;
 }

@@ -19,7 +19,7 @@ export class Build_a_Bonus extends FormApplication {
       closeOnSubmit: false,
       width: 900,
       height: "auto",
-      template: `modules/${MODULE}/templates/build_a_bonus.html`,
+      template: `modules/${MODULE}/templates/build_a_bonus.hbs`,
       classes: [MODULE],
       scrollY: [".current-bonuses .bonuses", ".available-filters", ".unavailable-filters"]
     });
@@ -35,8 +35,6 @@ export class Build_a_Bonus extends FormApplication {
 
   async getData() {
     const data = await super.getData();
-    //const filterPickerData = await this.filterPicker.getData();
-    //foundry.utils.mergeObject(data, filterPickerData);
 
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
@@ -47,10 +45,8 @@ export class Build_a_Bonus extends FormApplication {
       data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
       data.canConfigureTemplate = this.object.hasAreaTarget;
     }
-    //data.targets = getTargets();
     data.bonuses = getBonuses(this.object);
     data.TYPES = TYPES;
-    //data.spellLevels = Array.fromRange(10);
 
     return data;
   }
@@ -87,40 +83,22 @@ export class Build_a_Bonus extends FormApplication {
     this.render()
   }
 
-  async _onChangeInput(event) {
+  async _rerenderFilters() {
     const fp = this.element[0].querySelector(".right-side div.filter-picker");
     if (fp) fp.innerHTML = await this.filterPicker.getHTMLFilters();
+  }
+
+  async _onChangeInput(event) {
+    await this._rerenderFilters();
 
     if (event.target.name === "aura.enabled") {
       const body = this.element[0].querySelector(".left-side .aura-config .aura");
       if (event.target.checked) body.innerHTML = await this.filterPicker.getHTMLAura();
       else body.innerHTML = "";
-    }
-
-
-    return;
-    if (event) {
-      await super._onChangeInput(event);
-
-      if (["target", "itemTypes", "throwTypes", "aura.enabled"].includes(event.target.name)) {
-        // hide/unhide some elements.
-        this.refreshForm();
-      } else if (["aura.range"].includes(event.target.name)) {
-        // clamp aura range between -1 and 500 after rounding to integer.
-        const val = Math.round(event.target.value);
-        event.target.value = Math.clamped(val, -1, 500);
-      } else if (["identifier"].includes(event.target.name)) {
-        // slugify identifier.
-        event.target.value = superSlugify(event.target.value);
-      }
-    }
-    // enable/disable all shown/hidden elements.
-    const inputs = ["INPUT", "SELECT"];
-    for (const input of inputs) {
-      const elements = this.element[0].getElementsByTagName(input);
-      for (const element of elements) {
-        element.disabled = element.offsetParent === null;
-      }
+    } else if (event.target.name === "aura.range") {
+      event.target.value = Math.clamped(Math.round(event.target.value), -1, 500);
+    } else if (event.target.name === "id") {
+      event.target.value = superSlugify(event.target.value);
     }
   }
 
@@ -128,6 +106,13 @@ export class Build_a_Bonus extends FormApplication {
     super.activateListeners(html);
     this.filterPicker.activateListeners(html);
     const app = this;
+
+    // CANCEL button.
+    html[0].addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-type='cancel-button']");
+      if (!btn) return;
+      return this.render();
+    })
 
     // KEYS buttons.
     html[0].addEventListener("click", async (event) => {
@@ -189,7 +174,7 @@ export class Build_a_Bonus extends FormApplication {
       const a = event.target.closest(".functions a");
       if (!a) return;
       const { type } = a.dataset;
-      const { id } = a.closest(".bonus").dataset;
+      const { id } = a.closest(".bonus").dataset; // this is actually "type.id"...
 
       if (type === "toggle") {
         await this.toggle_a_bonus(id);
@@ -235,31 +220,50 @@ export class Build_a_Bonus extends FormApplication {
       const show = html[0].querySelectorAll(".left-side div.inputs, .right-side div.filter-picker");
       for (const s of show) s.style.display = "";
 
-      html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.filterPicker.getHTMLFilters();
+      await this._rerenderFilters();
       html[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired();
       html[0].querySelector(".left-side .bonuses-inputs .bonuses").innerHTML = await this.filterPicker.getHTMLBonuses();
     });
 
-    // when you pick an item type, add to _itemTypes.
-    html[0].addEventListener("click", (event) => {
-      const types = html[0].querySelectorAll("input[name='filters.itemTypes']:checked");
-      this._itemTypes = new Set(Array.from(types).map(t => t.value));
+    // when you pick an item type, update this._itemTypes.
+    html[0].addEventListener("click", () => this._updateItemTypes());
 
-      // if this means a filter you picked is no longer available, remove it.
-      // also remove it if you have more than 1 item type.
-      for (const key of Object.keys(itemTypeRequirements)) {
-        if (!this._itemTypes.has(key) || this._itemTypes.size > 1) {
-          for (const name of itemTypeRequirements[key]) {
-            const el = this.element[0].querySelector(`.left-side .form-group[data-name="${name}"]`);
-            if (el) {
-              el.remove();
-              this._addedFilters.delete(name);
-            }
+    // when you hit that delete filter button.
+    html[0].addEventListener("click", (event) => {
+      const a = event.target.closest(".filter-deletion");
+      if (!a) return;
+      a.closest(".form-group").remove();
+      this._updateItemTypes();
+      this._updateAddedFilters();
+    });
+
+  }
+
+  /* Update the Set storing current filter names for easy access. */
+  _updateAddedFilters() {
+    this._addedFilters = new Set([
+      ...this.element[0].querySelectorAll(".left-side .bonus-filters .filters .form-group")
+    ].map(i => i.dataset.name).filter(i => i?.length > 0));
+    this._rerenderFilters();
+  }
+
+  /* Helper method that is run every time a filter is added or deleted. */
+  _updateItemTypes() {
+    const types = this.element[0].querySelectorAll("input[name='filters.itemTypes']:checked");
+    this._itemTypes = new Set(Array.from(types).map(t => t.value));
+    for (const key of Object.keys(itemTypeRequirements)) {
+
+      // if the item type is not present:
+      if (!this._itemTypes.has(key) || this._itemTypes.size > 1) {
+        for (const name of itemTypeRequirements[key]) {
+          const el = this.element[0].querySelector(`.left-side .form-group[data-name="${name}"]`);
+          if (el) {
+            el.remove();
+            this._addedFilters.delete(name);
           }
         }
       }
-    });
-
+    }
   }
 
   // async dialog helper for the Keys dialogs.
@@ -380,99 +384,9 @@ export class Build_a_Bonus extends FormApplication {
     return false;
   }
 
-  // A helper function to fill out the form with an existing bonus from the document.
-  pasteValues(html, flagBonus, id, edit = true) {
+  // TODO: A helper function to fill out the form with an existing bonus from the document.
+  pasteValues(data) {
     return this.render();
-    this.clearForm();
-    const formData = foundry.utils.flattenObject(flagBonus);
-
-    if (edit) {
-      formData.identifier = id.split(".")[1];
-    } else {
-      formData.label = "";
-      formData.identifier = "";
-    }
-    formData.target = id.split(".")[0];
-
-    // turn arrays into strings and tick all boxes.
-    for (const key of Object.keys(formData)) {
-      if (key === "filters.spellLevels") continue;
-      if (formData[key] instanceof Array) {
-        formData[key] = formData[key].join(";");
-      }
-      const inp = html[0].querySelector(`[name="${key}"]`);
-      if (!inp) continue;
-      if (inp.type === "checkbox") inp.checked = formData[key];
-      else inp.value = formData[key];
-    }
-    for (const n of formData["filters.spellLevels"] ?? []) {
-      html[0].querySelector(`#spellLevel${n}`).checked = true;
-    }
-
-    const BAB = html[0].closest("form.babonus");
-    const elements = BAB.querySelectorAll("[name=identifier], [name=target]");
-    if (!edit) {
-      BAB.classList.remove("editMode");
-      [...elements].map(e => e.removeAttribute("tabindex"));
-    } else {
-      BAB.classList.add("editMode");
-      [...elements].map(e => e.setAttribute("tabindex", "-1"));
-    }
-    this.refreshForm();
-  }
-
-  // helper method to populate the BAB with new fields depending on values selected.
-  refreshForm() {
-    return;
-    const html = this.element;
-    const itemTypeInput = html[0].querySelector("[name='itemTypes']");
-    const targetInput = html[0].querySelector("[name='target']");
-    const throwTypeInput = html[0].querySelector("[name='throwTypes']");
-    const auraEnabledInput = html[0].querySelector("[name='aura.enabled']");
-    const values = itemTypeInput.value.split(";").map(i => i.trim());
-    const form = itemTypeInput.closest("form.babonus");
-
-    const toRemove = [];
-    const toAdd = [];
-
-    for (const type of TYPES.map(t => t.value)) {
-      if (targetInput.value === type) toAdd.push(type);
-      else toRemove.push(type);
-    }
-
-    // if itemTypes input is shown
-    if (["attack", "damage", "save"].includes(targetInput.value)) {
-      for (const type of itemsValidForAttackDamageSave) {
-        if (values.includes(type)) toAdd.push(type);
-        else toRemove.push(type);
-      }
-    } else {
-      toRemove.push(...itemsValidForAttackDamageSave);
-    }
-
-    // death save
-    if (targetInput.value === "throw" && throwTypeInput.value.includes("death")) {
-      toAdd.push("death");
-    } else toRemove.push("death");
-
-    // aura enabled.
-    if (auraEnabledInput.checked) toAdd.push("aura");
-    else toRemove.push("aura");
-
-    form.classList.add(...toAdd);
-    form.classList.remove(...toRemove);
-
-    this.setPosition();
-    this._onChangeInput();
-  }
-
-  // helper method to clear the form before pasting data.
-  clearForm() {
-    return;
-    const elements = this.element[0].getElementsByTagName("INPUT");
-    const selects = this.element[0].getElementsByTagName("SELECT");
-    [...elements].map(e => e.type === "checkbox" ? e.checked = false : e.value = "");
-    [...selects].map(e => e.selectedIndex = 0);
   }
 
   _saveScrollPositions(html) {
