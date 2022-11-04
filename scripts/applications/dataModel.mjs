@@ -2,7 +2,7 @@ import { arbitraryOperators, itemsValidForAttackDamageSave, MATCH, TYPES } from 
 import { KeyGetter } from "../helpers.mjs";
 import { FiltersField, BonusesField, RollDataField, AuraField, SpellComponentsField, WeaponPropertiesField } from "./dataFields.mjs";
 
-export class Babonus extends foundry.abstract.DataModel {
+class Babonus extends foundry.abstract.DataModel {
 
   constructor(data, options = {}) {
     super(foundry.utils.expandObject(data), options);
@@ -13,7 +13,7 @@ export class Babonus extends foundry.abstract.DataModel {
     const baseOptions = { required: false, nullable: true, initial: undefined };
 
     return {
-      //id: new fields.DocumentIdField(),
+      id: new fields.DocumentIdField({ required: true, nullable: false }),
       name: new fields.StringField({ required: true, blank: false }),
       type: new fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
       enabled: new fields.BooleanField({ required: true, initial: true }),
@@ -32,8 +32,8 @@ export class Babonus extends foundry.abstract.DataModel {
           attuned: new fields.BooleanField({ required: false, initial: false })
         }, baseOptions),
         arbitraryComparison: new fields.ArrayField(new fields.SchemaField({
-          one: new fields.StringField({ required: true, blank:false }),
-          other: new fields.StringField({ required: true, blank:false }),
+          one: new fields.StringField({ required: true, blank: false }),
+          other: new fields.StringField({ required: true, blank: false }),
           operator: new fields.StringField({ required: true, choices: arbitraryOperators.map(t => t.value) })
         }), baseOptions),
         statusEffects: new fields.SetField(new fields.StringField(), baseOptions),
@@ -44,7 +44,7 @@ export class Babonus extends foundry.abstract.DataModel {
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
-export class ItemBabonus extends Babonus {
+class ItemBabonus extends Babonus {
   constructor(data, options = {}) {
     super(data, options);
   }
@@ -133,6 +133,7 @@ export class ThrowBabonus extends Babonus {
   }
 
   static defineSchema() {
+    const{fields}=foundry.data;
     const baseOptions = { required: false, nullable: true, initial: undefined };
 
     return foundry.utils.mergeObject(super.defineSchema(), {

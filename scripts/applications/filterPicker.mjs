@@ -1,4 +1,5 @@
 import { BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
+import { getBonuses } from "../helpers.mjs";
 import {
   _addToAddedFilters,
   _constructFilterDataFromName,
@@ -13,6 +14,11 @@ export class BabonusFilterPicker {
 
   get id() {
     return `${MODULE}-filterPicker-${this.object.id}`;
+  }
+
+  render(){
+    ui.notifications.warn("FILTER PICKER RENDER");
+    this.object._updateCurrentBonuses();
   }
 
   async getData() {
@@ -62,6 +68,12 @@ export class BabonusFilterPicker {
   async getHTMLAura(){
     const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
     return renderTemplate(template);
+  }
+
+  async getHTMLCurrentBonuses(){
+    const template="modules/babonus/templates/builder_components/_current_bonuses.hbs";
+    const data={bonuses: getBonuses(this.object.object)};
+    return renderTemplate(template, data);
   }
 
   activateListeners(html) {

@@ -333,3 +333,11 @@ export function getAllTokenGridSpaces(token) {
     return bonus;
   });
 }
+
+// returns true if id is valid, otherwise a new id.
+export function _verifyID(id){
+  console.log("THE ID IS...", id);
+  const v = new foundry.data.fields.DocumentIdField({nullable: false});
+  if(v.validate(id) === undefined) return true;
+  else return foundry.utils.randomID();
+}

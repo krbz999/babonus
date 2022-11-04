@@ -1,23 +1,17 @@
 <!--
   REQUIRE ATTUNEMENT/EQUIPPED: only valid if Document is an Item and can be equipped or attuned to.
 -->
-{{#if (and isItem (or canEquip canAttune) )}}
 <div class="form-group" data-name="{{name}}">
-  <label data-tooltip="{{{localize 'BABONUS.TOOLTIPS.ITEM_SPECIFIC'}}}" class="label">
-    {{localize "BABONUS.LABELS.ITEM_SPECIFIC"}}
+  <label data-tooltip="{{{localize 'BABONUS.TOOLTIPS.itemRequirements'}}}" class="label">
+    {{localize "BABONUS.LABELS.itemRequirements"}}
   </label>
   <div class="form-fields">
-    {{#if canEquip}}
-    <span class="sep">{{localize "BABONUS.LABELS.EQUIPPED"}}</span>
-    <input type="checkbox" name="itemRequirements.equipped">
-    {{/if}}
-    {{#if canAttune}}
-    <span class="sep">{{localize "BABONUS.LABELS.ATTUNED"}}</span>
-    <input type="checkbox" name="itemRequirements.attuned">
-    {{/if}}
+    <span class="sep">{{localize "DND5E.Equipped"}}</span>
+    <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.itemEquipped'}}}" name="filters.itemRequirements.equipped" {{#unless canEquip}}disabled{{/unless}}>
+    <span class="sep">{{localize "DND5E.Attuned"}}</span>
+    <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.itemAttuned'}}}" name="filters.itemRequirements.attuned" {{#unless canAttune}}disabled{{/unless}}>
   </div>
   <a class="filter-deletion" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.DELETE_THIS_FILTER'}}}">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>
-{{/if}}

@@ -1,4 +1,3 @@
-import { Babonus } from "./applications/dataModel.mjs";
 import { Build_a_Bonus } from "./build_a_bonus.mjs";
 import { MODULE } from "./constants.mjs";
 import { _getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers.mjs";
@@ -18,13 +17,8 @@ export function _createAPI() {
     openBabonusWorkshop,
     getBonuses,
     getAllContainingTemplates,
-    getMinimumDistanceBetweenTokens,
-    _test
+    getMinimumDistanceBetweenTokens
   }
-}
-
-function _test(data){
-  return new Babonus(data);
 }
 
 /**

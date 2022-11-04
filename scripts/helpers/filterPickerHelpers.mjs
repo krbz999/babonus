@@ -40,12 +40,12 @@ function _canEquipOrAttuneToItem(item) {
   return _canEquipItem(item) || _canAttuneToItem(item);
 }
 
-function _canEquipItem(item) {
+export function _canEquipItem(item) {
   if (!item) return false;
   return foundry.utils.hasProperty(item, "system.equipped");
 }
 
-function _canAttuneToItem(item) {
+export function _canAttuneToItem(item) {
   if (!item) return false;
   const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
   return [REQUIRED, ATTUNED].includes(item.system.attunement);

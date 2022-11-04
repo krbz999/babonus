@@ -1,0 +1,38 @@
+{{#each bonuses as |bonus|}}
+<div class="bonus" data-id="{{bonus.type}}.{{bonus.identifier}}">
+  <div class="header">
+    {{#if bonus.enabled}}
+    <div class="label">{{bonus.label}}</div>
+    {{else}}
+    <div class="label disabled">{{bonus.label}}</div>
+    {{/if}}
+    <div class="details">
+      <div class="functions">
+        <a data-type="toggle" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.TOGGLE_THIS'}}}">
+          {{#if bonus.enabled}} <i class="fa-solid fa-toggle-on"></i>
+          {{else}} <i class="fa-solid fa-toggle-off"></i>
+          {{/if}}
+        </a>
+        <a data-type="copy" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.COPY_THIS'}}}">
+          <i class="fa-solid fa-copy"></i>
+        </a>
+        <a data-type="edit" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.EDIT_THIS'}}}">
+          <i class="fa-solid fa-gear"></i>
+        </a>
+        <a data-type="delete" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.DELETE_THIS'}}}">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </div>
+      <div class="identifier">
+        {{bonus.identifier}}
+      </div>
+    </div>
+  </div>
+  <div class="description">
+    <div class="content">
+      {{bonus.description}}
+    </div>
+  </div>
+  <hr class="divider">
+</div>
+{{/each}}

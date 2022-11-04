@@ -1,7 +1,8 @@
-import { AttackBabonus, Babonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus } from "./applications/dataModel.mjs";
+import { AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus } from "./applications/dataModel.mjs";
 import { BabonusFilterPicker } from "./applications/filterPicker.mjs";
-import { itemsValidForAttackDamageSave, itemTypeRequirements, MODULE, TYPES } from "./constants.mjs";
-import { superSlugify, getBonuses, getTargets, KeyGetter } from "./helpers.mjs";
+import { itemTypeRequirements, MODULE, TYPES } from "./constants.mjs";
+import { superSlugify, KeyGetter, _verifyID } from "./helpers.mjs";
+import { _canAttuneToItem, _canEquipItem } from "./helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keys_dialog.mjs";
 import { dataHasAllRequirements, finalizeData, validateData } from "./validator.mjs";
 
@@ -40,12 +41,11 @@ export class Build_a_Bonus extends FormApplication {
     data.isEffect = this.isEffect;
     data.isActor = this.isActor;
     if (data.isItem) {
-      data.canEquip = foundry.utils.hasProperty(this.object, "system.equipped");
-      const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
-      data.canAttune = [REQUIRED, ATTUNED].includes(this.object.system.attunement);
+      data.canEquip = _canEquipItem(this.object);
+      data.canAttune = _canAttuneToItem(this.object);
       data.canConfigureTemplate = this.object.hasAreaTarget;
     }
-    data.bonuses = getBonuses(this.object);
+    data.bonuses = await this.filterPicker.getHTMLCurrentBonuses();
     data.TYPES = TYPES;
 
     return data;
@@ -57,6 +57,18 @@ export class Build_a_Bonus extends FormApplication {
       else if (foundry.utils.isEmpty(formData[key])) delete formData[key];
     }
     formData.type = this._target;
+
+    // replace id if it is invalid.
+    const validId = _verifyID(this._id);
+    if(validId === true) formData.id = this._id;
+    else {
+      this._id = validId;
+      formData.id = validId;
+    }
+    console.log(formData);
+    console.log(validId);
+
+    try{
     const BAB = new {
       attack: AttackBabonus,
       damage: DamageBabonus,
@@ -66,10 +78,12 @@ export class Build_a_Bonus extends FormApplication {
     }[this._target](formData);
     console.log("BABONUS:", BAB);
     console.log("OBJECT:", BAB.toObject());
+  }catch(err){
+    console.error(err);
+    ui.notifications.error("Not all fields valid, sad times.");
+  }
     return;
-    event.stopPropagation();
-    const button = event.submitter;
-    if (!button) return;
+
 
     // save a bonus.
     if (button.dataset.type === "save-button") {
@@ -176,24 +190,14 @@ export class Build_a_Bonus extends FormApplication {
       const { type } = a.dataset;
       const { id } = a.closest(".bonus").dataset; // this is actually "type.id"...
 
-      if (type === "toggle") {
-        await this.toggle_a_bonus(id);
-        this.setPosition();
-        this.render();
-        return;
-      } else if (type === "copy") {
-        const bonus = this.object.getFlag(MODULE, `bonuses.${id}`);
-        return this.pasteValues(html, bonus, id, false);
-      } else if (type === "edit") {
-        const bonus = this.object.getFlag(MODULE, `bonuses.${id}`);
-        return this.pasteValues(html, bonus, id, true);
-      } else if (type === "delete") {
+      if (type === "toggle") return this._toggleBonus(id);
+      else if (type === "copy") return this._copyBonus(id);
+      else if (type === "edit") return this._editBonus(id);
+      else if (type === "delete") {
         a.style.pointerEvents = "none";
-        const prompt = await this.delete_a_bonus(id);
+        const prompt = await this._deleteBonus(id);
         if (a) a.style.pointerEvents = "";
         if (!prompt) return;
-        this.setPosition();
-        this.render();
       }
     });
 
@@ -237,6 +241,11 @@ export class Build_a_Bonus extends FormApplication {
       this._updateAddedFilters();
     });
 
+  }
+
+  /* Update the right-side bonuses. */
+  async _updateCurrentBonuses(){
+    this.element[0].querySelector(".right-side .current-bonuses .bonuses").innerHTML = await this.filterPicker.getHTMLCurrentBonuses();
   }
 
   /* Update the Set storing current filter names for easy access. */
@@ -348,8 +357,8 @@ export class Build_a_Bonus extends FormApplication {
   }
 
   // method to delete a bonus when hitting the Trashcan button.
-  async delete_a_bonus(id) {
-    return;
+  async _deleteBonus(id) {
+    ui.notifications.warn("Method '_deleteBonus' has not been updated yet to use new format.");
     const { label } = this.object.getFlag(MODULE, `bonuses.${id}`);
 
     const prompt = await Dialog.confirm({
@@ -359,29 +368,25 @@ export class Build_a_Bonus extends FormApplication {
     });
     if (!prompt) return false;
 
-    const [target, identifier] = id.split(".");
-    const path = `flags.${MODULE}.bonuses.${target}.-=${identifier}`
+    const [target, identifier] = id.split("."); // TODO
+    const path = `flags.${MODULE}.bonuses.${target}.-=${identifier}`; // TODO
     return this.object.update({ [path]: null });
   }
 
-  async toggle_a_bonus(id) {
-    return;
+  // toggle a bonus between enabled=true and enabled=false.
+  _toggleBonus(id) {
+    ui.notifications.warn("Method '_toggleBonus' has not been updated yet to use new format.");
     const key = `bonuses.${id}.enabled`;
     const state = this.object.getFlag(MODULE, key);
+    if(state !== true && state !== false) return ui.notifications.error("The state of this babonus was invalid.");
     return this.object.setFlag(MODULE, key, !state);
   }
 
   // helper method to place or remove a warning in the BAB.
-  displayWarning(warn) {
+  displayWarning(active=true) {
     const field = this.element[0].querySelector("#babonus-warning");
-    if (warn === false) {
-      field.classList.remove("active");
-      return true;
-    }
-    field.innerText = game.i18n.localize(warn);
-    field.classList.add("active");
-    this.setPosition();
-    return false;
+    if(!active) return field.classList.remove("active");
+    else return field.classList.add("active");
   }
 
   // TODO: A helper function to fill out the form with an existing bonus from the document.
@@ -409,6 +414,12 @@ export class Build_a_Bonus extends FormApplication {
   render(...T) {
     super.render(...T);
     this._deleteTemporaryValues();
+    this.object.apps[this.filterPicker.id] = this.filterPicker;
+  }
+
+  close(...T){
+    super.close();
+    delete this.object.apps[this.filterPicker.id];
   }
 
   /**
@@ -420,5 +431,6 @@ export class Build_a_Bonus extends FormApplication {
     delete this._target;
     delete this._addedFilters;
     delete this._itemTypes;
+    delete this._id;
   }
 }

@@ -40,8 +40,7 @@
       "weaponProperties": "Weapon Props.",
       "throwTypes": "Throw Types",
       "saveAbilities": "Save Abilities",
-
-      "itemRequirements": "Item Reqs.",
+      "itemRequirements": "Item Reqrmnts.",
 
       "AURA_RANGE": "Range (ft)",
       "AURA_FIELDS": "Valid Targets",
@@ -57,7 +56,7 @@
       "ADD_THIS_FILTER": "Add this filter to the builder.",
       "DELETE_THIS_FILTER": "Remove this filter from the builder.",
 
-      "IDENTIFIERS": "Identifying information of the bonus. The label is for your convenience, while the identifier is used to refer to the bonus internally and can only contain hyphens and lowercase letters.",
+      "IDENTIFIERS": "Identifying information of the bonus. The name is for your convenience, while the id is used to refer to the bonus internally.",
       "DESCRIPTION": "A description of the bonus for your convenience.",
 
       "ATTACK": {
@@ -83,6 +82,8 @@
 
       "arbitraryComparison": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with <span style='font-family: monospace;'>@target</span>.",
       "itemRequirements": "Toggle whether the item should require being equipped or attuned to for the bonus or aura to be in effect.",
+      "itemEquipped": "This bonus will be considered disabled unless this item is equipped.",
+      "itemAttuned": "This bonus will be considered disabled unless this item is attuned to.",
 
       "itemTypes": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
       "throwTypes": "The type of saving throw the bonus should apply to. This also applies to death saving throws, and you can adjust the target value of death saves as well.",
