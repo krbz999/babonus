@@ -1,6 +1,6 @@
 import { arbitraryOperators, itemsValidForAttackDamageSave, MATCH, TYPES } from "../constants.mjs";
 import { KeyGetter } from "../helpers/helpers.mjs";
-import { FiltersField, BonusesField, RollDataField, AuraField, SpellComponentsField, WeaponPropertiesField, SplitStringField} from "./dataFields.mjs";
+import { FiltersField, BonusesField, RollDataField, AuraField, SpellComponentsField, WeaponPropertiesField, SemicolonArrayField, NonEmptyArrayField } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
 
@@ -36,8 +36,8 @@ class Babonus extends foundry.abstract.DataModel {
           other: new fields.StringField({ required: true, blank: false }),
           operator: new fields.StringField({ required: true, choices: arbitraryOperators.map(t => t.value) })
         }), baseOptions),
-        statusEffects: new fields.SetField(new fields.StringField(), baseOptions),
-        targetEffects: new fields.SetField(new fields.StringField(baseOptions), baseOptions)
+        statusEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
+        targetEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions)
       }, baseOptions)
     };
   }
@@ -55,20 +55,20 @@ class ItemBabonus extends Babonus {
 
     return foundry.utils.mergeObject(super.defineSchema(), {
       filters: new FiltersField({
-        itemTypes: new fields.SetField(new fields.StringField({ ...baseOptions, choices: itemsValidForAttackDamageSave }), baseOptions),
-        attackTypes: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.attackTypes.map(t => t.value) }), baseOptions),
-        damageTypes: new SplitStringField({nullable:true,initial:undefined, choices: KeyGetter.damageTypes.map(t => t.value) }),
-        abilities: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
+        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: itemsValidForAttackDamageSave, blank: true }), baseOptions),
+        attackTypes: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.attackTypes.map(t => t.value), blank: true }), baseOptions),
+        damageTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.damageTypes.map(t => t.value) }), baseOptions),
+        abilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
         spellComponents: new SpellComponentsField({
-          types: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.spellComponents.map(t => t.value) }), { required: false }),
+          types: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellComponents.map(t => t.value), blank: true })),
           match: new fields.StringField({ initial: "ALL", choices: Object.keys(MATCH), required: false })
         }, baseOptions),
-        spellLevels: new fields.SetField(new fields.NumberField({ ...baseOptions, choices: Array.fromRange(10) }), baseOptions),
-        spellSchools: new fields.SetField(new fields.StringField({ choices: KeyGetter.spellSchools.map(t => t.value) }), baseOptions),
-        baseWeapons: new fields.SetField(new fields.StringField({...baseOptions, choices: KeyGetter.baseWeapons.map(t => t.value) }), baseOptions),
+        spellLevels: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellLevels.map(t => t.value), blank: true }), baseOptions),
+        spellSchools: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.spellSchools.map(t => t.value) }), baseOptions),
+        baseWeapons: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.baseWeapons.map(t => t.value) }), baseOptions),
         weaponProperties: new WeaponPropertiesField({
-          needed: new fields.SetField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false }),
-          unfit: new fields.SetField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false })
+          needed: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false }),
+          unfit: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false })
         }, baseOptions)
       })
     });
@@ -121,7 +121,7 @@ export class SaveBabonus extends ItemBabonus {
         bonus: new RollDataField({ required: false })
       }, { required: true }),
       filters: new FiltersField({
-        saveAbilities: new fields.SetField(new fields.StringField({...baseOptions, choices: KeyGetter.saveAbilities }), baseOptions),
+        saveAbilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.saveAbilities }), baseOptions),
       }, { required: false })
     });
   }
@@ -133,7 +133,7 @@ export class ThrowBabonus extends Babonus {
   }
 
   static defineSchema() {
-    const{fields}=foundry.data;
+    const { fields } = foundry.data;
     const baseOptions = { required: false, nullable: true, initial: undefined };
 
     return foundry.utils.mergeObject(super.defineSchema(), {
@@ -142,7 +142,7 @@ export class ThrowBabonus extends Babonus {
         deathSaveTargetValue: new RollDataField({ required: false }),
       }, { required: true }),
       filters: new FiltersField({
-        throwTypes: new fields.SetField(new fields.StringField({...baseOptions, choices: KeyGetter.throwTypes }), { required: false }),
+        throwTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.throwTypes }), baseOptions),
       }, baseOptions)
     });
   }

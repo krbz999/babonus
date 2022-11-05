@@ -81,7 +81,6 @@ export async function _employFilter(app, name) {
     ];
   } else if (["spellLevels", "itemTypes", "attackTypes"].includes(name)) {
     template += "checkboxes.hbs";
-    data.dtype = name === "spellLevels" ? "Number" : "String";
     if (name === "spellLevels") {
       data.array = Array.fromRange(10).map(n => ({ value: n, label: n }));
     } else if (name === "itemTypes") {

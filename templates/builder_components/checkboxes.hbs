@@ -10,7 +10,7 @@
   <div class="form-fields checkboxes">
     {{#each array as |type|}}
     <label class="sep" for="id-{{type.value}}" data-hide-input="true">
-      <input type="checkbox" data-dtype="{{../dtype}}" name="{{concat "filters." ../name}}" value="{{type.value}}" id="id-{{type.value}}">
+      <input type="checkbox" name="{{concat "filters." ../name}}" value="{{type.value}}" id="id-{{type.value}}">
       <span class="checkboxes-check">{{{type.label}}}</span>
     </label>
     {{/each}}

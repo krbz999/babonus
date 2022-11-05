@@ -6,7 +6,7 @@ export class BonusesField extends foundry.data.fields.SchemaField {
   _validateType(data, options = {}) {
     super._validateType(data, options);
     const isE = foundry.utils.isEmpty(data);
-    if (isE) throw new foundry.data.fields.ModelValidationError("may not be an empty object.");
+    if (isE) throw new foundry.data.fields.ModelValidationError("may not be an empty object");
     else return true;
   }
 
@@ -40,9 +40,6 @@ export class FiltersField extends foundry.data.fields.SchemaField {
         clone[k] = clone[k].filter(v => ![null, undefined].includes(v));
       }
     })
-    Object.keys(clone).filter(k => {
-      return clone[k]===undefined || foundry.utils.isEmpty(clone[k]);
-    }).forEach(k => delete clone[k]);
     return clone;
   }
 }
@@ -65,6 +62,20 @@ export class SpellComponentsField extends foundry.data.fields.SchemaField {
   }
 }
 
+export class NonEmptyArrayField extends foundry.data.fields.ArrayField {
+  _validateType(data, options = {}) {
+    super._validateType(data, options);
+    if (!data.filter(d => !!d).length) {
+      throw new foundry.data.fields.ModelValidationError("must have at least one value");
+    }
+  }
+
+  _cast(data, options = {}) {
+    return super._cast(data.filter(i => i), options);
+  }
+
+}
+
 /**
  * SchemaField containing only Sets that may not overlap.
  */
@@ -76,8 +87,8 @@ export class WeaponPropertiesField extends foundry.data.fields.SchemaField {
   // if the sets overlap, error.
   _validateType(data, options = {}) {
     super._validateType(data, options);
-    if (data.needed.intersection(data.unfit).size > 0) {
-      throw new foundry.data.fields.ModelValidationError("may not intersect.");
+    if (data.needed.some(n => data.unfit.includes(n))) {
+      throw new foundry.data.fields.ModelValidationError("may not intersect");
     } else return true;
   }
 
@@ -101,71 +112,21 @@ export class RollDataField extends foundry.data.fields.StringField {
   _validateType(value) {
     super._validateType(value);
     const v = Roll.validate(value);
-    if (!v) throw new foundry.data.fields.ModelValidationError("cannot validate bonus.");
+    if (!v) throw new foundry.data.fields.ModelValidationError("cannot validate bonus");
     else return true;
   }
 }
 
-/**
- * DataField for inputs of type 'text' that converts strings
- * separated by semicolons to Arrays. All entries must be an
- * element of the set of choices, with zero duplicates or empty strings.
- */
-export class SplitStringField extends foundry.data.fields.DataField {
-  constructor(options = {}) {
-    super(options);
-  }
-
-  _cast(value) {
-    console.log("--------------- CAST ---------------");
-    if (typeof value === "string") return value.split(";");
-    return value;
+export class SemicolonArrayField extends foundry.data.fields.ArrayField {
+  _cast(value, options) {
+    if (typeof value === "string") value = value.split(";");
+    return super._cast(value, options);
   }
 
   _cleanType(value, options = {}) {
-    console.log("--------------- CLEAN TYPE ---------------");
     value = super._cleanType(value, options);
-    if (typeof value === "string") value = value.split(";");
-    if (value instanceof Array) value = value.map(v => v.trim());
-    return value;
+    return [...new Set(value)];
   }
-
-  validate(value, options = {}) {
-    console.log("--------------- VALIDATE ---------------");
-
-    // undefined is fine.
-    if (value === undefined) return undefined;
-
-    // strings are fine if they can be split into an array where each element is in choices.
-    if (typeof value === "string") {
-      const valid = value.split(";").every(v => {
-        return this.options.choices.includes(v.trim());
-      });
-      if (!valid) return new foundry.data.fields.ModelValidationError("INVALID VALUE(S)");
-      else return undefined;
-    }
-
-    // arrays are fine if they are a subset of choices.
-    if (value instanceof Array) {
-      // cannot be empty array.
-      if (!value.length) return new foundry.data.fields.ModelValidationError("ZERO LENGTH ARRAY!");
-      // every element must be a valid choice.
-      const valid = value.every(v => {
-        return this.options.choices.includes(v);
-      });
-      if (!valid) return new foundry.data.fields.ModelValidationError("INVALID VALUE(S)");
-      // there cannot be duplicates.
-      const dupes = value.length > new Set(value).size;
-      if(dupes) return new foundry.data.fields.ModelValidationError("HAS DUPES");
-
-      else return undefined;
-    }
-
-    console.log("VALUE IS NOT A STRING OR ARRAY:", value);
-
-    return new foundry.data.fields.ModelValidationError("INVALID VALUE.");
-  }
-
 }
 
 export class AuraField extends foundry.data.fields.SchemaField {
