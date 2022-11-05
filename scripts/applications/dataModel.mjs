@@ -57,7 +57,7 @@ class ItemBabonus extends Babonus {
       filters: new FiltersField({
         itemTypes: new fields.SetField(new fields.StringField({ ...baseOptions, choices: itemsValidForAttackDamageSave }), baseOptions),
         attackTypes: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.attackTypes.map(t => t.value) }), baseOptions),
-        damageTypes: new SplitStringField({blank:true, choices: KeyGetter.damageTypes.map(t => t.value) }),
+        damageTypes: new SplitStringField({nullable:true,initial:undefined, choices: KeyGetter.damageTypes.map(t => t.value) }),
         abilities: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
         spellComponents: new SpellComponentsField({
           types: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.spellComponents.map(t => t.value) }), { required: false }),

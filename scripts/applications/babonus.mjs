@@ -51,10 +51,10 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   async _updateObject(event, formData) {
-    for (const key of Object.keys(formData)) {
+    /*for (const key of Object.keys(formData)) {
       if (!formData[key]) delete formData[key];
       else if (foundry.utils.isEmpty(formData[key])) delete formData[key];
-    }
+    }*/
     formData.type = this._target;
 
     // replace id if it is invalid.

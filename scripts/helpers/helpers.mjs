@@ -330,7 +330,7 @@ export function getAllTokenGridSpaces(token) {
 
 // returns true if id is valid, otherwise a new id.
 export function _verifyID(id){
-  const v = new foundry.data.fields.DocumentIdField({nullable: false});
-  if(v.validate(id) === undefined) return true;
+  const valid = foundry.data.validators.isValidId(id);
+  if(valid) return true;
   else return foundry.utils.randomID();
 }

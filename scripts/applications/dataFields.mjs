@@ -41,7 +41,7 @@ export class FiltersField extends foundry.data.fields.SchemaField {
       }
     })
     Object.keys(clone).filter(k => {
-      return !clone[k] || foundry.utils.isEmpty(clone[k]);
+      return clone[k]===undefined || foundry.utils.isEmpty(clone[k]);
     }).forEach(k => delete clone[k]);
     return clone;
   }
@@ -106,28 +106,64 @@ export class RollDataField extends foundry.data.fields.StringField {
   }
 }
 
+/**
+ * DataField for inputs of type 'text' that converts strings
+ * separated by semicolons to Arrays. All entries must be an
+ * element of the set of choices, with zero duplicates or empty strings.
+ */
 export class SplitStringField extends foundry.data.fields.DataField {
   constructor(options = {}) {
     super(options);
   }
 
-  _cast(value){
-    console.log("CAST", value);
+  _cast(value) {
+    console.log("--------------- CAST ---------------");
+    if (typeof value === "string") return value.split(";");
     return value;
   }
 
-  _cleanType(value,options){
-    console.log("CLEAN TYPE:", value, options);
-    if(!value) return this.options.initial;
+  _cleanType(value, options = {}) {
+    console.log("--------------- CLEAN TYPE ---------------");
+    value = super._cleanType(value, options);
+    if (typeof value === "string") value = value.split(";");
+    if (value instanceof Array) value = value.map(v => v.trim());
     return value;
   }
 
-  validate(value, options){
-    console.log("VALIDATE:", value, options);
-    const arr = value?.split(";") ?? [];
-    const vvv = (value === undefined) || (arr.every(v => this.options.choices.includes(v)) && arr.length);
-    console.log(arr, vvv);
-    if(!vvv) return new foundry.data.fields.ModelValidationError("may not contain invalid values.");
+  validate(value, options = {}) {
+    console.log("--------------- VALIDATE ---------------");
+
+    // undefined is fine.
+    if (value === undefined) return undefined;
+
+    // strings are fine if they can be split into an array where each element is in choices.
+    if (typeof value === "string") {
+      const valid = value.split(";").every(v => {
+        return this.options.choices.includes(v.trim());
+      });
+      if (!valid) return new foundry.data.fields.ModelValidationError("INVALID VALUE(S)");
+      else return undefined;
+    }
+
+    // arrays are fine if they are a subset of choices.
+    if (value instanceof Array) {
+      // cannot be empty array.
+      if (!value.length) return new foundry.data.fields.ModelValidationError("ZERO LENGTH ARRAY!");
+      // every element must be a valid choice.
+      const valid = value.every(v => {
+        return this.options.choices.includes(v);
+      });
+      if (!valid) return new foundry.data.fields.ModelValidationError("INVALID VALUE(S)");
+      // there cannot be duplicates.
+      const dupes = value.length > new Set(value).size;
+      if(dupes) return new foundry.data.fields.ModelValidationError("HAS DUPES");
+
+      else return undefined;
+    }
+
+    console.log("VALUE IS NOT A STRING OR ARRAY:", value);
+
+    return new foundry.data.fields.ModelValidationError("INVALID VALUE.");
   }
 
 }
