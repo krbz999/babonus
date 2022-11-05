@@ -1,6 +1,5 @@
-import { _replaceRollData } from "./helpers.mjs";
-import { auraTargets, MODULE } from "./constants.mjs";
-import { getAllTokenGridSpaces } from "./helpers.mjs";
+import { auraTargets, MODULE } from "../constants.mjs";
+import { getAllTokenGridSpaces, _replaceRollData } from "./helpers.mjs";
 
 /**
  * Get the item that created a template.

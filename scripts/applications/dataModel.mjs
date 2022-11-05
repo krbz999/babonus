@@ -1,6 +1,6 @@
 import { arbitraryOperators, itemsValidForAttackDamageSave, MATCH, TYPES } from "../constants.mjs";
-import { KeyGetter } from "../helpers.mjs";
-import { FiltersField, BonusesField, RollDataField, AuraField, SpellComponentsField, WeaponPropertiesField } from "./dataFields.mjs";
+import { KeyGetter } from "../helpers/helpers.mjs";
+import { FiltersField, BonusesField, RollDataField, AuraField, SpellComponentsField, WeaponPropertiesField, SplitStringField} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
 
@@ -27,7 +27,7 @@ class Babonus extends foundry.abstract.DataModel {
         blockers: new fields.SetField(new fields.StringField(), baseOptions)
       }, baseOptions),
       filters: new FiltersField({
-        itemRequirements: new fields.SchemaField({ // extend once and override SchemaField._initialize to get what fields are needed.
+        itemRequirements: new fields.SchemaField({
           equipped: new fields.BooleanField({ required: false, initial: false }),
           attuned: new fields.BooleanField({ required: false, initial: false })
         }, baseOptions),
@@ -37,7 +37,7 @@ class Babonus extends foundry.abstract.DataModel {
           operator: new fields.StringField({ required: true, choices: arbitraryOperators.map(t => t.value) })
         }), baseOptions),
         statusEffects: new fields.SetField(new fields.StringField(), baseOptions),
-        targetEffects: new fields.SetField(new fields.StringField(), baseOptions),
+        targetEffects: new fields.SetField(new fields.StringField(baseOptions), baseOptions)
       }, baseOptions)
     };
   }
@@ -57,15 +57,15 @@ class ItemBabonus extends Babonus {
       filters: new FiltersField({
         itemTypes: new fields.SetField(new fields.StringField({ ...baseOptions, choices: itemsValidForAttackDamageSave }), baseOptions),
         attackTypes: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.attackTypes.map(t => t.value) }), baseOptions),
-        damageTypes: new fields.SetField(new fields.StringField({ choices: KeyGetter.damageTypes.map(t => t.value) }), baseOptions),
-        abilities: new fields.SetField(new fields.StringField({ choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
+        damageTypes: new SplitStringField({blank:true, choices: KeyGetter.damageTypes.map(t => t.value) }),
+        abilities: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
         spellComponents: new SpellComponentsField({
           types: new fields.SetField(new fields.StringField({ ...baseOptions, choices: KeyGetter.spellComponents.map(t => t.value) }), { required: false }),
           match: new fields.StringField({ initial: "ALL", choices: Object.keys(MATCH), required: false })
         }, baseOptions),
         spellLevels: new fields.SetField(new fields.NumberField({ ...baseOptions, choices: Array.fromRange(10) }), baseOptions),
         spellSchools: new fields.SetField(new fields.StringField({ choices: KeyGetter.spellSchools.map(t => t.value) }), baseOptions),
-        baseWeapons: new fields.SetField(new fields.StringField({ choices: KeyGetter.baseWeapons.map(t => t.value) }), baseOptions),
+        baseWeapons: new fields.SetField(new fields.StringField({...baseOptions, choices: KeyGetter.baseWeapons.map(t => t.value) }), baseOptions),
         weaponProperties: new WeaponPropertiesField({
           needed: new fields.SetField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false }),
           unfit: new fields.SetField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false })
@@ -121,7 +121,7 @@ export class SaveBabonus extends ItemBabonus {
         bonus: new RollDataField({ required: false })
       }, { required: true }),
       filters: new FiltersField({
-        saveAbilities: new fields.SetField(new fields.StringField({ choices: KeyGetter.saveAbilities }), baseOptions),
+        saveAbilities: new fields.SetField(new fields.StringField({...baseOptions, choices: KeyGetter.saveAbilities }), baseOptions),
       }, { required: false })
     });
   }
@@ -142,7 +142,7 @@ export class ThrowBabonus extends Babonus {
         deathSaveTargetValue: new RollDataField({ required: false }),
       }, { required: true }),
       filters: new FiltersField({
-        throwTypes: new fields.SetField(new fields.StringField({ choices: KeyGetter.throwTypes }), { required: false }),
+        throwTypes: new fields.SetField(new fields.StringField({...baseOptions, choices: KeyGetter.throwTypes }), { required: false }),
       }, baseOptions)
     });
   }

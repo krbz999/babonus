@@ -1,11 +1,11 @@
-import { getAurasThatApplyToMe } from "./aura_helper.mjs";
 import { MATCH } from "./constants.mjs";
 import {
   finalFilterBonuses,
   _getBonusesApplyingToSelf,
   getTokenFromActor
-} from "./helpers.mjs";
-import { _getAllValidTemplateAuras } from "./template_helper.mjs";
+} from "./helpers/helpers.mjs";
+import { getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
+import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 /**
  * An example bonus, as it would be

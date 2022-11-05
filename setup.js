@@ -4,7 +4,6 @@ import {
   _renderActorSheetFlags,
   _setup
 } from "./scripts/setup.mjs";
-
 import {
   _preDisplayCard,
   _preRollDamage,
@@ -14,7 +13,7 @@ import {
   _preRollHitDie
 } from "./scripts/hooks.mjs";
 import { _createAPI } from "./scripts/public_api.mjs";
-import { _preCreateMeasuredTemplate } from "./scripts/template_helper.mjs";
+import { _preCreateMeasuredTemplate } from "./scripts/helpers/templateHelpers.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Build-a-Bonus");

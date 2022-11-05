@@ -90,7 +90,7 @@
   height: 700px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .babonus .right-side .filters,
@@ -332,4 +332,10 @@ table.babonus td:not(:first-child) {
 .babonus .form-group a.filter-deletion {
   flex: 0;
   padding: 0 0.2em 0 0.5em;
+}
+
+.babonus input[name="id"] {
+  font-family: monospace;
+  font-size: 12px;
+  text-align: center;
 }

@@ -1,4 +1,4 @@
-import { Build_a_Bonus } from "./build_a_bonus.mjs";
+import { BabonusWorkshop } from "./applications/babonus.mjs";
 import { itemsWithoutBonuses, MODULE, SETTING_HEADERLABEL } from "./constants.mjs";
 
 export function _setup() {
@@ -27,7 +27,7 @@ export function _renderActorSheetFlags(app, html) {
   button.innerHTML = `<i class="fa-solid fa-book-atlas"></i> ${label}`;
   input.replaceWith(button);
   button.addEventListener("click", async () => {
-    new Build_a_Bonus(app.object, {
+    new BabonusWorkshop(app.object, {
       title: `Build-a-Bonus: ${app.object.name}`
     }).render(true);
   });
@@ -41,7 +41,7 @@ export function _getItemSheetHeaderButtons(app, array) {
     class: MODULE,
     icon: "fa-solid fa-book-atlas",
     onclick: async () => {
-      new Build_a_Bonus(app.object, {
+      new BabonusWorkshop(app.object, {
         title: `Build-a-Bonus: ${app.object.name}`
       }).render(true);
     }
@@ -60,7 +60,7 @@ export function _getActiveEffectConfigHeaderButtons(app, array) {
     class: MODULE,
     icon: "fa-solid fa-book-atlas",
     onclick: async () => {
-      new Build_a_Bonus(app.object, {
+      new BabonusWorkshop(app.object, {
         title: `Build-a-Bonus: ${app.object.label}`
       }).render(true);
     }

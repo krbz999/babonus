@@ -1,20 +1,13 @@
 {
   "BABONUS": {
     "DELETE": {
-      "DELETE_BONUS": "Delete Bonus: {label}",
-      "ARE_YOU_SURE": "Are you sure that you want to delete '{label}'? This action cannot be undone."
+      "DELETE_BONUS": "Delete Bonus: {name}",
+      "ARE_YOU_SURE": "Are you sure that you want to delete '{name}'? This action cannot be undone."
     },
     "WARNINGS": {
-      "MISSING_LABEL": "Your bonus needs a label!",
-      "MISSING_ID": "Your bonus needs an identifier!",
-      "DUPLICATE_ID": "A bonus with that identifier already exists!",
-      "MISSING_TARGET": "You must designate where the bonus should apply!",
-      "MISSING_BONUS": "The bonus needs actual bonuses!",
-      "MISSING_DESC": "Your bonus needs a description!",
-      "MISSING_ITEM_TYPES": "You must select at least one item type!",
-      "MISSING_ABILITY_TYPES": "You must select at least one ability!",
-      "MISSING_FILTER": "Your bonus needs at least one filter!",
-      "MISSING_THROW_TYPES": "You must select at least one type of saving throw!"
+      "INVALID": "Some of the data is invalid. Please re-evaluate your selections.",
+      "SUCCESS": "The bonus '{name}' with id '{id}' has been successfully created.",
+      "DELETED": "The bonus '{name}' with id '{id}' has been successfully deleted."
     },
     "LABELS": {
       "IDENTIFIERS": "Identifiers",
@@ -50,7 +43,7 @@
     },
     "TOOLTIPS": {
       "TOGGLE_THIS": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
-      "COPY_THIS": "Copy this bonus into the builder. This clears all fields before adding all data from this bonus.",
+      "COPY_THIS": "Create a duplicate of this bonus on this document.",
       "EDIT_THIS": "Edit this bonus in the builder. This clears all fields before adding all the data from this bonus.",
       "DELETE_THIS": "Delete this bonus from this document. Deletion is permanent and the bonus cannot be recovered.",
       "ADD_THIS_FILTER": "Add this filter to the builder.",
@@ -164,6 +157,11 @@
       "FILTERS": "Current Filters",
       "CURRENT_BONUSES": "Current Bonuses",
       "BONUSES_INPUTS": "Bonuses"
+    },
+    "KEYS_DIALOG": {
+      "VALUE": "Value",
+      "CHECK": "Include",
+      "HEADER": "Keys: {name}"
     },
     "KEY": {
       "APPLY": "Apply Keys",

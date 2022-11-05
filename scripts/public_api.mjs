@@ -1,12 +1,14 @@
-import { Build_a_Bonus } from "./build_a_bonus.mjs";
+import { BabonusWorkshop } from "./applications/babonus.mjs";
 import { MODULE } from "./constants.mjs";
-import { _getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers.mjs";
-import { _getAllContainingTemplates } from "./template_helper.mjs";
+import { _getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers/helpers.mjs";
+import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
 
 export function _createAPI() {
   game.modules.get(MODULE).api = {
     getBonusIds,
     findBonus,
+    getName,
+    getNames,
     deleteBonus,
     copyBonus,
     toggleBonus,
@@ -29,6 +31,31 @@ function getBonusIds(object) {
   const has = object.getFlag(MODULE, "bonuses") ?? {};
   for (const key in has) ids.push(...Object.keys(has[key]));
   return ids;
+}
+
+/**
+ * Returns the bonus with the given name.
+ * If multiple are found, returns the first one.
+ * Returned in the form of [id, values].
+ */
+function getName(object, name) {
+  const flag = object.getFlag(MODULE, "bonuses") ?? {};
+  for (const [id, values] of Object.entries(flag)) {
+    if (values.name === name) return [id, values];
+  }
+  return undefined;
+}
+
+/**
+ * Returns the names of all bonuses on the document.
+ */
+function getNames(object) {
+  const names = [];
+  const flag = object.getFlag(MODULE, "bonuses") ?? {};
+  for (const [id, { name }] of Object.entries(flag)) {
+    names.push(name);
+  }
+  return names;
 }
 
 /**
@@ -185,7 +212,7 @@ function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
  * Renders the Build-a-Bonus workship for the document.
  */
 function openBabonusWorkshop(object) {
-  new Build_a_Bonus(object, {
+  new BabonusWorkshop(object, {
     title: `Build-a-Bonus: ${object.name}`
   }).render(true);
 }

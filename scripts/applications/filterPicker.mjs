@@ -1,11 +1,11 @@
 import { BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
-import { getBonuses } from "../helpers.mjs";
 import {
   _addToAddedFilters,
   _constructFilterDataFromName,
   _employFilter,
   _isFilterAvailable
 } from "../helpers/filterPickerHelpers.mjs";
+import { _getBonuses } from "../helpers/helpers.mjs";
 
 export class BabonusFilterPicker {
   constructor(object, options) {
@@ -17,7 +17,6 @@ export class BabonusFilterPicker {
   }
 
   render(){
-    ui.notifications.warn("FILTER PICKER RENDER");
     this.object._updateCurrentBonuses();
   }
 
@@ -54,7 +53,7 @@ export class BabonusFilterPicker {
   async getHTMLRequired() {
     const template = "modules/babonus/templates/builder_components/_required_fields.hbs";
     const type = TYPES.find(t => t.value === this.object._target);
-    const data = { type, bonusTypes: BONUS_TYPES[this.object._target] };
+    const data = { type, bonusTypes: BONUS_TYPES[this.object._target], id: this.object._id };
     return renderTemplate(template, data);
   }
 
@@ -72,7 +71,7 @@ export class BabonusFilterPicker {
 
   async getHTMLCurrentBonuses(){
     const template="modules/babonus/templates/builder_components/_current_bonuses.hbs";
-    const data={bonuses: getBonuses(this.object.object)};
+    const data={bonuses: _getBonuses(this.object.object)};
     return renderTemplate(template, data);
   }
 

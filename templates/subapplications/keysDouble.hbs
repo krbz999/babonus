@@ -1,0 +1,21 @@
+<p class="babonus-key-description">
+  {{localize description}}
+</p>
+<table class="babonus three-col">
+  <thead>
+    <tr>
+      <th>{{localize head1}}</th>
+      <th><a class="select-all">{{localize head2}}</a></th>
+      <th><a class="select-all">{{localize head2}}</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each types as |type|}}
+    <tr>
+      <td>{{type.label}}</td>
+      <td><input type="checkbox" id="{{type.value}}" data-property="needed" {{checked type.checked}}></td>
+      <td><input type="checkbox" id="{{type.value}}" data-property="unfit" {{checked type.checked2}}></td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>

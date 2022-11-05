@@ -1,10 +1,10 @@
 {{#each bonuses as |bonus|}}
-<div class="bonus" data-id="{{bonus.type}}.{{bonus.identifier}}">
+<div class="bonus" data-id="{{bonus.id}}">
   <div class="header">
     {{#if bonus.enabled}}
-    <div class="label">{{bonus.label}}</div>
+    <div class="label">{{bonus.name}}</div>
     {{else}}
-    <div class="label disabled">{{bonus.label}}</div>
+    <div class="label disabled">{{bonus.name}}</div>
     {{/if}}
     <div class="details">
       <div class="functions">
@@ -24,7 +24,7 @@
         </a>
       </div>
       <div class="identifier">
-        {{bonus.identifier}}
+        {{bonus.id}}
       </div>
     </div>
   </div>

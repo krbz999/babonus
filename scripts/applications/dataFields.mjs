@@ -76,7 +76,7 @@ export class WeaponPropertiesField extends foundry.data.fields.SchemaField {
   // if the sets overlap, error.
   _validateType(data, options = {}) {
     super._validateType(data, options);
-    if (data.needed.intersection(data.unfit).size > 0){
+    if (data.needed.intersection(data.unfit).size > 0) {
       throw new foundry.data.fields.ModelValidationError("may not intersect.");
     } else return true;
   }
@@ -85,7 +85,7 @@ export class WeaponPropertiesField extends foundry.data.fields.SchemaField {
   _cleanType(data, options = {}) {
     super._cleanType(data, options);
     const clone = foundry.utils.deepClone(data);
-    for(const k of Object.keys(data)){
+    for (const k of Object.keys(data)) {
       clone[k] = clone[k].filter(v => ![null, undefined].includes(v));
       if (foundry.utils.isEmpty(clone[k])) delete clone[k];
     }
@@ -104,6 +104,32 @@ export class RollDataField extends foundry.data.fields.StringField {
     if (!v) throw new foundry.data.fields.ModelValidationError("cannot validate bonus.");
     else return true;
   }
+}
+
+export class SplitStringField extends foundry.data.fields.DataField {
+  constructor(options = {}) {
+    super(options);
+  }
+
+  _cast(value){
+    console.log("CAST", value);
+    return value;
+  }
+
+  _cleanType(value,options){
+    console.log("CLEAN TYPE:", value, options);
+    if(!value) return this.options.initial;
+    return value;
+  }
+
+  validate(value, options){
+    console.log("VALIDATE:", value, options);
+    const arr = value?.split(";") ?? [];
+    const vvv = (value === undefined) || (arr.every(v => this.options.choices.includes(v)) && arr.length);
+    console.log(arr, vvv);
+    if(!vvv) return new foundry.data.fields.ModelValidationError("may not contain invalid values.");
+  }
+
 }
 
 export class AuraField extends foundry.data.fields.SchemaField {
