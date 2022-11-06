@@ -1,11 +1,26 @@
 import { arbitraryOperators, itemsValidForAttackDamageSave, MATCH, TYPES } from "../constants.mjs";
-import { KeyGetter } from "../helpers/helpers.mjs";
-import { FiltersField, BonusesField, RollDataField, AuraField, SpellComponentsField, WeaponPropertiesField, SemicolonArrayField, NonEmptyArrayField } from "./dataFields.mjs";
+import { KeyGetter, _babonusToString } from "../helpers/helpers.mjs";
+import {
+  FiltersField,
+  BonusesField,
+  RollDataField,
+  AuraField,
+  SpellComponentsField,
+  WeaponPropertiesField,
+  SemicolonArrayField,
+  NonEmptyArrayField,
+  ArbitraryComparisonField
+} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
 
   constructor(data, options = {}) {
-    super(foundry.utils.expandObject(data), options);
+    const expData = foundry.utils.expandObject(data);
+    super(expData, options);
+  }
+
+  toString(){
+    return _babonusToString(this);
   }
 
   static defineSchema() {
@@ -24,14 +39,14 @@ class Babonus extends foundry.abstract.DataModel {
         range: new fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
         self: new fields.BooleanField({ required: false, initial: true }),
         disposition: new fields.NumberField({ required: false, initial: 2, choices: [-1, 1, 2] }),
-        blockers: new fields.SetField(new fields.StringField(), baseOptions)
+        blockers: new SemicolonArrayField(new fields.StringField(), baseOptions)
       }, baseOptions),
       filters: new FiltersField({
         itemRequirements: new fields.SchemaField({
           equipped: new fields.BooleanField({ required: false, initial: false }),
           attuned: new fields.BooleanField({ required: false, initial: false })
         }, baseOptions),
-        arbitraryComparison: new fields.ArrayField(new fields.SchemaField({
+        arbitraryComparison: new ArbitraryComparisonField(new fields.SchemaField({
           one: new fields.StringField({ required: true, blank: false }),
           other: new fields.StringField({ required: true, blank: false }),
           operator: new fields.StringField({ required: true, choices: arbitraryOperators.map(t => t.value) })

@@ -1,3 +1,4 @@
+// a SchemaField that must contain at least one valid value.
 export class BonusesField extends foundry.data.fields.SchemaField {
   constructor(fields, options = {}) {
     super(fields, options);
@@ -10,17 +11,19 @@ export class BonusesField extends foundry.data.fields.SchemaField {
     else return true;
   }
 
-  // delete invalid fields.
+  // delete invalid fields. Called before _validateType.
   _cleanType(data, options = {}) {
     super._cleanType(data, options);
     const clone = foundry.utils.deepClone(data);
+    const falsies = ["", "0", undefined, null];
     Object.keys(clone).filter(k => {
-      return ["", "0", undefined, null].includes(clone[k].trim());
+      return falsies.includes(clone[k]) || falsies.includes(clone[k].trim());
     }).forEach(k => delete clone[k]);
     return clone;
   }
 }
 
+// a SchemaField that deletes falsy values from all its arrays, then deletes the entire array if its empty.
 export class FiltersField extends foundry.data.fields.SchemaField {
   constructor(fields, options = {}) {
     super(fields, options);
@@ -38,12 +41,13 @@ export class FiltersField extends foundry.data.fields.SchemaField {
         clone[k].delete(undefined);
       } else if (t === "Array") {
         clone[k] = clone[k].filter(v => ![null, undefined].includes(v));
-      }
-    })
+      } else if (clone[k] === undefined) delete clone[k];
+    });
     return clone;
   }
 }
 
+// a particular field that only requires MATCH if TYPES has any valid values.
 export class SpellComponentsField extends foundry.data.fields.SchemaField {
   constructor(fields, options = {}) {
     super(fields, options);
@@ -62,6 +66,7 @@ export class SpellComponentsField extends foundry.data.fields.SchemaField {
   }
 }
 
+// special field for the 'clickable' selections.
 export class NonEmptyArrayField extends foundry.data.fields.ArrayField {
   _validateType(data, options = {}) {
     super._validateType(data, options);
@@ -76,9 +81,7 @@ export class NonEmptyArrayField extends foundry.data.fields.ArrayField {
 
 }
 
-/**
- * SchemaField containing only Sets that may not overlap.
- */
+// SchemaField containing only Sets that may not overlap.
 export class WeaponPropertiesField extends foundry.data.fields.SchemaField {
   constructor(fields, options = {}) {
     super(fields, options);
@@ -104,6 +107,7 @@ export class WeaponPropertiesField extends foundry.data.fields.SchemaField {
   }
 }
 
+// a string field that only takes what can feasibly be part of a roll.
 export class RollDataField extends foundry.data.fields.StringField {
   constructor(options = {}) {
     super(options);
@@ -117,6 +121,7 @@ export class RollDataField extends foundry.data.fields.StringField {
   }
 }
 
+// an array field that takes a string and turns it into an array of strings.
 export class SemicolonArrayField extends foundry.data.fields.ArrayField {
   _cast(value, options) {
     if (typeof value === "string") value = value.split(";");
@@ -129,6 +134,7 @@ export class SemicolonArrayField extends foundry.data.fields.ArrayField {
   }
 }
 
+// a helper field to delete blockers and range since those are invalid for templates.
 export class AuraField extends foundry.data.fields.SchemaField {
   constructor(fields, options = {}) {
     super(fields, options);
@@ -143,3 +149,6 @@ export class AuraField extends foundry.data.fields.SchemaField {
     return data;
   }
 }
+
+// this is just a workaround for '_babonusToString' so as not to flatten all ArrayFields.
+export class ArbitraryComparisonField extends foundry.data.fields.ArrayField { }

@@ -1,3 +1,4 @@
+import { ArbitraryComparisonField, BonusesField, NonEmptyArrayField, SemicolonArrayField } from "../applications/dataFields.mjs";
 import {
   attackTypes,
   itemsValidForAttackDamageSave,
@@ -37,7 +38,7 @@ export function _getBonuses(doc) {
       type: b[1].type,
       enabled: b[1].enabled
     };
-  }).sort((a,b) => {
+  }).sort((a, b) => {
     return a.name?.localeCompare(b.name);
   }).filter(b => {
     // explicitly true for valid ids.
@@ -187,7 +188,7 @@ export function _getBonusesApplyingToSelf(actor, hookType) {
  * That is done in '_getBonusesApplyingToSelf'.
  * This method replaces roll data.
  */
- function getAllActorBonuses(actor, hookType) {
+function getAllActorBonuses(actor, hookType) {
   const flag = Object.entries(actor.getFlag(MODULE, `bonuses.${hookType}`) ?? {});
   const bonuses = _replaceRollData(actor, flag);
   bonuses.push(...getActorEffectBonuses(actor, hookType));
@@ -316,7 +317,7 @@ export function getAllTokenGridSpaces(token) {
 /**
  * Utility function to replace roll data.
  */
- export function _replaceRollData(object, bonuses) {
+export function _replaceRollData(object, bonuses) {
   const data = object?.getRollData() ?? {};
   const boni = foundry.utils.duplicate(bonuses);
   return boni.map(bonus => {
@@ -329,8 +330,24 @@ export function getAllTokenGridSpaces(token) {
 }
 
 // returns true if id is valid, otherwise a new id.
-export function _verifyID(id){
+export function _verifyID(id) {
   const valid = foundry.data.validators.isValidId(id);
-  if(valid) return true;
+  if (valid) return true;
   else return foundry.utils.randomID();
+}
+
+// Turn a babonus into something that can easily be 'pasted' into the ui.
+export function _babonusToString(babonus) {
+  let flattened = foundry.utils.flattenObject(babonus);
+  for (let key of Object.keys(flattened)) {
+    const path = "schema.fields." + key.split(".").join(".fields.")
+    const field = foundry.utils.getProperty(babonus, path);
+    if(field instanceof SemicolonArrayField) flattened[key] = flattened[key]?.join(";");
+    else if(field instanceof ArbitraryComparisonField && flattened[key]){
+      const a = Object.assign({}, flattened[key]);
+      flattened[key] = foundry.utils.flattenObject(a);
+      flattened = foundry.utils.flattenObject(flattened);
+    }
+  }
+  return flattened;
 }

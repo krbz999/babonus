@@ -14,11 +14,26 @@
       "NAME": "Name",
       "ID": "ID",
       "DESCRIPTION": "Description",
-      "ATTACK": { "BONUS": "Attack Bonus", "CRIT_RANGE": "Critical Range", "FUMBLE_RANGE": "Fumble Range" },
-      "DAMAGE": {"BONUS": "Damage Bonus", "CRIT_DICE": "Critical Dice", "CRIT_DMG": "Critical Damage"},
-      "SAVE": {"BONUS": "Save DC Bonus"},
-      "THROW": {"BONUS": "Saving Bonus", "DEATH_TARGET": "Death Target"},
-      "HITDIE": {"BONUS": "Die Roll Bonus"},
+      "ATTACK": {
+        "BONUS": "Attack Bonus",
+        "CRIT_RANGE": "Critical Range",
+        "FUMBLE_RANGE": "Fumble Range"
+      },
+      "DAMAGE": {
+        "BONUS": "Damage Bonus",
+        "CRIT_DICE": "Critical Dice",
+        "CRIT_DMG": "Critical Damage"
+      },
+      "SAVE": {
+        "BONUS": "Save DC Bonus"
+      },
+      "THROW": {
+        "BONUS": "Saving Bonus",
+        "DEATH_TARGET": "Death Target"
+      },
+      "HITDIE": {
+        "BONUS": "Die Roll Bonus"
+      },
       "itemTypes": "Item Types",
       "statusEffects": "Actor Conds.",
       "targetEffects": "Target Conds.",
@@ -34,7 +49,6 @@
       "throwTypes": "Throw Types",
       "saveAbilities": "Save Abilities",
       "itemRequirements": "Item Reqrmnts.",
-
       "AURA_RANGE": "Range (ft)",
       "AURA_FIELDS": "Valid Targets",
       "AURA_SELF": "Affects Self",
@@ -48,10 +62,8 @@
       "DELETE_THIS": "Delete this bonus from this document. Deletion is permanent and the bonus cannot be recovered.",
       "ADD_THIS_FILTER": "Add this filter to the builder.",
       "DELETE_THIS_FILTER": "Remove this filter from the builder.",
-
       "IDENTIFIERS": "Identifying information of the bonus. The name is for your convenience, while the id is used to refer to the bonus internally.",
       "DESCRIPTION": "A description of the bonus for your convenience.",
-
       "ATTACK": {
         "BONUS": "Additional parts to add on top of the attack roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
         "CRIT_RANGE": "An integer to subtract from the critical range of the attack roll. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
@@ -72,12 +84,20 @@
       "HITDIE": {
         "BONUS": "Additional parts to add on top of the hit die roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>."
       },
-
+      "WUTS_THIS": {
+        "REQUIRED": "These fields are required to fill out for every bonus you want to create.",
+        "BONUSES": "The actual values of the bonus and to which value it should apply.",
+        "AURA": "A set of configurations to make the bonus an aura, instead of only applying to the actor who owns it.",
+        "CURRENT_FILTERS": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to.",
+        "AVAILABLE_FILTERS": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to.",
+        "UNAVAILABLE_FILTERS": "The list of filters that are currently not available to apply to this bonus.",
+        "CURRENT_BONUSES": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",
+        "SELECT_TARGET": "Select a target for your new bonus; the type of roll to which it should apply."
+      },
       "arbitraryComparison": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with <span style='font-family: monospace;'>@target</span>.",
       "itemRequirements": "Toggle whether the item should require being equipped or attuned to for the bonus or aura to be in effect.",
       "itemEquipped": "This bonus will be considered disabled unless this item is equipped.",
       "itemAttuned": "This bonus will be considered disabled unless this item is attuned to.",
-
       "itemTypes": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
       "throwTypes": "The type of saving throw the bonus should apply to. This also applies to death saving throws, and you can adjust the target value of death saves as well.",
       "damageTypes": "The type of damage the item must deal for the bonus to apply. For example if a spell deals fire damage.",
@@ -91,12 +111,11 @@
       "spellSchools": "The school the spell must belong to for the bonus to apply. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination spells.",
       "baseWeapons": "The type of weapon the item must be for the bonus to apply. For example Battleaxe, Shortbow, or Longsword.",
       "weaponProperties": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the needed properties, and none of the unfit properties. For example if you want a bonus to apply only to Two-Handed weapons.",
-
+      "blockers": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template.",
       "AURA": "Whether this bonus should transfer to other token actors on a scene. A bonus transferred to another actor will still be evaluated against the filters below, acting as if the actor attempting to benefit from the aura was the owner of the bonus in the first place.",
       "AURA_RANGE": "The range of the aura, measured in feet (put in <span style='font-family: monospace;'>-1</span> for an unlimited range), and if the aura affects the area within a Measured Template instead (for items that are able to place a template).",
       "AURA_TEMPLATE": "Whether this aura affects token actors within the area of a Measured Template, rather than token actors within a range of this item's owner.",
       "AURA_FIELDS": "Which targets should benefit from the aura, and whether the aura should affect its owner as well. Allies are defined as tokens that have the same disposition as the owner; enemies are those with a Hostile disposition (if you are Friendly) or Friendly disposition (if you are Hostile).",
-      "AURA_BLOCKERS": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template.",
       "AURA_SELF": "Whether this aura should affect its owner as well."
     },
     "PLACEHOLDERS": {
@@ -110,21 +129,66 @@
       "AURA_RANGE": "range..."
     },
     "FILTER_PICKER": {
-      "throwTypes": {"HEADER": "Throw Types", "REQUIREMENTS": "This filter is only available for bonuses applying to saving throws."},
-      "itemTypes": {"HEADER": "Item Types", "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."},
-      "itemRequirements": {"HEADER": "Item Requirements", "REQUIREMENTS": "This filter is only available for bonuses originating from items that can be equipped or attuned to."},
-      "attackTypes": {"HEADER": "Attack Types", "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls or damage rolls."},
-      "damageTypes": {"HEADER": "Damage Types", "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."},
-      "abilities": {"HEADER": "Ability Modifier", "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."},
-      "saveAbilities": {"HEADER": "Save DC Ability", "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."},
-      "spellComponents": {"HEADER": "Spell Components", "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."},
-      "spellLevels": {"HEADER": "Spell Levels", "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."},
-      "spellSchools": {"HEADER": "Spell Schools", "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."},
-      "baseWeapons": {"HEADER": "Weapon Types", "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."},
-      "weaponProperties": {"HEADER": "Weapon Properties", "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."},
-      "arbitraryComparison": {"HEADER": "Arbitrary Comparison"},
-      "statusEffects": {"HEADER": "Actor Conditions"},
-      "targetEffects": {"HEADER": "Target Conditions"}
+      "throwTypes": {
+        "HEADER": "Throw Types",
+        "REQUIREMENTS": "This filter is only available for bonuses applying to saving throws."
+      },
+      "itemTypes": {
+        "HEADER": "Item Types",
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
+      },
+      "itemRequirements": {
+        "HEADER": "Item Requirements",
+        "REQUIREMENTS": "This filter is only available for bonuses originating from items that can be equipped or attuned to."
+      },
+      "attackTypes": {
+        "HEADER": "Attack Types",
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls or damage rolls."
+      },
+      "damageTypes": {
+        "HEADER": "Damage Types",
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
+      },
+      "abilities": {
+        "HEADER": "Ability Modifier",
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
+      },
+      "saveAbilities": {
+        "HEADER": "Save DC Ability",
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
+      },
+      "spellComponents": {
+        "HEADER": "Spell Components",
+        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
+      },
+      "spellLevels": {
+        "HEADER": "Spell Levels",
+        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
+      },
+      "spellSchools": {
+        "HEADER": "Spell Schools",
+        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
+      },
+      "baseWeapons": {
+        "HEADER": "Weapon Types",
+        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
+      },
+      "weaponProperties": {
+        "HEADER": "Weapon Properties",
+        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
+      },
+      "arbitraryComparison": {
+        "HEADER": "Arbitrary Comparison"
+      },
+      "statusEffects": {
+        "HEADER": "Actor Conditions"
+      },
+      "targetEffects": {
+        "HEADER": "Target Conditions"
+      },
+      "blockers": {
+        "HEADER": "Blocking Conditions"
+      }
     },
     "VALUES": {
       "MATCH_ANY": "Match any",
@@ -162,66 +226,6 @@
       "VALUE": "Value",
       "CHECK": "Include",
       "HEADER": "Keys: {name}"
-    },
-    "KEY": {
-      "APPLY": "Apply Keys",
-      "ITEM_TYPES_DESC": "Select any item type that this bonus should apply to. You must select at least one.",
-      "ITEM_TYPES_NAME": "Item Type",
-      "ITEM_TYPES_BOX": "Include",
-      "itemTypes_TITLE": "Keys: Item Types",
-      "ABILITIES_DESC": "Select the ability score that is used by the item. This filter respects spellcasting abilities, finesse weapons, and default values.",
-      "ABILITIES_NAME": "Ability",
-      "ABILITIES_BOX": "Include",
-      "abilities_TITLE": "Keys: Abilities",
-      "SAVE_ABILITIES_DESC": "Select the ability score that is used by the item to set the saving throw's DC. This filter respects spellcasting abilities.",
-      "SAVE_ABILITIES_NAME": "Ability",
-      "SAVE_ABILITIES_BOX": "Include",
-      "saveAbilities_TITLE": "Keys: Save Abilities",
-      "ATTACK_TYPES_DESC": "Select the type of attack the item must have for the bonus to apply.",
-      "ATTACK_TYPES_NAME": "Attack Type",
-      "ATTACK_TYPES_BOX": "Include",
-      "attackTypes_TITLE": "Keys: Attack Types",
-      "DAMAGE_TYPES_DESC": "Select a damage type. If the item has a formula with at least one of the selected damage types, the bonus will apply.",
-      "DAMAGE_TYPES_NAME": "Damage Type",
-      "DAMAGE_TYPES_BOX": "Include",
-      "damageTypes_TITLE": "Keys: Damage Types",
-      "COMPONENTS_DESC": "Select any spell component that the item must have. You can choose whether the spell must have all or at least one of the selected options.",
-      "COMPONENTS_NAME": "Spell Components",
-      "COMPONENTS_BOX": "Include",
-      "spellComponents_TITLE": "Keys: Spell Components",
-      "SPELL_LEVELS_DESC": "Select the spell levels that the bonus should apply to. This is the level at which the spell was cast, not the base level.",
-      "SPELL_LEVELS_NAME": "Spell Levels",
-      "SPELL_LEVELS_BOX": "Include",
-      "spellLevels_TITLE": "Keys: Spell Levels",
-      "SPELL_SCHOOLS_DESC": "Select the spell schools that the spell must be a member of.",
-      "SPELL_SCHOOLS_NAME": "Spell Schools",
-      "SPELL_SCHOOLS_BOX": "Include",
-      "spellSchools_TITLE": "Keys: Spell Schools",
-      "ACTOR_CONDITIONS_DESC": "Select the status conditions that the actor must be afflicted by. The bonus will apply if the actor is afflicted by at least one of the selected conditions.",
-      "ACTOR_CONDITIONS_NAME": "Status Effects",
-      "ACTOR_CONDITIONS_BOX": "Include",
-      "statusEffects_TITLE": "Keys: Actor Status Effects",
-      "TARGET_CONDITIONS_DESC": "Select the status conditions that the target actor must be afflicted by. The bonus will apply if the target actor is afflicted by at least one of the selected conditions.",
-      "TARGET_CONDITIONS_NAME": "Status Effects",
-      "TARGET_CONDITIONS_BOX": "Include",
-      "targetEffects_TITLE": "Keys: Target Status Effects",
-      "WEAPONS_DESC": "Select the type of weapons that the bonus should apply to.",
-      "WEAPONS_NAME": "Base Weapons",
-      "WEAPONS_BOX": "Include",
-      "baseWeapons_TITLE": "Keys: Base Weapons",
-      "PROPERTIES_DESC": "Select weapon properties that should be required for the weapon (the bonus will apply if the weapon has at least one of them) or any properties that must not appear on the weapon.",
-      "PROPERTIES_NAME": "Weapon Properties",
-      "PROPERTIES_NEED": "Needed",
-      "PROPERTIES_UNFIT": "Unfit",
-      "weaponProperties_TITLE": "Keys: Weapon Properties",
-      "throwTypes_TITLE": "Keys: Saving Throw Types",
-      "THROW_TYPES_DESC": "Select the types of saving throws the bonus should apply to.",
-      "THROW_TYPES_NAME": "Saving Throw Types",
-      "THROW_TYPES_BOX": "Include",
-      "blockers_TITLE": "Keys: Aura Blockers",
-      "AURA_BLOCKERS_DESC": "Select the status conditions that will prevent the benefits of the aura from being transferred to the actor and other actors.",
-      "AURA_BLOCKERS_NAME": "Status Effects",
-      "AURA_BLOCKERS_BOX": "Include"
     },
     "TRAITS": {
       "SECTION": "Build-a-Bonus",

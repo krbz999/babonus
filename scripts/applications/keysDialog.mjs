@@ -1,8 +1,8 @@
 import { MODULE } from "../constants.mjs";
 
 export class BabonusKeysDialog extends Dialog {
-  constructor(obj, options) {
-    super(obj, options);
+  constructor(object, options) {
+    super(object, options);
     this.name = options.name;
   }
 
@@ -18,7 +18,7 @@ export class BabonusKeysDialog extends Dialog {
       if (!a) return;
 
       const index = a.closest("th:nth-child(2)") ? 2 : a.closest("th:nth-child(3)") ? 3 : null;
-      if(!index) return;
+      if (!index) return;
       const body = a.closest("table").querySelector("tbody");
       const boxSelect = `tr td:nth-child(${index}) input[type='checkbox']`;
       const boxes = body.querySelectorAll(boxSelect);

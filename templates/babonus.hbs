@@ -7,7 +7,10 @@
     <div class="left-side">
 
       <div class="select-target">
-        <header class="select-target">{{localize "BABONUS.HEADERS.SELECT_TARGET"}}</header>
+        <header class="select-target">
+          {{localize "BABONUS.HEADERS.SELECT_TARGET"}}
+          <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.SELECT_TARGET'}}}"></i>
+        </header>
         <div class="targets">
           {{#each TYPES as |type|}}
           <a data-type="{{type.value}}"><i class="{{type.icon}}"></i> {{localize type.label}}</a>
@@ -20,25 +23,37 @@
         <div class="bonus-config">
 
           <div class="required-fields">
-            <header class="required-fields">{{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}</header>
+            <header class="required-fields">
+              {{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.REQUIRED'}}}"></i>
+            </header>
             <div class="required"></div>
           </div>
 
           <div class="bonuses-inputs">
-            <header class="bonuses-inputs">{{localize "BABONUS.HEADERS.BONUSES_INPUTS"}}</header>
+            <header class="bonuses-inputs">
+              {{localize "BABONUS.HEADERS.BONUSES_INPUTS"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.BONUSES'}}}"></i>
+            </header>
             <div class="bonuses"></div>
           </div>
 
           <div class="aura-config">
             <header class="aura-config">
-              <div class="content">{{localize "BABONUS.HEADERS.AURA"}}</div>
+              <div class="content">
+                {{localize "BABONUS.HEADERS.AURA"}}
+                <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.AURA'}}}"></i>
+              </div>
               <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA'}}}" name="aura.enabled">
             </header>
             <div class="aura"></div>
           </div>
 
           <div class="bonus-filters">
-            <header class="bonus-filters">{{localize "BABONUS.HEADERS.FILTERS"}}</header>
+            <header class="bonus-filters">
+              {{localize "BABONUS.HEADERS.FILTERS"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_FILTERS'}}}"></i>
+            </header>
             <div class="filters"></div>
           </div>
         </div>
@@ -63,7 +78,10 @@
     <div class="right-side">
 
       <div class="current-bonuses">
-        <header class="current-bonuses">{{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}</header>
+        <header class="current-bonuses">
+          {{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}
+          <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_BONUSES'}}}"></i>
+        </header>
         <div class="bonuses">{{{bonuses}}}</div>
       </div>
 

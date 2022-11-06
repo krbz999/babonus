@@ -1,18 +1,19 @@
 <!--
   ARBITRARY COMPARISON: always valid.
+  this hbs only works for iterable fields.
 -->
 <div class="form-group" data-name="{{name}}">
   <label class="label" data-tooltip="{{{localize tooltip}}}">
     {{localize label}}
   </label>
   <div class="form-fields">
-    <input type="text" name="filters.{{name}}.one" placeholder="{{localize placeholderOne}}">
-    <select name="filters.{{name}}.operator">
+    <input type="text" name="filters.{{iterName}}.one" placeholder="{{localize placeholderOne}}">
+    <select name="filters.{{iterName}}.operator">
       {{#each selectOptions as |option|}}
       <option value="{{option.value}}">{{{option.label}}}</option>
       {{/each}}
     </select>
-    <input type="text" name="filters.{{name}}.other" placeholder="{{localize placeholderOther}}">
+    <input type="text" name="filters.{{iterName}}.other" placeholder="{{localize placeholderOther}}">
   </div>
   <a class="filter-deletion" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.DELETE_THIS_FILTER'}}}">
     <i class="fa-solid fa-trash"></i>

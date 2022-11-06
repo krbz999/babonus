@@ -207,9 +207,18 @@ form.babonus.locked .right-side .details a {
   pointer-events: none;
 }
 
-.babonus .bonuses .bonus:last-child hr,
-.babonus .components .left-side .warning:not(.active) {
+.babonus .bonuses .bonus:last-child hr {
   display: none;
+}
+
+/* WARNING */
+#babonus-warning {
+  transition: 0.3s;
+  opacity: 0;
+}
+
+#babonus-warning.active {
+  opacity: 1;
 }
 
 /* KEY DIALOGS TABLES */
@@ -225,12 +234,12 @@ table.babonus tbody {
 
 table.babonus.two-col tr {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 2fr 1fr;
 }
 
 table.babonus.three-col tr {
   display: grid;
-  grid-template-columns: 50% 25% 25%;
+  grid-template-columns: 2fr 1fr 1fr;
 }
 
 table.babonus td img {
@@ -240,16 +249,11 @@ table.babonus td img {
 
 table.babonus td:first-child {
   padding-left: 1em;
-  align-self: center;
-}
-
-table.babonus.has-image td:first-child {
-  padding-left: 0.5em;
-  display: inline-grid;
-  grid-template-columns: auto auto;
-  justify-content: start;
+  justify-content: left;
+  flex-direction: row;
+  display: flex;
+  gap: 0.5em;
   align-items: center;
-  gap: 0.75em;
 }
 
 table.babonus td:not(:first-child) {

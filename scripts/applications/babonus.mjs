@@ -2,8 +2,9 @@ import { AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus 
 import { BabonusFilterPicker } from "./filterPicker.mjs";
 import { itemTypeRequirements, MODULE, TYPES } from "../constants.mjs";
 import { superSlugify, KeyGetter, _verifyID } from "../helpers/helpers.mjs";
-import { _canAttuneToItem, _canEquipItem } from "../helpers/filterPickerHelpers.mjs";
+import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keysDialog.mjs";
+import { _createBabonus } from "../public_api.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   constructor(object, options) {
@@ -21,7 +22,7 @@ export class BabonusWorkshop extends FormApplication {
       height: "auto",
       template: `modules/${MODULE}/templates/babonus.hbs`,
       classes: [MODULE],
-      scrollY: [".current-bonuses .bonuses", ".available-filters", ".unavailable-filters"]
+      scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"]
     });
   }
 
@@ -51,10 +52,6 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   async _updateObject(event, formData) {
-    /*for (const key of Object.keys(formData)) {
-      if (!formData[key]) delete formData[key];
-      else if (foundry.utils.isEmpty(formData[key])) delete formData[key];
-    }*/
     formData.type = this._target;
 
     // replace id if it is invalid.
@@ -80,11 +77,9 @@ export class BabonusWorkshop extends FormApplication {
       this.displayWarning(false);
       await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
       await this.object.setFlag(MODULE, `bonuses.${formData.id}`, BAB.toObject());
-      console.log(this.object.flags.babonus.bonuses[formData.id]);
       ui.notifications.info(game.i18n.format("BABONUS.WARNINGS.SUCCESS", { name: formData.name, id: formData.id }));
       return this.render();
     } catch (err) {
-      console.error(err);
       this.displayWarning(true);
       return;
     }
@@ -112,7 +107,6 @@ export class BabonusWorkshop extends FormApplication {
   activateListeners(html) {
     super.activateListeners(html);
     this.filterPicker.activateListeners(html);
-    const app = this;
 
     // CANCEL button.
     html[0].addEventListener("click", (event) => {
@@ -154,9 +148,10 @@ export class BabonusWorkshop extends FormApplication {
       });
       const selected = await BabonusKeysDialog.prompt({
         title,
-        content: await TextEditor.enrichHTML(content, {async: true}),
+        content,
         rejectClose: false,
-        callback: function(html){
+        options: { name },
+        callback: function (html) {
           const selector = "td:nth-child(2) input[type='checkbox']:checked";
           const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
           const checked = [...html[0].querySelectorAll(selector)];
@@ -165,14 +160,14 @@ export class BabonusWorkshop extends FormApplication {
             first: checked.map(i => i.id).join(";") ?? "",
             second: checked2.map(i => i.id).join(";") ?? ""
           };
-        }
-      }, {name});
+        },
+      });
 
-      if(!selected) return;
-      if(Object.values(selected).every(a => foundry.utils.isEmpty(a))) return;
+      if (!selected) return;
+      if (Object.values(selected).every(a => foundry.utils.isEmpty(a))) return;
 
       list.value = selected.first;
-      if(list2) list2.value = selected.second;
+      if (list2) list2.value = selected.second;
       return;
     });
 
@@ -207,19 +202,7 @@ export class BabonusWorkshop extends FormApplication {
     html[0].addEventListener("click", async (event) => {
       const a = event.target.closest(".left-side .select-target .targets a");
       if (!a) return;
-      this._target = a.dataset.type;
-      this._id = foundry.utils.randomID();
-
-      // hide:
-      const hide = html[0].querySelectorAll(".left-side div.select-target, .right-side div.current-bonuses");
-      for (const h of hide) h.style.display = "none";
-      // show:
-      const show = html[0].querySelectorAll(".left-side div.inputs, .right-side div.filter-picker");
-      for (const s of show) s.style.display = "";
-
-      await this._rerenderFilters();
-      html[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired();
-      html[0].querySelector(".left-side .bonuses-inputs .bonuses").innerHTML = await this.filterPicker.getHTMLBonuses();
+      return this._initializeBuilder({ type: a.dataset.type });
     });
 
     // when you pick an item type, update this._itemTypes.
@@ -234,11 +217,69 @@ export class BabonusWorkshop extends FormApplication {
       this._updateAddedFilters();
     });
 
+    // click warning away.
+    html[0].addEventListener("click", (event) => {
+      const el = event.target.closest("#babonus-warning.active");
+      if (el) this.displayWarning(false);
+    })
+
+  }
+
+  async _initializeBuilder({ type, id, addedFilters }) {
+    this._target = type;
+    this._id = id ?? foundry.utils.randomID();
+    this._addedFilters = addedFilters;
+
+    // create html for required fields, bonuses fields, and sometimes the aura field (if existing bonus).
+    this.element[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired();
+    this.element[0].querySelector(".left-side .bonuses-inputs .bonuses").innerHTML = await this.filterPicker.getHTMLBonuses();
+    if(this._formData?.["aura.enabled"]){
+      this.element[0].querySelector(".left-side .aura-config .aura").innerHTML = await this.filterPicker.getHTMLAura();
+    }
+
+    // only valid when editing an existing bonus:
+    if (this._addedFilters) {
+      // create form-groups for each existing filter in the bonus being edited.
+      for (const name of addedFilters) await _employFilter(this, name);
+      // add the existing babonus's values to the created form-groups.
+      await this._initializeExistingBonusValues();
+    }
+
+    // hide initial UI:
+    const hide = this.element[0].querySelectorAll(".left-side div.select-target, .right-side div.current-bonuses");
+    for (const h of hide) h.style.display = "none";
+    // show builder UI:
+    const show = this.element[0].querySelectorAll(".left-side div.inputs, .right-side div.filter-picker");
+    for (const s of show) s.style.display = "";
+
+    // update the filters.
+    return this._rerenderFilters();
   }
 
   /* Update the right-side bonuses. */
   async _updateCurrentBonuses() {
+    this._saveScrollPositions(this.element);
     this.element[0].querySelector(".right-side .current-bonuses .bonuses").innerHTML = await this.filterPicker.getHTMLCurrentBonuses();
+    this._restoreScrollPositions(this.element);
+  }
+
+  // paste the values of an existing bonus.
+  async _initializeExistingBonusValues() {
+    const data = this._formData; // flattened values.
+    for (const name of Object.keys(data)) {
+      if (data[name] instanceof Array) {
+        for (const innerName of data[name]) {
+          const el = this.element[0].querySelector(`[name="${name}"][value="${innerName}"]`);
+          if (el) el.checked = true;
+        }
+      } else if (typeof data[name] === "string" || typeof data[name] === "number") {
+        const el = this.element[0].querySelector(`[name="${name}"]`);
+        if (el) el.value = data[name];
+      } else if (typeof data[name] === "boolean") {
+        const el = this.element[0].querySelector(`[name="${name}"]`);
+        if (el) el.checked = data[name];
+      }
+    }
   }
 
   /* Update the Set storing current filter names for easy access. */
@@ -295,11 +336,11 @@ export class BabonusWorkshop extends FormApplication {
     });
     if (!prompt) return false;
     await this.object.unsetFlag(MODULE, `bonuses.${id}`);
-    ui.notifications.info(game.i18n.format("BABONUS.WARNINGS.DELETED", {name,id}));
+    ui.notifications.info(game.i18n.format("BABONUS.WARNINGS.DELETED", { name, id }));
   }
 
   // toggle a bonus between enabled=true and enabled=false.
-  _toggleBonus(id) {
+  async _toggleBonus(id) {
     const key = `bonuses.${id}.enabled`;
     const state = this.object.getFlag(MODULE, key);
     if (state !== true && state !== false) return ui.notifications.error("The state of this babonus was invalid.");
@@ -307,7 +348,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   // copy a bonus, with new id, and appended to its name
-  async _copyBonus(id){
+  async _copyBonus(id) {
     const data = this.object.getFlag(MODULE, `bonuses.${id}`) ?? {};
     const bonusData = foundry.utils.duplicate(data);
     bonusData.name = `${bonusData.name} (Copy)`;
@@ -316,11 +357,21 @@ export class BabonusWorkshop extends FormApplication {
     return this.object.setFlag(MODULE, `bonuses.${bonusData.id}`, bonusData);
   }
 
+  // edit a bonus, with the same id.
+  async _editBonus(id) {
+    const data = this.object.getFlag(MODULE, `bonuses.${id}`);
+    const bab = _createBabonus(data, id);
+    const formData = bab.toString();
+    const type = formData.type;
+    this._formData = formData;
+    this._babObject = bab.toObject();
+    const addedFilters = new Set(Object.keys(bab.toObject().filters ?? {}));
+    return this._initializeBuilder({ type, id, addedFilters });
+  }
+
   // helper method to show/hide a warning in the BAB.
-  displayWarning(active = true) {
-    const field = this.element[0].querySelector("#babonus-warning");
-    if (!active) return field.classList.remove("active");
-    else return field.classList.add("active");
+  displayWarning(force) {
+    this.element[0].querySelector("#babonus-warning").classList.toggle("active", force);
   }
 
   // TODO: A helper function to fill out the form with an existing bonus from the document.
@@ -366,5 +417,7 @@ export class BabonusWorkshop extends FormApplication {
     delete this._addedFilters;
     delete this._itemTypes;
     delete this._id;
+    delete this._formData;
+    delete this._babObject;
   }
 }

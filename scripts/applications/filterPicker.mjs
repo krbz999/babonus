@@ -8,7 +8,7 @@ import {
 import { _getBonuses } from "../helpers/helpers.mjs";
 
 export class BabonusFilterPicker {
-  constructor(object, options) {
+  constructor(object) {
     this.object = object;
   }
 
@@ -16,7 +16,7 @@ export class BabonusFilterPicker {
     return `${MODULE}-filterPicker-${this.object.id}`;
   }
 
-  render(){
+  render() {
     this.object._updateCurrentBonuses();
   }
 
@@ -57,21 +57,21 @@ export class BabonusFilterPicker {
     return renderTemplate(template, data);
   }
 
-  async getHTMLBonuses(){
+  async getHTMLBonuses() {
     const template = "modules/babonus/templates/builder_components/_bonuses.hbs";
     const type = this.object._target;
-    const data = {bonuses: BONUS_TYPES[type]};
+    const data = { bonuses: BONUS_TYPES[type] };
     return renderTemplate(template, data);
   }
 
-  async getHTMLAura(){
+  async getHTMLAura() {
     const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
     return renderTemplate(template);
   }
 
-  async getHTMLCurrentBonuses(){
-    const template="modules/babonus/templates/builder_components/_current_bonuses.hbs";
-    const data={bonuses: _getBonuses(this.object.object)};
+  async getHTMLCurrentBonuses() {
+    const template = "modules/babonus/templates/builder_components/_current_bonuses.hbs";
+    const data = { bonuses: _getBonuses(this.object.object) };
     return renderTemplate(template, data);
   }
 
@@ -82,12 +82,11 @@ export class BabonusFilterPicker {
 
       const name = a.dataset.filter;
 
-      // add this filter to the UI.
       await _employFilter(this.object, name);
-      // add the filter to babonus _addedFilters.
       _addToAddedFilters(this.object, name);
-      // remove this filter.
+      this.object._saveScrollPositions(this.object.element);
       html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.getHTMLFilters();
+      this.object._restoreScrollPositions(this.object.element);
     });
   }
 }

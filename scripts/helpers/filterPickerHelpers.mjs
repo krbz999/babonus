@@ -57,6 +57,7 @@ export function _addToAddedFilters(app, name) {
   app._addedFilters = added;
 }
 
+// create and append the form-group for a specific filter.
 export async function _employFilter(app, name) {
   // what template and what data to use depends on the name of the filter.
   let template = "modules/babonus/templates/builder_components/";
@@ -101,13 +102,9 @@ export async function _employFilter(app, name) {
   } else if (["damageTypes", "abilities", "saveAbilities", "throwTypes", "statusEffects", "targetEffects", "spellSchools", "baseWeapons"].includes(name)) {
     template += "text_keys.hbs";
   } else if ("arbitraryComparison" === name) {
-    template += "text_select_text.hbs";
-    const iter = app._comparisonFields ?? 0;
-    data.name = `${name}.${iter}`;
-    app._comparisonFields = iter + 1;
-    data.placeholderOne = `BABONUS.PLACEHOLDERS.${name}.one`;
-    data.placeholderOther = `BABONUS.PLACEHOLDERS.${name}.other`;
-    data.selectOptions = arbitraryOperators;
+    // handle this case specially.
+    await _employRepeatableFilter(app, name);
+    return true;
   } else if ("weaponProperties" === name) {
     template += "text_text_keys.hbs";
   }
@@ -115,5 +112,47 @@ export async function _employFilter(app, name) {
   const DIV = document.createElement("DIV");
   DIV.innerHTML = await renderTemplate(template, data);
   app.element[0].querySelector("div.filters").appendChild(...DIV.children);
+  return true;
+}
+
+async function _employRepeatableFilter(app, name) {
+  // what template and what data to use depends on the name of the filter.
+  let template = "modules/babonus/templates/builder_components/";
+  const data = {
+    tooltip: `BABONUS.TOOLTIPS.${name}`,
+    label: `BABONUS.LABELS.${name}`,
+    name,
+  };
+
+  const DIV = document.createElement("DIV");
+  DIV.innerHTML = "";
+
+  if (name === "arbitraryComparison") {
+    template += "text_select_text.hbs";
+    data.selectOptions = arbitraryOperators;
+    data.placeholderOne = `BABONUS.PLACEHOLDERS.${name}.one`;
+    data.placeholderOther = `BABONUS.PLACEHOLDERS.${name}.other`;
+  }
+  const len = foundry.utils.getProperty(app._babObject, `filters.${name}`)?.length;
+
+  // we are creating the initials when editing an existing bonus.
+  if (len) {
+    for (let i = 0; i < len; i++) {
+      data.iterName = `${name}.${i}`;
+      DIV.innerHTML += await renderTemplate(template, data);
+    }
+    app.element[0].querySelector("div.filters").append(...DIV.children);
+    delete app._babObject.filters[name];
+  }
+
+  // add one new row when building.
+  else {
+    const iteration = [...app.element[0].querySelectorAll(`.left-side .filters [data-name="${name}"]`)].length;
+    console.log("ITERATION", iteration);
+    data.iterName = `${name}.${iteration}`;
+    DIV.innerHTML = await renderTemplate(template, data);
+    app.element[0].querySelector("div.filters").appendChild(...DIV.children);
+  }
+
   return true;
 }
