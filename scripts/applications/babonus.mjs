@@ -79,8 +79,10 @@ export class BabonusWorkshop extends FormApplication {
 
   // rerender the available/unavailable filters on the right-hand side.
   async _rerenderFilters() {
+    this._saveScrollPositions(this.element);
     const fp = this.element[0].querySelector(".right-side div.filter-picker");
     if (fp) fp.innerHTML = await this.filterPicker.getHTMLFilters();
+    this._restoreScrollPositions(this.element);
   }
 
   // show/hide aura config, and clamp aura range.

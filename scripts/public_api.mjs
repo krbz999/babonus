@@ -234,7 +234,7 @@ function _rerenderApp(object) {
 }
 
 // create a Babonus with the given id (or a new one if none is provided).
-export function _createBabonus(data, id){
+export function _createBabonus(data, id, options={}){
   const types = TYPES.map(t => t.value);
   if(!types.includes(data.type)){
     throw new Error("INVALID BABONUS TYPE.");
@@ -249,7 +249,7 @@ export function _createBabonus(data, id){
     save: SaveBabonus,
     throw: ThrowBabonus,
     hitdie: HitDieBabonus
-  }[data.type](data);
+  }[data.type](data, options);
 
   console.log("DATA:", data);
   console.log("BABONUS:", BAB);

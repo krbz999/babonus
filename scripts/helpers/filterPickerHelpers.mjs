@@ -36,17 +36,17 @@ export function _isFilterAvailable(name, { addedFilters, target, item, itemTypes
 }
 
 function _canEquipOrAttuneToItem(item) {
-  if (!item) return false;
+  if (!(item instanceof Item)) return false;
   return _canEquipItem(item) || _canAttuneToItem(item);
 }
 
 export function _canEquipItem(item) {
-  if (!item) return false;
+  if (!(item instanceof Item)) return false;
   return foundry.utils.hasProperty(item, "system.equipped");
 }
 
 export function _canAttuneToItem(item) {
-  if (!item) return false;
+  if (!(item instanceof Item)) return false;
   const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
   return [REQUIRED, ATTUNED].includes(item.system.attunement);
 }

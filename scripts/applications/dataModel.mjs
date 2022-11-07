@@ -136,7 +136,7 @@ export class SaveBabonus extends ItemBabonus {
         bonus: new RollDataField({ required: false })
       }, { required: true }),
       filters: new FiltersField({
-        saveAbilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.saveAbilities }), baseOptions),
+        saveAbilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.saveAbilities.map(t => t.value) }), baseOptions),
       }, { required: false })
     });
   }
@@ -157,7 +157,7 @@ export class ThrowBabonus extends Babonus {
         deathSaveTargetValue: new RollDataField({ required: false }),
       }, { required: true }),
       filters: new FiltersField({
-        throwTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.throwTypes }), baseOptions),
+        throwTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.throwTypes.map(t => t.value) }), baseOptions),
       }, baseOptions)
     });
   }
