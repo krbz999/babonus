@@ -148,7 +148,6 @@ async function _employRepeatableFilter(app, name) {
   // add one new row when building.
   else {
     const iteration = [...app.element[0].querySelectorAll(`.left-side .filters [data-name="${name}"]`)].length;
-    console.log("ITERATION", iteration);
     data.iterName = `${name}.${iteration}`;
     DIV.innerHTML = await renderTemplate(template, data);
     app.element[0].querySelector("div.filters").appendChild(...DIV.children);

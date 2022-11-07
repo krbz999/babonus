@@ -6,8 +6,9 @@
     },
     "WARNINGS": {
       "INVALID": "Some of the data is invalid. Please re-evaluate your selections.",
-      "SUCCESS": "The bonus '{name}' with id '{id}' has been successfully created.",
-      "DELETED": "The bonus '{name}' with id '{id}' has been successfully deleted."
+      "SUCCESS": "The bonus '{name}' with id '{id}' has been successfully saved.",
+      "DELETED": "The bonus '{name}' with id '{id}' has been successfully deleted.",
+      "COPIED": "The bonus '{name}' with id '{id}' has been successfully copied."
     },
     "LABELS": {
       "IDENTIFIERS": "Identifiers",

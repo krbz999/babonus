@@ -148,14 +148,13 @@
   padding: 0.5em 0.75em;
   background-color: rgba(181, 179, 164, 0.5);
   user-select: text;
-  transition: 0.2s;
   max-height: fit-content;
   overflow: hidden;
   opacity: 1;
 }
 
-.babonus .right-side .bonuses .bonus.instant .description .content {
-  transition: 0.0s;
+.babonus .right-side .bonuses .bonus:not(.collapsed) .description .content {
+  transition: 0.3s;
 }
 
 .babonus .right-side .bonuses .bonus.collapsed .description .content {

@@ -1,7 +1,7 @@
 import { BabonusWorkshop } from "./applications/babonus.mjs";
 import { AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus } from "./applications/dataModel.mjs";
 import { MODULE, TYPES } from "./constants.mjs";
-import { _getMinimumDistanceBetweenTokens, getTokenFromActor } from "./helpers/helpers.mjs";
+import { _getMinimumDistanceBetweenTokens, getTokenFromActor, _getAppId } from "./helpers/helpers.mjs";
 import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
 
 export function _createAPI() {
@@ -228,19 +228,20 @@ function openBabonusWorkshop(object) {
 
 function _rerenderApp(object) {
   const apps = Object.values(ui.windows);
-  const id = `${MODULE}-build-a-bonus-${object.id}`;
+  const id = _getAppId(object);
   const app = apps.find(a => a.id === id);
   return app?.render();
 }
 
+// create a Babonus with the given id (or a new one if none is provided).
 export function _createBabonus(data, id){
   const types = TYPES.map(t => t.value);
   if(!types.includes(data.type)){
     throw new Error("INVALID BABONUS TYPE.");
   }
 
+  // if no id explicitly provided, make a new one.
   data.id = id ?? foundry.utils.randomID();
-  console.log("DATA:", data);
 
   const BAB = new {
     attack: AttackBabonus,
@@ -250,6 +251,7 @@ export function _createBabonus(data, id){
     hitdie: HitDieBabonus
   }[data.type](data);
 
+  console.log("DATA:", data);
   console.log("BABONUS:", BAB);
   console.log("OBJECT:", BAB.toObject());
 
