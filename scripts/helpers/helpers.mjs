@@ -8,26 +8,6 @@ import {
 } from "../constants.mjs";
 import { FILTER } from "../filters.mjs";
 
-// Really, really, really slugify a string.
-// it may only contain a-z, 0-9, and -.
-export function superSlugify(id) {
-  const regex = new RegExp(/[^a-z- ]+/gmi);
-  let idf = id.replaceAll(regex, "").slugify();
-  if (idf.length < 2) return "";
-  if (!new RegExp(/[a-z]/).test(idf)) return "";
-  return idf;
-}
-
-// the types of bonuses ('attack', 'damage', 'save', etc)
-export function getTargets() {
-  return TYPES.map(t => {
-    return {
-      value: t.value,
-      label: game.i18n.localize(t.label)
-    };
-  });
-}
-
 // current bonuses on the document, for HTML purposes only.
 export function _getBonuses(doc) {
   const flag = doc.getFlag(MODULE, "bonuses") ?? {};
