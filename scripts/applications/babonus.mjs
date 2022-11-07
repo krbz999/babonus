@@ -1,9 +1,8 @@
 import { BabonusFilterPicker } from "./filterPicker.mjs";
 import { itemTypeRequirements, MODULE, TYPES } from "../constants.mjs";
-import { KeyGetter, _getAppId, _verifyID } from "../helpers/helpers.mjs";
+import { KeyGetter, _createBabonus, _getAppId, _verifyID } from "../helpers/helpers.mjs";
 import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keysDialog.mjs";
-import { _createBabonus } from "../public_api.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   constructor(object, options) {

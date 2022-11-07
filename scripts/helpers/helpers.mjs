@@ -1,4 +1,5 @@
 import { ArbitraryComparisonField, BonusesField, NonEmptyArrayField, SemicolonArrayField } from "../applications/dataFields.mjs";
+import { AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus } from "../applications/dataModel.mjs";
 import {
   attackTypes,
   itemsValidForAttackDamageSave,
@@ -355,4 +356,24 @@ export function _babonusToString(babonus) {
 // same app id everywhere for lookup reasons.
 export function _getAppId(object){
   return `${MODULE}-${object.id}`;
+}
+
+// create a Babonus with the given id (or a new one if none is provided).
+export function _createBabonus(data, id, options = {}) {
+  const types = TYPES.map(t => t.value);
+  if (!types.includes(data.type)) {
+    throw new Error("INVALID BABONUS TYPE.");
+  }
+
+  // if no id explicitly provided, make a new one.
+  data.id = id ?? foundry.utils.randomID();
+
+  const BAB = new {
+    attack: AttackBabonus,
+    damage: DamageBabonus,
+    save: SaveBabonus,
+    throw: ThrowBabonus,
+    hitdie: HitDieBabonus
+  }[data.type](data, options);
+  return BAB;
 }

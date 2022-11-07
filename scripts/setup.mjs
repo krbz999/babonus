@@ -1,5 +1,5 @@
 import { BabonusWorkshop } from "./applications/babonus.mjs";
-import { itemsWithoutBonuses, MODULE, SETTING_HEADERLABEL } from "./constants.mjs";
+import { itemsWithoutBonuses, MODULE, SETTING_HEADERLABEL, SETTING_MIGRATION_VERSION } from "./constants.mjs";
 
 export function _setup() {
   CONFIG.DND5E.characterFlags[MODULE] = {
@@ -16,6 +16,15 @@ export function _setup() {
     config: true,
     type: Boolean,
     default: false
+  });
+
+  game.settings.register(MODULE, SETTING_MIGRATION_VERSION, {
+    name: "Migration Version",
+    hint: "Migration Version",
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0
   });
 }
 

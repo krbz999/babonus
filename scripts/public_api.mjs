@@ -1,38 +1,37 @@
 import { BabonusWorkshop } from "./applications/babonus.mjs";
-import { AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus } from "./applications/dataModel.mjs";
 import { MODULE, TYPES } from "./constants.mjs";
-import { _getMinimumDistanceBetweenTokens, getTokenFromActor, _getAppId } from "./helpers/helpers.mjs";
+import { _getMinimumDistanceBetweenTokens, getTokenFromActor, _getAppId, _createBabonus } from "./helpers/helpers.mjs";
 import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
+import { migration } from "./migration.mjs";
 
 export function _createAPI() {
   game.modules.get(MODULE).api = {
-    getBonusIds,
-    findBonus,
+    getId,
+    getIds,
     getName,
     getNames,
+    getType,
+
     deleteBonus,
     copyBonus,
     toggleBonus,
-    findEmbeddedDocumentsWithBonuses,
-    changeBonusId,
     moveBonus,
+
+    findEmbeddedDocumentsWithBonuses,
     findTokensInRangeOfAura,
     openBabonusWorkshop,
-    getBonuses,
     getAllContainingTemplates,
     getMinimumDistanceBetweenTokens,
-    createBabonus
-  }
-}
+    createBabonus,
 
-/**
- * Returns the ids of all bonuses on the document.
- */
-function getBonusIds(object) {
-  const ids = [];
-  const has = object.getFlag(MODULE, "bonuses") ?? {};
-  for (const key in has) ids.push(...Object.keys(has[key]));
-  return ids;
+    migration: migration,
+
+
+    getBonusIds,
+    findBonus,
+    getBonuses,
+    changeBonusId,
+  }
 }
 
 /**
@@ -42,48 +41,75 @@ function getBonusIds(object) {
  */
 function getName(object, name) {
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  for (const [id, values] of Object.entries(flag)) {
-    if (values.name === name) return [id, values];
-  }
-  return undefined;
+  return Object.entries(flag).filter(([id, values]) => {
+    return foundry.data.validators.isValidId(id);
+  }).find(([id,values]) => values.name===name);
 }
 
 /**
  * Returns the names of all bonuses on the document.
  */
 function getNames(object) {
-  const names = [];
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  for (const [id, { name }] of Object.entries(flag)) {
-    names.push(name);
-  }
-  return names;
+  return Object.entries(flag).filter(([id,values]) => {
+    return foundry.data.validators.isValidId(id);
+  }).map(([id,values]) => values.name);
 }
 
 /**
  * Returns the bonus with the given id.
- * Returned in the form of [targetType, id, values].
+ * Returned in the form of [id, values].
  */
-function findBonus(object, id) {
-  const flag = object.getFlag(MODULE, "bonuses");
-  for (const type in flag) {
-    const flagType = flag[type];
-    for (const identifier in flagType) {
-      if (id === identifier) {
-        const value = flagType[identifier];
-        return [type, identifier, value];
-      }
-    }
-  }
+function getId(object, id) {
+  const flag = object.getFlag(MODULE, "bonuses") ?? {};
+  return Object.entries(flag).filter(([idd,values]) =>{
+    return foundry.data.validators.isValidId(idd);
+  }).find(([idd,values]) => id===idd);
+}
+
+/* Deprecated */
+function findBonus(object,id){
+  ui.notifications.warn("You are using 'findBonus' which has been deprecated in favor of 'getId'.");
+  return getId(object,id);
+}
+
+/**
+ * Returns the ids of all bonuses on the document.
+ */
+ function getIds(object) {
+  const flag = object.getFlag(MODULE, "bonuses") ?? {};
+  return Object.keys(flag).filter(id => {
+    return foundry.data.validators.isValidId(id);
+  });
+}
+
+/* Deprecated */
+function getBonusIds(object){
+  ui.notifications.warn("You are using 'getBonusIds' which has been deprecated in favor of 'getIds'.");
+  return getIds(object);
+}
+
+/* Deprecated */
+function getBonuses(object) {
+  ui.notifications.warn("You are using 'getBonuses' which has been deprecated in favor of 'getType'.");
   return null;
 }
 
 /**
- * Returns all bonuses on the document as an array
- * each element in the form of [targetType, id, values].
+ * Returns the bonuses of a given type.
+ * Returned in the form of [id, values].
  */
-function getBonuses(object) {
-  return getBonusIds(object).map(id => findBonus(object, id));
+function getType(object, type){
+  if(!TYPES.includes(type)){
+    console.error(`'${type}' is not a valid Build-a-Bonus type!`);
+    return null;
+  }
+  const flag = object.getFlag(MODULE, "bonuses") ?? {};
+  return Object.entries(flag).filter(([id,values]) => {
+    const validId = foundry.data.validators.isValidId(id);
+    const validtype = values?.type === type;
+    return validId && validtype;
+  });
 }
 
 /**
@@ -97,11 +123,14 @@ function getAllContainingTemplates(tokenDoc) {
  * Delete the bonus with the given id from the document.
  */
 async function deleteBonus(object, id) {
-  const target = findBonus(object, id);
+  const validId = foundry.data.validators.isValidId(id);
+  if(!validId) {
+    console.error("The id provided is not valid.");
+    return null;
+  }
+  const target = getId(object, id);
   if (!target) return null;
-  const [type, identifier] = target;
-  const key = `bonuses.${type}.${identifier}`;
-  const r = await object.unsetFlag(MODULE, key);
+  await object.update({[`flags.babonus.bonuses.-=${target[0]}`]: null});
   _rerenderApp(object);
   return r;
 }
@@ -112,12 +141,17 @@ async function deleteBonus(object, id) {
  * or if the other already has a bonus by that id.
  */
 async function copyBonus(original, other, id) {
-  const o = findBonus(original, id);
-  const t = findBonus(other, id);
-  if (!o || !!t) return null;
-  const [targetType, identifier, value] = o;
-  const key = `bonuses.${targetType}.${identifier}`;
-  const r = await other.setFlag(MODULE, key, value);
+  const validId = foundry.data.validators.isValidId(id);
+  if(!validId) {
+    console.error("The id provided is not valid.");
+    return null;
+  }
+  const target = getId(original, id);
+  if (!target) return null;
+
+  const values = createBabonus(target[1]).toObject();
+  const key = `bonuses.${values[0]}`;
+  const r = await other.setFlag(MODULE, key, values);
   _rerenderApp(other);
   return r;
 }
@@ -128,6 +162,11 @@ async function copyBonus(original, other, id) {
  * or if the other already has a bonus by that id.
  */
 async function moveBonus(original, other, id) {
+  const validId = foundry.data.validators.isValidId(id);
+  if(!validId) {
+    console.error("The id provided is not valid.");
+    return null;
+  }
   const copy = await copyBonus(original, other, id);
   if (!copy) return null;
   const r = await deleteBonus(original, id);
@@ -140,27 +179,39 @@ async function moveBonus(original, other, id) {
  * Returns null if the bonus was not found.
  */
 async function toggleBonus(object, id, state = null) {
-  const bonus = findBonus(object, id);
+  const validId = foundry.data.validators.isValidId(id);
+  if(!validId) {
+    console.error("The id provided is not valid.");
+    return null;
+  }
+  const bonus = getId(object, id);
   if (!bonus) return null;
-  const [type, identifier, { enabled }] = bonus;
-  const key = `bonuses.${type}.${identifier}.enabled`;
-  if (state !== null) return object.setFlag(MODULE, key, !!state);
-  const r = await object.setFlag(MODULE, key, !enabled);
+  const key = `bonuses.${bonus[0]}.enabled`;
+  let r;
+  if (state === null) r = await object.setFlag(MODULE, key, !bonus[1].enabled);
+  else r = await object.setFlag(MODULE, key, !!state);
   _rerenderApp(object);
   return r;
 }
 
 /**
  * Return an object of arrays of items and effects
- * on the actor that have a bonus embedded in them.
+ * on the given document that have a bonus embedded in them.
  */
-function findEmbeddedDocumentsWithBonuses(actor) {
-  const items = actor.items.filter(item => {
-    return getBonusIds(item).length > 0;
+function findEmbeddedDocumentsWithBonuses(object) {
+  let items = [];
+  let effects = [];
+
+  if(object instanceof Actor) {
+    items = object.items.filter(item => {
+    return getIds(item).length > 0;
   });
-  const effects = actor.effects.filter(effect => {
-    return getBonusIds(effect).length > 0;
+}
+  if(object instanceof Actor || object instanceof Item){
+    effects = actor.effects.filter(effect => {
+    return getIds(effect).length > 0;
   });
+}
   return { effects, items };
 }
 
@@ -169,14 +220,8 @@ function findEmbeddedDocumentsWithBonuses(actor) {
  * Returns null if the document already has a bonus with the new id.
  */
 async function changeBonusId(object, oldId, newId) {
-  const bonus = findBonus(object, oldId);
-  const dupeId = findBonus(object, newId);
-  if (!bonus || !!dupeId) return null;
-  const [type, _, value] = foundry.utils.duplicate(bonus);
-  await object.unsetFlag(MODULE, `bonuses.${type}.${oldId}`);
-  const r = await object.setFlag(MODULE, `bonuses.${type}.${newId}`, value);
-  _rerenderApp(object);
-  return r;
+  ui.notifications.warn("You are using 'changeBonusId' which has been deprecated in favor of absolutely nothing. Don't change ids.");
+  return null;
 }
 
 /**
@@ -185,9 +230,9 @@ async function changeBonusId(object, oldId, newId) {
  * the bonus is not on an actor with an active token.
  */
 function findTokensInRangeOfAura(object, id) {
-  const bonus = findBonus(object, id);
+  const bonus = getId(object, id);
   if (!bonus) return null;
-  const [type, identifier, { aura }] = bonus;
+  const [_id, { aura }] = bonus;
   if (!aura) return null;
   if (aura.isTemplate) return null;
   const tokenDoc = getTokenFromActor(object.parent ?? object);
@@ -214,15 +259,20 @@ function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
  * Renders the Build-a-Bonus workship for the document.
  */
 function openBabonusWorkshop(object) {
+  const validDocumentType = (
+    (object instanceof Actor)
+    || (object instanceof Item)
+    || (object instanceof ActiveEffect && !(object.parent.parent instanceof Actor))
+  );
   new BabonusWorkshop(object, {
-    title: `Build-a-Bonus: ${object.name}`
+    title: `Build-a-Bonus: ${object.name ?? object.label}`
   }).render(true);
 }
 
 /**
  * Create a babonus given a babonusData object.
  */
- function createBabonus(data) {
+function createBabonus(data) {
   return _createBabonus(data);
 }
 
@@ -231,29 +281,4 @@ function _rerenderApp(object) {
   const id = _getAppId(object);
   const app = apps.find(a => a.id === id);
   return app?.render();
-}
-
-// create a Babonus with the given id (or a new one if none is provided).
-export function _createBabonus(data, id, options={}){
-  const types = TYPES.map(t => t.value);
-  if(!types.includes(data.type)){
-    throw new Error("INVALID BABONUS TYPE.");
-  }
-
-  // if no id explicitly provided, make a new one.
-  data.id = id ?? foundry.utils.randomID();
-
-  const BAB = new {
-    attack: AttackBabonus,
-    damage: DamageBabonus,
-    save: SaveBabonus,
-    throw: ThrowBabonus,
-    hitdie: HitDieBabonus
-  }[data.type](data, options);
-
-  console.log("DATA:", data);
-  console.log("BABONUS:", BAB);
-  console.log("OBJECT:", BAB.toObject());
-
-  return BAB;
 }

@@ -29,10 +29,14 @@
   transition: inherit;
 }
 
-.babonus .checkboxes>.sep> :is(:checked, :hover)~span.checkboxes-check {
+.babonus .checkboxes>.sep> :checked~span.checkboxes-check {
   border: 2px groove #ff00006e;
-  box-shadow: 0 0 4px red;
+  box-shadow: 0 0 4px darkred;
   background-color: #ff000066;
+}
+
+.babonus .checkboxes>.sep> :hover~span.checkboxes-check {
+  text-shadow: 0 0 5px var(--color-shadow-primary);
 }
 
 .babonus div.checkboxes {
@@ -42,11 +46,7 @@
 
 .babonus .form-fields.checkboxes label.sep {
   padding: 0;
-  transition: 0.3s;
-}
-
-.babonus .form-fields.checkboxes label.sep:hover {
-  transform: scale(1.15);
+  transition: 0.2s;
 }
 
 .babonus .components header {
@@ -172,15 +172,20 @@
   height: calc(var(--form-field-height));
 }
 
-.babonus .left-side .inputs .filters input[type="checkbox"]:focus {
+/*.babonus .left-side .inputs .filters input[type="checkbox"]:focus {
   box-shadow: 0 0 5px red;
   filter: grayscale(0);
   accent-color: #454545;
-}
+}*/
 
 .babonus .form-group .form-fields button.babonus-keys {
   min-width: 100px;
   flex: 0;
+  box-shadow: none;
+}
+
+.babonus .form-group .form-fields button.babonus-keys:hover {
+  text-shadow: 0px 0px 5px var(--color-shadow-primary);
 }
 
 .babonus .utils-buttons {

@@ -1,5 +1,7 @@
 export const MODULE = "babonus";
 export const SETTING_HEADERLABEL = "headerLabel";
+export const SETTING_MIGRATION_VERSION = "migrationVersion";
+export const CURRENT_MIGRATION_VERSION = 1; // bump this when new migration is needed.
 export const MATCH = { ANY: "ANY", ALL: "ALL" }
 
 // the kinds of bonuses you can make.

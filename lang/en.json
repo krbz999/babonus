@@ -1,5 +1,10 @@
 {
   "BABONUS": {
+    "MIGRATION": {
+      "IN_PROGRESS": "Migration from previous Build-a-Bonus versions has begun. Please wait for the migration to complete.",
+      "COMPLETED": "Migration from previous Build-a-Bonus version has completed.",
+      "LOCKED_PACK": "You have provided a compendium that is currently locked. No migration was performed."
+    },
     "DELETE": {
       "DELETE_BONUS": "Delete Bonus: {name}",
       "ARE_YOU_SURE": "Are you sure that you want to delete '{name}'? This action cannot be undone."
