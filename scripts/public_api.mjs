@@ -42,7 +42,7 @@ function getName(object, name) {
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
   return Object.entries(flag).filter(([id, values]) => {
     return foundry.data.validators.isValidId(id);
-  }).find(([id,values]) => values.name===name);
+  }).find(([id, values]) => values.name === name);
 }
 
 /**
@@ -50,9 +50,9 @@ function getName(object, name) {
  */
 function getNames(object) {
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([id,values]) => {
+  return Object.entries(flag).filter(([id, values]) => {
     return foundry.data.validators.isValidId(id);
-  }).map(([id,values]) => values.name);
+  }).map(([id, values]) => values.name);
 }
 
 /**
@@ -61,21 +61,21 @@ function getNames(object) {
  */
 function getId(object, id) {
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([idd,values]) =>{
+  return Object.entries(flag).filter(([idd, values]) => {
     return foundry.data.validators.isValidId(idd);
-  }).find(([idd,values]) => id===idd);
+  }).find(([idd, values]) => id === idd);
 }
 
 /* Deprecated */
-function findBonus(object,id){
+function findBonus(object, id) {
   ui.notifications.warn("You are using 'findBonus' which has been deprecated in favor of 'getId'.");
-  return getId(object,id);
+  return getId(object, id);
 }
 
 /**
  * Returns the ids of all bonuses on the document.
  */
- function getIds(object) {
+function getIds(object) {
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
   return Object.keys(flag).filter(id => {
     return foundry.data.validators.isValidId(id);
@@ -83,7 +83,7 @@ function findBonus(object,id){
 }
 
 /* Deprecated */
-function getBonusIds(object){
+function getBonusIds(object) {
   ui.notifications.warn("You are using 'getBonusIds' which has been deprecated in favor of 'getIds'.");
   return getIds(object);
 }
@@ -98,13 +98,13 @@ function getBonuses(object) {
  * Returns the bonuses of a given type.
  * Returned in the form of [id, values].
  */
-function getType(object, type){
-  if(!TYPES.includes(type)){
+export function getType(object, type) {
+  if (!TYPES.map(t => t.value).includes(type)) {
     console.error(`'${type}' is not a valid Build-a-Bonus type!`);
     return null;
   }
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([id,values]) => {
+  return Object.entries(flag).filter(([id, values]) => {
     const validId = foundry.data.validators.isValidId(id);
     const validtype = values?.type === type;
     return validId && validtype;
@@ -123,13 +123,13 @@ function getAllContainingTemplates(tokenDoc) {
  */
 async function deleteBonus(object, id) {
   const validId = foundry.data.validators.isValidId(id);
-  if(!validId) {
+  if (!validId) {
     console.error("The id provided is not valid.");
     return null;
   }
   const target = getId(object, id);
   if (!target) return null;
-  await object.update({[`flags.babonus.bonuses.-=${target[0]}`]: null});
+  await object.update({ [`flags.babonus.bonuses.-=${target[0]}`]: null });
   _rerenderApp(object);
   return r;
 }
@@ -141,7 +141,7 @@ async function deleteBonus(object, id) {
  */
 async function copyBonus(original, other, id) {
   const validId = foundry.data.validators.isValidId(id);
-  if(!validId) {
+  if (!validId) {
     console.error("The id provided is not valid.");
     return null;
   }
@@ -162,7 +162,7 @@ async function copyBonus(original, other, id) {
  */
 async function moveBonus(original, other, id) {
   const validId = foundry.data.validators.isValidId(id);
-  if(!validId) {
+  if (!validId) {
     console.error("The id provided is not valid.");
     return null;
   }
@@ -179,7 +179,7 @@ async function moveBonus(original, other, id) {
  */
 async function toggleBonus(object, id, state = null) {
   const validId = foundry.data.validators.isValidId(id);
-  if(!validId) {
+  if (!validId) {
     console.error("The id provided is not valid.");
     return null;
   }
@@ -201,16 +201,16 @@ function findEmbeddedDocumentsWithBonuses(object) {
   let items = [];
   let effects = [];
 
-  if(object instanceof Actor) {
+  if (object instanceof Actor) {
     items = object.items.filter(item => {
-    return getIds(item).length > 0;
-  });
-}
-  if(object instanceof Actor || object instanceof Item){
+      return getIds(item).length > 0;
+    });
+  }
+  if (object instanceof Actor || object instanceof Item) {
     effects = actor.effects.filter(effect => {
-    return getIds(effect).length > 0;
-  });
-}
+      return getIds(effect).length > 0;
+    });
+  }
   return { effects, items };
 }
 
@@ -263,7 +263,7 @@ function openBabonusWorkshop(object) {
     || (object instanceof Item)
     || (object instanceof ActiveEffect && !(object.parent.parent instanceof Actor))
   );
-  if(!validDocumentType) {
+  if (!validDocumentType) {
     console.warn("The document provided is not a valid document type for Build-a-Bonus!");
     return null;
   }

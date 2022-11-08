@@ -13,7 +13,7 @@ import {
   MODULE,
   TYPES
 } from "../constants.mjs";
-import { FILTER } from "../filters.mjs";
+import { getType } from "../public_api.mjs";
 
 // current bonuses on the document, for HTML purposes only.
 export function _getBonuses(doc) {
@@ -156,11 +156,11 @@ export class KeyGetter {
   }
 
   // all base creature types
-  static get creatureTypes(){
+  static get creatureTypes() {
     const creatureTypes = CONFIG.DND5E.creatureTypes;
-    return Object.entries(creatureTypes).map(([key,local]) => {
+    return Object.entries(creatureTypes).map(([key, local]) => {
       return { value: key, label: game.i18n.localize(local) };
-    }).sort((a,b) => {
+    }).sort((a, b) => {
       return a.label.localeCompare(b.label);
     });
   }
@@ -173,11 +173,10 @@ export class KeyGetter {
  */
 export function _getBonusesApplyingToSelf(actor, hookType) {
   const bonuses = getAllActorBonuses(actor, hookType);
-  const filtered = bonuses.filter(([key, val]) => {
+  return bonuses.filter(([id, val]) => {
     if (!val.aura) return true;
     return !val.aura.isTemplate && val.aura.self;
   });
-  return filtered;
 }
 
 /**
@@ -187,7 +186,7 @@ export function _getBonusesApplyingToSelf(actor, hookType) {
  * This method replaces roll data.
  */
 function getAllActorBonuses(actor, hookType) {
-  const flag = Object.entries(actor.getFlag(MODULE, `bonuses.${hookType}`) ?? {});
+  const flag = getType(actor, hookType); // [id,values]
   const bonuses = _replaceRollData(actor, flag);
   bonuses.push(...getActorEffectBonuses(actor, hookType));
   bonuses.push(...getActorItemBonuses(actor, hookType));
@@ -205,14 +204,14 @@ export function getActorItemBonuses(actor, hookType) {
   const boni = [];
 
   for (const item of actor.items) {
-    const flag = item.getFlag(MODULE, `bonuses.${hookType}`);
+    const flag = getType(item, hookType);
     if (!flag) continue;
 
     const { equipped, attunement } = item.system;
-    const bonuses = Object.entries(flag).filter(([id, vals]) => {
+    const bonuses = flag.filter(([id, vals]) => {
       if (!vals.enabled) return false;
-      if (!vals.itemRequirements) return true;
-      const { equipped: needsEq, attuned: needsAtt } = vals.itemRequirements;
+      if (!vals.filters?.itemRequirements) return true;
+      const { equipped: needsEq, attuned: needsAtt } = vals.filters?.itemRequirements;
       if (!equipped && needsEq) return false;
       if (attunement !== ATTUNED && needsAtt) return false;
       return true;
@@ -231,9 +230,9 @@ export function getActorEffectBonuses(actor, hookType) {
   const boni = [];
   for (const effect of actor.effects) {
     if (effect.disabled || effect.isSuppressed) continue;
-    const flag = effect.getFlag(MODULE, `bonuses.${hookType}`);
+    const flag = getType(effect, hookType);
     if (!flag) continue;
-    const bonuses = Object.entries(flag).filter(([id, vals]) => {
+    const bonuses = flag.filter(([id, vals]) => {
       return vals.enabled;
     });
     boni.push(..._replaceRollData(actor, bonuses));
@@ -297,8 +296,8 @@ export function _replaceRollData(object, bonuses) {
   const data = object?.getRollData() ?? {};
   const boni = foundry.utils.duplicate(bonuses);
   return boni.map(bonus => {
-    const vals = bonus[1].values;
-    for (const key in vals) {
+    const vals = bonus[1].bonuses;
+    for (const key of Object.keys(vals)) {
       vals[key] = Roll.replaceFormulaData(vals[key], data);
     }
     return bonus;
@@ -318,8 +317,8 @@ export function _babonusToString(babonus) {
   for (let key of Object.keys(flattened)) {
     const path = "schema.fields." + key.split(".").join(".fields.")
     const field = foundry.utils.getProperty(babonus, path);
-    if(field instanceof SemicolonArrayField) flattened[key] = flattened[key]?.join(";");
-    else if(field instanceof ArbitraryComparisonField && flattened[key]){
+    if (field instanceof SemicolonArrayField) flattened[key] = flattened[key]?.join(";");
+    else if (field instanceof ArbitraryComparisonField && flattened[key]) {
       const a = Object.assign({}, flattened[key]);
       flattened[key] = foundry.utils.flattenObject(a);
       flattened = foundry.utils.flattenObject(flattened);
@@ -329,7 +328,7 @@ export function _babonusToString(babonus) {
 }
 
 // same app id everywhere for lookup reasons.
-export function _getAppId(object){
+export function _getAppId(object) {
   return `${MODULE}-${object.id}`;
 }
 
@@ -353,7 +352,7 @@ export function _createBabonus(data, id, options = {}) {
   return BAB;
 }
 
-export function _openWorkshop(object){
+export function _openWorkshop(object) {
   return new BabonusWorkshop(object, {
     title: `Build-a-Bonus: ${object.name ?? object.label}`
   }).render(true);
