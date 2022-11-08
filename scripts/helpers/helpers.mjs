@@ -188,8 +188,8 @@ export function _getBonusesApplyingToSelf(actor, hookType) {
 function getAllActorBonuses(actor, hookType) {
   const flag = getType(actor, hookType); // [id,values]
   const bonuses = _replaceRollData(actor, flag);
-  bonuses.push(...getActorEffectBonuses(actor, hookType));
-  bonuses.push(...getActorItemBonuses(actor, hookType));
+  bonuses.push(..._getActorEffectBonuses(actor, hookType));
+  bonuses.push(..._getActorItemBonuses(actor, hookType));
   return bonuses;
 }
 
@@ -199,9 +199,10 @@ function getAllActorBonuses(actor, hookType) {
  * Not all valid item types have these properties, such as feature type items.
  * This method replaces roll data.
  */
-export function getActorItemBonuses(actor, hookType) {
+export function _getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
   const boni = [];
+  if(!actor) return [];
 
   for (const item of actor.items) {
     const flag = getType(item, hookType);
@@ -226,8 +227,9 @@ export function getActorItemBonuses(actor, hookType) {
  * such as checking whether the effect is disabled or unavailable.
  * Replaces roll data.
  */
-export function getActorEffectBonuses(actor, hookType) {
+export function _getActorEffectBonuses(actor, hookType) {
   const boni = [];
+  if(!actor) return [];
   for (const effect of actor.effects) {
     if (effect.disabled || effect.isSuppressed) continue;
     const flag = getType(effect, hookType);
@@ -254,8 +256,8 @@ export function _getTokenFromActor(actor) {
  * evaluating all grid spaces they occupy.
  */
 export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
-  const A = getAllTokenGridSpaces(tokenA);
-  const B = getAllTokenGridSpaces(tokenB);
+  const A = _getAllTokenGridSpaces(tokenA.document);
+  const B = _getAllTokenGridSpaces(tokenB.document);
   const rays = A.flatMap(a => {
     return B.map(b => {
       return { ray: new Ray(a, b) };
@@ -271,10 +273,10 @@ export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
 }
 
 /**
- * Get the upper left corners of all grid spaces a token occupies.
+ * Get the upper left corners of all grid spaces a token document occupies.
  */
-export function getAllTokenGridSpaces(token) {
-  const { width, height, x, y } = token.document;
+export function _getAllTokenGridSpaces(tokenDoc) {
+  const { width, height, x, y } = tokenDoc;
   if (width <= 1 && height <= 1) return [{ x, y }];
   const centers = [];
   const grid = canvas.grid.size;

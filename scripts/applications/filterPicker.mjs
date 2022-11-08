@@ -66,7 +66,7 @@ export class BabonusFilterPicker {
 
   async getHTMLAura() {
     const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
-    return renderTemplate(template);
+    return renderTemplate(template, { isItem: this.object.isItem });
   }
 
   async getHTMLCurrentBonuses() {

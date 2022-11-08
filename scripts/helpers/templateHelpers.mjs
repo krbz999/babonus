@@ -1,22 +1,24 @@
 import { auraTargets, MODULE } from "../constants.mjs";
-import { getAllTokenGridSpaces, _replaceRollData } from "./helpers.mjs";
+import { getType } from "../public_api.mjs";
+import { _getAllTokenGridSpaces, _replaceRollData } from "./helpers.mjs";
 
 /**
  * Get the item that created a template.
  * If found, get any 'template' auras on the item and merge the data.
  */
-export function _preCreateMeasuredTemplate(templateDoc, templateData, context, userId) {
+export function _preCreateMeasuredTemplate(templateDoc, templateData) {
   const origin = foundry.utils.getProperty(templateData, "flags.dnd5e.origin");
   if (!origin) return;
   const item = fromUuidSync(origin);
   if (!item) return;
 
-  const bonuses = game.modules.get(MODULE).api.getBonuses(item);
-  const valids = bonuses.filter(([type, id, values]) => {
+  const bonuses = Object.entries(item.getFlag(MODULE, "bonuses") ?? {});
+  const valids = bonuses.filter(([id, values]) => {
+    if(!foundry.data.validators.isValidId(id)) return false;
     return values.enabled && values.aura?.isTemplate;
   });
-  const bonusData = valids.reduce((acc, [type, id, vals]) => {
-    foundry.utils.setProperty(acc, `flags.${MODULE}.bonuses.${type}.${id}`, vals);
+  const bonusData = valids.reduce((acc, [id, values]) => {
+    foundry.utils.setProperty(acc, `flags.${MODULE}.bonuses.${id}`, values);
     return acc;
   }, {});
   const actor = item.parent;
@@ -34,13 +36,13 @@ export function _preCreateMeasuredTemplate(templateDoc, templateData, context, u
  */
 export function _getAllContainingTemplates(token) {
   const size = token.document.parent.grid.size;
-  const centers = getAllTokenGridSpaces(token).map(({ x, y }) => {
+  const centers = _getAllTokenGridSpaces(token.document).map(({ x, y }) => {
     return { x: x + size / 2, y: y + size / 2 };
   });
 
   return token.document.parent.templates.filter(template => {
     return centers.some(({ x, y }) => {
-      return template.object.shape.contains(x - template.x, y - template.y);
+      return template.object.shape?.contains(x - template.x, y - template.y);
     });
   }).map(t => t.id);
 }
@@ -52,16 +54,15 @@ export function _getAllContainingTemplates(token) {
  */
 export function _getAllValidTemplateAuras(tokenDoc, hookType) {
   const templateIds = _getAllContainingTemplates(tokenDoc.object);
-  const templates = templateIds.map(id => tokenDoc.parent.templates.get(id));
+  const templateDocs = templateIds.map(id => tokenDoc.parent.templates.get(id));
   const bonuses = [];
   const me = tokenDoc.disposition;
-  for (const template of templates) {
-    if (template.hidden) continue;
+  for (const templateDoc of templateDocs) {
+    if (templateDoc.hidden) continue;
     const tBoni = [];
-    const { actor, token } = _mapTemplateToDocuments(template);
-    const you = _mapTemplateToDisposition(template, token);
-    const flag = template.getFlag(MODULE, `bonuses.${hookType}`);
-    const templateBonuses = flag ? Object.entries(flag) : [];
+    const { actor, token } = _mapTemplateToDocuments(templateDoc);
+    const you = _mapTemplateToDisposition(templateDoc, token);
+    const templateBonuses = getType(templateDoc, hookType);
     for (const [id, vals] of templateBonuses) {
       if (token.actor === tokenDoc.actor) {
         if (!vals.aura.self) continue;

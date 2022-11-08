@@ -3,7 +3,7 @@ import {
   _getBonusesApplyingToSelf,
   _getTokenFromActor
 } from "./helpers/helpers.mjs";
-import { getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
+import { _getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
 import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 /**
@@ -85,22 +85,21 @@ export class FILTER {
   static hitDieCheck(actor) {
     const bonuses = _getBonusesApplyingToSelf(actor, "hitdie");
     const t = _getTokenFromActor(actor);
-    if (t) bonuses.push(...getAurasThatApplyToMe(t, "hitdie"));
+    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "hitdie"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, actor, "misc");
+    return this.finalFilterBonuses(bonuses, actor);
   }
 
   // saving throws (isConcSave for CN compatibility)
-  static throwCheck(actor, abilityId, { isConcSave }) {
+  static throwCheck(actor, throwType, { isConcSave }) {
     const bonuses = _getBonusesApplyingToSelf(actor, "throw");
     const t = _getTokenFromActor(actor);
-    if (t) bonuses.push(...getAurasThatApplyToMe(t, "throw"));
+    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "throw"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, actor, "throw", {
-      throwType: abilityId,
-      isConcSave
+    return this.finalFilterBonuses(bonuses, actor, {
+      throwType, isConcSave
     });
   }
 
@@ -109,16 +108,16 @@ export class FILTER {
   static itemCheck(item, hookType) {
     const bonuses = _getBonusesApplyingToSelf(item.parent, hookType);
     const t = _getTokenFromActor(item.parent);
-    if (t) bonuses.push(...getAurasThatApplyToMe(t, hookType));
+    if (t) bonuses.push(..._getAurasThatApplyToMe(t, hookType));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, item, "item");
+    return this.finalFilterBonuses(bonuses, item);
   }
 
   /**
    * Filters the collected array of bonuses. Returns the reduced array.
    */
-  static finalFilterBonuses(bonuses, object, type, details = {}) {
+  static finalFilterBonuses(bonuses, object, details = {}) {
     const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, values]) => {
       if (!values.enabled) return acc;
       for (const filter of Object.keys(values.filters ?? {})) {

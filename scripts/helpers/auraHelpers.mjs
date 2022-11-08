@@ -1,7 +1,7 @@
 import { auraTargets, MODULE } from "../constants.mjs";
 import {
-  getActorEffectBonuses,
-  getActorItemBonuses,
+  _getActorEffectBonuses,
+  _getActorItemBonuses,
   _getMinimumDistanceBetweenTokens,
   _replaceRollData
 } from "./helpers.mjs";
@@ -13,7 +13,7 @@ import {
  * @param {String} hookType           The hook type being called.
  * @returns {Array} The array of bonuses.
  */
-export function getAurasThatApplyToMe(tokenDoc, hookType) {
+export function _getAurasThatApplyToMe(tokenDoc, hookType) {
   const { HOSTILE, FRIENDLY, NEUTRAL } = CONST.TOKEN_DISPOSITIONS;
   const me = tokenDoc.disposition;
   const they = tokenDoc.parent.tokens.filter(t => {
@@ -25,18 +25,18 @@ export function getAurasThatApplyToMe(tokenDoc, hookType) {
   const auras = [];
   const { ENEMY, ALLY, ANY } = auraTargets;
   if (me === HOSTILE) {
-    auras.push(...getAurasByDisposition(tokenDoc, hostiles, ALLY, hookType));
-    auras.push(...getAurasByDisposition(tokenDoc, friendlies, ENEMY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, hostiles, ALLY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, friendlies, ENEMY, hookType));
     const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
-    auras.push(...getAurasByDisposition(tokenDoc, theRest, ANY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, theRest, ANY, hookType));
   } else if (me === FRIENDLY) {
-    auras.push(...getAurasByDisposition(tokenDoc, hostiles, ENEMY, hookType));
-    auras.push(...getAurasByDisposition(tokenDoc, friendlies, ALLY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, hostiles, ENEMY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, friendlies, ALLY, hookType));
     const theRest = they.filter(t => !hostiles.includes(t) && !friendlies.includes(t));
-    auras.push(...getAurasByDisposition(tokenDoc, theRest, ANY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, theRest, ANY, hookType));
   } else if (me === NEUTRAL) {
-    auras.push(...getAurasByDisposition(tokenDoc, neutrals, ALLY, hookType));
-    auras.push(...getAurasByDisposition(tokenDoc, [...hostiles, ...friendlies], ANY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, neutrals, ALLY, hookType));
+    auras.push(..._getAurasByDisposition(tokenDoc, [...hostiles, ...friendlies], ANY, hookType));
   }
   return auras;
 }
@@ -46,19 +46,15 @@ export function getAurasThatApplyToMe(tokenDoc, hookType) {
  * @param {Array} sceneTokens All tokens on the scene that are not the single token.
  * @returns {Object<Array>}   An object of the three arrays.
  */
-function _splitTokensByDisposition(sceneTokens) {
-  const { HOSTILE, FRIENDLY } = CONST.TOKEN_DISPOSITIONS;
-
-  const hostiles = [];
-  const friendlies = [];
-  const neutrals = [];
-
-  sceneTokens.map(tokenDoc => {
-    if (tokenDoc.disposition === HOSTILE) hostiles.push(tokenDoc);
-    else if (tokenDoc.disposition === FRIENDLY) friendlies.push(tokenDoc);
-    else neutrals.push(tokenDoc);
-  });
-  return { hostiles, friendlies, neutrals };
+export function _splitTokensByDisposition(sceneTokens) {
+  const { HOSTILE, FRIENDLY, NEUTRAL } = CONST.TOKEN_DISPOSITIONS;
+  return sceneTokens.reduce((acc, tokenDoc) => {
+    const d = tokenDoc.disposition;
+    if (d === HOSTILE) acc.hostiles.push(tokenDoc);
+    else if (d === FRIENDLY) acc.friendlies.push(tokenDoc);
+    else if (d === NEUTRAL) acc.neutrals.push(tokenDoc);
+    return acc;
+  }, { hostiles: [], friendlies: [], neutrals: [] });
 }
 
 /**
@@ -70,7 +66,7 @@ function _splitTokensByDisposition(sceneTokens) {
  * @param {String} hookType           The type of hook that is called.
  * @returns {Array}                   The array of auras that apply.
  */
-function getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType) {
+function _getAurasByDisposition(tokenDoc, tokenDocs, disposition, hookType) {
   return tokenDocs.reduce((acc, doc) => {
     if (!doc.actor) return acc;
     const a = _getActorAurasByDisposition(doc, disposition, hookType);
@@ -129,6 +125,7 @@ function _auraFilterUtility(actor, disp, aura = {}) {
 function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR BONUSES
   const actor = tokenDoc.actor;
+  if(!actor) return [];
   const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
   let bonuses = flag ? Object.entries(flag) : [];
   // then filter if the bonus is an aura and if the disp matches.
@@ -149,7 +146,7 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
  * @returns {Array} The array of bonuses.
  */
 function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
-  const bonuses = getActorItemBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
+  const bonuses = _getActorItemBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
   return bonuses;
@@ -166,7 +163,8 @@ function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
  */
 function _getEffectAurasByDisposition(tokenDoc, disposition, hookType) {
   const actor = tokenDoc.actor;
-  const bonuses = getActorEffectBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
+  if(!actor) return [];
+  const bonuses = _getActorEffectBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
   return _replaceRollData(actor, bonuses);

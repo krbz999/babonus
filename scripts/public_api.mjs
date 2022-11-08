@@ -1,10 +1,12 @@
 import { MODULE, TYPES } from "./constants.mjs";
+import { _splitTokensByDisposition } from "./helpers/auraHelpers.mjs";
 import {
   _getMinimumDistanceBetweenTokens,
   _getTokenFromActor,
   _getAppId,
   _createBabonus,
-  _openWorkshop
+  _openWorkshop,
+  _getAllTokenGridSpaces
 } from "./helpers/helpers.mjs";
 import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
 import { migration } from "./migration.mjs";
@@ -24,6 +26,8 @@ export function _createAPI() {
     openBabonusWorkshop,
     getAllContainingTemplates,
     getMinimumDistanceBetweenTokens,
+    sceneTokensByDisposition,
+    getOccupiedGridSpaces,
     migration: migration,
 
     // deprecated.
@@ -40,6 +44,7 @@ export function _createAPI() {
  * Returned in the form of [id, values].
  */
 function getName(object, name) {
+  if(!name) return null;
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
   return Object.entries(flag).filter(([id, values]) => {
     return foundry.data.validators.isValidId(id);
@@ -61,10 +66,11 @@ function getNames(object) {
  * Returned in the form of [id, values].
  */
 function getId(object, id) {
+  if(!id) return null;
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
   return Object.entries(flag).filter(([_id, values]) => {
     return foundry.data.validators.isValidId(_id);
-  }).find(([_id, values]) => id === _id);
+  }).find(([_id]) => id === _id);
 }
 
 /* Deprecated */
@@ -90,7 +96,7 @@ function getBonusIds(object) {
 }
 
 /* Deprecated */
-function getBonuses(object) {
+function getBonuses() {
   ui.notifications.warn("You are using 'getBonuses' which has been deprecated in favor of 'getType'.");
   return null;
 }
@@ -203,7 +209,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
  * Change the identifier of a bonus on the document.
  * Returns null if the document already has a bonus with the new id.
  */
-async function changeBonusId(object, oldId, newId) {
+function changeBonusId() {
   ui.notifications.warn("You are using 'changeBonusId' which has been deprecated in favor of absolutely nothing. Don't change ids.");
   return null;
 }
@@ -260,6 +266,23 @@ function openBabonusWorkshop(object) {
  */
 function createBabonus(data) {
   return _createBabonus(data);
+}
+
+/**
+ * Returns an object of three arrays; the tokens on the scene
+ * split into three arrays by disposition.
+ */
+function sceneTokensByDisposition(scene){
+  const s = scene ?? canvas.scene;
+  if(!s) return null;
+  return _splitTokensByDisposition(s.tokens);
+}
+
+/**
+ * Returns an array of occupied grid spaces by a token document.
+ */
+function getOccupiedGridSpaces(tokenDoc){
+  return _getAllTokenGridSpaces(tokenDoc);
 }
 
 function _rerenderApp(object) {

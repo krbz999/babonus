@@ -12,10 +12,10 @@ import {
   RollDataField,
   AuraField,
   SpellComponentsField,
-  WeaponPropertiesField,
   SemicolonArrayField,
   NonEmptyArrayField,
-  ArbitraryComparisonField
+  ArbitraryComparisonField,
+  DisjointArraysField
 } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -88,7 +88,7 @@ class ItemBabonus extends Babonus {
         spellLevels: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellLevels.map(t => t.value), blank: true }), baseOptions),
         spellSchools: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.spellSchools.map(t => t.value) }), baseOptions),
         baseWeapons: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.baseWeapons.map(t => t.value) }), baseOptions),
-        weaponProperties: new WeaponPropertiesField({
+        weaponProperties: new DisjointArraysField({
           needed: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false }),
           unfit: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false })
         }, baseOptions)

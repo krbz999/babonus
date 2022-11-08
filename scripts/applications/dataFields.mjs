@@ -1,9 +1,5 @@
 // a SchemaField that must contain at least one valid value.
 export class BonusesField extends foundry.data.fields.SchemaField {
-  constructor(fields, options = {}) {
-    super(fields, options);
-  }
-
   _validateType(data, options = {}) {
     super._validateType(data, options);
     const isE = foundry.utils.isEmpty(data);
@@ -49,10 +45,6 @@ export class FiltersField extends foundry.data.fields.SchemaField {
 
 // a particular field that only requires MATCH if TYPES has any valid values.
 export class SpellComponentsField extends foundry.data.fields.SchemaField {
-  constructor(fields, options = {}) {
-    super(fields, options);
-  }
-
   // if 'types' is empty, delete both it and 'match'.
   _cleanType(data, options = {}) {
     super._cleanType(data, options);
@@ -81,16 +73,12 @@ export class NonEmptyArrayField extends foundry.data.fields.ArrayField {
 
 }
 
-// SchemaField containing only Sets that may not overlap.
-export class WeaponPropertiesField extends foundry.data.fields.SchemaField {
-  constructor(fields, options = {}) {
-    super(fields, options);
-  }
-
+// SchemaField containing only arrays that may not overlap.
+export class DisjointArraysField extends foundry.data.fields.SchemaField {
   // if the sets overlap, error.
   _validateType(data, options = {}) {
     super._validateType(data, options);
-    if (data.needed.some(n => data.unfit.includes(n))) {
+    if (data.needed?.some(n => data.unfit?.includes(n))) {
       throw new foundry.data.fields.ModelValidationError("may not intersect");
     } else return true;
   }
@@ -109,10 +97,6 @@ export class WeaponPropertiesField extends foundry.data.fields.SchemaField {
 
 // a string field that only takes what can feasibly be part of a roll.
 export class RollDataField extends foundry.data.fields.StringField {
-  constructor(options = {}) {
-    super(options);
-  }
-
   _validateType(value) {
     super._validateType(value);
     const v = Roll.validate(value);
@@ -136,17 +120,22 @@ export class SemicolonArrayField extends foundry.data.fields.ArrayField {
 
 // a helper field to delete blockers and range since those are invalid for templates.
 export class AuraField extends foundry.data.fields.SchemaField {
-  constructor(fields, options = {}) {
-    super(fields, options);
-  }
-
   _cleanType(data, options = {}) {
     super._cleanType(data, options);
     if (data.isTemplate) {
       delete data["blockers"];
       delete data["range"];
+    } else if (!data["blockers"]?.filter(b => !!b.trim()).length) {
+      delete data["blockers"];
     }
     return data;
+  }
+
+  _validateType(data, options = {}) {
+    if (data.enabled && (!data.isTemplate && !data.range)) {
+      throw new foundry.data.fields.ModelValidationError("aura is neither template nor has a range");
+    }
+    return super._validateType(data, options);
   }
 }
 
