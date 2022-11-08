@@ -1,6 +1,5 @@
 import { MATCH } from "./constants.mjs";
 import {
-  finalFilterBonuses,
   _getBonusesApplyingToSelf,
   getTokenFromActor
 } from "./helpers/helpers.mjs";
@@ -8,46 +7,45 @@ import { getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
 import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 /**
- * An example bonus, as it would be
- * stored on an actor, effect, or item.
+ * An example bonus, as it would be stored on an actor, effect, item, or template.
  * Includes all fields.
  *
-  flags.babonus.bonuses.<damage/attack/save/throw/hitdie>: {
-    <identifier>: {
+  flags.babonus.bonuses: {
+    <id>: {
       enabled: true,
+      id: "hgienfid783h", // regular 16 character id
       aura: {
-        enabled: true,  // whether this is an aura.
+        enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
-        range: 60,      // the range of the aura (in ft), not relevant if template.
-        self: false,    // whether the aura affects the owner, too
-        disposition: 1  // or -1 for non-allies. What token actors within range to affect.
+        range: 60,        // the range of the aura (in ft), not relevant if template.
+        self: false,      // whether the aura affects the owner, too
+        disposition: 1    // or -1 for non-allies. What token actors within range to affect.
         blockers: ["dead", "unconscious"] // array of conditions that stop auras from being transferred. Not relevant if template.
       },
-      label: "Special Fire Spell Bonus",
+      name: "Special Fire Spell Bonus",
       description: "This is a special fire spell bonus.",
-      itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"], // if attack/damage/save
-      throwTypes: ["con", "int", "death"], // if 'throw'
-      values: {
+      bonuses: {
         bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
         criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
         criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
-        deathSaveTargetValue: "12",         // strings that evaluate to numbers only (including rollData), 'throw' only, and if 'death' in throwTypes
+        deathSaveTargetValue: "12",         // strings that evaluate to numbers only (including rollData), 'throw' only
         criticalRange: "1",                 // a value (can be roll data) that lowers the crit range. 'attack' only.
         fumbleRange: "3"                    // a value (can be roll data) that raises the fumble range. 'attack' only.
       },
-      itemRequirements: { // for bonuses stored on items only.
-        equipped: true,
-        attuned: false
-      },
+
       filters: {
         // UNIVERSAL:
-        arbitraryComparison: {
-          one: "@item.uses.value",
-          other: "@abilities.int.mod",
-          operator: "EQ" // or LE, GE, LT, GT
-        },
+        arbitraryComparison: [
+          {one: "@item.uses.value", other: "@abilities.int.mod", operator: "EQ"},
+          {one: "@item.uses.value", other: "@abilities.int.mod", operator: "EQ"},
+        ],
         statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
         targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
+        creatureTypes: ["undead", "humanoid", "construct"] // array of CONFIG.DND5E.creatureTypes, however, this is not strict to allow for subtype/custom.
+        itemRequirements: { // for bonuses stored on items only.
+          equipped: true,
+          attuned: false
+        },
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],
@@ -56,6 +54,10 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
         damageTypes: ["fire", "cold", "bludgeoning"],
         abilities: ["int"],
         saveAbilities: ["int", "cha", "con"],
+        itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"],
+
+        // THROW:
+        throwTypes: ["con", "int", "death", "concentration"],
 
         // SPELL:
         spellComponents: {
@@ -77,38 +79,6 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
  */
 
 export class FILTER {
-  /**
-   * An object mapping filter keys to the relevant filtering
-   * function found in this class. Mainly used for an overview.
-   */
-  static filterFunctions = {
-    item: { // attack, damage, save
-      itemTypes: this.itemTypes,
-      attackTypes: this.attackTypes,
-      baseWeapons: this.baseWeapons,
-      damageTypes: this.damageTypes,
-      spellSchools: this.spellSchools,
-      abilities: this.abilities,
-      spellComponents: this.spellComponents,
-      spellLevels: this.spellLevels,
-      weaponProperties: this.weaponProperties,
-      saveAbilities: this.saveAbilities,
-      arbitraryComparison: this.arbitraryComparison,
-      statusEffects: this.statusEffects,
-      targetEffects: this.targetEffects
-    },
-    throw: { // throw
-      arbitraryComparison: this.arbitraryComparison,
-      statusEffects: this.statusEffects,
-      targetEffects: this.targetEffects,
-      throwTypes: this.throwTypes
-    },
-    misc: { // hitdie
-      arbitraryComparison: this.arbitraryComparison,
-      statusEffects: this.statusEffects,
-      targetEffects: this.targetEffects
-    }
-  }
 
   // hitdie rolls
   static hitDieCheck(actor) {
@@ -117,7 +87,7 @@ export class FILTER {
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "hitdie"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
     if (!bonuses.length) return [];
-    return finalFilterBonuses(bonuses, actor, "misc");
+    return this.finalFilterBonuses(bonuses, actor, "misc");
   }
 
   // saving throws (isConcSave for CN compatibility)
@@ -127,7 +97,7 @@ export class FILTER {
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "throw"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
     if (!bonuses.length) return [];
-    return finalFilterBonuses(bonuses, actor, "throw", {
+    return this.finalFilterBonuses(bonuses, actor, "throw", {
       throwType: abilityId,
       isConcSave
     });
@@ -141,21 +111,35 @@ export class FILTER {
     if (t) bonuses.push(...getAurasThatApplyToMe(t, hookType));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));
     if (!bonuses.length) return [];
-    return finalFilterBonuses(bonuses, item, "item");
+    return this.finalFilterBonuses(bonuses, item, "item");
+  }
+
+  /**
+   * Filters the collected array of bonuses. Returns the reduced array.
+   */
+  static finalFilterBonuses(bonuses, object, type, details = {}) {
+    const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, values]) => {
+      if (!values.enabled) return acc;
+      for (const filter of Object.keys(values.filters ?? {})) {
+        const validity = this[filter](object, values.filters[filter], details);
+        if (!validity) return acc;
+      }
+      acc.push(values.bonuses);
+      return acc;
+    }, []);
+    return valids;
   }
 
   /**
    * Find out if the item's type is one of the valid ones in the filter.
-   * This filter is required, so if the filter is empty, it returns false.
    *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of item type keys.
    * @returns {Boolean}       Whether the item's type was in the filter.
    */
   static itemTypes(item, filter) {
-    if (!filter?.length) return false;
-    const itemType = item.type;
-    return filter.includes(itemType);
+    if (!filter?.length) return true;
+    return filter.includes(item.type);
   }
 
   /**
@@ -286,16 +270,12 @@ export class FILTER {
      * If the item must match all of the components in the filter,
      * then the filter is a (proper) subset of the spell's components.
      */
-    if (match === MATCH.ALL) {
-      return types.every(type => components[type]);
-    }
+    if (match === MATCH.ALL) return types.every(type => components[type]);
     /**
      * If the item must match at least one of the components in the filter,
      * then at least one element of the filter must be found in the spell's components.
      */
-    else if (match === MATCH.ANY) {
-      return types.some(type => components[type]);
-    }
+    else if (match === MATCH.ANY) return types.some(type => components[type]);
 
     return false;
   }
@@ -390,40 +370,39 @@ export class FILTER {
    * replacing any rollData attributes.
    *
    * @param {Item5e|Actor5e} object   The item or actor being filtered against.
-   * @param {String} one              The left-side value from the BAB.
-   * @param {String} other            The right-side value from the BAB.
-   * @param {String} operator         The relation that the two values should have.
+   * @param {Array} filter            An array of objects with one, other, operator.
    */
-  static arbitraryComparison(object, { one, other, operator }) {
-    // This method immediately returns false if invalid data somehow.
-    if (!one || !other) return false;
+  static arbitraryComparison(object, filter) {
+    if (!filter?.length) return true;
 
     const rollData = object.getRollData();
     const target = game.user.targets.first();
     if (target) rollData.target = target.actor.getRollData();
-    const left = Roll.replaceFormulaData(one, rollData);
-    const right = Roll.replaceFormulaData(other, rollData);
 
-    try {
-      // try comparing numbers.
-      const nLeft = Roll.safeEval(left);
-      const nRight = Roll.safeEval(right);
-      if (operator === "EQ") return nLeft === nRight;
-      if (operator === "LT") return nLeft < nRight;
-      if (operator === "GT") return nLeft > nRight;
-      if (operator === "LE") return nLeft <= nRight;
-      if (operator === "GE") return nLeft >= nRight;
-      return false;
-    } catch {
-      // try comparing strings.
-      if (operator === "EQ") return left == right;
-      if (["LT", "LE"].includes(operator)) {
-        return right.includes(left);
-      } else if (["GT", "GE"].includes(operator)) {
-        return left.includes(right);
+    for (const { one, other, operator } of filter) {
+      // This method immediately returns false if invalid data somehow.
+      if (!one || !other) return false;
+
+      const left = Roll.replaceFormulaData(one, rollData);
+      const right = Roll.replaceFormulaData(other, rollData);
+
+      try {
+        // try comparing numbers.
+        const nLeft = Roll.safeEval(left);
+        const nRight = Roll.safeEval(right);
+        if (operator === "EQ" && !(nLeft === nRight)) return false;
+        else if (operator === "LT" && !(nLeft < nRight)) return false;
+        else if (operator === "GT" && !(nLeft > nRight)) return false;
+        else if (operator === "LE" && !(nLeft <= nRight)) return false;
+        else if (operator === "GE" && !(nLeft >= nRight)) return false;
+      } catch {
+        // try comparing strings.
+        if (operator === "EQ" && !(left == right)) return false;
+        else if (["LT", "LE"].includes(operator) && !(right.includes(left))) return false;
+        else if (["GT", "GE"].includes(operator) && !(left.includes(right))) return false;
       }
-      return false;
     }
+    return true;
   }
 
   /**
@@ -467,7 +446,6 @@ export class FILTER {
 
   /**
    * Find out if the bonus should apply to this type of saving throw.
-   * This filter is required, so an empty filter returns false.
    *
    * @param {Actor5e} actor         The actor making the saving throw.
    * @param {Array}   filter        The array of saving throw types to check for.
@@ -476,8 +454,22 @@ export class FILTER {
    * @returns {Boolean} Whether the throw type is in the filter.
    */
   static throwTypes(actor, filter, { throwType, isConcSave }) {
-    if (!filter?.length) return false;
+    if (!filter?.length) return true;
     if (!throwType) return false;
     return filter.includes(throwType) || (filter.includes("concentration") && isConcSave);
+  }
+
+  /**
+   * Find out if your target is one of the listed creature types.
+   *
+   * @param {Actor5e|Item5e} object  The item or actor. Not relevant in this case.
+   * @param {Array} filter           The array of creature types to check for.
+   */
+  static creatureTypes(object, filter) {
+    if (!filter?.length) return true;
+    const target = game.user.targets.first();
+    if (!target) return false;
+    const { value, subtype, custom } = target.actor.system.details?.type ?? {};
+    return filter.includes(value) || filter.includes(subtype.toLowerCase()) || filter.includes(custom.toLowerCase());
   }
 }

@@ -71,6 +71,7 @@ export const FILTER_NAMES = [
   "arbitraryComparison",
   "statusEffects",
   "targetEffects",
+  "creatureTypes",
   "attackTypes",
   "damageTypes",
   "abilities",

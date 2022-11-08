@@ -30,7 +30,7 @@ export function _isFilterAvailable(name, { addedFilters, target, item, itemTypes
   if (["spellComponents", "spellLevels", "spellSchools"].includes(name)) return itemTypes.has("spell") && itemTypes.size === 1;
   if (["baseWeapons", "weaponProperties"].includes(name)) return itemTypes.has("weapon") && itemTypes.size === 1;
   if (name === "itemRequirements") return _canEquipOrAttuneToItem(item);
-  if (["statusEffects", "targetEffects"].includes(name)) return true;
+  if (["statusEffects", "targetEffects", "creatureTypes"].includes(name)) return true;
 
   return false;
 }
@@ -99,7 +99,7 @@ export async function _employFilter(app, name) {
     template += "label_checkbox_label_checkbox.hbs";
     data.canEquip = _canEquipItem(item);
     data.canAttune = _canAttuneToItem(item);
-  } else if (["damageTypes", "abilities", "saveAbilities", "throwTypes", "statusEffects", "targetEffects", "spellSchools", "baseWeapons"].includes(name)) {
+  } else if (["damageTypes", "abilities", "saveAbilities", "throwTypes", "statusEffects", "targetEffects", "creatureTypes", "spellSchools", "baseWeapons"].includes(name)) {
     template += "text_keys.hbs";
   } else if ("arbitraryComparison" === name) {
     // handle this case specially.

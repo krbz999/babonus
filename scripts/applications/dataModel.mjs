@@ -1,4 +1,10 @@
-import { arbitraryOperators, itemsValidForAttackDamageSave, MATCH, TYPES } from "../constants.mjs";
+import {
+  arbitraryOperators,
+  auraTargets,
+  itemsValidForAttackDamageSave,
+  MATCH,
+  TYPES
+} from "../constants.mjs";
 import { KeyGetter, _babonusToString } from "../helpers/helpers.mjs";
 import {
   FiltersField,
@@ -19,7 +25,7 @@ class Babonus extends foundry.abstract.DataModel {
     super(expData, options);
   }
 
-  toString(){
+  toString() {
     return _babonusToString(this);
   }
 
@@ -38,7 +44,7 @@ class Babonus extends foundry.abstract.DataModel {
         isTemplate: new fields.BooleanField({ required: false, initial: false }),
         range: new fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
         self: new fields.BooleanField({ required: false, initial: true }),
-        disposition: new fields.NumberField({ required: false, initial: 2, choices: [-1, 1, 2] }),
+        disposition: new fields.NumberField({ required: false, initial: 2, choices: Object.values(auraTargets) }),
         blockers: new SemicolonArrayField(new fields.StringField(), baseOptions)
       }, baseOptions),
       filters: new FiltersField({
@@ -52,7 +58,8 @@ class Babonus extends foundry.abstract.DataModel {
           operator: new fields.StringField({ required: true, choices: arbitraryOperators.map(t => t.value) })
         }), baseOptions),
         statusEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
-        targetEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions)
+        targetEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
+        creatureTypes: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions)
       }, baseOptions)
     };
   }

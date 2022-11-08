@@ -1,5 +1,12 @@
-import { ArbitraryComparisonField, BonusesField, NonEmptyArrayField, SemicolonArrayField } from "../applications/dataFields.mjs";
-import { AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, ThrowBabonus } from "../applications/dataModel.mjs";
+import { BabonusWorkshop } from "../applications/babonus.mjs";
+import { ArbitraryComparisonField, SemicolonArrayField } from "../applications/dataFields.mjs";
+import {
+  AttackBabonus,
+  DamageBabonus,
+  HitDieBabonus,
+  SaveBabonus,
+  ThrowBabonus
+} from "../applications/dataModel.mjs";
 import {
   attackTypes,
   itemsValidForAttackDamageSave,
@@ -147,6 +154,16 @@ export class KeyGetter {
   static get blockers() {
     return this.statusEffects;
   }
+
+  // all base creature types
+  static get creatureTypes(){
+    const creatureTypes = CONFIG.DND5E.creatureTypes;
+    return Object.entries(creatureTypes).map(([key,local]) => {
+      return { value: key, label: game.i18n.localize(local) };
+    }).sort((a,b) => {
+      return a.label.localeCompare(b.label);
+    });
+  }
 }
 
 /**
@@ -222,28 +239,6 @@ export function getActorEffectBonuses(actor, hookType) {
     boni.push(..._replaceRollData(actor, bonuses));
   }
   return boni;
-}
-
-/**
- * Filters the collected array of bonuses using the function objects in filters.mjs.
- * Returns the reduced array.
- */
-export function finalFilterBonuses(bonuses, object, type, details = {}) {
-  const funcs = FILTER.filterFunctions[type];
-
-  const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, atts]) => {
-    if (!atts.enabled) return acc;
-    if (atts.itemTypes) atts.filters["itemTypes"] = atts.itemTypes;
-    if (atts.throwTypes) atts.filters["throwTypes"] = atts.throwTypes;
-
-    for (const key of Object.keys(atts.filters)) {
-      const validity = funcs[key](object, atts.filters[key], details);
-      if (!validity) return acc;
-    }
-    acc.push(atts.values);
-    return acc;
-  }, []);
-  return valids;
 }
 
 /**
@@ -356,4 +351,10 @@ export function _createBabonus(data, id, options = {}) {
     hitdie: HitDieBabonus
   }[data.type](data, options);
   return BAB;
+}
+
+export function _openWorkshop(object){
+  return new BabonusWorkshop(object, {
+    title: `Build-a-Bonus: ${object.name ?? object.label}`
+  }).render(true);
 }

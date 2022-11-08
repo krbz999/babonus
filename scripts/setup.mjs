@@ -1,5 +1,5 @@
-import { BabonusWorkshop } from "./applications/babonus.mjs";
 import { itemsWithoutBonuses, MODULE, SETTING_HEADERLABEL, SETTING_MIGRATION_VERSION } from "./constants.mjs";
+import { _openWorkshop } from "./helpers/helpers.mjs";
 
 export function _setup() {
   CONFIG.DND5E.characterFlags[MODULE] = {
@@ -35,10 +35,8 @@ export function _renderActorSheetFlags(app, html) {
   const label = game.i18n.localize("BABONUS.TRAITS.LABEL");
   button.innerHTML = `<i class="fa-solid fa-book-atlas"></i> ${label}`;
   input.replaceWith(button);
-  button.addEventListener("click", async () => {
-    new BabonusWorkshop(app.object, {
-      title: `Build-a-Bonus: ${app.object.name}`
-    }).render(true);
+  button.addEventListener("click", () => {
+    _openWorkshop(app.object);
   });
 }
 
@@ -49,10 +47,8 @@ export function _getItemSheetHeaderButtons(app, array) {
   const headerButton = {
     class: MODULE,
     icon: "fa-solid fa-book-atlas",
-    onclick: async () => {
-      new BabonusWorkshop(app.object, {
-        title: `Build-a-Bonus: ${app.object.name}`
-      }).render(true);
+    onclick: () => {
+      _openWorkshop(app.object);
     }
   }
   if (label) {
@@ -69,9 +65,7 @@ export function _getActiveEffectConfigHeaderButtons(app, array) {
     class: MODULE,
     icon: "fa-solid fa-book-atlas",
     onclick: async () => {
-      new BabonusWorkshop(app.object, {
-        title: `Build-a-Bonus: ${app.object.label}`
-      }).render(true);
+      _openWorkshop(app.object);
     }
   }
   if (label) {

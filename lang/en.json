@@ -43,6 +43,7 @@
       "itemTypes": "Item Types",
       "statusEffects": "Actor Conds.",
       "targetEffects": "Target Conds.",
+      "creatureTypes": "Creature Types",
       "attackTypes": "Attack Types",
       "damageTypes": "Damage Types",
       "abilities": "Abilities",
@@ -110,6 +111,7 @@
       "abilities": "The ability score used by the item. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity.",
       "statusEffects": "The conditions the actor must be affected by. For example <span style='font-family: monospace;'>blind;charm</span> will mean you only get this bonus while either blinded or charmed. The module looks for Status Ids in the effects.",
       "targetEffects": "The conditions the target actor must be affected by. For example <span style='font-family: monospace;'>blind;charm</span> will mean you only get this bonus while your target is either blinded or charmed. The module looks for Status Ids in the effects.",
+      "creatureTypes": "The type of creature the target actor must be one of (or have as a subtype). For example 'undead' or 'fey'.",
       "attackTypes": "The type of attack roll the item must have for the bonus to apply. For example if you cast a spell that involves a ranged spell attack.",
       "saveAbilities": "The ability that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with <span style='font-family: monospace;'>Spellcasting</span>, the actor's spellcasting ability is compared against.",
       "spellComponents": "The components or spell tags the spell must have for the bonus to apply. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration.",
@@ -191,6 +193,9 @@
       },
       "targetEffects": {
         "HEADER": "Target Conditions"
+      },
+      "creatureTypes": {
+        "HEADER": "Creature Types"
       },
       "blockers": {
         "HEADER": "Blocking Conditions"

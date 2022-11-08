@@ -1,6 +1,5 @@
-import { BabonusWorkshop } from "./applications/babonus.mjs";
 import { MODULE, TYPES } from "./constants.mjs";
-import { _getMinimumDistanceBetweenTokens, getTokenFromActor, _getAppId, _createBabonus } from "./helpers/helpers.mjs";
+import { _getMinimumDistanceBetweenTokens, getTokenFromActor, _getAppId, _createBabonus, _openWorkshop } from "./helpers/helpers.mjs";
 import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
 import { migration } from "./migration.mjs";
 
@@ -264,9 +263,11 @@ function openBabonusWorkshop(object) {
     || (object instanceof Item)
     || (object instanceof ActiveEffect && !(object.parent.parent instanceof Actor))
   );
-  new BabonusWorkshop(object, {
-    title: `Build-a-Bonus: ${object.name ?? object.label}`
-  }).render(true);
+  if(!validDocumentType) {
+    console.warn("The document provided is not a valid document type for Build-a-Bonus!");
+    return null;
+  }
+  return _openWorkshop(object);
 }
 
 /**
