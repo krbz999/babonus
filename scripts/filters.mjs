@@ -1,7 +1,7 @@
 import { MATCH } from "./constants.mjs";
 import {
   _getBonusesApplyingToSelf,
-  getTokenFromActor
+  _getTokenFromActor
 } from "./helpers/helpers.mjs";
 import { getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
 import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
@@ -14,6 +14,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
     <id>: {
       enabled: true,
       id: "hgienfid783h", // regular 16 character id
+      type: "attack", // or "damage", "save", "throw", "hitdie"
       aura: {
         enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
@@ -83,7 +84,7 @@ export class FILTER {
   // hitdie rolls
   static hitDieCheck(actor) {
     const bonuses = _getBonusesApplyingToSelf(actor, "hitdie");
-    const t = getTokenFromActor(actor);
+    const t = _getTokenFromActor(actor);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "hitdie"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
     if (!bonuses.length) return [];
@@ -93,7 +94,7 @@ export class FILTER {
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, abilityId, { isConcSave }) {
     const bonuses = _getBonusesApplyingToSelf(actor, "throw");
-    const t = getTokenFromActor(actor);
+    const t = _getTokenFromActor(actor);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, "throw"));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
     if (!bonuses.length) return [];
@@ -107,7 +108,7 @@ export class FILTER {
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
     const bonuses = _getBonusesApplyingToSelf(item.parent, hookType);
-    const t = getTokenFromActor(item.parent);
+    const t = _getTokenFromActor(item.parent);
     if (t) bonuses.push(...getAurasThatApplyToMe(t, hookType));
     if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));
     if (!bonuses.length) return [];

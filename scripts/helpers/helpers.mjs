@@ -243,7 +243,7 @@ export function getActorEffectBonuses(actor, hookType) {
 /**
  * Gets the token document from an actor document.
  */
-export function getTokenFromActor(actor) {
+export function _getTokenFromActor(actor) {
   const token = actor.token?.object ?? actor.getActiveTokens()[0];
   if (!token) return false;
   return token.document;

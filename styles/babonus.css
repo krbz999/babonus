@@ -172,12 +172,6 @@
   height: calc(var(--form-field-height));
 }
 
-/*.babonus .left-side .inputs .filters input[type="checkbox"]:focus {
-  box-shadow: 0 0 5px red;
-  filter: grayscale(0);
-  accent-color: #454545;
-}*/
-
 .babonus .form-group .form-fields button.babonus-keys {
   min-width: 100px;
   flex: 0;
@@ -264,7 +258,6 @@ table.babonus td:not(:first-child) {
   text-align: center;
 }
 
-/* REWORK OF INTERFACE */
 .babonus .select-target .targets {
   justify-content: space-evenly;
   font-size: 35px;

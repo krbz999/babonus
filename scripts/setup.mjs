@@ -1,4 +1,9 @@
-import { itemsWithoutBonuses, MODULE, SETTING_HEADERLABEL, SETTING_MIGRATION_VERSION } from "./constants.mjs";
+import {
+  itemsWithoutBonuses,
+  MODULE,
+  SETTING_HEADERLABEL,
+  SETTING_MIGRATION_VERSION
+} from "./constants.mjs";
 import { _openWorkshop } from "./helpers/helpers.mjs";
 
 export function _setup() {

@@ -1,31 +1,32 @@
 import { MODULE, TYPES } from "./constants.mjs";
-import { _getMinimumDistanceBetweenTokens, getTokenFromActor, _getAppId, _createBabonus, _openWorkshop } from "./helpers/helpers.mjs";
+import {
+  _getMinimumDistanceBetweenTokens,
+  _getTokenFromActor,
+  _getAppId,
+  _createBabonus,
+  _openWorkshop
+} from "./helpers/helpers.mjs";
 import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
 import { migration } from "./migration.mjs";
 
 export function _createAPI() {
   game.modules.get(MODULE).api = {
-    getId,
-    getIds,
-    getName,
-    getNames,
+    getId, getIds,
+    getName, getNames,
     getType,
 
-    deleteBonus,
-    copyBonus,
-    toggleBonus,
-    moveBonus,
+    deleteBonus, copyBonus,
+    toggleBonus, moveBonus,
+    createBabonus,
 
     findEmbeddedDocumentsWithBonuses,
     findTokensInRangeOfAura,
     openBabonusWorkshop,
     getAllContainingTemplates,
     getMinimumDistanceBetweenTokens,
-    createBabonus,
-
     migration: migration,
 
-
+    // deprecated.
     getBonusIds,
     findBonus,
     getBonuses,
@@ -61,9 +62,9 @@ function getNames(object) {
  */
 function getId(object, id) {
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([idd, values]) => {
-    return foundry.data.validators.isValidId(idd);
-  }).find(([idd, values]) => id === idd);
+  return Object.entries(flag).filter(([_id, values]) => {
+    return foundry.data.validators.isValidId(_id);
+  }).find(([_id, values]) => id === _id);
 }
 
 /* Deprecated */
@@ -122,11 +123,7 @@ function getAllContainingTemplates(tokenDoc) {
  * Delete the bonus with the given id from the document.
  */
 async function deleteBonus(object, id) {
-  const validId = foundry.data.validators.isValidId(id);
-  if (!validId) {
-    console.error("The id provided is not valid.");
-    return null;
-  }
+  if(!_validId(id)) return null;
   const target = getId(object, id);
   if (!target) return null;
   await object.update({ [`flags.babonus.bonuses.-=${target[0]}`]: null });
@@ -140,11 +137,7 @@ async function deleteBonus(object, id) {
  * or if the other already has a bonus by that id.
  */
 async function copyBonus(original, other, id) {
-  const validId = foundry.data.validators.isValidId(id);
-  if (!validId) {
-    console.error("The id provided is not valid.");
-    return null;
-  }
+  if(!_validId(id)) return null;
   const target = getId(original, id);
   if (!target) return null;
 
@@ -161,11 +154,7 @@ async function copyBonus(original, other, id) {
  * or if the other already has a bonus by that id.
  */
 async function moveBonus(original, other, id) {
-  const validId = foundry.data.validators.isValidId(id);
-  if (!validId) {
-    console.error("The id provided is not valid.");
-    return null;
-  }
+  if(!_validId(id)) return null;
   const copy = await copyBonus(original, other, id);
   if (!copy) return null;
   const r = await deleteBonus(original, id);
@@ -178,11 +167,7 @@ async function moveBonus(original, other, id) {
  * Returns null if the bonus was not found.
  */
 async function toggleBonus(object, id, state = null) {
-  const validId = foundry.data.validators.isValidId(id);
-  if (!validId) {
-    console.error("The id provided is not valid.");
-    return null;
-  }
+  if(!_validId(id)) return null;
   const bonus = getId(object, id);
   if (!bonus) return null;
   const key = `bonuses.${bonus[0]}.enabled`;
@@ -234,7 +219,7 @@ function findTokensInRangeOfAura(object, id) {
   const [_id, { aura }] = bonus;
   if (!aura) return null;
   if (aura.isTemplate) return null;
-  const tokenDoc = getTokenFromActor(object.parent ?? object);
+  const tokenDoc = _getTokenFromActor(object.parent ?? object);
   if (!tokenDoc) return null;
   if (aura.range === -1) {
     return canvas.scene.tokens.filter(t => t !== tokenDoc);
@@ -282,4 +267,13 @@ function _rerenderApp(object) {
   const id = _getAppId(object);
   const app = apps.find(a => a.id === id);
   return app?.render();
+}
+
+function _validId(id){
+  const validId = foundry.data.validators.isValidId(id);
+  if (!validId) {
+    console.error("The id provided is not valid.");
+    return false;
+  }
+  return true;
 }
