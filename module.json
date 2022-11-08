@@ -16,7 +16,7 @@
     "verified": "10.288"
   },
   "esmodules": [
-    "setup.js"
+    "setup.mjs"
   ],
   "styles": [
     "styles/babonus.css"

@@ -167,23 +167,23 @@
       },
       "spellComponents": {
         "HEADER": "Spell Components",
-        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
       },
       "spellLevels": {
         "HEADER": "Spell Levels",
-        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
       },
       "spellSchools": {
         "HEADER": "Spell Schools",
-        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
       },
       "baseWeapons": {
         "HEADER": "Weapon Types",
-        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
       },
       "weaponProperties": {
         "HEADER": "Weapon Properties",
-        "REQUIREMENTS": "This filter is only available bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
+        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
       },
       "arbitraryComparison": {
         "HEADER": "Arbitrary Comparison"
