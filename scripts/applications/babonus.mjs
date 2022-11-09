@@ -146,6 +146,7 @@ export class BabonusWorkshop extends FormApplication {
       });
       const selected = await BabonusKeysDialog.prompt({
         title,
+        label: game.i18n.localize("BABONUS.LABELS.APPLY_KEYS"),
         content,
         rejectClose: false,
         options: { name },
@@ -229,7 +230,7 @@ export class BabonusWorkshop extends FormApplication {
     this._addedFilters = addedFilters;
 
     // create html for required fields, bonuses fields, and sometimes the aura field (if existing bonus).
-    this.element[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired();
+    this.element[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired(!!addedFilters);
     this.element[0].querySelector(".left-side .bonuses-inputs .bonuses").innerHTML = await this.filterPicker.getHTMLBonuses();
     if (this._formData?.["aura.enabled"]) {
       this.element[0].querySelector(".left-side .aura-config .aura").innerHTML = await this.filterPicker.getHTMLAura();

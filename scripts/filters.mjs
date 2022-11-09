@@ -314,7 +314,7 @@ export class FILTER {
 
     const rollData = object.getRollData();
     const target = game.user.targets.first();
-    if (target) rollData.target = target.actor.getRollData();
+    if (target?.actor) rollData.target = target.actor.getRollData();
 
     for (const { one, other, operator } of filter) {
       // This method immediately returns false if invalid data somehow.
@@ -372,7 +372,7 @@ export class FILTER {
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
-    if (!target) return false;
+    if (!target?.actor) return false;
     return filter.some(id => {
       return target.actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
@@ -401,11 +401,12 @@ export class FILTER {
    *
    * @param {Actor5e|Item5e} object  The item or actor. Not relevant in this case.
    * @param {Array} filter           The array of creature types to check for.
+   * @returns {Boolean} Whether the target is of a valid creature type.
    */
   static creatureTypes(object, filter) {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
-    if (!target) return false;
+    if (!target?.actor) return false;
     const { value, subtype, custom } = target.actor.system.details?.type ?? {};
     return filter.includes(value) || filter.includes(subtype.toLowerCase()) || filter.includes(custom.toLowerCase());
   }

@@ -50,10 +50,15 @@ export class BabonusFilterPicker {
     return renderTemplate(template, data);
   }
 
-  async getHTMLRequired() {
+  async getHTMLRequired(edit = false) {
     const template = "modules/babonus/templates/builder_components/_required_fields.hbs";
     const type = TYPES.find(t => t.value === this.object._target);
-    const data = { type, bonusTypes: BONUS_TYPES[this.object._target], id: this.object._id };
+    const data = {
+      type,
+      bonusTypes: BONUS_TYPES[this.object._target],
+      id: this.object._id,
+      localeString: edit ? "BABONUS.VALUES.EDITING_FOR" : "BABONUS.VALUES.CREATING_FOR"
+    };
     return renderTemplate(template, data);
   }
 

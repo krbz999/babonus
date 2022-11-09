@@ -20,6 +20,7 @@
       "NAME": "Name",
       "ID": "ID",
       "DESCRIPTION": "Description",
+      "APPLY_KEYS": "Apply Selection",
       "ATTACK": {
         "BONUS": "Attack Bonus",
         "CRIT_RANGE": "Critical Range",
@@ -65,7 +66,7 @@
     "TOOLTIPS": {
       "TOGGLE_THIS": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
       "COPY_THIS": "Create a duplicate of this bonus on this document.",
-      "EDIT_THIS": "Edit this bonus in the builder. This clears all fields before adding all the data from this bonus.",
+      "EDIT_THIS": "Edit this bonus in the builder.",
       "DELETE_THIS": "Delete this bonus from this document. Deletion is permanent and the bonus cannot be recovered.",
       "ADD_THIS_FILTER": "Add this filter to the builder.",
       "DELETE_THIS_FILTER": "Remove this filter from the builder.",
@@ -92,11 +93,11 @@
         "BONUS": "Additional parts to add on top of the hit die roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>."
       },
       "WUTS_THIS": {
-        "REQUIRED": "These fields are required to fill out for every bonus you want to create.",
-        "BONUSES": "The actual values of the bonus and to which value it should apply.",
+        "REQUIRED": "These fields at the top are required to fill out for every bonus you want to create or edit.",
+        "BONUSES": "The actual values of the bonus and to which value it should apply. At least one of these fields must be filled.",
         "AURA": "A set of configurations to make the bonus an aura, instead of only applying to the actor who owns it.",
-        "CURRENT_FILTERS": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to.",
-        "AVAILABLE_FILTERS": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to.",
+        "CURRENT_FILTERS": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
+        "AVAILABLE_FILTERS": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
         "UNAVAILABLE_FILTERS": "The list of filters that are currently not available to apply to this bonus.",
         "CURRENT_BONUSES": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",
         "SELECT_TARGET": "Select a target for your new bonus; the type of roll to which it should apply."
@@ -216,7 +217,8 @@
         "throw": "Saving Throws",
         "hitdie": "Hit Die Rolls"
       },
-      "CREATING_FOR": "Creating a bonus for..."
+      "CREATING_FOR": "Creating a bonus for...",
+      "EDITING_FOR": "Editing a bonus for..."
     },
     "BUTTONS": {
       "KEYS": "Keys",

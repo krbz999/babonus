@@ -97,7 +97,6 @@
   justify-content: flex-start;
 }
 
-.babonus .right-side .filters,
 .babonus .left-side .inputs {
   overflow-y: auto;
   max-height: 730px;
@@ -105,6 +104,13 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.babonus .right-side .filters {
+  display: grid;
+  grid-template-rows: 0fr 1fr 0fr 0.6fr;
+  max-height: 730px;
+  padding-bottom: 1em;
 }
 
 .babonus .right-side .bonuses .bonus:first-child {
@@ -327,13 +333,8 @@ table.babonus td:not(:first-child) {
   grid-area: b;
 }
 
-.babonus .available-filters {
-  height: 350px;
-  overflow-y: auto;
-}
-
+.babonus .available-filters,
 .babonus .unavailable-filters {
-  height: 282px;
   overflow-y: auto;
 }
 
@@ -346,4 +347,8 @@ table.babonus td:not(:first-child) {
   font-family: monospace;
   font-size: 12px;
   text-align: center;
+}
+
+.babonus .right-side .filter-picker header {
+  margin-bottom: 0.5em;
 }

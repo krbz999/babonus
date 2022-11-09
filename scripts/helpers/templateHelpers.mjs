@@ -14,7 +14,7 @@ export function _preCreateMeasuredTemplate(templateDoc, templateData) {
 
   const bonuses = Object.entries(item.getFlag(MODULE, "bonuses") ?? {});
   const valids = bonuses.filter(([id, values]) => {
-    if(!foundry.data.validators.isValidId(id)) return false;
+    if (!foundry.data.validators.isValidId(id)) return false;
     return values.enabled && values.aura?.isTemplate;
   });
   const bonusData = valids.reduce((acc, [id, values]) => {
