@@ -6,10 +6,10 @@
   </header>
   <div class="available-filters">
     {{#each availableFilters as |filter|}}
-    <div class="filter">
-      <h1 class="filter-header">{{localize filter.header}}</h1>
+    <div class="filter" data-name="{{filter.name}}">
+      <h1 class="filter-header"><a>{{localize filter.header}}</a></h1>
       <div class="filter-description">{{{localize filter.description}}}</div>
-      <a class="filter-add" data-filter="{{filter.name}}" data-tooltip="{{localize 'BABONUS.TOOLTIPS.ADD_THIS_FILTER'}}">
+      <a class="filter-add" data-tooltip="{{localize 'BABONUS.TOOLTIPS.ADD_THIS_FILTER'}}">
         <i class="fa-solid fa-plus"></i>
       </a>
     </div>

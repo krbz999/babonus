@@ -77,10 +77,10 @@ export class BabonusFilterPicker {
 
   activateListeners(html) {
     html[0].addEventListener("click", async (e) => {
-      const a = e.target.closest(".filter-add");
+      const a = e.target.closest("a.filter-add, .filter-header a");
       if (!a) return;
 
-      const name = a.dataset.filter;
+      const name = a.closest("div.filter").dataset.name;
 
       await _employFilter(this.object, name);
       _addToAddedFilters(this.object, name);
