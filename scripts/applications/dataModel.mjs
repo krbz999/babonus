@@ -40,11 +40,11 @@ class Babonus extends foundry.abstract.DataModel {
       enabled: new fields.BooleanField({ required: true, initial: true }),
       description: new fields.StringField({ required: true, blank: false }),
       aura: new AuraField({
-        enabled: new fields.BooleanField({ required: false, initial: true }),
+        enabled: new fields.BooleanField({ required: false, initial: false }),
         isTemplate: new fields.BooleanField({ required: false, initial: false }),
         range: new fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
         self: new fields.BooleanField({ required: false, initial: true }),
-        disposition: new fields.NumberField({ required: false, initial: 2, choices: Object.values(auraTargets) }),
+        disposition: new fields.NumberField({ required: false, initial: auraTargets.ANY, choices: Object.values(auraTargets) }),
         blockers: new SemicolonArrayField(new fields.StringField(), baseOptions)
       }, baseOptions),
       filters: new FiltersField({
@@ -67,10 +67,6 @@ class Babonus extends foundry.abstract.DataModel {
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
 class ItemBabonus extends Babonus {
-  constructor(data, options = {}) {
-    super(data, options);
-  }
-
   static defineSchema() {
     const { fields } = foundry.data;
     const baseOptions = { required: false, nullable: true, initial: undefined };
@@ -98,10 +94,6 @@ class ItemBabonus extends Babonus {
 }
 
 export class AttackBabonus extends ItemBabonus {
-  constructor(data, options = {}) {
-    super(data, options);
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new BonusesField({
@@ -114,10 +106,6 @@ export class AttackBabonus extends ItemBabonus {
 }
 
 export class DamageBabonus extends ItemBabonus {
-  constructor(data, options = {}) {
-    super(data, options);
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new BonusesField({
@@ -130,10 +118,6 @@ export class DamageBabonus extends ItemBabonus {
 }
 
 export class SaveBabonus extends ItemBabonus {
-  constructor(data, options = {}) {
-    super(data, options);
-  }
-
   static defineSchema() {
     const { fields } = foundry.data;
     const baseOptions = { required: false, nullable: true, initial: undefined };
@@ -144,16 +128,12 @@ export class SaveBabonus extends ItemBabonus {
       }, { required: true }),
       filters: new FiltersField({
         saveAbilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.saveAbilities.map(t => t.value) }), baseOptions),
-      }, { required: false })
+      }, baseOptions)
     });
   }
 }
 
 export class ThrowBabonus extends Babonus {
-  constructor(data, options = {}) {
-    super(data, options);
-  }
-
   static defineSchema() {
     const { fields } = foundry.data;
     const baseOptions = { required: false, nullable: true, initial: undefined };
@@ -171,10 +151,6 @@ export class ThrowBabonus extends Babonus {
 }
 
 export class HitDieBabonus extends Babonus {
-  constructor(data, options = {}) {
-    super(data, options);
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new BonusesField({

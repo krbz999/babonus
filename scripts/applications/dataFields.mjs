@@ -21,10 +21,6 @@ export class BonusesField extends foundry.data.fields.SchemaField {
 
 // a SchemaField that deletes falsy values from all its arrays, then deletes the entire array if its empty.
 export class FiltersField extends foundry.data.fields.SchemaField {
-  constructor(fields, options = {}) {
-    super(fields, options);
-  }
-
   // remove null and undefined from arrays and sets,
   // then delete empty sets and arrays.
   _cleanType(data, options = {}) {
