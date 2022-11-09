@@ -14,6 +14,7 @@ import {
   TYPES
 } from "../constants.mjs";
 import { getType } from "../public_api.mjs";
+import { _isAuraAvailable } from "./auraHelpers.mjs";
 
 // current bonuses on the document, for HTML purposes only.
 export function _getBonuses(doc) {
@@ -169,13 +170,16 @@ export class KeyGetter {
 /**
  * Get all bonuses that apply to self.
  * This is all bonuses that either do not have 'aura' property,
- * or do have it and are set to affect self and not template.
+ * or do have it and are set to affect self and not template,
+ * and are not blocked by an 'aura.blockers'.
  */
 export function _getBonusesApplyingToSelf(actor, hookType) {
-  const bonuses = getAllActorBonuses(actor, hookType);
+  const bonuses = _getAllActorBonuses(actor, hookType);
   return bonuses.filter(([id, val]) => {
-    if (!val.aura) return true;
-    return !val.aura.isTemplate && val.aura.self;
+    if (!val.aura?.enabled) return true;
+    if (val.aura.isTemplate) return false;
+    if (!_isAuraAvailable(actor, val.aura)) return false;
+    return val.aura.self;
   });
 }
 
@@ -185,7 +189,7 @@ export function _getBonusesApplyingToSelf(actor, hookType) {
  * That is done in '_getBonusesApplyingToSelf'.
  * This method replaces roll data.
  */
-function getAllActorBonuses(actor, hookType) {
+function _getAllActorBonuses(actor, hookType) {
   const flag = getType(actor, hookType); // [id,values]
   const bonuses = _replaceRollData(actor, flag);
   bonuses.push(..._getActorEffectBonuses(actor, hookType));
@@ -202,7 +206,7 @@ function getAllActorBonuses(actor, hookType) {
 export function _getActorItemBonuses(actor, hookType) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
   const boni = [];
-  if(!actor) return [];
+  if (!actor) return [];
 
   for (const item of actor.items) {
     const flag = getType(item, hookType);
@@ -229,7 +233,7 @@ export function _getActorItemBonuses(actor, hookType) {
  */
 export function _getActorEffectBonuses(actor, hookType) {
   const boni = [];
-  if(!actor) return [];
+  if (!actor) return [];
   for (const effect of actor.effects) {
     if (effect.disabled || effect.isSuppressed) continue;
     const flag = getType(effect, hookType);

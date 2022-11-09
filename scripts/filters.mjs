@@ -472,4 +472,14 @@ export class FILTER {
     const { value, subtype, custom } = target.actor.system.details?.type ?? {};
     return filter.includes(value) || filter.includes(subtype.toLowerCase()) || filter.includes(custom.toLowerCase());
   }
+
+  /**
+   * This always returns true because it is filtered elsewhere.
+   * A babonus on an item is immediately discarded if the item
+   * requires equipped/attuned but was not.
+   * @returns {Boolean}
+   */
+  static itemRequirements(){
+    return true;
+  }
 }

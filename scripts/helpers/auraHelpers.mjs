@@ -1,4 +1,5 @@
-import { auraTargets, MODULE } from "../constants.mjs";
+import { auraTargets } from "../constants.mjs";
+import { getType } from "../public_api.mjs";
 import {
   _getActorEffectBonuses,
   _getActorItemBonuses,
@@ -95,22 +96,27 @@ function _auraFilterUtility(actor, disp, aura = {}) {
   const d = (disp === aura.disposition) || (aura.disposition === auraTargets.ANY);
   if (!d) return false;
 
-  // get blockers
+  const available = _isAuraAvailable(actor, aura);
+  if (!available) return false;
+
+  return true;
+}
+
+/**
+ * Returns whether an actor's aura is available.
+ * @param {Actor5e} actor The actor who has the aura.
+ * @param {Object} aura The aura object nested in the babonus.
+ * @returns {Boolean}
+ */
+export function _isAuraAvailable(actor, aura) {
   const blockers = aura.blockers ?? [];
   if (!blockers.length) return true;
-
-  // get active effects on the actor.
-  const efIds = actor.effects.filter(effect => {
+  const effectIds = actor.effects.filter(effect => {
     return effect.modifiesActor;
   }).map(effect => {
     return effect.getFlag("core", "statusId");
   }).filter(id => !!id);
-
-  // get whether you have any of the blockers.
-  const blocked = blockers.some(s => efIds.includes(s));
-  if (blocked) return false;
-
-  return true;
+  return !blockers.some(b => effectIds.includes(b));
 }
 
 /**
@@ -125,11 +131,9 @@ function _auraFilterUtility(actor, disp, aura = {}) {
 function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
   // get all ACTOR BONUSES
   const actor = tokenDoc.actor;
-  if(!actor) return [];
-  const flag = actor.getFlag(MODULE, `bonuses.${hookType}`);
-  let bonuses = flag ? Object.entries(flag) : [];
+  if (!actor) return [];
   // then filter if the bonus is an aura and if the disp matches.
-  bonuses = bonuses.filter(([id, { aura, filters }]) => {
+  const bonuses = getType(actor, hookType).filter(([id, { aura, filters }]) => {
     return _auraFilterUtility(actor, disposition, aura, filters);
   });
 
@@ -163,7 +167,7 @@ function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
  */
 function _getEffectAurasByDisposition(tokenDoc, disposition, hookType) {
   const actor = tokenDoc.actor;
-  if(!actor) return [];
+  if (!actor) return [];
   const bonuses = _getActorEffectBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
