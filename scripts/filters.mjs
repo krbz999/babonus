@@ -43,10 +43,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
         statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
         targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
         creatureTypes: ["undead", "humanoid", "construct"] // array of CONFIG.DND5E.creatureTypes, however, this is not strict to allow for subtype/custom.
-        itemRequirements: { // for bonuses stored on items only.
-          equipped: true,
-          attuned: false
-        },
+        itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],
@@ -61,19 +58,13 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
         throwTypes: ["con", "int", "death", "concentration"],
 
         // SPELL:
-        spellComponents: {
-          types: ["concentration", "vocal"],
-          match: "ALL" // or 'ANY'
-        },
+        spellComponents: { types: ["concentration", "vocal"], match: "ALL" }, // or 'ANY'
         spellLevels: ['0','1','2','3','4','5','6','7','8','9'],
         spellSchools: ["evo", "con"],
 
         // WEAPON
         baseWeapons: ["dagger", "lance", "shortsword"],
-        weaponProperties: {
-          needed: ["fin", "lgt"],
-          unfit: ["two", "ver"]
-        }
+        weaponProperties: { needed: ["fin", "lgt"], unfit: ["two", "ver"] }
       }
     }
   }
@@ -151,7 +142,6 @@ export class FILTER {
    */
   static baseWeapons(item, filter) {
     if (!filter?.length) return true;
-    // only weapons can be a type of weapon...
     if (item.type !== "weapon") return false;
     return filter.includes(item.system.baseItem);
   }
@@ -187,8 +177,8 @@ export class FILTER {
 
   /**
    * Find out if the item is using one of the abiities in the filter.
-   * Special consideration is made for items set to 'Default' to look for
-   * finesse weapons and spellcasting abilities.
+   * Consideration is made by the system itself for items set to 'Default'
+   * to look for finesse weapons and spellcasting abilities.
    * Note that this is the ability set at the top level of the item's action,
    * and is NOT the ability used to determine the saving throw DC.
    *
@@ -198,57 +188,9 @@ export class FILTER {
    */
   static abilities(item, filter) {
     if (!filter?.length) return true;
-
-    const { actionType, ability, properties } = item.system;
-
     // if the item has no actionType, it has no ability.
-    if (!actionType) return false;
-
-    /**
-     * Special consideration for items set to use 'Default'.
-     * This is sometimes an empty string, and sometimes null,
-     * but should always be falsy.
-     */
-    if (!ability) {
-      const { abilities, attributes } = item.actor.system;
-
-      /**
-       * If a weapon is Finesse, then a bonus applying to Strength
-       * or Dexterity should apply if and only if the relevant
-       * modifier is higher than the other.
-       */
-      if (item.type === "weapon" && properties.fin) {
-        const str = abilities.str.mod;
-        const dex = abilities.dex.mod;
-        if (filter.includes("str") && str >= dex) return true;
-        if (filter.includes("dex") && dex >= str) return true;
-      }
-
-      /**
-       * If the action type is a melee weapon attack, then a bonus
-       * applying to Strength should apply.
-       */
-      if (actionType === "mwak" && filter.includes("str")) return true;
-
-      /**
-       * If the action type is a ranged weapon attack, then a bonus
-       * applying to Dexterity should apply.
-       */
-      if (actionType === "rwak" && filter.includes("dex")) return true;
-
-      /**
-       * If the action type is a melee or ranged spell attack, or a saving throw,
-       * then bonuses applying to the actor's spellcasting ability should apply.
-       *
-       * Unless explicitly set to something different, the ability for a saving throw
-       * is always the spellcasting ability, no matter the item type.
-       */
-      if (["msak", "rsak", "save"].includes(actionType)) {
-        if (filter.includes(attributes.spellcasting)) return true;
-      }
-    }
-
-    return filter.includes(ability);
+    if (!item.system.actionType) return false;
+    return filter.includes(item.abilityMod);
   }
 
   /**
@@ -349,17 +291,12 @@ export class FILTER {
    */
   static saveAbilities(item, filter) {
     if (!filter?.length) return true;
-
-    const scaling = item.system.save?.scaling;
-    const { spellcasting } = item.actor.system.attributes;
-    if (!scaling) return false;
-
-    // if the item is set to use spellcasting ability for the DC.
-    if (scaling === "spell") {
-      return filter.includes(spellcasting);
-    }
-
-    return filter.includes(scaling);
+    if (!item.hasSave) return false;
+    let abl;
+    if (item.system.save.scaling === "spell") {
+      abl = item.actor.system.attributes.spellcasting;
+    } else abl = item.system.save.scaling;
+    return filter.includes(abl);
   }
 
   /**
@@ -479,7 +416,7 @@ export class FILTER {
    * requires equipped/attuned but was not.
    * @returns {Boolean}
    */
-  static itemRequirements(){
+  static itemRequirements() {
     return true;
   }
 }

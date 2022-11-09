@@ -80,10 +80,10 @@ export async function _migrateWorld(force = false) {
 
 async function _migrateWorldItems() {
   if (!game.user.isGM) return;
-  console.log("-------------------------------------");
+  console.log("Build-a-Bonus | ---------------------");
   console.log("Build-a-Bonus | MIGRATING WORLD ITEMS");
+  console.log("Build-a-Bonus | ---------------------");
   for (const object of game.items) {
-    console.log(`... Migrating item: ${object.name} (${object.id})`);
     await _migrateDocumentDirect(object);
   }
   return true;
@@ -91,10 +91,10 @@ async function _migrateWorldItems() {
 
 async function _migrateWorldActors() {
   if (!game.user.isGM) return;
-  console.log("--------------------------------------");
+  console.log("Build-a-Bonus | ----------------------");
   console.log("Build-a-Bonus | MIGRATING WORLD ACTORS");
+  console.log("Build-a-Bonus | ----------------------");
   for (const object of game.actors) {
-    console.log(`... Migrating actor: ${object.name} (${object.id})`);
     await _migrateDocumentDirect(object);
   }
   return true;
@@ -102,26 +102,29 @@ async function _migrateWorldActors() {
 
 async function _migrateCompendiumItems() {
   if (!game.user.isGM) return;
-  console.log("------------------------------------------");
+  console.log("Build-a-Bonus | --------------------------");
   console.log("Build-a-Bonus | MIGRATING COMPENDIUM ITEMS");
-  console.log("(Locked compendiums will be safely ignored)");
+  console.log("Build-a-Bonus | (Locked compendiums will be safely ignored)");
+  console.log("Build-a-Bonus | --------------------------");
   return _migrateCompendiums("Item");
 }
 
 async function _migrateCompendiumActors() {
   if (!game.user.isGM) return;
-  console.log("-------------------------------------------");
+  console.log("Build-a-Bonus | ---------------------------");
   console.log("Build-a-Bonus | MIGRATING COMPENDIUM ACTORS");
-  console.log("(Locked compendiums will be safely ignored)");
+  console.log("Build-a-Bonus | (Locked compendiums will be safely ignored)");
+  console.log("Build-a-Bonus | ---------------------------");
   return _migrateCompendiums("Actor");
 }
 
 async function _migrateScenes() {
   if (!game.user.isGM) return;
-  console.log("--------------------------------------");
+  console.log("Build-a-Bonus | ----------------------");
   console.log("Build-a-Bonus | MIGRATING WORLD SCENES");
+  console.log("Build-a-Bonus | ----------------------");
   for (const object of game.scenes) {
-    console.log(`... Migrating scene: ${object.name} (${object.id})`);
+    //console.log(`Build-a-Bonus | ... Migrating scene: ${object.name} (${object.id})`);
     // update templates and unlinked tokens only.
     for (const template of object.templates) {
       await _migrateDocumentDirect(template);
@@ -172,6 +175,7 @@ async function _migrateDocumentDirect(object) {
   const flags = object.getFlag(MODULE, "bonuses");
   if (!flags) return true;
   const entries = Object.entries(flags).filter(([id]) => TYPES.map(t => t.value).includes(id));
+  if (entries.length) console.log(`Build-a-Bonus | ... Migrating ${object.documentName}: ${object.name ?? object.label} (${object.uuid})`);
   for (const [type, boni] of entries) {
     for (const bonus in boni) {
       const data = _modifyData(boni[bonus], type);
@@ -180,7 +184,7 @@ async function _migrateDocumentDirect(object) {
         const set = await object.setFlag("babonus", "bonuses." + data.id, bab.toObject());
         if (set) await object.unsetFlag("babonus", `bonuses.${type}.${bonus}`);
       } catch (err) {
-        console.warn(`THE BABONUS ${data.name} COULD NOT BE MIGRATED DUE TO BAD DATA.`);
+        console.warn(`Build-a-Bonus | THE BABONUS ${data.name} COULD NOT BE MIGRATED DUE TO BAD DATA.`);
         console.warn(err);
       }
     }
@@ -289,7 +293,7 @@ async function _migrateDoubleEmbeddedEffects(object) {
             foundry.utils.setProperty(effect, `flags.${MODULE}.bonuses.-=${type}`, null);
           }
         } catch (err) {
-          console.warn(`THE BABONUS ${data.name} COULD NOT BE MIGRATED DUE TO BAD DATA.`);
+          console.warn(`Build-a-Bonus | THE BABONUS ${data.name} COULD NOT BE MIGRATED DUE TO BAD DATA.`);
           console.warn(err);
         }
       }

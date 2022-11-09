@@ -73,8 +73,8 @@ export async function _employFilter(app, name) {
     data.array =
       Object.entries(CONFIG.DND5E.spellComponents)
         .concat(Object.entries(CONFIG.DND5E.spellTags))
-        .map(([key, { abbr }]) => {
-          return { value: key, label: abbr };
+        .map(([key, { abbr, label }]) => {
+          return { value: key, label: abbr, tooltip: label };
         });
     data.selectOptions = [
       { value: "ANY", label: "BABONUS.VALUES.MATCH_ANY" },
@@ -83,17 +83,17 @@ export async function _employFilter(app, name) {
   } else if (["spellLevels", "itemTypes", "attackTypes"].includes(name)) {
     template += "checkboxes.hbs";
     if (name === "spellLevels") {
-      data.array = Array.fromRange(10).map(n => ({ value: n, label: n }));
+      data.array = Array.fromRange(10).map(n => ({ value: n, label: n, tooltip: CONFIG.DND5E.spellLevels[n] }));
     } else if (name === "itemTypes") {
       data.array = [
-        { value: "consumable", label: "CONS" },
-        { value: "equipment", label: "EQPM" },
-        { value: "feat", label: "FEAT" },
-        { value: "spell", label: "SPLL" },
-        { value: "weapon", label: "WEPN" }
+        { value: "consumable", label: "CONS", tooltip: "DND5E.ItemTypeConsumable" },
+        { value: "equipment", label: "EQPM", tooltip: "DND5E.ItemTypeEquipment" },
+        { value: "feat", label: "FEAT", tooltip: "DND5E.ItemTypeFeat" },
+        { value: "spell", label: "SPLL", tooltip: "DND5E.ItemTypeSpell" },
+        { value: "weapon", label: "WEPN", tooltip: "DND5E.ItemTypeWeapon" }
       ];
     } else if (name === "attackTypes") {
-      data.array = attackTypes.map(a => ({ value: a, label: a }));
+      data.array = attackTypes.map(a => ({ value: a, label: a, tooltip: `DND5E.Action${a.toUpperCase()}` }));
     }
   } else if ("itemRequirements" === name) {
     template += "label_checkbox_label_checkbox.hbs";

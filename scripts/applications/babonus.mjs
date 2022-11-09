@@ -98,6 +98,11 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   activateListeners(html) {
+    if(!this.isEditable) {
+      html[0].style.pointerEvents = "none";
+      html[0].classList.add("uneditable");
+      return;
+    }
     super.activateListeners(html);
     this.filterPicker.activateListeners(html);
 

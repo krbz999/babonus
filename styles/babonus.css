@@ -5,6 +5,10 @@
   font-family: "Modesto Condensed";
 }
 
+.babonus.uneditable a {
+  color: gray;
+}
+
 .babonus .components {
   display: grid;
   grid-template-columns: 49% 49%;
@@ -109,7 +113,7 @@
 
 .babonus .right-side .bonuses .bonus .header {
   display: grid;
-  grid-template-columns: 75% 25%;
+  grid-template-columns: 5fr 2fr;
 }
 
 .babonus .right-side .bonuses .bonus .header .label {
@@ -139,6 +143,9 @@
   white-space: nowrap;
   overflow-x: hidden;
   user-select: text;
+  font-size: 11px;
+  font-family: monospace;
+  margin-top: 0.5em;
 }
 
 .babonus .right-side .bonuses .bonus .description .content {

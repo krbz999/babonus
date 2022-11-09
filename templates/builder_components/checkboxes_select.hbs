@@ -6,7 +6,7 @@
   <div class="form-fields checkboxes">
     <div class="checkboxes">
       {{#each array as |type|}}
-      <label class="sep" for="id-{{type.value}}" data-hide-input="true">
+      <label class="sep" for="id-{{type.value}}" data-hide-input="true" data-tooltip="{{localize type.tooltip}}">
         <input type="checkbox" name="filters.{{../name}}.types" value="{{type.value}}" id="id-{{type.value}}">
         <span class="checkboxes-check">{{{type.label}}}</span>
       </label>
