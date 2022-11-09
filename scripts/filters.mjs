@@ -69,7 +69,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
         spellSchools: ["evo", "con"],
 
         // WEAPON
-        baseweapons: ["dagger", "lance", "shortsword"],
+        baseWeapons: ["dagger", "lance", "shortsword"],
         weaponProperties: {
           needed: ["fin", "lgt"],
           unfit: ["two", "ver"]

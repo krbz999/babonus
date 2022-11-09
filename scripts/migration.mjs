@@ -1,5 +1,5 @@
 import { CURRENT_MIGRATION_VERSION, MODULE, SETTING_MIGRATION_VERSION, TYPES } from "./constants.mjs";
-import { _createBabonus } from "./helpers/helpers.mjs";
+import { KeyGetter, _createBabonus } from "./helpers/helpers.mjs";
 
 /**
  * ** Migration 1: **
@@ -65,7 +65,7 @@ async function _forceMigrateWorld() {
 
 // migrate the entire world and its unlocked compendiums.
 export async function _migrateWorld(force = false) {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   const migrate = _worldNeedsMigration();
   if (!migrate && !force) return;
   ui.notifications.info("BABONUS.MIGRATION.IN_PROGRESS", { localize: true, permanent: true });
@@ -79,7 +79,7 @@ export async function _migrateWorld(force = false) {
 }
 
 async function _migrateWorldItems() {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   console.log("-------------------------------------");
   console.log("Build-a-Bonus | MIGRATING WORLD ITEMS");
   for (const object of game.items) {
@@ -90,7 +90,7 @@ async function _migrateWorldItems() {
 }
 
 async function _migrateWorldActors() {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   console.log("--------------------------------------");
   console.log("Build-a-Bonus | MIGRATING WORLD ACTORS");
   for (const object of game.actors) {
@@ -101,7 +101,7 @@ async function _migrateWorldActors() {
 }
 
 async function _migrateCompendiumItems() {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   console.log("------------------------------------------");
   console.log("Build-a-Bonus | MIGRATING COMPENDIUM ITEMS");
   console.log("(Locked compendiums will be safely ignored)");
@@ -109,7 +109,7 @@ async function _migrateCompendiumItems() {
 }
 
 async function _migrateCompendiumActors() {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   console.log("-------------------------------------------");
   console.log("Build-a-Bonus | MIGRATING COMPENDIUM ACTORS");
   console.log("(Locked compendiums will be safely ignored)");
@@ -117,7 +117,7 @@ async function _migrateCompendiumActors() {
 }
 
 async function _migrateScenes() {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   console.log("--------------------------------------");
   console.log("Build-a-Bonus | MIGRATING WORLD SCENES");
   for (const object of game.scenes) {
@@ -143,7 +143,7 @@ async function _migrateCompendiums(docType) {
 }
 
 async function _migrateSingleCompendium(pack) {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   if (pack.locked) {
     ui.notifications.warn("BABONUS.MIGRATION.LOCKED_PACK", { localize: true });
     return false;
@@ -162,7 +162,7 @@ async function _migrateSingleCompendium(pack) {
  * Migrate baboni that are NOT on double-embedded effects.
  */
 async function _migrateDocumentDirect(object) {
-  if(!game.user.isGM) return;
+  if (!game.user.isGM) return;
   // should any effects on this document be updated?
   const updateEffectsNormally = (object instanceof Actor) || (object instanceof Item && !object.parent);
   if (updateEffectsNormally) { for (const effect of object.effects) await _migrateDocumentDirect(effect); }
@@ -197,25 +197,57 @@ async function _migrateDocumentDirect(object) {
 function _modifyData(babonus, type) {
   const data = foundry.utils.duplicate(babonus);
 
-  if ("itemTypes" in data) data.filters.itemTypes = foundry.utils.duplicate(data.itemTypes);
-  if ("throwTypes" in data) data.filters.throwTypes = foundry.utils.duplicate(data.throwTypes);
-  if ("itemRequirements" in data) data.filters.itemRequirements = foundry.utils.duplicate(data.itemRequirements);
+  if (data["itemTypes"]) data.filters.itemTypes = foundry.utils.duplicate(data.itemTypes);
+  if (data["throwTypes"]) {
+    data.filters.throwTypes = foundry.utils.duplicate(data.throwTypes.filter(i => {
+      return KeyGetter.throwTypes.map(t => t.value).includes(i);
+    }));
+  }
+  if (data.filters["weaponProperties"]) {
+    if (data.filters.weaponProperties.needed) {
+      data.filters.weaponProperties.needed = foundry.utils.duplicate(data.filters.weaponProperties.needed.filter(i => {
+        return KeyGetter.weaponProperties.map(t => t.value).includes(i);
+      }));
+    }
+    if (data.filters.weaponProperties.unfit) {
+      data.filters.weaponProperties.unfit = foundry.utils.duplicate(data.filters.weaponProperties.unfit.filter(i => {
+        return KeyGetter.weaponProperties.map(t => t.value).includes(i);
+      }));
+    }
+  }
+  if (data.filters["spellComponents"]) {
+    if (data.filters.spellComponents.types) {
+      data.filters.spellComponents.types = foundry.utils.duplicate(data.filters.spellComponents.types.filter(i => {
+        return KeyGetter.spellComponents.map(t => t.value).includes(i);
+      }))
+    }
+  }
+  if (data["itemRequirements"]) data.filters.itemRequirements = foundry.utils.duplicate(data.itemRequirements);
+
+  const unstricts = ["abilities", "baseWeapons", "damageTypes", "saveAbilities", "spellSchools"];
+  for (const type of unstricts) {
+    if (data.filters[type]) {
+      data.filters[type] = foundry.utils.duplicate(data.filters[type].filter(i => {
+        return KeyGetter[type].map(t => t.value).includes(i);
+      }));
+    }
+  }
 
   data.name = data.label;
   data.type = type;
   data.id = foundry.utils.randomID();
   data.bonuses = foundry.utils.duplicate(data.values);
 
-  if ("arbitraryComparison" in data.filters) data.filters.arbitraryComparison = [foundry.utils.duplicate(data.filters.arbitraryComparison)];
-  if ("spellLevels" in data.filters) data.filters.spellLevels = data.filters.spellLevels.map(n => n.toString());
+  if (data.filters["arbitraryComparison"]) data.filters.arbitraryComparison = [foundry.utils.duplicate(data.filters.arbitraryComparison)];
+  if (data.filters["spellLevels"]) data.filters.spellLevels = data.filters.spellLevels.map(n => n.toString());
 
   // fix possibly broken auras lacking both aura.range and aura.isTemplate.
-  if(data.aura?.enabled){
-    if(data.aura?.isTemplate){
+  if (data.aura?.enabled) {
+    if (data.aura?.isTemplate) {
       delete data.aura.range;
       delete data.aura.blockers;
-    } else if (data.aura.range < 1 && data.aura.range !== -1){
-      data.aura.range = 5;
+    } else if (data.aura.range < 1 && data.aura.range !== -1) {
+      data.aura.range = 10;
     }
   }
 
