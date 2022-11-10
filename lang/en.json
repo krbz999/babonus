@@ -237,7 +237,8 @@
     },
     "KEYS_DIALOG": {
       "VALUE": "Value",
-      "CHECK": "Include",
+      "INCLUDE": "Include",
+      "EXCLUDE": "Exclude",
       "HEADER": "Keys: {name}"
     },
     "TRAITS": {

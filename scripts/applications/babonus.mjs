@@ -64,13 +64,14 @@ export class BabonusWorkshop extends FormApplication {
     }
 
     try {
-      const BAB = _createBabonus(formData,formData.id);
+      const BAB = _createBabonus(formData, formData.id);
       this._displayWarning(false);
       await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
       await this.object.setFlag(MODULE, `bonuses.${formData.id}`, BAB.toObject());
       ui.notifications.info(game.i18n.format("BABONUS.WARNINGS.SUCCESS", { name: formData.name, id: formData.id }));
       return this.render();
     } catch (err) {
+      console.warn(err);
       this._displayWarning(true);
       return;
     }
@@ -98,7 +99,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   activateListeners(html) {
-    if(!this.isEditable) {
+    if (!this.isEditable) {
       html[0].style.pointerEvents = "none";
       html[0].classList.add("uneditable");
       return;
@@ -132,12 +133,7 @@ export class BabonusWorkshop extends FormApplication {
         t.checked = values.includes(t.value);
         t.checked2 = values2?.includes(t.value);
       });
-      const data = {
-        description: `BABONUS.TOOLTIPS.${name}`,
-        head1: `BABONUS.KEYS_DIALOG.VALUE`,
-        head2: `BABONUS.KEYS_DIALOG.CHECK`,
-        types
-      };
+      const data = { description: `BABONUS.TOOLTIPS.${name}`, types };
 
       const template = `modules/babonus/templates/subapplications/keys${list2 ? "Double" : "Single"}.hbs`;
       const content = await renderTemplate(template, data);
@@ -356,7 +352,8 @@ export class BabonusWorkshop extends FormApplication {
 
   // helper method to show/hide a warning in the BAB.
   _displayWarning(force) {
-    this.element[0].querySelector("#babonus-warning").classList.toggle("active", force);
+    const warning = this.element[0].querySelector("#babonus-warning");
+    warning.classList.toggle("active", force);
   }
 
   _saveScrollPositions(html) {

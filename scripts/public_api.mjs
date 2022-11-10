@@ -127,20 +127,20 @@ function getAllContainingTemplates(tokenDoc) {
 
 /**
  * Delete the bonus with the given id from the document.
+ * Returns null if the bonus is not found.
  */
 async function deleteBonus(object, id) {
   if(!_validId(id)) return null;
-  const target = getId(object, id);
-  if (!target) return null;
-  await object.update({ [`flags.babonus.bonuses.-=${target[0]}`]: null });
+  const [_id] = getId(object, id) ?? [];
+  if (!_id) return null;
+  await object.update({ [`flags.babonus.bonuses.-=${_id}`]: null });
   _rerenderApp(object);
   return r;
 }
 
 /**
  * Copy the bonus from one document to another.
- * Returns null if the bonus is not found on the original,
- * or if the other already has a bonus by that id.
+ * Returns null if the bonus is not found on the original.
  */
 async function copyBonus(original, other, id) {
   if(!_validId(id)) return null;
@@ -148,7 +148,7 @@ async function copyBonus(original, other, id) {
   if (!target) return null;
 
   const values = createBabonus(target[1]).toObject();
-  const key = `bonuses.${values[0]}`;
+  const key = `bonuses.${values.id}`;
   const r = await other.setFlag(MODULE, key, values);
   _rerenderApp(other);
   return r;
@@ -198,7 +198,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
     });
   }
   if (object instanceof Actor || object instanceof Item) {
-    effects = actor.effects.filter(effect => {
+    effects = object.effects.filter(effect => {
       return getIds(effect).length > 0;
     });
   }
