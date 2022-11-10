@@ -1,6 +1,7 @@
 import {
   itemsWithoutBonuses,
   MODULE,
+  MODULE_ICON,
   SETTING_HEADERLABEL,
   SETTING_MIGRATION_VERSION
 } from "./constants.mjs";
@@ -38,7 +39,7 @@ export function _renderActorSheetFlags(app, html) {
   const button = document.createElement("A");
   button.name = "flags.dnd5e.babonus";
   const label = game.i18n.localize("BABONUS.TRAITS.LABEL");
-  button.innerHTML = `<i class="fa-solid fa-book-atlas"></i> ${label}`;
+  button.innerHTML = `<i class="${MODULE_ICON}"></i> ${label}`;
   input.replaceWith(button);
   button.addEventListener("click", () => {
     _openWorkshop(app.object);
@@ -51,7 +52,7 @@ export function _getItemSheetHeaderButtons(app, array) {
 
   const headerButton = {
     class: MODULE,
-    icon: "fa-solid fa-book-atlas",
+    icon: MODULE_ICON,
     onclick: () => {
       _openWorkshop(app.object);
     }
@@ -68,7 +69,7 @@ export function _getActiveEffectConfigHeaderButtons(app, array) {
 
   const headerButton = {
     class: MODULE,
-    icon: "fa-solid fa-book-atlas",
+    icon: MODULE_ICON,
     onclick: async () => {
       _openWorkshop(app.object);
     }

@@ -1,5 +1,5 @@
 import { BabonusFilterPicker } from "./filterPicker.mjs";
-import { itemTypeRequirements, MODULE, TYPES } from "../constants.mjs";
+import { itemTypeRequirements, MODULE, MODULE_ICON, TYPES } from "../constants.mjs";
 import { KeyGetter, _createBabonus, _getAppId, _verifyID } from "../helpers/helpers.mjs";
 import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keysDialog.mjs";
@@ -46,6 +46,7 @@ export class BabonusWorkshop extends FormApplication {
     }
     data.bonuses = await this.filterPicker.getHTMLCurrentBonuses();
     data.TYPES = TYPES;
+    data.ICON = MODULE_ICON;
 
     return data;
   }
@@ -106,6 +107,14 @@ export class BabonusWorkshop extends FormApplication {
     }
     super.activateListeners(html);
     this.filterPicker.activateListeners(html);
+
+    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
+    const time = { duration: 1000, iterations: 1 };
+    html[0].addEventListener("click", (event) => {
+      const otter = event.target.closest(".babonus h1 .fa-solid.fa-otter:last-child");
+      if (!otter) return;
+      otter.animate(spin, time);
+    });
 
     // CANCEL button.
     html[0].addEventListener("click", (event) => {

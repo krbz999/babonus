@@ -5,6 +5,10 @@
   font-family: "Modesto Condensed";
 }
 
+.babonus h1 i:first-child {
+  transform: scaleX(-1);
+}
+
 .babonus.uneditable a {
   color: gray;
 }

@@ -1,4 +1,5 @@
 export const MODULE = "babonus";
+export const MODULE_ICON = "fa-solid fa-otter";
 export const SETTING_HEADERLABEL = "headerLabel";
 export const SETTING_MIGRATION_VERSION = "migrationVersion";
 export const CURRENT_MIGRATION_VERSION = 1; // bump this when new migration is needed.
