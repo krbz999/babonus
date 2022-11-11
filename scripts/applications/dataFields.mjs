@@ -76,6 +76,8 @@ export class DisjointArraysField extends foundry.data.fields.SchemaField {
     super._validateType(data, options);
     if (data.needed?.some(n => data.unfit?.includes(n))) {
       throw new foundry.data.fields.ModelValidationError("may not intersect");
+    } else if (foundry.utils.isEmpty(data)) {
+      throw new foundry.data.fields.ModelValidationError("may not both be empty");
     } else return true;
   }
 
@@ -84,7 +86,7 @@ export class DisjointArraysField extends foundry.data.fields.SchemaField {
     super._cleanType(data, options);
     const clone = foundry.utils.deepClone(data);
     for (const k of Object.keys(data)) {
-      clone[k] = clone[k].filter(v => ![null, undefined].includes(v));
+      clone[k] = clone[k].filter(v => !!v?.trim());
       if (foundry.utils.isEmpty(clone[k])) delete clone[k];
     }
     return clone;

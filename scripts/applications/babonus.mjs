@@ -350,7 +350,7 @@ export class BabonusWorkshop extends FormApplication {
   // edit a bonus, with the same id.
   async _editBonus(id) {
     const data = this.object.getFlag(MODULE, `bonuses.${id}`);
-    const bab = _createBabonus(data, id);
+    const bab = _createBabonus(data, id, { strict: false });
     const formData = bab.toString();
     const type = formData.type;
     this._formData = formData;
