@@ -111,9 +111,10 @@ export class BabonusWorkshop extends FormApplication {
     const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
     const time = { duration: 1000, iterations: 1 };
     html[0].addEventListener("click", (event) => {
-      const otter = event.target.closest(".babonus h1 .fa-solid.fa-otter:last-child");
-      if (!otter) return;
-      otter.animate(spin, time);
+      const otterA = event.target.closest(".babonus h1 .fa-solid.fa-otter:first-child");
+      const otterB = event.target.closest(".babonus h1 .fa-solid.fa-otter:last-child");
+      if (otterA) otterA.style.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+      else if (otterB) otterB.animate(spin, time);
     });
 
     // CANCEL button.
@@ -296,7 +297,9 @@ export class BabonusWorkshop extends FormApplication {
 
   /* Helper method that is run every time a filter is added or deleted. */
   _updateItemTypes() {
-    const types = this.element[0].querySelectorAll("input[name='filters.itemTypes']:checked");
+    const formGroup = this.element[0].querySelector(".left-side .filter .form-group[data-name='itemTypes']");
+    if (!formGroup) return;
+    const types = formGroup.querySelectorAll("input[name='filters.itemTypes']:checked");
     this._itemTypes = new Set(Array.from(types).map(t => t.value));
     for (const key of Object.keys(itemTypeRequirements)) {
 
