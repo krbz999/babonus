@@ -1,0 +1,10 @@
+{{#each bonuses as |bonus|}}
+<div class="form-group">
+  <label data-tooltip="{{{localize bonus.TOOLTIP}}}" class="label">
+    {{localize bonus.LABEL}}
+  </label>
+  <div class="form-fields">
+    <input type="text" name="{{bonus.NAME}}">
+  </div>
+</div>
+{{/each}}

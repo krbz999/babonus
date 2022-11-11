@@ -1,14 +1,13 @@
-import { MODULE } from "./constants.mjs";
+import { MODULE } from "../constants.mjs";
 
-export class KeysDialog extends Dialog {
-  constructor(obj, options) {
-    super(obj, options);
-    this.object = obj.object;
-    this.type = obj.type;
+export class BabonusKeysDialog extends Dialog {
+  constructor(object, options) {
+    super(object, options);
+    this.name = options.name;
   }
 
   get id() {
-    return `${MODULE}-keys-dialog-${this.object.id}-${this.type}`;
+    return `${MODULE}KeysDialog-${this.name}`;
   }
 
   activateListeners(html) {
@@ -18,7 +17,8 @@ export class KeysDialog extends Dialog {
       const a = event.target.closest("a");
       if (!a) return;
 
-      const index = a.dataset.index;
+      const index = a.closest("th:nth-child(2)") ? 2 : a.closest("th:nth-child(3)") ? 3 : null;
+      if (!index) return;
       const body = a.closest("table").querySelector("tbody");
       const boxSelect = `tr td:nth-child(${index}) input[type='checkbox']`;
       const boxes = body.querySelectorAll(boxSelect);

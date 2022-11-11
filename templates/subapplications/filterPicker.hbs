@@ -1,0 +1,33 @@
+<div class="filters">
+
+  <header class="available-filters">
+    {{localize "BABONUS.HEADERS.AVAILABLE_FILTERS"}}
+    <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.AVAILABLE_FILTERS'}}}"></i>
+  </header>
+  <div class="available-filters">
+    {{#each availableFilters as |filter|}}
+    <div class="filter" data-name="{{filter.name}}">
+      <h1 class="filter-header"><a>{{localize filter.header}}</a></h1>
+      <div class="filter-description">{{{localize filter.description}}}</div>
+      <a class="filter-add" data-tooltip="{{localize 'BABONUS.TOOLTIPS.ADD_THIS_FILTER'}}">
+        <i class="fa-solid fa-plus"></i>
+      </a>
+    </div>
+    {{/each}}
+  </div>
+
+  <header class="unavailable-filters">
+    {{localize "BABONUS.HEADERS.UNAVAILABLE_FILTERS"}}
+    <i class="fa-solid fa-circle-question" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.WUTS_THIS.UNAVAILABLE_FILTERS'}}}"></i>
+  </header>
+  <div class="unavailable-filters">
+    {{#each unavailableFilters as |filter|}}
+    <div class="filter">
+      <h1 class="filter-header">{{localize filter.header}}</h1>
+      <div class="filter-description">{{{localize filter.description}}}</div>
+      <div class="filter-requirements">{{{localize filter.requirements}}}</div>
+    </div>
+    {{/each}}
+  </div>
+
+</div>

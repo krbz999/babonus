@@ -1,5 +1,11 @@
-import { Build_a_Bonus } from "./build_a_bonus.mjs";
-import { itemsWithoutBonuses, MODULE, SETTING_HEADERLABEL } from "./constants.mjs";
+import {
+  itemsWithoutBonuses,
+  MODULE,
+  MODULE_ICON,
+  SETTING_HEADERLABEL,
+  SETTING_MIGRATION_VERSION
+} from "./constants.mjs";
+import { _openWorkshop } from "./helpers/helpers.mjs";
 
 export function _setup() {
   CONFIG.DND5E.characterFlags[MODULE] = {
@@ -17,6 +23,15 @@ export function _setup() {
     type: Boolean,
     default: false
   });
+
+  game.settings.register(MODULE, SETTING_MIGRATION_VERSION, {
+    name: "Migration Version",
+    hint: "Migration Version",
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0
+  });
 }
 
 export function _renderActorSheetFlags(app, html) {
@@ -24,12 +39,10 @@ export function _renderActorSheetFlags(app, html) {
   const button = document.createElement("A");
   button.name = "flags.dnd5e.babonus";
   const label = game.i18n.localize("BABONUS.TRAITS.LABEL");
-  button.innerHTML = `<i class="fa-solid fa-book-atlas"></i> ${label}`;
+  button.innerHTML = `<i class="${MODULE_ICON}"></i> ${label}`;
   input.replaceWith(button);
-  button.addEventListener("click", async () => {
-    new Build_a_Bonus(app.object, {
-      title: `Build-a-Bonus: ${app.object.name}`
-    }).render(true);
+  button.addEventListener("click", () => {
+    _openWorkshop(app.object);
   });
 }
 
@@ -39,11 +52,9 @@ export function _getItemSheetHeaderButtons(app, array) {
 
   const headerButton = {
     class: MODULE,
-    icon: "fa-solid fa-book-atlas",
-    onclick: async () => {
-      new Build_a_Bonus(app.object, {
-        title: `Build-a-Bonus: ${app.object.name}`
-      }).render(true);
+    icon: MODULE_ICON,
+    onclick: () => {
+      _openWorkshop(app.object);
     }
   }
   if (label) {
@@ -58,11 +69,9 @@ export function _getActiveEffectConfigHeaderButtons(app, array) {
 
   const headerButton = {
     class: MODULE,
-    icon: "fa-solid fa-book-atlas",
+    icon: MODULE_ICON,
     onclick: async () => {
-      new Build_a_Bonus(app.object, {
-        title: `Build-a-Bonus: ${app.object.label}`
-      }).render(true);
+      _openWorkshop(app.object);
     }
   }
   if (label) {

@@ -1,0 +1,24 @@
+<!-- (spell components only) -->
+<div class="form-group" data-name="{{name}}">
+  <label data-tooltip="{{{localize tooltip}}}" class="label">
+    {{localize label}}
+  </label>
+  <div class="form-fields checkboxes">
+    <div class="checkboxes">
+      {{#each array as |type|}}
+      <label class="sep" for="id-{{type.value}}" data-hide-input="true" data-tooltip="{{localize type.tooltip}}">
+        <input type="checkbox" name="filters.{{../name}}.types" value="{{type.value}}" id="id-{{type.value}}">
+        <span class="checkboxes-check">{{{type.label}}}</span>
+      </label>
+      {{/each}}
+    </div>
+    <select name="filters.{{name}}.match">
+      {{#each selectOptions as |option|}}
+      <option value="{{option.value}}">{{localize option.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <a class="filter-deletion" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.DELETE_THIS_FILTER'}}}">
+    <i class="fa-solid fa-trash"></i>
+  </a>
+</div>
