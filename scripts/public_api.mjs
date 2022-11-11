@@ -44,7 +44,7 @@ export function _createAPI() {
  * Returned in the form of [id, values].
  */
 function getName(object, name) {
-  if(!name) return null;
+  if (!name) return null;
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
   return Object.entries(flag).filter(([id, values]) => {
     return foundry.data.validators.isValidId(id);
@@ -66,7 +66,7 @@ function getNames(object) {
  * Returned in the form of [id, values].
  */
 function getId(object, id) {
-  if(!id) return null;
+  if (!id) return null;
   const flag = object.getFlag(MODULE, "bonuses") ?? {};
   return Object.entries(flag).filter(([_id, values]) => {
     return foundry.data.validators.isValidId(_id);
@@ -130,7 +130,7 @@ function getAllContainingTemplates(tokenDoc) {
  * Returns null if the bonus is not found.
  */
 async function deleteBonus(object, id) {
-  if(!_validId(id)) return null;
+  if (!_validId(id)) return null;
   const [_id] = getId(object, id) ?? [];
   if (!_id) return null;
   await object.update({ [`flags.babonus.bonuses.-=${_id}`]: null });
@@ -143,7 +143,7 @@ async function deleteBonus(object, id) {
  * Returns null if the bonus is not found on the original.
  */
 async function copyBonus(original, other, id) {
-  if(!_validId(id)) return null;
+  if (!_validId(id)) return null;
   const target = getId(original, id);
   if (!target) return null;
 
@@ -160,7 +160,7 @@ async function copyBonus(original, other, id) {
  * or if the other already has a bonus by that id.
  */
 async function moveBonus(original, other, id) {
-  if(!_validId(id)) return null;
+  if (!_validId(id)) return null;
   const copy = await copyBonus(original, other, id);
   if (!copy) return null;
   const r = await deleteBonus(original, id);
@@ -173,7 +173,7 @@ async function moveBonus(original, other, id) {
  * Returns null if the bonus was not found.
  */
 async function toggleBonus(object, id, state = null) {
-  if(!_validId(id)) return null;
+  if (!_validId(id)) return null;
   const bonus = getId(object, id);
   if (!bonus) return null;
   const key = `bonuses.${bonus[0]}.enabled`;
@@ -272,16 +272,16 @@ function createBabonus(data) {
  * Returns an object of three arrays; the tokens on the scene
  * split into three arrays by disposition.
  */
-function sceneTokensByDisposition(scene){
+function sceneTokensByDisposition(scene) {
   const s = scene ?? canvas.scene;
-  if(!s) return null;
+  if (!s) return null;
   return _splitTokensByDisposition(s.tokens);
 }
 
 /**
  * Returns an array of occupied grid spaces by a token document.
  */
-function getOccupiedGridSpaces(tokenDoc){
+function getOccupiedGridSpaces(tokenDoc) {
   return _getAllTokenGridSpaces(tokenDoc);
 }
 
@@ -292,7 +292,7 @@ function _rerenderApp(object) {
   return app?.render();
 }
 
-function _validId(id){
+function _validId(id) {
   const validId = foundry.data.validators.isValidId(id);
   if (!validId) {
     console.error("The id provided is not valid.");

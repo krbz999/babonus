@@ -79,7 +79,7 @@ class ItemBabonus extends Babonus {
         abilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
         spellComponents: new SpellComponentsField({
           types: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellComponents.map(t => t.value), blank: true })),
-          match: new fields.StringField({ initial: "ALL", choices: Object.keys(MATCH), required: false })
+          match: new fields.StringField({ initial: MATCH.ALL, choices: Object.keys(MATCH), required: false })
         }, baseOptions),
         spellLevels: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellLevels.map(t => t.value), blank: true }), baseOptions),
         spellSchools: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.spellSchools.map(t => t.value) }), baseOptions),
