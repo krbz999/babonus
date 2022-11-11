@@ -151,8 +151,7 @@ async function _migrateSingleCompendium(pack) {
     ui.notifications.warn("BABONUS.MIGRATION.LOCKED_PACK", { localize: true });
     return false;
   }
-  const ind = await pack.getIndex({ fields: ["flags.babonus.bonuses"] });
-  const index = ind.filter(i => !!i.flags?.babonus?.bonuses);
+  const index = await pack.getIndex({ fields: ["flags.babonus.bonuses"] });
   const ids = index.map(i => i._id);
   for (const id of ids) {
     const object = await pack.getDocument(id);
