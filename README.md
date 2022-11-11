@@ -35,9 +35,9 @@ Once you are done creating the bonus, save it, and your actor should now have th
 This is the full array of filters and choices you can make in the Build-a-Bonus. For any fields that support roll data (such as bonuses or comparison fields detailed below), you can use the roll data of the target as well as your own; use roll data as you normally would, simply prefixed with `@target`.
 
 ### Required fields
-- Name: the human-readable name of the bonus (you can put anything you like here). The ID shown next to it is the unique identifier that the module uses to refer to the bonus, which is also used in Active Effects (see below).
+- Name: The human-readable name of the bonus (you can put anything you like here). The ID shown next to it is the unique identifier that the module uses to refer to the bonus, which is also used in Active Effects (see below).
 - Bonuses: Depending on the type you choose, Build-a-Bonus can add on top of the value or roll, or even several kinds at once. For example, for attack rolls, you can add bonuses on top of the roll itself, but also increase the critical range and the fumble range. You must of course fill out at least one field with valid data. This can be roll data, such as `@abilities.int.mod`, or just integers or dice expressions.
-- Description: a human-readable blurb describing the bonus. You can put anything you like here.
+- Description: A human-readable blurb describing the bonus. You can put anything you like here.
 
 ### Aura Configuration
 You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not.

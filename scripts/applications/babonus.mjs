@@ -210,7 +210,11 @@ export class BabonusWorkshop extends FormApplication {
     });
 
     // when you pick an item type, update this._itemTypes.
-    html[0].addEventListener("click", () => this._updateItemTypes());
+    html[0].addEventListener("click", (event) => {
+      const a = event.target.closest(".form-group[data-name='itemTypes']");
+      if(!a) return;
+      this._updateItemTypes();
+    });
 
     // when you hit that delete filter button.
     html[0].addEventListener("click", (event) => {
@@ -297,12 +301,10 @@ export class BabonusWorkshop extends FormApplication {
 
   /* Helper method that is run every time a filter is added or deleted. */
   _updateItemTypes() {
-    const formGroup = this.element[0].querySelector(".left-side .filter .form-group[data-name='itemTypes']");
-    if (!formGroup) return;
-    const types = formGroup.querySelectorAll("input[name='filters.itemTypes']:checked");
+    const formGroup = this.element[0].querySelector(".left-side .filters .form-group[data-name='itemTypes']");
+    const types = formGroup?.querySelectorAll("input[name='filters.itemTypes']:checked") ?? [];
     this._itemTypes = new Set(Array.from(types).map(t => t.value));
     for (const key of Object.keys(itemTypeRequirements)) {
-
       // if the item type is not present:
       if (!this._itemTypes.has(key) || this._itemTypes.size > 1) {
         for (const name of itemTypeRequirements[key]) {
@@ -359,7 +361,9 @@ export class BabonusWorkshop extends FormApplication {
     this._formData = formData;
     this._babObject = bab.toObject();
     const addedFilters = new Set(Object.keys(bab.toObject().filters ?? {}));
-    return this._initializeBuilder({ type, id, addedFilters });
+    await this._initializeBuilder({ type, id, addedFilters });
+    this._updateItemTypes();
+    this._updateAddedFilters();
   }
 
   // helper method to show/hide a warning in the BAB.
