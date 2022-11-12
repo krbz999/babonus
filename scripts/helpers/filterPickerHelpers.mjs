@@ -99,13 +99,13 @@ export async function _employFilter(app, name) {
     template += "label_checkbox_label_checkbox.hbs";
     data.canEquip = _canEquipItem(item);
     data.canAttune = _canAttuneToItem(item);
-  } else if (["damageTypes", "abilities", "saveAbilities", "throwTypes", "statusEffects", "targetEffects", "creatureTypes", "spellSchools", "baseWeapons"].includes(name)) {
+  } else if (["damageTypes", "abilities", "saveAbilities", "throwTypes", "statusEffects", "targetEffects", "spellSchools", "baseWeapons"].includes(name)) {
     template += "text_keys.hbs";
   } else if ("arbitraryComparison" === name) {
     // handle this case specially.
     await _employRepeatableFilter(app, name);
     return true;
-  } else if ("weaponProperties" === name) {
+  } else if (["weaponProperties", "creatureTypes"].includes(name)) {
     template += "text_text_keys.hbs";
   }
 

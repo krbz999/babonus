@@ -59,9 +59,25 @@ class Babonus extends foundry.abstract.DataModel {
         }), baseOptions),
         statusEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
         targetEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
-        creatureTypes: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions)
-      }, baseOptions)
+        creatureTypes: new DisjointArraysField({
+          needed: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false }),
+          unfit: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false })
+        }, baseOptions)
+      })
     };
+  }
+
+  static migrateData(source) {
+    this._migrateCreatureTypes(source);
+  }
+
+  static _migrateCreatureTypes(source) {
+    if (!source.filters?.creatureTypes || source.filters.creatureTypes.needed || source.filters.creatureTypes.unfit) return;
+    const needed = source.filters.creatureTypes;
+    source.filters.creatureTypes = { needed };
+    console.warn(`The Creature Types filter consisted of only a single array, but has been migrated into an object of arrays.
+    You can remove this warning by editing the babonus and then saving it immediately, with no changes made.
+    Support for this automatic migration will be removed in Build-a-Bonus v1.4.0.`);
   }
 }
 

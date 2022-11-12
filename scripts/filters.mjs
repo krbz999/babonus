@@ -1,5 +1,6 @@
 import { MATCH } from "./constants.mjs";
 import {
+  _createBabonus,
   _getBonusesApplyingToSelf,
   _getTokenFromActor
 } from "./helpers/helpers.mjs";
@@ -42,7 +43,10 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
         ],
         statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
         targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
-        creatureTypes: ["undead", "humanoid", "construct"] // array of CONFIG.DND5E.creatureTypes, however, this is not strict to allow for subtype/custom.
+        creatureTypes: {
+          needed: ["undead", "humanoid", "construct"], // array of CONFIG.DND5E.creatureTypes, however, this is not strict to allow for subtype/custom.
+          unfit: []
+        },
         itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
 
         // ATTACK, DAMAGE:
@@ -109,10 +113,13 @@ export class FILTER {
    * Filters the collected array of bonuses. Returns the reduced array.
    */
   static finalFilterBonuses(bonuses, object, details = {}) {
-    const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, values]) => {
+    const valids = bonuses.reduce((acc, [id, values]) => {
       if (!values.enabled) return acc;
-      for (const filter of Object.keys(values.filters ?? {})) {
-        const validity = this[filter](object, values.filters[filter], details);
+      let BAB;
+      try {BAB = _createBabonus(values).toObject();}
+      catch {return acc;}
+      for (const filter of Object.keys(BAB.filters ?? {})) {
+        const validity = this[filter](object, BAB.filters[filter], details);
         if (!validity) return acc;
       }
       acc.push(values.bonuses);
@@ -400,15 +407,32 @@ export class FILTER {
    * Find out if your target is one of the listed creature types.
    *
    * @param {Actor5e|Item5e} object  The item or actor. Not relevant in this case.
-   * @param {Array} filter           The array of creature types to check for.
+   * @param {Array} needed           The array of creature types the target must be.
+   * @param {Array} unfit            The array of creature types the target must not be.
    * @returns {Boolean} Whether the target is of a valid creature type.
    */
-  static creatureTypes(object, filter) {
-    if (!filter?.length) return true;
+  static creatureTypes(object, { needed, unfit }) {
+    if (!needed?.length && !unfit?.length) return true;
     const target = game.user.targets.first();
     if (!target?.actor) return false;
     const { value, subtype, custom } = target.actor.system.details?.type ?? {};
-    return filter.includes(value) || filter.includes(subtype.toLowerCase()) || filter.includes(custom.toLowerCase());
+    const race = target.actor.system.details?.race;
+    function _inclusionTest(array) {
+      const val = value ? array.includes(value) : false;
+      const sub = subtype ? array.includes(subtype?.toLowerCase()) : false;
+      const cus = custom ? array.includes(custom?.toLowerCase()) : false;
+      const rac = race ? array.includes(race?.toLowerCase()) : false;
+      return val || sub || cus || rac;
+    }
+    if (needed?.length) {
+      const isFit = _inclusionTest(needed);
+      if (!isFit) return false;
+    }
+    if (unfit?.length) {
+      const isUnfit = _inclusionTest(unfit);
+      if (isUnfit) return false;
+    }
+    return true;
   }
 
   /**
