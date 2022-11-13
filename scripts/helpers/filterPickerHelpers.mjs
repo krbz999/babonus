@@ -30,7 +30,7 @@ export function _isFilterAvailable(name, { addedFilters, target, item, itemTypes
   if (["spellComponents", "spellLevels", "spellSchools"].includes(name)) return itemTypes.has("spell") && itemTypes.size === 1;
   if (["baseWeapons", "weaponProperties"].includes(name)) return itemTypes.has("weapon") && itemTypes.size === 1;
   if (name === "itemRequirements") return _canEquipOrAttuneToItem(item);
-  if (["statusEffects", "targetEffects", "creatureTypes"].includes(name)) return true;
+  if (["statusEffects", "targetEffects", "creatureTypes", "macroConditions"].includes(name)) return true;
 
   return false;
 }
@@ -107,6 +107,8 @@ export async function _employFilter(app, name) {
     return true;
   } else if (["weaponProperties", "creatureTypes"].includes(name)) {
     template += "text_text_keys.hbs";
+  } else if ("macroConditions" === name) {
+    template += "textarea.hbs";
   }
 
   const DIV = document.createElement("DIV");

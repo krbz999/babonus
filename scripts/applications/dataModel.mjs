@@ -62,7 +62,8 @@ class Babonus extends foundry.abstract.DataModel {
         creatureTypes: new DisjointArraysField({
           needed: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false }),
           unfit: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false })
-        }, baseOptions)
+        }, baseOptions),
+        macroConditions: new fields.StringField({ blank: false })
       })
     };
   }

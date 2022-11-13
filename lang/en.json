@@ -57,6 +57,7 @@
       "throwTypes": "Throw Types",
       "saveAbilities": "Save Abilities",
       "itemRequirements": "Item Reqrmnts.",
+      "macroConditions": "Custom Script",
       "AURA_RANGE": "Range (ft)",
       "AURA_FIELDS": "Valid Targets",
       "AURA_SELF": "Affects Self",
@@ -120,6 +121,7 @@
       "spellSchools": "The school the spell must belong to for the bonus to apply. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination spells.",
       "baseWeapons": "The type of weapon the item must be for the bonus to apply. For example Battleaxe, Shortbow, or Longsword.",
       "weaponProperties": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the needed properties, and none of the unfit properties. For example if you want a bonus to apply only to Two-Handed weapons.",
+      "macroConditions": "Any custom script you want to write yourself. The script has to be completely synchronous and must return true or false. As helper variables, the script is supplied with 'token', 'actor', and 'item', if applicable.",
       "blockers": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template.",
       "AURA": "Whether this bonus should transfer to other token actors on a scene. A bonus transferred to another actor will still be evaluated against the filters below, acting as if the actor attempting to benefit from the aura was the owner of the bonus in the first place.",
       "AURA_RANGE": "The range of the aura, measured in feet (put in <span style='font-family: monospace;'>-1</span> for an unlimited range), and if the aura affects the area within a Measured Template instead (for items that are able to place a template).",
@@ -197,6 +199,9 @@
       },
       "creatureTypes": {
         "HEADER": "Creature Types"
+      },
+      "macroConditions": {
+        "HEADER": "Custom Script"
       },
       "blockers": {
         "HEADER": "Blocking Conditions"

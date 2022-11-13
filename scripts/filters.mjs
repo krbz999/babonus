@@ -48,6 +48,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
           unfit: []
         },
         itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
+        macroConditions: "return true;", // a custom script that returns true or false.
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],
@@ -116,8 +117,8 @@ export class FILTER {
     const valids = bonuses.reduce((acc, [id, values]) => {
       if (!values.enabled) return acc;
       let BAB;
-      try {BAB = _createBabonus(values).toObject();}
-      catch {return acc;}
+      try { BAB = _createBabonus(values).toObject(); }
+      catch { return acc; }
       for (const filter of Object.keys(BAB.filters ?? {})) {
         const validity = this[filter](object, BAB.filters[filter], details);
         if (!validity) return acc;
@@ -448,14 +449,14 @@ export class FILTER {
   /**
    * Find out if the embedded script returns true.
    */
-  static macroCondition(object, script) {
+  static macroConditions(object, script) {
     if (!script?.length) return true;
     try {
-      const func = Function("actor", "object", "token", script);
+      const func = Function("actor", "item", "token", script);
       const actor = object.parent instanceof Actor ? object.parent : object instanceof Actor ? object : null;
-      const obj = (object instanceof Item || object instanceof ActiveEffect) ? object : null;
       const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
-      const valid = func.call({}, actor, obj, token) === true;
+      const item = object instanceof Item ? object : null;
+      const valid = func.call({}, actor, item, token) === true;
       return valid;
     } catch (err) {
       ui.notifications.error("There was an error in your macro syntax. See the console (F12) for details");

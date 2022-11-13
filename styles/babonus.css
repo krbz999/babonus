@@ -356,3 +356,10 @@ table.babonus td:not(:first-child) {
 .babonus .right-side .filter-picker header {
   margin-bottom: 0.5em;
 }
+
+.babonus .left-side textarea {
+  resize: vertical;
+  min-height: var(--form-field-height);
+  height: var(--form-field-height);
+  overflow-y: hidden;
+}
