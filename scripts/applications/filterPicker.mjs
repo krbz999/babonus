@@ -1,4 +1,4 @@
-import { BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
+import { auraTargets, BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
 import {
   _addToAddedFilters,
   _constructFilterDataFromName,
@@ -66,7 +66,11 @@ export class BabonusFilterPicker {
 
   async getHTMLAura() {
     const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
-    return renderTemplate(template, { isItem: this.object.isItem });
+    const choices = Object.entries(auraTargets).reduce((acc, [k, v]) => {
+      acc[v] = `BABONUS.VALUES.DISPOSITION.${k}`;
+      return acc;
+    }, {});
+    return renderTemplate(template, { isItem: this.object.isItem, choices });
   }
 
   async getHTMLCurrentBonuses() {

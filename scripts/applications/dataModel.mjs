@@ -75,9 +75,9 @@ class Babonus extends foundry.abstract.DataModel {
     if (!source.filters?.creatureTypes || source.filters.creatureTypes.needed || source.filters.creatureTypes.unfit) return;
     const needed = source.filters.creatureTypes;
     source.filters.creatureTypes = { needed };
-    console.warn(`The Creature Types filter consisted of only a single array, but has been migrated into an object of arrays.
+    console.warn(`The Creature Types filter has been migrated into a different structure.
     You can remove this warning by editing the babonus and then saving it immediately, with no changes made.
-    Support for this automatic migration will be removed in Build-a-Bonus v1.4.0.`);
+    Support for this automatic migration will be removed in v11.`);
   }
 }
 
