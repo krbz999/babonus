@@ -117,8 +117,11 @@ export class FILTER {
     const valids = bonuses.reduce((acc, [id, values]) => {
       if (!values.enabled) return acc;
       let BAB;
-      try { BAB = _createBabonus(values).toObject(); }
-      catch { return acc; }
+      try {
+        BAB = _createBabonus(values).toObject();
+      } catch {
+        return acc;
+      }
       for (const filter of Object.keys(BAB.filters ?? {})) {
         const validity = this[filter](object, BAB.filters[filter], details);
         if (!validity) return acc;
