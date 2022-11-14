@@ -13,8 +13,7 @@ export function _preDisplayCard(item, chatData) {
       const r = Roll.replaceFormulaData(bonus, data);
       const s = Roll.safeEval(r);
       acc = acc + s;
-    }
-    catch { }
+    } catch {}
     return acc;
   }, 0);
 
@@ -61,7 +60,7 @@ export function _preRollAttack(item, rollConfig) {
       const r = Roll.replaceFormulaData(i.criticalRange, data);
       const s = Roll.safeEval(r);
       acc = acc - Number(s);
-    } catch { }
+    } catch {}
     return acc;
   }, rollConfig.critical ?? 20);
   if (rollConfig.critical > 20) rollConfig.critical = null;
@@ -74,7 +73,7 @@ export function _preRollAttack(item, rollConfig) {
       const r = Roll.replaceFormulaData(i.fumbleRange, data);
       const s = Roll.safeEval(r);
       acc = acc + Number(s);
-    } catch { }
+    } catch {}
     return acc;
   }, rollConfig.fumble ?? 1);
   if (rollConfig.fumble < 1) rollConfig.fumble = null;
@@ -104,7 +103,7 @@ export function _preRollDamage(item, rollConfig) {
         const r = Roll.replaceFormulaData(i, data);
         const s = Roll.safeEval(r);
         acc = acc + Number(s);
-      } catch { }
+      } catch {}
       return acc;
     }, rollConfig.criticalBonusDice ?? 0);
     rollConfig.criticalBonusDice = Math.max(criticalBonusDice, 0);
@@ -148,7 +147,7 @@ export function _preRollDeathSave(actor, rollConfig) {
       const r = Roll.replaceFormulaData(deathSaveTargetValue, data);
       const s = Roll.safeEval(r);
       acc = acc - Number(s);
-    } catch { }
+    } catch {}
     return acc;
   }, rollConfig.targetValue ?? 10);
   rollConfig.targetValue = targetValue;

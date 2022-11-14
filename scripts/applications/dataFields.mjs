@@ -138,4 +138,4 @@ export class AuraField extends foundry.data.fields.SchemaField {
 }
 
 // this is just a workaround for '_babonusToString' so as not to flatten all ArrayFields.
-export class ArbitraryComparisonField extends foundry.data.fields.ArrayField { }
+export class ArbitraryComparisonField extends foundry.data.fields.ArrayField {}

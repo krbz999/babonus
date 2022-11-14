@@ -21,8 +21,6 @@ export class BabonusFilterPicker {
   }
 
   async getData() {
-    const data = {};
-
     const addedFilters = this.object._addedFilters ?? new Set();
     const availableFilters = [];
     const unavailableFilters = [];
@@ -38,10 +36,7 @@ export class BabonusFilterPicker {
       } else unavailableFilters.push(filterData);
     }
 
-    data.availableFilters = availableFilters;
-    data.unavailableFilters = unavailableFilters;
-
-    return data;
+    return { availableFilters, unavailableFilters };
   }
 
   async getHTMLFilters() {

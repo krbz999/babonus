@@ -156,7 +156,7 @@ export class BabonusWorkshop extends FormApplication {
         content,
         rejectClose: false,
         options: { name },
-        callback: function (html) {
+        callback: function(html) {
           const selector = "td:nth-child(2) input[type='checkbox']:checked";
           const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
           const checked = [...html[0].querySelectorAll(selector)];
@@ -212,7 +212,7 @@ export class BabonusWorkshop extends FormApplication {
     // when you pick an item type, update this._itemTypes.
     html[0].addEventListener("click", (event) => {
       const a = event.target.closest(".form-group[data-name='itemTypes']");
-      if(!a) return;
+      if (!a) return;
       this._updateItemTypes();
     });
 
