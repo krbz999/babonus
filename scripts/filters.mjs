@@ -450,9 +450,9 @@ export class FILTER {
     const caster = object.parent ?? object;
     const spells = Object.values(caster.system.spells).reduce((acc, val) => {
       if (!val.value || !val.max) return acc;
-      return acc + value;
+      return acc + val.value;
     }, 0);
-    return min <= spells && spells <= max;
+    return (!!min ? min <= spells : true) && (!!max ? spells <= max : true);
   }
 
   /**

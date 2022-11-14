@@ -139,3 +139,14 @@ export class AuraField extends foundry.data.fields.SchemaField {
 
 // this is just a workaround for '_babonusToString' so as not to flatten all ArrayFields.
 export class ArbitraryComparisonField extends foundry.data.fields.ArrayField {}
+
+// two inputs that require at least one to be filled in, and if both are non-empty then min < max.
+export class SpanField extends foundry.data.fields.SchemaField {
+  _validateType(data, options = {}) {
+    if (data.min === null && data.max === null) throw new foundry.data.fields.ModelValidationError("min and max cannot both be empty");
+    if (data.min !== null && data.max !== null) {
+      if (data.min > data.max) throw new foundry.data.fields.ModelValidationError("min cannot be higher than max");
+    }
+    return super._validateType(data, options);
+  }
+}
