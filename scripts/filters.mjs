@@ -48,6 +48,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
           unfit: []
         },
         itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
+        macroConditions: "return true;", // a custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: Infinity}, // a minimum and maximum number of spell slots remaining the actor must have for the bonus to apply.
 
         // ATTACK, DAMAGE:
@@ -460,5 +461,23 @@ export class FILTER {
    */
   static itemRequirements() {
     return true;
+  }
+
+  /**
+   * Find out if the embedded script returns true.
+   */
+  static macroConditions(object, script) {
+    if (!script?.length) return true;
+    try {
+      const func = Function("actor", "item", "token", script);
+      const actor = object.parent instanceof Actor ? object.parent : object instanceof Actor ? object : null;
+      const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
+      const item = object instanceof Item ? object : null;
+      const valid = func.call({}, actor, item, token) === true;
+      return valid;
+    } catch (err) {
+      ui.notifications.error("There was an error in your macro syntax. See the console (F12) for details");
+      return false;
+    }
   }
 }
