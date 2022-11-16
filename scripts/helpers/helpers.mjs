@@ -11,6 +11,7 @@ import {
   attackTypes,
   itemsValidForAttackDamageSave,
   MODULE,
+  MODULE_NAME,
   TYPES
 } from "../constants.mjs";
 import { getType } from "../public_api.mjs";
@@ -31,7 +32,7 @@ export function _getBonuses(doc) {
     return a.name?.localeCompare(b.name);
   }).filter(b => {
     // explicitly true for valid ids.
-    return _verifyID(b.id) === true;
+    return foundry.data.validators.isValidId(b.id);
   });
 }
 
@@ -249,7 +250,7 @@ export function _getActorEffectBonuses(actor, hookType) {
 /**
  * Gets the token document from an actor document.
  */
-export function _getTokenFromActor(actor) {
+export function _getTokenDocFromActor(actor) {
   const token = actor.token?.object ?? actor.getActiveTokens()[0];
   if (!token) return false;
   return token.document;
@@ -320,7 +321,7 @@ export function _verifyID(id) {
 // Turn a babonus into something that can easily be 'pasted' into the ui.
 export function _babonusToString(babonus) {
   let flattened = foundry.utils.flattenObject(babonus);
-  for (let key of Object.keys(flattened)) {
+  for (const key of Object.keys(flattened)) {
     const path = "schema.fields." + key.split(".").join(".fields.")
     const field = foundry.utils.getProperty(babonus, path);
     if (field instanceof SemicolonArrayField) flattened[key] = flattened[key]?.join(";");
@@ -360,6 +361,6 @@ export function _createBabonus(data, id, options = {}) {
 
 export function _openWorkshop(object) {
   return new BabonusWorkshop(object, {
-    title: `Build-a-Bonus: ${object.name ?? object.label}`
+    title: `${MODULE_NAME}: ${object.name ?? object.label}`
   }).render(true);
 }

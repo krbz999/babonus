@@ -2,7 +2,7 @@ import { MODULE, TYPES } from "./constants.mjs";
 import { _splitTokensByDisposition } from "./helpers/auraHelpers.mjs";
 import {
   _getMinimumDistanceBetweenTokens,
-  _getTokenFromActor,
+  _getTokenDocFromActor,
   _getAppId,
   _createBabonus,
   _openWorkshop,
@@ -225,7 +225,7 @@ function findTokensInRangeOfAura(object, id) {
   const [_id, { aura }] = bonus;
   if (!aura) return null;
   if (aura.isTemplate) return null;
-  const tokenDoc = _getTokenFromActor(object.parent ?? object);
+  const tokenDoc = _getTokenDocFromActor(object.parent ?? object);
   if (!tokenDoc) return null;
   if (aura.range === -1) {
     return canvas.scene.tokens.filter(t => t !== tokenDoc);

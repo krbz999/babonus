@@ -1,4 +1,5 @@
 export const MODULE = "babonus";
+export const MODULE_NAME = "Build-a-Bonus";
 export const MODULE_ICON = "fa-solid fa-otter";
 export const SETTING_HEADERLABEL = "headerLabel";
 export const SETTING_MIGRATION_VERSION = "migrationVersion";
