@@ -124,7 +124,6 @@ async function _migrateScenes() {
   console.log("Build-a-Bonus | MIGRATING WORLD SCENES");
   console.log("Build-a-Bonus | ----------------------");
   for (const object of game.scenes) {
-    //console.log(`Build-a-Bonus | ... Migrating scene: ${object.name} (${object.id})`);
     // update templates and unlinked tokens only.
     for (const template of object.templates) {
       await _migrateDocumentDirect(template);

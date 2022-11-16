@@ -2,7 +2,7 @@ import { MATCH } from "./constants.mjs";
 import {
   _createBabonus,
   _getBonusesApplyingToSelf,
-  _getTokenFromActor
+  _getTokenDocFromActor
 } from "./helpers/helpers.mjs";
 import { _getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
 import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
@@ -49,6 +49,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
         },
         itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
         macroConditions: "return true;", // a custom script that returns true or false.
+        remainingSpellSlots: {min: 3, max: Infinity}, // a minimum and maximum number of spell slots remaining the actor must have for the bonus to apply.
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],
@@ -77,35 +78,34 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 export class FILTER {
 
+  static _collectBonuses(actor, type){
+    const bonuses = _getBonusesApplyingToSelf(actor, type);
+    const t = _getTokenDocFromActor(actor);
+    if(t){
+      bonuses.push(..._getAurasThatApplyToMe(t, type));
+      bonuses.push(..._getAllValidTemplateAuras(t, type));
+    }
+    return bonuses;
+  }
+
   // hitdie rolls
   static hitDieCheck(actor) {
-    const bonuses = _getBonusesApplyingToSelf(actor, "hitdie");
-    const t = _getTokenFromActor(actor);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "hitdie"));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
+    const bonuses = this._collectBonuses(actor, "hitdie");
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, throwType, { isConcSave }) {
-    const bonuses = _getBonusesApplyingToSelf(actor, "throw");
-    const t = _getTokenFromActor(actor);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "throw"));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
+    const bonuses = this._collectBonuses(actor, "throw");
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, actor, {
-      throwType, isConcSave
-    });
+    return this.finalFilterBonuses(bonuses, actor, { throwType, isConcSave });
   }
 
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
-    const bonuses = _getBonusesApplyingToSelf(item.parent, hookType);
-    const t = _getTokenFromActor(item.parent);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, hookType));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));
+    const bonuses = this._collectBonuses(item.parent, hookType);
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, item);
   }
@@ -166,11 +166,9 @@ export class FILTER {
    */
   static damageTypes(item, filter) {
     if (!filter?.length) return true;
-
-    const damageTypes = item.getDerivedDamageLabel().some(i => {
+    return item.getDerivedDamageLabel().some(i => {
       return filter.includes(i.damageType);
     });
-    return damageTypes;
   }
 
   /**
@@ -437,6 +435,22 @@ export class FILTER {
       if (isUnfit) return false;
     }
     return true;
+  }
+
+  /**
+   * Find out if the actor has a number of spell slots remaining between the min and max.
+   * @param {Actor|Item5e} object The item or actor.
+   * @param {Number} min The minimum value available required for the bonus to apply.
+   * @param {Number} max The maximum value available required for the bonus to apply.
+   * @returns {Boolean} Whether the number of spell slots remaining falls within the bounds.
+   */
+  static remainingSpellSlots(object, { min, max }) {
+    const caster = object.parent ?? object;
+    const spells = Object.values(caster.system.spells).reduce((acc, val) => {
+      if (!val.value || !val.max) return acc;
+      return acc + val.value;
+    }, 0);
+    return (!!min ? min <= spells : true) && (!!max ? spells <= max : true);
   }
 
   /**

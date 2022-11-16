@@ -14,9 +14,7 @@
   </label>
   <div class="form-fields">
     <select name="aura.disposition" data-dtype="Number">
-      <option value="2">{{localize "BABONUS.VALUES.DISPOSITION.ANY"}}</option>
-      <option value="1">{{localize "BABONUS.VALUES.DISPOSITION.ALLY"}}</option>
-      <option value="-1">{{localize "BABONUS.VALUES.DISPOSITION.ENEMY"}}</option>
+      {{selectOptions choices selected=2 localize=true}}
     </select>
     <span class="sep">{{localize "BABONUS.LABELS.AURA_SELF"}}</span>
     <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA_SELF'}}}" name="aura.self">

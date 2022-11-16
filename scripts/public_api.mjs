@@ -1,12 +1,13 @@
-import { MODULE, TYPES } from "./constants.mjs";
+import { MODULE } from "./constants.mjs";
 import { _splitTokensByDisposition } from "./helpers/auraHelpers.mjs";
 import {
   _getMinimumDistanceBetweenTokens,
-  _getTokenFromActor,
+  _getTokenDocFromActor,
   _getAppId,
   _createBabonus,
   _openWorkshop,
-  _getAllTokenGridSpaces
+  _getAllTokenGridSpaces,
+  _getType
 } from "./helpers/helpers.mjs";
 import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
 import { migration } from "./migration.mjs";
@@ -105,17 +106,8 @@ function getBonuses() {
  * Returns the bonuses of a given type.
  * Returned in the form of [id, values].
  */
-export function getType(object, type) {
-  if (!TYPES.map(t => t.value).includes(type)) {
-    console.error(`'${type}' is not a valid Build-a-Bonus type!`);
-    return null;
-  }
-  const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([id, values]) => {
-    const validId = foundry.data.validators.isValidId(id);
-    const validtype = values?.type === type;
-    return validId && validtype;
-  });
+function getType(object, type) {
+  return _getType(object, type);
 }
 
 /**
@@ -225,7 +217,7 @@ function findTokensInRangeOfAura(object, id) {
   const [_id, { aura }] = bonus;
   if (!aura) return null;
   if (aura.isTemplate) return null;
-  const tokenDoc = _getTokenFromActor(object.parent ?? object);
+  const tokenDoc = _getTokenDocFromActor(object.parent ?? object);
   if (!tokenDoc) return null;
   if (aura.range === -1) {
     return canvas.scene.tokens.filter(t => t !== tokenDoc);

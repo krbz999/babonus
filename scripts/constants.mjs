@@ -1,4 +1,5 @@
 export const MODULE = "babonus";
+export const MODULE_NAME = "Build-a-Bonus";
 export const MODULE_ICON = "fa-solid fa-otter";
 export const SETTING_HEADERLABEL = "headerLabel";
 export const SETTING_MIGRATION_VERSION = "migrationVersion";
@@ -42,7 +43,7 @@ export const BONUS_TYPES = {
   ]
 }
 
-export const attackTypes = ["mwak", "rwak", "msak", "rsak"];
+export const ATTACK_TYPES = ["mwak", "rwak", "msak", "rsak"];
 
 // item types that cannot GRANT a bonus.
 export const itemsWithoutBonuses = [
@@ -53,7 +54,7 @@ export const itemsWithoutBonuses = [
 ];
 
 // item types that can get a bonus when rolling attack, damage, or showing a save dc.
-export const itemsValidForAttackDamageSave = [
+export const ITEM_TYPES = [
   "consumable",
   "equipment",
   "feat",
@@ -83,6 +84,7 @@ export const FILTER_NAMES = [
   "baseWeapons",
   "weaponProperties",
   "macroConditions",
+  "remainingSpellSlots"
 ];
 
 // arbitrary operators
