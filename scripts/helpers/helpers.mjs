@@ -12,7 +12,6 @@ import {
   MODULE_NAME,
   TYPES
 } from "../constants.mjs";
-import { getType } from "../public_api.mjs";
 import { _isAuraAvailable } from "./auraHelpers.mjs";
 
 // current bonuses on the document, for HTML purposes only.
@@ -169,7 +168,7 @@ export function _getBonusesApplyingToSelf(actor, hookType) {
  * This method replaces roll data.
  */
 function _getAllActorBonuses(actor, hookType) {
-  const flag = getType(actor, hookType); // [id,values]
+  const flag = _getType(actor, hookType); // [id,values]
   const bonuses = _replaceRollData(actor, flag);
   bonuses.push(..._getActorEffectBonuses(actor, hookType));
   bonuses.push(..._getActorItemBonuses(actor, hookType));
@@ -188,7 +187,7 @@ export function _getActorItemBonuses(actor, hookType) {
   if (!actor) return [];
 
   for (const item of actor.items) {
-    const flag = getType(item, hookType);
+    const flag = _getType(item, hookType);
     if (!flag) continue;
 
     const { equipped, attunement } = item.system;
@@ -215,7 +214,7 @@ export function _getActorEffectBonuses(actor, hookType) {
   if (!actor) return [];
   for (const effect of actor.effects) {
     if (effect.disabled || effect.isSuppressed) continue;
-    const flag = getType(effect, hookType);
+    const flag = _getType(effect, hookType);
     if (!flag) continue;
     const bonuses = flag.filter(([id, vals]) => {
       return vals.enabled;
@@ -341,4 +340,18 @@ export function _openWorkshop(object) {
   return new BabonusWorkshop(object, {
     title: `${MODULE_NAME}: ${object.name ?? object.label}`
   }).render(true);
+}
+
+// Returns the bonuses of a given type. Returned in the form of [id, values].
+export function _getType(object, type) {
+  if (!TYPES.map(t => t.value).includes(type)) {
+    console.error(`'${type}' is not a valid Build-a-Bonus type!`);
+    return null;
+  }
+  const flag = object.getFlag(MODULE, "bonuses") ?? {};
+  return Object.entries(flag).filter(([id, values]) => {
+    const validId = foundry.data.validators.isValidId(id);
+    const validtype = values?.type === type;
+    return validId && validtype;
+  });
 }

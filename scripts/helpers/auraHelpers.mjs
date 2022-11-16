@@ -1,9 +1,9 @@
 import { auraTargets } from "../constants.mjs";
-import { getType } from "../public_api.mjs";
 import {
   _getActorEffectBonuses,
   _getActorItemBonuses,
   _getMinimumDistanceBetweenTokens,
+  _getType,
   _replaceRollData
 } from "./helpers.mjs";
 
@@ -133,7 +133,7 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
   const actor = tokenDoc.actor;
   if (!actor) return [];
   // then filter if the bonus is an aura and if the disp matches.
-  const bonuses = getType(actor, hookType).filter(([id, { aura, filters }]) => {
+  const bonuses = _getType(actor, hookType).filter(([id, { aura, filters }]) => {
     return _auraFilterUtility(actor, disposition, aura, filters);
   });
 
