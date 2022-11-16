@@ -1,7 +1,8 @@
 import {
   arbitraryOperators,
+  ATTACK_TYPES,
   auraTargets,
-  itemsValidForAttackDamageSave,
+  ITEM_TYPES,
   MATCH,
   TYPES
 } from "../constants.mjs";
@@ -89,8 +90,8 @@ class ItemBabonus extends Babonus {
 
     return foundry.utils.mergeObject(super.defineSchema(), {
       filters: new FiltersField({
-        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: itemsValidForAttackDamageSave, blank: true }), baseOptions),
-        attackTypes: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.attackTypes.map(t => t.value), blank: true }), baseOptions),
+        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: ITEM_TYPES, blank: true }), baseOptions),
+        attackTypes: new NonEmptyArrayField(new fields.StringField({ choices: ATTACK_TYPES, blank: true }), baseOptions),
         damageTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.damageTypes.map(t => t.value) }), baseOptions),
         abilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
         spellComponents: new SpellComponentsField({

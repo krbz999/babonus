@@ -8,8 +8,6 @@ import {
   ThrowBabonus
 } from "../applications/dataModel.mjs";
 import {
-  attackTypes,
-  itemsValidForAttackDamageSave,
   MODULE,
   MODULE_NAME,
   TYPES
@@ -37,16 +35,6 @@ export function _getBonuses(doc) {
 }
 
 export class KeyGetter {
-
-  // valid item types; those that can have actions associated.
-  static get itemTypes() {
-    return itemsValidForAttackDamageSave.map(value => {
-      const upper = value.titleCase();
-      const string = `DND5E.ItemType${upper}`;
-      const label = game.i18n.localize(string);
-      return { value, label };
-    });
-  }
 
   // base weapon types.
   static get baseWeapons() {
@@ -117,16 +105,6 @@ export class KeyGetter {
   static get spellLevels() {
     const levels = Object.entries(CONFIG.DND5E.spellLevels);
     return levels.map(([value, label]) => ({ value, label }));
-  }
-
-  // attack types.
-  static get attackTypes() {
-    const { itemActionTypes } = CONFIG.DND5E;
-    const actions = attackTypes;
-    return actions.map(value => {
-      const label = itemActionTypes[value];
-      return { value, label };
-    });
   }
 
   // all weapon properties.

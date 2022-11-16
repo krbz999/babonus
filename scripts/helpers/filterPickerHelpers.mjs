@@ -1,4 +1,4 @@
-import { arbitraryOperators, attackTypes } from "../constants.mjs";
+import { arbitraryOperators, ATTACK_TYPES, ITEM_TYPES } from "../constants.mjs";
 
 /**
  * Take a name of a filter and return an object with
@@ -83,17 +83,17 @@ export async function _employFilter(app, name) {
   } else if (["spellLevels", "itemTypes", "attackTypes"].includes(name)) {
     template += "checkboxes.hbs";
     if (name === "spellLevels") {
-      data.array = Array.fromRange(10).map(n => ({ value: n, label: n, tooltip: CONFIG.DND5E.spellLevels[n] }));
+      data.array = Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => {
+        return { value, label: value, tooltip };
+      });
     } else if (name === "itemTypes") {
-      data.array = [
-        { value: "consumable", label: "CONS", tooltip: "DND5E.ItemTypeConsumable" },
-        { value: "equipment", label: "EQPM", tooltip: "DND5E.ItemTypeEquipment" },
-        { value: "feat", label: "FEAT", tooltip: "DND5E.ItemTypeFeat" },
-        { value: "spell", label: "SPLL", tooltip: "DND5E.ItemTypeSpell" },
-        { value: "weapon", label: "WEPN", tooltip: "DND5E.ItemTypeWeapon" }
-      ];
+      data.array = ITEM_TYPES.map(i => {
+        return { value: i, label: i.slice(0,4).toUpperCase(), tooltip: `DND5E.ItemType${i.titleCase()}` };
+      });
     } else if (name === "attackTypes") {
-      data.array = attackTypes.map(a => ({ value: a, label: a, tooltip: `DND5E.Action${a.toUpperCase()}` }));
+      data.array = ATTACK_TYPES.map(a => {
+        return { value: a, label: a, tooltip: CONFIG.DND5E.itemActionTypes[a] };
+      });
     }
   } else if ("itemRequirements" === name) {
     template += "label_checkbox_label_checkbox.hbs";

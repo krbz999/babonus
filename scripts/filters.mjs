@@ -76,35 +76,34 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 export class FILTER {
 
+  static _collectBonuses(actor, type){
+    const bonuses = _getBonusesApplyingToSelf(actor, type);
+    const t = _getTokenDocFromActor(actor);
+    if(t){
+      bonuses.push(..._getAurasThatApplyToMe(t, type));
+      bonuses.push(..._getAllValidTemplateAuras(t, type));
+    }
+    return bonuses;
+  }
+
   // hitdie rolls
   static hitDieCheck(actor) {
-    const bonuses = _getBonusesApplyingToSelf(actor, "hitdie");
-    const t = _getTokenDocFromActor(actor);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "hitdie"));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
+    const bonuses = this._collectBonuses(actor, "hitdie");
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, throwType, { isConcSave }) {
-    const bonuses = _getBonusesApplyingToSelf(actor, "throw");
-    const t = _getTokenDocFromActor(actor);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "throw"));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
+    const bonuses = this._collectBonuses(actor, "throw");
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, actor, {
-      throwType, isConcSave
-    });
+    return this.finalFilterBonuses(bonuses, actor, { throwType, isConcSave });
   }
 
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
-    const bonuses = _getBonusesApplyingToSelf(item.parent, hookType);
-    const t = _getTokenDocFromActor(item.parent);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, hookType));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));
+    const bonuses = this._collectBonuses(item.parent, hookType);
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, item);
   }
@@ -165,11 +164,9 @@ export class FILTER {
    */
   static damageTypes(item, filter) {
     if (!filter?.length) return true;
-
-    const damageTypes = item.getDerivedDamageLabel().some(i => {
+    return item.getDerivedDamageLabel().some(i => {
       return filter.includes(i.damageType);
     });
-    return damageTypes;
   }
 
   /**

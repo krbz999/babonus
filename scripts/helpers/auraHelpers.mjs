@@ -150,10 +150,9 @@ function _getActorAurasByDisposition(tokenDoc, disposition, hookType) {
  * @returns {Array} The array of bonuses.
  */
 function _getItemAurasByDisposition(tokenDoc, disposition, hookType) {
-  const bonuses = _getActorItemBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
+  return _getActorItemBonuses(tokenDoc.actor, hookType).filter(([id, vals]) => {
     return _auraFilterUtility(tokenDoc.actor, disposition, vals.aura, vals.filters);
   });
-  return bonuses;
 }
 
 /**
@@ -184,11 +183,10 @@ function _getEffectAurasByDisposition(tokenDoc, disposition, hookType) {
  */
 function _filterAurasByRange(me, you, auras) {
   const distance = _measureDistance(me, you);
-  const filtered = auras.filter(([id, { aura }]) => {
+  return auras.filter(([id, { aura }]) => {
     if (aura.range === -1) return true;
     return aura.range >= distance;
   });
-  return filtered;
 }
 
 /**
