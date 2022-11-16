@@ -48,6 +48,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
           unfit: []
         },
         itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
+        remainingSpellSlots: {min: 3, max: Infinity}, // a minimum and maximum number of spell slots remaining the actor must have for the bonus to apply.
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],
@@ -433,6 +434,22 @@ export class FILTER {
       if (isUnfit) return false;
     }
     return true;
+  }
+
+  /**
+   * Find out if the actor has a number of spell slots remaining between the min and max.
+   * @param {Actor|Item5e} object The item or actor.
+   * @param {Number} min The minimum value available required for the bonus to apply.
+   * @param {Number} max The maximum value available required for the bonus to apply.
+   * @returns {Boolean} Whether the number of spell slots remaining falls within the bounds.
+   */
+  static remainingSpellSlots(object, { min, max }) {
+    const caster = object.parent ?? object;
+    const spells = Object.values(caster.system.spells).reduce((acc, val) => {
+      if (!val.value || !val.max) return acc;
+      return acc + val.value;
+    }, 0);
+    return (!!min ? min <= spells : true) && (!!max ? spells <= max : true);
   }
 
   /**

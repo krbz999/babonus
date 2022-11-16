@@ -82,7 +82,8 @@ export const FILTER_NAMES = [
   "spellLevels",
   "spellSchools",
   "baseWeapons",
-  "weaponProperties"
+  "weaponProperties",
+  "remainingSpellSlots"
 ];
 
 // arbitrary operators

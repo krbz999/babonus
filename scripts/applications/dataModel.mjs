@@ -16,7 +16,8 @@ import {
   SemicolonArrayField,
   NonEmptyArrayField,
   ArbitraryComparisonField,
-  DisjointArraysField
+  DisjointArraysField,
+  SpanField
 } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -63,6 +64,10 @@ class Babonus extends foundry.abstract.DataModel {
         creatureTypes: new DisjointArraysField({
           needed: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false }),
           unfit: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false })
+        }, baseOptions),
+        remainingSpellSlots: new SpanField({
+          min: new fields.NumberField({required: false, initial: 0, min: 0, step: 1, integer: true, nullable: true}),
+          max: new fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true})
         }, baseOptions)
       })
     };
