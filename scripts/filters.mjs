@@ -78,10 +78,10 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 export class FILTER {
 
-  static _collectBonuses(actor, type){
+  static _collectBonuses(actor, type) {
     const bonuses = _getBonusesApplyingToSelf(actor, type);
     const t = _getTokenDocFromActor(actor);
-    if(t){
+    if (t) {
       bonuses.push(..._getAurasThatApplyToMe(t, type));
       bonuses.push(..._getAllValidTemplateAuras(t, type));
     }
@@ -465,6 +465,9 @@ export class FILTER {
 
   /**
    * Find out if the embedded script returns true.
+   * @param {Actor5e|Item5e} object The item or actor.
+   * @param {String} script The script saved in the filter.
+   * @returns {Boolean} True if the script returns true, otherwise false.
    */
   static macroConditions(object, script) {
     if (!script?.length) return true;

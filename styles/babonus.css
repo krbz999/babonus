@@ -7,6 +7,7 @@
 
 .babonus h1 i:first-child {
   transform: scaleX(-1);
+  transition: 0.5s;
 }
 
 .babonus.uneditable a {
@@ -15,8 +16,9 @@
 
 .babonus .components {
   display: grid;
-  grid-template-columns: 49% 49%;
+  grid-template-columns: 1fr 1fr;
   justify-content: space-around;
+  gap: 1em;
 }
 
 .babonus .components .utils {
@@ -66,7 +68,7 @@
   display: inline-block;
   width: 100%;
   padding-left: 0.5em;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 .babonus .left-side .label {
