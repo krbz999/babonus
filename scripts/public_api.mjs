@@ -1,4 +1,5 @@
 import { MODULE } from "./constants.mjs";
+import { FILTER } from "./filters.mjs";
 import { _splitTokensByDisposition } from "./helpers/auraHelpers.mjs";
 import {
   _getMinimumDistanceBetweenTokens,
@@ -29,6 +30,7 @@ export function _createAPI() {
     getMinimumDistanceBetweenTokens,
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
+    getApplicableBonuses,
     migration: migration,
 
     // deprecated.
@@ -36,6 +38,27 @@ export function _createAPI() {
     findBonus,
     getBonuses,
     changeBonusId,
+  }
+}
+
+/**
+ * Returns all bonuses that applies to a specific roll.
+ * @param {Actor5e|Item5e} object       The actor (for hitdie and throw) or item (for attack, damage, save).
+ * @param {String} type                 The type of rolling (attack, damage, save, throw, hitdie).
+ * @param {Object} options              Additional context for the inner methods.
+ * @param {String} options.throwType    The type of saving throw (key of an ability, 'death' or 'concentration').
+ * @param {Boolean} options.isConcSave  Whether the saving throw is for maintaining concentration.
+ */
+function getApplicableBonuses(object, type, { throwType = "int", isConcSave = false } = {}) {
+  if (type === "hitdie") {
+    return FILTER.hitDieCheck(object);
+  } else if (type === "throw") {
+    return FILTER.throwCheck(object, throwType, { throwType, isConcSave });
+  } else if (["attack", "damage", "save"].includes(type)) {
+    return FILTER.itemCheck(object, type);
+  } else {
+    console.warn(`The type '${type}' is not a valid babonus type.`);
+    return null;
   }
 }
 

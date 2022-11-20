@@ -65,7 +65,7 @@ class Babonus extends foundry.abstract.DataModel {
           needed: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false }),
           unfit: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false })
         }, baseOptions),
-        macroConditions: new fields.StringField({ blank: false }),
+        macroConditions: new fields.StringField(baseOptions),
         remainingSpellSlots: new SpanField({
           min: new fields.NumberField({required: false, initial: 0, min: 0, step: 1, integer: true, nullable: true}),
           max: new fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true})
