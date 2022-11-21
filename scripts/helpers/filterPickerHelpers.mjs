@@ -88,11 +88,11 @@ export async function _employFilter(app, name) {
       });
     } else if (name === "itemTypes") {
       data.array = ITEM_TYPES.map(i => {
-        return { value: i, label: i.slice(0,4).toUpperCase(), tooltip: `DND5E.ItemType${i.titleCase()}` };
+        return { value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `DND5E.ItemType${i.titleCase()}` };
       });
     } else if (name === "attackTypes") {
       data.array = ATTACK_TYPES.map(a => {
-        return { value: a, label: a, tooltip: CONFIG.DND5E.itemActionTypes[a] };
+        return { value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a] };
       });
     }
   } else if ("itemRequirements" === name) {
@@ -109,7 +109,7 @@ export async function _employFilter(app, name) {
     template += "text_text_keys.hbs";
   } else if ("macroConditions" === name) {
     template += "textarea.hbs";
-  } else if(["remainingSpellSlots"].includes(name)){
+  } else if (["remainingSpellSlots"].includes(name)) {
     template += "text_dash_text.hbs";
   }
 

@@ -36,6 +36,18 @@ export class BabonusFilterPicker {
       } else unavailableFilters.push(filterData);
     }
 
+    // sort by label.
+    availableFilters.sort((a, b) => {
+      const A = game.i18n.localize(a.header);
+      const B = game.i18n.localize(b.header);
+      return A.localeCompare(B);
+    });
+    unavailableFilters.sort((a, b) => {
+      const A = game.i18n.localize(a.header);
+      const B = game.i18n.localize(b.header);
+      return A.localeCompare(B);
+    });
+
     return { availableFilters, unavailableFilters };
   }
 
