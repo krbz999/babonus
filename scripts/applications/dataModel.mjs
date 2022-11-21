@@ -40,6 +40,7 @@ class Babonus extends foundry.abstract.DataModel {
       name: new fields.StringField({ required: true, blank: false }),
       type: new fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
       enabled: new fields.BooleanField({ required: true, initial: true }),
+      itemOnly: new fields.BooleanField({ required: true, initial: false }),
       description: new fields.StringField({ required: true, blank: false }),
       aura: new AuraField({
         enabled: new fields.BooleanField({ required: false, initial: false }),
@@ -65,7 +66,7 @@ class Babonus extends foundry.abstract.DataModel {
           needed: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false }),
           unfit: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false })
         }, baseOptions),
-        macroConditions: new fields.StringField({ required: false, nullable: true, blank: false }),
+        macroConditions: new fields.StringField({ required: false, nullable: true, blank: false, initial: undefined }),
         remainingSpellSlots: new SpanField({
           min: new fields.NumberField({ required: false, initial: 0, min: 0, step: 1, integer: true, nullable: true }),
           max: new fields.NumberField({ required: false, initial: null, min: 0, step: 1, integer: true, nullable: true })
@@ -175,10 +176,13 @@ export class ThrowBabonus extends Babonus {
 
 export class HitDieBabonus extends Babonus {
   static defineSchema() {
+    const baseOptions = { required: false, nullable: true, initial: undefined };
+
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new BonusesField({
         bonus: new RollDataField({ required: true })
-      }, { required: true })
+      }, { required: true }),
+      filters: new FiltersField({}, baseOptions)
     })
   }
 }

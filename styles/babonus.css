@@ -149,6 +149,11 @@
   text-align: center;
 }
 
+.babonus .right-side .bonuses .bonus .header .details .functions {
+  text-align: end;
+  margin-right: 1em;
+}
+
 .babonus .right-side .bonuses .bonus .header .details .identifier {
   font-style: italic;
   color: gray;

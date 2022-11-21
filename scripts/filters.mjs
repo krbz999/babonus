@@ -16,6 +16,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
       enabled: true,
       id: "hgienfid783h", // regular 16 character id
       type: "attack", // or "damage", "save", "throw", "hitdie"
+      itemOnly: false, // whether this bonus only applies to the item on which it is created (attack/damage/save on items only)
       aura: {
         enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
@@ -78,8 +79,8 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 export class FILTER {
 
-  static _collectBonuses(actor, type) {
-    const bonuses = _getBonusesApplyingToSelf(actor, type);
+  static _collectBonuses(actor, type, extras = {}) {
+    const bonuses = _getBonusesApplyingToSelf(actor, type, extras);
     const t = _getTokenDocFromActor(actor);
     if (t) {
       bonuses.push(..._getAurasThatApplyToMe(t, type));
@@ -105,7 +106,7 @@ export class FILTER {
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
-    const bonuses = this._collectBonuses(item.parent, hookType);
+    const bonuses = this._collectBonuses(item.parent, hookType, { item });
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, item);
   }

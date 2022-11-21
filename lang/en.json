@@ -67,6 +67,7 @@
       "AURA_TEMPLATE": "Applies to Template"
     },
     "TOOLTIPS": {
+      "SELF_ONLY": "Toggle whether this bonus applies only to the item on which it is created.",
       "TOGGLE_THIS": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
       "COPY_THIS": "Create a duplicate of this bonus on this document.",
       "EDIT_THIS": "Edit this bonus in the builder.",
