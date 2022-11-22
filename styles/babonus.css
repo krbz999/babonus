@@ -7,6 +7,7 @@
 
 .babonus h1 i:first-child {
   transform: scaleX(-1);
+  transition: 0.5s;
 }
 
 .babonus.uneditable a {
@@ -15,8 +16,9 @@
 
 .babonus .components {
   display: grid;
-  grid-template-columns: 49% 49%;
+  grid-template-columns: 1fr 1fr;
   justify-content: space-around;
+  gap: 1em;
 }
 
 .babonus .components .utils {
@@ -66,7 +68,7 @@
   display: inline-block;
   width: 100%;
   padding-left: 0.5em;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 .babonus .left-side .label {
@@ -145,6 +147,11 @@
 
 .babonus .right-side .bonuses .bonus .header .details {
   text-align: center;
+}
+
+.babonus .right-side .bonuses .bonus .header .details .functions {
+  text-align: end;
+  margin-right: 1em;
 }
 
 .babonus .right-side .bonuses .bonus .header .details .identifier {
@@ -355,4 +362,11 @@ table.babonus td:not(:first-child) {
 
 .babonus .right-side .filter-picker header {
   margin-bottom: 0.5em;
+}
+
+.babonus .left-side textarea {
+  resize: vertical;
+  min-height: var(--form-field-height);
+  height: var(--form-field-height);
+  overflow-y: hidden;
 }

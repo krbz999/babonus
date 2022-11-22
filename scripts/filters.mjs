@@ -2,7 +2,7 @@ import { MATCH } from "./constants.mjs";
 import {
   _createBabonus,
   _getBonusesApplyingToSelf,
-  _getTokenFromActor
+  _getTokenDocFromActor
 } from "./helpers/helpers.mjs";
 import { _getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
 import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
@@ -16,6 +16,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
       enabled: true,
       id: "hgienfid783h", // regular 16 character id
       type: "attack", // or "damage", "save", "throw", "hitdie"
+      itemOnly: false, // whether this bonus only applies to the item on which it is created (attack/damage/save on items only)
       aura: {
         enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
@@ -48,6 +49,8 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
           unfit: []
         },
         itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
+        customScripts: "return true;", // a custom script that returns true or false.
+        remainingSpellSlots: {min: 3, max: Infinity}, // a minimum and maximum number of spell slots remaining the actor must have for the bonus to apply.
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],
@@ -76,35 +79,34 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 export class FILTER {
 
+  static _collectBonuses(actor, type, extras = {}) {
+    const bonuses = _getBonusesApplyingToSelf(actor, type, extras);
+    const t = _getTokenDocFromActor(actor);
+    if (t) {
+      bonuses.push(..._getAurasThatApplyToMe(t, type));
+      bonuses.push(..._getAllValidTemplateAuras(t, type));
+    }
+    return bonuses;
+  }
+
   // hitdie rolls
   static hitDieCheck(actor) {
-    const bonuses = _getBonusesApplyingToSelf(actor, "hitdie");
-    const t = _getTokenFromActor(actor);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "hitdie"));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "hitdie"));
+    const bonuses = this._collectBonuses(actor, "hitdie");
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, throwType, { isConcSave }) {
-    const bonuses = _getBonusesApplyingToSelf(actor, "throw");
-    const t = _getTokenFromActor(actor);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, "throw"));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, "throw"));
+    const bonuses = this._collectBonuses(actor, "throw");
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, actor, {
-      throwType, isConcSave
-    });
+    return this.finalFilterBonuses(bonuses, actor, { throwType, isConcSave });
   }
 
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType) {
-    const bonuses = _getBonusesApplyingToSelf(item.parent, hookType);
-    const t = _getTokenFromActor(item.parent);
-    if (t) bonuses.push(..._getAurasThatApplyToMe(t, hookType));
-    if (t) bonuses.push(..._getAllValidTemplateAuras(t, hookType));
+    const bonuses = this._collectBonuses(item.parent, hookType, { item });
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, item);
   }
@@ -116,8 +118,11 @@ export class FILTER {
     const valids = bonuses.reduce((acc, [id, values]) => {
       if (!values.enabled) return acc;
       let BAB;
-      try {BAB = _createBabonus(values).toObject();}
-      catch {return acc;}
+      try {
+        BAB = _createBabonus(values).toObject();
+      } catch {
+        return acc;
+      }
       for (const filter of Object.keys(BAB.filters ?? {})) {
         const validity = this[filter](object, BAB.filters[filter], details);
         if (!validity) return acc;
@@ -162,11 +167,9 @@ export class FILTER {
    */
   static damageTypes(item, filter) {
     if (!filter?.length) return true;
-
-    const damageTypes = item.getDerivedDamageLabel().some(i => {
+    return item.getDerivedDamageLabel().some(i => {
       return filter.includes(i.damageType);
     });
-    return damageTypes;
   }
 
   /**
@@ -436,6 +439,22 @@ export class FILTER {
   }
 
   /**
+   * Find out if the actor has a number of spell slots remaining between the min and max.
+   * @param {Actor|Item5e} object The item or actor.
+   * @param {Number} min The minimum value available required for the bonus to apply.
+   * @param {Number} max The maximum value available required for the bonus to apply.
+   * @returns {Boolean} Whether the number of spell slots remaining falls within the bounds.
+   */
+  static remainingSpellSlots(object, { min, max }) {
+    const caster = object.parent ?? object;
+    const spells = Object.values(caster.system.spells).reduce((acc, val) => {
+      if (!val.value || !val.max) return acc;
+      return acc + val.value;
+    }, 0);
+    return (!!min ? min <= spells : true) && (!!max ? spells <= max : true);
+  }
+
+  /**
    * This always returns true because it is filtered elsewhere.
    * A babonus on an item is immediately discarded if the item
    * requires equipped/attuned but was not.
@@ -443,5 +462,26 @@ export class FILTER {
    */
   static itemRequirements() {
     return true;
+  }
+
+  /**
+   * Find out if the embedded script returns true.
+   * @param {Actor5e|Item5e} object The item or actor.
+   * @param {String} script The script saved in the filter.
+   * @returns {Boolean} True if the script returns true, otherwise false.
+   */
+  static customScripts(object, script) {
+    if (!script?.length) return true;
+    try {
+      const func = Function("actor", "item", "token", script);
+      const actor = object.parent instanceof Actor ? object.parent : object instanceof Actor ? object : null;
+      const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
+      const item = object instanceof Item ? object : null;
+      const valid = func.call({}, actor, item, token) === true;
+      return valid;
+    } catch (err) {
+      ui.notifications.error("There was an error in your macro syntax. See the console (F12) for details");
+      return false;
+    }
   }
 }

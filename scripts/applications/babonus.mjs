@@ -55,6 +55,7 @@ export class BabonusWorkshop extends FormApplication {
   async _updateObject(event, formData) {
     // type must be explicitly set on the data.
     formData.type = this._target;
+    formData.itemOnly = formData.aura?.enabled ? false : (this._itemOnly ?? false);
 
     // replace id if it is invalid.
     const validId = _verifyID(this._id);
@@ -156,7 +157,7 @@ export class BabonusWorkshop extends FormApplication {
         content,
         rejectClose: false,
         options: { name },
-        callback: function (html) {
+        callback: function(html) {
           const selector = "td:nth-child(2) input[type='checkbox']:checked";
           const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
           const checked = [...html[0].querySelectorAll(selector)];
@@ -176,14 +177,15 @@ export class BabonusWorkshop extends FormApplication {
       return;
     });
 
-    // TOGGLE/COPY/EDIT/DELETE anchors.
+    // ITEM_ONLY/TOGGLE/COPY/EDIT/DELETE anchors.
     html[0].addEventListener("click", async (event) => {
       const a = event.target.closest(".functions a");
       if (!a) return;
       const { type } = a.dataset;
       const { id } = a.closest(".bonus").dataset;
 
-      if (type === "toggle") return this._toggleBonus(id);
+      if (type === "itemOnly") return this._toggleItemOnly(id);
+      else if (type === "toggle") return this._toggleBonus(id);
       else if (type === "copy") return this._copyBonus(id);
       else if (type === "edit") return this._editBonus(id);
       else if (type === "delete") {
@@ -212,7 +214,7 @@ export class BabonusWorkshop extends FormApplication {
     // when you pick an item type, update this._itemTypes.
     html[0].addEventListener("click", (event) => {
       const a = event.target.closest(".form-group[data-name='itemTypes']");
-      if(!a) return;
+      if (!a) return;
       this._updateItemTypes();
     });
 
@@ -330,6 +332,13 @@ export class BabonusWorkshop extends FormApplication {
     ui.notifications.info(game.i18n.format("BABONUS.WARNINGS.DELETED", { name, id }));
   }
 
+  // toggle the 'self only' property of an item.
+  async _toggleItemOnly(id){
+    const key = `bonuses.${id}.itemOnly`;
+    const state = this.object.getFlag(MODULE, key);
+    return this.object.setFlag(MODULE, key, !state);
+  }
+
   // toggle a bonus between enabled=true and enabled=false.
   async _toggleBonus(id) {
     const key = `bonuses.${id}.enabled`;
@@ -360,6 +369,7 @@ export class BabonusWorkshop extends FormApplication {
     const type = formData.type;
     this._formData = formData;
     this._babObject = bab.toObject();
+    this._itemOnly = bab.itemOnly;
     const addedFilters = new Set(Object.keys(bab.toObject().filters ?? {}));
     await this._initializeBuilder({ type, id, addedFilters });
     this._updateItemTypes();
@@ -410,5 +420,6 @@ export class BabonusWorkshop extends FormApplication {
     delete this._id;
     delete this._formData;
     delete this._babObject;
+    delete this._itemOnly;
   }
 }

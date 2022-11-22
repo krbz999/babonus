@@ -8,6 +8,13 @@
     {{/if}}
     <div class="details">
       <div class="functions">
+        {{#unless (or bonus.auraEnabled (not bonus.isItem))}}
+        <a data-type="itemOnly" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.SELF_ONLY'}}}">
+          {{#if bonus.itemOnly}}<i class="fa-solid fa-chess-pawn"></i>
+          {{else}}<i class="fa-regular fa-chess-pawn"></i>
+          {{/if}}
+        </a>
+        {{/unless}}
         <a data-type="toggle" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.TOGGLE_THIS'}}}">
           {{#if bonus.enabled}} <i class="fa-solid fa-toggle-on"></i>
           {{else}} <i class="fa-solid fa-toggle-off"></i>

@@ -8,12 +8,10 @@ import {
   ThrowBabonus
 } from "../applications/dataModel.mjs";
 import {
-  attackTypes,
-  itemsValidForAttackDamageSave,
   MODULE,
+  MODULE_NAME,
   TYPES
 } from "../constants.mjs";
-import { getType } from "../public_api.mjs";
 import { _isAuraAvailable } from "./auraHelpers.mjs";
 
 // current bonuses on the document, for HTML purposes only.
@@ -25,27 +23,20 @@ export function _getBonuses(doc) {
       description: b[1].description,
       name: b[1].name,
       type: b[1].type,
-      enabled: b[1].enabled
+      enabled: b[1].enabled,
+      auraEnabled: b[1].aura?.enabled,
+      isItem: (doc instanceof Item) && ["attack", "damage", "save"].includes(b[1].type),
+      itemOnly: b[1].itemOnly
     };
   }).sort((a, b) => {
     return a.name?.localeCompare(b.name);
   }).filter(b => {
     // explicitly true for valid ids.
-    return _verifyID(b.id) === true;
+    return foundry.data.validators.isValidId(b.id);
   });
 }
 
 export class KeyGetter {
-
-  // valid item types; those that can have actions associated.
-  static get itemTypes() {
-    return itemsValidForAttackDamageSave.map(value => {
-      const upper = value.titleCase();
-      const string = `DND5E.ItemType${upper}`;
-      const label = game.i18n.localize(string);
-      return { value, label };
-    });
-  }
 
   // base weapon types.
   static get baseWeapons() {
@@ -118,16 +109,6 @@ export class KeyGetter {
     return levels.map(([value, label]) => ({ value, label }));
   }
 
-  // attack types.
-  static get attackTypes() {
-    const { itemActionTypes } = CONFIG.DND5E;
-    const actions = attackTypes;
-    return actions.map(value => {
-      const label = itemActionTypes[value];
-      return { value, label };
-    });
-  }
-
   // all weapon properties.
   static get weaponProperties() {
     const prop = Object.entries(CONFIG.DND5E.weaponProperties);
@@ -173,8 +154,8 @@ export class KeyGetter {
  * or do have it and are set to affect self and not template,
  * and are not blocked by an 'aura.blockers'.
  */
-export function _getBonusesApplyingToSelf(actor, hookType) {
-  const bonuses = _getAllActorBonuses(actor, hookType);
+export function _getBonusesApplyingToSelf(actor, hookType, extras = {}) {
+  const bonuses = _getAllActorBonuses(actor, hookType, extras);
   return bonuses.filter(([id, val]) => {
     if (!val.aura?.enabled) return true;
     if (val.aura.isTemplate) return false;
@@ -189,11 +170,11 @@ export function _getBonusesApplyingToSelf(actor, hookType) {
  * That is done in '_getBonusesApplyingToSelf'.
  * This method replaces roll data.
  */
-function _getAllActorBonuses(actor, hookType) {
-  const flag = getType(actor, hookType); // [id,values]
+function _getAllActorBonuses(actor, hookType, extras) {
+  const flag = _getType(actor, hookType); // [id,values]
   const bonuses = _replaceRollData(actor, flag);
   bonuses.push(..._getActorEffectBonuses(actor, hookType));
-  bonuses.push(..._getActorItemBonuses(actor, hookType));
+  bonuses.push(..._getActorItemBonuses(actor, hookType, extras));
   return bonuses;
 }
 
@@ -203,25 +184,27 @@ function _getAllActorBonuses(actor, hookType) {
  * Not all valid item types have these properties, such as feature type items.
  * This method replaces roll data.
  */
-export function _getActorItemBonuses(actor, hookType) {
+export function _getActorItemBonuses(actor, hookType, { item } = {}) {
   const { ATTUNED } = CONFIG.DND5E.attunementTypes;
   const boni = [];
   if (!actor) return [];
 
-  for (const item of actor.items) {
-    const flag = getType(item, hookType);
+  for (const ai of actor.items) {
+    const flag = _getType(ai, hookType);
     if (!flag) continue;
 
-    const { equipped, attunement } = item.system;
+    const { equipped, attunement } = ai.system;
     const bonuses = flag.filter(([id, vals]) => {
       if (!vals.enabled) return false;
+      // this is a bonus on a different item that never transfers.
+      if (item && item !== ai && vals.itemOnly) return false;
       if (!vals.filters?.itemRequirements) return true;
       const { equipped: needsEq, attuned: needsAtt } = vals.filters?.itemRequirements;
       if (!equipped && needsEq) return false;
       if (attunement !== ATTUNED && needsAtt) return false;
       return true;
     });
-    boni.push(..._replaceRollData(item, bonuses));
+    boni.push(..._replaceRollData(ai, bonuses));
   }
   return boni;
 }
@@ -236,7 +219,7 @@ export function _getActorEffectBonuses(actor, hookType) {
   if (!actor) return [];
   for (const effect of actor.effects) {
     if (effect.disabled || effect.isSuppressed) continue;
-    const flag = getType(effect, hookType);
+    const flag = _getType(effect, hookType);
     if (!flag) continue;
     const bonuses = flag.filter(([id, vals]) => {
       return vals.enabled;
@@ -249,7 +232,7 @@ export function _getActorEffectBonuses(actor, hookType) {
 /**
  * Gets the token document from an actor document.
  */
-export function _getTokenFromActor(actor) {
+export function _getTokenDocFromActor(actor) {
   const token = actor.token?.object ?? actor.getActiveTokens()[0];
   if (!token) return false;
   return token.document;
@@ -320,7 +303,7 @@ export function _verifyID(id) {
 // Turn a babonus into something that can easily be 'pasted' into the ui.
 export function _babonusToString(babonus) {
   let flattened = foundry.utils.flattenObject(babonus);
-  for (let key of Object.keys(flattened)) {
+  for (const key of Object.keys(flattened)) {
     const path = "schema.fields." + key.split(".").join(".fields.")
     const field = foundry.utils.getProperty(babonus, path);
     if (field instanceof SemicolonArrayField) flattened[key] = flattened[key]?.join(";");
@@ -360,6 +343,20 @@ export function _createBabonus(data, id, options = {}) {
 
 export function _openWorkshop(object) {
   return new BabonusWorkshop(object, {
-    title: `Build-a-Bonus: ${object.name ?? object.label}`
+    title: `${MODULE_NAME}: ${object.name ?? object.label}`
   }).render(true);
+}
+
+// Returns the bonuses of a given type. Returned in the form of [id, values].
+export function _getType(object, type) {
+  if (!TYPES.map(t => t.value).includes(type)) {
+    console.error(`'${type}' is not a valid Build-a-Bonus type!`);
+    return null;
+  }
+  const flag = object.getFlag(MODULE, "bonuses") ?? {};
+  return Object.entries(flag).filter(([id, values]) => {
+    const validId = foundry.data.validators.isValidId(id);
+    const validtype = values?.type === type;
+    return validId && validtype;
+  });
 }

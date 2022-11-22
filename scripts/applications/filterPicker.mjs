@@ -1,4 +1,4 @@
-import { BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
+import { auraTargets, BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
 import {
   _addToAddedFilters,
   _constructFilterDataFromName,
@@ -21,8 +21,6 @@ export class BabonusFilterPicker {
   }
 
   async getData() {
-    const data = {};
-
     const addedFilters = this.object._addedFilters ?? new Set();
     const availableFilters = [];
     const unavailableFilters = [];
@@ -38,10 +36,19 @@ export class BabonusFilterPicker {
       } else unavailableFilters.push(filterData);
     }
 
-    data.availableFilters = availableFilters;
-    data.unavailableFilters = unavailableFilters;
+    // sort by label.
+    availableFilters.sort((a, b) => {
+      const A = game.i18n.localize(a.header);
+      const B = game.i18n.localize(b.header);
+      return A.localeCompare(B);
+    });
+    unavailableFilters.sort((a, b) => {
+      const A = game.i18n.localize(a.header);
+      const B = game.i18n.localize(b.header);
+      return A.localeCompare(B);
+    });
 
-    return data;
+    return { availableFilters, unavailableFilters };
   }
 
   async getHTMLFilters() {
@@ -71,7 +78,11 @@ export class BabonusFilterPicker {
 
   async getHTMLAura() {
     const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
-    return renderTemplate(template, { isItem: this.object.isItem });
+    const choices = Object.entries(auraTargets).reduce((acc, [k, v]) => {
+      acc[v] = `BABONUS.VALUES.DISPOSITION.${k}`;
+      return acc;
+    }, {});
+    return renderTemplate(template, { isItem: this.object.isItem, choices });
   }
 
   async getHTMLCurrentBonuses() {

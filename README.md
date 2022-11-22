@@ -4,7 +4,7 @@
 <em>2022 Package Jam winner of the 'Most Polished' category and runner-up for 'Best Package'</em>
 </p>
 
-After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits, in the header of any item, or in the header of any Active Effect. This gives you the ability to apply a bonus to any attack roll, damage roll, saving throw DC, saving throw, or hit die roll, for bonuses that should apply only under specific circumstances. If a bonus is embedded in an item or effect, they transfer with the item/effect if placed on another actor.
+A module for the Foundry dnd5e system. After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits, in the header of any item, or in the header of any Active Effect. This gives you the ability to apply a bonus to any attack roll, damage roll, saving throw DC, saving throw, or hit die roll, for bonuses that should apply only under specific circumstances. If a bonus is embedded in an item or effect, they transfer with the item/effect if placed on another actor.
 
 <p align="center">
   <img src="https://i.imgur.com/PEtyFfQ.png">
@@ -39,12 +39,14 @@ This is the full array of filters and choices you can make in the Build-a-Bonus.
 - Bonuses: Depending on the type you choose, Build-a-Bonus can add on top of the value or roll, or even several kinds at once. For example, for attack rolls, you can add bonuses on top of the roll itself, but also increase the critical range and the fumble range. You must of course fill out at least one field with valid data. This can be roll data, such as `@abilities.int.mod`, or just integers or dice expressions.
 - Description: A human-readable blurb describing the bonus. You can put anything you like here.
 
-### Aura Configuration
+### Aura, template, or singular item configuration
 You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not.
 
 The bonus is applied right before another token actor makes a relevant roll. The module never makes use of token movement to calculate ranges, so the usage of auras and templates is incredibly lightweight.
 
 In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). This blocking feature does not apply to templates, however. A 'status id' is a hidden and unique identifier that any status condition has, and the Keys button in the builder will help you pick it out.
+
+Alternatively, for any bonus created on an item (spell, feature, weapon, etc.), if that bonus does not produce an aura of any kind, you may toggle it in the Build-a-Bonus to only apply to that item in question. This is good for any unique weapons for example that have certain properties that should apply only to themselves.
 
 ### Available Filters
 - Item Types: The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells. This filter is only available for attack roll, damage roll, and save DC bonuses.
@@ -63,6 +65,8 @@ In the Build-a-Bonus, you can configure a list of effect status ids that prevent
 - Base Weapons: Filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'.
 - Weapon Properties: Filter the bonus to only apply if the item is a weapon that has at least one from a set of required weapon properties (if any) while having none of the unfit properties (if any).
 - Creature Types: Filter the bonus to only apply if you are targeting an enemy belonging to one of the given creature types, such as 'undead', 'fey', or 'humanoid'.
+- Custom Script: A blank text field for users to write any JavaScript code they like. The script must be synchronous and return true or false. The available variables declared for the script will vary by the roll type.
+- Available Spell Slots: Filter the bonus to apply only if the actor performing the roll has more than the set minimum amount of spell slots available and/or less than the set maximum amount of spell slots available. Not both fields are required.
 
 # API
 An API can be accessed at `game.modules.get("babonus").api`. The parameter `object` refers to an Actor, ActiveEffect, or Item. The methods are currently:
@@ -83,6 +87,7 @@ An API can be accessed at `game.modules.get("babonus").api`. The parameter `obje
 - `getMinimumDistanceBetweenTokens(tokenA, tokenB)` returns the minimum distance between two Token placeables, evaluating every grid cell that they occupy.
 - `sceneTokensByDisposition(scene)` returns an object of three arrays; the tokens on teh scene split into three arrays by disposition. If no scene is provided, the currently viewed scene is used.
 - `getOccupiedGridSpaces(tokenDoc)` returns all grid spaces that a token occupies on its scene.
+- `getApplicableBonuses(object, type, options)` returns all bonuses that applies to a specific roll with this document.
 
 In addition, if needed, the migration functions are exposed in the `migration` object of the API.
 

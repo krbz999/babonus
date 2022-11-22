@@ -1,6 +1,5 @@
 import { auraTargets, MODULE } from "../constants.mjs";
-import { getType } from "../public_api.mjs";
-import { _getAllTokenGridSpaces, _replaceRollData } from "./helpers.mjs";
+import { _getAllTokenGridSpaces, _getType, _replaceRollData } from "./helpers.mjs";
 
 /**
  * Get the item that created a template.
@@ -62,7 +61,7 @@ export function _getAllValidTemplateAuras(tokenDoc, hookType) {
     const tBoni = [];
     const { actor, token } = _mapTemplateToDocuments(templateDoc);
     const you = _mapTemplateToDisposition(templateDoc, token);
-    const templateBonuses = getType(templateDoc, hookType);
+    const templateBonuses = _getType(templateDoc, hookType);
     for (const [id, vals] of templateBonuses) {
       if (token.actor === tokenDoc.actor) {
         if (!vals.aura.self) continue;

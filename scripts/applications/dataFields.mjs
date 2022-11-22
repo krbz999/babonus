@@ -19,10 +19,8 @@ export class BonusesField extends foundry.data.fields.SchemaField {
   }
 }
 
-// a SchemaField that deletes falsy values from all its arrays, then deletes the entire array if its empty.
+// a SchemaField that deletes falsy values, as well as all falsy values from all nested arrays.
 export class FiltersField extends foundry.data.fields.SchemaField {
-  // remove null and undefined from arrays and sets,
-  // then delete empty sets and arrays.
   _cleanType(data, options = {}) {
     super._cleanType(data, options);
     const clone = foundry.utils.deepClone(data);
@@ -138,4 +136,24 @@ export class AuraField extends foundry.data.fields.SchemaField {
 }
 
 // this is just a workaround for '_babonusToString' so as not to flatten all ArrayFields.
-export class ArbitraryComparisonField extends foundry.data.fields.ArrayField { }
+export class ArbitraryComparisonField extends foundry.data.fields.ArrayField {}
+
+// two inputs that require at least one to be filled in, and if both are non-empty then min < max.
+export class SpanField extends foundry.data.fields.SchemaField {
+  _validateType(data, options = {}) {
+    if (data.min === null && data.max === null) throw new foundry.data.fields.ModelValidationError("min and max cannot both be empty");
+    if (data.min !== null && data.max !== null) {
+      if (data.min > data.max) throw new foundry.data.fields.ModelValidationError("min cannot be higher than max");
+    }
+    return super._validateType(data, options);
+  }
+}
+
+// a top-level string field that can neither be empty nor required.
+export class StrictStringField extends foundry.data.fields.StringField {
+  _validateType(value) {
+    if (value.trim() === "") {
+      throw new foundry.data.fields.ModelValidationError("cannot be an empty string");
+    } else return true;
+  }
+}

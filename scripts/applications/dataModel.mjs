@@ -1,7 +1,8 @@
 import {
   arbitraryOperators,
+  ATTACK_TYPES,
   auraTargets,
-  itemsValidForAttackDamageSave,
+  ITEM_TYPES,
   MATCH,
   TYPES
 } from "../constants.mjs";
@@ -15,7 +16,9 @@ import {
   SemicolonArrayField,
   NonEmptyArrayField,
   ArbitraryComparisonField,
-  DisjointArraysField
+  DisjointArraysField,
+  SpanField,
+  StrictStringField
 } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -38,6 +41,7 @@ class Babonus extends foundry.abstract.DataModel {
       name: new fields.StringField({ required: true, blank: false }),
       type: new fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
       enabled: new fields.BooleanField({ required: true, initial: true }),
+      itemOnly: new fields.BooleanField({ required: true, initial: false }),
       description: new fields.StringField({ required: true, blank: false }),
       aura: new AuraField({
         enabled: new fields.BooleanField({ required: false, initial: false }),
@@ -62,6 +66,11 @@ class Babonus extends foundry.abstract.DataModel {
         creatureTypes: new DisjointArraysField({
           needed: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false }),
           unfit: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false })
+        }, baseOptions),
+        customScripts: new StrictStringField({ required: false, nullable: true, initial: "", blank: false }),
+        remainingSpellSlots: new SpanField({
+          min: new fields.NumberField({ required: false, initial: 0, min: 0, step: 1, integer: true, nullable: true }),
+          max: new fields.NumberField({ required: false, initial: null, min: 0, step: 1, integer: true, nullable: true })
         }, baseOptions)
       })
     };
@@ -75,9 +84,9 @@ class Babonus extends foundry.abstract.DataModel {
     if (!source.filters?.creatureTypes || source.filters.creatureTypes.needed || source.filters.creatureTypes.unfit) return;
     const needed = source.filters.creatureTypes;
     source.filters.creatureTypes = { needed };
-    console.warn(`The Creature Types filter consisted of only a single array, but has been migrated into an object of arrays.
+    console.warn(`The Creature Types filter has been migrated into a different structure.
     You can remove this warning by editing the babonus and then saving it immediately, with no changes made.
-    Support for this automatic migration will be removed in Build-a-Bonus v1.4.0.`);
+    Support for this automatic migration will be removed in v11.`);
   }
 }
 
@@ -89,8 +98,8 @@ class ItemBabonus extends Babonus {
 
     return foundry.utils.mergeObject(super.defineSchema(), {
       filters: new FiltersField({
-        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: itemsValidForAttackDamageSave, blank: true }), baseOptions),
-        attackTypes: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.attackTypes.map(t => t.value), blank: true }), baseOptions),
+        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: ITEM_TYPES, blank: true }), baseOptions),
+        attackTypes: new NonEmptyArrayField(new fields.StringField({ choices: ATTACK_TYPES, blank: true }), baseOptions),
         damageTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.damageTypes.map(t => t.value) }), baseOptions),
         abilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
         spellComponents: new SpellComponentsField({
@@ -168,10 +177,13 @@ export class ThrowBabonus extends Babonus {
 
 export class HitDieBabonus extends Babonus {
   static defineSchema() {
+    const baseOptions = { required: false, nullable: true, initial: undefined };
+
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new BonusesField({
         bonus: new RollDataField({ required: true })
-      }, { required: true })
+      }, { required: true }),
+      filters: new FiltersField({}, baseOptions)
     })
   }
 }
