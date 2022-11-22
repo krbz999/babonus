@@ -83,7 +83,7 @@ export const FILTER_NAMES = [
   "spellSchools",
   "baseWeapons",
   "weaponProperties",
-  "macroConditions",
+  "customScripts",
   "remainingSpellSlots"
 ];
 

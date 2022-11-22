@@ -49,7 +49,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
           unfit: []
         },
         itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
-        macroConditions: "return true;", // a custom script that returns true or false.
+        customScripts: "return true;", // a custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: Infinity}, // a minimum and maximum number of spell slots remaining the actor must have for the bonus to apply.
 
         // ATTACK, DAMAGE:
@@ -470,7 +470,7 @@ export class FILTER {
    * @param {String} script The script saved in the filter.
    * @returns {Boolean} True if the script returns true, otherwise false.
    */
-  static macroConditions(object, script) {
+  static customScripts(object, script) {
     if (!script?.length) return true;
     try {
       const func = Function("actor", "item", "token", script);

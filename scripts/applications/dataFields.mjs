@@ -148,3 +148,12 @@ export class SpanField extends foundry.data.fields.SchemaField {
     return super._validateType(data, options);
   }
 }
+
+// a top-level string field that can neither be empty nor required.
+export class StrictStringField extends foundry.data.fields.StringField {
+  _validateType(value) {
+    if (value.trim() === "") {
+      throw new foundry.data.fields.ModelValidationError("cannot be an empty string");
+    } else return true;
+  }
+}
