@@ -7,7 +7,7 @@ export class BabonusKeysDialog extends Dialog {
   }
 
   get id() {
-    return `${MODULE}KeysDialog-${this.name}`;
+    return `${MODULE}KeysDialog-${this.name}-${this.options.appId}`;
   }
 
   activateListeners(html) {

@@ -65,7 +65,8 @@ export async function _employFilter(app, name) {
   const data = {
     tooltip: `BABONUS.TOOLTIPS.${name}`,
     label: `BABONUS.LABELS.${name}`,
-    name
+    name,
+    appId: app.object.id
   };
 
   if (name === "spellComponents") {

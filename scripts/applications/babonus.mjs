@@ -48,6 +48,8 @@ export class BabonusWorkshop extends FormApplication {
     data.TYPES = TYPES;
     data.ICON = MODULE_ICON;
 
+    data.otterColor = this._otterColor ?? "black";
+
     return data;
   }
 
@@ -114,7 +116,10 @@ export class BabonusWorkshop extends FormApplication {
     html[0].addEventListener("click", (event) => {
       const otterA = event.target.closest(".babonus h1 .fa-solid.fa-otter:first-child");
       const otterB = event.target.closest(".babonus h1 .fa-solid.fa-otter:last-child");
-      if (otterA) otterA.style.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+      if (otterA) {
+        otterA.style.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+        this._otterColor = otterA.style.color;
+      }
       else if (otterB) otterB.animate(spin, time);
     });
 
@@ -156,7 +161,7 @@ export class BabonusWorkshop extends FormApplication {
         label: game.i18n.localize("BABONUS.LABELS.APPLY_KEYS"),
         content,
         rejectClose: false,
-        options: { name },
+        options: { name, appId: this.id },
         callback: function(html) {
           const selector = "td:nth-child(2) input[type='checkbox']:checked";
           const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
@@ -333,7 +338,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   // toggle the 'self only' property of an item.
-  async _toggleItemOnly(id){
+  async _toggleItemOnly(id) {
     const key = `bonuses.${id}.itemOnly`;
     const state = this.object.getFlag(MODULE, key);
     return this.object.setFlag(MODULE, key, !state);

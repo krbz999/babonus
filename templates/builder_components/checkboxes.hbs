@@ -4,8 +4,8 @@
   </label>
   <div class="form-fields checkboxes">
     {{#each array as |type|}}
-    <label class="sep" for="id-{{../name}}-{{type.value}}" data-hide-input="true" data-tooltip="{{localize type.tooltip}}">
-      <input type="checkbox" name="{{concat 'filters.' ../name}}" value="{{type.value}}" id="id-{{../name}}-{{type.value}}">
+    <label class="sep" for="{{../appId}}-{{../name}}-{{type.value}}" data-hide-input="true" data-tooltip="{{localize type.tooltip}}">
+      <input type="checkbox" name="{{concat 'filters.' ../name}}" value="{{type.value}}" id="{{../appId}}-{{../name}}-{{type.value}}">
       <span class="checkboxes-check">{{{type.label}}}</span>
     </label>
     {{/each}}
