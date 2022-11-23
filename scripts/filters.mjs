@@ -120,7 +120,8 @@ export class FILTER {
       let BAB;
       try {
         BAB = _createBabonus(values).toObject();
-      } catch {
+      } catch (err) {
+        console.warn(err);
         return acc;
       }
       for (const filter of Object.keys(BAB.filters ?? {})) {
