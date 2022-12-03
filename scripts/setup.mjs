@@ -16,8 +16,8 @@ export function _setup() {
   }
 
   game.settings.register(MODULE, SETTING_HEADERLABEL, {
-    name: game.i18n.localize("BABONUS.SETTINGS.DISPLAY_LABEL.NAME"),
-    hint: game.i18n.localize("BABONUS.SETTINGS.DISPLAY_LABEL.HINT"),
+    name: "BABONUS.SETTINGS.DISPLAY_LABEL.NAME",
+    hint: "BABONUS.SETTINGS.DISPLAY_LABEL.HINT",
     scope: "world",
     config: true,
     type: Boolean,

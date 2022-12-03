@@ -9,24 +9,24 @@
     <div class="details">
       <div class="functions">
         {{#unless (or bonus.auraEnabled (not bonus.isItem))}}
-        <a data-type="itemOnly" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.SELF_ONLY'}}}">
+        <a data-type="itemOnly" data-tooltip="BABONUS.TOOLTIPS.SELF_ONLY">
           {{#if bonus.itemOnly}}<i class="fa-solid fa-chess-pawn"></i>
           {{else}}<i class="fa-regular fa-chess-pawn"></i>
           {{/if}}
         </a>
         {{/unless}}
-        <a data-type="toggle" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.TOGGLE_THIS'}}}">
+        <a data-type="toggle" data-tooltip="BABONUS.TOOLTIPS.TOGGLE_THIS">
           {{#if bonus.enabled}} <i class="fa-solid fa-toggle-on"></i>
           {{else}} <i class="fa-solid fa-toggle-off"></i>
           {{/if}}
         </a>
-        <a data-type="copy" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.COPY_THIS'}}}">
+        <a data-type="copy" data-tooltip="BABONUS.TOOLTIPS.COPY_THIS">
           <i class="fa-solid fa-copy"></i>
         </a>
-        <a data-type="edit" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.EDIT_THIS'}}}">
+        <a data-type="edit" data-tooltip="BABONUS.TOOLTIPS.EDIT_THIS">
           <i class="fa-solid fa-gear"></i>
         </a>
-        <a data-type="delete" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.DELETE_THIS'}}}">
+        <a data-type="delete" data-tooltip="BABONUS.TOOLTIPS.DELETE_THIS">
           <i class="fa-solid fa-trash"></i>
         </a>
       </div>
@@ -37,7 +37,7 @@
   </div>
   <div class="description">
     <div class="content">
-      {{bonus.description}}
+      {{{bonus.description}}}
     </div>
   </div>
   <hr class="divider">

@@ -22,6 +22,7 @@ import {
 } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
+  static _enableV10Validation = true;
 
   constructor(data, options = {}) {
     const expData = foundry.utils.expandObject(data);

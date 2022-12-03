@@ -105,10 +105,10 @@ export class FILTER {
 
 
   // attack rolls, damage rolls, displayCards (save dc)
-  static itemCheck(item, hookType) {
+  static itemCheck(item, hookType, { spellLevel } = {}) {
     const bonuses = this._collectBonuses(item.parent, hookType, { item });
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, item);
+    return this.finalFilterBonuses(bonuses, item, { spellLevel });
   }
 
   /**
@@ -238,15 +238,16 @@ export class FILTER {
    * If a spell is upcast, the item is the cloned spell, so the level of the item
    * is always the level at which it was cast.
    *
-   * @param {Item5e} item     The item being filtered against.
-   * @param {Array} filter    The array of spell levels in the filter.
-   * @returns {Boolean}       Whether the item is of one of the appropriate levels.
+   * @param {Item5e} item       The item being filtered against.
+   * @param {Array} filter      The array of spell levels in the filter.
+   * @param {Number} spellLevel The level at which a damage roll was performed, for spells.
+   * @returns {Boolean}         Whether the item is of one of the appropriate levels.
    */
-  static spellLevels(item, filter) {
+  static spellLevels(item, filter, { spellLevel } = {}) {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
-    const level = Number(item.system.level);
-    return filter.map(i => Number(i)).includes(level);
+    const level = spellLevel ?? item.system.level;
+    return filter.map(i => Number(i)).includes(Number(level));
   }
 
   /**
@@ -482,6 +483,7 @@ export class FILTER {
       return valid;
     } catch (err) {
       ui.notifications.error("There was an error in your macro syntax. See the console (F12) for details");
+      console.error(err);
       return false;
     }
   }

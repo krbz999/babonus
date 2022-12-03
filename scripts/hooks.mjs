@@ -13,7 +13,9 @@ export function _preDisplayCard(item, chatData) {
       const r = Roll.replaceFormulaData(bonus, data);
       const s = Roll.safeEval(r);
       acc = acc + s;
-    } catch {}
+    } catch (err) {
+      console.warn(err);
+    }
     return acc;
   }, 0);
 
@@ -60,7 +62,9 @@ export function _preRollAttack(item, rollConfig) {
       const r = Roll.replaceFormulaData(i.criticalRange, data);
       const s = Roll.safeEval(r);
       acc = acc - Number(s);
-    } catch {}
+    } catch (err) {
+      console.warn(err);
+    }
     return acc;
   }, rollConfig.critical ?? 20);
   if (rollConfig.critical > 20) rollConfig.critical = null;
@@ -73,7 +77,9 @@ export function _preRollAttack(item, rollConfig) {
       const r = Roll.replaceFormulaData(i.fumbleRange, data);
       const s = Roll.safeEval(r);
       acc = acc + Number(s);
-    } catch {}
+    } catch (err) {
+      console.warn(err);
+    }
     return acc;
   }, rollConfig.fumble ?? 1);
   if (rollConfig.fumble < 1) rollConfig.fumble = null;
@@ -82,7 +88,7 @@ export function _preRollAttack(item, rollConfig) {
 
 export function _preRollDamage(item, rollConfig) {
   // get bonus:
-  const bonuses = FILTER.itemCheck(item, "damage");
+  const bonuses = FILTER.itemCheck(item, "damage", { spellLevel: rollConfig.data.item.level });
   if (!bonuses.length) return;
   const data = rollConfig.data;
   const target = game.user.targets.first();
@@ -103,7 +109,9 @@ export function _preRollDamage(item, rollConfig) {
         const r = Roll.replaceFormulaData(i, data);
         const s = Roll.safeEval(r);
         acc = acc + Number(s);
-      } catch {}
+      } catch (err) {
+        console.warn(err);
+      }
       return acc;
     }, rollConfig.criticalBonusDice ?? 0);
     rollConfig.criticalBonusDice = Math.max(criticalBonusDice, 0);
@@ -118,7 +126,8 @@ export function _preRollDamage(item, rollConfig) {
         const r = Roll.replaceFormulaData(i, data);
         if (!Roll.validate(r)) return acc;
         return `${acc} + ${r}`;
-      } catch {
+      } catch (err) {
+        console.warn(err);
         return acc;
       }
     }, rollConfig.criticalBonusDamage ?? "");
@@ -147,7 +156,9 @@ export function _preRollDeathSave(actor, rollConfig) {
       const r = Roll.replaceFormulaData(deathSaveTargetValue, data);
       const s = Roll.safeEval(r);
       acc = acc - Number(s);
-    } catch {}
+    } catch (err) {
+      console.warn(err);
+    }
     return acc;
   }, rollConfig.targetValue ?? 10);
   rollConfig.targetValue = targetValue;

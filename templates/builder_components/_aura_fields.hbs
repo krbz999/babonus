@@ -1,15 +1,15 @@
 <div class="form-group">
-  <label data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA_RANGE'}}}" class="label">
+  <label data-tooltip="BABONUS.TOOLTIPS.AURA_RANGE" class="label">
     {{localize "BABONUS.LABELS.AURA_RANGE"}}
   </label>
   <div class="form-fields">
     <input type="number" name="aura.range" placeholder="{{localize 'BABONUS.PLACEHOLDERS.AURA_RANGE'}}">
     <span class="sep">{{localize "BABONUS.LABELS.AURA_TEMPLATE"}}</span>
-    <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA_TEMPLATE'}}}" name="aura.isTemplate" {{#unless isItem}}disabled{{/unless}}>
+    <input type="checkbox" data-tooltip="BABONUS.TOOLTIPS.AURA_TEMPLATE" name="aura.isTemplate" {{#unless isItem}}disabled{{/unless}}>
   </div>
 </div>
 <div class="form-group">
-  <label data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA_FIELDS'}}}" class="label">
+  <label data-tooltip="BABONUS.TOOLTIPS.AURA_FIELDS" class="label">
     {{localize "BABONUS.LABELS.AURA_FIELDS"}}
   </label>
   <div class="form-fields">
@@ -17,11 +17,11 @@
       {{selectOptions choices selected=2 localize=true}}
     </select>
     <span class="sep">{{localize "BABONUS.LABELS.AURA_SELF"}}</span>
-    <input type="checkbox" data-tooltip="{{{localize 'BABONUS.TOOLTIPS.AURA_SELF'}}}" name="aura.self">
+    <input type="checkbox" data-tooltip="BABONUS.TOOLTIPS.AURA_SELF" name="aura.self">
   </div>
 </div>
 <div class="form-group" data-name="blockers">
-  <label data-tooltip="{{{localize 'BABONUS.TOOLTIPS.blockers'}}}" class="label">
+  <label data-tooltip="BABONUS.TOOLTIPS.blockers" class="label">
     {{localize "BABONUS.LABELS.AURA_BLOCKERS"}}
   </label>
   <div class="form-fields">
