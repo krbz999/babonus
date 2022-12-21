@@ -204,7 +204,12 @@ export function _getActorItemBonuses(actor, hookType, { item } = {}) {
       if (attunement !== ATTUNED && needsAtt) return false;
       return true;
     });
-    boni.push(..._replaceRollData(ai, bonuses));
+    /**
+     * Do not replace roll data for the item itself, as this will remove upcasting.
+     * This data is handled by the system itself.
+     */
+    if(item?.id === ai.id) boni.push(...bonuses);
+    else boni.push(..._replaceRollData(ai, bonuses));
   }
   return boni;
 }
