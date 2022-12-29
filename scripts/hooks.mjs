@@ -95,10 +95,17 @@ export function _preRollDamage(item, rollConfig) {
   if (target?.actor) data.target = target.actor.getRollData();
 
   // add to parts:
-  const parts = bonuses.map(i => i.bonus).filter(i => {
-    return !!i && Roll.validate(i);
-  });
+  const {parts,optionals} = bonuses.reduce((acc, i) => {
+    const valid = !!i.bonus && Roll.validate(i.bonus);
+    if(!valid) return acc;
+    if(i.isOptional) acc.optionals.push(i);
+    else acc.parts.push(i.bonus);
+    return acc;
+  }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
+  if(optionals.length){
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
+  }
 
   // add to crit bonus dice:
   const critDice = bonuses.map(i => i.criticalBonusDice);
@@ -191,3 +198,32 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
   }, denomination);
   rollConfig.formula = rollConfig.formula.replace(denomination, denom);
 }
+
+Hooks.on("renderDialog", function(dialog, html){
+  const adds = foundry.utils.getProperty(dialog, `options.${MODULE}.optionals`);
+  console.log({adds});
+  if(!adds) return;
+  const last = html[0].querySelector(".dialog-content > form > .form-group:last-child");
+  const DIV = document.createElement("DIV");
+  DIV.innerHTML = adds.reduce((acc, {name, bonus, description}) => {
+    return acc + `
+    <div class="optional">
+      <div class="bonus-text">
+        <span class="name">${name}.</span>
+        <span class="description">${description}</span>
+      </div>
+      <a class="add" data-bonus="${bonus}"><i class="fa-solid fa-plus"></i></a>
+    </div>`;
+  }, "<div class='babonus-optionals'>") + "</div>";
+  last.after(DIV.firstElementChild);
+  dialog.setPosition({height: "auto"});
+
+  const sitBonusField = html[0].querySelector("[name=bonus]");
+  html[0].querySelectorAll(".babonus-optionals a.add").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const bonus = btn.dataset.bonus;
+      sitBonusField.value += ` + ${bonus}`;
+      btn.closest(".optional").classList.add("active");
+    });
+  });
+});

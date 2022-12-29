@@ -189,7 +189,8 @@ export class BabonusWorkshop extends FormApplication {
       const { type } = a.dataset;
       const { id } = a.closest(".bonus").dataset;
 
-      if (type === "itemOnly") return this._toggleItemOnly(id);
+      if (type==="isOptional") return this._toggleIsOptional(id);
+      else if (type === "itemOnly") return this._toggleItemOnly(id);
       else if (type === "toggle") return this._toggleBonus(id);
       else if (type === "copy") return this._copyBonus(id);
       else if (type === "edit") return this._editBonus(id);
@@ -340,6 +341,13 @@ export class BabonusWorkshop extends FormApplication {
   // toggle the 'self only' property of an item.
   async _toggleItemOnly(id) {
     const key = `bonuses.${id}.itemOnly`;
+    const state = this.object.getFlag(MODULE, key);
+    return this.object.setFlag(MODULE, key, !state);
+  }
+
+  // toggle the 'is optional' property of a bonus.
+  async _toggleIsOptional(id){
+    const key = `bonuses.${id}.isOptional`;
     const state = this.object.getFlag(MODULE, key);
     return this.object.setFlag(MODULE, key, !state);
   }

@@ -26,7 +26,9 @@ export function _getBonuses(doc) {
       enabled: b[1].enabled,
       auraEnabled: b[1].aura?.enabled,
       isItem: (doc instanceof Item) && ["attack", "damage", "save"].includes(b[1].type),
-      itemOnly: b[1].itemOnly
+      itemOnly: b[1].itemOnly,
+      isOptionable: ["attack", "damage", "throw"].includes(b[1].type) && !!b[1].bonuses.bonus,
+      isOptional: !!b[1].isOptional
     };
   }).sort((a, b) => {
     return a.name?.localeCompare(b.name);

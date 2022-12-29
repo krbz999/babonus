@@ -17,6 +17,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
       id: "hgienfid783h", // regular 16 character id
       type: "attack", // or "damage", "save", "throw", "hitdie"
       itemOnly: false, // whether this bonus only applies to the item on which it is created (attack/damage/save on items only)
+      isOptional: false, // whether this bonus is toggleable in the roll config
       aura: {
         enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
@@ -115,7 +116,7 @@ export class FILTER {
    * Filters the collected array of bonuses. Returns the reduced array.
    */
   static finalFilterBonuses(bonuses, object, details = {}) {
-    const valids = bonuses.reduce((acc, [id, values]) => {
+    const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, values]) => {
       if (!values.enabled) return acc;
       let BAB;
       try {
@@ -129,6 +130,9 @@ export class FILTER {
         if (!validity) return acc;
       }
       acc.push(values.bonuses);
+      acc.at(-1).isOptional = !!values.isOptional;
+      acc.at(-1).description = values.description;
+      acc.at(-1).name = values.name;
       return acc;
     }, []);
     return valids;

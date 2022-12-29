@@ -43,6 +43,7 @@ class Babonus extends foundry.abstract.DataModel {
       type: new fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
       enabled: new fields.BooleanField({ required: true, initial: true }),
       itemOnly: new fields.BooleanField({ required: true, initial: false }),
+      isOptional: new fields.BooleanField({required: true, initial: false}),
       description: new fields.StringField({ required: true, blank: false }),
       aura: new AuraField({
         enabled: new fields.BooleanField({ required: false, initial: false }),

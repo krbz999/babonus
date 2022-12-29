@@ -26,7 +26,7 @@
   margin: 0.25em;
 }
 
-.babonus [data-hide-input="true"]>input {
+.babonus [data-hide-input="true"] > input {
   visibility: hidden;
   position: absolute;
 }
@@ -39,13 +39,13 @@
   transition: inherit;
 }
 
-.babonus .checkboxes>.sep> :checked~span.checkboxes-check {
+.babonus .checkboxes > .sep > :checked ~ span.checkboxes-check {
   border: 2px groove #ff00006e;
   box-shadow: 0 0 4px darkred;
   background-color: #ff000066;
 }
 
-.babonus .checkboxes>.sep> :hover~span.checkboxes-check {
+.babonus .checkboxes > .sep > :hover ~ span.checkboxes-check {
   text-shadow: 0 0 5px var(--color-shadow-primary);
 }
 
@@ -83,7 +83,7 @@
 }
 
 .babonus a[data-type="add-filter"],
-.babonus select[name="target"]~a,
+.babonus select[name="target"] ~ a,
 .babonus .available-filters .filter-add {
   margin: 0 5px;
   flex: 0 0 20px;
@@ -125,7 +125,7 @@
 
 .babonus .right-side .bonuses .bonus .header {
   display: grid;
-  grid-template-columns: 5fr 2fr;
+  grid-template-columns: 5fr 3fr;
 }
 
 .babonus .right-side .bonuses .bonus .header .label {
@@ -203,7 +203,7 @@
 }
 
 .babonus .form-group .form-fields button.babonus-keys:hover {
-  text-shadow: 0px 0px 5px var(--color-shadow-primary);
+  text-shadow: 0 0 5px var(--color-shadow-primary);
 }
 
 .babonus .utils-buttons {
@@ -293,7 +293,7 @@ table.babonus td:not(:first-child) {
   align-items: center;
 }
 
-.babonus .select-target .targets a>i {
+.babonus .select-target .targets a > i {
   place-self: center;
   font-size: 60px;
 }
@@ -369,4 +369,46 @@ table.babonus td:not(:first-child) {
   min-height: var(--form-field-height);
   height: var(--form-field-height);
   overflow-y: hidden;
+}
+
+.babonus-optionals {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 0.5em;
+  border: 1px inset;
+  border-radius: 1em;
+  margin-bottom: 1em;
+}
+
+.babonus-optionals .optional {
+  display: grid;
+  grid-template-columns: 1fr 0fr;
+  min-width: 100%;
+  min-height: var(--form-field-height);
+}
+
+.babonus-optionals .optional.active {
+  pointer-events: none;
+}
+
+.babonus-optionals .optional .add {
+  padding: 0 1em;
+  display: flex;
+  align-items: center;
+}
+
+.babonus-optionals .optional.active .add > i:before {
+  content: "\f00c";
+}
+
+.babonus-optionals .bonus-text {
+  line-height: 18px;
+  align-self: center;
+}
+
+.babonus-optionals .bonus-text .name {
+  font-weight: bold;
+  font-style: italic;
 }

@@ -8,6 +8,13 @@
     {{/if}}
     <div class="details">
       <div class="functions">
+        {{#if bonus.isOptionable}}
+        <a data-type="isOptional" data-tooltip="BABONUS.TOOLTIPS.IS_OPTIONAL">
+          {{#if bonus.isOptional}}<i class="fa-solid fa-circle-xmark"></i>
+          {{else}}<i class="fa-regular fa-circle-xmark"></i>
+          {{/if}}
+        </a>
+        {{/if}}
         {{#unless (or bonus.auraEnabled (not bonus.isItem))}}
         <a data-type="itemOnly" data-tooltip="BABONUS.TOOLTIPS.SELF_ONLY">
           {{#if bonus.itemOnly}}<i class="fa-solid fa-chess-pawn"></i>
