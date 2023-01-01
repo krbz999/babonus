@@ -31,13 +31,7 @@ export function _createAPI() {
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
     getApplicableBonuses,
-    migration: migration,
-
-    // deprecated.
-    getBonusIds,
-    findBonus,
-    getBonuses,
-    changeBonusId,
+    migration: migration
   }
 }
 
@@ -91,12 +85,6 @@ function getId(object, id) {
   return _getCollection(object).get(id);
 }
 
-/* Deprecated */
-function findBonus(object, id) {
-  ui.notifications.warn("You are using 'findBonus' which has been deprecated in favor of 'getId'.");
-  return getId(object, id);
-}
-
 /**
  * Returns the ids of all bonuses on the document.
  */
@@ -105,18 +93,6 @@ function getIds(object) {
   return Object.keys(flag).filter(id => {
     return foundry.data.validators.isValidId(id);
   });
-}
-
-/* Deprecated */
-function getBonusIds(object) {
-  ui.notifications.warn("You are using 'getBonusIds' which has been deprecated in favor of 'getIds'.");
-  return getIds(object);
-}
-
-/* Deprecated */
-function getBonuses() {
-  ui.notifications.warn("You are using 'getBonuses' which has been deprecated in favor of 'getType'.");
-  return null;
 }
 
 /**
@@ -212,15 +188,6 @@ function findEmbeddedDocumentsWithBonuses(object) {
     });
   }
   return { effects, items };
-}
-
-/**
- * Change the identifier of a bonus on the document.
- * Returns null if the document already has a bonus with the new id.
- */
-function changeBonusId() {
-  ui.notifications.warn("You are using 'changeBonusId' which has been deprecated in favor of absolutely nothing. Don't change ids.");
-  return null;
 }
 
 /**
