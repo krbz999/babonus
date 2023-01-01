@@ -1,6 +1,6 @@
 import { BabonusFilterPicker } from "./filterPicker.mjs";
 import { itemTypeRequirements, MODULE, MODULE_ICON, TYPES } from "../constants.mjs";
-import { KeyGetter, _createBabonus, _getAppId, _verifyID } from "../helpers/helpers.mjs";
+import { KeyGetter, _createBabonus, _getAppId } from "../helpers/helpers.mjs";
 import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keysDialog.mjs";
 
@@ -57,10 +57,11 @@ export class BabonusWorkshop extends FormApplication {
   async _updateObject(event, formData) {
     // type must be explicitly set on the data.
     formData.type = this._target;
-    formData.itemOnly = formData.aura?.enabled ? false : (this._itemOnly ?? false);
+    formData.itemOnly = !!this._itemOnly;
+    formData.optional = !!this._optional;
 
     // replace id if it is invalid.
-    const validId = _verifyID(this._id);
+    const validId = foundry.data.validators.isValidId(this._id) ? true : foundry.utils.randomID();
     if (validId === true) formData.id = this._id;
     else {
       this._id = validId;
@@ -189,7 +190,7 @@ export class BabonusWorkshop extends FormApplication {
       const { type } = a.dataset;
       const { id } = a.closest(".bonus").dataset;
 
-      if (type==="isOptional") return this._toggleIsOptional(id);
+      if (type === "optional") return this._toggleOptional(id);
       else if (type === "itemOnly") return this._toggleItemOnly(id);
       else if (type === "toggle") return this._toggleBonus(id);
       else if (type === "copy") return this._copyBonus(id);
@@ -346,8 +347,8 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   // toggle the 'is optional' property of a bonus.
-  async _toggleIsOptional(id){
-    const key = `bonuses.${id}.isOptional`;
+  async _toggleOptional(id) {
+    const key = `bonuses.${id}.optional`;
     const state = this.object.getFlag(MODULE, key);
     return this.object.setFlag(MODULE, key, !state);
   }
@@ -383,6 +384,7 @@ export class BabonusWorkshop extends FormApplication {
     this._formData = formData;
     this._babObject = bab.toObject();
     this._itemOnly = bab.itemOnly;
+    this._optional = bab.optional;
     const addedFilters = new Set(Object.keys(bab.toObject().filters ?? {}));
     await this._initializeBuilder({ type, id, addedFilters });
     this._updateItemTypes();
@@ -434,5 +436,6 @@ export class BabonusWorkshop extends FormApplication {
     delete this._formData;
     delete this._babObject;
     delete this._itemOnly;
+    delete this._optional;
   }
 }

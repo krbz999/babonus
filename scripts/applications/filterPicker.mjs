@@ -1,6 +1,5 @@
 import { auraTargets, BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
 import {
-  _addToAddedFilters,
   _constructFilterDataFromName,
   _employFilter,
   _isFilterAvailable
@@ -97,9 +96,13 @@ export class BabonusFilterPicker {
       if (!a) return;
 
       const name = a.closest("div.filter").dataset.name;
-
       await _employFilter(this.object, name);
-      _addToAddedFilters(this.object, name);
+
+      // Add to added filters.
+      const added = this.object._addedFilters ?? new Set();
+      added.add(name);
+      this.object._addedFilters = added;
+
       this.object._saveScrollPositions(this.object.element);
       html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.getHTMLFilters();
       this.object._restoreScrollPositions(this.object.element);

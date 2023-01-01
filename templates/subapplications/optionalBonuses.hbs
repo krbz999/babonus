@@ -1,0 +1,13 @@
+<div class="babonus-optionals">
+  {{#each optionals as |bab|}}
+  <div class="optional">
+    <div class="bonus-text">
+      <span class="name">{{bab.name}}.</span>
+      <span class="description">{{bab.description}}</span>
+    </div>
+    <a class="add" data-bonus="{{bab.bonuses.bonus}}">
+      <i class="fa-solid fa-plus"></i>
+    </a>
+  </div>
+  {{/each}}
+</div>

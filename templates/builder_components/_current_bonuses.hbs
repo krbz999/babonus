@@ -9,19 +9,19 @@
     <div class="details">
       <div class="functions">
         {{#if bonus.isOptionable}}
-        <a data-type="isOptional" data-tooltip="BABONUS.TOOLTIPS.IS_OPTIONAL">
-          {{#if bonus.isOptional}}<i class="fa-solid fa-circle-xmark"></i>
+        <a data-type="optional" data-tooltip="BABONUS.TOOLTIPS.IS_OPTIONAL">
+          {{#if bonus.optional}}<i class="fa-solid fa-circle-xmark"></i>
           {{else}}<i class="fa-regular fa-circle-xmark"></i>
           {{/if}}
         </a>
         {{/if}}
-        {{#unless (or bonus.auraEnabled (not bonus.isItem))}}
+        {{#if (and (not bonus.isAura) bonus.isItem)}}
         <a data-type="itemOnly" data-tooltip="BABONUS.TOOLTIPS.SELF_ONLY">
           {{#if bonus.itemOnly}}<i class="fa-solid fa-chess-pawn"></i>
           {{else}}<i class="fa-regular fa-chess-pawn"></i>
           {{/if}}
         </a>
-        {{/unless}}
+        {{/if}}
         <a data-type="toggle" data-tooltip="BABONUS.TOOLTIPS.TOGGLE_THIS">
           {{#if bonus.enabled}} <i class="fa-solid fa-toggle-on"></i>
           {{else}} <i class="fa-solid fa-toggle-off"></i>

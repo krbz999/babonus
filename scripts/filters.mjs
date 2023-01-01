@@ -1,11 +1,5 @@
 import { MATCH } from "./constants.mjs";
-import {
-  _createBabonus,
-  _getBonusesApplyingToSelf,
-  _getTokenDocFromActor
-} from "./helpers/helpers.mjs";
-import { _getAurasThatApplyToMe } from "./helpers/auraHelpers.mjs";
-import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
+import { _collectBonuses } from "./helpers/bonusCollector.mjs";
 
 /**
  * An example bonus, as it would be stored on an actor, effect, item, or template.
@@ -17,7 +11,7 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
       id: "hgienfid783h", // regular 16 character id
       type: "attack", // or "damage", "save", "throw", "hitdie"
       itemOnly: false, // whether this bonus only applies to the item on which it is created (attack/damage/save on items only)
-      isOptional: false, // whether this bonus is toggleable in the roll config
+      optional: false, // whether this bonus is toggleable in the roll config
       aura: {
         enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
@@ -80,26 +74,16 @@ import { _getAllValidTemplateAuras } from "./helpers/templateHelpers.mjs";
 
 export class FILTER {
 
-  static _collectBonuses(actor, type, extras = {}) {
-    const bonuses = _getBonusesApplyingToSelf(actor, type, extras);
-    const t = _getTokenDocFromActor(actor);
-    if (t) {
-      bonuses.push(..._getAurasThatApplyToMe(t, type));
-      bonuses.push(..._getAllValidTemplateAuras(t, type));
-    }
-    return bonuses;
-  }
-
   // hitdie rolls
   static hitDieCheck(actor) {
-    const bonuses = this._collectBonuses(actor, "hitdie");
+    const bonuses = _collectBonuses(actor, "hitdie");
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, throwType, { isConcSave }) {
-    const bonuses = this._collectBonuses(actor, "throw");
+    const bonuses = _collectBonuses(actor, "throw");
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, actor, { throwType, isConcSave });
   }
@@ -107,7 +91,7 @@ export class FILTER {
 
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType, { spellLevel } = {}) {
-    const bonuses = this._collectBonuses(item.parent, hookType, { item });
+    const bonuses = _collectBonuses(item, hookType);
     if (!bonuses.length) return [];
     return this.finalFilterBonuses(bonuses, item, { spellLevel });
   }
@@ -116,23 +100,14 @@ export class FILTER {
    * Filters the collected array of bonuses. Returns the reduced array.
    */
   static finalFilterBonuses(bonuses, object, details = {}) {
-    const valids = foundry.utils.duplicate(bonuses).reduce((acc, [id, values]) => {
-      if (!values.enabled) return acc;
-      let BAB;
-      try {
-        BAB = _createBabonus(values).toObject();
-      } catch (err) {
-        console.warn(err);
-        return acc;
+    const valids = bonuses.reduce((acc, bab) => {
+      const filters = Object.entries(bab.filters ?? {});
+      for (const [key, val] of filters) {
+        if (val === undefined) continue;
+        const valid = this[key](object, val, details);
+        if (!valid) return acc;
       }
-      for (const filter of Object.keys(BAB.filters ?? {})) {
-        const validity = this[filter](object, BAB.filters[filter], details);
-        if (!validity) return acc;
-      }
-      acc.push(values.bonuses);
-      acc.at(-1).isOptional = !!values.isOptional;
-      acc.at(-1).description = values.description;
-      acc.at(-1).name = values.name;
+      acc.push(bab);
       return acc;
     }, []);
     return valids;

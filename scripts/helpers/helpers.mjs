@@ -12,29 +12,22 @@ import {
   MODULE_NAME,
   TYPES
 } from "../constants.mjs";
-import { _isAuraAvailable } from "./auraHelpers.mjs";
 
 // current bonuses on the document, for HTML purposes only.
 export function _getBonuses(doc) {
   const flag = doc.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).map(b => {
-    return {
-      id: b[0],
-      description: b[1].description,
-      name: b[1].name,
-      type: b[1].type,
-      enabled: b[1].enabled,
-      auraEnabled: b[1].aura?.enabled,
-      isItem: (doc instanceof Item) && ["attack", "damage", "save"].includes(b[1].type),
-      itemOnly: b[1].itemOnly,
-      isOptionable: ["attack", "damage", "throw"].includes(b[1].type) && !!b[1].bonuses.bonus,
-      isOptional: !!b[1].isOptional
-    };
-  }).sort((a, b) => {
-    return a.name?.localeCompare(b.name);
+  return Object.entries(flag).map(([id, data]) => {
+    try {
+      return _createBabonus(data, id, { parent: doc });
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
   }).filter(b => {
     // explicitly true for valid ids.
-    return foundry.data.validators.isValidId(b.id);
+    return !!b && foundry.data.validators.isValidId(b.id);
+  }).sort((a, b) => {
+    return a.name?.localeCompare(b.name);
   });
 }
 
@@ -151,101 +144,6 @@ export class KeyGetter {
 }
 
 /**
- * Get all bonuses that apply to self.
- * This is all bonuses that either do not have 'aura' property,
- * or do have it and are set to affect self and not template,
- * and are not blocked by an 'aura.blockers'.
- */
-export function _getBonusesApplyingToSelf(actor, hookType, extras = {}) {
-  const bonuses = _getAllActorBonuses(actor, hookType, extras);
-  return bonuses.filter(([id, val]) => {
-    if (!val.aura?.enabled) return true;
-    if (val.aura.isTemplate) return false;
-    if (!_isAuraAvailable(actor, val.aura)) return false;
-    return val.aura.self;
-  });
-}
-
-/**
- * Get all the bonuses on the actor, their items, and their effects.
- * This method does NOT filter by aura properties.
- * That is done in '_getBonusesApplyingToSelf'.
- * This method replaces roll data.
- */
-function _getAllActorBonuses(actor, hookType, extras) {
-  const flag = _getType(actor, hookType); // [id,values]
-  const bonuses = _replaceRollData(actor, flag);
-  bonuses.push(..._getActorEffectBonuses(actor, hookType));
-  bonuses.push(..._getActorItemBonuses(actor, hookType, extras));
-  return bonuses;
-}
-
-/**
- * Add bonuses from items. Any item-only filtering happens here, such as checking
- * if the item is currently, and requires being, equipped and/or attuned.
- * Not all valid item types have these properties, such as feature type items.
- * This method replaces roll data.
- */
-export function _getActorItemBonuses(actor, hookType, { item } = {}) {
-  const { ATTUNED } = CONFIG.DND5E.attunementTypes;
-  const boni = [];
-  if (!actor) return [];
-
-  for (const ai of actor.items) {
-    const flag = _getType(ai, hookType);
-    if (!flag) continue;
-
-    const { equipped, attunement } = ai.system;
-    const bonuses = flag.filter(([id, vals]) => {
-      if (!vals.enabled) return false;
-      // this is a bonus on a different item that never transfers.
-      if (item && item !== ai && vals.itemOnly) return false;
-      if (!vals.filters?.itemRequirements) return true;
-      const { equipped: needsEq, attuned: needsAtt } = vals.filters?.itemRequirements;
-      if (!equipped && needsEq) return false;
-      if (attunement !== ATTUNED && needsAtt) return false;
-      return true;
-    });
-    /**
-     * Do not replace roll data for the item itself, as this will remove upcasting.
-     * This data is handled by the system itself.
-     */
-    if(item?.id === ai.id) boni.push(...bonuses);
-    else boni.push(..._replaceRollData(ai, bonuses));
-  }
-  return boni;
-}
-
-/**
- * Add bonuses from effects. Any effect-only filtering happens here,
- * such as checking whether the effect is disabled or unavailable.
- * Replaces roll data.
- */
-export function _getActorEffectBonuses(actor, hookType) {
-  const boni = [];
-  if (!actor) return [];
-  for (const effect of actor.effects) {
-    if (effect.disabled || effect.isSuppressed) continue;
-    const flag = _getType(effect, hookType);
-    if (!flag) continue;
-    const bonuses = flag.filter(([id, vals]) => {
-      return vals.enabled;
-    });
-    boni.push(..._replaceRollData(actor, bonuses));
-  }
-  return boni;
-}
-
-/**
- * Gets the token document from an actor document.
- */
-export function _getTokenDocFromActor(actor) {
-  const token = actor.token?.object ?? actor.getActiveTokens()[0];
-  if (!token) return false;
-  return token.document;
-}
-
-/**
  * Gets the minimum distance between two tokens,
  * evaluating all grid spaces they occupy.
  */
@@ -283,28 +181,6 @@ export function _getAllTokenGridSpaces(tokenDoc) {
     }
   }
   return centers;
-}
-
-/**
- * Utility function to replace roll data.
- */
-export function _replaceRollData(object, bonuses) {
-  const data = object?.getRollData() ?? {};
-  const boni = foundry.utils.duplicate(bonuses);
-  return boni.map(bonus => {
-    const vals = bonus[1].bonuses;
-    for (const key of Object.keys(vals)) {
-      vals[key] = Roll.replaceFormulaData(vals[key], data);
-    }
-    return bonus;
-  });
-}
-
-// returns true if id is valid, otherwise a new id.
-export function _verifyID(id) {
-  const valid = foundry.data.validators.isValidId(id);
-  if (valid) return true;
-  else return foundry.utils.randomID();
 }
 
 // Turn a babonus into something that can easily be 'pasted' into the ui.
@@ -354,16 +230,15 @@ export function _openWorkshop(object) {
   }).render(true);
 }
 
-// Returns the bonuses of a given type. Returned in the form of [id, values].
+// Returns an array of the bonuses of a given type on the object.
 export function _getType(object, type) {
-  if (!TYPES.map(t => t.value).includes(type)) {
-    console.error(`'${type}' is not a valid Build-a-Bonus type!`);
-    return null;
-  }
-  const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([id, values]) => {
-    const validId = foundry.data.validators.isValidId(id);
-    const validtype = values?.type === type;
-    return validId && validtype;
-  });
+  return _getCollection(object).filter(b => b.type === type);
+}
+
+// Returns a collection of bonuses on the object.
+export function _getCollection(object) {
+  const bonuses = Object.entries(object.getFlag(MODULE, "bonuses") ?? {});
+  return new foundry.utils.Collection(bonuses.map(([id, data]) => {
+    return [id, _createBabonus(data, id, { parent: object })];
+  }));
 }

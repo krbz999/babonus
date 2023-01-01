@@ -22,8 +22,6 @@ import {
 } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
-  static _enableV10Validation = true;
-
   constructor(data, options = {}) {
     const expData = foundry.utils.expandObject(data);
     super(expData, options);
@@ -31,6 +29,113 @@ class Babonus extends foundry.abstract.DataModel {
 
   toString() {
     return _babonusToString(this);
+  }
+
+  // whether a bonus can be toggled to be optional.
+  get isOptionable() {
+    return !!this.bonuses?.bonus && ["attack", "damage", "throw"].includes(this.type);
+  }
+
+  // whether a bonus is currently optional.
+  get isOptional() {
+    return this.isOptionable && this.optional;
+  }
+
+  // whether the bonus is embedded on an item and valid to be 'item only'.
+  get isItemOnlyable() {
+    return (this.parent instanceof Item) && [
+      "attack", "damage", "save"
+    ].includes(this.type)  && !this.hasAura;
+  }
+
+  // whether the bonus is embedded on an item that can be equipped/attuned.
+  get isPhysicalItem() {
+    return (this.parent instanceof Item) && [
+      "weapon",
+      "equipment",
+      "consumable",
+      "tool",
+      "loot"
+    ].includes(this.item.type);
+  }
+
+  // whether the bonus is unavailable due to its item being unequipped or unattuned.
+  get isSuppressed() {
+    if (!this.isPhysicalItem) return false;
+    const reqs = this.filters?.itemRequirements;
+    if (!reqs) return false;
+    const ATT = CONFIG.DND5E.attunementTypes.ATTUNED;
+    if (this.item.system.attunement !== ATT && reqs.attuned) return true;
+    if (!this.item.system.equipped && reqs.equipped) return true;
+    return false;
+  }
+
+  // whether a bonus is currently only possible to apply to its parent item.
+  get isItemOnly() {
+    return this.itemOnly && this.isItemOnlyable;
+  }
+
+  // whether a bonus is currently an enabled and valid aura.
+  get hasAura() {
+    const a = this.aura;
+    if (!a) return false;
+    return !!a.enabled && (a.range === -1 || a.range > 0) && !a.isTemplate;
+  }
+
+  // whether this aura is blocked by any of its owner's blockers.
+  get isAuraBlocked() {
+    const blockers = this.aura?.blockers ?? [];
+    if (!blockers.length) return false;
+
+    return this.actor?.effects.some(effect => {
+      if (!effect.modifiesActor) return false;
+      const id = effect.getFlag("core", "statusId");
+      return !!id && blockers.includes(id);
+    }) ?? null;
+  }
+
+  // whether this bonus affects a template.
+  get isTemplateAura() {
+    const a = this.aura;
+    if (!a) return false;
+    return !!a.enabled && !!a.isTemplate;
+  }
+
+  // whether a bonus has any valid bonuses.
+  get hasBonus() {
+    return Object.entries(this.bonuses ?? {}).some(([key, val]) => {
+      return !!val && val !== "0";
+    });
+  }
+
+  // the actor who has the babonus, even if the bonus is on an item, effect, or template.
+  get actor() {
+    if (this.parent instanceof Actor) return this.parent;
+    if (this.parent?.parent instanceof Actor) return this.parent.parent;
+    return this.item?.parent ?? null;
+  }
+
+  // the item who has the babonus, if any.
+  get item() {
+    if (this.parent instanceof Item) return this.parent;
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const origin = foundry.utils.getProperty(this.parent, "flags.dnd5e.origin");
+      const item = fromUuidSync(origin);
+      if (item) return item;
+    }
+    return null;
+  }
+
+  // the effect who has the babonus, if any.
+  get effect() {
+    if (this.parent instanceof ActiveEffect) return this.parent;
+    return null;
+  }
+
+  // the template who has the babonus, if any.
+  get template() {
+    if (this.parent instanceof MeasuredTemplateDocument) return this.parent;
+    return null;
   }
 
   static defineSchema() {
@@ -43,7 +148,7 @@ class Babonus extends foundry.abstract.DataModel {
       type: new fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
       enabled: new fields.BooleanField({ required: true, initial: true }),
       itemOnly: new fields.BooleanField({ required: true, initial: false }),
-      isOptional: new fields.BooleanField({required: true, initial: false}),
+      optional: new fields.BooleanField({ required: true, initial: false }),
       description: new fields.StringField({ required: true, blank: false }),
       aura: new AuraField({
         enabled: new fields.BooleanField({ required: false, initial: false }),

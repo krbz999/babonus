@@ -1,6 +1,12 @@
 import { MODULE } from "./constants.mjs";
 import { FILTER } from "./filters.mjs";
 
+function _bonusToInt(bonus, data) {
+  const f = new Roll(bonus, data).formula;
+  if (!Roll.validate(f)) return 0;
+  return Roll.safeEval(f);
+}
+
 export function _preDisplayCard(item, chatData) {
   // get bonus:
   const bonuses = FILTER.itemCheck(item, "save");
@@ -8,15 +14,8 @@ export function _preDisplayCard(item, chatData) {
   const data = item.getRollData();
   const target = game.user.targets.first();
   if (target?.actor) data.target = target.actor.getRollData();
-  const totalBonus = bonuses.reduce((acc, { bonus }) => {
-    try {
-      const r = Roll.replaceFormulaData(bonus, data);
-      const s = Roll.safeEval(r);
-      acc = acc + s;
-    } catch (err) {
-      console.warn(err);
-    }
-    return acc;
+  const totalBonus = bonuses.reduce((acc, bab) => {
+    return acc + _bonusToInt(bab.bonuses.bonus, data);
   }, 0);
 
   // get all buttons.
@@ -48,42 +47,30 @@ export function _preRollAttack(item, rollConfig) {
   const target = game.user.targets.first();
   if (target?.actor) data.target = target.actor.getRollData();
 
-  // add to parts.
-  bonuses.reduce((acc, i) => {
-    if (!i.bonus) return acc;
-    if (Roll.validate(i.bonus)) acc.push(i.bonus);
+  // add to parts:
+  const { parts, optionals } = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    if (bab.isOptional) acc.optionals.push(bab);
+    else acc.parts.push(bonus);
     return acc;
-  }, rollConfig.parts);
+  }, { parts: [], optionals: [] });
+  if (parts.length) rollConfig.parts.push(...parts);
+  if (optionals.length) {
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
+  }
 
   // subtract from crit range.
-  rollConfig.critical = bonuses.reduce((acc, i) => {
-    if (!i.criticalRange) return acc;
-    try {
-      const r = Roll.replaceFormulaData(i.criticalRange, data);
-      const s = Roll.safeEval(r);
-      acc = acc - Number(s);
-    } catch (err) {
-      console.warn(err);
-    }
-    return acc;
+  rollConfig.critical = bonuses.reduce((acc, bab) => {
+    return acc - _bonusToInt(bab.bonuses.criticalRange, data);
   }, rollConfig.critical ?? 20);
-  if (rollConfig.critical > 20) rollConfig.critical = null;
-  else rollConfig.critical = Math.clamped(rollConfig.critical, 1, 20);
+  if (rollConfig.critical < 1) rollConfig.critical = 1;
 
   // add to fumble range.
-  rollConfig.fumble = bonuses.reduce((acc, i) => {
-    if (!i.fumbleRange) return acc;
-    try {
-      const r = Roll.replaceFormulaData(i.fumbleRange, data);
-      const s = Roll.safeEval(r);
-      acc = acc + Number(s);
-    } catch (err) {
-      console.warn(err);
-    }
-    return acc;
+  rollConfig.fumble = bonuses.reduce((acc, bab) => {
+    return acc + _bonusToInt(bab.bonuses.fumbleRange, data);
   }, rollConfig.fumble ?? 1);
-  if (rollConfig.fumble < 1) rollConfig.fumble = null;
-  else rollConfig.fumble = Math.clamped(rollConfig.fumble, 1, 20);
 }
 
 export function _preRollDamage(item, rollConfig) {
@@ -95,51 +82,32 @@ export function _preRollDamage(item, rollConfig) {
   if (target?.actor) data.target = target.actor.getRollData();
 
   // add to parts:
-  const {parts,optionals} = bonuses.reduce((acc, i) => {
-    const valid = !!i.bonus && Roll.validate(i.bonus);
-    if(!valid) return acc;
-    if(i.isOptional) acc.optionals.push(i);
-    else acc.parts.push(i.bonus);
+  const { parts, optionals } = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    if (bab.isOptional) acc.optionals.push(bab);
+    else acc.parts.push(bonus);
     return acc;
-  }, {parts: [], optionals: []});
+  }, { parts: [], optionals: [] });
   if (parts.length) rollConfig.parts.push(...parts);
-  if(optionals.length){
+  if (optionals.length) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
   }
 
   // add to crit bonus dice:
-  const critDice = bonuses.map(i => i.criticalBonusDice);
-  if (critDice.length) {
-    const criticalBonusDice = critDice.reduce((acc, i) => {
-      if (!i) return acc;
-      try {
-        const r = Roll.replaceFormulaData(i, data);
-        const s = Roll.safeEval(r);
-        acc = acc + Number(s);
-      } catch (err) {
-        console.warn(err);
-      }
-      return acc;
-    }, rollConfig.criticalBonusDice ?? 0);
-    rollConfig.criticalBonusDice = Math.max(criticalBonusDice, 0);
-  }
+  rollConfig.criticalBonusDice = bonuses.reduce((acc, bab) => {
+    return acc + _bonusToInt(bab.bonuses.criticalBonusDice, data);
+  }, rollConfig.criticalBonusDice ?? 0);
+  if (rollConfig.criticalBonusDice < 0) rollConfig.criticalBonusDice = 0;
 
   // add to crit damage:
-  const critDamage = bonuses.map(i => i.criticalBonusDamage);
-  if (critDamage.length) {
-    const criticalBonusDamage = critDamage.reduce((acc, i) => {
-      if (!i) return acc;
-      try {
-        const r = Roll.replaceFormulaData(i, data);
-        if (!Roll.validate(r)) return acc;
-        return `${acc} + ${r}`;
-      } catch (err) {
-        console.warn(err);
-        return acc;
-      }
-    }, rollConfig.criticalBonusDamage ?? "");
-    rollConfig.criticalBonusDamage = criticalBonusDamage;
-  }
+  rollConfig.criticalBonusDamage = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.criticalBonusDamage;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    return `${acc} + ${bonus}`;
+  }, rollConfig.criticalBonusDamage ?? "");
 }
 
 export function _preRollDeathSave(actor, rollConfig) {
@@ -151,24 +119,23 @@ export function _preRollDeathSave(actor, rollConfig) {
   if (target?.actor) data.target = target.actor.getRollData();
 
   // add to parts:
-  const parts = bonuses.map(i => i.bonus).filter(i => {
-    return !!i && Roll.validate(i);
-  });
+  const { parts, optionals } = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    if (bab.isOptional) acc.optionals.push(bab);
+    else acc.parts.push(bonus);
+    return acc;
+  }, { parts: [], optionals: [] });
   if (parts.length) rollConfig.parts.push(...parts);
+  if (optionals.length) {
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
+  }
 
   // modify targetValue:
-  const targetValue = bonuses.reduce((acc, { deathSaveTargetValue }) => {
-    if (!deathSaveTargetValue) return acc;
-    try {
-      const r = Roll.replaceFormulaData(deathSaveTargetValue, data);
-      const s = Roll.safeEval(r);
-      acc = acc - Number(s);
-    } catch (err) {
-      console.warn(err);
-    }
-    return acc;
+  rollConfig.targetValue = bonuses.reduce((acc, bab) => {
+    return acc - _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
   }, rollConfig.targetValue ?? 10);
-  rollConfig.targetValue = targetValue;
 }
 
 export function _preRollAbilitySave(actor, rollConfig, abilityId) {
@@ -181,10 +148,18 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   if (target?.actor) rollConfig.data.target = target.actor.getRollData();
 
   // add to parts:
-  const parts = bonuses.map(i => i.bonus).filter(i => {
-    return !!i && Roll.validate(i);
-  });
+  const { parts, optionals } = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    if (bab.isOptional) acc.optionals.push(bab);
+    else acc.parts.push(bonus);
+    return acc;
+  }, { parts: [], optionals: [] });
   if (parts.length) rollConfig.parts.push(...parts);
+  if (optionals.length) {
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
+  }
 }
 
 export function _preRollHitDie(actor, rollConfig, denomination) {
@@ -192,31 +167,26 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
   if (!bonuses.length) return;
   const target = game.user.targets.first();
   if (target?.actor) rollConfig.data.target = target.actor.getRollData();
-  const denom = bonuses.reduce((acc, { bonus }) => {
-    if (!Roll.validate(bonus)) return acc;
+
+  const denom = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
     return `${acc} + ${bonus}`;
   }, denomination);
   rollConfig.formula = rollConfig.formula.replace(denomination, denom);
 }
 
-Hooks.on("renderDialog", function(dialog, html){
-  const adds = foundry.utils.getProperty(dialog, `options.${MODULE}.optionals`);
-  console.log({adds});
-  if(!adds) return;
+Hooks.on("renderDialog", async function(dialog, html) {
+  const { optionals } = foundry.utils.getProperty(dialog, `options.${MODULE}`) ?? {};
+  if (!optionals) return;
+  console.log({optionals});
   const last = html[0].querySelector(".dialog-content > form > .form-group:last-child");
   const DIV = document.createElement("DIV");
-  DIV.innerHTML = adds.reduce((acc, {name, bonus, description}) => {
-    return acc + `
-    <div class="optional">
-      <div class="bonus-text">
-        <span class="name">${name}.</span>
-        <span class="description">${description}</span>
-      </div>
-      <a class="add" data-bonus="${bonus}"><i class="fa-solid fa-plus"></i></a>
-    </div>`;
-  }, "<div class='babonus-optionals'>") + "</div>";
+  const template = `modules/${MODULE}/templates/subapplications/optionalBonuses.hbs`;
+  DIV.innerHTML = await renderTemplate(template, { optionals });
   last.after(DIV.firstElementChild);
-  dialog.setPosition({height: "auto"});
+  dialog.setPosition({ height: "auto" });
 
   const sitBonusField = html[0].querySelector("[name=bonus]");
   html[0].querySelectorAll(".babonus-optionals a.add").forEach(btn => {

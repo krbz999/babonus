@@ -1,16 +1,15 @@
 import { MODULE } from "./constants.mjs";
 import { FILTER } from "./filters.mjs";
-import { _splitTokensByDisposition } from "./helpers/auraHelpers.mjs";
 import {
   _getMinimumDistanceBetweenTokens,
-  _getTokenDocFromActor,
   _getAppId,
   _createBabonus,
   _openWorkshop,
   _getAllTokenGridSpaces,
-  _getType
+  _getType,
+  _getCollection
 } from "./helpers/helpers.mjs";
-import { _getAllContainingTemplates } from "./helpers/templateHelpers.mjs";
+import { _getAllContainingTemplateDocuments } from "./helpers/templateHelpers.mjs";
 import { migration } from "./migration.mjs";
 
 export function _createAPI() {
@@ -18,6 +17,7 @@ export function _createAPI() {
     getId, getIds,
     getName, getNames,
     getType,
+    getCollection,
 
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
@@ -68,11 +68,7 @@ function getApplicableBonuses(object, type, { throwType = "int", isConcSave = fa
  * Returned in the form of [id, values].
  */
 function getName(object, name) {
-  if (!name) return null;
-  const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([id, values]) => {
-    return foundry.data.validators.isValidId(id);
-  }).find(([id, values]) => values.name === name);
+  return _getCollection(object).getName(name);
 }
 
 /**
@@ -91,10 +87,8 @@ function getNames(object) {
  */
 function getId(object, id) {
   if (!id) return null;
-  const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([_id, values]) => {
-    return foundry.data.validators.isValidId(_id);
-  }).find(([_id]) => id === _id);
+  if (!foundry.data.validators.isValidId(id)) return null;
+  return _getCollection(object).get(id);
 }
 
 /* Deprecated */
@@ -126,8 +120,7 @@ function getBonuses() {
 }
 
 /**
- * Returns the bonuses of a given type.
- * Returned in the form of [id, values].
+ * Returns an array of the bonuses of a given type.
  */
 function getType(object, type) {
   return _getType(object, type);
@@ -137,7 +130,7 @@ function getType(object, type) {
  * Returns the ids of all templates on the scene that contain the TokenDocument.
  */
 function getAllContainingTemplates(tokenDoc) {
-  return _getAllContainingTemplates(tokenDoc.object);
+  return _getAllContainingTemplateDocuments(tokenDoc).map(t => t.id);
 }
 
 /**
@@ -146,9 +139,9 @@ function getAllContainingTemplates(tokenDoc) {
  */
 async function deleteBonus(object, id) {
   if (!_validId(id)) return null;
-  const [_id] = getId(object, id) ?? [];
-  if (!_id) return null;
-  await object.update({ [`flags.babonus.bonuses.-=${_id}`]: null });
+  const bonus = getId(object, id);
+  if (!bonus) return null;
+  await object.update({ [`flags.babonus.bonuses.-=${bonus.id}`]: null });
   _rerenderApp(object);
   return r;
 }
@@ -159,12 +152,13 @@ async function deleteBonus(object, id) {
  */
 async function copyBonus(original, other, id) {
   if (!_validId(id)) return null;
-  const target = getId(original, id);
-  if (!target) return null;
+  const data = getId(original, id)?.toObject();
+  if (!data) return null;
 
-  const values = createBabonus(target[1]).toObject();
-  const key = `bonuses.${values.id}`;
-  const r = await other.setFlag(MODULE, key, values);
+  const rand = foundry.utils.randomID();
+  data.id = rand;
+  const key = `bonuses.${rand}`;
+  const r = await other.setFlag(MODULE, key, data);
   _rerenderApp(other);
   return r;
 }
@@ -209,12 +203,12 @@ function findEmbeddedDocumentsWithBonuses(object) {
 
   if (object instanceof Actor) {
     items = object.items.filter(item => {
-      return getIds(item).length > 0;
+      return _getCollection(item).size > 0;
     });
   }
   if (object instanceof Actor || object instanceof Item) {
     effects = object.effects.filter(effect => {
-      return getIds(effect).length > 0;
+      return _getCollection(effect).size > 0;
     });
   }
   return { effects, items };
@@ -240,7 +234,8 @@ function findTokensInRangeOfAura(object, id) {
   const [_id, { aura }] = bonus;
   if (!aura) return null;
   if (aura.isTemplate) return null;
-  const tokenDoc = _getTokenDocFromActor(object.parent ?? object);
+  const actor = object.actor ?? object;
+  const tokenDoc = actor?.token ?? actor?.getActiveTokens(false, true)[0];
   if (!tokenDoc) return null;
   if (aura.range === -1) {
     return canvas.scene.tokens.filter(t => t !== tokenDoc);
@@ -278,19 +273,26 @@ function openBabonusWorkshop(object) {
 
 /**
  * Create a babonus given a babonusData object.
+ * This does not save the babonus on the actor.
  */
-function createBabonus(data) {
-  return _createBabonus(data);
+function createBabonus(data, parent = null) {
+  return _createBabonus(data, undefined, { parent });
 }
 
 /**
- * Returns an object of three arrays; the tokens on the scene
- * split into three arrays by disposition.
+ * Split the scene's tokens into three arrays using their disposition.
+ * @param {Array} sceneTokens All tokens on the scene that are not the single token.
+ * @returns {Object<Array>}   An object of the three arrays.
  */
 function sceneTokensByDisposition(scene) {
-  const s = scene ?? canvas.scene;
-  if (!s) return null;
-  return _splitTokensByDisposition(s.tokens);
+  const { HOSTILE, FRIENDLY, NEUTRAL } = CONST.TOKEN_DISPOSITIONS;
+  return scene.tokens.reduce((acc, tokenDoc) => {
+    const d = tokenDoc.disposition;
+    if (d === HOSTILE) acc.hostiles.push(tokenDoc);
+    else if (d === FRIENDLY) acc.friendlies.push(tokenDoc);
+    else if (d === NEUTRAL) acc.neutrals.push(tokenDoc);
+    return acc;
+  }, { hostiles: [], friendlies: [], neutrals: [] });
 }
 
 /**
@@ -298,6 +300,13 @@ function sceneTokensByDisposition(scene) {
  */
 function getOccupiedGridSpaces(tokenDoc) {
   return _getAllTokenGridSpaces(tokenDoc);
+}
+
+/**
+ * Returns the collection of bonuses on the document.
+ */
+function getCollection(object) {
+  return _getCollection(object);
 }
 
 function _rerenderApp(object) {

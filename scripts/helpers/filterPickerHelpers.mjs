@@ -51,12 +51,6 @@ export function _canAttuneToItem(item) {
   return [REQUIRED, ATTUNED].includes(item.system.attunement);
 }
 
-export function _addToAddedFilters(app, name) {
-  const added = app._addedFilters ?? new Set();
-  added.add(name);
-  app._addedFilters = added;
-}
-
 // create and append the form-group for a specific filter.
 export async function _employFilter(app, name) {
   // what template and what data to use depends on the name of the filter.
