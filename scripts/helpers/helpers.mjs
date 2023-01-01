@@ -238,7 +238,16 @@ export function _getType(object, type) {
 // Returns a collection of bonuses on the object.
 export function _getCollection(object) {
   const bonuses = Object.entries(object.getFlag(MODULE, "bonuses") ?? {});
-  return new foundry.utils.Collection(bonuses.map(([id, data]) => {
-    return [id, _createBabonus(data, id, { parent: object })];
-  }));
+  const contents = bonuses.reduce((acc, [id, data]) => {
+    if (!foundry.data.validators.isValidId(id)) return acc;
+    try {
+      const bab = _createBabonus(data, id, { parent: object });
+      acc.push([id, bab]);
+      return acc;
+    } catch (err) {
+      console.warn(err);
+      return acc;
+    }
+  }, []);
+  return new foundry.utils.Collection(contents);
 }

@@ -75,6 +75,7 @@ An API can be accessed at `game.modules.get("babonus").api`. The parameter `obje
 - `getName(object, name)` returns the bonus with the given name on the given document. Returns the first one found if multiple have the same name.
 - `getNames(object)` returns the names of all bonuses on the document.
 - `getType(object, type)` returns all bonuses on the object of the given type (e.g. "attack" or "damage").
+- `getCollection(object)` returns a Collection of bonuses on the object.
 - `deleteBonus(object, id)` removes the bonus with the given id from the document.
 - `copyBonus(original, other, id)` copies a bonus with the given id from one document to another.
 - `moveBonus(original, other, id)` copies a bonus with the given id from one document to another, then removes the original bonus.
@@ -85,7 +86,7 @@ An API can be accessed at `game.modules.get("babonus").api`. The parameter `obje
 - `openBabonusWorkshop(object)` opens the Build-a-Bonus workshop for the given document.
 - `getAllContainingTemplates(tokenDoc)` returns the ids of all templates on the scene that overlap with the Token Document.
 - `getMinimumDistanceBetweenTokens(tokenA, tokenB)` returns the minimum distance between two Token placeables, evaluating every grid cell that they occupy.
-- `sceneTokensByDisposition(scene)` returns an object of three arrays; the tokens on teh scene split into three arrays by disposition. If no scene is provided, the currently viewed scene is used.
+- `sceneTokensByDisposition(scene)` returns an object of three arrays; the tokens on the scene split into three arrays by disposition. If no scene is provided, the currently viewed scene is used.
 - `getOccupiedGridSpaces(tokenDoc)` returns all grid spaces that a token occupies on its scene.
 - `getApplicableBonuses(object, type, options)` returns all bonuses that applies to a specific roll with this document.
 
