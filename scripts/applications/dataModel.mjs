@@ -59,7 +59,7 @@ class Babonus extends foundry.abstract.DataModel {
   get isItemOnlyable() {
     return (this.parent instanceof Item) && [
       "attack", "damage", "save"
-    ].includes(this.type) && !this.hasAura;
+    ].includes(this.type) && !this.hasAura && !this.isTemplateAura;
   }
 
   // whether the bonus is embedded on an item that can be equipped/attuned.
