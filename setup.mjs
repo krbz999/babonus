@@ -14,7 +14,7 @@ import {
 } from "./scripts/hooks.mjs";
 import { _createAPI } from "./scripts/public_api.mjs";
 import { _preCreateMeasuredTemplate } from "./scripts/helpers/templateHelpers.mjs";
-import { _migrateWorld } from "./scripts/migration.mjs";
+import { _updateMigrationVersion } from "./scripts/migration.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Build-a-Bonus");
@@ -22,7 +22,7 @@ Hooks.once("init", () => {
 
 Hooks.once("setup", _setup);
 Hooks.once("setup", _createAPI);
-Hooks.once("ready", _migrateWorld);
+Hooks.once("ready", _updateMigrationVersion);
 Hooks.on("renderActorSheetFlags", _renderActorSheetFlags);
 Hooks.on("getItemSheetHeaderButtons", _getItemSheetHeaderButtons);
 Hooks.on("getActiveEffectConfigHeaderButtons", _getActiveEffectConfigHeaderButtons);

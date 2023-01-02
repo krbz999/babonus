@@ -54,7 +54,7 @@ function _worldNeedsMigration() {
 }
 
 // update migration version such that it doesn't trigger each time the world is loaded.
-async function _updateMigrationVersion() {
+export async function _updateMigrationVersion() {
   const ver = CURRENT_MIGRATION_VERSION;
   return game.settings.set(MODULE, SETTING_MIGRATION_VERSION, ver);
 }
