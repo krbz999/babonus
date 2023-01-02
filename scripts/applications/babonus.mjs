@@ -1,8 +1,9 @@
 import { BabonusFilterPicker } from "./filterPicker.mjs";
 import { itemTypeRequirements, MODULE, MODULE_ICON, TYPES } from "../constants.mjs";
-import { KeyGetter, _createBabonus, _getAppId } from "../helpers/helpers.mjs";
+import { KeyGetter, _babFromDropData, _createBabonus, _getAppId } from "../helpers/helpers.mjs";
 import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keysDialog.mjs";
+import { getId } from "../public_api.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   constructor(object, options) {
@@ -20,7 +21,8 @@ export class BabonusWorkshop extends FormApplication {
       height: "auto",
       template: `modules/${MODULE}/templates/babonus.hbs`,
       classes: [MODULE],
-      scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"]
+      scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"],
+      dragDrop: [{ dragSelector: "[data-action='bonus-label']", dropSelector: ".current-bonuses .bonuses" }]
     });
   }
 
@@ -129,7 +131,7 @@ export class BabonusWorkshop extends FormApplication {
       const btn = event.target.closest("button[data-type='cancel-button']");
       if (!btn) return;
       return this.render();
-    })
+    });
 
     // KEYS buttons.
     html[0].addEventListener("click", async (event) => {
@@ -238,8 +240,28 @@ export class BabonusWorkshop extends FormApplication {
     html[0].addEventListener("click", (event) => {
       const el = event.target.closest("#babonus-warning.active");
       if (el) this._displayWarning(false);
-    })
+    });
 
+  }
+
+  _onDragStart(event) {
+    const label = event.currentTarget.closest(".bonus");
+    let dragData;
+    if (label.dataset.id) {
+      const bab = getId(this.object, label.dataset.id);
+      dragData = bab.toDragData();
+    }
+    if (!dragData) return;
+    event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+  }
+
+  async _onDrop(event) {
+    const data = TextEditor.getDragEventData(event);
+    const doc = this.object;
+    if (!this.isEditable) return false;
+    if (doc.uuid === data.uuid) return false;
+    const bab = await _babFromDropData(data, doc);
+    return doc.setFlag(MODULE, `bonuses.${bab.id}`, bab.toObject());
   }
 
   // format the UI to show the builder, optionally with current filters when editing an existing babonus.
@@ -279,6 +301,7 @@ export class BabonusWorkshop extends FormApplication {
     this._saveScrollPositions(this.element);
     this.element[0].querySelector(".right-side .current-bonuses .bonuses").innerHTML = await this.filterPicker.getHTMLCurrentBonuses();
     this._restoreScrollPositions(this.element);
+    this._dragDrop.forEach(d => d.bind(this.element[0])); // rebind drag selectors.
   }
 
   // paste the values of an existing bonus.

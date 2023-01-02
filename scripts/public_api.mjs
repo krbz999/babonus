@@ -79,7 +79,7 @@ function getNames(object) {
  * Returns the bonus with the given id.
  * Returned in the form of [id, values].
  */
-function getId(object, id) {
+export function getId(object, id) {
   if (!id) return null;
   if (!foundry.data.validators.isValidId(id)) return null;
   return _getCollection(object).get(id);

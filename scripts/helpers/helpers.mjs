@@ -12,6 +12,7 @@ import {
   MODULE_NAME,
   TYPES
 } from "../constants.mjs";
+import { getId } from "../public_api.mjs";
 
 // current bonuses on the document, for HTML purposes only.
 export function _getBonuses(doc) {
@@ -250,4 +251,16 @@ export function _getCollection(object) {
     }
   }, []);
   return new foundry.utils.Collection(contents);
+}
+
+export async function _babFromDropData(data, parent) {
+  if (data.data) return _createBabonus(data.data, null, { parent });
+  else if (data.uuid) {
+    const pre = await fromUuid(data.uuid);
+    const prevParent = pre instanceof TokenDocument ? pre.actor : pre;
+    const babonusData = getId(prevParent, data.babId).toObject();
+    delete babonusData.id;
+    return _createBabonus(babonusData, null, { parent });
+  }
+  return null;
 }

@@ -2,9 +2,9 @@
 <div class="bonus" data-id="{{bonus.id}}">
   <div class="header">
     {{#if bonus.enabled}}
-    <div class="label">{{bonus.name}}</div>
+    <div class="label" data-action="bonus-label">{{bonus.name}}</div>
     {{else}}
-    <div class="label disabled">{{bonus.name}}</div>
+    <div class="label disabled" data-action="bonus-label">{{bonus.name}}</div>
     {{/if}}
     <div class="details">
       <div class="functions">

@@ -31,6 +31,20 @@ class Babonus extends foundry.abstract.DataModel {
     return _babonusToString(this);
   }
 
+  toDragData() {
+    const dragData = { type: "Babonus" };
+    if (this.parent) {
+      dragData.uuid = this.parent.uuid;
+      dragData.babId = this.id;
+    }
+    else dragData.data = this.toObject();
+    return dragData;
+  }
+
+  get uuid() {
+    return `${this.parent.uuid}.Babonus.${this.id}`;
+  }
+
   // whether a bonus can be toggled to be optional.
   get isOptionable() {
     return !!this.bonuses?.bonus && ["attack", "damage", "throw"].includes(this.type);
@@ -45,7 +59,7 @@ class Babonus extends foundry.abstract.DataModel {
   get isItemOnlyable() {
     return (this.parent instanceof Item) && [
       "attack", "damage", "save"
-    ].includes(this.type)  && !this.hasAura;
+    ].includes(this.type) && !this.hasAura;
   }
 
   // whether the bonus is embedded on an item that can be equipped/attuned.
