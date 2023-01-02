@@ -56,7 +56,7 @@
 
 .babonus .form-fields.checkboxes label.sep {
   padding: 0;
-  transition: 0.2s;
+  transition: 0.15s;
 }
 
 .babonus .components header {
@@ -146,23 +146,21 @@
 }
 
 .babonus .right-side .bonuses .bonus .header .details {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  padding: 0 1em 0 0;
+  gap: 0.25em;
 }
 
-.babonus .right-side .bonuses .bonus .header .details .functions {
+.babonus .right-side .bonuses .bonus .header .details > * {
   text-align: end;
-  margin-right: 1em;
 }
 
 .babonus .right-side .bonuses .bonus .header .details .identifier {
-  font-style: italic;
   color: gray;
-  white-space: nowrap;
-  overflow-x: hidden;
   user-select: text;
   font-size: 11px;
   font-family: monospace;
-  margin-top: 0.5em;
 }
 
 .babonus .right-side .bonuses .bonus .description .content {
@@ -177,14 +175,8 @@
   opacity: 1;
 }
 
-.babonus .right-side .bonuses .bonus:not(.collapsed) .description .content {
-  transition: 0.3s;
-}
-
 .babonus .right-side .bonuses .bonus.collapsed .description .content {
-  max-height: 0;
-  opacity: 0;
-  padding: 0 0.75em;
+  display: none;
 }
 
 .babonus .left-side .inputs .filters select {
@@ -212,12 +204,6 @@
   gap: 0.5em;
 }
 
-form.babonus.editMode [name='identifier'],
-form.babonus.editMode [name='target'] {
-  pointer-events: none;
-  color: #AAA;
-}
-
 form.babonus .right-side .details a {
   text-align: end;
   width: fit-content;
@@ -235,7 +221,7 @@ form.babonus.locked .right-side .details a {
 
 /* WARNING */
 #babonus-warning {
-  transition: 0.3s;
+  transition: 0.15s;
   opacity: 0;
 }
 
