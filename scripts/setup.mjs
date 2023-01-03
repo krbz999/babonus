@@ -2,6 +2,7 @@ import {
   ILLEGAL_ITEM_TYPES,
   MODULE,
   MODULE_ICON,
+  SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
   SETTING_HEADERLABEL,
   SETTING_MIGRATION_VERSION
 } from "./constants.mjs";
@@ -18,6 +19,15 @@ export function _setup() {
   game.settings.register(MODULE, SETTING_HEADERLABEL, {
     name: "BABONUS.SETTINGS.DISPLAY_LABEL.NAME",
     hint: "BABONUS.SETTINGS.DISPLAY_LABEL.HINT",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, {
+    name: "BABONUS.SETTINGS.DISABLE_CUSTOM_SCRIPT_FILTER.NAME",
+    hint: "BABONUS.SETTINGS.DISABLE_CUSTOM_SCRIPT_FILTER.HINT",
     scope: "world",
     config: true,
     type: Boolean,

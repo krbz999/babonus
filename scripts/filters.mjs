@@ -1,4 +1,4 @@
-import { SPELL_COMPONENT_MATCHING } from "./constants.mjs";
+import { MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, SPELL_COMPONENT_MATCHING } from "./constants.mjs";
 import { _collectBonuses } from "./helpers/bonusCollector.mjs";
 
 /**
@@ -12,6 +12,7 @@ import { _collectBonuses } from "./helpers/bonusCollector.mjs";
       type: "attack", // or "damage", "save", "throw", "hitdie"
       itemOnly: false, // whether this bonus only applies to the item on which it is created (attack/damage/save on items only)
       optional: false, // whether this bonus is toggleable in the roll config
+      consume: {type: "uses", value: 1}, // if the bonus consumes uses/quantity and how many
       aura: {
         enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
@@ -258,16 +259,8 @@ export class FILTER {
 
     const { properties } = item.system;
 
-    if (unfit?.length) {
-      const isUnfit = unfit.some((p) => properties[p]);
-      if (isUnfit) return false;
-    }
-
-    if (needed?.length) {
-      const isFit = needed.some((p) => properties[p]);
-      if (!isFit) return false;
-    }
-
+    if (unfit?.some(p => properties[p])) return false;
+    if (needed?.some(p => properties[p])) return false;
     return true;
   }
 
@@ -343,7 +336,7 @@ export class FILTER {
    */
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
-    const obj = object.parent ?? object;
+    const obj = object.actor ?? object;
     return filter.some(id => {
       return !!obj.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
@@ -408,14 +401,8 @@ export class FILTER {
       const rac = race ? array.includes(race?.toLowerCase()) : false;
       return val || sub || cus || rac;
     }
-    if (needed?.length) {
-      const isFit = _inclusionTest(needed);
-      if (!isFit) return false;
-    }
-    if (unfit?.length) {
-      const isUnfit = _inclusionTest(unfit);
-      if (isUnfit) return false;
-    }
+    if (needed?.length && !_inclusionTest(needed)) return false;
+    if (unfit?.length && _inclusionTest(unfit)) return false;
     return true;
   }
 
@@ -427,7 +414,7 @@ export class FILTER {
    * @returns {Boolean} Whether the number of spell slots remaining falls within the bounds.
    */
   static remainingSpellSlots(object, { min, max }) {
-    const caster = object.parent ?? object;
+    const caster = object.actor ?? object;
     const spells = Object.values(caster.system.spells).reduce((acc, val) => {
       if (!val.value || !val.max) return acc;
       return acc + val.value;
@@ -453,6 +440,7 @@ export class FILTER {
    */
   static customScripts(object, script) {
     if (!script?.length) return true;
+    if (!game.settings.get(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER)) return true;
     try {
       const func = Function("actor", "item", "token", script);
       const actor = object.parent instanceof Actor ? object.parent : object instanceof Actor ? object : null;
@@ -461,7 +449,6 @@ export class FILTER {
       const valid = func.call({}, actor, item, token) === true;
       return valid;
     } catch (err) {
-      ui.notifications.error("There was an error in your macro syntax. See the console (F12) for details");
       console.error(err);
       return false;
     }
