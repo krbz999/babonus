@@ -37,7 +37,7 @@ export class FiltersField extends foundry.data.fields.SchemaField {
   }
 }
 
-// a particular field that only requires MATCH if TYPES has any valid values.
+// a particular field that only requires SPELL_COMPONENT_MATCHING if TYPES has any valid values.
 export class SpellComponentsField extends foundry.data.fields.SchemaField {
   // if 'types' is empty, delete both it and 'match'.
   _cleanType(data, options = {}) {

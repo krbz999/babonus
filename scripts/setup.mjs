@@ -1,5 +1,5 @@
 import {
-  itemsWithoutBonuses,
+  ILLEGAL_ITEM_TYPES,
   MODULE,
   MODULE_ICON,
   SETTING_HEADERLABEL,
@@ -47,7 +47,7 @@ export function _renderActorSheetFlags(app, html) {
 }
 
 export function _getItemSheetHeaderButtons(app, array) {
-  if (itemsWithoutBonuses.includes(app.object.type)) return;
+  if (ILLEGAL_ITEM_TYPES.includes(app.object.type)) return;
   const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
 
   const headerButton = {

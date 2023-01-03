@@ -1,4 +1,4 @@
-import { auraTargets, BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
+import { AURA_TARGETS, BONUS_TYPES_FORMDATA, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
 import {
   _constructFilterDataFromName,
   _employFilter,
@@ -61,7 +61,7 @@ export class BabonusFilterPicker {
     const type = TYPES.find(t => t.value === this.object._target);
     const data = {
       type,
-      bonusTypes: BONUS_TYPES[this.object._target],
+      bonusTypes: BONUS_TYPES_FORMDATA[this.object._target],
       id: this.object._id,
       localeString: edit ? "BABONUS.VALUES.EDITING_FOR" : "BABONUS.VALUES.CREATING_FOR"
     };
@@ -71,13 +71,13 @@ export class BabonusFilterPicker {
   async getHTMLBonuses() {
     const template = "modules/babonus/templates/builder_components/_bonuses.hbs";
     const type = this.object._target;
-    const data = { bonuses: BONUS_TYPES[type] };
+    const data = { bonuses: BONUS_TYPES_FORMDATA[type] };
     return renderTemplate(template, data);
   }
 
   async getHTMLAura() {
     const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
-    const choices = Object.entries(auraTargets).reduce((acc, [k, v]) => {
+    const choices = Object.entries(AURA_TARGETS).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.VALUES.DISPOSITION.${k}`;
       return acc;
     }, {});

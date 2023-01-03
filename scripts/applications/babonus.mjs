@@ -1,5 +1,5 @@
 import { BabonusFilterPicker } from "./filterPicker.mjs";
-import { itemTypeRequirements, MODULE, MODULE_ICON, TYPES } from "../constants.mjs";
+import { FILTER_ITEM_TYPE_REQUIREMENTS, MODULE, MODULE_ICON, TYPES } from "../constants.mjs";
 import { KeyGetter, _babFromDropData, _createBabonus, _getAppId } from "../helpers/helpers.mjs";
 import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keysDialog.mjs";
@@ -336,10 +336,10 @@ export class BabonusWorkshop extends FormApplication {
     const formGroup = this.element[0].querySelector(".left-side .filters .form-group[data-name='itemTypes']");
     const types = formGroup?.querySelectorAll("input[name='filters.itemTypes']:checked") ?? [];
     this._itemTypes = new Set(Array.from(types).map(t => t.value));
-    for (const key of Object.keys(itemTypeRequirements)) {
+    for (const key of Object.keys(FILTER_ITEM_TYPE_REQUIREMENTS)) {
       // if the item type is not present:
       if (!this._itemTypes.has(key) || this._itemTypes.size > 1) {
-        for (const name of itemTypeRequirements[key]) {
+        for (const name of FILTER_ITEM_TYPE_REQUIREMENTS[key]) {
           const el = this.element[0].querySelector(`.left-side .form-group[data-name="${name}"]`);
           if (el) {
             el.remove();

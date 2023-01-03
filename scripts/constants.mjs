@@ -4,7 +4,9 @@ export const MODULE_ICON = "fa-solid fa-otter";
 export const SETTING_HEADERLABEL = "headerLabel";
 export const SETTING_MIGRATION_VERSION = "migrationVersion";
 export const CURRENT_MIGRATION_VERSION = 1; // bump this when new migration is needed.
-export const MATCH = { ANY: "ANY", ALL: "ALL" }
+
+// the kind of matching done for spell components (at least 1 vs matching all).
+export const SPELL_COMPONENT_MATCHING = { ANY: "ANY", ALL: "ALL" }
 
 // the kinds of bonuses you can make.
 export const TYPES = [
@@ -20,7 +22,8 @@ export const TYPES = [
   { value: "hitdie", icon: "fa-solid fa-heart-pulse", label: "BABONUS.VALUES.TYPE.hitdie" }
 ];
 
-export const BONUS_TYPES = {
+// mapping of bonus types to tooltips, labels, and formData names.
+export const BONUS_TYPES_FORMDATA = {
   "attack": [
     { TOOLTIP: "BABONUS.TOOLTIPS.ATTACK.BONUS", LABEL: "BABONUS.LABELS.ATTACK.BONUS", NAME: "bonuses.bonus" },
     { TOOLTIP: "BABONUS.TOOLTIPS.ATTACK.CRIT_RANGE", LABEL: "BABONUS.LABELS.ATTACK.CRIT_RANGE", NAME: "bonuses.criticalRange" },
@@ -41,29 +44,37 @@ export const BONUS_TYPES = {
   "hitdie": [
     { TOOLTIP: "BABONUS.TOOLTIPS.HITDIE.BONUS", LABEL: "BABONUS.LABELS.HITDIE.BONUS", NAME: "bonuses.bonus" }
   ]
-}
+};
 
-export const ATTACK_TYPES = ["mwak", "rwak", "msak", "rsak"];
+// the types of attacks an item can make.
+export const ATTACK_TYPES = [
+  "mwak", "rwak", "msak", "rsak"
+];
 
 // item types that cannot GRANT a bonus.
-export const itemsWithoutBonuses = [
-  "background",
-  "class",
-  "subclass",
-  "race"
+export const ILLEGAL_ITEM_TYPES = [
+  "background", "class", "subclass", "race"
 ];
 
 // item types that can get a bonus when rolling attack, damage, or showing a save dc.
-export const ITEM_TYPES = [
-  "consumable",
-  "equipment",
-  "feat",
-  "spell",
-  "weapon"
+export const ITEM_ROLL_TYPES = [
+  "consumable", "equipment", "feat", "spell", "weapon"
 ];
 
-// the disposition of an aura (allies, enemies, or all).
-export const auraTargets = { ALLY: 1, ENEMY: -1, ANY: 2 };
+// item types that can be equipped/attuned (as of 2.1.0).
+export const EQUIPPABLE_TYPES = [
+  "weapon", "equipment", "consumable", "tool", "backpack"
+];
+
+// bonus types that can be 'item only'.
+export const ITEM_ONLY_BONUS_TYPES = [
+  "attack", "damage", "save"
+];
+
+// the disposition of an aura (targeting allies, enemies, or all).
+export const AURA_TARGETS = {
+  ALLY: 1, ENEMY: -1, ANY: 2
+};
 
 // names of all filters.
 export const FILTER_NAMES = [
@@ -88,7 +99,7 @@ export const FILTER_NAMES = [
 ];
 
 // arbitrary operators
-export const arbitraryOperators = [
+export const ARBITRARY_OPERATORS = [
   { value: "EQ", label: "=" },
   { value: "LT", label: "&lt;" },
   { value: "GT", label: "&gt;" },
@@ -97,7 +108,7 @@ export const arbitraryOperators = [
 ];
 
 // item types and the keys for the filters that require them.
-export const itemTypeRequirements = {
+export const FILTER_ITEM_TYPE_REQUIREMENTS = {
   "weapon": ["baseWeapons", "weaponProperties"],
   "spell": ["spellComponents", "spellLevels", "spellSchools"]
-}
+};

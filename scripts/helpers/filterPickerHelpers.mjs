@@ -1,4 +1,4 @@
-import { arbitraryOperators, ATTACK_TYPES, ITEM_TYPES } from "../constants.mjs";
+import { ARBITRARY_OPERATORS, ATTACK_TYPES, ITEM_ROLL_TYPES } from "../constants.mjs";
 
 /**
  * Take a name of a filter and return an object with
@@ -82,7 +82,7 @@ export async function _employFilter(app, name) {
         return { value, label: value, tooltip };
       });
     } else if (name === "itemTypes") {
-      data.array = ITEM_TYPES.map(i => {
+      data.array = ITEM_ROLL_TYPES.map(i => {
         return { value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `DND5E.ItemType${i.titleCase()}` };
       });
     } else if (name === "attackTypes") {
@@ -128,7 +128,7 @@ async function _employRepeatableFilter(app, name) {
 
   if (name === "arbitraryComparison") {
     template += "text_select_text.hbs";
-    data.selectOptions = arbitraryOperators;
+    data.selectOptions = ARBITRARY_OPERATORS;
     data.placeholderOne = `BABONUS.PLACEHOLDERS.${name}.one`;
     data.placeholderOther = `BABONUS.PLACEHOLDERS.${name}.other`;
   }

@@ -1,9 +1,11 @@
 import {
-  arbitraryOperators,
+  ARBITRARY_OPERATORS,
   ATTACK_TYPES,
-  auraTargets,
-  ITEM_TYPES,
-  MATCH,
+  AURA_TARGETS,
+  EQUIPPABLE_TYPES,
+  ITEM_ONLY_BONUS_TYPES,
+  ITEM_ROLL_TYPES,
+  SPELL_COMPONENT_MATCHING,
   TYPES
 } from "../constants.mjs";
 import { KeyGetter, _babonusToString } from "../helpers/helpers.mjs";
@@ -45,6 +47,20 @@ class Babonus extends foundry.abstract.DataModel {
     return `${this.parent.uuid}.Babonus.${this.id}`;
   }
 
+  // whether the bonus can be set to consume uses or quantities of the item on which it is embedded.
+  get canConsume() {
+    const isItem = this.parent instanceof Item;
+    if (!isItem) return false;
+    const canUse = this.item.hasLimitedUses;
+    const canQty = this.item.system.quantity !== undefined;
+    return (canUse || canQty) && !this.hasAura && !this.isTemplateAura && this.isOptional;
+  }
+
+  // whether the bonus consumes uses or quantities of the item on which it is embedded.
+  get hasConsumption() {
+    return this.canConsume && this.item.isOwner && this.consume?.type && this.consume?.value > 0;
+  }
+
   // whether a bonus can be toggled to be optional.
   get isOptionable() {
     return !!this.bonuses?.bonus && ["attack", "damage", "throw"].includes(this.type);
@@ -57,20 +73,15 @@ class Babonus extends foundry.abstract.DataModel {
 
   // whether the bonus is embedded on an item and valid to be 'item only'.
   get isItemOnlyable() {
-    return (this.parent instanceof Item) && [
-      "attack", "damage", "save"
-    ].includes(this.type) && !this.hasAura && !this.isTemplateAura;
+    return (this.parent instanceof Item)
+      && ITEM_ONLY_BONUS_TYPES.includes(this.type)
+      && ITEM_ROLL_TYPES.includes(this.item.type)
+      && !this.hasAura && !this.isTemplateAura;
   }
 
   // whether the bonus is embedded on an item that can be equipped/attuned.
   get isPhysicalItem() {
-    return (this.parent instanceof Item) && [
-      "weapon",
-      "equipment",
-      "consumable",
-      "tool",
-      "loot"
-    ].includes(this.item.type);
+    return (this.parent instanceof Item) && EQUIPPABLE_TYPES.includes(this.item.type);
   }
 
   // whether the bonus is unavailable due to its item being unequipped or unattuned.
@@ -164,12 +175,16 @@ class Babonus extends foundry.abstract.DataModel {
       itemOnly: new fields.BooleanField({ required: true, initial: false }),
       optional: new fields.BooleanField({ required: true, initial: false }),
       description: new fields.StringField({ required: true, blank: false }),
+      consume: new fields.SchemaField({
+        type: new fields.StringField({ required: false, nullable: true, initial: null, choices: this._prepareConsumeTypes() }),
+        value: new fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 })
+      }),
       aura: new AuraField({
         enabled: new fields.BooleanField({ required: false, initial: false }),
         isTemplate: new fields.BooleanField({ required: false, initial: false }),
         range: new fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
         self: new fields.BooleanField({ required: false, initial: true }),
-        disposition: new fields.NumberField({ required: false, initial: auraTargets.ANY, choices: Object.values(auraTargets) }),
+        disposition: new fields.NumberField({ required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS) }),
         blockers: new SemicolonArrayField(new fields.StringField(), baseOptions)
       }, baseOptions),
       filters: new FiltersField({
@@ -180,7 +195,7 @@ class Babonus extends foundry.abstract.DataModel {
         arbitraryComparison: new ArbitraryComparisonField(new fields.SchemaField({
           one: new fields.StringField({ required: true, blank: false }),
           other: new fields.StringField({ required: true, blank: false }),
-          operator: new fields.StringField({ required: true, choices: arbitraryOperators.map(t => t.value) })
+          operator: new fields.StringField({ required: true, choices: ARBITRARY_OPERATORS.map(t => t.value) })
         }), baseOptions),
         statusEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
         targetEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
@@ -195,6 +210,15 @@ class Babonus extends foundry.abstract.DataModel {
         }, baseOptions)
       })
     };
+  }
+
+  static _prepareConsumeTypes() {
+    const types = [];
+    if (this.parent instanceof Item) {
+      if (this.parent.system.quantity !== undefined) types.push("quantity");
+      if (this.parent.system.uses !== undefined) types.push("uses");
+    }
+    return types;
   }
 
   static migrateData(source) {
@@ -219,13 +243,13 @@ class ItemBabonus extends Babonus {
 
     return foundry.utils.mergeObject(super.defineSchema(), {
       filters: new FiltersField({
-        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: ITEM_TYPES, blank: true }), baseOptions),
+        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: ITEM_ROLL_TYPES, blank: true }), baseOptions),
         attackTypes: new NonEmptyArrayField(new fields.StringField({ choices: ATTACK_TYPES, blank: true }), baseOptions),
         damageTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.damageTypes.map(t => t.value) }), baseOptions),
         abilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
         spellComponents: new SpellComponentsField({
           types: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellComponents.map(t => t.value), blank: true })),
-          match: new fields.StringField({ initial: MATCH.ALL, choices: Object.keys(MATCH), required: false })
+          match: new fields.StringField({ initial: SPELL_COMPONENT_MATCHING.ALL, choices: Object.keys(SPELL_COMPONENT_MATCHING), required: false })
         }, baseOptions),
         spellLevels: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellLevels.map(t => t.value), blank: true }), baseOptions),
         spellSchools: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.spellSchools.map(t => t.value) }), baseOptions),

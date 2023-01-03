@@ -1,4 +1,4 @@
-import { auraTargets, MODULE } from "../constants.mjs";
+import { AURA_TARGETS, MODULE } from "../constants.mjs";
 import { _getMinimumDistanceBetweenTokens, _getType } from "./helpers.mjs";
 import { _getAllContainingTemplateDocuments } from "./templateHelpers.mjs";
 
@@ -170,13 +170,13 @@ function _replaceRollData(baboni, data) {
 // the targeting type of the aura, and return whether it should apply.
 function _matchTokenDisposition(source, targetDisp, auraDisp) {
   const A = source.disposition;
-  if (auraDisp === auraTargets.ALLY) {
+  if (auraDisp === AURA_TARGETS.ALLY) {
     return A === targetDisp;
-  } else if (auraDisp === auraTargets.ENEMY) {
+  } else if (auraDisp === AURA_TARGETS.ENEMY) {
     const F = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
     const H = CONST.TOKEN_DISPOSITIONS.HOSTILE;
     return ((A === F) && (targetDisp === H)) || ((A === H) && (targetDisp === F));
-  } else return auraDisp === auraTargets.ANY;
+  } else return auraDisp === AURA_TARGETS.ANY;
 }
 
 // take a templateDoc with an aura, the disposition of the token doing the roll,
@@ -186,11 +186,11 @@ function _matchTemplateDisposition(template, targetDisp, bab) {
   const srcActor = bab.actor;
   const srcToken = srcActor?.token ?? srcActor?.getActiveTokens(false, true)[0] ?? null;
   const srcDisp = srcToken?.disposition ?? A;
-  if (bab.aura.disposition === auraTargets.ALLY) {
+  if (bab.aura.disposition === AURA_TARGETS.ALLY) {
     return srcDisp === targetDisp;
-  } else if (bab.aura.disposition === auraTargets.ENEMY) {
+  } else if (bab.aura.disposition === AURA_TARGETS.ENEMY) {
     const F = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
     const H = CONST.TOKEN_DISPOSITIONS.HOSTILE;
     return ((srcDisp === F) && (targetDisp === H)) || ((srcDisp === H) && (targetDisp === F));
-  } else return bab.aura.disposition === auraTargets.ANY;
+  } else return bab.aura.disposition === AURA_TARGETS.ANY;
 }
