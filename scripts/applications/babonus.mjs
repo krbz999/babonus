@@ -123,7 +123,7 @@ export class BabonusWorkshop extends FormApplication {
         otterA.style.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
         this._otterColor = otterA.style.color;
       }
-      else if (otterB) otterB.animate(spin, time);
+      else if (otterB && !otterB.getAnimations().length) otterB.animate(spin, time);
     });
 
     // CANCEL button.
