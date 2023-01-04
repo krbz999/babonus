@@ -125,16 +125,18 @@
 
 .babonus .right-side .bonuses .bonus .header {
   display: grid;
-  grid-template-columns: 5fr 3fr;
+  grid-template-columns: 1fr 0fr;
+  padding: 0 1em 0 0;
 }
 
 .babonus .right-side .bonuses .bonus .header .label {
   text-align: center;
   line-height: normal;
-  font-size: 22px;
-  align-self: center;
+  font-size: 25px;
+  align-self: start;
   font-family: 'Modesto Condensed';
   cursor: pointer;
+  margin-top: 0.25em;
 }
 
 .babonus .right-side .bonuses .bonus .header .label:hover {
@@ -148,18 +150,19 @@
 .babonus .right-side .bonuses .bonus .header .details {
   display: flex;
   flex-direction: column;
-  padding: 0 1em 0 0;
-  gap: 0.25em;
+  align-items: center;
 }
 
-.babonus .right-side .bonuses .bonus .header .details > * {
-  text-align: end;
+.babonus .right-side .bonuses .bonus .header .details .functions {
+  display: grid;
+  grid-template-columns: 0fr 0fr 0fr 0fr;
+  justify-items: center;
 }
 
 .babonus .right-side .bonuses .bonus .header .details .identifier {
   color: gray;
   user-select: text;
-  font-size: 11px;
+  font-size: 12px;
   font-family: monospace;
 }
 
@@ -204,11 +207,10 @@
   gap: 0.5em;
 }
 
-form.babonus .right-side .details a {
-  text-align: end;
-  width: fit-content;
-  max-width: fit-content;
+form.babonus .right-side .details .functions a {
+  width: 25px;
   padding: 3px;
+  text-align: center;
 }
 
 form.babonus.locked .right-side .details a {
@@ -397,4 +399,10 @@ table.babonus td:not(:first-child) {
 .babonus-optionals .bonus-text .name {
   font-weight: bold;
   font-style: italic;
+}
+
+/* Consumption App */
+.babonus.consumption-app label {
+  font-weight: bold;
+  white-space: nowrap;
 }

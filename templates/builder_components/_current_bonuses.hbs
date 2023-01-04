@@ -8,20 +8,6 @@
     {{/if}}
     <div class="details">
       <div class="functions">
-        {{#if bonus.isOptionable}}
-        <a data-type="optional" data-tooltip="BABONUS.TOOLTIPS.IS_OPTIONAL">
-          {{#if bonus.optional}}<i class="fa-solid fa-circle-xmark"></i>
-          {{else}}<i class="fa-regular fa-circle-xmark"></i>
-          {{/if}}
-        </a>
-        {{/if}}
-        {{#if bonus.canExclude}}
-        <a data-type="itemOnly" data-tooltip="BABONUS.TOOLTIPS.SELF_ONLY">
-          {{#if bonus.itemOnly}}<i class="fa-solid fa-chess-pawn"></i>
-          {{else}}<i class="fa-regular fa-chess-pawn"></i>
-          {{/if}}
-        </a>
-        {{/if}}
         <a data-type="toggle" data-tooltip="BABONUS.TOOLTIPS.TOGGLE_THIS">
           {{#if bonus.enabled}} <i class="fa-solid fa-toggle-on"></i>
           {{else}} <i class="fa-solid fa-toggle-off"></i>
@@ -36,6 +22,27 @@
         <a data-type="delete" data-tooltip="BABONUS.TOOLTIPS.DELETE_THIS">
           <i class="fa-solid fa-trash"></i>
         </a>
+        {{#if bonus.canExclude}}
+        <a data-type="itemOnly" data-tooltip="BABONUS.TOOLTIPS.SELF_ONLY">
+          {{#if bonus.isExclusive}}<i class="fa-solid fa-chess-pawn"></i>
+          {{else}}<i class="fa-regular fa-chess-pawn"></i>
+          {{/if}}
+        </a>
+        {{/if}}
+        {{#if bonus.isOptionable}}
+        <a data-type="optional" data-tooltip="BABONUS.TOOLTIPS.OPTIONAL">
+          {{#if bonus.isOptional}}<i class="fa-solid fa-circle-xmark"></i>
+          {{else}}<i class="fa-regular fa-circle-xmark"></i>
+          {{/if}}
+        </a>
+        {{/if}}
+        {{#if bonus.canConsume}}
+        <a data-type="consume" data-tooltip="BABONUS.TOOLTIPS.CONSUME">
+          {{#if bonus.isConsuming}}<i class="fa-solid fa-hand-sparkles"></i>
+          {{else}}<i class="fa-regular fa-hand"></i>
+          {{/if}}
+        </a>
+        {{/if}}
       </div>
       <div class="identifier">
         {{bonus.id}}

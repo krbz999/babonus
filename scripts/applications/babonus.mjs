@@ -4,6 +4,7 @@ import { KeyGetter, _babFromDropData, _createBabonus, _getAppId } from "../helpe
 import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
 import { BabonusKeysDialog } from "./keysDialog.mjs";
 import { getId } from "../public_api.mjs";
+import { ConsumptionDialog } from "./consumptionApp.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   constructor(object, options) {
@@ -61,6 +62,7 @@ export class BabonusWorkshop extends FormApplication {
     formData.type = this._target;
     formData.itemOnly = !!this._itemOnly;
     formData.optional = !!this._optional;
+    formData.consume = this._consume ?? { enabled: false, type: null, value: { min: null, max: null }, scales: false };
 
     // replace id if it is invalid.
     const validId = foundry.data.validators.isValidId(this._id) ? true : foundry.utils.randomID();
@@ -185,14 +187,15 @@ export class BabonusWorkshop extends FormApplication {
       return;
     });
 
-    // ITEM_ONLY/TOGGLE/COPY/EDIT/DELETE anchors.
+    // CONSUME/ITEM_ONLY/TOGGLE/COPY/EDIT/DELETE anchors.
     html[0].addEventListener("click", async (event) => {
       const a = event.target.closest(".functions a");
       if (!a) return;
       const { type } = a.dataset;
       const { id } = a.closest(".bonus").dataset;
 
-      if (type === "optional") return this._toggleOptional(id);
+      if (type === "consume") return this._toggleConsume(id, event);
+      else if (type === "optional") return this._toggleOptional(id);
       else if (type === "itemOnly") return this._toggleItemOnly(id);
       else if (type === "toggle") return this._toggleBonus(id);
       else if (type === "copy") return this._copyBonus(id);
@@ -369,6 +372,18 @@ export class BabonusWorkshop extends FormApplication {
     return this.object.setFlag(MODULE, key, !state);
   }
 
+  // trigger the consumption app, or turn consumption off.
+  async _toggleConsume(id, event) {
+    const bab = getId(this.object, id);
+    if (!bab.canConsume) return;
+
+    const path = `bonuses.${id}.consume.enabled`;
+    const state = this.object.getFlag(MODULE, path);
+    if (bab.isConsuming) return this.object.setFlag(MODULE, path, false);
+    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !state);
+    return new ConsumptionDialog(this.object, { bab }).render(true);
+  }
+
   // toggle the 'is optional' property of a bonus.
   async _toggleOptional(id) {
     const key = `bonuses.${id}.optional`;
@@ -408,6 +423,7 @@ export class BabonusWorkshop extends FormApplication {
     this._babObject = bab.toObject();
     this._itemOnly = bab.itemOnly;
     this._optional = bab.optional;
+    this._consume = bab.consume;
     const addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
     await this._initializeBuilder({ type, id, addedFilters });
     this._updateItemTypes();
@@ -460,5 +476,6 @@ export class BabonusWorkshop extends FormApplication {
     delete this._babObject;
     delete this._itemOnly;
     delete this._optional;
+    delete this._consume;
   }
 }

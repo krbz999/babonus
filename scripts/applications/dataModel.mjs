@@ -2,6 +2,7 @@ import {
   ARBITRARY_OPERATORS,
   ATTACK_TYPES,
   AURA_TARGETS,
+  CONSUMPTION_TYPES,
   EQUIPPABLE_TYPES,
   ITEM_ONLY_BONUS_TYPES,
   ITEM_ROLL_TYPES,
@@ -38,6 +39,18 @@ class Babonus extends foundry.abstract.DataModel {
     return dragData;
   }
 
+  // whether the bonus can scale and what the range is.
+  getConsumptionOptions() {
+    if (!this.isConsuming) return [];
+    const is = this.item.system;
+    const value = this.consume.value;
+    const itemMax = this.consume.type === "uses" ? is.uses.value : is.quantity;
+    if (!this.consume.scales) return value.min > itemMax ? [] : [value.min];
+    if (value.max > value.min) return [];
+    const max = Math.min(value.max, itemMax)
+    return Array.fromRange(max, 1).filter(n => n >= value.min);
+  }
+
   get uuid() {
     return `${this.parent.uuid}.Babonus.${this.id}`;
   }
@@ -53,7 +66,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   // whether the bonus consumes uses or quantities of the item on which it is embedded.
   get isConsuming() {
-    return this.canConsume && this.item.isOwner && this.consume?.value > 0
+    return this.canConsume && this.consume.enabled && this.item.isOwner && this.consume.value.min > 0
       && ((this.consume.type === "uses" && this.item.hasLimitedUses)
         || (this.consume.type === "quantity" && this.item.system.quantity !== undefined));
   }
@@ -162,8 +175,13 @@ class Babonus extends foundry.abstract.DataModel {
       optional: new foundry.data.fields.BooleanField({ required: true, initial: false }),
       description: new foundry.data.fields.StringField({ required: true, blank: true }),
       consume: new foundry.data.fields.SchemaField({
-        type: new foundry.data.fields.StringField({ required: false, nullable: true, initial: null, choices: ["quantity", "uses"] }),
-        value: new foundry.data.fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 })
+        enabled: new foundry.data.fields.BooleanField({ required: false, nullable: false, initial: false }),
+        type: new foundry.data.fields.StringField({ required: false, nullable: true, initial: null, choices: CONSUMPTION_TYPES.map(t => t.value) }),
+        scales: new foundry.data.fields.BooleanField({ required: false, nullable: false, initial: false }),
+        value: new foundry.data.fields.SchemaField({
+          min: new foundry.data.fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 }),
+          max: new foundry.data.fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 }),
+        })
       }),
       aura: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField({ required: false, initial: false }),
@@ -171,7 +189,7 @@ class Babonus extends foundry.abstract.DataModel {
         range: new foundry.data.fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
         self: new foundry.data.fields.BooleanField({ required: false, initial: true }),
         disposition: new foundry.data.fields.NumberField({ required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS) }),
-        blockers: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false}))
+        blockers: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false }))
       }),
       filters: new foundry.data.fields.SchemaField({
         itemRequirements: new foundry.data.fields.SchemaField({

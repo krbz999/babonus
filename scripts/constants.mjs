@@ -113,3 +113,10 @@ export const FILTER_ITEM_TYPE_REQUIREMENTS = {
   "weapon": ["baseWeapons", "weaponProperties"],
   "spell": ["spellComponents", "spellLevels", "spellSchools"]
 };
+
+// consumption types for the select.
+export const CONSUMPTION_TYPES = [
+  { value: "", label: "" },
+  { value: "uses", label: "DND5E.LimitedUses" },
+  { value: "quantity", label: "DND5E.Quantity" }
+];

@@ -12,7 +12,15 @@ import { _collectBonuses } from "./helpers/bonusCollector.mjs";
       type: "attack", // or "damage", "save", "throw", "hitdie"
       itemOnly: false, // whether this bonus only applies to the item on which it is created (attack/damage/save on items only)
       optional: false, // whether this bonus is toggleable in the roll config
-      consume: {type: "uses", value: 1}, // if the bonus consumes uses/quantity and how many
+      consume: {
+        enabled: true,    // whether the bonus consumes uses/quantity off its item.
+        scales: true,     // whether the consumption scales between the min and max values given.
+        type: "uses",     // whether the consumption is limited "uses" or "quantity".
+        value: {
+          min: 1,         // the minimum number consumed when applying the bonus.
+          max: 3          // the maximum number consumed when applying the bonus.
+        }
+      },
       aura: {
         enabled: true,    // whether this is an aura.
         isTemplate: true, // whether this is a template aura, not a regular aura.
