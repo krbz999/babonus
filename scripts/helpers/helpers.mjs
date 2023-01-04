@@ -196,7 +196,11 @@ export function _babonusToString(babonus) {
       flattened[key] = foundry.utils.flattenObject(a);
       flattened = foundry.utils.flattenObject(flattened);
     }
+    // Delete empty values (null, "", and empty arrays).
+    const ie = flattened[key];
+    if(ie === "" || ie === null || foundry.utils.isEmpty(ie)) delete flattened[key];
   }
+  console.log({flattened});
   return flattened;
 }
 

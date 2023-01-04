@@ -59,7 +59,7 @@ function _getOwnItemBonuses(actor, type, itemId) {
   for (const item of actor.items) {
     const babs = _getType(item, type).filter(bab => {
       // immediately ignore any item-only babs on other items.
-      return !(bab.isItemOnly && item.id !== itemId);
+      return !(bab.isExclusive && item.id !== itemId);
     });
     if (!babs.length) continue;
     if (item.id !== itemId) _replaceRollData(babs, item.getRollData());

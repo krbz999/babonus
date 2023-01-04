@@ -10,17 +10,12 @@ import {
 } from "../constants.mjs";
 import { KeyGetter, _babonusToString } from "../helpers/helpers.mjs";
 import {
-  FiltersField,
-  BonusesField,
   RollDataField,
-  AuraField,
-  SpellComponentsField,
   SemicolonArrayField,
-  NonEmptyArrayField,
+  FilteredArrayField,
   ArbitraryComparisonField,
   DisjointArraysField,
-  SpanField,
-  StrictStringField
+  SpanField
 } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -57,8 +52,10 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   // whether the bonus consumes uses or quantities of the item on which it is embedded.
-  get hasConsumption() {
-    return this.canConsume && this.item.isOwner && this.consume?.type && this.consume?.value > 0;
+  get isConsuming() {
+    return this.canConsume && this.item.isOwner && this.consume?.value > 0
+      && ((this.consume.type === "uses" && this.item.hasLimitedUses)
+        || (this.consume.type === "quantity" && this.item.system.quantity !== undefined));
   }
 
   // whether a bonus can be toggled to be optional.
@@ -72,65 +69,57 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   // whether the bonus is embedded on an item and valid to be 'item only'.
-  get isItemOnlyable() {
+  get canExclude() {
     return (this.parent instanceof Item)
       && ITEM_ONLY_BONUS_TYPES.includes(this.type)
       && ITEM_ROLL_TYPES.includes(this.item.type)
       && !this.hasAura && !this.isTemplateAura;
   }
 
-  // whether the bonus is embedded on an item that can be equipped/attuned.
-  get isPhysicalItem() {
-    return (this.parent instanceof Item) && EQUIPPABLE_TYPES.includes(this.item.type);
-  }
-
-  // whether the bonus is unavailable due to its item being unequipped or unattuned.
-  get isSuppressed() {
-    if (!this.isPhysicalItem) return false;
-    const reqs = this.filters?.itemRequirements;
-    if (!reqs) return false;
-    const ATT = CONFIG.DND5E.attunementTypes.ATTUNED;
-    if (this.item.system.attunement !== ATT && reqs.attuned) return true;
-    if (!this.item.system.equipped && reqs.equipped) return true;
-    return false;
-  }
-
   // whether a bonus is currently only possible to apply to its parent item.
-  get isItemOnly() {
-    return this.itemOnly && this.isItemOnlyable;
+  get isExclusive() {
+    return this.itemOnly && this.canExclude;
+  }
+
+  // whether the bonus is unavailable due to its item being unequipped or unattuned (if it can be).
+  get isSuppressed() {
+    const item = this.parent;
+    // It's not an item.
+    if (!(item instanceof Item)) return false;
+    // It's not an equippable/attunable item.
+    if (!EQUIPPABLE_TYPES.includes(item.type)) return false;
+
+    const ir = this.filters.itemRequirements;
+    const at = CONFIG.DND5E.attunementTypes.ATTUNED;
+    // The item is not attuned and does require attunement.
+    return (item.system.attunement !== at && ir.attuned) || (!item.system.equipped && ir.equipped);
   }
 
   // whether a bonus is currently an enabled and valid aura.
   get hasAura() {
-    const a = this.aura;
-    if (!a) return false;
-    return !!a.enabled && (a.range === -1 || a.range > 0) && !a.isTemplate;
+    return this.aura.enabled && (this.aura.range === -1 || this.aura.range > 0) && !this.aura.isTemplate;
   }
 
   // whether this aura is blocked by any of its owner's blockers.
   get isAuraBlocked() {
-    const blockers = this.aura?.blockers ?? [];
+    const blockers = this.aura.blockers;
     if (!blockers.length) return false;
 
     return this.actor?.effects.some(effect => {
       if (!effect.modifiesActor) return false;
       const id = effect.getFlag("core", "statusId");
       return !!id && blockers.includes(id);
-    }) ?? null;
+    }) ?? false;
   }
 
   // whether this bonus affects a template.
   get isTemplateAura() {
-    const a = this.aura;
-    if (!a) return false;
-    return !!a.enabled && !!a.isTemplate;
+    return this.aura.enabled && this.aura.isTemplate;
   }
 
   // whether a bonus has any valid bonuses.
   get hasBonus() {
-    return Object.entries(this.bonuses ?? {}).some(([key, val]) => {
-      return !!val && val !== "0";
-    });
+    return Object.values(this.bonuses).some(val => !!val && val !== "0");
   }
 
   // the actor who has the babonus, even if the bonus is on an item, effect, or template.
@@ -164,100 +153,109 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   static defineSchema() {
-    const { fields } = foundry.data;
-    const baseOptions = { required: false, nullable: true, initial: undefined };
-
     return {
-      id: new fields.DocumentIdField({ required: true, nullable: false }),
-      name: new fields.StringField({ required: true, blank: false }),
-      type: new fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
-      enabled: new fields.BooleanField({ required: true, initial: true }),
-      itemOnly: new fields.BooleanField({ required: true, initial: false }),
-      optional: new fields.BooleanField({ required: true, initial: false }),
-      description: new fields.StringField({ required: true, blank: false }),
-      consume: new fields.SchemaField({
-        type: new fields.StringField({ required: false, nullable: true, initial: null, choices: this._prepareConsumeTypes() }),
-        value: new fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 })
+      id: new foundry.data.fields.DocumentIdField({ required: true, nullable: false }),
+      name: new foundry.data.fields.StringField({ required: true, blank: false }),
+      type: new foundry.data.fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
+      enabled: new foundry.data.fields.BooleanField({ required: true, initial: true }),
+      itemOnly: new foundry.data.fields.BooleanField({ required: true, initial: false }),
+      optional: new foundry.data.fields.BooleanField({ required: true, initial: false }),
+      description: new foundry.data.fields.StringField({ required: true, blank: true }),
+      consume: new foundry.data.fields.SchemaField({
+        type: new foundry.data.fields.StringField({ required: false, nullable: true, initial: null, choices: ["quantity", "uses"] }),
+        value: new foundry.data.fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 })
       }),
-      aura: new AuraField({
-        enabled: new fields.BooleanField({ required: false, initial: false }),
-        isTemplate: new fields.BooleanField({ required: false, initial: false }),
-        range: new fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
-        self: new fields.BooleanField({ required: false, initial: true }),
-        disposition: new fields.NumberField({ required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS) }),
-        blockers: new SemicolonArrayField(new fields.StringField(), baseOptions)
-      }, baseOptions),
-      filters: new FiltersField({
-        itemRequirements: new fields.SchemaField({
-          equipped: new fields.BooleanField({ required: false, initial: false }),
-          attuned: new fields.BooleanField({ required: false, initial: false })
-        }, baseOptions),
-        arbitraryComparison: new ArbitraryComparisonField(new fields.SchemaField({
-          one: new fields.StringField({ required: true, blank: false }),
-          other: new fields.StringField({ required: true, blank: false }),
-          operator: new fields.StringField({ required: true, choices: ARBITRARY_OPERATORS.map(t => t.value) })
-        }), baseOptions),
-        statusEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
-        targetEffects: new SemicolonArrayField(new fields.StringField({ blank: false }), baseOptions),
+      aura: new foundry.data.fields.SchemaField({
+        enabled: new foundry.data.fields.BooleanField({ required: false, initial: false }),
+        isTemplate: new foundry.data.fields.BooleanField({ required: false, initial: false }),
+        range: new foundry.data.fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
+        self: new foundry.data.fields.BooleanField({ required: false, initial: true }),
+        disposition: new foundry.data.fields.NumberField({ required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS) }),
+        blockers: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false}))
+      }),
+      filters: new foundry.data.fields.SchemaField({
+        itemRequirements: new foundry.data.fields.SchemaField({
+          equipped: new foundry.data.fields.BooleanField({ required: false, initial: null, nullable: true }),
+          attuned: new foundry.data.fields.BooleanField({ required: false, initial: null, nullable: true })
+        }),
+        arbitraryComparison: new ArbitraryComparisonField(new foundry.data.fields.SchemaField({
+          one: new foundry.data.fields.StringField({ required: false, blank: false }),
+          other: new foundry.data.fields.StringField({ required: false, blank: false }),
+          operator: new foundry.data.fields.StringField({ required: false, choices: ARBITRARY_OPERATORS.map(t => t.value) })
+        })),
+        statusEffects: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false })),
+        targetEffects: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false })),
         creatureTypes: new DisjointArraysField({
-          needed: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false }),
-          unfit: new SemicolonArrayField(new fields.StringField({ blank: false }), { required: false })
-        }, baseOptions),
-        customScripts: new StrictStringField({ required: false, nullable: true, initial: undefined, blank: false }),
+          needed: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false }), { required: false }),
+          unfit: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false }), { required: false })
+        }),
+        customScripts: new foundry.data.fields.StringField({ initial: null, nullable: true }),
         remainingSpellSlots: new SpanField({
-          min: new fields.NumberField({ required: false, initial: 0, min: 0, step: 1, integer: true, nullable: true }),
-          max: new fields.NumberField({ required: false, initial: null, min: 0, step: 1, integer: true, nullable: true })
-        }, baseOptions)
-      })
+          min: new foundry.data.fields.NumberField({ required: false, initial: null, min: 0, step: 1, integer: true, nullable: true }),
+          max: new foundry.data.fields.NumberField({ required: false, initial: null, min: 0, step: 1, integer: true, nullable: true })
+        })
+      }, { nullable: false, initial: {} })
     };
   }
 
-  static _prepareConsumeTypes() {
-    const types = [];
-    if (this.parent instanceof Item) {
-      if (this.parent.system.quantity !== undefined) types.push("quantity");
-      if (this.parent.system.uses !== undefined) types.push("uses");
-    }
-    return types;
-  }
-
   static migrateData(source) {
+    if (!source.filters) source.filters = {};
     this._migrateCreatureTypes(source);
   }
 
+  // Remove in v11.
   static _migrateCreatureTypes(source) {
     if (!source.filters?.creatureTypes || source.filters.creatureTypes.needed || source.filters.creatureTypes.unfit) return;
     const needed = source.filters.creatureTypes;
     source.filters.creatureTypes = { needed };
-    console.warn(`The Creature Types filter has been migrated into a different structure.
-    You can remove this warning by editing the babonus and then saving it immediately, with no changes made.
-    Support for this automatic migration will be removed in v11.`);
   }
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
 class ItemBabonus extends Babonus {
   static defineSchema() {
-    const { fields } = foundry.data;
-    const baseOptions = { required: false, nullable: true, initial: undefined };
-
     return foundry.utils.mergeObject(super.defineSchema(), {
-      filters: new FiltersField({
-        itemTypes: new NonEmptyArrayField(new fields.StringField({ choices: ITEM_ROLL_TYPES, blank: true }), baseOptions),
-        attackTypes: new NonEmptyArrayField(new fields.StringField({ choices: ATTACK_TYPES, blank: true }), baseOptions),
-        damageTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.damageTypes.map(t => t.value) }), baseOptions),
-        abilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.abilities.map(t => t.value) }), baseOptions),
-        spellComponents: new SpellComponentsField({
-          types: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellComponents.map(t => t.value), blank: true })),
-          match: new fields.StringField({ initial: SPELL_COMPONENT_MATCHING.ALL, choices: Object.keys(SPELL_COMPONENT_MATCHING), required: false })
-        }, baseOptions),
-        spellLevels: new NonEmptyArrayField(new fields.StringField({ choices: KeyGetter.spellLevels.map(t => t.value), blank: true }), baseOptions),
-        spellSchools: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.spellSchools.map(t => t.value) }), baseOptions),
-        baseWeapons: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.baseWeapons.map(t => t.value) }), baseOptions),
+      filters: new foundry.data.fields.SchemaField({
+        itemTypes: new FilteredArrayField(new foundry.data.fields.StringField({
+          choices: ITEM_ROLL_TYPES,
+          blank: true
+        })),
+        attackTypes: new FilteredArrayField(new foundry.data.fields.StringField({
+          choices: ATTACK_TYPES,
+          blank: true
+        })),
+        damageTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.damageTypes.map(t => t.value)
+        })),
+        abilities: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.abilities.map(t => t.value)
+        })),
+        spellComponents: new foundry.data.fields.SchemaField({
+          types: new FilteredArrayField(new foundry.data.fields.StringField({
+            choices: KeyGetter.spellComponents.map(t => t.value), blank: true
+          })),
+          match: new foundry.data.fields.StringField({
+            nullable: true, initial: null,
+            choices: Object.keys(SPELL_COMPONENT_MATCHING)
+          })
+        }),
+        spellLevels: new FilteredArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.spellLevels.map(t => t.value), blank: true
+        })),
+        spellSchools: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.spellSchools.map(t => t.value)
+        })),
+        baseWeapons: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.baseWeapons.map(t => t.value)
+        })),
         weaponProperties: new DisjointArraysField({
-          needed: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false }),
-          unfit: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.weaponProperties.map(t => t.value) }), { required: false })
-        }, baseOptions)
+          needed: new SemicolonArrayField(new foundry.data.fields.StringField({
+            choices: KeyGetter.weaponProperties.map(t => t.value)
+          })),
+          unfit: new SemicolonArrayField(new foundry.data.fields.StringField({
+            choices: KeyGetter.weaponProperties.map(t => t.value)
+          }))
+        })
       })
     });
   }
@@ -266,11 +264,11 @@ class ItemBabonus extends Babonus {
 export class AttackBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new BonusesField({
-        bonus: new RollDataField({ required: false }),
-        criticalRange: new RollDataField({ required: false }),
-        fumbleRange: new RollDataField({ required: false })
-      }, { required: true }),
+      bonuses: new foundry.data.fields.SchemaField({
+        bonus: new RollDataField(),
+        criticalRange: new RollDataField(),
+        fumbleRange: new RollDataField()
+      })
     });
   }
 }
@@ -278,57 +276,53 @@ export class AttackBabonus extends ItemBabonus {
 export class DamageBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new BonusesField({
-        bonus: new RollDataField({ required: false }),
-        criticalBonusDice: new RollDataField({ required: false }),
-        criticalBonusDamage: new RollDataField({ required: false }),
-      }, { required: true }),
+      bonuses: new foundry.data.fields.SchemaField({
+        bonus: new RollDataField(),
+        criticalBonusDice: new RollDataField(),
+        criticalBonusDamage: new RollDataField(),
+      }),
     });
   }
 }
 
 export class SaveBabonus extends ItemBabonus {
   static defineSchema() {
-    const { fields } = foundry.data;
-    const baseOptions = { required: false, nullable: true, initial: undefined };
-
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new BonusesField({
-        bonus: new RollDataField({ required: false })
-      }, { required: true }),
-      filters: new FiltersField({
-        saveAbilities: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.saveAbilities.map(t => t.value) }), baseOptions),
-      }, baseOptions)
+      bonuses: new foundry.data.fields.SchemaField({
+        bonus: new RollDataField()
+      }),
+      filters: new foundry.data.fields.SchemaField({
+        saveAbilities: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.saveAbilities.map(t => t.value)
+        })),
+      })
     });
   }
 }
 
 export class ThrowBabonus extends Babonus {
   static defineSchema() {
-    const { fields } = foundry.data;
-    const baseOptions = { required: false, nullable: true, initial: undefined };
-
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new BonusesField({
-        bonus: new RollDataField({ required: false }),
-        deathSaveTargetValue: new RollDataField({ required: false }),
-      }, { required: true }),
-      filters: new FiltersField({
-        throwTypes: new SemicolonArrayField(new fields.StringField({ choices: KeyGetter.throwTypes.map(t => t.value) }), baseOptions),
-      }, baseOptions)
+      bonuses: new foundry.data.fields.SchemaField({
+        bonus: new RollDataField(),
+        deathSaveTargetValue: new RollDataField(),
+      }),
+      filters: new foundry.data.fields.SchemaField({
+        throwTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.throwTypes.map(t => t.value)
+        })),
+      })
     });
   }
 }
 
 export class HitDieBabonus extends Babonus {
   static defineSchema() {
-    const baseOptions = { required: false, nullable: true, initial: undefined };
-
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new BonusesField({
-        bonus: new RollDataField({ required: true })
-      }, { required: true }),
-      filters: new FiltersField({}, baseOptions)
+      bonuses: new foundry.data.fields.SchemaField({
+        bonus: new RollDataField()
+      }),
+      filters: new foundry.data.fields.SchemaField({})
     })
   }
 }

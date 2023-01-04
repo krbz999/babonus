@@ -403,12 +403,12 @@ export class BabonusWorkshop extends FormApplication {
     const data = this.object.getFlag(MODULE, `bonuses.${id}`);
     const bab = _createBabonus(data, id, { strict: false });
     const formData = bab.toString();
-    const type = formData.type;
+    const type = bab.type;
     this._formData = formData;
     this._babObject = bab.toObject();
     this._itemOnly = bab.itemOnly;
     this._optional = bab.optional;
-    const addedFilters = new Set(Object.keys(bab.toObject().filters ?? {}));
+    const addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
     await this._initializeBuilder({ type, id, addedFilters });
     this._updateItemTypes();
     this._updateAddedFilters();
