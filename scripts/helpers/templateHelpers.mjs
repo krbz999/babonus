@@ -20,7 +20,7 @@ export function _preCreateMeasuredTemplate(templateDoc, templateData) {
     foundry.utils.setProperty(acc, `flags.${MODULE}.bonuses.${id}`, values);
     return acc;
   }, {});
-  const actor = item.parent;
+  const actor = item.actor;
   if (actor) {
     const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
     const path = `flags.${MODULE}.defaultDisposition`;
