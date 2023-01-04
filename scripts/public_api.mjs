@@ -44,16 +44,10 @@ export function _createAPI() {
  * @param {Boolean} options.isConcSave  Whether the saving throw is for maintaining concentration.
  */
 function getApplicableBonuses(object, type, { throwType = "int", isConcSave = false } = {}) {
-  if (type === "hitdie") {
-    return FILTER.hitDieCheck(object);
-  } else if (type === "throw") {
-    return FILTER.throwCheck(object, throwType, { throwType, isConcSave });
-  } else if (["attack", "damage", "save"].includes(type)) {
-    return FILTER.itemCheck(object, type);
-  } else {
-    console.warn(`The type '${type}' is not a valid babonus type.`);
-    return null;
-  }
+  if (type === "hitdie") return FILTER.hitDieCheck(object);
+  else if (type === "throw") return FILTER.throwCheck(object, throwType, { throwType, isConcSave });
+  else if (["attack", "damage", "save"].includes(type)) return FILTER.itemCheck(object, type);
+  else return null;
 }
 
 /**
@@ -114,7 +108,6 @@ function getAllContainingTemplates(tokenDoc) {
  * Returns null if the bonus is not found.
  */
 async function deleteBonus(object, id) {
-  if (!_validId(id)) return null;
   const bonus = getId(object, id);
   if (!bonus) return null;
   await object.update({ [`flags.babonus.bonuses.-=${bonus.id}`]: null });
@@ -127,7 +120,6 @@ async function deleteBonus(object, id) {
  * Returns null if the bonus is not found on the original.
  */
 async function copyBonus(original, other, id) {
-  if (!_validId(id)) return null;
   const data = getId(original, id)?.toObject();
   if (!data) return null;
 
@@ -145,7 +137,6 @@ async function copyBonus(original, other, id) {
  * or if the other already has a bonus by that id.
  */
 async function moveBonus(original, other, id) {
-  if (!_validId(id)) return null;
   const copy = await copyBonus(original, other, id);
   if (!copy) return null;
   const r = await deleteBonus(original, id);
@@ -158,12 +149,11 @@ async function moveBonus(original, other, id) {
  * Returns null if the bonus was not found.
  */
 async function toggleBonus(object, id, state = null) {
-  if (!_validId(id)) return null;
   const bonus = getId(object, id);
   if (!bonus) return null;
-  const key = `bonuses.${bonus[0]}.enabled`;
+  const key = `bonuses.${bonus.id}.enabled`;
   let r;
-  if (state === null) r = await object.setFlag(MODULE, key, !bonus[1].enabled);
+  if (state === null) r = await object.setFlag(MODULE, key, !bonus.enabled);
   else r = await object.setFlag(MODULE, key, !!state);
   _rerenderApp(object);
   return r;
@@ -281,13 +271,4 @@ function _rerenderApp(object) {
   const id = _getAppId(object);
   const app = apps.find(a => a.id === id);
   return app?.render();
-}
-
-function _validId(id) {
-  const validId = foundry.data.validators.isValidId(id);
-  if (!validId) {
-    console.error("The id provided is not valid.");
-    return false;
-  }
-  return true;
 }
