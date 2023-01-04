@@ -59,7 +59,6 @@
       "itemRequirements": "Item Reqrmnts.",
       "customScripts": "Custom Script",
       "remainingSpellSlots": "Spell Slots",
-
       "AURA_RANGE": "Range (ft)",
       "AURA_FIELDS": "Valid Targets",
       "AURA_SELF": "Affects Self",
@@ -67,6 +66,8 @@
       "AURA_TEMPLATE": "Applies to Template"
     },
     "TOOLTIPS": {
+      "CONSUME": "Configure whether and how the bonus consumes uses off its parent item.",
+      "OPTIONAL": "Toggle whether this bonus should be opted into when rolling.",
       "SELF_ONLY": "Toggle whether this bonus applies only to the item on which it is created.",
       "TOGGLE_THIS": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
       "COPY_THIS": "Create a duplicate of this bonus on this document.",
@@ -252,6 +253,12 @@
       "INCLUDE": "Include",
       "EXCLUDE": "Exclude",
       "HEADER": "Keys: {name}"
+    },
+    "CONSUMPTION_APP": {
+      "TITLE": "Configure Consumption: {name}",
+      "TYPE": "Consumption type",
+      "VALUE": "Consumed values",
+      "SCALES": "Enable scaling"
     },
     "TRAITS": {
       "SECTION": "Build-a-Bonus",
