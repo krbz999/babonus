@@ -144,8 +144,6 @@ function _getTemplateBonuses(template, type) {
   for (const bab of babs) {
     const doc = bab.item ?? bab.actor;
     const data = doc?.getRollData() ?? {};
-    console.log("Before:", bab.bonuses.bonus);
-    console.log({ doc, data, bab });
     _replaceRollData([bab], data);
   }
   return babs;

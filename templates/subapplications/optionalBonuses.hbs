@@ -1,13 +1,21 @@
 <div class="babonus-optionals">
-  {{#each optionals as |bab|}}
+  {{#each data as |bab|}}
   <div class="optional">
     <div class="bonus-text">
       <span class="name">{{bab.name}}.</span>
-      <span class="description">{{bab.description}}</span>
+      <span class="description">{{bab.desc}}</span>
     </div>
-    <a class="add" data-bonus="{{bab.bonuses.bonus}}">
+    <a class="add" data-bonus="{{bab.bonus}}">
       <i class="fa-solid fa-plus"></i>
     </a>
+    {{#if bab.consumes}}
+    <div class="consumption" data-min="{{bab.min}}" data-uuid="{{bab.uuid}}" data-type="{{bab.type}}">
+      {{#if bab.scales}}
+      <label>{{localize "BABONUS.CONSUMPTION_APP.LABEL"}}</label>
+      <select>{{{bab.options}}}</select>
+      {{/if}}
+    </div>
+    {{/if}}
   </div>
   {{/each}}
 </div>

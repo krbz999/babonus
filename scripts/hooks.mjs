@@ -1,5 +1,10 @@
 import { MODULE } from "./constants.mjs";
 import { FILTER } from "./filters.mjs";
+import {
+  _determineConsumptionValidity,
+  _getScaledSituationalBonus,
+  _updateItemFromConsumption
+} from "./helpers/helpers.mjs";
 
 function _bonusToInt(bonus, data) {
   const f = new Roll(bonus, data).formula;
@@ -178,22 +183,63 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
 }
 
 Hooks.on("renderDialog", async function(dialog, html) {
-  const { optionals } = foundry.utils.getProperty(dialog, `options.${MODULE}`) ?? {};
+  const { optionals, spellLevel } = foundry.utils.getProperty(dialog, `options.${MODULE}`) ?? {};
   if (!optionals) return;
-  console.log({optionals});
+
+  const data = optionals.map(bab => {
+    const type = bab.consume.type;
+    const max = type === "uses" ? bab.item.system.uses.max : bab.item.system.quantity;
+    const options = bab.getConsumptionOptions().reduce((acc, n) => {
+      return acc + `<option value="${n}">${n} / ${max}</option>`;
+    }, "");
+    const name = bab.name;
+    const desc = bab.description;
+    const bonus = bab.bonuses.bonus;
+    const consumes = bab.isConsuming;
+    const uuid = bab.item.uuid;
+    const scales = bab.consume.scales;
+    const min = bab.consume.value.min;
+    return { name, desc, bonus, consumes, options, type, uuid, scales, min };
+  });
+
   const last = html[0].querySelector(".dialog-content > form > .form-group:last-child");
   const DIV = document.createElement("DIV");
   const template = `modules/${MODULE}/templates/subapplications/optionalBonuses.hbs`;
-  DIV.innerHTML = await renderTemplate(template, { optionals });
+  DIV.innerHTML = await renderTemplate(template, { data });
   last.after(DIV.firstElementChild);
   dialog.setPosition({ height: "auto" });
 
   const sitBonusField = html[0].querySelector("[name=bonus]");
   html[0].querySelectorAll(".babonus-optionals a.add").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const bonus = btn.dataset.bonus;
-      sitBonusField.value += ` + ${bonus}`;
+    btn.addEventListener("click", async () => {
       btn.closest(".optional").classList.add("active");
+      dialog.setPosition({ height: "auto" });
+      const bonus = btn.dataset.bonus;
+      const costs = btn.closest(".optional").querySelector(".consumption");
+      if (!costs) {
+        sitBonusField.value += ` + ${bonus}`;
+        return;
+      }
+      const scales = costs.querySelector("select");
+      const { uuid, type, min } = costs.dataset;
+      const item = await fromUuid(uuid);
+      const value = !scales ? Number(min) : Number(scales.value || min);
+      if (!_determineConsumptionValidity(item, value, type)) {
+        ui.notifications.warn("DND5E.AbilityUseUnavailableHint", { localize: true });
+        btn.closest(".optional").classList.remove("active");
+        dialog.setPosition({ height: "auto" });
+        return;
+      }
+
+      if (scales) {
+        const data = item.getRollData();
+        if (spellLevel) data.item.level = spellLevel;
+        const scaledBonus = _getScaledSituationalBonus(bonus, value, data);
+        sitBonusField.value += ` + ${scaledBonus}`;
+      } else {
+        sitBonusField.value += ` + ${bonus}`;
+      }
+      return _updateItemFromConsumption(item, value, type);
     });
   });
 });

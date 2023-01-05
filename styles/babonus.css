@@ -375,6 +375,9 @@ table.babonus td:not(:first-child) {
   grid-template-columns: 1fr 0fr;
   min-width: 100%;
   min-height: var(--form-field-height);
+  grid-template-areas:
+      "a b"
+      "c c";
 }
 
 .babonus-optionals .optional.active {
@@ -382,13 +385,18 @@ table.babonus td:not(:first-child) {
 }
 
 .babonus-optionals .optional .add {
-  padding: 0 1em;
+  padding: 0 0.5em;
   display: flex;
   align-items: center;
+  font-size: 20px;
 }
 
 .babonus-optionals .optional.active .add > i:before {
   content: "\f00c";
+}
+
+.babonus-optionals .optional.active .consumption {
+  display: none;
 }
 
 .babonus-optionals .bonus-text {
@@ -399,6 +407,21 @@ table.babonus td:not(:first-child) {
 .babonus-optionals .bonus-text .name {
   font-weight: bold;
   font-style: italic;
+}
+
+.babonus-optionals .consumption {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  grid-area: c;
+}
+
+.babonus-optionals .consumption > :is(label, select) {
+  flex: 1;
+}
+
+.babonus-optionals .consumption > label {
+  font-weight: bold;
 }
 
 /* Consumption App */
