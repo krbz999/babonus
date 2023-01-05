@@ -258,7 +258,8 @@
       "TITLE": "Configure Consumption: {name}",
       "TYPE": "Consumption type",
       "VALUE": "Consumed values",
-      "SCALES": "Enable scaling"
+      "SCALES": "Enable scaling",
+      "LABEL": "Consume:"
     },
     "TRAITS": {
       "SECTION": "Build-a-Bonus",
