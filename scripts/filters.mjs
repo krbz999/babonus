@@ -1,4 +1,8 @@
-import { MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, SPELL_COMPONENT_MATCHING } from "./constants.mjs";
+import {
+  MODULE,
+  SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
+  SPELL_COMPONENT_MATCHING
+} from "./constants.mjs";
 import { _collectBonuses } from "./helpers/bonusCollector.mjs";
 
 /**

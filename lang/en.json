@@ -276,7 +276,9 @@
         "NAME": "Display Label",
         "HINT": "If checked, the label is displayed in the header of applicable items and effects.",
         "HEADER": "Build-a-Bonus"
-      }
+      },
+      "DisableCustomScriptFilterName": "Disable 'Custom Script' filter.",
+      "DisableCustomScriptFilterHint": "Disable the 'Custom Script' filters from having their values read. Instead the filter always immediately returns true. Enable this setting if you prefer other users not executing scripts."
     }
   }
 }

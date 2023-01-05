@@ -26,8 +26,8 @@ export function _setup() {
   });
 
   game.settings.register(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, {
-    name: "BABONUS.SETTINGS.DISABLE_CUSTOM_SCRIPT_FILTER.NAME",
-    hint: "BABONUS.SETTINGS.DISABLE_CUSTOM_SCRIPT_FILTER.HINT",
+    name: "BABONUS.SETTINGS.DisableCustomScriptFilterName",
+    hint: "BABONUS.SETTINGS.DisableCustomScriptFilterHint",
     scope: "world",
     config: true,
     type: Boolean,
