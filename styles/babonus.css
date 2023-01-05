@@ -1,3 +1,4 @@
+/* Babonus Editor Application */
 .babonus h1 {
   text-align: center;
   font-size: 55px;
@@ -76,7 +77,6 @@
   font-weight: bolder;
 }
 
-/* headers that have a right-side input */
 .babonus .left-side header.aura-config {
   display: flex;
   justify-content: space-between;
@@ -207,13 +207,13 @@
   gap: 0.5em;
 }
 
-form.babonus .right-side .details .functions a {
+.babonus .right-side .details .functions a {
   width: 25px;
   padding: 3px;
   text-align: center;
 }
 
-form.babonus.locked .right-side .details a {
+.babonus.locked .right-side .details .functions a {
   pointer-events: none;
 }
 
@@ -221,14 +221,39 @@ form.babonus.locked .right-side .details a {
   display: none;
 }
 
-/* WARNING */
-#babonus-warning {
+.babonus .warning.active {
+  opacity: 1;
+}
+
+.babonus .warning {
   transition: 0.15s;
   opacity: 0;
 }
 
-#babonus-warning.active {
-  opacity: 1;
+.babonus .select-target .targets {
+  justify-content: space-evenly;
+  font-size: 35px;
+}
+
+.babonus .select-target .targets a {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  align-items: center;
+}
+
+.babonus .select-target .targets a > i {
+  place-self: center;
+  font-size: 60px;
+}
+
+.babonus .target-type {
+  font-size: 30px;
+  text-align: center;
+  margin: 0.4em;
+}
+
+.babonus .target-type-header {
+  font-size: 16px;
 }
 
 /* KEY DIALOGS TABLES */
@@ -268,32 +293,6 @@ table.babonus td:first-child {
 
 table.babonus td:not(:first-child) {
   text-align: center;
-}
-
-.babonus .select-target .targets {
-  justify-content: space-evenly;
-  font-size: 35px;
-}
-
-.babonus .select-target .targets a {
-  display: grid;
-  grid-template-columns: 2fr 3fr;
-  align-items: center;
-}
-
-.babonus .select-target .targets a > i {
-  place-self: center;
-  font-size: 60px;
-}
-
-.babonus .target-type {
-  font-size: 30px;
-  text-align: center;
-  margin: 0.4em;
-}
-
-.babonus .target-type-header {
-  font-size: 16px;
 }
 
 /* FILTER PICKER */
@@ -359,11 +358,18 @@ table.babonus td:not(:first-child) {
   overflow-y: hidden;
 }
 
+/* Consumption App */
+.babonus.consumption-app label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Roll Configuration Optionals */
 .babonus-optionals {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 0.5em;
   padding: 0.5em;
   border: 1px inset;
   border-radius: 1em;
@@ -372,12 +378,18 @@ table.babonus td:not(:first-child) {
 
 .babonus-optionals .optional {
   display: grid;
-  grid-template-columns: 1fr 0fr;
+  grid-template-columns: 8fr 2fr;
   min-width: 100%;
   min-height: var(--form-field-height);
   grid-template-areas:
-      "a b"
-      "c c";
+    "a b"
+    "c c";
+  gap: 0.5em;
+}
+
+.babonus-optionals .optional:not(:last-child) {
+  border-bottom: 2px groove;
+  padding-bottom: 0.5em;
 }
 
 .babonus-optionals .optional.active {
@@ -385,10 +397,10 @@ table.babonus td:not(:first-child) {
 }
 
 .babonus-optionals .optional .add {
-  padding: 0 0.5em;
   display: flex;
   align-items: center;
   font-size: 20px;
+  justify-content: center;
 }
 
 .babonus-optionals .optional.active .add > i:before {
@@ -422,10 +434,4 @@ table.babonus td:not(:first-child) {
 
 .babonus-optionals .consumption > label {
   font-weight: bold;
-}
-
-/* Consumption App */
-.babonus.consumption-app label {
-  font-weight: bold;
-  white-space: nowrap;
 }
