@@ -15,6 +15,7 @@ import {
 import { _createAPI } from "./scripts/public_api.mjs";
 import { _preCreateMeasuredTemplate } from "./scripts/helpers/templateHelpers.mjs";
 import { _updateMigrationVersion } from "./scripts/migration.mjs";
+import { _renderDialog } from "./scripts/helpers/rollConfigHelpers.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Build-a-Bonus");
@@ -33,3 +34,4 @@ Hooks.on("dnd5e.preRollDeathSave", _preRollDeathSave);
 Hooks.on("dnd5e.preRollAbilitySave", _preRollAbilitySave);
 Hooks.on("dnd5e.preRollHitDie", _preRollHitDie);
 Hooks.on("preCreateMeasuredTemplate", _preCreateMeasuredTemplate);
+Hooks.on("renderDialog", _renderDialog);

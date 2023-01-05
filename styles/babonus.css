@@ -384,7 +384,6 @@ table.babonus td:not(:first-child) {
   grid-template-areas:
     "a b"
     "c c";
-  gap: 0.5em;
 }
 
 .babonus-optionals .optional:not(:last-child) {

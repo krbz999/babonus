@@ -267,25 +267,3 @@ export async function _babFromDropData(data, parent) {
   }
   return null;
 }
-
-// return whether an item can consume the amount.
-export function _determineConsumptionValidity(item, amount, type) {
-  const value = item.system.uses.value;
-  const quantity = item.system.quantity;
-  if (type === "uses") return amount <= value;
-  else if (type === "quantity") return amount <= quantity;
-  else return false;
-}
-
-// updates an item's uses/quantity.
-export async function _updateItemFromConsumption(item, amount, type) {
-  const prop = type === "uses" ? "system.uses.value" : "system.quantity";
-  const value = foundry.utils.getProperty(item, prop);
-  return item.update({ [prop]: value - amount });
-}
-
-// append an upscaled bonus to the situational bonus field.
-export function _getScaledSituationalBonus(base, mult, data) {
-  const roll = new Roll(base, data).alter(mult, 0, { multiplyNumeric: true });
-  return roll.formula;
-}
