@@ -1,5 +1,5 @@
 import { MODULE } from "../constants.mjs";
-import { _getAllTokenGridSpaces } from "./helpers.mjs";
+import { _getAllTokenGridSpaces, _getCollection } from "./helpers.mjs";
 
 /**
  * Get the item that created a template.
@@ -11,13 +11,11 @@ export function _preCreateMeasuredTemplate(templateDoc, templateData) {
   const item = fromUuidSync(origin);
   if (!item) return;
 
-  const bonuses = Object.entries(item.getFlag(MODULE, "bonuses") ?? {});
-  const valids = bonuses.filter(([id, values]) => {
-    if (!foundry.data.validators.isValidId(id)) return false;
-    return values.enabled && values.aura?.isTemplate;
-  });
-  const bonusData = valids.reduce((acc, [id, values]) => {
-    foundry.utils.setProperty(acc, `flags.${MODULE}.bonuses.${id}`, values);
+  const bonusData = _getCollection(item).reduce((acc, bab) => {
+    if(!bab.isTemplateAura || bab.isSuppressed) return acc;
+    const data = bab.toObject();
+    const path = `flags.${MODULE}.bonuses.${bab.id}`;
+    foundry.utils.setProperty(acc, path, data);
     return acc;
   }, {});
   const actor = item.actor;
