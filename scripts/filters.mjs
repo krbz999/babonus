@@ -106,9 +106,7 @@ export class FILTER {
     return this.finalFilterBonuses(bonuses, item, { spellLevel });
   }
 
-  /**
-   * Filters the collected array of bonuses. Returns the reduced array.
-   */
+  // Filters the collected array of bonuses. Returns the reduced array.
   static finalFilterBonuses(bonuses, object, details = {}) {
     const valids = bonuses.reduce((acc, bab) => {
       const filters = Object.entries(bab.filters ?? {});
@@ -125,7 +123,6 @@ export class FILTER {
 
   /**
    * Find out if the item's type is one of the valid ones in the filter.
-   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of item type keys.
    * @returns {Boolean}       Whether the item's type was in the filter.
@@ -137,7 +134,6 @@ export class FILTER {
 
   /**
    * Find out if the item's base weapon type is one of the valid ones in the filter.
-   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of weapon baseItem keys.
    * @returns {Boolean}       Whether the item's baseItem was in the filter.
@@ -150,7 +146,6 @@ export class FILTER {
 
   /**
    * Find out if the item has any of the filter's damage types in its damage.parts.
-   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of damage types.
    * @returns {Boolean}       Whether the item's damage types overlap with the filter.
@@ -164,7 +159,6 @@ export class FILTER {
 
   /**
    * Find out if the item is a spell and belongs to one of the filter's spell schools.
-   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of spell schools.
    * @returns {Boolean}       Whether the item is a spell and is of one of these schools.
@@ -176,12 +170,10 @@ export class FILTER {
   }
 
   /**
-   * Find out if the item is using one of the abiities in the filter.
-   * Consideration is made by the system itself for items set to 'Default'
-   * to look for finesse weapons and spellcasting abilities.
-   * Note that this is the ability set at the top level of the item's action,
-   * and is NOT the ability used to determine the saving throw DC.
-   *
+   * Find out if the item is using one of the abiities in the filter. Consideration is made
+   * by the system itself for items set to 'Default' to look for finesse weapons and
+   * spellcasting abilities. Note that this is the ability set at the top level of the
+   * item's action, and is NOT the ability used to determine the saving throw DC.
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of abilities.
    * @returns {Boolean}       Whether item is using one of the abilities.
@@ -196,7 +188,6 @@ export class FILTER {
   /**
    * Find out if the item is a spell and has any, or all, of the required spell components.
    * The item must match either ALL or at least one, depending on what is set.
-   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} types     The array of spell components in the filter.
    * @param {String} match    The type of matching, either ALL or ANY.
@@ -206,19 +197,11 @@ export class FILTER {
     if (!types?.length) return true;
     if (item.type !== "spell") return false;
 
-    const { components } = item.system;
-
-    /**
-     * If the item must match all of the components in the filter,
-     * then the filter is a (proper) subset of the spell's components.
-     */
-    if (match === SPELL_COMPONENT_MATCHING.ALL) return types.every(type => components[type]);
-    /**
-     * If the item must match at least one of the components in the filter,
-     * then at least one element of the filter must be found in the spell's components.
-     */
-    else if (match === SPELL_COMPONENT_MATCHING.ANY) return types.some(type => components[type]);
-
+    const comps = item.system.components;
+    // If it must match all, then filter is a (proper) subset of the spell's comps.
+    if (match === SPELL_COMPONENT_MATCHING.ALL) return types.every(type => comps[type]);
+    // Else ensure it matches at least one comp.
+    else if (match === SPELL_COMPONENT_MATCHING.ANY) return types.some(type => comps[type]);
     return false;
   }
 
@@ -226,22 +209,22 @@ export class FILTER {
    * Find out if the item was cast at any of the required spell levels.
    * If a spell is upcast, the item is the cloned spell, so the level of the item
    * is always the level at which it was cast.
-   *
-   * @param {Item5e} item       The item being filtered against.
-   * @param {Array} filter      The array of spell levels in the filter.
-   * @param {Number} spellLevel The level at which a damage roll was performed, for spells.
-   * @returns {Boolean}         Whether the item is of one of the appropriate levels.
+   * @param {Item5e} item         The item being filtered against.
+   * @param {Array} filter        The array of spell levels in the filter.
+   * @param {Number} spellLevel   The level at which a damage roll was performed, for spells.
+   * @returns {Boolean}           Whether the item is of one of the appropriate levels.
    */
-  static spellLevels(item, filter, { spellLevel } = {}) {
+  static spellLevels(item, filter, { spellLevel = null } = {}) {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
-    const level = spellLevel ?? item.system.level;
-    return filter.map(i => Number(i)).includes(Number(level));
+    const level = Number(spellLevel ?? item.system.level);
+    return filter.some(f => {
+      return Number(f) === level;
+    });
   }
 
   /**
    * Find out if the item's action type is set to any of the required types.
-   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} filter    The array of attack types.
    * @returns {Boolean}       Whether the item has any of the required attack types.
@@ -256,28 +239,23 @@ export class FILTER {
   /**
    * Find out if the item has any of the needed weapon properties, while having none
    * of the unfit properties. Such as only magical weapons that are not two-handed.
-   *
    * @param {Item5e} item     The item being filtered against.
    * @param {Array} needed    The weapon properties that the item must have at least one of.
    * @param {Array} unfit     The weapon properties that the item must have none of.
    * @returns {Boolean}       Whether the item has any of the needed properties, and none of the unfit properties.
    */
   static weaponProperties(item, { needed, unfit }) {
-    if (!needed?.length && !unfit?.length) return true;
     if (item.type !== "weapon") return false;
-
-    const { properties } = item.system;
-
-    if (unfit?.some(p => properties[p])) return false;
-    if (needed?.some(p => properties[p])) return false;
-    return true;
+    const props = item.system.properties;
+    const pu = unfit?.length && unfit.some(p => props[p]);
+    const pn = needed?.length ? needed.some(p => props[p]) : true;
+    return !pu && pn;
   }
 
   /**
    * Find out if the saving throw in the item is set using an ability in the filter.
    * This filter is only available for bonuses applying specifically to saving throw DCs.
    * Special consideration is made for items with save DC set using spellcasting ability.
-   *
    * @param {Item5e} item     The item being filterd against.
    * @param {Array} filter    The ability that is used to set the DC of the item's saving throw.
    * @returns {Boolean}       Whether the item's saving throw is set using an ability in the filter.
@@ -293,12 +271,10 @@ export class FILTER {
   }
 
   /**
-   * Return whether ONE and OTHER have the correct relation.
-   * If the two values do not evaluate to numbers, string comparison
-   * will be used instead. Here 'less than' and 'less than or equal'
-   * will mean 'is a substring'. String comparison happens after
-   * replacing any rollData attributes.
-   *
+   * Return whether ONE and OTHER have the correct relation. If the two values
+   * do not evaluate to numbers, string comparison will be used instead. Here
+   * 'less than' and 'less than or equal' will mean 'is a substring'. String
+   * comparison happens after replacing any rollData attributes.
    * @param {Item5e|Actor5e} object   The item or actor being filtered against.
    * @param {Array} filter            An array of objects with one, other, operator.
    */
@@ -338,10 +314,9 @@ export class FILTER {
   /**
    * Find out if the actor has any of the status conditions required.
    * The bonus will apply if the actor has at least one.
-   *
-   * @param {Item5e|Actor5e} object The item or actor being filtered against.
-   * @param {Array} filter          The array of effect status ids.
-   * @returns {Boolean}             Whether the actor has any of the status effects.
+   * @param {Item5e|Actor5e} object   The item or actor being filtered against.
+   * @param {Array} filter            The array of effect status ids.
+   * @returns {Boolean}               Whether the actor has any of the status effects.
    */
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
@@ -357,10 +332,9 @@ export class FILTER {
   /**
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
-   *
-   * @param {Item5e|Actor5e} object The item or actor. Not relevant in this case.
-   * @param {Array} filter          The array of effect status ids.
-   * @returns {Boolean}             Whether the target actor has any of the status effects.
+   * @param {Item5e|Actor5e} object   The item or actor. Not relevant in this case.
+   * @param {Array} filter            The array of effect status ids.
+   * @returns {Boolean}               Whether the target actor has any of the status effects.
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
@@ -376,12 +350,11 @@ export class FILTER {
 
   /**
    * Find out if the bonus should apply to this type of saving throw.
-   *
    * @param {Actor5e} actor         The actor making the saving throw.
-   * @param {Array}   filter        The array of saving throw types to check for.
-   * @param {String}  throwType     The id of the ability, can be 'death'.
-   * @param {Booolean}  isConcSave  Whether the saving throw is a conc save (if CN enabled).
-   * @returns {Boolean} Whether the throw type is in the filter.
+   * @param {Array} filter          The array of saving throw types to check for.
+   * @param {String} throwType      The id of the ability, can be 'death'.
+   * @param {Booolean} isConcSave   Whether the saving throw is a conc save (if CN enabled).
+   * @returns {Boolean}             Whether the throw type is in the filter.
    */
   static throwTypes(actor, filter, { throwType, isConcSave }) {
     if (!filter?.length) return true;
@@ -391,11 +364,10 @@ export class FILTER {
 
   /**
    * Find out if your target is one of the listed creature types.
-   *
-   * @param {Actor5e|Item5e} object  The item or actor. Not relevant in this case.
-   * @param {Array} needed           The array of creature types the target must be.
-   * @param {Array} unfit            The array of creature types the target must not be.
-   * @returns {Boolean} Whether the target is of a valid creature type.
+   * @param {Actor5e|Item5e} object   The item or actor. Not relevant in this case.
+   * @param {Array} needed            The array of creature types the target must be.
+   * @param {Array} unfit             The array of creature types the target must not be.
+   * @returns {Boolean}               Whether the target is of a valid creature type.
    */
   static creatureTypes(object, { needed, unfit }) {
     if (!needed?.length && !unfit?.length) return true;
@@ -417,10 +389,10 @@ export class FILTER {
 
   /**
    * Find out if the actor has a number of spell slots remaining between the min and max.
-   * @param {Actor|Item5e} object The item or actor.
-   * @param {Number} min The minimum value available required for the bonus to apply.
-   * @param {Number} max The maximum value available required for the bonus to apply.
-   * @returns {Boolean} Whether the number of spell slots remaining falls within the bounds.
+   * @param {Actor|Item5e} object   The item or actor.
+   * @param {Number} min            The minimum value available required for the bonus to apply.
+   * @param {Number} max            The maximum value available required for the bonus to apply.
+   * @returns {Boolean}             Whether the number of spell slots remaining falls within the bounds.
    */
   static remainingSpellSlots(object, { min, max }) {
     const caster = object.actor ?? object;
@@ -435,7 +407,7 @@ export class FILTER {
    * This always returns true because it is filtered elsewhere.
    * A babonus on an item is immediately discarded if the item
    * requires equipped/attuned but was not.
-   * @returns {Boolean}
+   * @returns {Boolean}   Always returns true.
    */
   static itemRequirements() {
     return true;
@@ -443,9 +415,9 @@ export class FILTER {
 
   /**
    * Find out if the embedded script returns true.
-   * @param {Actor5e|Item5e} object The item or actor.
-   * @param {String} script The script saved in the filter.
-   * @returns {Boolean} True if the script returns true, otherwise false.
+   * @param {Actor5e|Item5e} object   The item or actor.
+   * @param {String} script           The script saved in the filter.
+   * @returns {Boolean}               True if the script returns true, otherwise false.
    */
   static customScripts(object, script) {
     if (!script?.length) return true;
