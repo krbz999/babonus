@@ -11,7 +11,6 @@ import {
 } from "../constants.mjs";
 import { KeyGetter, _babonusToString } from "../helpers/helpers.mjs";
 import {
-  RollDataField,
   SemicolonArrayField,
   FilteredArrayField,
   ArbitraryComparisonField,
@@ -283,9 +282,9 @@ export class AttackBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
-        bonus: new RollDataField(),
-        criticalRange: new RollDataField(),
-        fumbleRange: new RollDataField()
+        bonus: new foundry.data.fields.StringField(),
+        criticalRange: new foundry.data.fields.StringField(),
+        fumbleRange: new foundry.data.fields.StringField()
       })
     });
   }
@@ -295,9 +294,9 @@ export class DamageBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
-        bonus: new RollDataField(),
-        criticalBonusDice: new RollDataField(),
-        criticalBonusDamage: new RollDataField(),
+        bonus: new foundry.data.fields.StringField(),
+        criticalBonusDice: new foundry.data.fields.StringField(),
+        criticalBonusDamage: new foundry.data.fields.StringField(),
       }),
     });
   }
@@ -307,7 +306,7 @@ export class SaveBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
-        bonus: new RollDataField()
+        bonus: new foundry.data.fields.StringField()
       }),
       filters: new foundry.data.fields.SchemaField({
         saveAbilities: new SemicolonArrayField(new foundry.data.fields.StringField({
@@ -322,8 +321,8 @@ export class ThrowBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
-        bonus: new RollDataField(),
-        deathSaveTargetValue: new RollDataField(),
+        bonus: new foundry.data.fields.StringField(),
+        deathSaveTargetValue: new foundry.data.fields.StringField(),
       }),
       filters: new foundry.data.fields.SchemaField({
         throwTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
@@ -338,7 +337,7 @@ export class HitDieBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
-        bonus: new RollDataField()
+        bonus: new foundry.data.fields.StringField()
       }),
       filters: new foundry.data.fields.SchemaField({})
     })

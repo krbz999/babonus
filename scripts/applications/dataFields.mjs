@@ -15,16 +15,6 @@ export class DisjointArraysField extends foundry.data.fields.SchemaField {
   }
 }
 
-// StringField that only takes what can feasibly be part of a roll.
-export class RollDataField extends foundry.data.fields.StringField {
-  _validateType(value) {
-    super._validateType(value);
-    const v = Roll.validate(value);
-    if (!v) throw new foundry.data.fields.ModelValidationError("cannot validate bonus");
-    else return true;
-  }
-}
-
 // ArrayField that turns a semicolon string into an array of strings.
 export class SemicolonArrayField extends foundry.data.fields.ArrayField {
   _cast(value, options) {
