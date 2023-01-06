@@ -69,13 +69,14 @@ Alternatively, for any bonus created on an item (spell, feature, weapon, etc.), 
 - Available Spell Slots: Filter the bonus to apply only if the actor performing the roll has more than the set minimum amount of spell slots available and/or less than the set maximum amount of spell slots available. Not both fields are required.
 
 # API
-An API can be accessed at `game.modules.get("babonus").api`. The parameter `object` refers to an Actor, ActiveEffect, or Item. The methods are currently:
+An API can be accessed at `game.modules.get("babonus").api` or through the global namespace `babonus`. The parameter `object` here refers to an Actor, ActiveEffect, Item, or MeasuredTemplateDocument. The methods are currently:
 - `getId(object, id)` returns the bonus with the given id on the given document.
 - `getIds(object)` returns the ids of all bonuses on the document.
 - `getName(object, name)` returns the bonus with the given name on the given document. Returns the first one found if multiple have the same name.
 - `getNames(object)` returns the names of all bonuses on the document.
 - `getType(object, type)` returns all bonuses on the object of the given type (e.g. "attack" or "damage").
 - `getCollection(object)` returns a Collection of bonuses on the object.
+- `fromUuid(uuid)` returns a bonus on a given document. The uuid is the uuid of the parent document appended with `.Babonus.<babonus-id>`.
 - `deleteBonus(object, id)` removes the bonus with the given id from the document.
 - `copyBonus(original, other, id)` copies a bonus with the given id from one document to another.
 - `moveBonus(original, other, id)` copies a bonus with the given id from one document to another, then removes the original bonus.
