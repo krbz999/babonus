@@ -11,75 +11,72 @@ import { _collectBonuses } from "./helpers/bonusCollector.mjs";
  *
   flags.babonus.bonuses: {
     <id>: {
-      enabled: true,
-      id: "hgienfid783h", // regular 16 character id
-      type: "attack", // or "damage", "save", "throw", "hitdie"
-      itemOnly: false, // whether this bonus only applies to the item on which it is created (attack/damage/save on items only)
-      optional: false, // whether this bonus is toggleable in the roll config
+      enabled: true,                                        // Whether this bonus is turned on.
+      name: "Special Fire Spell Bonus",                     // The name of the bonus.
+      id: "hgienfid783h",                                   // Regular 16 character id.
+      description: "This is ...",                           // Description of the bonus.
+      type: "attack",                                       // Or "damage", "save", "throw", "hitdie".
+      itemOnly: false,                                      // whether this bonus only applies to the item on which it is created (attack/damage/save only).
+      optional: false,                                      // whether this bonus is toggleable in the roll config.
       consume: {
-        enabled: true,    // whether the bonus consumes uses/quantity off its item.
-        scales: true,     // whether the consumption scales between the min and max values given.
-        type: "uses",     // whether the consumption is limited "uses" or "quantity".
-        value: {
-          min: 1,         // the minimum number consumed when applying the bonus.
-          max: 3          // the maximum number consumed when applying the bonus.
-        }
+        enabled: true,                                      // whether the bonus consumes uses/quantity off its item.
+        scales: true,                                       // whether the consumption scales between the min and max values given.
+        type: "uses",                                       // whether the consumption is limited "uses" or "quantity".
+        value: {min: 1, max: 3}                             // the minimum and maximum number consumed when applying the bonus.
       },
       aura: {
-        enabled: true,    // whether this is an aura.
-        isTemplate: true, // whether this is a template aura, not a regular aura.
-        range: 60,        // the range of the aura (in ft), not relevant if template.
-        self: false,      // whether the aura affects the owner, too
-        disposition: 1    // or -1 for non-allies. What token actors within range to affect.
-        blockers: ["dead", "unconscious"] // array of conditions that stop auras from being transferred. Not relevant if template.
+        enabled: true,                                      // Whether this should be an aura.
+        isTemplate: true,                                   // Whether this should be a template aura, not a regular aura.
+        range: 60,                                          // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
+        self: false,                                        // Whether the aura affects the owner, too.
+        disposition: 1                                      // What token actors within range to affect.
+        blockers: ["dead", "unconscious"]                   // Array of status ids that stop auras from being transferred. Not relevant if template.
       },
-      name: "Special Fire Spell Bonus",
-      description: "This is a special fire spell bonus.",
       bonuses: {
-        bonus: "1d4 + @abilities.int.mod",  // all types, but 'save' only takes numbers, not dice.
-        criticalBonusDice: "5",             // strings that evaluate to numbers only (including rollData), 'damage' only
-        criticalBonusDamage: "4d6 + 2"      // any die roll, 'damage' only
-        deathSaveTargetValue: "12",         // strings that evaluate to numbers only (including rollData), 'throw' only
-        criticalRange: "1",                 // a value (can be roll data) that lowers the crit range. 'attack' only.
-        fumbleRange: "3"                    // a value (can be roll data) that raises the fumble range. 'attack' only.
+        bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.
+        criticalBonusDice: "5",                             // Strings that evaluate to numbers only (including rollData), 'damage' only.
+        criticalBonusDamage: "4d6 + 2"                      // Any die roll, 'damage' only.
+        deathSaveTargetValue: "12",                         // Strings that evaluate to numbers only (including rollData), 'throw' only.
+        criticalRange: "1",                                 // A value (can be roll data) that lowers the crit range, 'attack' only.
+        fumbleRange: "3"                                    // A value (can be roll data) that raises the fumble range, 'attack' only.
       },
-
       filters: {
         // UNIVERSAL:
-        arbitraryComparison: [
-          {one: "@item.uses.value", other: "@abilities.int.mod", operator: "EQ"},
-          {one: "@item.uses.value", other: "@abilities.int.mod", operator: "EQ"},
-        ],
-        statusEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects against
-        targetEffects: ["blind", "dead", "prone", "mute"], // array of 'flags.core.statusId' strings to match effects on the target against
+        arbitraryComparison: [{                             // An array of objects comparing two values.
+          one: "@item.uses.value",                          // The left-side value.
+          other: "@abilities.int.mod",                      // The right-side value.
+          operator: "EQ"                                    // The method of comparison.
+        }],
+        statusEffects: ["blind", "dead", "prone", "mute"],  // Array of status ids to match effects against.
+        targetEffects: ["blind", "dead", "prone", "mute"],  // Array of status ids to match effects on the target against.
         creatureTypes: {
-          needed: ["undead", "humanoid", "construct"], // array of CONFIG.DND5E.creatureTypes, however, this is not strict to allow for subtype/custom.
-          unfit: []
+          needed: ["undead", "humanoid"],                   // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
+          unfit: ["construct"]
         },
-        itemRequirements: { equipped: true, attuned: false }, // for bonuses stored on items only.
-        customScripts: "return true;", // a custom script that returns true or false.
-        remainingSpellSlots: {min: 3, max: Infinity}, // a minimum and maximum number of spell slots remaining the actor must have for the bonus to apply.
+        itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
+        customScripts: "return true;",                      // A custom script that returns true or false.
+        remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
 
         // ATTACK, DAMAGE:
-        attackTypes: ["mwak", "rwak", "msak", "rsak"],
+        attackTypes: ["mwak", "rwak", "msak", "rsak"],      // The type of attack.
 
         // ATTACK, DAMAGE, SAVE:
-        damageTypes: ["fire", "cold", "bludgeoning"],
-        abilities: ["int"],
-        saveAbilities: ["int", "cha", "con"],
-        itemTypes: ["spell", "weapon", "feat", "equipment", "consumable"],
+        damageTypes: ["fire", "cold", "bludgeoning"],       // The type of damage the item must have.
+        abilities: ["int"],                                 // The ability the item must be using.
+        saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
+        itemTypes: ["spell", "weapon"],                     // The item types to which it applies; also "feat", "equipment", "consumable".
 
         // THROW:
-        throwTypes: ["con", "int", "death", "concentration"],
+        throwTypes: ["con", "death", "concentration"],      // The type of saving throw to which it applies.
 
         // SPELL:
-        spellComponents: { types: ["concentration", "vocal"], match: "ALL" }, // or 'ANY'
-        spellLevels: ['0','1','2','3','4','5','6','7','8','9'],
-        spellSchools: ["evo", "con"],
+        spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one or match "ANY".
+        spellLevels: ['0','1','2','3'],                     // The level the spell must be.
+        spellSchools: ["evo", "con"],                       // The school the spell must be.
 
         // WEAPON
-        baseWeapons: ["dagger", "lance", "shortsword"],
-        weaponProperties: { needed: ["fin", "lgt"], unfit: ["two", "ver"] }
+        baseWeapons: ["dagger", "lance", "shortsword"],     // The weapon the item must be.
+        weaponProperties: {needed: ["fin"], unfit: []}      // The weapon properties the item must have one of, and have none of.
       }
     }
   }
