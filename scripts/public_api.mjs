@@ -7,7 +7,8 @@ import {
   _openWorkshop,
   _getAllTokenGridSpaces,
   _getType,
-  _getCollection
+  _getCollection,
+  _babFromUuid
 } from "./helpers/helpers.mjs";
 import { _getAllContainingTemplateDocuments } from "./helpers/templateHelpers.mjs";
 import { migration } from "./migration.mjs";
@@ -18,6 +19,7 @@ export function _createAPI() {
     getName, getNames,
     getType,
     getCollection,
+    fromUuid,
 
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
@@ -259,6 +261,13 @@ function sceneTokensByDisposition(scene) {
  */
 function getOccupiedGridSpaces(tokenDoc) {
   return _getAllTokenGridSpaces(tokenDoc);
+}
+
+/**
+ * Returns a babonus from its uuid.
+ */
+async function fromUuid(uuid) {
+  return _babFromUuid(uuid);
 }
 
 /**

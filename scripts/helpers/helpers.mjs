@@ -267,3 +267,17 @@ export async function _babFromDropData(data, parent) {
   }
   return null;
 }
+
+export async function _babFromUuid(uuid) {
+  try {
+    const parts = uuid.split(".");
+    const id = parts.pop();
+    parts.pop();
+    const parentUuid = parts.join(".");
+    const parent = await fromUuid(parentUuid);
+    return getId(parent, id) ?? null;
+  } catch (err) {
+    console.warn(err);
+    return null;
+  }
+}
