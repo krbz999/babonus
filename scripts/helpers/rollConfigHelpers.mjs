@@ -64,19 +64,26 @@ export async function _renderDialog(dialog, html) {
 
 // Construct data for the template.
 function _constructTemplateData(bab) {
-  const type = bab.consume.type;
-  const max = type === "uses" ? bab.item.system.uses.max : bab.item.system.quantity;
-  const options = bab.getConsumptionOptions().reduce((acc, n) => {
-    return acc + `<option value="${n}">${n} / ${max}</option>`;
-  }, "");
-  const name = bab.name;
-  const desc = bab.description;
-  const bonus = bab.bonuses.bonus;
-  const consumes = bab.isConsuming;
-  const uuid = bab.item.uuid;
-  const scales = bab.consume.scales;
-  const min = bab.consume.value.min;
-  return { name, desc, bonus, consumes, options, type, uuid, scales, min };
+  let config = {
+    name: bab.name,
+    desc: bab.description,
+    bonus: bab.bonuses.bonus,
+    consumes: bab.isConsuming
+  };
+
+  if (config.consumes) {
+    const type = bab.consume.type;
+    const max = type === "uses" ? bab.item.system.uses.max : bab.item.system.quantity;
+    const options = bab.getConsumptionOptions().reduce((acc, n) => {
+      return acc + `<option value="${n}">${n} / ${max}</option>`;
+    }, "");
+    const uuid = bab.item.uuid;
+    const scales = bab.consume.scales;
+    const min = bab.consume.value.min;
+    foundry.utils.mergeObject(config, { type, max, options, uuid, scales, min });
+  }
+
+  return config;
 }
 
 // return whether an item can consume the amount.
