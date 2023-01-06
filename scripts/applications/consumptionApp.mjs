@@ -1,4 +1,4 @@
-import { CONSUMPTION_TYPES, MODULE } from "../constants.mjs";
+import { MODULE } from "../constants.mjs";
 import { _createBabonus } from "../helpers/helpers.mjs";
 
 export class ConsumptionDialog extends FormApplication {
@@ -19,8 +19,12 @@ export class ConsumptionDialog extends FormApplication {
   }
 
   async getData() {
+    const is = this.options.bab.item.system;
+    const choices = [{ value: "", label: "" }];
+    if (is.uses !== undefined) choices.push({ value: "uses", label: "DND5E.LimitedUses" });
+    if (is.quantity !== undefined) choices.push({ value: "quantity", label: "DND5E.Quantity" });
     return {
-      choices: CONSUMPTION_TYPES,
+      choices,
       value: this.options.bab.consume.type,
       consume: this.options.bab.consume // scales, value (min, max), type, enabled
     }
@@ -37,8 +41,8 @@ export class ConsumptionDialog extends FormApplication {
     }
   }
 
-  _onChangeInput(event){
-    if(event.target.name !== "consume.scales") return;
+  _onChangeInput(event) {
+    if (event.target.name !== "consume.scales") return;
     this.element[0].querySelector("[name='consume.value.max']").disabled = !event.target.checked;
   }
 }
