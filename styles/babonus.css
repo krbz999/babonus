@@ -374,21 +374,26 @@ table.babonus td:not(:first-child) {
   border: 1px inset;
   border-radius: 1em;
   margin-bottom: 1em;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .babonus-optionals .optional {
   display: grid;
+  width: 100%;
   grid-template-columns: 8fr 2fr;
-  min-width: 100%;
-  min-height: var(--form-field-height);
   grid-template-areas:
     "a b"
     "c c";
+  padding-bottom: 0.5em;
+}
+
+.babonus-optionals .optional:first-child {
+  padding-top: 0.5em;
 }
 
 .babonus-optionals .optional:not(:last-child) {
   border-bottom: 2px groove;
-  padding-bottom: 0.5em;
 }
 
 .babonus-optionals .optional.active {
