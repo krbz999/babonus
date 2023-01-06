@@ -31,7 +31,8 @@ export function _setup() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false
+    default: false,
+    requiresReload: true
   });
 
   game.settings.register(MODULE, SETTING_MIGRATION_VERSION, {
