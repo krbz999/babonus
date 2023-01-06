@@ -13,7 +13,7 @@ import { _getAllContainingTemplateDocuments } from "./helpers/templateHelpers.mj
 import { migration } from "./migration.mjs";
 
 export function _createAPI() {
-  game.modules.get(MODULE).api = {
+  const API = {
     getId, getIds,
     getName, getNames,
     getType,
@@ -32,7 +32,9 @@ export function _createAPI() {
     getOccupiedGridSpaces,
     getApplicableBonuses,
     migration: migration
-  }
+  };
+  game.modules.get(MODULE).api = API;
+  window.babonus = API;
 }
 
 /**
