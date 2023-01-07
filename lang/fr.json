@@ -1,273 +1,184 @@
 {
-  "BABONUS": {
-    "MIGRATION": {
-      "COMPLETED": "La migration de la version précédente de Build-a-Bonus est terminée.",
-      "IN_PROGRESS": "La migration des versions précédentes de Build-a-Bonus a commencé. Veuillez attendre que la migration soit terminée.",
-      "LOCKED_PACK": "Vous avez fourni un compendium qui est actuellement verrouillé. Aucune migration n'a été effectuée."
-    },
-    "DELETE": {
-      "DELETE_BONUS": "Supprimer le bonus : {name}",
-      "ARE_YOU_SURE": "Etes-vous sûr de vouloir supprimer '{name}' ? Cette action ne peut être annulée."
-    },
-    "LABELS": {
-      "IDENTIFIERS": "Identifiants",
-      "NAME": "Nom",
-      "ID": "ID",
-      "APPLY_KEYS": "Appliquer la sélection",
-      "DAMAGE": {
-        "BONUS": "Bonus de dégâts",
-        "CRIT_DICE": "Dés critiques",
-        "CRIT_DMG": "Dégâts critiques"
-      },
-      "SAVE": {
-        "BONUS": "Bonus DD Sauv."
-      },
-      "THROW": {
-        "BONUS": "De sauvegarde",
-        "DEATH_TARGET": "Cible mourante"
-      },
-      "HITDIE": {
-        "BONUS": "Bonus au jet"
-      },
-      "DESCRIPTION": "Description",
-      "ATTACK": {
-        "BONUS": "Bonus d'attaque",
-        "CRIT_RANGE": "Plage Critique",
-        "FUMBLE_RANGE": "Plage d'échec"
-      },
-      "itemTypes": "Ty. d'Objet",
-      "targetEffects": "Conds. Cibles",
-      "statusEffects": "Conds. Acteur",
-      "spellSchools": "Écoles de mag.",
-      "spellLevels": "Niv. de sorts",
-      "spellComponents": "Composantes",
-      "arbitraryComparison": "Comparaison",
-      "baseWeapons": "Armes",
-      "weaponProperties": "Props. Arme",
-      "AURA_RANGE": "Portée (m)",
-      "AURA_TEMPLATE": "S'applique au modèle",
-      "creatureTypes": "Ty. de Créatures",
-      "attackTypes": "Ty. d'Attaques",
-      "damageTypes": "Ty. de Dégâts",
-      "abilities": "Caractéristiques",
-      "throwTypes": "Ty. de Jets",
-      "customScripts": "Script",
-      "remainingSpellSlots": "Empl. de sort",
-      "AURA_FIELDS": "Cibles valides",
-      "itemRequirements": "Objet requis.",
-      "AURA_SELF": "S'affecte soi-même",
-      "saveAbilities": "Carac. de Sauv.",
-      "AURA_BLOCKERS": "États bloquent"
-    },
-    "WARNINGS": {
-      "INVALID": "Certaines des données sont invalides. Veuillez réévaluer vos sélections.",
-      "SUCCESS": "Le bonus '{name}' avec l'identifiant '{id}' a été enregistré avec succès.",
-      "DELETED": "Le bonus '{name}' avec l'identifiant '{id}' a été enregistré avec succès.",
-      "COPIED": "Le bonus '{name}' avec l'identifiant '{id}' a été copié avec succès."
-    },
-    "TOOLTIPS": {
-      "DELETE_THIS": "Supprimer ce bonus de ce document. La suppression est définitive et le bonus ne peut être récupéré.",
-      "ADD_THIS_FILTER": "Ajoutez ce filtre au constructeur.",
-      "DELETE_THIS_FILTER": "Retirez ce filtre du constructeur.",
-      "IDENTIFIERS": "Informations d'identification du bonus. Le nom est pour votre commodité, tandis que l'identifiant est utilisé pour faire référence au bonus en interne.",
-      "DESCRIPTION": "Une description du bonus pour votre confort.",
-      "SELF_ONLY": "Permet d'indiquer si ce bonus s'applique uniquement à l'objet sur lequel il est créé.",
-      "TOGGLE_THIS": "Activez ou désactivez ce bonus. Un bonus qui est désactivé sera complètement ignoré, même s'il s'agit d'une aura.",
-      "COPY_THIS": "Créez un duplicata de ce bonus sur ce document.",
-      "EDIT_THIS": "Modifiez ce bonus dans l'atelier.",
-      "ATTACK": {
-        "BONUS": "Parties supplémentaires à ajouter en plus du jet d'attaque comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
-        "CRIT_RANGE": "Un nombre entier à soustraire de la zone critique du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family : monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family : monospace ;'>1d4</span>.",
-        "FUMBLE_RANGE": "Un nombre entier à ajouter à la zone d'échec du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family : monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family : monospace ;'>1d4</span>."
-      },
-      "DAMAGE": {
-        "BONUS": "Parties supplémentaires à ajouter en plus du jet de dégâts comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
-        "CRIT_DICE": "Un nombre supplémentaire de dés qui devraient être lancés lors d'un coup critique. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
-        "CRIT_DMG": "Parties supplémentaires à ajouter en plus du jet de dégâts sur les coups critiques comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>."
-      },
-      "HITDIE": {
-        "BONUS": "Parties supplémentaires à ajouter en plus du dé de vie, comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>."
-      },
-      "WUTS_THIS": {
-        "REQUIRED": "Ces champs en haut doivent être remplis pour chaque bonus que vous souhaitez créer ou modifier.",
-        "BONUSES": "Les valeurs réelles du bonus et à quelle valeur il doit s'appliquer. Au moins un de ces champs doit être rempli.",
-        "AURA": "Un ensemble de configurations pour que le bonus devienne une aura, au lieu de ne s'appliquer qu'à l'acteur qui le possède.",
-        "CURRENT_FILTERS": "Les filtres actuellement appliqués au bonus, qui réduisent encore plus le nombre de jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
-        "AVAILABLE_FILTERS": "La liste des filtres que vous pouvez appliquer à ce bonus, afin de restreindre davantage les jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
-        "UNAVAILABLE_FILTERS": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-        "CURRENT_BONUSES": "Les bonus que vous avez créés et qui sont actuellement stockés sur cet Acteur, Objet ou ActiveEffect.",
-        "SELECT_TARGET": "Sélectionnez une cible pour votre nouveau bonus ; le type de jet auquel il doit s'appliquer."
-      },
-      "THROW": {
-        "BONUS": "Des parties supplémentaires à ajouter en plus du jet de sauvegarde comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
-        "DEATH_TARGET": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>."
-      },
-      "SAVE": {
-        "BONUS": "Un nombre entier à ajouter au DD d'un jet de sauvegarde. Ce champ respecte les propriétés des données de jet, telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>."
-      },
-      "itemEquipped": "Ce bonus sera considéré comme désactivé si cet objet n'est pas équipé.",
-      "itemAttuned": "Ce bonus sera considéré comme désactivé si cet objet n'est pas harmonisé.",
-      "itemTypes": "Les types d'objets auxquels le bonus doit s'appliquer. Par exemple, si l'objet ne doit s'appliquer qu'aux sorts ou qu'aux armes.",
-      "itemRequirements": "Indique si l'objet doit être équipé ou harmonisé pour que le bonus ou l'aura soit effectif.",
-      "throwTypes": "Le type de jet de sauvegarde auquel le bonus doit s'appliquer. Ceci s'applique également aux jets de sauvegarde contre la mort, et vous pouvez également ajuster la valeur cible des sauvegardes contre la mort.",
-      "damageTypes": "Le type de dégâts que l'objet doit infliger pour que le bonus s'applique. Par exemple, si un sort inflige des dégâts de feu.",
-      "abilities": "Le score de caractéristique utilisé par l'objet. Cela respecte les objets définis pour utiliser les valeurs par défaut, comme les sorts utilisant la caractéristique d'incantation, ou les armes avec la propriété Finesse utilisant la Force ou la Dextérité.",
-      "targetEffects": "Les conditions par lesquelles l'acteur cible doit être affecté. Par exemple, <span style='font-family: monospace;'>aveugle;charme</span> signifie que vous n'obtiendrez ce bonus que si votre cible est soit aveuglée, soit charmée. Le module recherche les identifiants de statut dans les effets.",
-      "attackTypes": "Le type de jet d'attaque que l'objet doit effectuer pour que le bonus s'applique. Par exemple, si vous lancez un sort, celui-ci doit impliquer une attaque à distance avec un sort (rsak) ou une attaque au corps-à-corps avec une arme(mwak).",
-      "spellComponents": "Les composantes ou étiquettes de sort que le sort doit posséder pour que le bonus s'applique. Vous pouvez choisir si le sort doit avoir toutes les composantes ou étiquettes données, ou au moins l'une d'entre elles. Par exemple, si vous voulez qu'un bonus s'applique à tous les sorts qui nécessitent de la concentration.",
-      "spellSchools": "L'école à laquelle le sort doit appartenir pour que le bonus s'applique. Si plusieurs écoles sont sélectionnées, le sort doit appartenir à l'une d'entre elles. Par exemple, si vous souhaitez qu'un bonus ne s'applique qu'aux sorts de divination.",
-      "customScripts": "Tout script personnalisé que vous souhaitez écrire vous-même. Le script doit être complètement synchrone et doit retourner vrai ou faux. Comme variables d'aide, le script est fourni avec 'token', 'actor' et 'item', le cas échéant.",
-      "blockers": "Les états qui bloquent le transfert d'une aura, comme l'aura d'un paladin qui n'est active que lorsque le paladin n'est ni mort ni inconscient. Ceci n'a aucun effet si l'aura est sur un gabarit mesuré.",
-      "AURA_RANGE": "La portée de l'aura, mesurée en pieds (mettez <span style='font-family: monospace;'>-1</span> pour une portée illimitée), et si l'aura affecte la zone dans un gabarit mesuré à la place (pour les objets qui sont capables de placer un gabarit).",
-      "AURA_TEMPLATE": "Si cette aura affecte les token dans la zone d'un gabarit mesuré, plutôt que les token à portée du propriétaire de cet objet.",
-      "AURA_FIELDS": "Quelles cibles doivent bénéficier de l'aura, et si l'aura doit également affecter son propriétaire. Les alliés sont définis comme des token qui ont la même disposition que leur propriétaire ; les ennemis sont ceux qui ont une disposition Hostile (si vous êtes Amical) ou Amicale (si vous êtes Hostile).",
-      "AURA_SELF": "Si cette aura doit affecter son propriétaire aussi.",
-      "arbitraryComparison": "Insérez des nombres, des propriétés de jets, des chaînes de caractères ou une combinaison des trois, qui doivent être dans une relation spécifique pour que le bonus s'applique. Cette comparaison peut évaluer les sous-chaînes en utilisant l'une ou l'autre des inégalités. Vous pouvez également utiliser les données de jet d'acteur d'un token ciblé en les faisant précéder de <span style='font-family: monospace;'>@target</span>.",
-      "statusEffects": "Les conditions avec lesquelles l'acteur doit être affecté. Par exemple, <span style='font-family: monospace;'>aveugle;charme</span> signifie que vous n'obtiendrez ce bonus que si vous êtes aveuglé ou charmé. Le module recherche les identifiants de statut dans les effets.",
-      "creatureTypes": "Le type de créature dont l'acteur cible doit faire partie (ou avoir comme sous-type), ou le type de créature dont la cible ne doit pas faire partie. Par exemple, \"mort-vivant\", \"fée\" ou \"construction\".",
-      "saveAbilities": "La caractéristique qui doit être utilisée pour déterminer le DD du jet de sauvegarde de l'objet pour que le bonus s'applique ; par exemple un Guerrier Maître de guerre qui détermine son DD de Manœuvre avec la Dextérité. Cela peut être différent de la caractéristique que l'objet utilise par ailleurs. Si un objet est configuré pour s'adapter à <span style='font-family: monospace;'>Incantation</span>, la caractéristique d'incantation de l'acteur est comparée à cette capacité.",
-      "spellLevels": "Le niveau auquel le sort doit être lancé pour que le bonus s'applique. Vous pouvez sélectionner chaque niveau individuellement. Par exemple, vous pouvez faire en sorte qu'un bonus ne s'applique qu'aux tour de magie, qu'aux sorts à niveau, ou qu'aux sorts de 3ème niveau ou moins.",
-      "baseWeapons": "Le type d'arme que doit posséder l'objet pour que le bonus s'applique. Par exemple, une hache de guerre, un arc court ou une épée longue.",
-      "weaponProperties": "Les propriétés de l'arme que l'objet doit ou ne peut pas avoir pour que le bonus s'applique. Si l'une d'entre elles est sélectionnée, l'arme doit posséder au moins l'une des propriétés requises, et aucune des propriétés inadaptées. Par exemple, si vous voulez qu'un bonus ne s'applique qu'aux armes à deux mains.",
-      "remainingSpellSlots": "Le nombre total minimum et maximum d'emplacements de sorts restants que l'acteur doit avoir pour que le bonus s'applique. Par exemple, si vous voulez qu'un bonus ne s'applique que s'il vous reste 3 emplacements de sorts ou plus, ou aucun emplacement de sort.",
-      "AURA": "Si ce bonus doit être transféré à d'autres token sur une scène. Un bonus transféré à un autre acteur sera toujours évalué en fonction des filtres ci-dessous, comme si l'acteur qui tente de bénéficier de l'aura était le propriétaire du bonus au départ."
-    },
-    "VALUES": {
-      "DISPOSITION": {
-        "ALLY": "Cibles alliées",
-        "ENEMY": "Cibles ennemies",
-        "ANY": "Toutes les cibles"
-      },
-      "TYPE": {
-        "damage": "Jets de dégâts",
-        "throw": "Jets de Sauvegardes",
-        "hitdie": "Jets de dés de vie",
-        "attack": "Jets d'attaque",
-        "save": "DD de sauvegarde"
-      },
-      "CREATING_FOR": "Créer un bonus pour…",
-      "EDITING_FOR": "Éditer un bonus pour…",
-      "MATCH_ANY": "Match any",
-      "MATCH_ALL": "Match all"
-    },
-    "BUTTONS": {
-      "KEYS": "Clés",
-      "SAVE": "Sauvegarder ce bonus"
-    },
-    "HEADERS": {
-      "BUILD_A_BONUS": "Build-a-Bonus",
-      "SELECT_TARGET": "Sélectionnez une cible",
-      "CURRENT_BONUSES": "Bonus actuels",
-      "FILTERS": "Filtres actuels",
-      "AURA": "Configuration d'Aura",
-      "REQUIRED_FIELDS": "Champs obligatoires",
-      "BONUSES_INPUTS": "Bonus",
-      "UNAVAILABLE_FILTERS": "Filtres non disponibles",
-      "AVAILABLE_FILTERS": "Filtres disponibles"
-    },
-    "KEYS_DIALOG": {
-      "INCLUDE": "Inclure",
-      "EXCLUDE": "Exclure",
-      "HEADER": "Clés : {name}",
-      "VALUE": "Valeur"
-    },
-    "BONUS": {
-      "ENABLED": "Activé",
-      "DISABLED": "Désactivé"
-    },
-    "TRAITS": {
-      "LABEL": "Atelier Build-a-Bonus",
-      "NAME": "Atelier Build-a-Bonus",
-      "HINT": "Ouvrez l'atelier Build-a-Bonus. Vous pouvez y créer des bonus situationnels qui s'appliqueront automatiquement à divers jets, tels que les jets de sauvegarde, les jets de dégâts et les jets de dé de vie.",
-      "SECTION": "Build-a-Bonus"
-    },
-    "SETTINGS": {
-      "DISPLAY_LABEL": {
-        "HEADER": "Build-a-Bonus",
-        "HINT": "Si cette case est cochée, l'étiquette est affichée dans l'en-tête des objets et des effets actifs.",
-        "NAME": "Afficher l'étiquette"
-      }
-    },
-    "PLACEHOLDERS": {
-      "NAME": "nom…",
-      "ID": "id…",
-      "DESCRIPTION": "description…",
-      "arbitraryComparison": {
-        "one": "valeur…",
-        "other": "autre valeur…"
-      },
-      "AURA_RANGE": "portée…"
-    },
-    "FILTER_PICKER": {
-      "throwTypes": {
-        "HEADER": "Types de jets",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets de sauvegarde."
-      },
-      "itemTypes": {
-        "HEADER": "Type d'Objet",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde."
-      },
-      "itemRequirements": {
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus provenant d'objets qui peuvent être équipés ou harmonisé.",
-        "HEADER": "Exigences relatives à l'objet"
-      },
-      "attackTypes": {
-        "HEADER": "Types d'attaques",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque ou aux jets de dégâts."
-      },
-      "damageTypes": {
-        "HEADER": "Type de dégâts",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde."
-      },
-      "abilities": {
-        "HEADER": "Modificateur de caractéristique",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde."
-      },
-      "saveAbilities": {
-        "HEADER": "DD Caractéristique de sauvegarde",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde."
-      },
-      "spellComponents": {
-        "HEADER": "Composantes des sorts",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \" sort \" est sélectionné comme l'un des types d'objet."
-      },
-      "spellLevels": {
-        "HEADER": "Niveaux de sorts",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \" sort \" est sélectionné comme l'un des types d'objet."
-      },
-      "spellSchools": {
-        "HEADER": "Écoles de magie",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \" sort \" est sélectionné comme l'un des types d'objet."
-      },
-      "baseWeapons": {
-        "HEADER": "Types d'armes",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \"arme\" est sélectionné comme l'un des types d'objet."
-      },
-      "weaponProperties": {
-        "HEADER": "Propriétés de l'arme",
-        "REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \"arme\" est sélectionné comme l'un des types d'objet."
-      },
-      "arbitraryComparison": {
-        "HEADER": "Comparaison arbitraire"
-      },
-      "targetEffects": {
-        "HEADER": "Conditions de la cible"
-      },
-      "creatureTypes": {
-        "HEADER": "Types de créatures"
-      },
-      "customScripts": {
-        "HEADER": "Script personnalisé"
-      },
-      "remainingSpellSlots": {
-        "HEADER": "Emplacements de sorts restant"
-      },
-      "blockers": {
-        "HEADER": "État bloquent"
-      },
-      "statusEffects": {
-        "HEADER": "Conditions de l'acteurs"
-      }
-    }
-  }
+  "BABONUS.BONUS.DISABLED": "Désactivé",
+  "BABONUS.BONUS.ENABLED": "Activé",
+  "BABONUS.BUTTONS.KEYS": "Clés",
+  "BABONUS.BUTTONS.SAVE": "Sauvegarder ce bonus",
+  "BABONUS.CONSUMPTION_APP.LABEL": "Consommer:",
+  "BABONUS.CONSUMPTION_APP.SCALES": "Activer la mise à l'échelle",
+  "BABONUS.CONSUMPTION_APP.TITLE": "Configurer la consommation : {name}",
+  "BABONUS.CONSUMPTION_APP.TYPE": "Type de consommation",
+  "BABONUS.CONSUMPTION_APP.VALUE": "Valeurs consommées",
+  "BABONUS.DELETE.ARE_YOU_SURE": "Etes-vous sûr de vouloir supprimer '{name}' ? Cette action ne peut être annulée.",
+  "BABONUS.DELETE.DELETE_BONUS": "Supprimer le bonus : {name}",
+  "BABONUS.FILTER_PICKER.abilities.HEADER": "Modificateur de caractéristique",
+  "BABONUS.FILTER_PICKER.abilities.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde.",
+  "BABONUS.FILTER_PICKER.arbitraryComparison.HEADER": "Comparaison arbitraire",
+  "BABONUS.FILTER_PICKER.attackTypes.HEADER": "Types d'attaques",
+  "BABONUS.FILTER_PICKER.attackTypes.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque ou aux jets de dégâts.",
+  "BABONUS.FILTER_PICKER.baseWeapons.HEADER": "Types d'armes",
+  "BABONUS.FILTER_PICKER.baseWeapons.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \"arme\" est sélectionné comme l'un des types d'objet.",
+  "BABONUS.FILTER_PICKER.blockers.HEADER": "État bloquent",
+  "BABONUS.FILTER_PICKER.creatureTypes.HEADER": "Types de créatures",
+  "BABONUS.FILTER_PICKER.customScripts.HEADER": "Script personnalisé",
+  "BABONUS.FILTER_PICKER.damageTypes.HEADER": "Type de dégâts",
+  "BABONUS.FILTER_PICKER.damageTypes.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde.",
+  "BABONUS.FILTER_PICKER.itemRequirements.HEADER": "Exigences relatives à l'objet",
+  "BABONUS.FILTER_PICKER.itemRequirements.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus provenant d'objets qui peuvent être équipés ou harmonisé.",
+  "BABONUS.FILTER_PICKER.itemTypes.HEADER": "Type d'Objet",
+  "BABONUS.FILTER_PICKER.itemTypes.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde.",
+  "BABONUS.FILTER_PICKER.remainingSpellSlots.HEADER": "Emplacements de sorts restant",
+  "BABONUS.FILTER_PICKER.saveAbilities.HEADER": "DD Caractéristique de sauvegarde",
+  "BABONUS.FILTER_PICKER.saveAbilities.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde.",
+  "BABONUS.FILTER_PICKER.spellComponents.HEADER": "Composantes des sorts",
+  "BABONUS.FILTER_PICKER.spellComponents.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \" sort \" est sélectionné comme l'un des types d'objet.",
+  "BABONUS.FILTER_PICKER.spellLevels.HEADER": "Niveaux de sorts",
+  "BABONUS.FILTER_PICKER.spellLevels.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \" sort \" est sélectionné comme l'un des types d'objet.",
+  "BABONUS.FILTER_PICKER.spellSchools.HEADER": "Écoles de magie",
+  "BABONUS.FILTER_PICKER.spellSchools.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \" sort \" est sélectionné comme l'un des types d'objet.",
+  "BABONUS.FILTER_PICKER.statusEffects.HEADER": "Conditions de l'acteurs",
+  "BABONUS.FILTER_PICKER.targetEffects.HEADER": "Conditions de la cible",
+  "BABONUS.FILTER_PICKER.throwTypes.HEADER": "Types de jets",
+  "BABONUS.FILTER_PICKER.throwTypes.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets de sauvegarde.",
+  "BABONUS.FILTER_PICKER.weaponProperties.HEADER": "Propriétés de l'arme",
+  "BABONUS.FILTER_PICKER.weaponProperties.REQUIREMENTS": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \"arme\" est sélectionné comme l'un des types d'objet.",
+  "BABONUS.HEADERS.AURA": "Configuration d'Aura",
+  "BABONUS.HEADERS.AVAILABLE_FILTERS": "Filtres disponibles",
+  "BABONUS.HEADERS.BONUSES_INPUTS": "Bonus",
+  "BABONUS.HEADERS.BUILD_A_BONUS": "Build-a-Bonus",
+  "BABONUS.HEADERS.CURRENT_BONUSES": "Bonus actuels",
+  "BABONUS.HEADERS.FILTERS": "Filtres actuels",
+  "BABONUS.HEADERS.REQUIRED_FIELDS": "Champs obligatoires",
+  "BABONUS.HEADERS.SELECT_TARGET": "Sélectionnez une cible",
+  "BABONUS.HEADERS.UNAVAILABLE_FILTERS": "Filtres non disponibles",
+  "BABONUS.KEYS_DIALOG.EXCLUDE": "Exclure",
+  "BABONUS.KEYS_DIALOG.HEADER": "Clés : {name}",
+  "BABONUS.KEYS_DIALOG.INCLUDE": "Inclure",
+  "BABONUS.KEYS_DIALOG.VALUE": "Valeur",
+  "BABONUS.LABELS.abilities": "Caractéristiques",
+  "BABONUS.LABELS.APPLY_KEYS": "Appliquer la sélection",
+  "BABONUS.LABELS.arbitraryComparison": "Comparaison",
+  "BABONUS.LABELS.ATTACK.BONUS": "Bonus d'attaque",
+  "BABONUS.LABELS.ATTACK.CRIT_RANGE": "Plage Critique",
+  "BABONUS.LABELS.ATTACK.FUMBLE_RANGE": "Plage d'échec",
+  "BABONUS.LABELS.attackTypes": "Ty. d'Attaques",
+  "BABONUS.LABELS.AURA_BLOCKERS": "États bloquent",
+  "BABONUS.LABELS.AURA_FIELDS": "Cibles valides",
+  "BABONUS.LABELS.AURA_RANGE": "Portée (m)",
+  "BABONUS.LABELS.AURA_SELF": "S'affecte soi-même",
+  "BABONUS.LABELS.AURA_TEMPLATE": "S'applique au modèle",
+  "BABONUS.LABELS.baseWeapons": "Armes",
+  "BABONUS.LABELS.creatureTypes": "Ty. de Créatures",
+  "BABONUS.LABELS.customScripts": "Script",
+  "BABONUS.LABELS.DAMAGE.BONUS": "Bonus de dégâts",
+  "BABONUS.LABELS.DAMAGE.CRIT_DICE": "Dés critiques",
+  "BABONUS.LABELS.DAMAGE.CRIT_DMG": "Dégâts critiques",
+  "BABONUS.LABELS.damageTypes": "Ty. de Dégâts",
+  "BABONUS.LABELS.DESCRIPTION": "Description",
+  "BABONUS.LABELS.HITDIE.BONUS": "Bonus au jet",
+  "BABONUS.LABELS.ID": "ID",
+  "BABONUS.LABELS.IDENTIFIERS": "Identifiants",
+  "BABONUS.LABELS.itemRequirements": "Objet requis.",
+  "BABONUS.LABELS.itemTypes": "Ty. d'Objet",
+  "BABONUS.LABELS.NAME": "Nom",
+  "BABONUS.LABELS.remainingSpellSlots": "Empl. de sort",
+  "BABONUS.LABELS.SAVE.BONUS": "Bonus DD Sauv.",
+  "BABONUS.LABELS.saveAbilities": "Carac. de Sauv.",
+  "BABONUS.LABELS.spellComponents": "Composantes",
+  "BABONUS.LABELS.spellLevels": "Niv. de sorts",
+  "BABONUS.LABELS.spellSchools": "Écoles de mag.",
+  "BABONUS.LABELS.statusEffects": "Conds. Acteur",
+  "BABONUS.LABELS.targetEffects": "Conds. Cibles",
+  "BABONUS.LABELS.THROW.BONUS": "De sauvegarde",
+  "BABONUS.LABELS.THROW.DEATH_TARGET": "Cible mourante",
+  "BABONUS.LABELS.throwTypes": "Ty. de Jets",
+  "BABONUS.LABELS.weaponProperties": "Props. Arme",
+  "BABONUS.MIGRATION.COMPLETED": "La migration de la version précédente de Build-a-Bonus est terminée.",
+  "BABONUS.MIGRATION.IN_PROGRESS": "La migration des versions précédentes de Build-a-Bonus a commencé. Veuillez attendre que la migration soit terminée.",
+  "BABONUS.MIGRATION.LOCKED_PACK": "Vous avez fourni un compendium qui est actuellement verrouillé. Aucune migration n'a été effectuée.",
+  "BABONUS.PLACEHOLDERS.arbitraryComparison.one": "valeur…",
+  "BABONUS.PLACEHOLDERS.arbitraryComparison.other": "autre valeur…",
+  "BABONUS.PLACEHOLDERS.AURA_RANGE": "portée…",
+  "BABONUS.PLACEHOLDERS.DESCRIPTION": "description…",
+  "BABONUS.PLACEHOLDERS.ID": "id…",
+  "BABONUS.PLACEHOLDERS.NAME": "nom…",
+  "BABONUS.SETTINGS.DisableCustomScriptFilterHint": "Désactiver la lecture des valeurs des filtres \"Script personnalisé\". Au lieu de cela, le filtre renvoie toujours immédiatement \"vrai\". Activez ce paramètre si vous préférez que les autres utilisateurs n'exécutent pas les scripts.",
+  "BABONUS.SETTINGS.DisableCustomScriptFilterName": "Désactiver le filtre \"Script personnalisé\".",
+  "BABONUS.SETTINGS.DISPLAY_LABEL.HEADER": "Build-a-Bonus",
+  "BABONUS.SETTINGS.DISPLAY_LABEL.HINT": "Si cette case est cochée, l'étiquette est affichée dans l'en-tête des objets et des effets actifs.",
+  "BABONUS.SETTINGS.DISPLAY_LABEL.NAME": "Afficher l'étiquette",
+  "BABONUS.TOOLTIPS.abilities": "Le score de caractéristique utilisé par l'objet. Cela respecte les objets définis pour utiliser les valeurs par défaut, comme les sorts utilisant la caractéristique d'incantation, ou les armes avec la propriété Finesse utilisant la Force ou la Dextérité.",
+  "BABONUS.TOOLTIPS.ADD_THIS_FILTER": "Ajoutez ce filtre au constructeur.",
+  "BABONUS.TOOLTIPS.arbitraryComparison": "Insérez des nombres, des propriétés de jets, des chaînes de caractères ou une combinaison des trois, qui doivent être dans une relation spécifique pour que le bonus s'applique. Cette comparaison peut évaluer les sous-chaînes en utilisant l'une ou l'autre des inégalités. Vous pouvez également utiliser les données de jet d'acteur d'un token ciblé en les faisant précéder de <span style='font-family: monospace;'>@target</span>.",
+  "BABONUS.TOOLTIPS.ATTACK.BONUS": "Parties supplémentaires à ajouter en plus du jet d'attaque comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TOOLTIPS.ATTACK.CRIT_RANGE": "Un nombre entier à soustraire de la zone critique du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family : monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family : monospace ;'>1d4</span>.",
+  "BABONUS.TOOLTIPS.ATTACK.FUMBLE_RANGE": "Un nombre entier à ajouter à la zone d'échec du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family : monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family : monospace ;'>1d4</span>.",
+  "BABONUS.TOOLTIPS.attackTypes": "Le type de jet d'attaque que l'objet doit effectuer pour que le bonus s'applique. Par exemple, si vous lancez un sort, celui-ci doit impliquer une attaque à distance avec un sort (rsak) ou une attaque au corps-à-corps avec une arme(mwak).",
+  "BABONUS.TOOLTIPS.AURA_FIELDS": "Quelles cibles doivent bénéficier de l'aura, et si l'aura doit également affecter son propriétaire. Les alliés sont définis comme des token qui ont la même disposition que leur propriétaire ; les ennemis sont ceux qui ont une disposition Hostile (si vous êtes Amical) ou Amicale (si vous êtes Hostile).",
+  "BABONUS.TOOLTIPS.AURA_RANGE": "La portée de l'aura, mesurée en pieds (mettez <span style='font-family: monospace;'>-1</span> pour une portée illimitée), et si l'aura affecte la zone dans un gabarit mesuré à la place (pour les objets qui sont capables de placer un gabarit).",
+  "BABONUS.TOOLTIPS.AURA_SELF": "Si cette aura doit affecter son propriétaire aussi.",
+  "BABONUS.TOOLTIPS.AURA_TEMPLATE": "Si cette aura affecte les token dans la zone d'un gabarit mesuré, plutôt que les token à portée du propriétaire de cet objet.",
+  "BABONUS.TOOLTIPS.AURA": "Si ce bonus doit être transféré à d'autres token sur une scène. Un bonus transféré à un autre acteur sera toujours évalué en fonction des filtres ci-dessous, comme si l'acteur qui tente de bénéficier de l'aura était le propriétaire du bonus au départ.",
+  "BABONUS.TOOLTIPS.baseWeapons": "Le type d'arme que doit posséder l'objet pour que le bonus s'applique. Par exemple, une hache de guerre, un arc court ou une épée longue.",
+  "BABONUS.TOOLTIPS.blockers": "Les états qui bloquent le transfert d'une aura, comme l'aura d'un paladin qui n'est active que lorsque le paladin n'est ni mort ni inconscient. Ceci n'a aucun effet si l'aura est sur un gabarit mesuré.",
+  "BABONUS.TOOLTIPS.CONSUME": "Configurez si et comment le bonus consomme les utilisations de son objet parent.",
+  "BABONUS.TOOLTIPS.COPY_THIS": "Créez un duplicata de ce bonus sur ce document.",
+  "BABONUS.TOOLTIPS.creatureTypes": "Le type de créature dont l'acteur cible doit faire partie (ou avoir comme sous-type), ou le type de créature dont la cible ne doit pas faire partie. Par exemple, \"mort-vivant\", \"fée\" ou \"construction\".",
+  "BABONUS.TOOLTIPS.customScripts": "Tout script personnalisé que vous souhaitez écrire vous-même. Le script doit être complètement synchrone et doit retourner vrai ou faux. Comme variables d'aide, le script est fourni avec 'token', 'actor' et 'item', le cas échéant.",
+  "BABONUS.TOOLTIPS.DAMAGE.BONUS": "Parties supplémentaires à ajouter en plus du jet de dégâts comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TOOLTIPS.DAMAGE.CRIT_DICE": "Un nombre supplémentaire de dés qui devraient être lancés lors d'un coup critique. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.TOOLTIPS.DAMAGE.CRIT_DMG": "Parties supplémentaires à ajouter en plus du jet de dégâts sur les coups critiques comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TOOLTIPS.damageTypes": "Le type de dégâts que l'objet doit infliger pour que le bonus s'applique. Par exemple, si un sort inflige des dégâts de feu.",
+  "BABONUS.TOOLTIPS.DELETE_THIS_FILTER": "Retirez ce filtre du constructeur.",
+  "BABONUS.TOOLTIPS.DELETE_THIS": "Supprimer ce bonus de ce document. La suppression est définitive et le bonus ne peut être récupéré.",
+  "BABONUS.TOOLTIPS.DESCRIPTION": "Une description du bonus pour votre confort.",
+  "BABONUS.TOOLTIPS.EDIT_THIS": "Modifiez ce bonus dans l'atelier.",
+  "BABONUS.TOOLTIPS.HITDIE.BONUS": "Parties supplémentaires à ajouter en plus du dé de vie, comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TOOLTIPS.IDENTIFIERS": "Informations d'identification du bonus. Le nom est pour votre commodité, tandis que l'identifiant est utilisé pour faire référence au bonus en interne.",
+  "BABONUS.TOOLTIPS.itemAttuned": "Ce bonus sera considéré comme désactivé si cet objet n'est pas harmonisé.",
+  "BABONUS.TOOLTIPS.itemEquipped": "Ce bonus sera considéré comme désactivé si cet objet n'est pas équipé.",
+  "BABONUS.TOOLTIPS.itemRequirements": "Indique si l'objet doit être équipé ou harmonisé pour que le bonus ou l'aura soit effectif.",
+  "BABONUS.TOOLTIPS.itemTypes": "Les types d'objets auxquels le bonus doit s'appliquer. Par exemple, si l'objet ne doit s'appliquer qu'aux sorts ou qu'aux armes.",
+  "BABONUS.TOOLTIPS.OPTIONAL": "Permet d'indiquer si ce bonus doit être pris en compte lors du jet",
+  "BABONUS.TOOLTIPS.remainingSpellSlots": "Le nombre total minimum et maximum d'emplacements de sorts restants que l'acteur doit avoir pour que le bonus s'applique. Par exemple, si vous voulez qu'un bonus ne s'applique que s'il vous reste 3 emplacements de sorts ou plus, ou aucun emplacement de sort.",
+  "BABONUS.TOOLTIPS.SAVE.BONUS": "Un nombre entier à ajouter au DD d'un jet de sauvegarde. Ce champ respecte les propriétés des données de jet, telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.TOOLTIPS.saveAbilities": "La caractéristique qui doit être utilisée pour déterminer le DD du jet de sauvegarde de l'objet pour que le bonus s'applique ; par exemple un Guerrier Maître de guerre qui détermine son DD de Manœuvre avec la Dextérité. Cela peut être différent de la caractéristique que l'objet utilise par ailleurs. Si un objet est configuré pour s'adapter à <span style='font-family: monospace;'>Incantation</span>, la caractéristique d'incantation de l'acteur est comparée à cette capacité.",
+  "BABONUS.TOOLTIPS.SELF_ONLY": "Permet d'indiquer si ce bonus s'applique uniquement à l'objet sur lequel il est créé.",
+  "BABONUS.TOOLTIPS.spellComponents": "Les composantes ou étiquettes de sort que le sort doit posséder pour que le bonus s'applique. Vous pouvez choisir si le sort doit avoir toutes les composantes ou étiquettes données, ou au moins l'une d'entre elles. Par exemple, si vous voulez qu'un bonus s'applique à tous les sorts qui nécessitent de la concentration.",
+  "BABONUS.TOOLTIPS.spellLevels": "Le niveau auquel le sort doit être lancé pour que le bonus s'applique. Vous pouvez sélectionner chaque niveau individuellement. Par exemple, vous pouvez faire en sorte qu'un bonus ne s'applique qu'aux tour de magie, qu'aux sorts à niveau, ou qu'aux sorts de 3ème niveau ou moins.",
+  "BABONUS.TOOLTIPS.spellSchools": "L'école à laquelle le sort doit appartenir pour que le bonus s'applique. Si plusieurs écoles sont sélectionnées, le sort doit appartenir à l'une d'entre elles. Par exemple, si vous souhaitez qu'un bonus ne s'applique qu'aux sorts de divination.",
+  "BABONUS.TOOLTIPS.statusEffects": "Les conditions avec lesquelles l'acteur doit être affecté. Par exemple, <span style='font-family: monospace;'>aveugle;charme</span> signifie que vous n'obtiendrez ce bonus que si vous êtes aveuglé ou charmé. Le module recherche les identifiants de statut dans les effets.",
+  "BABONUS.TOOLTIPS.targetEffects": "Les conditions par lesquelles l'acteur cible doit être affecté. Par exemple, <span style='font-family: monospace;'>aveugle;charme</span> signifie que vous n'obtiendrez ce bonus que si votre cible est soit aveuglée, soit charmée. Le module recherche les identifiants de statut dans les effets.",
+  "BABONUS.TOOLTIPS.THROW.BONUS": "Des parties supplémentaires à ajouter en plus du jet de sauvegarde comme <span style='font-family: monospace;'>1d4</span> ou <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TOOLTIPS.THROW.DEATH_TARGET": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.TOOLTIPS.throwTypes": "Le type de jet de sauvegarde auquel le bonus doit s'appliquer. Ceci s'applique également aux jets de sauvegarde contre la mort, et vous pouvez également ajuster la valeur cible des sauvegardes contre la mort.",
+  "BABONUS.TOOLTIPS.TOGGLE_THIS": "Activez ou désactivez ce bonus. Un bonus qui est désactivé sera complètement ignoré, même s'il s'agit d'une aura.",
+  "BABONUS.TOOLTIPS.weaponProperties": "Les propriétés de l'arme que l'objet doit ou ne peut pas avoir pour que le bonus s'applique. Si l'une d'entre elles est sélectionnée, l'arme doit posséder au moins l'une des propriétés requises, et aucune des propriétés inadaptées. Par exemple, si vous voulez qu'un bonus ne s'applique qu'aux armes à deux mains.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.AURA": "Un ensemble de configurations pour que le bonus devienne une aura, au lieu de ne s'appliquer qu'à l'acteur qui le possède.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.AVAILABLE_FILTERS": "La liste des filtres que vous pouvez appliquer à ce bonus, afin de restreindre davantage les jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.BONUSES": "Les valeurs réelles du bonus et à quelle valeur il doit s'appliquer. Au moins un de ces champs doit être rempli.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_BONUSES": "Les bonus que vous avez créés et qui sont actuellement stockés sur cet Acteur, Objet ou ActiveEffect.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_FILTERS": "Les filtres actuellement appliqués au bonus, qui réduisent encore plus le nombre de jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.REQUIRED": "Ces champs en haut doivent être remplis pour chaque bonus que vous souhaitez créer ou modifier.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.SELECT_TARGET": "Sélectionnez une cible pour votre nouveau bonus ; le type de jet auquel il doit s'appliquer.",
+  "BABONUS.TOOLTIPS.WUTS_THIS.UNAVAILABLE_FILTERS": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.TRAITS.HINT": "Ouvrez l'atelier Build-a-Bonus. Vous pouvez y créer des bonus situationnels qui s'appliqueront automatiquement à divers jets, tels que les jets de sauvegarde, les jets de dégâts et les jets de dé de vie.",
+  "BABONUS.TRAITS.LABEL": "Atelier Build-a-Bonus",
+  "BABONUS.TRAITS.NAME": "Atelier Build-a-Bonus",
+  "BABONUS.TRAITS.SECTION": "Build-a-Bonus",
+  "BABONUS.VALUES.CREATING_FOR": "Créer un bonus pour…",
+  "BABONUS.VALUES.DISPOSITION.ALLY": "Cibles alliées",
+  "BABONUS.VALUES.DISPOSITION.ANY": "Toutes les cibles",
+  "BABONUS.VALUES.DISPOSITION.ENEMY": "Cibles ennemies",
+  "BABONUS.VALUES.EDITING_FOR": "Éditer un bonus pour…",
+  "BABONUS.VALUES.MATCH_ALL": "Les requiert toutes",
+  "BABONUS.VALUES.MATCH_ANY": "Au moins une",
+  "BABONUS.VALUES.TYPE.attack": "Jets d'attaque",
+  "BABONUS.VALUES.TYPE.damage": "Jets de dégâts",
+  "BABONUS.VALUES.TYPE.hitdie": "Jets de dés de vie",
+  "BABONUS.VALUES.TYPE.save": "DD de sauvegarde",
+  "BABONUS.VALUES.TYPE.throw": "Jets de Sauvegardes",
+  "BABONUS.WARNINGS.COPIED": "Le bonus '{name}' avec l'identifiant '{id}' a été copié avec succès.",
+  "BABONUS.WARNINGS.DELETED": "Le bonus '{name}' avec l'identifiant '{id}' a été enregistré avec succès.",
+  "BABONUS.WARNINGS.INVALID": "Certaines des données sont invalides. Veuillez réévaluer vos sélections.",
+  "BABONUS.WARNINGS.SUCCESS": "Le bonus '{name}' avec l'identifiant '{id}' a été enregistré avec succès."
 }
