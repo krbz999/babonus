@@ -10,12 +10,12 @@
     <!-- LEFT SIDE -->
     <div class="left-side">
 
-      <div class="select-target">
-        <header class="select-target">
+      <div class="select-type">
+        <header class="select-type">
           {{localize "BABONUS.HEADERS.SELECT_TARGET"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.SELECT_TARGET"></i>
         </header>
-        <div class="targets">
+        <div class="types">
           {{#each TYPES as |type|}}
           <a data-type="{{type.value}}"><i class="{{type.icon}}"></i> {{localize type.label}}</a>
           {{/each}}

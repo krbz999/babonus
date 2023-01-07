@@ -83,7 +83,6 @@
 }
 
 .babonus a[data-type="add-filter"],
-.babonus select[name="target"] ~ a,
 .babonus .available-filters .filter-add {
   margin: 0 5px;
   flex: 0 0 20px;
@@ -94,7 +93,7 @@
 }
 
 .babonus .right-side .bonuses,
-.babonus .left-side .targets {
+.babonus .left-side .types {
   overflow-y: auto;
   max-height: 700px;
   height: 700px;
@@ -230,29 +229,29 @@
   opacity: 0;
 }
 
-.babonus .select-target .targets {
+.babonus .select-type .types {
   justify-content: space-evenly;
   font-size: 35px;
 }
 
-.babonus .select-target .targets a {
+.babonus .select-type .types a {
   display: grid;
   grid-template-columns: 2fr 3fr;
   align-items: center;
 }
 
-.babonus .select-target .targets a > i {
+.babonus .select-type .types a > i {
   place-self: center;
   font-size: 60px;
 }
 
-.babonus .target-type {
+.babonus .babonus-type {
   font-size: 30px;
   text-align: center;
   margin: 0.4em;
 }
 
-.babonus .target-type-header {
+.babonus .babonus-type-header {
   font-size: 16px;
 }
 

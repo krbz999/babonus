@@ -59,7 +59,7 @@ export class BabonusWorkshop extends FormApplication {
   // add the babonus to the object.
   async _updateObject(event, formData) {
     // type must be explicitly set on the data.
-    formData.type = this._target;
+    formData.type = this._type;
     formData.itemOnly = !!this._itemOnly;
     formData.optional = !!this._optional;
     formData.consume = this._consume ?? { enabled: false, type: null, value: { min: null, max: null }, scales: false };
@@ -216,9 +216,9 @@ export class BabonusWorkshop extends FormApplication {
       bonus.classList.toggle("collapsed");
     });
 
-    // when you pick a TARGET.
+    // when you pick a TYPE.
     html[0].addEventListener("click", async (event) => {
-      const a = event.target.closest(".left-side .select-target .targets a");
+      const a = event.target.closest(".left-side .select-type .types a");
       if (!a) return;
       return this._initializeBuilder({ type: a.dataset.type });
     });
@@ -269,7 +269,7 @@ export class BabonusWorkshop extends FormApplication {
 
   // format the UI to show the builder, optionally with current filters when editing an existing babonus.
   async _initializeBuilder({ type, id, addedFilters }) {
-    this._target = type;
+    this._type = type;
     this._id = id ?? foundry.utils.randomID();
     this._addedFilters = addedFilters;
 
@@ -289,7 +289,7 @@ export class BabonusWorkshop extends FormApplication {
     }
 
     // hide initial UI:
-    const hide = this.element[0].querySelectorAll(".left-side div.select-target, .right-side div.current-bonuses");
+    const hide = this.element[0].querySelectorAll(".left-side div.select-type, .right-side div.current-bonuses");
     for (const h of hide) h.style.display = "none";
     // show builder UI:
     const show = this.element[0].querySelectorAll(".left-side div.inputs, .right-side div.filter-picker");
@@ -468,7 +468,7 @@ export class BabonusWorkshop extends FormApplication {
    * and are used only by the FilterPicker.
    */
   _deleteTemporaryValues() {
-    delete this._target;
+    delete this._type;
     delete this._addedFilters;
     delete this._itemTypes;
     delete this._id;

@@ -19,14 +19,14 @@ export function _constructFilterDataFromName(name) {
 /**
  * Returns whether a filter is available to be added to babonus.
  */
-export function _isFilterAvailable(name, { addedFilters, target, item, itemTypes }) {
+export function _isFilterAvailable(name, { addedFilters, type, item, itemTypes }) {
   if (name === "arbitraryComparison") return true;
   if (addedFilters.has(name)) return false;
 
-  if (["itemTypes", "damageTypes", "abilities"].includes(name)) return ["attack", "damage", "save"].includes(target);
-  if (name === "attackTypes") return ["attack", "damage"].includes(target);
-  if (name === "throwTypes") return target === "throw";
-  if (name === "saveAbilities") return target === "save";
+  if (["itemTypes", "damageTypes", "abilities"].includes(name)) return ["attack", "damage", "save"].includes(type);
+  if (name === "attackTypes") return ["attack", "damage"].includes(type);
+  if (name === "throwTypes") return type === "throw";
+  if (name === "saveAbilities") return type === "save";
   if (["spellComponents", "spellLevels", "spellSchools"].includes(name)) return itemTypes.has("spell") && itemTypes.size === 1;
   if (["baseWeapons", "weaponProperties"].includes(name)) return itemTypes.has("weapon") && itemTypes.size === 1;
   if (name === "itemRequirements") return _canEquipOrAttuneToItem(item);
