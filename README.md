@@ -49,24 +49,24 @@
 
 <h1 style="font-weight: bold;">Available Filters</h1>
 <p>These are the available filters that narrow down if the bonus should apply when making a roll.</p>
-<p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells. This filter is only available for attack roll, damage roll, and save DC bonuses.</p>
-<p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to. Any ability score as well as death saving throws. If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
-<p><strong><em>Item Requirements.</em></strong> An available filter to check whether the item should require being equipped or attuned to for the bonus to be active. This filter is only available when creating a bonus on an item that can be either of these things.</p>
-<p><strong><em>Arbitrary Comparisons.</em></strong> An arbitrary comparison you can use for anything that is not covered in the Build-a-Bonus natively. This supports numbers, roll data, and strings. If you enter strings, you can use the inequalities to match substrings. It will otherwise attempt to determine numeric values after replacing roll data with the roll data of the item and actor. For example, you can have a bonus apply only when the actor is below half health with <code>@attributes.hp.value <= @attributes.hp.max</code>. Unlike other filters, you can add this filter to the builder multiple times.</p>
-<p><strong><em>Actor Conditions.</em></strong> Filter the bonus to only apply if the actor is affected by a specific status condition. This uses the status id string stored in status conditions, as detailed above.</p>
-<p><strong><em>Target Conditions.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by a specific status condition. Same details as above.</p>
-<p><strong><em>Attack Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has an attack roll of that specific kind.</p>
-<p><strong><em>Damage Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has a damage formula with this kind of damage type.</p>
 <p><strong><em>Abilities.</em></strong> Filter the bonus to only apply to items that have set the used ability to be one of these types. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons. This is the ability set in the item just below its Action Type in the Details tab.</p>
+<p><strong><em>Actor Conditions.</em></strong> Filter the bonus to only apply if the actor is affected by a specific status condition. This uses the status id string stored in status conditions, as detailed above.</p>
+<p><strong><em>Arbitrary Comparisons.</em></strong> An arbitrary comparison you can use for anything that is not covered in the Build-a-Bonus natively. This supports numbers, roll data, and strings. If you enter strings, you can use the inequalities to match substrings. It will otherwise attempt to determine numeric values after replacing roll data with the roll data of the item and actor. For example, you can have a bonus apply only when the actor is below half health with <code>@attributes.hp.value <= @attributes.hp.max</code>. Unlike other filters, you can add this filter to the builder multiple times.</p>
+<p><strong><em>Attack Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has an attack roll of that specific kind.</p>
+<p><strong><em>Available Spell Slots.</em></strong> Filter the bonus to apply only if the actor performing the roll has more than the set minimum amount of spell slots available and/or less than the set maximum amount of spell slots available. Not both fields are required.</p>
+<p><strong><em>Base Weapons.</em></strong> Filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'.</p>
+<p><strong><em>Creature Types.</em></strong> Filter the bonus to only apply if you are targeting an enemy belonging to one of the given creature types, such as 'undead', 'fey', or 'humanoid'.</p>
+<p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, and <code>token</code> are always provided if possible.</p>
+<p><strong><em>Damage Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has a damage formula with this kind of damage type.</p>
+<p><strong><em>Item Requirements.</em></strong> An available filter to check whether the item should require being equipped or attuned to for the bonus to be active. This filter is only available when creating a bonus on an item that can be either of these things.</p>
+<p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells. This filter is only available for attack roll, damage roll, and save DC bonuses.</p>
 <p><strong><em>Save Ability.</em></strong> Filter the bonus such that it only applies if the DC is set using a specific ability. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.</p>
+<p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to. Any ability score as well as death saving throws. If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
 <p><strong><em>Spell Components.</em></strong> Filter the bonus to only apply if the item is a spell that has any one (or all) of the given components.</p>
 <p><strong><em>Spell Levels.</em></strong> Filter the bonus to only apply if the item is a spell and is or was cast at one of the given levels.</p>
 <p><strong><em>Spell Schools.</em></strong> Filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.</p>
-<p><strong><em>Base Weapons.</em></strong> Filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'.</p>
+<p><strong><em>Target Conditions.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by a specific status condition. Same details as above.</p>
 <p><strong><em>Weapon Properties.</em></strong> Filter the bonus to only apply if the item is a weapon that has at least one from a set of required weapon properties (if any) while having none of the unfit properties (if any).</p>
-<p><strong><em>Creature Types.</em></strong> Filter the bonus to only apply if you are targeting an enemy belonging to one of the given creature types, such as 'undead', 'fey', or 'humanoid'.</p>
-<p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, and <code>token</code> are always provided if possible.</p>
-<p><strong><em>Available Spell Slots.</em></strong> Filter the bonus to apply only if the actor performing the roll has more than the set minimum amount of spell slots available and/or less than the set maximum amount of spell slots available. Not both fields are required.</p>
 
 <h1 style="font-weight: bold;">API</h1>
 <p>An API can be accessed at <code>game.modules.get("babonus").api</code> or through the global namespace <code>babonus</code>. The parameter <code>object</code> below refers to an Actor, ActiveEffect, Item, or MeasuredTemplateDocument. The methods are currently:</p>
@@ -77,12 +77,13 @@
 <li><code>getNames(object)</code> returns the names of all bonuses on the document.</li>
 <li><code>getType(object, type)</code> returns all bonuses on the object of the given type (e.g. "attack" or "damage").</li>
 <li><code>getCollection(object)</code> returns a Collection of bonuses on the object.</li>
-<li><code>fromUuid(uuid)</code> returns a bonus on a given document. The uuid is the uuid of the parent document appended with <code>.Babonus.<babonus-id></code>.</li>
-<li><code>deleteBonus(object, id)</code> removes the bonus with the given id from the document.</li>
+<li><code>fromUuid(uuid)</code> returns a bonus on a given document. The uuid is the uuid of the parent document appended with <code>.Babonus.< id ></code>.</li>
+<li><code>createBabonus(data)</code> returns a new Babonus document created with the provided data.</li>
 <li><code>copyBonus(original, other, id)</code> copies a bonus with the given id from one document to another.</li>
+<li><code>deleteBonus(object, id)</code> removes the bonus with the given id from the document.</li>
 <li><code>moveBonus(original, other, id)</code> copies a bonus with the given id from one document to another, then removes the original bonus.</li>
 <li><code>toggleBonus(object, id, state=null)</code> enables or disables a bonus, or sets it to the given state (true or false).</li>
-<li><code>createBabonus(data)</code> returns a new Babonus document created with the provided data.</li>
+<li><code>getApplicableBonuses(object, type, options)</code> returns all bonuses that applies to a specific roll with this document.</li>
 <li><code>findEmbeddedDocumentsWithBonuses(object)</code> returns an object with two arrays containing items and effects on the given document that have a bonus.</li>
 <li><code>findTokensInRangeOfAura(object, id)</code> returns all token documents that are in range of an aura with the given id on the document.</li>
 <li><code>openBabonusWorkshop(object)</code> opens the Build-a-Bonus workshop for the given document.</li>
@@ -90,6 +91,5 @@
 <li><code>getMinimumDistanceBetweenTokens(tokenA, tokenB)</code> returns the minimum distance between two Token placeables, evaluating every grid cell that they occupy.</li>
 <li><code>sceneTokensByDisposition(scene)</code> returns an object of three arrays; the tokens on the scene split into three arrays by disposition. If no scene is provided, the currently viewed scene is used.</li>
 <li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
-<li><code>getApplicableBonuses(object, type, options)</code> returns all bonuses that applies to a specific roll with this document.</li>
 </ul>
 <p>In addition, if needed, the migration functions used to migrate bonuses in your world to Babonus v10.2.0 exposed in the <code>migration</code> object of the API.
