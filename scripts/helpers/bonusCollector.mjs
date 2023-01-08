@@ -87,8 +87,10 @@ function _filterTokenBonuses(token, type, range, targetDisp) {
     ..._getTokenItemBonuses(token.actor, type),
     ..._getTokenEffectBonuses(token.actor, type)
   ].filter(bab => {
+    const a = bab.aura;
     return (bab.enabled && bab.hasAura && !bab.isAuraBlocked && !bab.isSuppressed)
-      && _matchTokenDisposition(token, targetDisp, bab.aura.disposition) && (bab.aura.range >= range || bab.aura.range === -1);
+      && _matchTokenDisposition(token, targetDisp, a.disposition)
+      && (a.range >= range || a.range === -1);
   });
 }
 
