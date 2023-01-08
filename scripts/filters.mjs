@@ -245,6 +245,7 @@ export class FILTER {
    * @returns {Boolean}       Whether the item has any of the needed properties, and none of the unfit properties.
    */
   static weaponProperties(item, { needed, unfit }) {
+    if (!needed?.length && !unfit?.length) return true;
     if (item.type !== "weapon") return false;
     const props = item.system.properties;
     const pu = unfit?.length && unfit.some(p => props[p]);

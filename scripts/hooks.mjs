@@ -9,7 +9,7 @@ function _bonusToInt(bonus, data) {
 
 export function _preDisplayCard(item, chatData) {
   // get bonus:
-  const bonuses = FILTER.itemCheck(item, "save");
+  const bonuses = FILTER.itemCheck(item, "save", {spellLevel: item.system.level});
   if (!bonuses.length) return;
   const data = item.getRollData();
   const target = game.user.targets.first();
@@ -19,11 +19,9 @@ export function _preDisplayCard(item, chatData) {
   }, 0);
 
   // get all buttons.
-  const html = chatData.content;
-  const temp = document.createElement("DIV");
-  temp.innerHTML = html;
-  const selector = "button[data-action='save']";
-  const saveButtons = temp.querySelectorAll(selector);
+  const DIV = document.createElement("DIV");
+  DIV.innerHTML = chatData.content;
+  const saveButtons = DIV.querySelectorAll("button[data-action='save']");
 
   // create label (innertext)
   const save = item.system.save;
@@ -32,11 +30,8 @@ export function _preDisplayCard(item, chatData) {
   const dc = Math.max(1, save.dc + totalBonus) || "";
   chatData.flags[MODULE] = { saveDC: dc };
   const label = game.i18n.format("DND5E.SaveDC", { dc, ability });
-
-  for (const btn of saveButtons) {
-    btn.innerText = `${savingThrow} ${label}`;
-  }
-  chatData.content = temp.innerHTML;
+  saveButtons.forEach(b => b.innerText = `${savingThrow} ${label}`);
+  chatData.content = DIV.innerHTML;
 }
 
 export function _preRollAttack(item, rollConfig) {
