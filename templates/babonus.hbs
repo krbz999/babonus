@@ -12,8 +12,8 @@
 
       <div class="select-type">
         <header class="select-type">
-          {{localize "BABONUS.HEADERS.SelectType"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.SelectType"></i>
+          {{localize "BABONUS.SelectType"}}
+          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
         </header>
         <div class="types">
           {{#each TYPES as |type|}}
@@ -28,34 +28,34 @@
 
           <div class="required-fields">
             <header class="required-fields">
-              {{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.REQUIRED"></i>
+              {{localize "BABONUS.RequiredFields"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.RequiredFieldsTooltip"></i>
             </header>
             <div class="required"></div>
           </div>
 
           <div class="bonuses-inputs">
             <header class="bonuses-inputs">
-              {{localize "BABONUS.HEADERS.BONUSES_INPUTS"}}
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.BONUSES"></i>
+              {{localize "BABONUS.Bonuses"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.BonusesTooltip"></i>
             </header>
             <div class="bonuses"></div>
           </div>
 
           <div class="bonus-filters">
             <header class="bonus-filters">
-              {{localize "BABONUS.HEADERS.FILTERS"}}
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_FILTERS"></i>
+              {{localize "BABONUS.CurrentFilters"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurentFiltersTooltip"></i>
             </header>
             <div class="filters"></div>
           </div>
         </div>
 
         <div class="utils">
-          <div class="notification warning" id="babonus-warning">{{{localize "BABONUS.WARNINGS.INVALID"}}}</div>
+          <div class="notification warning" id="babonus-warning">{{{localize "BABONUS.NotificationInvalid"}}}</div>
           <div class="utils-buttons">
             <button data-type="save-button" type="submit">
-              <i class="fa-solid fa-floppy-disk"></i> {{localize "BABONUS.BUTTONS.SAVE"}}
+              <i class="fa-solid fa-floppy-disk"></i> {{localize "BABONUS.SaveThisBonus"}}
             </button>
             <button data-type="cancel-button" type="button">
               <i class="fa-solid fa-ban"></i> {{localize "Cancel"}}
@@ -72,8 +72,8 @@
 
       <div class="current-bonuses">
         <header class="current-bonuses">
-          {{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_BONUSES"></i>
+          {{localize "BABONUS.CurrentBonuses"}}
+          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
         </header>
         <div class="bonuses">{{{bonuses}}}</div>
       </div>

@@ -1,5 +1,5 @@
 import { AURA_TARGETS, MODULE } from "../constants.mjs";
-import { _createBabonus } from "../helpers/helpers.mjs";
+import { _createBabonus, _displayKeysDialog } from "../helpers/helpers.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
   get id() {
@@ -25,7 +25,7 @@ export class AuraConfigurationDialog extends FormApplication {
     const templateChecked = !templateDisabled && aura.isTemplate;
     const blockers = aura.blockers.join(";");
     const choices = Object.entries(AURA_TARGETS).reduce((acc, [k, v]) => {
-      acc[v] = `BABONUS.VALUES.DISPOSITION.${k}`;
+      acc[v] = `BABONUS.ConfigurationAuraDisposition.${k}`;
       return acc;
     }, {});
 
@@ -46,7 +46,7 @@ export class AuraConfigurationDialog extends FormApplication {
   activateListeners(html) {
     super.activateListeners(html);
     html[0].querySelector("button.babonus-keys").addEventListener("click", async (event) => {
-      return this.options.builder._displayKeysDialog(event.currentTarget);
+      return _displayKeysDialog(event.currentTarget, "ConfigurationAuraBlockingConditions", "effects", this.appId);
     });
   }
 

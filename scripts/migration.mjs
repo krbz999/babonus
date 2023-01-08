@@ -68,14 +68,14 @@ export async function _migrateWorld(force = false) {
   if (!game.user.isGM) return;
   const migrate = _worldNeedsMigration();
   if (!migrate && !force) return;
-  ui.notifications.info("BABONUS.MIGRATION.IN_PROGRESS", { localize: true, permanent: true });
+  ui.notifications.info("BABONUS.MigrationBegun", { localize: true, permanent: true });
   await _migrateWorldItems();
   await _migrateWorldActors();
   await _migrateCompendiumItems();
   await _migrateCompendiumActors();
   await _migrateScenes();
   await _updateMigrationVersion();
-  ui.notifications.info("BABONUS.MIGRATION.COMPLETED", { localize: true, permanent: true });
+  ui.notifications.info("BABONUS.MigrationCompleted", { localize: true, permanent: true });
 }
 
 async function _migrateWorldItems() {
@@ -147,7 +147,7 @@ async function _migrateCompendiums(docType) {
 async function _migrateSingleCompendium(pack) {
   if (!game.user.isGM) return;
   if (pack.locked) {
-    ui.notifications.warn("BABONUS.MIGRATION.LOCKED_PACK", { localize: true });
+    ui.notifications.warn("BABONUS.MigrationLockedPack", { localize: true });
     return false;
   }
   const index = await pack.getIndex({ fields: ["flags.babonus.bonuses"] });

@@ -7,6 +7,7 @@ import {
   SaveBabonus,
   ThrowBabonus
 } from "../applications/dataModel.mjs";
+import { BabonusKeysDialog } from "../applications/keysDialog.mjs";
 import {
   MODULE,
   MODULE_NAME,
@@ -112,7 +113,7 @@ export class KeyGetter {
   }
 
   // all status effects.
-  static get statusEffects() {
+  static get effects() {
     const effects = CONFIG.statusEffects;
     return effects.reduce((acc, { id, icon }) => {
       if (!id) return acc;
@@ -121,16 +122,6 @@ export class KeyGetter {
     }, []).sort((a, b) => {
       return a.value.localeCompare(b.value);
     });
-  }
-
-  // target status effects.
-  static get targetEffects() {
-    return this.statusEffects;
-  }
-
-  // aura blockers.
-  static get blockers() {
-    return this.statusEffects;
   }
 
   // all base creature types
@@ -280,4 +271,52 @@ export async function _babFromUuid(uuid) {
     console.warn(err);
     return null;
   }
+}
+
+export async function _displayKeysDialog(btn, name, getter, id) {
+
+  const types = foundry.utils.duplicate(KeyGetter[getter]);
+
+  // find current semi-colon lists.
+  const [list, list2] = btn.closest(".form-group").querySelectorAll("input[type='text']");
+  const values = list.value.split(";");
+  const values2 = list2?.value.split(";");
+  types.forEach(t => {
+    t.checked = values.includes(t.value);
+    t.checked2 = values2?.includes(t.value);
+  });
+  const data = {
+    description: `BABONUS.${name}Tooltip`,
+    types
+  };
+
+  const template = `modules/babonus/templates/subapplications/keys${list2 ? "Double" : "Single"}.hbs`;
+  const content = await renderTemplate(template, data);
+  const title = game.i18n.format("BABONUS.KeysDialogTitle", {
+    name: game.i18n.localize(`BABONUS.${name}`)
+  });
+  const selected = await BabonusKeysDialog.prompt({
+    title,
+    label: game.i18n.localize("BABONUS.KeysDialogApplySelection"),
+    content,
+    rejectClose: false,
+    options: { name, appId: id },
+    callback: function(html) {
+      const selector = "td:nth-child(2) input[type='checkbox']:checked";
+      const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
+      const checked = [...html[0].querySelectorAll(selector)];
+      const checked2 = [...html[0].querySelectorAll(selector2)];
+      return {
+        first: checked.map(i => i.id).join(";") ?? "",
+        second: checked2.map(i => i.id).join(";") ?? ""
+      };
+    },
+  });
+
+  if (!selected) return;
+  if (Object.values(selected).every(a => foundry.utils.isEmpty(a))) return;
+
+  list.value = selected.first;
+  if (list2) list2.value = selected.second;
+  return;
 }

@@ -10,15 +10,15 @@ import { _openWorkshop } from "./helpers/helpers.mjs";
 
 export function _setup() {
   CONFIG.DND5E.characterFlags[MODULE] = {
-    name: game.i18n.localize("BABONUS.TRAITS.NAME"),
-    hint: game.i18n.localize("BABONUS.TRAITS.HINT"),
-    section: game.i18n.localize("BABONUS.TRAITS.SECTION"),
+    name: game.i18n.localize("BABONUS.SpecialTraitsName"),
+    hint: game.i18n.localize("BABONUS.SpecialTraitsHint"),
+    section: game.i18n.localize("BABONUS.ModuleTitle"),
     type: Boolean
   }
 
   game.settings.register(MODULE, SETTING_HEADERLABEL, {
-    name: "BABONUS.SETTINGS.DISPLAY_LABEL.NAME",
-    hint: "BABONUS.SETTINGS.DISPLAY_LABEL.HINT",
+    name: "BABONUS.SettingsDisplayLabelName",
+    hint: "BABONUS.SettingsDisplayLabelHint",
     scope: "world",
     config: true,
     type: Boolean,
@@ -26,8 +26,8 @@ export function _setup() {
   });
 
   game.settings.register(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, {
-    name: "BABONUS.SETTINGS.DisableCustomScriptFilterName",
-    hint: "BABONUS.SETTINGS.DisableCustomScriptFilterHint",
+    name: "BABONUS.SettingsDisableCustomScriptFilterName",
+    hint: "BABONUS.SettingsDisableCustomScriptFilterHint",
     scope: "world",
     config: true,
     type: Boolean,
@@ -49,7 +49,7 @@ export function _renderActorSheetFlags(app, html) {
   const input = html[0].querySelector("input[name='flags.dnd5e.babonus']");
   const button = document.createElement("A");
   button.name = "flags.dnd5e.babonus";
-  const label = game.i18n.localize("BABONUS.TRAITS.LABEL");
+  const label = game.i18n.localize("BABONUS.ModuleTitle");
   button.innerHTML = `<i class="${MODULE_ICON}"></i> ${label}`;
   input.replaceWith(button);
   button.addEventListener("click", () => {
@@ -69,7 +69,7 @@ export function _getItemSheetHeaderButtons(app, array) {
     }
   }
   if (label) {
-    const header = "BABONUS.SETTINGS.DISPLAY_LABEL.HEADER";
+    const header = "BABONUS.ModuleTitle";
     headerButton.label = game.i18n.localize(header);
   }
   array.unshift(headerButton);
@@ -86,7 +86,7 @@ export function _getActiveEffectConfigHeaderButtons(app, array) {
     }
   }
   if (label) {
-    const header = "BABONUS.SETTINGS.DISPLAY_LABEL.HEADER";
+    const header = "BABONUS.ModuleTitle";
     headerButton.label = game.i18n.localize(header);
   }
   array.unshift(headerButton);

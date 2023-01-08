@@ -12,38 +12,38 @@ export const SPELL_COMPONENT_MATCHING = { ANY: "ANY", ALL: "ALL" };
 // the kinds of bonuses you can make.
 export const TYPES = [
   // bonuses to attack rolls, crit range, fumble range
-  { value: "attack", icon: "fa-solid fa-hand-fist", label: "BABONUS.VALUES.TYPE.attack" },
+  { value: "attack", icon: "fa-solid fa-hand-fist", label: "BABONUS.TypeAttackRolls" },
   // bonuses to damage rolls, critical damage, critical bonus dice
-  { value: "damage", icon: "fa-solid fa-burst", label: "BABONUS.VALUES.TYPE.damage" },
+  { value: "damage", icon: "fa-solid fa-burst", label: "BABONUS.TypeDamageRolls" },
   // bonuses to the save DC
-  { value: "save", icon: "fa-solid fa-hand-sparkles", label: "BABONUS.VALUES.TYPE.save" },
+  { value: "save", icon: "fa-solid fa-hand-sparkles", label: "BABONUS.TypeSaves" },
   // bonuses to a saving throw, and death save target value
-  { value: "throw", icon: "fa-solid fa-person-falling-burst", label: "BABONUS.VALUES.TYPE.throw" },
+  { value: "throw", icon: "fa-solid fa-person-falling-burst", label: "BABONUS.TypeSavingThrows" },
   // bonuses to hit die rolls
-  { value: "hitdie", icon: "fa-solid fa-heart-pulse", label: "BABONUS.VALUES.TYPE.hitdie" }
+  { value: "hitdie", icon: "fa-solid fa-heart-pulse", label: "BABONUS.TypeHitdieRolls" }
 ];
 
 // mapping of bonus types to tooltips, labels, and formData names.
 export const BONUS_TYPES_FORMDATA = {
   "attack": [
-    { TOOLTIP: "BABONUS.TOOLTIPS.ATTACK.BONUS", LABEL: "BABONUS.LABELS.ATTACK.BONUS", NAME: "bonuses.bonus" },
-    { TOOLTIP: "BABONUS.TOOLTIPS.ATTACK.CRIT_RANGE", LABEL: "BABONUS.LABELS.ATTACK.CRIT_RANGE", NAME: "bonuses.criticalRange" },
-    { TOOLTIP: "BABONUS.TOOLTIPS.ATTACK.FUMBLE_RANGE", LABEL: "BABONUS.LABELS.ATTACK.FUMBLE_RANGE", NAME: "bonuses.fumbleRange" }
+    { TOOLTIP: "BABONUS.TypeAttackBonusTooltip", LABEL: "BABONUS.TypeAttackBonusLabel", NAME: "bonuses.bonus" },
+    { TOOLTIP: "BABONUS.TypeAttackBonusCriticalRangeTooltip", LABEL: "BABONUS.TypeAttackCriticalRangeLabel", NAME: "bonuses.criticalRange" },
+    { TOOLTIP: "BABONUS.TypeAttackBonusFumbleRangeTooltip", LABEL: "BABONUS.TypeAttackFumbleRangeLabel", NAME: "bonuses.fumbleRange" }
   ],
   "damage": [
-    { TOOLTIP: "BABONUS.TOOLTIPS.DAMAGE.BONUS", LABEL: "BABONUS.LABELS.DAMAGE.BONUS", NAME: "bonuses.bonus" },
-    { TOOLTIP: "BABONUS.TOOLTIPS.DAMAGE.CRIT_DICE", LABEL: "BABONUS.LABELS.DAMAGE.CRIT_DICE", NAME: "bonuses.criticalBonusDice" },
-    { TOOLTIP: "BABONUS.TOOLTIPS.DAMAGE.CRIT_DMG", LABEL: "BABONUS.LABELS.DAMAGE.CRIT_DMG", NAME: "bonuses.criticalBonusDamage" }
+    { TOOLTIP: "BABONUS.TypeDamageBonusTooltip", LABEL: "BABONUS.TypeDamageBonusLabel", NAME: "bonuses.bonus" },
+    { TOOLTIP: "BABONUS.TypeDamageCriticalBonusDiceTooltip", LABEL: "BABONUS.TypeDamageCriticalBonusDiceLabel", NAME: "bonuses.criticalBonusDice" },
+    { TOOLTIP: "BABONUS.TypeDamageCriticalBonusDamageTooltip", LABEL: "BABONUS.TypeDamageCriticalBonusDamageLabel", NAME: "bonuses.criticalBonusDamage" }
   ],
   "save": [
-    { TOOLTIP: "BABONUS.TOOLTIPS.SAVE.BONUS", LABEL: "BABONUS.LABELS.SAVE.BONUS", NAME: "bonuses.bonus" }
+    { TOOLTIP: "BABONUS.TypeSaveBonusTooltip", LABEL: "BABONUS.TypeSaveBonusLabel", NAME: "bonuses.bonus" }
   ],
   "throw": [
-    { TOOLTIP: "BABONUS.TOOLTIPS.THROW.BONUS", LABEL: "BABONUS.LABELS.THROW.BONUS", NAME: "bonuses.bonus" },
-    { TOOLTIP: "BABONUS.TOOLTIPS.THROW.DEATH_TARGET", LABEL: "BABONUS.LABELS.THROW.DEATH_TARGET", NAME: "bonuses.deathSaveTargetValue" }
+    { TOOLTIP: "BABONUS.TypeThrowBonusTooltip", LABEL: "BABONUS.TypeThrowBonusLabel", NAME: "bonuses.bonus" },
+    { TOOLTIP: "BABONUS.TypeThrowDeathSaveTargetValueTooltip", LABEL: "BABONUS.TypeThrowDeathSaveTargetValueLabel", NAME: "bonuses.deathSaveTargetValue" }
   ],
   "hitdie": [
-    { TOOLTIP: "BABONUS.TOOLTIPS.HITDIE.BONUS", LABEL: "BABONUS.LABELS.HITDIE.BONUS", NAME: "bonuses.bonus" }
+    { TOOLTIP: "BABONUS.TypeHitdieBonusTooltip", LABEL: "BABONUS.TypeHitdieBonusLabel", NAME: "bonuses.bonus" }
   ]
 };
 

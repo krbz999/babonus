@@ -63,7 +63,7 @@ export class BabonusFilterPicker {
       type,
       bonusTypes: BONUS_TYPES_FORMDATA[this.object._type],
       id: this.object._id,
-      localeString: edit ? "BABONUS.VALUES.EDITING_FOR" : "BABONUS.VALUES.CREATING_FOR"
+      localeString: edit ? "BABONUS.EditingBonus" : "BABONUS.CreatingBonus"
     };
     return renderTemplate(template, data);
   }
@@ -86,7 +86,7 @@ export class BabonusFilterPicker {
       const a = e.target.closest("a.filter-add, .filter-header a");
       if (!a) return;
 
-      const name = a.closest("div.filter").dataset.name;
+      const name = a.closest("div.filter").dataset.id;
       await _employFilter(this.object, name);
 
       // Add to added filters.
