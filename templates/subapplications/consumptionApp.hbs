@@ -1,6 +1,6 @@
-<form class="babonus consumption-app">
+<form class="babonus subapp">
   <div class="form-group">
-    <label>{{localize "BABONUS.CONSUMPTION_APP.TYPE"}}</label>
+    <label class="label">{{localize "BABONUS.ConfigurationConsumptionType"}}</label>
     <div class="form-fields">
       <select name="consume.type">
         {{selectOptions choices selected=value nameAttr="value" labelAttr="label" localize=true}}
@@ -9,14 +9,14 @@
   </div>
 
   <div class="form-group">
-    <label>{{localize "BABONUS.CONSUMPTION_APP.SCALES"}}</label>
+    <label class="label">{{localize "BABONUS.ConfigurationConsumptionScaling"}}</label>
     <div class="form-fields">
       <input type="checkbox" name="consume.scales" {{checked consume.scales}}>
     </div>
   </div>
 
   <div class="form-group">
-    <label>{{localize "BABONUS.CONSUMPTION_APP.VALUE"}}</label>
+    <label class="label">{{localize "BABONUS.ConfigurationConsumptionConsumedValues"}}</label>
     <div class="form-fields">
       <input type="number" data-dtype="Number" name="consume.value.min" value="{{consume.value.min}}" placeholder="{{localize 'Minimum'}}">
       <input type="number" data-dtype="Number" name="consume.value.max" value="{{consume.value.max}}" placeholder="{{localize 'Maximum'}}" {{disabled (not consume.scales)}}>

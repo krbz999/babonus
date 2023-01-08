@@ -1,7 +1,7 @@
 <form class="babonus">
   <h1>
     <i class="{{{ICON}}}" style="color: {{otterColor}}"></i>
-    {{localize "BABONUS.HEADERS.BUILD_A_BONUS"}}
+    {{localize "BABONUS.ModuleTitle"}}
     <i class="{{{ICON}}}"></i>
   </h1>
 
@@ -12,8 +12,8 @@
 
       <div class="select-type">
         <header class="select-type">
-          {{localize "BABONUS.HEADERS.SELECT_TARGET"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.SELECT_TARGET"></i>
+          {{localize "BABONUS.HEADERS.SelectType"}}
+          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.SelectType"></i>
         </header>
         <div class="types">
           {{#each TYPES as |type|}}
@@ -40,17 +40,6 @@
               <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.BONUSES"></i>
             </header>
             <div class="bonuses"></div>
-          </div>
-
-          <div class="aura-config">
-            <header class="aura-config">
-              <div class="content">
-                {{localize "BABONUS.HEADERS.AURA"}}
-                <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.AURA"></i>
-              </div>
-              <input type="checkbox" data-tooltip="BABONUS.TOOLTIPS.AURA" name="aura.enabled">
-            </header>
-            <div class="aura"></div>
           </div>
 
           <div class="bonus-filters">

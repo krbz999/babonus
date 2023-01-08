@@ -8,14 +8,14 @@ export class ConsumptionDialog extends FormApplication {
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      width: 350,
+      width: 400,
       height: "auto",
       template: `modules/${MODULE}/templates/subapplications/consumptionApp.hbs`
     });
   }
 
   get title() {
-    return game.i18n.format("BABONUS.CONSUMPTION_APP.TITLE", { name: this.options.bab.name });
+    return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", { name: this.options.bab.name });
   }
 
   async getData() {

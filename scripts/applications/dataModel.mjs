@@ -126,7 +126,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   // whether this bonus affects a template.
   get isTemplateAura() {
-    return this.aura.enabled && this.aura.isTemplate;
+    return this.aura.enabled && this.aura.isTemplate && !!this.item?.hasAreaTarget;
   }
 
   // whether a bonus has any valid bonuses.

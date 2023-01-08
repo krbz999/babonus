@@ -72,14 +72,14 @@
   border-radius: 4px;
 }
 
-.babonus .left-side .label {
+.babonus .label {
   flex: 1;
-  font-weight: bolder;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
-.babonus .left-side header.aura-config {
-  display: flex;
-  justify-content: space-between;
+.babonus.subapp .label {
+  flex: 2;
 }
 
 .babonus a[data-type="add-filter"],
@@ -357,10 +357,8 @@ table.babonus td:not(:first-child) {
   overflow-y: hidden;
 }
 
-/* Consumption App */
-.babonus.consumption-app label {
-  font-weight: bold;
-  white-space: nowrap;
+.babonus .sep {
+  padding: 0 5px;
 }
 
 /* Roll Configuration Optionals */

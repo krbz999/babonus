@@ -75,15 +75,6 @@ export class BabonusFilterPicker {
     return renderTemplate(template, data);
   }
 
-  async getHTMLAura() {
-    const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
-    const choices = Object.entries(AURA_TARGETS).reduce((acc, [k, v]) => {
-      acc[v] = `BABONUS.VALUES.DISPOSITION.${k}`;
-      return acc;
-    }, {});
-    return renderTemplate(template, { isItem: this.object.isItem, choices });
-  }
-
   async getHTMLCurrentBonuses() {
     const template = "modules/babonus/templates/builder_components/_current_bonuses.hbs";
     const data = { bonuses: _getBonuses(this.object.object) };

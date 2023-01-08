@@ -5,6 +5,7 @@ import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filte
 import { BabonusKeysDialog } from "./keysDialog.mjs";
 import { getId } from "../public_api.mjs";
 import { ConsumptionDialog } from "./consumptionApp.mjs";
+import { AuraConfigurationDialog } from "./auraConfigurationApp.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   constructor(object, options) {
@@ -63,6 +64,7 @@ export class BabonusWorkshop extends FormApplication {
     formData.itemOnly = !!this._itemOnly;
     formData.optional = !!this._optional;
     formData.consume = this._consume ?? { enabled: false, type: null, value: { min: null, max: null }, scales: false };
+    formData.aura = this._aura ?? { enabled: false, range: null, isTemplate: false, blockers: [], self: false };
 
     // replace id if it is invalid.
     const validId = foundry.data.validators.isValidId(this._id) ? true : foundry.utils.randomID();
@@ -97,14 +99,6 @@ export class BabonusWorkshop extends FormApplication {
   // show/hide aura config, and clamp aura range.
   async _onChangeInput(event) {
     await this._rerenderFilters();
-
-    if (event.target.name === "aura.enabled") {
-      const body = this.element[0].querySelector(".left-side .aura-config .aura");
-      if (event.target.checked) body.innerHTML = await this.filterPicker.getHTMLAura();
-      else body.innerHTML = "";
-    } else if (event.target.name === "aura.range") {
-      event.target.value = Math.clamped(Math.round(event.target.value), -1, 500);
-    }
   }
 
   activateListeners(html) {
@@ -139,65 +133,17 @@ export class BabonusWorkshop extends FormApplication {
     html[0].addEventListener("click", async (event) => {
       const keyButton = event.target.closest("button.babonus-keys");
       if (!keyButton) return;
-
-      // the containing form-group, which has the 'name' in its dataset.
-      const fg = keyButton.closest(".form-group");
-
-      const name = fg.dataset.name;
-      const types = foundry.utils.duplicate(KeyGetter[name]);
-
-      // find current semi-colon lists.
-      const [list, list2] = fg.querySelectorAll("input[type='text']");
-      const values = list.value.split(";");
-      const values2 = list2?.value.split(";");
-      types.map(t => {
-        t.checked = values.includes(t.value);
-        t.checked2 = values2?.includes(t.value);
-      });
-      const data = { description: `BABONUS.TOOLTIPS.${name}`, types };
-
-      const template = `modules/babonus/templates/subapplications/keys${list2 ? "Double" : "Single"}.hbs`;
-      const content = await renderTemplate(template, data);
-      const title = game.i18n.format("BABONUS.KEYS_DIALOG.HEADER", {
-        name: game.i18n.localize(`BABONUS.FILTER_PICKER.${name}.HEADER`)
-      });
-      const selected = await BabonusKeysDialog.prompt({
-        title,
-        label: game.i18n.localize("BABONUS.LABELS.APPLY_KEYS"),
-        content,
-        rejectClose: false,
-        options: { name, appId: this.id },
-        callback: function(html) {
-          const selector = "td:nth-child(2) input[type='checkbox']:checked";
-          const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
-          const checked = [...html[0].querySelectorAll(selector)];
-          const checked2 = [...html[0].querySelectorAll(selector2)];
-          return {
-            first: checked.map(i => i.id).join(";") ?? "",
-            second: checked2.map(i => i.id).join(";") ?? ""
-          };
-        },
-      });
-
-      if (!selected) return;
-      if (Object.values(selected).every(a => foundry.utils.isEmpty(a))) return;
-
-      list.value = selected.first;
-      if (list2) list2.value = selected.second;
-      return;
+      return this._displayKeysDialog(keyButton);
     });
 
-    // CONSUME/ITEM_ONLY/TOGGLE/COPY/EDIT/DELETE anchors.
+    // AURA/CONSUME/ITEM_ONLY/TOGGLE/COPY/EDIT/DELETE anchors.
     html[0].addEventListener("click", async (event) => {
       const a = event.target.closest(".functions a");
       if (!a) return;
       const { type } = a.dataset;
       const { id } = a.closest(".bonus").dataset;
 
-      if (type === "consume") return this._toggleConsume(id, event);
-      else if (type === "optional") return this._toggleOptional(id);
-      else if (type === "itemOnly") return this._toggleItemOnly(id);
-      else if (type === "toggle") return this._toggleBonus(id);
+      if (type === "toggle") return this._toggleBonus(id);
       else if (type === "copy") return this._copyBonus(id);
       else if (type === "edit") return this._editBonus(id);
       else if (type === "delete") {
@@ -205,7 +151,10 @@ export class BabonusWorkshop extends FormApplication {
         const prompt = await this._deleteBonus(id);
         if (a) a.style.pointerEvents = "";
         if (!prompt) return;
-      }
+      } else if (type === "aura") return this._toggleAura(id, event);
+      else if (type === "optional") return this._toggleOptional(id);
+      else if (type === "itemOnly") return this._toggleItemOnly(id);
+      else if (type === "consume") return this._toggleConsume(id, event);
     });
 
     // Collapse description.
@@ -276,9 +225,6 @@ export class BabonusWorkshop extends FormApplication {
     // create html for required fields, bonuses fields, and sometimes the aura field (if existing bonus).
     this.element[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired(!!addedFilters);
     this.element[0].querySelector(".left-side .bonuses-inputs .bonuses").innerHTML = await this.filterPicker.getHTMLBonuses();
-    if (this._formData?.["aura.enabled"]) {
-      this.element[0].querySelector(".left-side .aura-config .aura").innerHTML = await this.filterPicker.getHTMLAura();
-    }
 
     // only valid when editing an existing bonus:
     if (this._addedFilters) {
@@ -357,12 +303,22 @@ export class BabonusWorkshop extends FormApplication {
   async _deleteBonus(id) {
     const { name } = this.object.getFlag(MODULE, `bonuses.${id}`);
     const prompt = await Dialog.confirm({
-      title: game.i18n.format("BABONUS.DELETE.DELETE_BONUS", { name }),
-      content: game.i18n.format("BABONUS.DELETE.ARE_YOU_SURE", { name })
+      title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", { name }),
+      content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", { name })
     });
     if (!prompt) return false;
     await this.object.unsetFlag(MODULE, `bonuses.${id}`);
     ui.notifications.info(game.i18n.format("BABONUS.WARNINGS.DELETED", { name, id }));
+  }
+
+  // trigger the aura config app, or turn aura off.
+  async _toggleAura(id, event) {
+    const bab = getId(this.object, id);
+    const path = `bonuses.${id}.aura.enabled`;
+    const state = this.object.getFlag(MODULE, path);
+    if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
+    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !state);
+    return new AuraConfigurationDialog(this.object, { bab, builder: this }).render(true);
   }
 
   // toggle the 'self only' property of an item.
@@ -424,6 +380,7 @@ export class BabonusWorkshop extends FormApplication {
     this._itemOnly = bab.itemOnly;
     this._optional = bab.optional;
     this._consume = bab.consume;
+    this._aura = bab.aura;
     const addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
     await this._initializeBuilder({ type, id, addedFilters });
     this._updateItemTypes();
@@ -434,6 +391,54 @@ export class BabonusWorkshop extends FormApplication {
   _displayWarning(force) {
     const warning = this.element[0].querySelector("#babonus-warning");
     warning.classList.toggle("active", force);
+  }
+
+  async _displayKeysDialog(keyButton){
+    // the containing form-group, which has the 'name' in its dataset.
+    const fg = keyButton.closest(".form-group");
+
+    const name = fg.dataset.name;
+    const types = foundry.utils.duplicate(KeyGetter[name]);
+
+    // find current semi-colon lists.
+    const [list, list2] = fg.querySelectorAll("input[type='text']");
+    const values = list.value.split(";");
+    const values2 = list2?.value.split(";");
+    types.map(t => {
+      t.checked = values.includes(t.value);
+      t.checked2 = values2?.includes(t.value);
+    });
+    const data = { description: `BABONUS.TOOLTIPS.${name}`, types };
+
+    const template = `modules/babonus/templates/subapplications/keys${list2 ? "Double" : "Single"}.hbs`;
+    const content = await renderTemplate(template, data);
+    const title = game.i18n.format("BABONUS.KEYS_DIALOG.HEADER", {
+      name: game.i18n.localize(`BABONUS.FILTER_PICKER.${name}.HEADER`)
+    });
+    const selected = await BabonusKeysDialog.prompt({
+      title,
+      label: game.i18n.localize("BABONUS.LABELS.APPLY_KEYS"),
+      content,
+      rejectClose: false,
+      options: { name, appId: this.id },
+      callback: function(html) {
+        const selector = "td:nth-child(2) input[type='checkbox']:checked";
+        const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
+        const checked = [...html[0].querySelectorAll(selector)];
+        const checked2 = [...html[0].querySelectorAll(selector2)];
+        return {
+          first: checked.map(i => i.id).join(";") ?? "",
+          second: checked2.map(i => i.id).join(";") ?? ""
+        };
+      },
+    });
+
+    if (!selected) return;
+    if (Object.values(selected).every(a => foundry.utils.isEmpty(a))) return;
+
+    list.value = selected.first;
+    if (list2) list2.value = selected.second;
+    return;
   }
 
   _saveScrollPositions(html) {
@@ -477,5 +482,6 @@ export class BabonusWorkshop extends FormApplication {
     delete this._itemOnly;
     delete this._optional;
     delete this._consume;
+    delete this._aura;
   }
 }
