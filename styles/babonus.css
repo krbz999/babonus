@@ -18,8 +18,6 @@
 .babonus .components {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  justify-content: space-around;
-  gap: 1em;
 }
 
 .babonus .components .utils {
@@ -66,8 +64,6 @@
   font-weight: bold;
   border: 1px solid var(--color-border-light-tertiary);
   background: rgba(0, 0, 0, 0.1);
-  display: inline-block;
-  width: 100%;
   padding-left: 0.5em;
   border-radius: 4px;
 }
@@ -102,6 +98,14 @@
   justify-content: flex-start;
 }
 
+.babonus .left-side > :is(.inputs, .select-type) {
+  padding-right: 0.3em;
+}
+
+.babonus .right-side > :is(.current-bonuses, .filter-picker) {
+  padding-left: 0.3em;
+}
+
 .babonus .left-side .inputs {
   overflow-y: auto;
   max-height: 730px;
@@ -115,7 +119,6 @@
   display: grid;
   grid-template-rows: 0fr 1fr 0fr 0.6fr;
   max-height: 730px;
-  padding-bottom: 1em;
 }
 
 .babonus .right-side .bonuses .bonus:first-child {
@@ -302,7 +305,7 @@ table.babonus td:not(:first-child) {
     "c c"
     "d d";
   grid-template-columns: 1fr 0fr;
-  margin-bottom: 1em;
+  margin: 0.5em 0;
 }
 
 .babonus .filter-picker .filter-header {
@@ -330,8 +333,8 @@ table.babonus td:not(:first-child) {
   grid-area: b;
 }
 
-.babonus .available-filters,
-.babonus .unavailable-filters {
+.babonus div.available-filters,
+.babonus div.unavailable-filters {
   overflow-y: auto;
 }
 
@@ -344,10 +347,6 @@ table.babonus td:not(:first-child) {
   font-family: monospace;
   font-size: 12px;
   text-align: center;
-}
-
-.babonus .right-side .filter-picker header {
-  margin-bottom: 0.5em;
 }
 
 .babonus .left-side textarea {

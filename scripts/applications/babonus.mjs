@@ -193,7 +193,6 @@ export class BabonusWorkshop extends FormApplication {
       const el = event.target.closest("#babonus-warning.active");
       if (el) this._displayWarning(false);
     });
-
   }
 
   _onDragStart(event) {
