@@ -1,14 +1,14 @@
-<div class="form-group" data-name="{{name}}">
+<div class="form-group" data-id="{{name}}" data-name="{{getterName}}" data-getter="{{getter}}">
   <label data-tooltip="{{tooltip}}" class="label">
     {{localize label}}
   </label>
   <div class="form-fields">
     <input type="text" name="filters.{{name}}">
     <button class="babonus-keys" type="button">
-      <i class="fa-solid fa-key"></i> {{localize "BABONUS.BUTTONS.KEYS"}}
+      <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
     </button>
   </div>
-  <a class="filter-deletion" data-tooltip="BABONUS.TOOLTIPS.DELETE_THIS_FILTER">
+  <a class="filter-deletion" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>

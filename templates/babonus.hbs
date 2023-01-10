@@ -1,7 +1,7 @@
 <form class="babonus">
   <h1>
     <i class="{{{ICON}}}" style="color: {{otterColor}}"></i>
-    {{localize "BABONUS.HEADERS.BUILD_A_BONUS"}}
+    {{localize "BABONUS.ModuleTitle"}}
     <i class="{{{ICON}}}"></i>
   </h1>
 
@@ -10,12 +10,12 @@
     <!-- LEFT SIDE -->
     <div class="left-side">
 
-      <div class="select-target">
-        <header class="select-target">
-          {{localize "BABONUS.HEADERS.SELECT_TARGET"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.SELECT_TARGET"></i>
+      <div class="select-type">
+        <header class="select-type">
+          {{localize "BABONUS.SelectType"}}
+          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
         </header>
-        <div class="targets">
+        <div class="types">
           {{#each TYPES as |type|}}
           <a data-type="{{type.value}}"><i class="{{type.icon}}"></i> {{localize type.label}}</a>
           {{/each}}
@@ -28,45 +28,34 @@
 
           <div class="required-fields">
             <header class="required-fields">
-              {{localize "BABONUS.HEADERS.REQUIRED_FIELDS"}}
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.REQUIRED"></i>
+              {{localize "BABONUS.RequiredFields"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.RequiredFieldsTooltip"></i>
             </header>
             <div class="required"></div>
           </div>
 
           <div class="bonuses-inputs">
             <header class="bonuses-inputs">
-              {{localize "BABONUS.HEADERS.BONUSES_INPUTS"}}
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.BONUSES"></i>
+              {{localize "BABONUS.Bonuses"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.BonusesTooltip"></i>
             </header>
             <div class="bonuses"></div>
           </div>
 
-          <div class="aura-config">
-            <header class="aura-config">
-              <div class="content">
-                {{localize "BABONUS.HEADERS.AURA"}}
-                <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.AURA"></i>
-              </div>
-              <input type="checkbox" data-tooltip="BABONUS.TOOLTIPS.AURA" name="aura.enabled">
-            </header>
-            <div class="aura"></div>
-          </div>
-
           <div class="bonus-filters">
             <header class="bonus-filters">
-              {{localize "BABONUS.HEADERS.FILTERS"}}
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_FILTERS"></i>
+              {{localize "BABONUS.CurrentFilters"}}
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurentFiltersTooltip"></i>
             </header>
             <div class="filters"></div>
           </div>
         </div>
 
         <div class="utils">
-          <div class="notification warning" id="babonus-warning">{{{localize "BABONUS.WARNINGS.INVALID"}}}</div>
+          <div class="notification warning" id="babonus-warning">{{{localize "BABONUS.NotificationInvalid"}}}</div>
           <div class="utils-buttons">
             <button data-type="save-button" type="submit">
-              <i class="fa-solid fa-floppy-disk"></i> {{localize "BABONUS.BUTTONS.SAVE"}}
+              <i class="fa-solid fa-floppy-disk"></i> {{localize "BABONUS.SaveThisBonus"}}
             </button>
             <button data-type="cancel-button" type="button">
               <i class="fa-solid fa-ban"></i> {{localize "Cancel"}}
@@ -83,8 +72,8 @@
 
       <div class="current-bonuses">
         <header class="current-bonuses">
-          {{localize "BABONUS.HEADERS.CURRENT_BONUSES"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.TOOLTIPS.WUTS_THIS.CURRENT_BONUSES"></i>
+          {{localize "BABONUS.CurrentBonuses"}}
+          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
         </header>
         <div class="bonuses">{{{bonuses}}}</div>
       </div>

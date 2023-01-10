@@ -1,6 +1,5 @@
-import { auraTargets, BONUS_TYPES, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
+import { AURA_TARGETS, BONUS_TYPES_FORMDATA, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
 import {
-  _addToAddedFilters,
   _constructFilterDataFromName,
   _employFilter,
   _isFilterAvailable
@@ -29,9 +28,9 @@ export class BabonusFilterPicker {
       if (addedFilters.has(name) && name !== "arbitraryComparison") continue;
       const filterData = _constructFilterDataFromName(name);
       const item = this.object.object;
-      const target = this.object._target;
+      const type = this.object._type;
       const itemTypes = this.object._itemTypes ?? new Set();
-      if (_isFilterAvailable(name, { addedFilters, target, item, itemTypes })) {
+      if (_isFilterAvailable(name, { addedFilters, type, item, itemTypes })) {
         availableFilters.push(filterData);
       } else unavailableFilters.push(filterData);
     }
@@ -59,30 +58,21 @@ export class BabonusFilterPicker {
 
   async getHTMLRequired(edit = false) {
     const template = "modules/babonus/templates/builder_components/_required_fields.hbs";
-    const type = TYPES.find(t => t.value === this.object._target);
+    const type = TYPES.find(t => t.value === this.object._type);
     const data = {
       type,
-      bonusTypes: BONUS_TYPES[this.object._target],
+      bonusTypes: BONUS_TYPES_FORMDATA[this.object._type],
       id: this.object._id,
-      localeString: edit ? "BABONUS.VALUES.EDITING_FOR" : "BABONUS.VALUES.CREATING_FOR"
+      localeString: edit ? "BABONUS.EditingBonus" : "BABONUS.CreatingBonus"
     };
     return renderTemplate(template, data);
   }
 
   async getHTMLBonuses() {
     const template = "modules/babonus/templates/builder_components/_bonuses.hbs";
-    const type = this.object._target;
-    const data = { bonuses: BONUS_TYPES[type] };
+    const type = this.object._type;
+    const data = { bonuses: BONUS_TYPES_FORMDATA[type] };
     return renderTemplate(template, data);
-  }
-
-  async getHTMLAura() {
-    const template = "modules/babonus/templates/builder_components/_aura_fields.hbs";
-    const choices = Object.entries(auraTargets).reduce((acc, [k, v]) => {
-      acc[v] = `BABONUS.VALUES.DISPOSITION.${k}`;
-      return acc;
-    }, {});
-    return renderTemplate(template, { isItem: this.object.isItem, choices });
   }
 
   async getHTMLCurrentBonuses() {
@@ -96,10 +86,14 @@ export class BabonusFilterPicker {
       const a = e.target.closest("a.filter-add, .filter-header a");
       if (!a) return;
 
-      const name = a.closest("div.filter").dataset.name;
-
+      const name = a.closest("div.filter").dataset.id;
       await _employFilter(this.object, name);
-      _addToAddedFilters(this.object, name);
+
+      // Add to added filters.
+      const added = this.object._addedFilters ?? new Set();
+      added.add(name);
+      this.object._addedFilters = added;
+
       this.object._saveScrollPositions(this.object.element);
       html[0].querySelector(".right-side div.filter-picker").innerHTML = await this.getHTMLFilters();
       this.object._restoreScrollPositions(this.object.element);

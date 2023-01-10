@@ -1,3 +1,4 @@
+/* Babonus Editor Application */
 .babonus h1 {
   text-align: center;
   font-size: 55px;
@@ -17,8 +18,6 @@
 .babonus .components {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  justify-content: space-around;
-  gap: 1em;
 }
 
 .babonus .components .utils {
@@ -26,7 +25,7 @@
   margin: 0.25em;
 }
 
-.babonus [data-hide-input="true"]>input {
+.babonus [data-hide-input="true"] > input {
   visibility: hidden;
   position: absolute;
 }
@@ -39,13 +38,13 @@
   transition: inherit;
 }
 
-.babonus .checkboxes>.sep> :checked~span.checkboxes-check {
+.babonus .checkboxes > .sep > :checked ~ span.checkboxes-check {
   border: 2px groove #ff00006e;
   box-shadow: 0 0 4px darkred;
   background-color: #ff000066;
 }
 
-.babonus .checkboxes>.sep> :hover~span.checkboxes-check {
+.babonus .checkboxes > .sep > :hover ~ span.checkboxes-check {
   text-shadow: 0 0 5px var(--color-shadow-primary);
 }
 
@@ -56,7 +55,7 @@
 
 .babonus .form-fields.checkboxes label.sep {
   padding: 0;
-  transition: 0.2s;
+  transition: 0.15s;
 }
 
 .babonus .components header {
@@ -65,25 +64,21 @@
   font-weight: bold;
   border: 1px solid var(--color-border-light-tertiary);
   background: rgba(0, 0, 0, 0.1);
-  display: inline-block;
-  width: 100%;
   padding-left: 0.5em;
   border-radius: 4px;
 }
 
-.babonus .left-side .label {
+.babonus .label {
   flex: 1;
-  font-weight: bolder;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
-/* headers that have a right-side input */
-.babonus .left-side header.aura-config {
-  display: flex;
-  justify-content: space-between;
+.babonus.subapp .label {
+  flex: 2;
 }
 
 .babonus a[data-type="add-filter"],
-.babonus select[name="target"]~a,
 .babonus .available-filters .filter-add {
   margin: 0 5px;
   flex: 0 0 20px;
@@ -94,13 +89,21 @@
 }
 
 .babonus .right-side .bonuses,
-.babonus .left-side .targets {
+.babonus .left-side .types {
   overflow-y: auto;
   max-height: 700px;
   height: 700px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+}
+
+.babonus .left-side > :is(.inputs, .select-type) {
+  padding-right: 0.3em;
+}
+
+.babonus .right-side > :is(.current-bonuses, .filter-picker) {
+  padding-left: 0.3em;
 }
 
 .babonus .left-side .inputs {
@@ -116,7 +119,6 @@
   display: grid;
   grid-template-rows: 0fr 1fr 0fr 0.6fr;
   max-height: 730px;
-  padding-bottom: 1em;
 }
 
 .babonus .right-side .bonuses .bonus:first-child {
@@ -125,16 +127,18 @@
 
 .babonus .right-side .bonuses .bonus .header {
   display: grid;
-  grid-template-columns: 5fr 2fr;
+  grid-template-columns: 1fr 0fr;
+  padding: 0 1em 0 0;
 }
 
 .babonus .right-side .bonuses .bonus .header .label {
   text-align: center;
   line-height: normal;
-  font-size: 22px;
-  align-self: center;
+  font-size: 25px;
+  align-self: start;
   font-family: 'Modesto Condensed';
   cursor: pointer;
+  margin-top: 0.25em;
 }
 
 .babonus .right-side .bonuses .bonus .header .label:hover {
@@ -146,23 +150,22 @@
 }
 
 .babonus .right-side .bonuses .bonus .header .details {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .babonus .right-side .bonuses .bonus .header .details .functions {
-  text-align: end;
-  margin-right: 1em;
+  display: grid;
+  grid-template-columns: 0fr 0fr 0fr 0fr;
+  justify-items: center;
 }
 
 .babonus .right-side .bonuses .bonus .header .details .identifier {
-  font-style: italic;
   color: gray;
-  white-space: nowrap;
-  overflow-x: hidden;
   user-select: text;
-  font-size: 11px;
+  font-size: 12px;
   font-family: monospace;
-  margin-top: 0.5em;
 }
 
 .babonus .right-side .bonuses .bonus .description .content {
@@ -177,14 +180,8 @@
   opacity: 1;
 }
 
-.babonus .right-side .bonuses .bonus:not(.collapsed) .description .content {
-  transition: 0.3s;
-}
-
 .babonus .right-side .bonuses .bonus.collapsed .description .content {
-  max-height: 0;
-  opacity: 0;
-  padding: 0 0.75em;
+  display: none;
 }
 
 .babonus .left-side .inputs .filters select {
@@ -203,7 +200,7 @@
 }
 
 .babonus .form-group .form-fields button.babonus-keys:hover {
-  text-shadow: 0px 0px 5px var(--color-shadow-primary);
+  text-shadow: 0 0 5px var(--color-shadow-primary);
 }
 
 .babonus .utils-buttons {
@@ -212,20 +209,13 @@
   gap: 0.5em;
 }
 
-form.babonus.editMode [name='identifier'],
-form.babonus.editMode [name='target'] {
-  pointer-events: none;
-  color: #AAA;
-}
-
-form.babonus .right-side .details a {
-  text-align: end;
-  width: fit-content;
-  max-width: fit-content;
+.babonus .right-side .details .functions a {
+  width: 25px;
   padding: 3px;
+  text-align: center;
 }
 
-form.babonus.locked .right-side .details a {
+.babonus.locked .right-side .details .functions a {
   pointer-events: none;
 }
 
@@ -233,14 +223,39 @@ form.babonus.locked .right-side .details a {
   display: none;
 }
 
-/* WARNING */
-#babonus-warning {
-  transition: 0.3s;
+.babonus .warning.active {
+  opacity: 1;
+}
+
+.babonus .warning {
+  transition: 0.15s;
   opacity: 0;
 }
 
-#babonus-warning.active {
-  opacity: 1;
+.babonus .select-type .types {
+  justify-content: space-evenly;
+  font-size: 35px;
+}
+
+.babonus .select-type .types a {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  align-items: center;
+}
+
+.babonus .select-type .types a > i {
+  place-self: center;
+  font-size: 60px;
+}
+
+.babonus .babonus-type {
+  font-size: 30px;
+  text-align: center;
+  margin: 0.4em;
+}
+
+.babonus .babonus-type-header {
+  font-size: 16px;
 }
 
 /* KEY DIALOGS TABLES */
@@ -282,32 +297,6 @@ table.babonus td:not(:first-child) {
   text-align: center;
 }
 
-.babonus .select-target .targets {
-  justify-content: space-evenly;
-  font-size: 35px;
-}
-
-.babonus .select-target .targets a {
-  display: grid;
-  grid-template-columns: 2fr 3fr;
-  align-items: center;
-}
-
-.babonus .select-target .targets a>i {
-  place-self: center;
-  font-size: 60px;
-}
-
-.babonus .target-type {
-  font-size: 30px;
-  text-align: center;
-  margin: 0.4em;
-}
-
-.babonus .target-type-header {
-  font-size: 16px;
-}
-
 /* FILTER PICKER */
 .babonus .filter-picker .filter {
   display: grid;
@@ -316,7 +305,7 @@ table.babonus td:not(:first-child) {
     "c c"
     "d d";
   grid-template-columns: 1fr 0fr;
-  margin-bottom: 1em;
+  margin: 0.5em 0;
 }
 
 .babonus .filter-picker .filter-header {
@@ -344,8 +333,8 @@ table.babonus td:not(:first-child) {
   grid-area: b;
 }
 
-.babonus .available-filters,
-.babonus .unavailable-filters {
+.babonus div.available-filters,
+.babonus div.unavailable-filters {
   overflow-y: auto;
 }
 
@@ -360,13 +349,85 @@ table.babonus td:not(:first-child) {
   text-align: center;
 }
 
-.babonus .right-side .filter-picker header {
-  margin-bottom: 0.5em;
-}
-
 .babonus .left-side textarea {
   resize: vertical;
   min-height: var(--form-field-height);
   height: var(--form-field-height);
   overflow-y: hidden;
+}
+
+.babonus .sep {
+  padding: 0 5px;
+}
+
+/* Roll Configuration Optionals */
+.babonus-optionals {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em;
+  border: 1px inset;
+  border-radius: 1em;
+  margin-bottom: 1em;
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.babonus-optionals .optional {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 8fr 2fr;
+  grid-template-areas:
+    "a b"
+    "c c";
+  padding-bottom: 0.5em;
+}
+
+.babonus-optionals .optional:first-child {
+  padding-top: 0.5em;
+}
+
+.babonus-optionals .optional:not(:last-child) {
+  border-bottom: 2px groove;
+}
+
+.babonus-optionals .optional.active {
+  pointer-events: none;
+}
+
+.babonus-optionals .optional .add {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  justify-content: center;
+  padding: 0.25em;
+}
+
+.babonus-optionals .optional.active .add > i:before {
+  content: "\f00c";
+}
+
+.babonus-optionals .optional.active .consumption {
+  display: none;
+}
+
+.babonus-optionals .bonus-text .name {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.babonus-optionals .consumption {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  grid-area: c;
+}
+
+.babonus-optionals .consumption > :is(label, select) {
+  flex: 1;
+}
+
+.babonus-optionals .consumption > label {
+  font-weight: bold;
 }

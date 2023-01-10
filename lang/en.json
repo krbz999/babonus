@@ -1,274 +1,172 @@
 {
-  "BABONUS": {
-    "MIGRATION": {
-      "IN_PROGRESS": "Migration from previous Build-a-Bonus versions has begun. Please wait for the migration to complete.",
-      "COMPLETED": "Migration from previous Build-a-Bonus version has completed.",
-      "LOCKED_PACK": "You have provided a compendium that is currently locked. No migration was performed."
-    },
-    "DELETE": {
-      "DELETE_BONUS": "Delete Bonus: {name}",
-      "ARE_YOU_SURE": "Are you sure that you want to delete '{name}'? This action cannot be undone."
-    },
-    "WARNINGS": {
-      "INVALID": "Some of the data is invalid. Please re-evaluate your selections.",
-      "SUCCESS": "The bonus '{name}' with id '{id}' has been successfully saved.",
-      "DELETED": "The bonus '{name}' with id '{id}' has been successfully deleted.",
-      "COPIED": "The bonus '{name}' with id '{id}' has been successfully copied."
-    },
-    "LABELS": {
-      "IDENTIFIERS": "Identifiers",
-      "NAME": "Name",
-      "ID": "ID",
-      "DESCRIPTION": "Description",
-      "APPLY_KEYS": "Apply Selection",
-      "ATTACK": {
-        "BONUS": "Attack Bonus",
-        "CRIT_RANGE": "Critical Range",
-        "FUMBLE_RANGE": "Fumble Range"
-      },
-      "DAMAGE": {
-        "BONUS": "Damage Bonus",
-        "CRIT_DICE": "Critical Dice",
-        "CRIT_DMG": "Critical Damage"
-      },
-      "SAVE": {
-        "BONUS": "Save DC Bonus"
-      },
-      "THROW": {
-        "BONUS": "Saving Bonus",
-        "DEATH_TARGET": "Death Target"
-      },
-      "HITDIE": {
-        "BONUS": "Die Roll Bonus"
-      },
-      "itemTypes": "Item Types",
-      "statusEffects": "Actor Conds.",
-      "targetEffects": "Target Conds.",
-      "creatureTypes": "Creature Types",
-      "attackTypes": "Attack Types",
-      "damageTypes": "Damage Types",
-      "abilities": "Abilities",
-      "spellSchools": "Spell Schools",
-      "spellLevels": "Spell Levels",
-      "spellComponents": "Spell Comps.",
-      "arbitraryComparison": "Comparison",
-      "baseWeapons": "Weapons",
-      "weaponProperties": "Weapon Props.",
-      "throwTypes": "Throw Types",
-      "saveAbilities": "Save Abilities",
-      "itemRequirements": "Item Reqrmnts.",
-      "customScripts": "Custom Script",
-      "remainingSpellSlots": "Spell Slots",
-
-      "AURA_RANGE": "Range (ft)",
-      "AURA_FIELDS": "Valid Targets",
-      "AURA_SELF": "Affects Self",
-      "AURA_BLOCKERS": "Blocking Conds.",
-      "AURA_TEMPLATE": "Applies to Template"
-    },
-    "TOOLTIPS": {
-      "SELF_ONLY": "Toggle whether this bonus applies only to the item on which it is created.",
-      "TOGGLE_THIS": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
-      "COPY_THIS": "Create a duplicate of this bonus on this document.",
-      "EDIT_THIS": "Edit this bonus in the builder.",
-      "DELETE_THIS": "Delete this bonus from this document. Deletion is permanent and the bonus cannot be recovered.",
-      "ADD_THIS_FILTER": "Add this filter to the builder.",
-      "DELETE_THIS_FILTER": "Remove this filter from the builder.",
-      "IDENTIFIERS": "Identifying information of the bonus. The name is for your convenience, while the id is used to refer to the bonus internally.",
-      "DESCRIPTION": "A description of the bonus for your convenience.",
-      "ATTACK": {
-        "BONUS": "Additional parts to add on top of the attack roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
-        "CRIT_RANGE": "An integer to subtract from the critical range of the attack roll. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
-        "FUMBLE_RANGE": "An integer to add to the fumble range of the attack roll. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>."
-      },
-      "DAMAGE": {
-        "BONUS": "Additional parts to add on top of the damage roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
-        "CRIT_DICE": "An additional number of dice that should be rolled on a critical hit. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
-        "CRIT_DMG": "Additional parts to add on top of the damage roll on critical hits such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>."
-      },
-      "SAVE": {
-        "BONUS": "An integer to add onto the DC of a saving throw. This field respects roll data properties, such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>."
-      },
-      "THROW": {
-        "BONUS": "Additional parts to add on top of the saving throw such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
-        "DEATH_TARGET": "An integer to subtract from the minimum requirement to pass a death saving throw. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>."
-      },
-      "HITDIE": {
-        "BONUS": "Additional parts to add on top of the hit die roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>."
-      },
-      "WUTS_THIS": {
-        "REQUIRED": "These fields at the top are required to fill out for every bonus you want to create or edit.",
-        "BONUSES": "The actual values of the bonus and to which value it should apply. At least one of these fields must be filled.",
-        "AURA": "A set of configurations to make the bonus an aura, instead of only applying to the actor who owns it.",
-        "CURRENT_FILTERS": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
-        "AVAILABLE_FILTERS": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
-        "UNAVAILABLE_FILTERS": "The list of filters that are currently not available to apply to this bonus.",
-        "CURRENT_BONUSES": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",
-        "SELECT_TARGET": "Select a target for your new bonus; the type of roll to which it should apply."
-      },
-      "arbitraryComparison": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with <span style='font-family: monospace;'>@target</span>.",
-      "itemRequirements": "Toggle whether the item should require being equipped or attuned to for the bonus or aura to be in effect.",
-      "itemEquipped": "This bonus will be considered disabled unless this item is equipped.",
-      "itemAttuned": "This bonus will be considered disabled unless this item is attuned to.",
-      "itemTypes": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
-      "throwTypes": "The type of saving throw the bonus should apply to. This also applies to death saving throws, and you can adjust the target value of death saves as well.",
-      "damageTypes": "The type of damage the item must deal for the bonus to apply. For example if a spell deals fire damage.",
-      "abilities": "The ability score used by the item. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity.",
-      "statusEffects": "The conditions the actor must be affected by. For example <span style='font-family: monospace;'>blind;charm</span> will mean you only get this bonus while either blinded or charmed. The module looks for Status Ids in the effects.",
-      "targetEffects": "The conditions the target actor must be affected by. For example <span style='font-family: monospace;'>blind;charm</span> will mean you only get this bonus while your target is either blinded or charmed. The module looks for Status Ids in the effects.",
-      "creatureTypes": "The type of creature the target actor must be one of (or have as a subtype), or the type of creature the target must not be one of. For example 'undead', 'fey', or 'construct'.",
-      "attackTypes": "The type of attack roll the item must have for the bonus to apply. For example if you cast a spell that must involve a ranged spell attack (rsak) or melee weapon attack (mwak).",
-      "saveAbilities": "The ability that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with <span style='font-family: monospace;'>Spellcasting</span>, the actor's spellcasting ability is compared against.",
-      "spellComponents": "The components or spell tags the spell must have for the bonus to apply. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration.",
-      "spellLevels": "The level at which the spell must be cast for the bonus to apply. You can select each level individually. For example, you can have a bonus apply only to cantrips, only to leveled spells, or only to spells of 3rd level or below.",
-      "spellSchools": "The school the spell must belong to for the bonus to apply. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination spells.",
-      "baseWeapons": "The type of weapon the item must be for the bonus to apply. For example Battleaxe, Shortbow, or Longsword.",
-      "weaponProperties": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the needed properties, and none of the unfit properties. For example if you want a bonus to apply only to Two-Handed weapons.",
-      "customScripts": "Any custom script you want to write yourself. The script has to be completely synchronous and must return true or false. As helper variables, the script is supplied with 'token', 'actor', and 'item', if applicable.",
-      "remainingSpellSlots": "The minimum and maximum total number of remaining spell slots the actor must have for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all.",
-      "blockers": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template.",
-      "AURA": "Whether this bonus should transfer to other token actors on a scene. A bonus transferred to another actor will still be evaluated against the filters below, acting as if the actor attempting to benefit from the aura was the owner of the bonus in the first place.",
-      "AURA_RANGE": "The range of the aura, measured in feet (put in <span style='font-family: monospace;'>-1</span> for an unlimited range), and if the aura affects the area within a Measured Template instead (for items that are able to place a template).",
-      "AURA_TEMPLATE": "Whether this aura affects token actors within the area of a Measured Template, rather than token actors within a range of this item's owner.",
-      "AURA_FIELDS": "Which targets should benefit from the aura, and whether the aura should affect its owner as well. Allies are defined as tokens that have the same disposition as the owner; enemies are those with a Hostile disposition (if you are Friendly) or Friendly disposition (if you are Hostile).",
-      "AURA_SELF": "Whether this aura should affect its owner as well."
-    },
-    "PLACEHOLDERS": {
-      "NAME": "name...",
-      "ID": "id...",
-      "DESCRIPTION": "description...",
-      "arbitraryComparison": {
-        "one": "value...",
-        "other": "other value..."
-      },
-      "AURA_RANGE": "range..."
-    },
-    "FILTER_PICKER": {
-      "throwTypes": {
-        "HEADER": "Throw Types",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to saving throws."
-      },
-      "itemTypes": {
-        "HEADER": "Item Types",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
-      },
-      "itemRequirements": {
-        "HEADER": "Item Requirements",
-        "REQUIREMENTS": "This filter is only available for bonuses originating from items that can be equipped or attuned to."
-      },
-      "attackTypes": {
-        "HEADER": "Attack Types",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls or damage rolls."
-      },
-      "damageTypes": {
-        "HEADER": "Damage Types",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
-      },
-      "abilities": {
-        "HEADER": "Ability Modifier",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
-      },
-      "saveAbilities": {
-        "HEADER": "Save DC Ability",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs."
-      },
-      "spellComponents": {
-        "HEADER": "Spell Components",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
-      },
-      "spellLevels": {
-        "HEADER": "Spell Levels",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
-      },
-      "spellSchools": {
-        "HEADER": "Spell Schools",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types."
-      },
-      "baseWeapons": {
-        "HEADER": "Weapon Types",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
-      },
-      "weaponProperties": {
-        "HEADER": "Weapon Properties",
-        "REQUIREMENTS": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types."
-      },
-      "arbitraryComparison": {
-        "HEADER": "Arbitrary Comparison"
-      },
-      "statusEffects": {
-        "HEADER": "Actor Conditions"
-      },
-      "targetEffects": {
-        "HEADER": "Target Conditions"
-      },
-      "creatureTypes": {
-        "HEADER": "Creature Types"
-      },
-      "customScripts": {
-        "HEADER": "Custom Script"
-      },
-      "remainingSpellSlots": {
-        "HEADER": "Remaining Spell Slots"
-      },
-      "blockers": {
-        "HEADER": "Blocking Conditions"
-      }
-    },
-    "VALUES": {
-      "MATCH_ANY": "Match any",
-      "MATCH_ALL": "Match all",
-      "DISPOSITION": {
-        "ALLY": "Allied Targets",
-        "ENEMY": "Enemy Targets",
-        "ANY": "Any Targets"
-      },
-      "TYPE": {
-        "attack": "Attack Rolls",
-        "damage": "Damage Rolls",
-        "save": "Save DCs",
-        "throw": "Saving Throws",
-        "hitdie": "Hit Die Rolls"
-      },
-      "CREATING_FOR": "Creating a bonus for...",
-      "EDITING_FOR": "Editing a bonus for..."
-    },
-    "BUTTONS": {
-      "KEYS": "Keys",
-      "SAVE": "Save this Bonus"
-    },
-    "HEADERS": {
-      "BUILD_A_BONUS": "Build-a-Bonus",
-      "SELECT_TARGET": "Select a Target",
-      "AVAILABLE_FILTERS": "Available Filters",
-      "UNAVAILABLE_FILTERS": "Unavailable Filters",
-      "REQUIRED_FIELDS": "Required Fields",
-      "AURA": "Aura Configuration",
-      "FILTERS": "Current Filters",
-      "CURRENT_BONUSES": "Current Bonuses",
-      "BONUSES_INPUTS": "Bonuses"
-    },
-    "KEYS_DIALOG": {
-      "VALUE": "Value",
-      "INCLUDE": "Include",
-      "EXCLUDE": "Exclude",
-      "HEADER": "Keys: {name}"
-    },
-    "TRAITS": {
-      "SECTION": "Build-a-Bonus",
-      "NAME": "Build-a-Bonus Workshop",
-      "HINT": "Open the Build-a-Bonus workshop. Here you can create situational bonuses that should apply automatically for various rolls, such as saving throws, damage rolls, and hit die rolls.",
-      "LABEL": "Build-a-Bonus Workshop"
-    },
-    "BONUS": {
-      "ENABLED": "Enabled",
-      "DISABLED": "Disabled"
-    },
-    "SETTINGS": {
-      "DISPLAY_LABEL": {
-        "NAME": "Display Label",
-        "HINT": "If checked, the label is displayed in the header of applicable items and effects.",
-        "HEADER": "Build-a-Bonus"
-      }
-    }
-  }
+  "BABONUS.AddThisFilter": "Add this filter to the builder.",
+  "BABONUS.AvailableFilters": "Available Filters",
+  "BABONUS.AvailableFiltersTooltip": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
+  "BABONUS.Bonuses": "Bonuses",
+  "BABONUS.BonusesTooltip": "The actual values of the bonus and to which value it should apply. At least one of these fields must be filled.",
+  "BABONUS.ConfigurationAuraBlockingConditions": "Blocking Conditions",
+  "BABONUS.ConfigurationAuraBlockingConditionsTooltip": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template.",
+  "BABONUS.ConfigurationAuraDisposition.ALLY": "Allied Targets",
+  "BABONUS.ConfigurationAuraDisposition.ANY": "Any Targets",
+  "BABONUS.ConfigurationAuraDisposition.ENEMY": "Enemy Targets",
+  "BABONUS.ConfigurationAuraRange": "Range (ft)",
+  "BABONUS.ConfigurationAuraRangePlaceholder": "Range…",
+  "BABONUS.ConfigurationAuraRangeTooltip": "The range of the aura, measured in feet (put in <span style='font-family: monospace;'>-1</span> for an unlimited range), and if the aura affects the area within a Measured Template instead (for items that are able to place a template).",
+  "BABONUS.ConfigurationAuraSelf": "Affects Self",
+  "BABONUS.ConfigurationAuraTemplate": "Applies to Template",
+  "BABONUS.ConfigurationAuraTitle": "Aura Configuration: {name}",
+  "BABONUS.ConfigurationAuraTooltip": "A set of configurations to make the bonus an aura, instead of only applying to the actor who owns it.",
+  "BABONUS.ConfigurationAuraValidTargets": "Valid Targets",
+  "BABONUS.ConfigurationAuraValidTargetsTooltip": "Which targets should benefit from the aura, and whether the aura should affect its owner as well. Allies are defined as tokens that have the same disposition as the owner; enemies are those with a Hostile disposition (if you are Friendly) or Friendly disposition (if you are Hostile).",
+  "BABONUS.ConfigurationConsumptionConsume": "Consume:",
+  "BABONUS.ConfigurationConsumptionConsumedValues": "Consumed Values",
+  "BABONUS.ConfigurationConsumptionScaling": "Enable Scaling",
+  "BABONUS.ConfigurationConsumptionTitle": "Configure Consumption: {name}",
+  "BABONUS.ConfigurationConsumptionTooltip": "Configure whether and how the bonus consumes uses off its parent item.",
+  "BABONUS.ConfigurationConsumptionType": "Consumption Type",
+  "BABONUS.ConfigurationCopyTooltip": "Create a duplicate of this bonus on this document.",
+  "BABONUS.ConfigurationDeleteAreYouSure": "Are you sure that you want to delete '{name}'? This action cannot be undone.",
+  "BABONUS.ConfigurationDeleteTitle": "Delete Bonus: {name}",
+  "BABONUS.ConfigurationDeleteTooltip": "Delete this bonus from this document. Deletion is permanent and the bonus cannot be recovered.",
+  "BABONUS.ConfigurationEditTooltip": "Edit this bonus in the builder.",
+  "BABONUS.ConfigurationExclusiveTooltip": "Toggle whether this bonus applies only to the item on which it is created.",
+  "BABONUS.ConfigurationOptionalTooltip": "Toggle whether this bonus should be opted into when rolling.",
+  "BABONUS.ConfigurationToggleTooltip": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
+  "BABONUS.CreatingBonus": "Creating a bonus for…",
+  "BABONUS.CurentFiltersTooltip": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
+  "BABONUS.CurrentBonuses": "Current Bonuses",
+  "BABONUS.CurrentBonusesTooltip": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",
+  "BABONUS.CurrentFilters": "Current Filters",
+  "BABONUS.DeleteThisFilter": "Remove this filter from the builder.",
+  "BABONUS.Description": "Description",
+  "BABONUS.DescriptionPlaceholder": "Description…",
+  "BABONUS.DescriptionTooltip": "A description of the bonus for your convenience.",
+  "BABONUS.EditingBonus": "Editing a bonus for…",
+  "BABONUS.FiltersAbilities": "Ability Modifier",
+  "BABONUS.FiltersAbilitiesLabel": "Abilities",
+  "BABONUS.FiltersAbilitiesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
+  "BABONUS.FiltersAbilitiesTooltip": "The ability score used by the item. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity.",
+  "BABONUS.FiltersArbitraryComparison": "Arbitrary Comparison",
+  "BABONUS.FiltersArbitraryComparisonLabel": "Comparison",
+  "BABONUS.FiltersArbitraryComparisonOne": "Value…",
+  "BABONUS.FiltersArbitraryComparisonOther": "Other value…",
+  "BABONUS.FiltersArbitraryComparisonTooltip": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with <span style='font-family: monospace;'>@target</span>.",
+  "BABONUS.FiltersAttackTypes": "Attack Types",
+  "BABONUS.FiltersAttackTypesLabel": "Attack Types",
+  "BABONUS.FiltersAttackTypesRequirements": "This filter is only available for bonuses applying to attack rolls or damage rolls.",
+  "BABONUS.FiltersAttackTypesTooltip": "The type of attack roll the item must have for the bonus to apply. For example if you cast a spell that must involve a ranged spell attack (rsak) or melee weapon attack (mwak).",
+  "BABONUS.FiltersBaseWeapons": "Weapon Types",
+  "BABONUS.FiltersBaseWeaponsLabel": "Weapons",
+  "BABONUS.FiltersBaseWeaponsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types.",
+  "BABONUS.FiltersBaseWeaponsTooltip": "The type of weapon the item must be for the bonus to apply. For example Battleaxe, Shortbow, or Longsword.",
+  "BABONUS.FiltersCreatureTypes": "Creature Types",
+  "BABONUS.FiltersCreatureTypesLabel": "Creature Types",
+  "BABONUS.FiltersCreatureTypesTooltip": "The type of creature the target actor must be one of (or have as a subtype), or the type of creature the target must not be one of. For example 'undead', 'fey', or 'construct'.",
+  "BABONUS.FiltersCustomScripts": "Custom Script",
+  "BABONUS.FiltersCustomScriptsLabel": "Custom Script",
+  "BABONUS.FiltersCustomScriptsTooltip": "Any custom script you want to write yourself. The script has to be completely synchronous and must return true or false. As helper variables, the script is supplied with 'token', 'actor', and 'item', if applicable.",
+  "BABONUS.FiltersDamageTypes": "Damage Types",
+  "BABONUS.FiltersDamageTypesLabel": "Damage Types",
+  "BABONUS.FiltersDamageTypesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
+  "BABONUS.FiltersDamageTypesTooltip": "The type of damage the item must deal for the bonus to apply. For example if a spell deals fire damage.",
+  "BABONUS.FiltersItemRequirements": "Item Requirements",
+  "BABONUS.FiltersItemRequirementsLabel": "Item Reqrmnts.",
+  "BABONUS.FiltersItemRequirementsRequirements": "This filter is only available for bonuses originating from items that can be equipped or attuned to.",
+  "BABONUS.FiltersItemRequirementsTooltip": "Toggle whether the item should require being equipped or attuned to for the bonus or aura to be in effect.",
+  "BABONUS.FiltersItemTypes": "Item Types",
+  "BABONUS.FiltersItemTypesLabel": "Item Types",
+  "BABONUS.FiltersItemTypesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
+  "BABONUS.FiltersItemTypesTooltip": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
+  "BABONUS.FiltersRemainingSpellSlots": "Remaining Spell Slots",
+  "BABONUS.FiltersRemainingSpellSlotsLabel": "Spell Slots",
+  "BABONUS.FiltersRemainingSpellSlotsTooltip": "The minimum and maximum total number of remaining spell slots the actor must have for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all.",
+  "BABONUS.FiltersSaveAbilities": "Save DC Ability",
+  "BABONUS.FiltersSaveAbilitiesLabel": "Save Abilities",
+  "BABONUS.FiltersSaveAbilitiesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
+  "BABONUS.FiltersSaveAbilitiesTooltip": "The ability that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with <span style='font-family: monospace;'>Spellcasting</span>, the actor's spellcasting ability is compared against.",
+  "BABONUS.FiltersSpellComponents": "Spell Components",
+  "BABONUS.FiltersSpellComponentsLabel": "Spell Comps.",
+  "BABONUS.FiltersSpellComponentsMatchAll": "Match all",
+  "BABONUS.FiltersSpellComponentsMatchAny": "Match any",
+  "BABONUS.FiltersSpellComponentsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types.",
+  "BABONUS.FiltersSpellComponentsTooltip": "The components or spell tags the spell must have for the bonus to apply. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration.",
+  "BABONUS.FiltersSpellLevels": "Spell Levels",
+  "BABONUS.FiltersSpellLevelsLabel": "Spell Levels",
+  "BABONUS.FiltersSpellLevelsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types.",
+  "BABONUS.FiltersSpellLevelsTooltip": "The level at which the spell must be cast for the bonus to apply. You can select each level individually. For example, you can have a bonus apply only to cantrips, only to leveled spells, or only to spells of 3rd level or below.",
+  "BABONUS.FiltersSpellSchools": "Spell Schools",
+  "BABONUS.FiltersSpellSchoolsLabel": "Spell Schools",
+  "BABONUS.FiltersSpellSchoolsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'spell' is selected as one of the Item Types.",
+  "BABONUS.FiltersSpellSchoolsTooltip": "The school the spell must belong to for the bonus to apply. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination spells.",
+  "BABONUS.FiltersStatusEffects": "Actor Conditions",
+  "BABONUS.FiltersStatusEffectsLabel": "Actor Conds.",
+  "BABONUS.FiltersStatusEffectsTooltip": "The conditions the actor must be affected by. For example <span style='font-family: monospace;'>blind;charm</span> will mean you only get this bonus while either blinded or charmed. The module looks for Status Ids in the effects.",
+  "BABONUS.FiltersTargetEffects": "Target Conditions",
+  "BABONUS.FiltersTargetEffectsLabel": "Target Conds.",
+  "BABONUS.FiltersTargetEffectsTooltip": "The conditions the target actor must be affected by. For example <span style='font-family: monospace;'>blind;charm</span> will mean you only get this bonus while your target is either blinded or charmed. The module looks for Status Ids in the effects.",
+  "BABONUS.FiltersThrowTypes": "Throw Types",
+  "BABONUS.FiltersThrowTypesLabel": "Throw Types",
+  "BABONUS.FiltersThrowTypesRequirements": "This filter is only available for bonuses applying to saving throws.",
+  "BABONUS.FiltersThrowTypesTooltip": "The type of saving throw the bonus should apply to. This also applies to death saving throws, and you can adjust the target value of death saves as well.",
+  "BABONUS.FiltersWeaponProperties": "Weapon Properties",
+  "BABONUS.FiltersWeaponPropertiesLabel": "Weapon Props.",
+  "BABONUS.FiltersWeaponPropertiesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs, and only if 'weapon' is selected as one of the Item Types.",
+  "BABONUS.FiltersWeaponPropertiesTooltip": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the needed properties, and none of the unfit properties. For example if you want a bonus to apply only to Two-Handed weapons.",
+  "BABONUS.ID": "ID",
+  "BABONUS.Identifiers": "Identifiers",
+  "BABONUS.IdentifiersTooltip": "Identifying information of the bonus. The name is for your convenience, while the id is used to refer to the bonus internally.",
+  "BABONUS.Keys": "Keys",
+  "BABONUS.KeysDialogApplySelection": "Apply Selection",
+  "BABONUS.KeysDialogExclude": "Exclude",
+  "BABONUS.KeysDialogInclude": "Include",
+  "BABONUS.KeysDialogTitle": "Keys: {name}",
+  "BABONUS.KeysDialogValue": "Value",
+  "BABONUS.MigrationBegun": "Migration from previous Build-a-Bonus versions has begun. Please wait for the migration to complete.",
+  "BABONUS.MigrationCompleted": "Migration from previous Build-a-Bonus version has completed.",
+  "BABONUS.MigrationLockedPack": "You have provided a compendium that is currently locked. No migration was performed.",
+  "BABONUS.ModuleTitle": "Build-a-Bonus",
+  "BABONUS.Name": "Name",
+  "BABONUS.NamePlaceholder": "Name…",
+  "BABONUS.NotificationCopy": "The bonus '{name}' with id '{id}' has been successfully copied.",
+  "BABONUS.NotificationDelete": "The bonus '{name}' with id '{id}' has been successfully deleted.",
+  "BABONUS.NotificationInvalid": "Some of the data is invalid. Please re-evaluate your selections.",
+  "BABONUS.NotificationSave": "The bonus '{name}' with id '{id}' has been successfully saved.",
+  "BABONUS.RequiredFields": "Required Fields",
+  "BABONUS.RequiredFieldsTooltip": "These fields at the top are required to fill out for every bonus you want to create or edit.",
+  "BABONUS.SaveThisBonus": "Save this Bonus",
+  "BABONUS.SelectType": "Select a Type",
+  "BABONUS.SelectTypeTooltip": "Select a type for your new bonus; the kind of roll to which it should apply.",
+  "BABONUS.SettingsDisableCustomScriptFilterHint": "Disable the \"Custom Script\" filters from having their values read. Instead the filter always immediately returns true. Enable this setting if you prefer other users not executing scripts.",
+  "BABONUS.SettingsDisableCustomScriptFilterName": "Disable 'Custom Script' filter.",
+  "BABONUS.SettingsDisplayLabelHint": "If checked, the label is displayed in the header of applicable items and effects.",
+  "BABONUS.SettingsDisplayLabelName": "Display Label",
+  "BABONUS.SpecialTraitsHint": "Open the Build-a-Bonus workshop. Here you can create situational bonuses that should apply automatically for various rolls, such as saving throws, damage rolls, and hit die rolls.",
+  "BABONUS.SpecialTraitsName": "Build-a-Bonus Workshop",
+  "BABONUS.TypeAttackBonusCriticalRangeTooltip": "An integer to subtract from the critical range of the attack roll. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.TypeAttackBonusFumbleRangeTooltip": "An integer to add to the fumble range of the attack roll. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.TypeAttackBonusLabel": "Attack Bonus",
+  "BABONUS.TypeAttackBonusTooltip": "Additional parts to add on top of the attack roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TypeAttackCriticalRangeLabel": "Critical Range",
+  "BABONUS.TypeAttackFumbleRangeLabel": "Fumble Range",
+  "BABONUS.TypeAttackRolls": "Attack Rolls",
+  "BABONUS.TypeDamageBonusLabel": "Damage Bonus",
+  "BABONUS.TypeDamageBonusTooltip": "Additional parts to add on top of the damage roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TypeDamageCriticalBonusDamageLabel": "Critical Damage",
+  "BABONUS.TypeDamageCriticalBonusDamageTooltip": "Additional parts to add on top of the damage roll on critical hits such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TypeDamageCriticalBonusDiceLabel": "Critical Dice",
+  "BABONUS.TypeDamageCriticalBonusDiceTooltip": "An additional number of dice that should be rolled on a critical hit. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.TypeDamageRolls": "Damage Rolls",
+  "BABONUS.TypeHitdieBonusLabel": "Die Roll Bonus",
+  "BABONUS.TypeHitdieBonusTooltip": "Additional parts to add on top of the hit die roll such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TypeHitdieRolls": "Hit Die Rolls",
+  "BABONUS.TypeSaveBonusLabel": "Save DC Bonus",
+  "BABONUS.TypeSaveBonusTooltip": "An integer to add onto the DC of a saving throw. This field respects roll data properties, such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.TypeSaves": "Save DCs",
+  "BABONUS.TypeSavingThrows": "Saving Throws",
+  "BABONUS.TypeThrowBonusLabel": "Saving Bonus",
+  "BABONUS.TypeThrowBonusTooltip": "Additional parts to add on top of the saving throw such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Death Target",
+  "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "An integer to subtract from the minimum requirement to pass a death saving throw. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
+  "BABONUS.UnavailableFilters": "Unavailable Filters",
+  "BABONUS.UnavailableFiltersTooltip": "The list of filters that are currently not available to apply to this bonus."
 }
