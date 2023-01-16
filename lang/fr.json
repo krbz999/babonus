@@ -30,7 +30,7 @@
   "BABONUS.ConfigurationDeleteTooltip": "Supprimer ce bonus de ce document. La suppression est définitive et le bonus ne peut être récupéré.",
   "BABONUS.ConfigurationEditTooltip": "Modifiez ce bonus dans l'atelier.",
   "BABONUS.ConfigurationExclusiveTooltip": "Permet d'indiquer si ce bonus s'applique uniquement à l'objet sur lequel il est créé.",
-  "BABONUS.ConfigurationOptionalTooltip": "Permet d'indiquer si ce bonus doit être pris en compte lors du jet",
+  "BABONUS.ConfigurationOptionalTooltip": "Permet d'indiquer si ce bonus doit être pris en compte lors du jet.",
   "BABONUS.ConfigurationToggleTooltip": "Activez ou désactivez ce bonus. Un bonus qui est désactivé sera complètement ignoré, même s'il s'agit d'une aura.",
   "BABONUS.CreatingBonus": "Créer un bonus pour…",
   "BABONUS.CurentFiltersTooltip": "Les filtres actuellement appliqués au bonus, qui réduisent encore plus le nombre de jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
@@ -84,7 +84,7 @@
   "BABONUS.FiltersSaveAbilities": "DD Caractéristique de sauvegarde",
   "BABONUS.FiltersSaveAbilitiesLabel": "Carac. de Sauv.",
   "BABONUS.FiltersSaveAbilitiesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde.",
-  "BABONUS.FiltersSaveAbilitiesTooltip": "La caractéristique qui doit être utilisée pour déterminer le DD du jet de sauvegarde de l'objet pour que le bonus s'applique ; par exemple un Guerrier Maître de guerre qui détermine son DD de Manœuvre avec la Dextérité. Cela peut être différent de la caractéristique que l'objet utilise par ailleurs. Si un objet est configuré pour s'adapter à <span style='font-family: monospace;'>Incantation</span>, la caractéristique d'incantation de l'acteur est comparée à cette capacité.",
+  "BABONUS.FiltersSaveAbilitiesTooltip": "La caractéristique qui doit être utilisée pour déterminer le DD du jet de sauvegarde de l'objet pour que le bonus s'applique; par exemple un Guerrier Maître de guerre qui détermine son DD de Manœuvre avec la Dextérité. Cela peut être différent de la caractéristique que l'objet utilise par ailleurs. Si un objet est configuré pour s'adapter à <span style='font-family: monospace;'>Incantation</span>, la caractéristique d'incantation de l'acteur est comparée à cette capacité.",
   "BABONUS.FiltersSpellComponents": "Composantes des sorts",
   "BABONUS.FiltersSpellComponentsLabel": "Composantes",
   "BABONUS.FiltersSpellComponentsMatchAll": "Les requiert toutes",
@@ -168,5 +168,6 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.FiltersTargetEffectsLabel": "Conds. Cibles"
 }
