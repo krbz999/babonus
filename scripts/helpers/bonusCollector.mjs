@@ -81,7 +81,7 @@ function _getOwnEffectBonuses(actor, type) {
  * targetDisp: the disposition of the rolling token
  */
 function _filterTokenBonuses(token, type, range, targetDisp) {
-  if (token.hidden) return [];
+  if (token.hidden || !token.actor) return [];
   return [
     ..._getTokenBonuses(token.actor, type),
     ..._getTokenItemBonuses(token.actor, type),
