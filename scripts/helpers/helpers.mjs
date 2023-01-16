@@ -232,6 +232,7 @@ export function _getType(object, type) {
 
 // Returns a collection of bonuses on the object.
 export function _getCollection(object) {
+  if (!object) return new foundry.utils.Collection();
   const bonuses = Object.entries(object.getFlag(MODULE, "bonuses") ?? {});
   const contents = bonuses.reduce((acc, [id, data]) => {
     if (!foundry.data.validators.isValidId(id)) return acc;
