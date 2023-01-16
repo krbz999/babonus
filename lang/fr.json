@@ -77,7 +77,6 @@
   "BABONUS.FiltersItemTypesLabel": "Ty. d'Objet",
   "BABONUS.FiltersItemTypesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde.",
   "BABONUS.FiltersItemTypesTooltip": "Les types d'objets auxquels le bonus doit s'appliquer. Par exemple, si l'objet ne doit s'appliquer qu'aux sorts ou qu'aux armes.",
-  "BABONUS.FiltersRargetEffectsLabel": "Conds. Cibles",
   "BABONUS.FiltersRemainingSpellSlots": "Emplacements de sorts restant",
   "BABONUS.FiltersRemainingSpellSlotsLabel": "Empl. de sort",
   "BABONUS.FiltersRemainingSpellSlotsTooltip": "Le nombre total minimum et maximum d'emplacements de sorts restants que l'acteur doit avoir pour que le bonus s'applique. Par exemple, si vous voulez qu'un bonus ne s'applique que s'il vous reste 3 emplacements de sorts ou plus, ou aucun emplacement de sort.",
@@ -103,6 +102,7 @@
   "BABONUS.FiltersStatusEffectsLabel": "Conds. Acteur",
   "BABONUS.FiltersStatusEffectsTooltip": "Les conditions avec lesquelles l'acteur doit être affecté. Par exemple, <span style='font-family: monospace;'>aveugle;charme</span> signifie que vous n'obtiendrez ce bonus que si vous êtes aveuglé ou charmé. Le module recherche les identifiants de statut dans les effets.",
   "BABONUS.FiltersTargetEffects": "Conditions de la cible",
+  "BABONUS.FiltersTargetEffectsLabel": "Conds. Cibles",
   "BABONUS.FiltersTargetEffectsTooltip": "Les conditions par lesquelles l'acteur cible doit être affecté. Par exemple, <span style='font-family: monospace;'>aveugle;charme</span> signifie que vous n'obtiendrez ce bonus que si votre cible est soit aveuglée, soit charmée. Le module recherche les identifiants de statut dans les effets.",
   "BABONUS.FiltersThrowTypes": "Types de jets",
   "BABONUS.FiltersThrowTypesLabel": "Ty. de Jets",
@@ -168,6 +168,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.FiltersTargetEffectsLabel": "Conds. Cibles"
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
