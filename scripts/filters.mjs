@@ -422,7 +422,7 @@ export class FILTER {
    */
   static customScripts(object, script) {
     if (!script?.length) return true;
-    if (!game.settings.get(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER)) return true;
+    if (game.settings.get(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER)) return true;
     try {
       const func = Function("actor", "item", "token", script);
       const actor = object.parent instanceof Actor ? object.parent : object instanceof Actor ? object : null;
