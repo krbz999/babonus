@@ -1,32 +1,32 @@
 <div class="babonus-optionals">
   {{#each data as |bab|}}
 
-  {{#unless bab.consumes}}
+  {{#unless consumes}}
   <div class="optional">
     <div class="bonus-text">
-      <span class="name">{{bab.name}}.</span>
-      <span class="description">{{{bab.desc}}}</span>
+      <span class="name" data-tooltip="{{localize 'BABONUS.OriginName' name=origin}}">{{name}}.</span>
+      <span class="description">{{{desc}}}</span>
     </div>
-    <a class="add" data-bonus="{{bab.bonus}}">
+    <a class="add" data-bonus="{{bonus}}">
       <i class="fa-solid fa-plus"></i>
     </a>
   </div>
   {{/unless}}
 
-  {{#if bab.consumes}}
-  <div class="optional" data-min="{{bab.min}}" data-uuid="{{bab.uuid}}" data-type="{{bab.type}}">
+  {{#if consumes}}
+  <div class="optional" data-min="{{min}}" data-uuid="{{uuid}}" data-type="{{type}}">
     <div class="bonus-text">
-      <span class="name">{{bab.name}}.</span>
-      <span class="description">{{{bab.desc}}}</span>
+      <span class="name" data-tooltip="{{localize 'BABONUS.OriginName' name=origin}}">{{name}}.</span>
+      <span class="description">{{{desc}}}</span>
     </div>
-    <a class="add" data-bonus="{{bab.bonus}}">
+    <a class="add" data-bonus="{{bonus}}">
       <i class="fa-solid fa-plus"></i>
     </a>
 
-    {{#if bab.scales}}
+    {{#if scales}}
     <div class="consumption">
       <label>{{localize "BABONUS.ConfigurationConsumptionConsume"}}</label>
-      <select>{{{bab.options}}}</select>
+      <select>{{{options}}}</select>
     </div>
     {{/if}}
   </div>

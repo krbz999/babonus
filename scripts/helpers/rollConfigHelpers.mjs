@@ -5,7 +5,8 @@ export async function _renderDialog(dialog, html) {
   if (!optionals) return;
 
   // Inject template.
-  const data = optionals.map(bab => _constructTemplateData(bab));
+  const data = optionals.map(bab => _constructTemplateData(bab)).filter(i => i);
+  if (!data.length) return;
   const last = html[0].querySelector(".dialog-content > form > .form-group:last-child");
   const DIV = document.createElement("DIV");
   const template = `modules/${MODULE}/templates/subapplications/optionalBonuses.hbs`;
@@ -64,7 +65,7 @@ export async function _renderDialog(dialog, html) {
 
 // Construct data for the template.
 function _constructTemplateData(bab) {
-  let config = {
+  const config = {
     name: bab.name,
     desc: bab.description,
     bonus: bab.bonuses.bonus,
@@ -74,20 +75,25 @@ function _constructTemplateData(bab) {
   if (config.consumes) {
     const type = bab.consume.type;
     const max = type === "uses" ? bab.item.system.uses.max : bab.item.system.quantity;
-    const options = bab.getConsumptionOptions().reduce((acc, n) => {
+    const cons = bab.getConsumptionOptions();
+    if (!cons.length) return null;
+    const options = cons.reduce((acc, n) => {
       return acc + `<option value="${n}">${n} / ${max}</option>`;
     }, "");
     const uuid = bab.item.uuid;
     const scales = bab.consume.scales;
     const min = bab.consume.value.min;
-    foundry.utils.mergeObject(config, { type, max, options, uuid, scales, min });
+    const origin = _determineOriginTooltip(bab);
+    foundry.utils.mergeObject(config, {
+      type, max, options, uuid, scales, min, origin
+    });
   }
 
   return config;
 }
 
 // return whether an item can consume the amount.
-export function _determineConsumptionValidity(item, amount, type) {
+function _determineConsumptionValidity(item, amount, type) {
   const value = item.system.uses.value;
   const quantity = item.system.quantity;
   if (type === "uses") return amount <= value;
@@ -96,14 +102,21 @@ export function _determineConsumptionValidity(item, amount, type) {
 }
 
 // updates an item's uses/quantity.
-export async function _updateItemFromConsumption(item, amount, type) {
+async function _updateItemFromConsumption(item, amount, type) {
   const prop = type === "uses" ? "system.uses.value" : "system.quantity";
   const value = foundry.utils.getProperty(item, prop);
   return item.update({ [prop]: value - amount });
 }
 
 // append an upscaled bonus to the situational bonus field.
-export function _getScaledSituationalBonus(base, mult, data) {
+function _getScaledSituationalBonus(base, mult, data) {
   const roll = new Roll(base, data).alter(mult, 0, { multiplyNumeric: true });
   return roll.formula;
+}
+
+// Determine label for origin tooltip.
+function _determineOriginTooltip(bab) {
+  if (bab.parent instanceof MeasuredTemplateDocument) return "Template";
+  else if (bab.parent instanceof ActiveEffect) return bab.parent.label;
+  else return bab.parent.name;
 }

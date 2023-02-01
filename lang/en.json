@@ -131,6 +131,7 @@
   "BABONUS.NotificationDelete": "The bonus '{name}' with id '{id}' has been successfully deleted.",
   "BABONUS.NotificationInvalid": "Some of the data is invalid. Please re-evaluate your selections.",
   "BABONUS.NotificationSave": "The bonus '{name}' with id '{id}' has been successfully saved.",
+  "BABONUS.OriginName": "Origin: {name}",
   "BABONUS.RequiredFields": "Required Fields",
   "BABONUS.RequiredFieldsTooltip": "These fields at the top are required to fill out for every bonus you want to create or edit.",
   "BABONUS.SaveThisBonus": "Save this Bonus",
