@@ -175,6 +175,21 @@ export function _getAllTokenGridSpaces(tokenDoc) {
   return centers;
 }
 
+/**
+ * Return whether a secondary token's center coordinates are within a circle.
+ * source: source token placeable
+ * radius: radius of the circle (in ft)
+ */
+export function _getTokensWithinRadius(source, radiusFt) {
+  const { x, y } = source.center;
+  const tokenRadius = Math.abs(source.document.x - x);
+  const pixels = radiusFt / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
+  const captureArea = new PIXI.Circle(x, y, pixels);
+  return canvas.tokens.placeables.filter(t => {
+    return t !== source && captureArea.contains(t.center.x, t.center.y);
+  });
+}
+
 // Turn a babonus into something that can easily be 'pasted' into the ui.
 export function _babonusToString(babonus) {
   let flattened = foundry.utils.flattenObject(babonus);
