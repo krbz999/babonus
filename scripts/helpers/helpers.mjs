@@ -175,6 +175,32 @@ export function _getAllTokenGridSpaces(tokenDoc) {
   return centers;
 }
 
+/**
+ * Returns an array of tokens that are within radius ft of the source token.
+ * source: source token placeable
+ * radius: radius of the aura (in ft)
+ * Credit to @Freeze#2689 for much artistic aid.
+ */
+export function _getTokensWithinRadius(source, radiusFt) {
+  const tokenRadius = Math.abs(source.document.x - source.center.x);
+  const pixels = radiusFt / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
+  const captureArea = new PIXI.Circle(source.center.x, source.center.y, pixels);
+  const grid = canvas.grid.size;
+  return canvas.tokens.placeables.filter(t => {
+    if (t === source) return false;
+
+    const { width, height, x, y } = t.document;
+    if (width <= 1 && height <= 1) return captureArea.contains(t.center.x, t.center.y);
+    for (let a = 0; a < width; a++) {
+      for (let b = 0; b < height; b++) {
+        const test = captureArea.contains(...canvas.grid.getCenter(x + a * grid, y + b * grid));
+        if (test) return true;
+      }
+    }
+    return false;
+  });
+}
+
 // Turn a babonus into something that can easily be 'pasted' into the ui.
 export function _babonusToString(babonus) {
   let flattened = foundry.utils.flattenObject(babonus);
