@@ -42,24 +42,18 @@ export function _preRollAttack(item, rollConfig) {
   const target = game.user.targets.first();
   if (target?.actor) data.target = target.actor.getRollData();
 
-  // add to parts:
-  const { parts, optionals } = bonuses.reduce((acc, bab) => {
-    const bonus = bab.bonuses.bonus;
-    const valid = !!bonus && Roll.validate(bonus);
-    if (!valid) return acc;
-    if (bab.isOptional) acc.optionals.push(bab);
-    else acc.parts.push(bonus);
-    return acc;
-  }, { parts: [], optionals: [] });
-  if (parts.length) rollConfig.parts.push(...parts);
-  if (optionals.length) {
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
-  }
-
   // Gather up all bonuses.
+  const parts = [];
+  const optionals = [];
   const flats = { crit: Infinity, fumble: -Infinity };
   const mods = { crit: [], fumble: [] };
   for (const bab of bonuses) {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (valid) {
+      if (bab.isOptional) optionals.push(bab);
+      else parts.push(bonus);
+    }
     const cf = _bonusToInt(bab.bonuses.criticalRange, data);
     const ff = _bonusToInt(bab.bonuses.fumbleRange, data);
     if (bab.bonuses.criticalRangeFlat) {
@@ -68,6 +62,12 @@ export function _preRollAttack(item, rollConfig) {
     if (bab.bonuses.fumbleRangeFlat) {
       if (ff) flats.fumble = Math.max(flats.fumble, ff);
     } else mods.fumble.push(ff);
+  }
+
+  // Add parts.
+  if (parts.length) rollConfig.parts.push(...parts);
+  if (optionals.length) {
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
   }
 
   // Set to the thresholds first, then add modifiers to raise/lower.
@@ -125,27 +125,27 @@ export function _preRollDeathSave(actor, rollConfig) {
   const target = game.user.targets.first();
   if (target?.actor) data.target = target.actor.getRollData();
 
-  // add to parts:
-  const { parts, optionals } = bonuses.reduce((acc, bab) => {
-    const bonus = bab.bonuses.bonus;
-    const valid = !!bonus && Roll.validate(bonus);
-    if (!valid) return acc;
-    if (bab.isOptional) acc.optionals.push(bab);
-    else acc.parts.push(bonus);
-    return acc;
-  }, { parts: [], optionals: [] });
-  if (parts.length) rollConfig.parts.push(...parts);
-  if (optionals.length) {
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
-  }
-
   // Gather up all bonuses.
   const death = { flat: Infinity, mods: [] };
+  const parts = [];
+  const optionals = [];
   for (const bab of bonuses) {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (valid) {
+      if (bab.isOptional) optionals.push(bab);
+      else parts.push(bonus);
+    }
     const df = _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
     if (bab.bonuses.deathSaveTargetValueFlat) {
       if (df) death.flat = Math.min(death.flat, df);
     } else death.mods.push(df);
+  }
+
+  // Add parts.
+  if (parts.length) rollConfig.parts.push(...parts);
+  if (optionals.length) {
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
   }
 
   // Set to threshold first, then add modifiers to raise/lower.
