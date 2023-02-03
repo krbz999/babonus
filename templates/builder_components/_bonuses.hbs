@@ -5,6 +5,10 @@
   </label>
   <div class="form-fields">
     <input type="text" name="{{bonus.NAME}}">
+    {{#if bonus.canFlat}}
+    <label data-tooltip="BABONUS.BonusesFlatTooltip">{{localize "BABONUS.BonusesFlat"}}</label>
+    <input type="checkbox" name="{{concat bonus.NAME 'Flat'}}">
+    {{/if}}
   </div>
 </div>
 {{/each}}

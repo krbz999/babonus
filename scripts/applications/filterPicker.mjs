@@ -1,4 +1,4 @@
-import { AURA_TARGETS, BONUS_TYPES_FORMDATA, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
+import { BONUS_TYPES_FORMDATA, FILTER_NAMES, MODULE, TYPES } from "../constants.mjs";
 import {
   _constructFilterDataFromName,
   _employFilter,

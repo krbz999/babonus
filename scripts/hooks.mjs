@@ -9,7 +9,7 @@ function _bonusToInt(bonus, data) {
 
 export function _preDisplayCard(item, chatData) {
   // get bonus:
-  const bonuses = FILTER.itemCheck(item, "save", {spellLevel: item.system.level});
+  const bonuses = FILTER.itemCheck(item, "save", { spellLevel: item.system.level });
   if (!bonuses.length) return;
   const data = item.getRollData();
   const target = game.user.targets.first();
@@ -56,16 +56,28 @@ export function _preRollAttack(item, rollConfig) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
   }
 
-  // subtract from crit range.
-  rollConfig.critical = bonuses.reduce((acc, bab) => {
-    return acc - _bonusToInt(bab.bonuses.criticalRange, data);
-  }, rollConfig.critical ?? 20);
-  if (rollConfig.critical < 1) rollConfig.critical = 1;
+  // Gather up all bonuses.
+  const flats = { crit: Infinity, fumble: -Infinity };
+  const mods = { crit: [], fumble: [] };
+  for (const bab of bonuses) {
+    const cf = _bonusToInt(bab.bonuses.criticalRange, data);
+    const ff = _bonusToInt(bab.bonuses.fumbleRange, data);
+    if (bab.bonuses.criticalRangeFlat) {
+      if (cf) flats.crit = Math.min(flats.crit, cf);
+    } else mods.crit.push(cf);
+    if (bab.bonuses.fumbleRangeFlat) {
+      if (ff) flats.fumble = Math.max(flats.fumble, ff);
+    } else mods.fumble.push(ff);
+  }
 
-  // add to fumble range.
-  rollConfig.fumble = bonuses.reduce((acc, bab) => {
-    return acc + _bonusToInt(bab.bonuses.fumbleRange, data);
-  }, rollConfig.fumble ?? 1);
+  // Set to the thresholds first, then add modifiers to raise/lower.
+  if (flats.crit < Infinity) rollConfig.critical = flats.crit;
+  rollConfig.critical = mods.crit.reduce((acc, e) => acc - e, rollConfig.critical ?? 20);
+  if (flats.fumble > -Infinity) rollConfig.fumble = flats.fumble;
+  rollConfig.fumble = mods.fumble.reduce((acc, e) => acc + e, rollConfig.fumble ?? 1);
+
+  // Don't set crit to below 1.
+  if (rollConfig.critical < 1) rollConfig.critical = 1;
 }
 
 export function _preRollDamage(item, rollConfig) {
@@ -127,10 +139,18 @@ export function _preRollDeathSave(actor, rollConfig) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}.optionals`, optionals);
   }
 
-  // modify targetValue:
-  rollConfig.targetValue = bonuses.reduce((acc, bab) => {
-    return acc - _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
-  }, rollConfig.targetValue ?? 10);
+  // Gather up all bonuses.
+  const death = { flat: Infinity, mods: [] };
+  for (const bab of bonuses) {
+    const df = _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
+    if (bab.bonuses.deathSaveTargetValueFlat) {
+      if (df) death.flat = Math.min(death.flat, df);
+    } else death.mods.push(df);
+  }
+
+  // Set to threshold first, then add modifiers to raise/lower.
+  if (death.flat < Infinity) rollConfig.targetValue = death.flat;
+  rollConfig.targetValue = death.mods.reduce((acc, e) => acc - e, rollConfig.targetValue ?? 10);
 }
 
 export function _preRollAbilitySave(actor, rollConfig, abilityId) {

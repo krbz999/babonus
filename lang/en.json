@@ -4,6 +4,8 @@
   "BABONUS.AvailableFiltersTooltip": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
   "BABONUS.Bonuses": "Bonuses",
   "BABONUS.BonusesTooltip": "The actual values of the bonus and to which value it should apply. At least one of these fields must be filled.",
+  "BABONUS.BonusesFlat": "Flat:",
+  "BABONUS.BonusesFlatTooltip": "Whether this bonus is a set value instead of a modifier added or subtracted from the threshold.",
   "BABONUS.ConfigurationAuraBlockingConditions": "Blocking Conditions",
   "BABONUS.ConfigurationAuraBlockingConditionsTooltip": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious. This has no effect if the aura is on a Measured Template.",
   "BABONUS.ConfigurationAuraDisposition.ALLY": "Allied Targets",
