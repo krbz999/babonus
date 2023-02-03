@@ -46,7 +46,7 @@ export function _preRollAttack(item, rollConfig) {
   const parts = [];
   const optionals = [];
   const flats = { crit: Infinity, fumble: -Infinity };
-  const mods = { crit: [], fumble: [] };
+  const mods = { crit: 0, fumble: 0 };
   for (const bab of bonuses) {
     const bonus = bab.bonuses.bonus;
     const valid = !!bonus && Roll.validate(bonus);
@@ -58,10 +58,10 @@ export function _preRollAttack(item, rollConfig) {
     const ff = _bonusToInt(bab.bonuses.fumbleRange, data);
     if (bab.bonuses.criticalRangeFlat) {
       if (cf) flats.crit = Math.min(flats.crit, cf);
-    } else mods.crit.push(cf);
+    } else mods.crit += cf;
     if (bab.bonuses.fumbleRangeFlat) {
       if (ff) flats.fumble = Math.max(flats.fumble, ff);
-    } else mods.fumble.push(ff);
+    } else mods.fumble += ff;
   }
 
   // Add parts.
@@ -71,10 +71,8 @@ export function _preRollAttack(item, rollConfig) {
   }
 
   // Set to the thresholds first, then add modifiers to raise/lower.
-  if (flats.crit < Infinity) rollConfig.critical = flats.crit;
-  rollConfig.critical = mods.crit.reduce((acc, e) => acc - e, rollConfig.critical ?? 20);
-  if (flats.fumble > -Infinity) rollConfig.fumble = flats.fumble;
-  rollConfig.fumble = mods.fumble.reduce((acc, e) => acc + e, rollConfig.fumble ?? 1);
+  rollConfig.critical = Math.min(flats.crit, (rollConfig.critical ?? 20)) - mods.crit;
+  rollConfig.fumble = Math.max(flats.fumble, (rollConfig.fumble ?? 1)) + mods.fumble;
 
   // Don't set crit to below 1.
   if (rollConfig.critical < 1) rollConfig.critical = 1;
@@ -126,7 +124,7 @@ export function _preRollDeathSave(actor, rollConfig) {
   if (target?.actor) data.target = target.actor.getRollData();
 
   // Gather up all bonuses.
-  const death = { flat: Infinity, mods: [] };
+  const death = { flat: Infinity, bonus: 0 };
   const parts = [];
   const optionals = [];
   for (const bab of bonuses) {
@@ -139,7 +137,7 @@ export function _preRollDeathSave(actor, rollConfig) {
     const df = _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
     if (bab.bonuses.deathSaveTargetValueFlat) {
       if (df) death.flat = Math.min(death.flat, df);
-    } else death.mods.push(df);
+    } else death.bonus += df;
   }
 
   // Add parts.
@@ -149,8 +147,7 @@ export function _preRollDeathSave(actor, rollConfig) {
   }
 
   // Set to threshold first, then add modifiers to raise/lower.
-  if (death.flat < Infinity) rollConfig.targetValue = death.flat;
-  rollConfig.targetValue = death.mods.reduce((acc, e) => acc - e, rollConfig.targetValue ?? 10);
+  rollConfig.targetValue = Math.min(death.flat, (rollConfig.targetValue ?? 10)) - death.bonus;
 }
 
 export function _preRollAbilitySave(actor, rollConfig, abilityId) {
