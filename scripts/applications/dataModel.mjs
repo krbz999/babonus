@@ -44,7 +44,7 @@ class Babonus extends foundry.abstract.DataModel {
     const is = this.item.system;
     const value = this.consume.value;
     const itemMax = this.consume.type === "uses" ? is.uses.value : is.quantity;
-    if (!this.consume.scales) return [value.min];
+    if (!this.consume.scales) return itemMax >= value.min ? [value.min] : [];
     if (value.min > value.max) return [];
     const max = Math.min(value.max, itemMax);
     return Array.fromRange(max, 1).filter(n => n >= value.min);

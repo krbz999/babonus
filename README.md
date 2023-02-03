@@ -93,3 +93,6 @@
 <li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
 </ul>
 <p>In addition, if needed, the migration functions used to migrate bonuses in your world to Babonus v10.2.0 exposed in the <code>migration</code> object of the API.
+
+<h1>Compatibility</h1>
+<p>You should not expect this module to work with modules that overhaul or destroy core roll behaviour, particularly WIRE and MIDI. These modules are unsupported, and any compatiblity is nothing but a happy accident.</p>
