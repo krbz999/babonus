@@ -133,6 +133,7 @@
   "BABONUS.NotificationDelete": "Le bonus '{name}' avec l'identifiant '{id}' a été enregistré avec succès.",
   "BABONUS.NotificationInvalid": "Certaines des données sont invalides. Veuillez réévaluer vos sélections.",
   "BABONUS.NotificationSave": "Le bonus '{name}' avec l'identifiant '{id}' a été enregistré avec succès.",
+  "BABONUS.OriginName": "Origine : {name}",
   "BABONUS.RequiredFields": "Champs obligatoires",
   "BABONUS.RequiredFieldsTooltip": "Ces champs en haut doivent être remplis pour chaque bonus que vous souhaitez créer ou modifier.",
   "BABONUS.SaveThisBonus": "Sauvegarder ce bonus",
@@ -170,6 +171,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.OriginName": "Origine : {name}"
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
