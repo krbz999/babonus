@@ -86,6 +86,7 @@
 <li><code>getApplicableBonuses(object, type, options)</code> returns all bonuses that applies to a specific roll with this document.</li>
 <li><code>findEmbeddedDocumentsWithBonuses(object)</code> returns an object with two arrays containing items and effects on the given document that have a bonus.</li>
 <li><code>findTokensInRangeOfAura(object, id)</code> returns all token documents that are in range of an aura with the given id on the document.</li>
+<li><code>findTokensInRangeOfToken(token, radiusFt)</code> returns an array of token placeables that are within the given range of the given token placeable.</li>
 <li><code>openBabonusWorkshop(object)</code> opens the Build-a-Bonus workshop for the given document.</li>
 <li><code>getAllContainingTemplates(tokenDoc)</code> returns the ids of all templates on the scene that overlap with the Token Document.</li>
 <li><code>getMinimumDistanceBetweenTokens(tokenA, tokenB)</code> returns the minimum distance between two Token placeables, evaluating every grid cell that they occupy.</li>
