@@ -4,6 +4,8 @@
   "BABONUS.AvailableFiltersTooltip": "La liste des filtres que vous pouvez appliquer à ce bonus, afin de restreindre davantage les jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
   "BABONUS.Bonuses": "Bonus",
   "BABONUS.BonusesTooltip": "Les valeurs réelles du bonus et à quelle valeur il doit s'appliquer. Au moins un de ces champs doit être rempli.",
+  "BABONUS.BonusFlat": "Valeur:",
+  "BABONUS.BonusFlatTooltip": "Si ce bonus est une valeur fixe au lieu d'un modificateur ajouté ou soustrait du seuil..",
   "BABONUS.ConfigurationAuraBlockingConditions": "États Bloquent",
   "BABONUS.ConfigurationAuraBlockingConditionsTooltip": "Les états qui bloquent le transfert d'une aura, comme l'aura d'un paladin qui n'est active que lorsque le paladin n'est ni mort ni inconscient. Ceci n'a aucun effet si l'aura est sur un gabarit mesuré.",
   "BABONUS.ConfigurationAuraDisposition.ALLY": "Cibles alliées",

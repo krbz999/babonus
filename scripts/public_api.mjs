@@ -8,7 +8,8 @@ import {
   _getAllTokenGridSpaces,
   _getType,
   _getCollection,
-  _babFromUuid
+  _babFromUuid,
+  _getTokensWithinRadius
 } from "./helpers/helpers.mjs";
 import { _getAllContainingTemplateDocuments } from "./helpers/templateHelpers.mjs";
 import { migration } from "./migration.mjs";
@@ -27,6 +28,7 @@ export function _createAPI() {
 
     findEmbeddedDocumentsWithBonuses,
     findTokensInRangeOfAura,
+    findTokensInRangeOfToken,
     openBabonusWorkshop,
     getAllContainingTemplates,
     getMinimumDistanceBetweenTokens,
@@ -206,6 +208,15 @@ function findTokensInRangeOfAura(object, id) {
     const distance = _getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
     return aura.range >= distance;
   });
+}
+
+/**
+ * Returns an array of tokens that are within radius ft of the source token.
+ * source: source token placeable
+ * radius: radius of the aura (in ft)
+ */
+function findTokensInRangeOfToken(source, radius) {
+  return _getTokensWithinRadius(source, radius);
 }
 
 /**

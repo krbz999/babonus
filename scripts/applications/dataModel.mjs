@@ -284,7 +284,9 @@ export class AttackBabonus extends ItemBabonus {
       bonuses: new foundry.data.fields.SchemaField({
         bonus: new foundry.data.fields.StringField(),
         criticalRange: new foundry.data.fields.StringField(),
-        fumbleRange: new foundry.data.fields.StringField()
+        criticalRangeFlat: new foundry.data.fields.BooleanField({ initial: false }),
+        fumbleRange: new foundry.data.fields.StringField(),
+        fumbleRangeFlat: new foundry.data.fields.BooleanField({ initial: false })
       })
     });
   }
@@ -296,8 +298,8 @@ export class DamageBabonus extends ItemBabonus {
       bonuses: new foundry.data.fields.SchemaField({
         bonus: new foundry.data.fields.StringField(),
         criticalBonusDice: new foundry.data.fields.StringField(),
-        criticalBonusDamage: new foundry.data.fields.StringField(),
-      }),
+        criticalBonusDamage: new foundry.data.fields.StringField()
+      })
     });
   }
 }
@@ -311,7 +313,7 @@ export class SaveBabonus extends ItemBabonus {
       filters: new foundry.data.fields.SchemaField({
         saveAbilities: new SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.saveAbilities.map(t => t.value)
-        })),
+        }))
       })
     });
   }
@@ -323,11 +325,12 @@ export class ThrowBabonus extends Babonus {
       bonuses: new foundry.data.fields.SchemaField({
         bonus: new foundry.data.fields.StringField(),
         deathSaveTargetValue: new foundry.data.fields.StringField(),
+        deathSaveTargetValueFlat: new foundry.data.fields.BooleanField({ initial: false })
       }),
       filters: new foundry.data.fields.SchemaField({
         throwTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.throwTypes.map(t => t.value)
-        })),
+        }))
       })
     });
   }
