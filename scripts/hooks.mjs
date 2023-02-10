@@ -25,7 +25,7 @@ export function _preDisplayCard(item, chatData) {
 
   // create label (innertext)
   const save = item.system.save;
-  const ability = CONFIG.DND5E.abilities[save.ability] ?? "";
+  const ability = CONFIG.DND5E.abilities[save.ability] ?? ""; // TODO: fix in 2.2.x.
   const savingThrow = game.i18n.localize("DND5E.ActionSave");
   const dc = Math.max(1, save.dc + totalBonus) || "";
   chatData.flags[MODULE] = { saveDC: dc };

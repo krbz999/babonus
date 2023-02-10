@@ -104,12 +104,12 @@ class Babonus extends foundry.abstract.DataModel {
     const ir = this.filters.itemRequirements;
     const at = CONFIG.DND5E.attunementTypes.ATTUNED;
     // The item is not attuned and does require attunement.
-    return (item.system.attunement !== at && ir.attuned) || (!item.system.equipped && ir.equipped);
+    return ((item.system.attunement !== at) && ir.attuned) || (!item.system.equipped && ir.equipped);
   }
 
   // whether a bonus is currently an enabled and valid aura.
   get hasAura() {
-    return this.aura.enabled && (this.aura.range === -1 || this.aura.range > 0) && !this.aura.isTemplate;
+    return this.aura.enabled && ((this.aura.range === -1) || (this.aura.range > 0)) && !this.aura.isTemplate;
   }
 
   // whether this aura is blocked by any of its owner's blockers.
@@ -131,7 +131,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   // whether a bonus has any valid bonuses.
   get hasBonus() {
-    return Object.values(this.bonuses).some(val => !!val && val !== "0");
+    return Object.values(this.bonuses).some(val => !!val && (val !== "0"));
   }
 
   // the actor who has the babonus, even if the bonus is on an item, effect, or template.
@@ -284,9 +284,9 @@ export class AttackBabonus extends ItemBabonus {
       bonuses: new foundry.data.fields.SchemaField({
         bonus: new foundry.data.fields.StringField(),
         criticalRange: new foundry.data.fields.StringField(),
-        criticalRangeFlat: new foundry.data.fields.BooleanField({ initial: false }),
+        //criticalRangeFlat: new foundry.data.fields.BooleanField({ initial: false }),
         fumbleRange: new foundry.data.fields.StringField(),
-        fumbleRangeFlat: new foundry.data.fields.BooleanField({ initial: false })
+        //fumbleRangeFlat: new foundry.data.fields.BooleanField({ initial: false })
       })
     });
   }
@@ -325,7 +325,7 @@ export class ThrowBabonus extends Babonus {
       bonuses: new foundry.data.fields.SchemaField({
         bonus: new foundry.data.fields.StringField(),
         deathSaveTargetValue: new foundry.data.fields.StringField(),
-        deathSaveTargetValueFlat: new foundry.data.fields.BooleanField({ initial: false })
+        //deathSaveTargetValueFlat: new foundry.data.fields.BooleanField({ initial: false })
       }),
       filters: new foundry.data.fields.SchemaField({
         throwTypes: new SemicolonArrayField(new foundry.data.fields.StringField({

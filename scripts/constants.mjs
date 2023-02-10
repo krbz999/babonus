@@ -27,8 +27,8 @@ export const TYPES = [
 export const BONUS_TYPES_FORMDATA = {
   "attack": [
     { TOOLTIP: "BABONUS.TypeAttackBonusTooltip", LABEL: "BABONUS.TypeAttackBonusLabel", NAME: "bonuses.bonus" },
-    { TOOLTIP: "BABONUS.TypeAttackBonusCriticalRangeTooltip", LABEL: "BABONUS.TypeAttackCriticalRangeLabel", NAME: "bonuses.criticalRange", canFlat: true },
-    { TOOLTIP: "BABONUS.TypeAttackBonusFumbleRangeTooltip", LABEL: "BABONUS.TypeAttackFumbleRangeLabel", NAME: "bonuses.fumbleRange", canFlat: true }
+    { TOOLTIP: "BABONUS.TypeAttackBonusCriticalRangeTooltip", LABEL: "BABONUS.TypeAttackCriticalRangeLabel", NAME: "bonuses.criticalRange", canFlat: false },
+    { TOOLTIP: "BABONUS.TypeAttackBonusFumbleRangeTooltip", LABEL: "BABONUS.TypeAttackFumbleRangeLabel", NAME: "bonuses.fumbleRange", canFlat: false }
   ],
   "damage": [
     { TOOLTIP: "BABONUS.TypeDamageBonusTooltip", LABEL: "BABONUS.TypeDamageBonusLabel", NAME: "bonuses.bonus" },
@@ -40,7 +40,7 @@ export const BONUS_TYPES_FORMDATA = {
   ],
   "throw": [
     { TOOLTIP: "BABONUS.TypeThrowBonusTooltip", LABEL: "BABONUS.TypeThrowBonusLabel", NAME: "bonuses.bonus" },
-    { TOOLTIP: "BABONUS.TypeThrowDeathSaveTargetValueTooltip", LABEL: "BABONUS.TypeThrowDeathSaveTargetValueLabel", NAME: "bonuses.deathSaveTargetValue", canFlat: true }
+    { TOOLTIP: "BABONUS.TypeThrowDeathSaveTargetValueTooltip", LABEL: "BABONUS.TypeThrowDeathSaveTargetValueLabel", NAME: "bonuses.deathSaveTargetValue", canFlat: false }
   ],
   "hitdie": [
     { TOOLTIP: "BABONUS.TypeHitdieBonusTooltip", LABEL: "BABONUS.TypeHitdieBonusLabel", NAME: "bonuses.bonus" }

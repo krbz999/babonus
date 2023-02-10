@@ -64,7 +64,7 @@ export class KeyGetter {
   }
 
   // ability score keys.
-  static get abilities() {
+  static get abilities() { // TODO: fix in 2.2.x.
     const abilities = Object.entries(CONFIG.DND5E.abilities);
     return abilities.map(([value, label]) => ({ value, label }));
   }
@@ -83,7 +83,7 @@ export class KeyGetter {
     if (game.modules.get("concentrationnotifier")?.active) {
       abl.push({
         value: "concentration",
-        label: game.i18n.localize("CN.CONCENTRATION")
+        label: game.i18n.localize("DND5E.Concentration")
       })
     }
     return abl;
