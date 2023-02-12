@@ -19,9 +19,9 @@ import { _collectBonuses } from "./helpers/bonusCollector.mjs";
       itemOnly: false,                                      // whether this bonus only applies to the item on which it is created (attack/damage/save only).
       optional: false,                                      // whether this bonus is toggleable in the roll config.
       consume: {
-        enabled: true,                                      // whether the bonus consumes uses/quantity off its item.
+        enabled: true,                                      // whether the bonus consumes uses/quantity off its item or slots off its actor.
         scales: true,                                       // whether the consumption scales between the min and max values given.
-        type: "uses",                                       // whether the consumption is limited "uses" or "quantity".
+        type: "uses",                                       // whether the consumption is limited "uses" or "quantity" or "slots".
         value: {min: 1, max: 3}                             // the minimum and maximum number consumed when applying the bonus.
       },
       aura: {
@@ -211,7 +211,7 @@ export class FILTER {
    * is always the level at which it was cast.
    * @param {Item5e} item         The item being filtered against.
    * @param {Array} filter        The array of spell levels in the filter.
-   * @param {Number} spellLevel   The level at which a damage roll was performed, for spells.
+   * @param {Number} spellLevel   The level at which an attack/damage roll was performed, for spells.
    * @returns {Boolean}           Whether the item is of one of the appropriate levels.
    */
   static spellLevels(item, filter, { spellLevel = null } = {}) {

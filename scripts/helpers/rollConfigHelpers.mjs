@@ -1,11 +1,15 @@
 import { MODULE } from "../constants.mjs";
+import { _constructSpellSlotOptions, _getHighestSpellSlot } from "./helpers.mjs";
 
 export async function _renderDialog(dialog, html) {
-  const { optionals, spellLevel } = foundry.utils.getProperty(dialog, `options.${MODULE}`) ?? {};
+  // Array of optional babs, the level of the spell being rolled, and the uuid of the actor rolling.
+  const { optionals, spellLevel, actorUuid } = foundry.utils.getProperty(dialog, `options.${MODULE}`) ?? {};
   if (!optionals) return;
 
   // Inject template.
-  const data = optionals.map(bab => _constructTemplateData(bab)).filter(i => i);
+  const from = await fromUuid(actorUuid);
+  const actor = from.actor ?? from;
+  const data = optionals.map(bab => _constructTemplateData(bab, actor)).filter(i => i);
   if (!data.length) return;
   const last = html[0].querySelector(".dialog-content > form > .form-group:last-child");
   const DIV = document.createElement("DIV");
@@ -38,33 +42,35 @@ export async function _renderDialog(dialog, html) {
 
       // Subtract cost from the item.
       const { uuid, type, min } = opt.dataset;
-      const item = await fromUuid(uuid);
-      const value = !scales ? Number(min) : Number(scales.value || min);
+      const target = await fromUuid(uuid);
+      const value = type !== "slots" ? (!scales ? Number(min) : Number(scales.value || min)) : scales.value;
 
       // Can the cost be subtracted?
-      if (!_determineConsumptionValidity(item, value, type)) {
-        ui.notifications.warn("DND5E.AbilityUseUnavailableHint", { localize: true });
+      if (!_determineConsumptionValidity(target, value, type)) {
+        ui.notifications.warn(type !== "slots" ? "DND5E.AbilityUseUnavailableHint" : "BABONUS.ConsumptionTypeSpellSlotUnavailable", {
+          localize: true
+        });
         btn.closest(".optional").classList.remove("active");
         dialog.setPosition({ height: "auto" });
         return;
       }
 
-      // If the bonus scales, scale it with the item's roll data.
+      // If the bonus scales, scale it with the item's or actor's roll data.
       if (scales) {
-        const data = item.getRollData();
-        if (spellLevel) data.item.level = spellLevel;
+        const data = target.getRollData();
+        if (spellLevel) foundry.utils.setProperty(data, "item.level", spellLevel);
         const scaledBonus = _getScaledSituationalBonus(bonus, value, data);
         sitBonusField.value += ` + ${scaledBonus}`;
       } else sitBonusField.value += ` + ${bonus}`;
 
-      // Update the item's uses or quantity.
-      return _updateItemFromConsumption(item, value, type);
+      // Update the item's uses or quantity, or the actor's spell slots.
+      return _updateTargetFromConsumption(target, value, type);
     });
   });
 }
 
 // Construct data for the template.
-function _constructTemplateData(bab) {
+function _constructTemplateData(bab, actor) {
   const config = {
     name: bab.name,
     desc: bab.description,
@@ -74,13 +80,21 @@ function _constructTemplateData(bab) {
 
   if (config.consumes) {
     const type = bab.consume.type;
-    const max = type === "uses" ? bab.item.system.uses.max : bab.item.system.quantity;
-    const cons = bab.getConsumptionOptions();
+
+    const max = {
+      uses: bab.item?.system.uses.max,
+      quantity: bab.item?.system.quantity,
+      slots: _getHighestSpellSlot(actor.system)
+    }[type];
+
+    const cons = bab.getConsumptionOptions(actor.system);
     if (!cons.length) return null;
-    const options = cons.reduce((acc, n) => {
+    const options = (type === "slots") ? _constructSpellSlotOptions(actor.system, {
+      maxLevel: Math.min(max, Math.max(...cons))
+    }) : cons.reduce((acc, n) => {
       return acc + `<option value="${n}">${n} / ${max}</option>`;
     }, "");
-    const uuid = bab.item.uuid;
+    const uuid = type === "slots" ? actor.uuid : bab.item.uuid;
     const scales = bab.consume.scales;
     const min = bab.consume.value.min;
     const origin = _determineOriginTooltip(bab);
@@ -92,25 +106,32 @@ function _constructTemplateData(bab) {
   return config;
 }
 
-// return whether an item can consume the amount.
-function _determineConsumptionValidity(item, amount, type) {
-  const value = item.system.uses.value;
-  const quantity = item.system.quantity;
+/**
+ * Return whether an item or actor can consume the amount.
+ * Target: The item or actor being consumed off of.
+ * Amount: The number of uses, quantities, or the key of the spell slot (eg "pact" or "spell3").
+ * Type: "uses", "quantity" or "slots".
+ */
+function _determineConsumptionValidity(target, amount, type) {
+  const value = target.system.uses?.value;
+  const quantity = target.system.quantity;
   if (type === "uses") return amount <= value;
   else if (type === "quantity") return amount <= quantity;
+  else if (type === "slots") return target.system.spells[amount]?.value > 0;
   else return false;
 }
 
-// updates an item's uses/quantity.
-async function _updateItemFromConsumption(item, amount, type) {
-  const prop = type === "uses" ? "system.uses.value" : "system.quantity";
-  const value = foundry.utils.getProperty(item, prop);
-  return item.update({ [prop]: value - amount });
+// Updates an item's uses/quantity or an actor's spell slots.
+async function _updateTargetFromConsumption(target, amount, type) {
+  const prop = type === "uses" ? "system.uses.value" : type === "quantity" ? "system.quantity" : `system.spells.${amount}.value`;
+  const value = foundry.utils.getProperty(target, prop);
+  return (target instanceof Item) ? target.update({ [prop]: value - amount }) : target.update({ [prop]: value - 1 });
 }
 
 // append an upscaled bonus to the situational bonus field.
-function _getScaledSituationalBonus(base, mult, data) {
-  const roll = new Roll(base, data).alter(mult, 0, { multiplyNumeric: true });
+function _getScaledSituationalBonus(base, value, data) {
+  const mult = Number.isNumeric(value) ? value : value === "pact" ? data.spells.pact.level : value.startsWith("spell") ? Number(value.at(-1)) : value;
+  const roll = new CONFIG.Dice.DamageRoll(base, data).alter(mult, 0, { multiplyNumeric: true });
   return roll.formula;
 }
 

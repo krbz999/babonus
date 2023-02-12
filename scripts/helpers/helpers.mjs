@@ -347,3 +347,33 @@ export async function _displayKeysDialog(btn, name, getter, id) {
   if (list2) list2.value = selected.second;
   return;
 }
+
+/**
+ * Helper function to return a string of options for each spell slot level for which you have
+ * slots available, including pact slots. Optionally with a maximum level.
+ * Returns a string (possibly of length 0).
+ * @param {object} system     Actor system data.
+ * @param {Number} maxLevel   The maximum level.
+ * @returns {String}          The select options.
+ */
+export function _constructSpellSlotOptions(system, { maxLevel = Infinity } = {}) {
+  return Object.entries(system.spells).reduce((acc, [key, data]) => {
+    if (data.value <= 0) return acc;
+    if ((data.level > maxLevel) || (key.at(-1) > maxLevel)) return acc;
+    const label = game.i18n.format(`DND5E.SpellLevel${key === "pact" ? "Pact" : "Slot"}`, {
+      level: key === "pact" ? data.level : game.i18n.localize(`DND5E.SpellLevel${key.at(-1)}`),
+      n: `${data.value}/${data.max}`
+    });
+    return acc + `<option value="${key}">${label}</option>`;
+  }, "");
+}
+
+// Get the highest level spell slot available.
+export function _getHighestSpellSlot(systemData) {
+  return Object.entries(systemData.spells ?? {}).reduce((acc, [key, values]) => {
+    if (!values.value || !values.max) return acc;
+    if (key === "pact") acc = Math.max(values.level, acc);
+    else acc = Math.max(Number(key.at(-1)), acc);
+    return acc;
+  }, 0);
+}

@@ -19,14 +19,15 @@ export class ConsumptionDialog extends FormApplication {
   }
 
   async getData() {
-    const is = this.options.bab.item.system;
+    const bab = this.options.bab;
     const choices = [{ value: "", label: "" }];
-    if (is.uses !== undefined) choices.push({ value: "uses", label: "DND5E.LimitedUses" });
-    if (is.quantity !== undefined) choices.push({ value: "quantity", label: "DND5E.Quantity" });
+    if (bab.canConsumeUses) choices.push({ value: "uses", label: "DND5E.LimitedUses" });
+    if (bab.canConsumeQuantity) choices.push({ value: "quantity", label: "DND5E.Quantity" });
+    if (bab.canConsumeSlots) choices.push({ value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot" });
     return {
       choices,
-      value: this.options.bab.consume.type,
-      consume: this.options.bab.consume // scales, value (min, max), type, enabled
+      value: bab.consume.type,
+      consume: bab.consume // scales, value (min, max), type, enabled
     }
   }
 

@@ -34,6 +34,8 @@
   "BABONUS.ConfigurationExclusiveTooltip": "Toggle whether this bonus applies only to the item on which it is created.",
   "BABONUS.ConfigurationOptionalTooltip": "Toggle whether this bonus should be opted into when rolling.",
   "BABONUS.ConfigurationToggleTooltip": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",
+  "BABONUS.ConsumptionTypeSpellSlot": "Spell Slot",
+  "BABONUS.ConsumptionTypeSpellSlotUnavailable": "You do not have any remaining spell slots of that level.",
   "BABONUS.CreatingBonus": "Creating a bonus for…",
   "BABONUS.CurentFiltersTooltip": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
   "BABONUS.CurrentBonuses": "Current Bonuses",

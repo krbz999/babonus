@@ -44,7 +44,7 @@
 
 <h3 style="font-weight: bold;">Optional Bonuses and Consumption</h3>
 <p>If the bonus additively affects an attack roll, damage roll, or saving throw (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will reply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making an attack roll, damage roll, or saving throw.</p>
-<p>If the bonus is not an aura of any kind, is optional as described above, and if the item on which the bonus is embedded has either limited uses or a quantity (such as a quiver of arrows), the bonus can also be configured to consume these when choosing to add the optional bonus. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
+<p>If the bonus is not an aura of any kind, is optional as described above, and if the item on which the bonus is embedded has either limited uses or a quantity (such as a quiver of arrows), the bonus can also be configured to consume these when choosing to add the optional bonus. You can configure the minimum required consumption, as well as the maximum if the bonus should scale. An optional bonus can also be set to consume spell slots.</p>
 <p>For example, if you create an item with 10 limited uses, a bonus of "+1d6", and configure that the bonus is optional, consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted.</p>
 
 <h1 style="font-weight: bold;">Available Filters</h1>
