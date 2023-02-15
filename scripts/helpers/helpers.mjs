@@ -17,7 +17,7 @@ import { getId } from "../public_api.mjs";
 
 // current bonuses on the document, for HTML purposes only.
 export function _getBonuses(doc) {
-  const flag = doc.getFlag(MODULE, "bonuses") ?? {};
+  const flag = doc.flags.babonus?.bonuses ?? {};
   return Object.entries(flag).map(([id, data]) => {
     try {
       return _createBabonus(data, id, { parent: doc });
@@ -135,10 +135,7 @@ export class KeyGetter {
   }
 }
 
-/**
- * Gets the minimum distance between two tokens,
- * evaluating all grid spaces they occupy.
- */
+// Gets the minimum distance between two tokens, evaluating all grid spaces they occupy.
 export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   const A = _getAllTokenGridSpaces(tokenA.document);
   const B = _getAllTokenGridSpaces(tokenB.document);
@@ -156,9 +153,7 @@ export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   return Math.max(Math.min(...distances), elevationDiff);
 }
 
-/**
- * Get the upper left corners of all grid spaces a token document occupies.
- */
+// Get the upper left corners of all grid spaces a token document occupies.
 export function _getAllTokenGridSpaces(tokenDoc) {
   const { width, height, x, y } = tokenDoc;
   if (width <= 1 && height <= 1) return [{ x, y }];
@@ -349,11 +344,10 @@ export async function _displayKeysDialog(btn, name, getter, id) {
 }
 
 /**
- * Construct the scaling options for an optional babonus. Each option will have a
- * dataset with 'property' (the attribute to subtract from), 'value' (the amount to
- * subtract), and 'scale' (how much this scales the bonus up from the base).
- * Special handling for spell slots that are 'too big'; these can still be used,
- * but will not upscale the bonus any further.
+ * Construct the scaling options for an optional babonus. Each option will have a dataset with
+ * 'property' (the attribute to subtract from), 'value' (the amount to subtract), and 'scale'
+ * (how much this scales the bonus up from the base). Special handling for spell slots that are
+ * 'too big'; these can still be used, but will not upscale the bonus any further.
  * @param {Actor5e|Item5e} data   The item or actor who has the property.
  * @param {string} type           One of the options of CONSUMPTION_TYPES.
  * @param {number} options.min    The minimum allowed value (or slot level).
@@ -361,39 +355,47 @@ export async function _displayKeysDialog(btn, name, getter, id) {
  * @returns {string}              The string of options for the select.
  */
 export function _constructScalingOptionalOptions(data, type, { min = -Infinity, max = Infinity } = {}) {
-  if (type === "slots") {
-    return Object.entries(data.system.spells).reduce((acc, [key, val]) => {
-      if (!val.value) return acc;
-      if (!val.max) return acc;
-      const level = key === "pact" ? val.level : Number(key.at(-1));
-      if (level < min) return acc;
-      const label = game.i18n.format(`DND5E.SpellLevel${key === "pact" ? "Pact" : "Slot"}`, {
-        level: key === "pact" ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
-        n: `${val.value}/${val.max}`
-      });
-      const property = `system.spells.${key}.value`;
-      const scale = Math.min(level, max) - Math.max(min, 1) + 1;
-      return acc + `<option data-property="${property}" data-value="1" data-scale="${scale}">${label}</option>`;
-    }, "");
-  }
-  else if (type === "uses") {
-    const property = "system.uses.value";
-    if (data.system.uses.value <= 0) return "";
-    return Array.fromRange(data.system.uses.value, 1).reduce((acc, n) => {
-      if (!n.between(min, max)) return acc;
-      const scale = n - min + 1;
-      const label = `${n} / ${data.system.uses.max}`
-      return acc + `<option data-property="${property}" data-value="${n}" data-scale="${scale}">${label}</option>`;
-    }, "");
-  }
-  else if (type === "quantity") {
-    const property = "system.quantity";
-    if (data.system.quantity <= 0) return "";
-    return Array.fromRange(data.system.quantity, 1).reduce((acc, n) => {
-      if (!n.between(min, max)) return acc;
-      const scale = n - min + 1;
-      const label = `${n} / ${data.system.quantity}`
-      return acc + `<option data-property="${property}" data-value="${n}" data-scale="${scale}">${label}</option>`;
-    }, "");
-  }
+  if (type === "slots") return _constructScalingSlotOptions(data, { min, max });
+  else if (type === "uses") return _constructScalingChargesOptions(data, { min, max });
+  else if (type === "quantity") return _constructScalingQuantityOptions(data, { min, max });
+}
+
+// Construct the scaling options for spell slots.
+function _constructScalingSlotOptions(data, { min, max }) {
+  return Object.entries(data.system.spells).reduce((acc, [key, val]) => {
+    if (!val.value || !val.max) return acc;
+    const level = key === "pact" ? val.level : Number(key.at(-1));
+    if (level < min) return acc;
+    const label = game.i18n.format(`DND5E.SpellLevel${key === "pact" ? "Pact" : "Slot"}`, {
+      level: key === "pact" ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
+      n: `${val.value}/${val.max}`
+    });
+    const property = `system.spells.${key}.value`;
+    const scale = Math.min(level, max) - Math.max(min, 1) + 1;
+    return acc + `<option data-property="${property}" data-value="1" data-scale="${scale}">${label}</option>`;
+  }, "");
+}
+
+// Construct the scaling options for limited uses.
+function _constructScalingChargesOptions(data, { min, max }) {
+  const property = "system.uses.value";
+  if (data.system.uses.value <= 0) return "";
+  return Array.fromRange(data.system.uses.value, 1).reduce((acc, n) => {
+    if (!n.between(min, max)) return acc;
+    const scale = n - min + 1;
+    const label = `${n}/${data.system.uses.max}`
+    return acc + `<option data-property="${property}" data-value="${n}" data-scale="${scale}">${label}</option>`;
+  }, "");
+}
+
+// Construct the scaling options for quantities.
+function _constructScalingQuantityOptions(data, { min, max }) {
+  const property = "system.quantity";
+  if (data.system.quantity <= 0) return "";
+  return Array.fromRange(data.system.quantity, 1).reduce((acc, n) => {
+    if (!n.between(min, max)) return acc;
+    const scale = n - min + 1;
+    const label = `${n}/${data.system.quantity}`
+    return acc + `<option data-property="${property}" data-value="${n}" data-scale="${scale}">${label}</option>`;
+  }, "");
 }
