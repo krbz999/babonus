@@ -9,7 +9,7 @@ import {
   SPELL_COMPONENT_MATCHING,
   TYPES
 } from "../constants.mjs";
-import { KeyGetter, _babonusToString, _getHighestSpellSlot } from "../helpers/helpers.mjs";
+import { KeyGetter, _babonusToString } from "../helpers/helpers.mjs";
 import {
   SemicolonArrayField,
   FilteredArrayField,
@@ -38,27 +38,6 @@ class Babonus extends foundry.abstract.DataModel {
     return dragData;
   }
 
-  // Returns an array of integers, representing the options for consumption.
-  getConsumptionOptions(actorSystem = {}) {
-    if (!this.isConsuming) return [];
-    const is = this.item?.system;
-    const as = actorSystem;
-    const values = this.consume.value;
-    const available = this.consume.type === "uses" ? is.uses.value : this.consume.type === "quantity" ? is.quantity : _getHighestSpellSlot(as);
-
-    // If the bonus does not scale, either there is one option or none, depending on what is available.
-    if (!this.consume.scales) return available >= values.min ? [values.min] : [];
-
-    // If the minimum is set to be higher than the max, no options available.
-    if (values.min > (values.max || Infinity)) return [];
-
-    // Get the maximum option.
-    const max = Math.min((values.max || Infinity), available);
-
-    // Return the array of options, between min and max.
-    return Array.fromRange(max, 1).filter(n => n >= values.min);
-  }
-
   get uuid() {
     return `${this.parent.uuid}.Babonus.${this.id}`;
   }
@@ -66,6 +45,13 @@ class Babonus extends foundry.abstract.DataModel {
   // Whether the babonus can show the Consumption app in the builder.
   get canConsume() {
     return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots);
+  }
+
+  // Whether the babonus is scaling.
+  get isScaling() {
+    if (!this.isConsuming) return false;
+    if (!this.consume.scales) return false;
+    return this.consume.value.max > this.consume.value.min;
   }
 
   // Whether the babonus can be set to consume limited uses of its parent item.

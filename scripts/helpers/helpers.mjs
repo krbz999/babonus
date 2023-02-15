@@ -349,31 +349,49 @@ export async function _displayKeysDialog(btn, name, getter, id) {
 }
 
 /**
- * Helper function to return a string of options for each spell slot level for which you have
- * slots available, including pact slots. Optionally with a maximum level.
- * Returns a string (possibly of length 0).
- * @param {object} system     Actor system data.
- * @param {Number} maxLevel   The maximum level.
- * @returns {String}          The select options.
+ * Construct the scaling options for an optional babonus. Each option will have a
+ * dataset with 'property' (the attribute to subtract from), 'value' (the amount to
+ * subtract), and 'scale' (how much this scales the bonus up from the base).
+ * @param {Actor5e|Item5e} data   The item or actor who has the property.
+ * @param {string} type           One of the options of CONSUMPTION_TYPES.
+ * @param {number} options.min    The minimum allowed value (or slot level).
+ * @param {number} options.max    The maximum allowed value (or slot level).
+ * @returns {string}              The string of options for the select.
  */
-export function _constructSpellSlotOptions(system, { maxLevel = Infinity } = {}) {
-  return Object.entries(system.spells).reduce((acc, [key, data]) => {
-    if (data.value <= 0) return acc;
-    if ((data.level > maxLevel) || (key.at(-1) > maxLevel)) return acc;
-    const label = game.i18n.format(`DND5E.SpellLevel${key === "pact" ? "Pact" : "Slot"}`, {
-      level: key === "pact" ? data.level : game.i18n.localize(`DND5E.SpellLevel${key.at(-1)}`),
-      n: `${data.value}/${data.max}`
-    });
-    return acc + `<option value="${key}">${label}</option>`;
-  }, "");
-}
-
-// Get the highest level spell slot available.
-export function _getHighestSpellSlot(systemData) {
-  return Object.entries(systemData.spells ?? {}).reduce((acc, [key, values]) => {
-    if (!values.value || !values.max) return acc;
-    if (key === "pact") acc = Math.max(values.level, acc);
-    else acc = Math.max(Number(key.at(-1)), acc);
-    return acc;
-  }, 0);
+export function _constructScalingOptionalOptions(data, type, { min = -Infinity, max = Infinity } = {}) {
+  if (type === "slots") {
+    return Object.entries(data.system.spells).reduce((acc, [key, val]) => {
+      if (!val.value) return acc;
+      if (!val.max) return acc;
+      const level = key === "pact" ? val.level : Number(key.at(-1));
+      if (!level.between(min, max)) return acc;
+      const label = game.i18n.format(`DND5E.SpellLevel${key === "pact" ? "Pact" : "Slot"}`, {
+        level: key === "pact" ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
+        n: `${val.value}/${val.max}`
+      });
+      const property = `system.spells.${key}.value`;
+      const scale = level - Math.max(min, 1) + 1;
+      return acc + `<option data-property="${property}" data-value="1" data-scale="${scale}">${label}</option>`;
+    }, "");
+  }
+  else if (type === "uses") {
+    const property = "system.uses.value";
+    if (data.system.uses.value <= 0) return "";
+    return Array.fromRange(data.system.uses.value, 1).reduce((acc, n) => {
+      if (!n.between(min, max)) return acc;
+      const scale = n - min + 1;
+      const label = `${n} / ${data.system.uses.max}`
+      return acc + `<option data-property="${property}" data-value="${n}" data-scale="${scale}">${label}</option>`;
+    }, "");
+  }
+  else if (type === "quantity") {
+    const property = "system.quantity";
+    if (data.system.quantity <= 0) return "";
+    return Array.fromRange(data.system.quantity, 1).reduce((acc, n) => {
+      if (!n.between(min, max)) return acc;
+      const scale = n - min + 1;
+      const label = `${n} / ${data.system.quantity}`
+      return acc + `<option data-property="${property}" data-value="${n}" data-scale="${scale}">${label}</option>`;
+    }, "");
+  }
 }

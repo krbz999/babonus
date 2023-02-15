@@ -1,5 +1,5 @@
 import { MODULE } from "../constants.mjs";
-import { _constructSpellSlotOptions, _getHighestSpellSlot } from "./helpers.mjs";
+import { _constructScalingOptionalOptions } from "./helpers.mjs";
 
 export async function _renderDialog(dialog, html) {
   // Array of optional babs, the level of the spell being rolled, and the uuid of the actor rolling.
@@ -20,87 +20,115 @@ export async function _renderDialog(dialog, html) {
 
   // Declare situational bonus field and append listeners.
   const sitBonusField = html[0].querySelector("[name=bonus]");
-  html[0].querySelectorAll(".babonus-optionals a.add").forEach(btn => {
+  html[0].querySelectorAll(".babonus-optionals button.add").forEach(btn => {
     btn.addEventListener("click", async () => {
-      btn.closest(".optional").classList.add("active");
+      const opt = btn.closest(".optional");
+      opt.classList.add("active");
+      const data = opt.dataset;
       dialog.setPosition({ height: "auto" });
 
-      const opt = btn.closest(".optional");
-
-      // The base bonus.
-      const bonus = btn.dataset.bonus;
-
       // Does the bonus have a cost?
-      const hasCost = opt.dataset.uuid;
-      if (!hasCost) {
-        sitBonusField.value += ` + ${bonus}`;
+      const consumes = opt.classList.contains("consumes");
+      if (!consumes) {
+        sitBonusField.value += ` + ${data.bonus}`;
         return;
       }
 
       // Does the bonus scale?
-      const scales = opt.querySelector(".consumption select");
+      const scales = opt.classList.contains("scales");
+      const select = opt.querySelector(".consumption select"); // the dropdown for scaling.
+      const selectData = select?.options[select.selectedIndex].dataset ?? {}; // data of the option.
 
-      // Subtract cost from the item.
-      const { uuid, type, min } = opt.dataset;
-      const target = await fromUuid(uuid);
-      const value = type !== "slots" ? (!scales ? Number(min) : Number(scales.value || min)) : scales.value;
+      // The target of consumption.
+      const target = await fromUuid(data.uuid);
 
-      // Can the cost be subtracted?
-      if (!_determineConsumptionValidity(target, value, type)) {
-        ui.notifications.warn(type !== "slots" ? "DND5E.AbilityUseUnavailableHint" : "BABONUS.ConsumptionTypeSpellSlotUnavailable", {
-          localize: true
-        });
-        btn.closest(".optional").classList.remove("active");
+      // The attribute key to target on the actor or item.
+      let attrKey;
+      if (!scales) {
+        if (data.type === "slots") {
+          attrKey = _getLowestValidSpellSlot(target.system.spells, Number(data.min));
+          if (!attrKey) {
+            ui.notifications.warn("BABONUS.NoRemainingSpellSlots", { localize: true });
+            opt.classList.remove("active");
+            dialog.setPosition({ height: "auto" });
+            return;
+          }
+        }
+        else if (data.type === "uses") attrKey = "system.uses.value";
+        else if (data.type === "quantity") attrKey = "system.quantity";
+      } else {
+        attrKey = selectData.property;
+      }
+
+      // The value to consume off the actor or item.
+      let cost;
+      if (!scales) {
+        if (data.type === "slots") cost = 1;
+        else if ((data.type === "uses") || (data.type === "quantity")) cost = Number(data.min);
+      } else {
+        cost = Number(selectData.value);
+      }
+
+      // Whether cost can be subtracted.
+      const validCost = _determineConsumptionValidity(target, attrKey, cost);
+      if (!validCost) {
+        const str = {
+          slots: "BABONUS.ConsumptionTypeSpellSlotUnavailable",
+          uses: "DND5E.AbilityUseUnavailableHint",
+          quantity: "DND5E.AbilityUseUnavailableHint"
+        }[data.type];
+        ui.notifications.warn(str, { localize: true });
+        opt.classList.remove("active");
         dialog.setPosition({ height: "auto" });
         return;
       }
 
-      // If the bonus scales, scale it with the item's or actor's roll data.
-      if (scales) {
-        const data = target.getRollData();
-        if (spellLevel) foundry.utils.setProperty(data, "item.level", spellLevel);
-        const scaledBonus = _getScaledSituationalBonus(bonus, value, data);
-        sitBonusField.value += ` + ${scaledBonus}`;
-      } else sitBonusField.value += ` + ${bonus}`;
+      // Determine the bonus to be added and append it to the bonus field.
+      let bonus;
+      if (!scales) bonus = data.bonus;
+      else {
+        const rollData = target.getRollData();
+        if (spellLevel) foundry.utils.setProperty(rollData, "item.level", spellLevel);
+        bonus = _getScaledSituationalBonus(data.bonus, Number(selectData.scale), rollData);
+      }
+      sitBonusField.value += ` + ${bonus}`;
 
-      // Update the item's uses or quantity, or the actor's spell slots.
-      return _updateTargetFromConsumption(target, value, type);
+      // Deduct the consumed resource from the target.
+      const val = foundry.utils.getProperty(target, attrKey);
+      return target.update({ [attrKey]: val - cost });
     });
   });
 }
 
-// Construct data for the template.
+/**
+ * Construct data for the template.
+ * @param {Babonus} bab     A babonus to retrieve data from.
+ * @param {Actor5e} actor   The actor doing the rolling.
+ * @returns {object}        One object for the handlebars template.
+ */
 function _constructTemplateData(bab, actor) {
+  const data = { uses: bab.item, quantity: bab.item, slots: actor }[bab.consume.type];
   const config = {
     name: bab.name,
     desc: bab.description,
     bonus: bab.bonuses.bonus,
-    consumes: bab.isConsuming
+    consumes: bab.isConsuming,
+    origin: _determineOriginTooltip(bab),
+    type: bab.consume.type,
+    min: bab.consume.value.min,
+    uuid: data?.uuid
   };
+  // If the bonus scales, it must have at least one option to pick.
+  if (bab.isScaling) {
+    config.options = _constructScalingOptionalOptions(data, config.type, bab.consume.value);
+    if (!config.options) return null;
+    config.scales = true;
+  }
 
-  if (config.consumes) {
-    const type = bab.consume.type;
-
-    const max = {
-      uses: bab.item?.system.uses.max,
-      quantity: bab.item?.system.quantity,
-      slots: _getHighestSpellSlot(actor.system)
-    }[type];
-
-    const cons = bab.getConsumptionOptions(actor.system);
-    if (!cons.length) return null;
-    const options = (type === "slots") ? _constructSpellSlotOptions(actor.system, {
-      maxLevel: Math.min(max, Math.max(...cons))
-    }) : cons.reduce((acc, n) => {
-      return acc + `<option value="${n}">${n} / ${max}</option>`;
-    }, "");
-    const uuid = type === "slots" ? actor.uuid : bab.item.uuid;
-    const scales = bab.consume.scales;
-    const min = bab.consume.value.min;
-    const origin = _determineOriginTooltip(bab);
-    foundry.utils.mergeObject(config, {
-      type, max, options, uuid, scales, min, origin
-    });
+  // If the bonus does not scale, the actor or item must have the minimum needed to apply it.
+  else if (config.consumes) {
+    const canSupply = _canSupplyMinimum(data, config.min, config.type);
+    if (!canSupply) return null;
   }
 
   return config;
@@ -108,36 +136,73 @@ function _constructTemplateData(bab, actor) {
 
 /**
  * Return whether an item or actor can consume the amount.
- * Target: The item or actor being consumed off of.
- * Amount: The number of uses, quantities, or the key of the spell slot (eg "pact" or "spell3").
- * Type: "uses", "quantity" or "slots".
+ * @param {Actor5e|Item5e} target The actor or item who has the spell slots or uses/quantity.
+ * @param {string} property       The data path of the attribute on the target.
+ * @param {number} amount         The amount that is consumed.
+ * @returns {boolean}             Whether the target has enough of the consumed property.
  */
-function _determineConsumptionValidity(target, amount, type) {
-  const value = target.system.uses?.value;
-  const quantity = target.system.quantity;
-  if (type === "uses") return amount <= value;
-  else if (type === "quantity") return amount <= quantity;
-  else if (type === "slots") return target.system.spells[amount]?.value > 0;
-  else return false;
+function _determineConsumptionValidity(target, property, amount) {
+  if (property === false) return false;
+  return foundry.utils.getProperty(target, property) >= amount;
 }
 
-// Updates an item's uses/quantity or an actor's spell slots.
-async function _updateTargetFromConsumption(target, amount, type) {
-  const prop = type === "uses" ? "system.uses.value" : type === "quantity" ? "system.quantity" : `system.spells.${amount}.value`;
-  const value = foundry.utils.getProperty(target, prop);
-  return (target instanceof Item) ? target.update({ [prop]: value - amount }) : target.update({ [prop]: value - 1 });
+/**
+ * Return an upscaled bonus given a base, number to multiply with,
+ * and a data of roll data.
+ * @param {string} bonus    The base bonus.
+ * @param {number} mult     The number to upscale by.
+ * @param {object} rollData The target's roll data.
+ * @returns {string}        The upscaled bonus.
+ */
+function _getScaledSituationalBonus(bonus, mult, rollData) {
+  return new CONFIG.Dice.DamageRoll(bonus, rollData).alter(mult, 0, { multiplyNumeric: true }).formula;
 }
 
-// append an upscaled bonus to the situational bonus field.
-function _getScaledSituationalBonus(base, value, data) {
-  const mult = Number.isNumeric(value) ? value : value === "pact" ? data.spells.pact.level : value.startsWith("spell") ? Number(value.at(-1)) : value;
-  const roll = new CONFIG.Dice.DamageRoll(base, data).alter(mult, 0, { multiplyNumeric: true });
-  return roll.formula;
-}
-
-// Determine label for origin tooltip.
+/**
+ * Determine the label for the origin tooltip.
+ * @param {Babonus} bab   A babonus.
+ * @returns {string}      The label.
+ */
 function _determineOriginTooltip(bab) {
   if (bab.parent instanceof MeasuredTemplateDocument) return "Template";
   else if (bab.parent instanceof ActiveEffect) return bab.parent.label;
   else return bab.parent.name;
+}
+
+/**
+ * For non-scaling spell slot consumption bonuses, get the attribute
+ * key for the lowest available and valid spell slot. If the lowest
+ * level is both a pact and spell slot, the pact slot will be used.
+ * @param {object} data   Spell slot data.
+ * @param {number} min    The minimum level required.
+ * @returns {string}      The attribute key.
+ */
+function _getLowestValidSpellSlot(data, min) {
+  const pact = data.pact.level;
+  let level = Infinity;
+  const max = Object.keys(CONFIG.DND5E.spellLevels).length - 1; // disregard cantrip levels
+  for (let i = min; i <= max; i++) {
+    const value = data[`spell${i}`].value;
+    if ((value > 0) && (i < level)) {
+      level = i;
+      break;
+    }
+  }
+  if (level === Infinity) return false;
+  if ((pact > 0) && (pact <= level)) return "system.spells.pact.value";
+  return `system.spells.spell${level}.value`;
+}
+
+/**
+ * Whether a bonus has the minimum required uses, quantity, or spell slots for showing up
+ * in the roll config. Intended as a way to ignore bonuses you cannot select.
+ * @param {Actor5e|Item5e} data   The item or actor that must have the required value.
+ * @param {number} min            The minimum value required.
+ * @param {string} type           The type of consumption.
+ * @returns {boolean}             Whether the target can consume the minimum value required.
+ */
+function _canSupplyMinimum(data, min, type) {
+  if (type === "slots") return _getLowestValidSpellSlot(data.system.spells, min) !== false;
+  else if (type === "uses") return data.system.uses.value >= min;
+  else if (type === "quantity") return data.system.quantity >= min;
 }
