@@ -364,7 +364,8 @@ export class FILTER {
   }
 
   /**
-   * Find out if your target is one of the listed creature types.
+   * Find out if your target is one of the listed creature types. In the case of no targets,
+   * refer to whether a specific creature type was needed.
    * @param {Actor5e|Item5e} object   The item or actor. Not relevant in this case.
    * @param {Array} needed            The array of creature types the target must be.
    * @param {Array} unfit             The array of creature types the target must not be.
@@ -373,7 +374,7 @@ export class FILTER {
   static creatureTypes(object, { needed, unfit }) {
     if (!needed?.length && !unfit?.length) return true;
     const target = game.user.targets.first();
-    if (!target?.actor) return false;
+    if (!target?.actor) return !needed?.length;
     const { value, subtype, custom } = target.actor.system.details?.type ?? {};
     const race = target.actor.system.details?.race;
     function _inclusionTest(array) {
