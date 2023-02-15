@@ -8,7 +8,9 @@ function _bonusToInt(bonus, data) {
 }
 
 export function _preDisplayCard(item, chatData) {
-  // get bonus:
+  if (!item.hasSave) return;
+
+  // Get bonuses:
   const bonuses = FILTER.itemCheck(item, "save", { spellLevel: item.system.level });
   if (!bonuses.length) return;
   const data = item.getRollData();
@@ -18,12 +20,12 @@ export function _preDisplayCard(item, chatData) {
     return acc + _bonusToInt(bab.bonuses.bonus, data);
   }, 0);
 
-  // get all buttons.
+  // Get all buttons:
   const DIV = document.createElement("DIV");
   DIV.innerHTML = chatData.content;
   const saveButtons = DIV.querySelectorAll("button[data-action='save']");
 
-  // create label (innertext)
+  // Create label (innertext)
   const save = item.system.save;
   const ability = CONFIG.DND5E.abilities[save.ability] ?? ""; // TODO: fix in 2.2.x.
   const savingThrow = game.i18n.localize("DND5E.ActionSave");
