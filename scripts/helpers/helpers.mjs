@@ -352,6 +352,8 @@ export async function _displayKeysDialog(btn, name, getter, id) {
  * Construct the scaling options for an optional babonus. Each option will have a
  * dataset with 'property' (the attribute to subtract from), 'value' (the amount to
  * subtract), and 'scale' (how much this scales the bonus up from the base).
+ * Special handling for spell slots that are 'too big'; these can still be used,
+ * but will not upscale the bonus any further.
  * @param {Actor5e|Item5e} data   The item or actor who has the property.
  * @param {string} type           One of the options of CONSUMPTION_TYPES.
  * @param {number} options.min    The minimum allowed value (or slot level).
@@ -364,13 +366,13 @@ export function _constructScalingOptionalOptions(data, type, { min = -Infinity, 
       if (!val.value) return acc;
       if (!val.max) return acc;
       const level = key === "pact" ? val.level : Number(key.at(-1));
-      if (!level.between(min, max)) return acc;
+      if (level < min) return acc;
       const label = game.i18n.format(`DND5E.SpellLevel${key === "pact" ? "Pact" : "Slot"}`, {
         level: key === "pact" ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
         n: `${val.value}/${val.max}`
       });
       const property = `system.spells.${key}.value`;
-      const scale = level - Math.max(min, 1) + 1;
+      const scale = Math.min(level, max) - Math.max(min, 1) + 1;
       return acc + `<option data-property="${property}" data-value="1" data-scale="${scale}">${label}</option>`;
     }, "");
   }
