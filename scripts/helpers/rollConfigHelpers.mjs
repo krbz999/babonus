@@ -22,11 +22,26 @@ export async function _renderDialog(dialog, html) {
   html[0].querySelectorAll(".babonus-optionals button.add").forEach(btn => {
     btn.addEventListener("click", _applyOptionalBonus.bind(dialog));
   });
+  html[0].querySelectorAll(".babonus-optionals .consumption select").forEach(select => {
+    select.addEventListener("change", _appendScalingDataset.bind(select));
+    select.dispatchEvent(new Event("change"));
+  });
+}
+
+/**
+ * Retrieve the dataset off the select and append to the top-level div when
+ * the scaling select is changed.
+ * @param {PointerEvent} event    The click event.
+ */
+function _appendScalingDataset(event) {
+  const data = this.options[this.selectedIndex].dataset;
+  const scaling = this.closest(".optional.scales");
+  for (const key in data) scaling.setAttribute(`data-${key}`, data[key]);
 }
 
 /**
  * Find, scale, and apply a bonus, and optionally deduct a consumed attribute.
- * @param {Event} event     The originating click event.
+ * @param {PointerEvent} event     The originating click event.
  */
 async function _applyOptionalBonus(event) {
   const opt = event.currentTarget.closest(".optional");
@@ -45,14 +60,12 @@ async function _applyOptionalBonus(event) {
 
   // Does the bonus scale?
   const scales = opt.classList.contains("scales");
-  const select = opt.querySelector(".consumption select"); // the dropdown for scaling.
-  const selectData = select?.options[select.selectedIndex].dataset ?? {}; // data of the option.
 
   // The target of consumption.
   const target = await fromUuid(data.uuid);
 
   // The attribute key to target on the actor or item.
-  const attrKey = _determineAttribute({ scales, selectData, data, target });
+  const attrKey = _determineAttribute(scales, data, target);
   if (!attrKey) {
     ui.notifications.warn("BABONUS.NoRemainingSpellSlots", { localize: true });
     opt.classList.remove("active");
@@ -61,7 +74,7 @@ async function _applyOptionalBonus(event) {
   }
 
   // The value to consume off the actor or item.
-  const cost = _determineCost({ scales, selectData, data });
+  const cost = _determineCost(scales, data);
 
   // Whether cost can be subtracted.
   const validCost = _determineConsumptionValidity(target, attrKey, cost);
@@ -78,7 +91,7 @@ async function _applyOptionalBonus(event) {
   }
 
   // Determine the bonus to be added and append it to the bonus field.
-  const bonus = _determineBonus({ scales, target, spellLevel, data, selectData });
+  const bonus = _determineBonus(scales, target, spellLevel, data);
   field.value += ` + ${bonus}`;
 
   // Deduct the consumed resource from the target.
@@ -89,12 +102,11 @@ async function _applyOptionalBonus(event) {
 /**
  * Determine the attribute that is deducted from.
  * @param {boolean} scales          Whether the bonus scales.
- * @param {object} selectData       Dataset of the scaling option selected.
  * @param {object} data             Dataset of the optional bonus.
  * @param {Actor5e|Item5e} target   The target of consumption.
  */
-function _determineAttribute({ scales, selectData, data, target }) {
-  if (scales) return selectData.property;
+function _determineAttribute(scales, data, target) {
+  if (scales) return data.property;
   if (data.type === "uses") return "system.uses.value";
   else if (data.type === "quantity") return "system.quantity";
   else if (data.type === "slots") return _getLowestValidSpellSlot(target.system.spells, Number(data.min));
@@ -103,12 +115,11 @@ function _determineAttribute({ scales, selectData, data, target }) {
 /**
  * Determine the cost of the optional bonus depending on type and selections.
  * @param {boolean} scales      Whether the bonus scales.
- * @param {object} selectData   Dataset of the scaling option selected.
  * @param {object} data         Dataset of the optional bonus.
  * @returns {number}            The numeric cost of the bonus.
  */
-function _determineCost({ scales, selectData, data }) {
-  if (scales) return Number(selectData.value);
+function _determineCost(scales, data) {
+  if (scales) return Number(data.value);
   if (data.type === "slots") return 1;
   else if ((data.type === "uses") || (data.type === "quantity")) return Number(data.min);
 }
@@ -119,14 +130,13 @@ function _determineCost({ scales, selectData, data }) {
  * @param {Actor5e|Item5e} target   The target of consumption.
  * @param {number|null} spellLevel  The level of the spell, after upcasting.
  * @param {object} data             Dataset of the optional bonus.
- * @param {object} selectData       Dataset of the scaling option selected.
  * @returns {string}                The optionally upscaled bonus.
  */
-function _determineBonus({ scales, target, spellLevel, data, selectData }) {
+function _determineBonus(scales, target, spellLevel, data) {
   if (!scales) return data.bonus;
   const rollData = target.getRollData();
   if (spellLevel) foundry.utils.setProperty(rollData, "item.level", spellLevel);
-  return _getScaledSituationalBonus(data.bonus, Number(selectData.scale), rollData);
+  return _getScaledSituationalBonus(data.bonus, Number(data.scale), rollData);
 }
 
 /**
@@ -147,19 +157,16 @@ function _constructTemplateData(bab, actor) {
     min: bab.consume.value.min,
     uuid: data?.uuid
   };
-  // If the bonus scales, it must have at least one option to pick.
   if (bab.isScaling) {
+    // If the bonus scales, it must have at least one option to pick.
     config.options = _constructScalingOptionalOptions(data, config.type, bab.consume.value);
     if (!config.options) return null;
     config.scales = true;
-  }
-
-  // If the bonus does not scale, the actor or item must have the minimum needed to apply it.
-  else if (config.consumes) {
+  } else if (config.consumes) {
+    // If the bonus does not scale, the actor or item must have the minimum needed to apply it.
     const canSupply = _canSupplyMinimum(data, config.min, config.type);
     if (!canSupply) return null;
   }
-
   return config;
 }
 
