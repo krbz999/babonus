@@ -183,7 +183,7 @@ function _determineConsumptionValidity(target, property, amount) {
  * @returns {string}          The upscaled bonus.
  */
 function _getScaledSituationalBonus(bonus, mult, rollData) {
-  return new CONFIG.Dice.DamageRoll(bonus, rollData).alter(mult, 0, { multiplyNumeric: true }).formula;
+  return new CONFIG.Dice.DamageRoll(bonus, rollData).alter(1, mult).formula;
 }
 
 /**
