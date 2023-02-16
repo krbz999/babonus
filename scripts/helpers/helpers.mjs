@@ -124,6 +124,18 @@ export class KeyGetter {
     });
   }
 
+  static get targetEffects(){
+    return this.effects;
+  }
+
+  static get statusEffects(){
+    return this.effects;
+  }
+
+  static get configurationAuraBlockingConditions(){
+    return this.effects;
+  }
+
   // all base creature types
   static get creatureTypes() {
     const creatureTypes = CONFIG.DND5E.creatureTypes;
@@ -295,34 +307,24 @@ export async function _babFromUuid(uuid) {
   }
 }
 
-export async function _displayKeysDialog(btn, name, getter, id) {
+export async function _displayKeysDialog(event) {
+  const formGroup = event.currentTarget.closest(".form-group");
+  const filterId = formGroup.dataset.id;
 
-  const types = foundry.utils.duplicate(KeyGetter[getter]);
+  const lists = foundry.utils.duplicate(KeyGetter[filterId]);
 
   // find current semi-colon lists.
-  const [list, list2] = btn.closest(".form-group").querySelectorAll("input[type='text']");
+  const [list, list2] = formGroup.querySelectorAll("input[type='text']");
   const values = list.value.split(";");
   const values2 = list2?.value.split(";");
-  types.forEach(t => {
+  lists.forEach(t => {
     t.checked = values.includes(t.value);
     t.checked2 = values2?.includes(t.value);
   });
-  const data = {
-    description: `BABONUS.${name}Tooltip`,
-    types
-  };
-
-  const template = `modules/babonus/templates/subapplications/keys${list2 ? "Double" : "Single"}.hbs`;
-  const content = await renderTemplate(template, data);
-  const title = game.i18n.format("BABONUS.KeysDialogTitle", {
-    name: game.i18n.localize(`BABONUS.${name}`)
-  });
   const selected = await BabonusKeysDialog.prompt({
-    title,
     label: game.i18n.localize("BABONUS.KeysDialogApplySelection"),
-    content,
     rejectClose: false,
-    options: { name, appId: id },
+    options: { filterId, appId: this.appId, lists, double: list2 ? 2 : 1 },
     callback: function(html) {
       const selector = "td:nth-child(2) input[type='checkbox']:checked";
       const selector2 = "td:nth-child(3) input[type='checkbox']:checked";

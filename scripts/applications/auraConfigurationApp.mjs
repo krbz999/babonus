@@ -45,9 +45,7 @@ export class AuraConfigurationDialog extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelector("button.babonus-keys").addEventListener("click", async (event) => {
-      return _displayKeysDialog(event.currentTarget, "ConfigurationAuraBlockingConditions", "effects", this.appId);
-    });
+    html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", _displayKeysDialog.bind(this));
   }
 
   _onChangeInput(event) {
@@ -57,7 +55,7 @@ export class AuraConfigurationDialog extends FormApplication {
       const checked = event.target.checked;
       this.form["aura.range"].disabled = checked;
       this.form["aura.blockers"].disabled = checked;
-      this.form.querySelector("button.babonus-keys").disabled = checked;
+      this.form.querySelector("[data-action='keys-dialog']").disabled = checked;
     }
   }
 }

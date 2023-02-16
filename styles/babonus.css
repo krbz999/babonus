@@ -193,13 +193,13 @@
   height: calc(var(--form-field-height));
 }
 
-.babonus .form-group .form-fields button.babonus-keys {
+.babonus .form-group .form-fields [data-action="keys-dialog"] {
   min-width: 100px;
   flex: 0;
   box-shadow: none;
 }
 
-.babonus .form-group .form-fields button.babonus-keys:hover {
+.babonus .form-group .form-fields [data-action="keys-dialog"]:hover {
   text-shadow: 0 0 5px var(--color-shadow-primary);
 }
 
@@ -259,6 +259,11 @@
 }
 
 /* KEY DIALOGS TABLES */
+.babonus.keys-dialog p.babonus-key-description,
+.babonus.babonus.keys-dialog .dialog-buttons {
+  flex: 0;
+}
+
 table.babonus {
   overflow: hidden;
   display: grid;
@@ -269,12 +274,12 @@ table.babonus tbody {
   overflow: auto;
 }
 
-table.babonus.two-col tr {
+table.babonus tr {
   display: grid;
   grid-template-columns: 2fr 1fr;
 }
 
-table.babonus.three-col tr {
+table.babonus.double tr {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
 }
@@ -338,7 +343,7 @@ table.babonus td:not(:first-child) {
   overflow-y: auto;
 }
 
-.babonus .form-group a.filter-deletion {
+.babonus .form-group [data-action="delete-filter"] {
   flex: 0;
   padding: 0 0.2em 0 0.5em;
 }

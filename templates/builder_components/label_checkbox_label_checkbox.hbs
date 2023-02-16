@@ -1,15 +1,13 @@
 <!-- (itemRequirements only) -->
-<div class="form-group" data-id="{{name}}">
-  <label data-tooltip="BABONUS.FiltersItemRequirementsTooltip" class="label">
-    {{localize "BABONUS.FiltersItemRequirementsLabel"}}
-  </label>
+<div class="form-group" data-id="{{id}}">
+  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <span class="sep">{{localize "DND5E.Equipped"}}</span>
     <input type="checkbox" name="filters.itemRequirements.equipped" {{#unless canEquip}}disabled{{/unless}}>
     <span class="sep">{{localize "DND5E.Attuned"}}</span>
     <input type="checkbox" name="filters.itemRequirements.attuned" {{#unless canAttune}}disabled{{/unless}}>
   </div>
-  <a class="filter-deletion" data-tooltip="BABONUS.DeleteThisFilter">
+  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>
