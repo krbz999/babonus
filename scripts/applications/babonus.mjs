@@ -439,15 +439,6 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
-   * Reset temporary values on the application when saving a babonus or canceling the builder.
-   */
-  _deleteTemporaryValues() {
-    this._type = null;
-    this._bab = null;
-    this._addedFilters.clear();
-  }
-
-  /**
    * ----------------------------------------------------
    *
    *
