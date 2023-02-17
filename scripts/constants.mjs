@@ -79,24 +79,24 @@ export const AURA_TARGETS = {
 
 // names of all filters.
 export const FILTER_NAMES = [
-  "itemTypes",
-  "throwTypes",
-  "itemRequirements",
-  "arbitraryComparison",
-  "statusEffects",
-  "targetEffects",
-  "creatureTypes",
-  "attackTypes",
-  "damageTypes",
   "abilities",
+  "arbitraryComparison",
+  "attackTypes",
+  "baseWeapons",
+  "creatureTypes",
+  "customScripts",
+  "damageTypes",
+  "itemRequirements",
+  "itemTypes",
+  "remainingSpellSlots",
   "saveAbilities",
   "spellComponents",
   "spellLevels",
   "spellSchools",
-  "baseWeapons",
-  "weaponProperties",
-  "customScripts",
-  "remainingSpellSlots"
+  "statusEffects",
+  "targetEffects",
+  "throwTypes",
+  "weaponProperties"
 ];
 
 // arbitrary operators
