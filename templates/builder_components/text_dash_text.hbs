@@ -1,9 +1,9 @@
 <div class="form-group" data-id="{{id}}">
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
-    <input type="number" name="filters.{{id}}.min" placeholder="{{{localize 'Minimum'}}}">
+    <input type="number" name="filters.{{id}}.min" placeholder="{{{localize 'Minimum'}}}" value="{{array.min}}">
     <span class="sep">&mdash;</span>
-    <input type="number" name="filters.{{id}}.max" placeholder="{{{localize 'Maximum'}}}">
+    <input type="number" name="filters.{{id}}.max" placeholder="{{{localize 'Maximum'}}}" value="{{array.min}}">
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>

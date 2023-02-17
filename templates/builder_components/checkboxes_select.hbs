@@ -5,15 +5,13 @@
     <div class="checkboxes">
       {{#each array as |type|}}
       <label class="sep" for="{{../appId}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
-        <input type="checkbox" name="filters.{{../id}}.types" value="{{type.value}}" id="{{../appId}}-{{type.value}}">
+        <input type="checkbox" name="filters.{{../id}}.types" value="{{type.value}}" id="{{../appId}}-{{type.value}}" {{checked type.checked}}>
         <span class="checkboxes-check">{{{type.label}}}</span>
       </label>
       {{/each}}
     </div>
     <select name="filters.{{id}}.match">
-      {{#each selectOptions as |option|}}
-      <option value="{{option.value}}">{{localize option.label}}</option>
-      {{/each}}
+      {{selectOptions selectOptions selected=../value nameAttr="value" labelAttr="label" localize=true}}
     </select>
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">

@@ -3,9 +3,9 @@
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <span class="sep">{{localize "DND5E.Equipped"}}</span>
-    <input type="checkbox" name="filters.itemRequirements.equipped" {{#unless canEquip}}disabled{{/unless}}>
+    <input type="checkbox" name="filters.itemRequirements.equipped" {{#unless canEquip}}disabled{{/unless}} {{checked array.equipped}}>
     <span class="sep">{{localize "DND5E.Attuned"}}</span>
-    <input type="checkbox" name="filters.itemRequirements.attuned" {{#unless canAttune}}disabled{{/unless}}>
+    <input type="checkbox" name="filters.itemRequirements.attuned" {{#unless canAttune}}disabled{{/unless}} {{checked array.attuned}}>
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>

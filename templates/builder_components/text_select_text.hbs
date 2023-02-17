@@ -3,13 +3,11 @@
 <div class="form-group" data-id="{{../id}}">
   <label class="label" data-tooltip="{{../tooltip}}">{{localize ../label}}</label>
   <div class="form-fields">
-    <input type="text" name="filters.{{a}}.{{../id}}.one" placeholder="{{localize ../placeholderOne}}">
-    <select name="filters.{{a}}.{{../id}}.operator">
-      {{#each ../selectOptions as |option|}}
-      <option value="{{option.value}}">{{{option.label}}}</option>
-      {{/each}}
+    <input type="text" name="filters.{{idx}}.{{../id}}.one" placeholder="{{localize ../placeholderOne}}" value="{{one}}">
+    <select name="filters.{{idx}}.{{../id}}.operator" value="{{operator}}">
+      {{#each selectOptions as |opt|}}<option value="{{value}}">{{{label}}}</option>{{/each}}
     </select>
-    <input type="text" name="filters.{{a}}.{{../id}}.other" placeholder="{{localize ../placeholderOther}}">
+    <input type="text" name="filters.{{idx}}.{{../id}}.other" placeholder="{{localize ../placeholderOther}}" value="{{other}}">
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>

@@ -7,7 +7,10 @@ export class BabonusKeysDialog extends Dialog {
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["dialog", "babonus", "keys-dialog"]
+      classes: ["dialog", "babonus", "keys-dialog"],
+      resizable: true,
+      height: 600,
+      width: 400
     });
   }
 
@@ -20,13 +23,15 @@ export class BabonusKeysDialog extends Dialog {
   }
 
   get title() {
-    return game.i18n.format("BABONUS.KeysDialogTitle", { name: game.i18n.localize(`BABONUS.Filters${this.options.filterId.capitalize()}`) });
+    return game.i18n.format("BABONUS.KeysDialogTitle", {
+      name: game.i18n.localize(`BABONUS.Filters${this.options.filterId.capitalize()}`)
+    });
   }
 
   /** @override */
   async getData() {
     const data = await super.getData();
-    data.double = this.options.double === 2;
+    data.double = this.options.double;
     data.description = `BABONUS.Filters${this.options.filterId.capitalize()}Tooltip`;
     data.lists = this.options.lists;
     return data;

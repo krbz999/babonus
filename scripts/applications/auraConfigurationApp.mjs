@@ -1,7 +1,8 @@
 import { AURA_TARGETS, MODULE } from "../constants.mjs";
-import { _createBabonus, _displayKeysDialog } from "../helpers/helpers.mjs";
+import { _createBabonus, _onDisplayKeysDialog } from "../helpers/helpers.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
+
   get id() {
     return `${MODULE}AuraConfigurationDialog-${this.options.bab.id}`;
   }
@@ -45,7 +46,7 @@ export class AuraConfigurationDialog extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", _displayKeysDialog.bind(this));
+    html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", _onDisplayKeysDialog.bind(this));
   }
 
   _onChangeInput(event) {

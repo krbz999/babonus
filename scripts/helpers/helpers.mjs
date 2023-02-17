@@ -124,15 +124,15 @@ export class KeyGetter {
     });
   }
 
-  static get targetEffects(){
+  static get targetEffects() {
     return this.effects;
   }
 
-  static get statusEffects(){
+  static get statusEffects() {
     return this.effects;
   }
 
-  static get configurationAuraBlockingConditions(){
+  static get configurationAuraBlockingConditions() {
     return this.effects;
   }
 
@@ -307,24 +307,27 @@ export async function _babFromUuid(uuid) {
   }
 }
 
-export async function _displayKeysDialog(event) {
+export async function _onDisplayKeysDialog(event) {
   const formGroup = event.currentTarget.closest(".form-group");
   const filterId = formGroup.dataset.id;
 
   const lists = foundry.utils.duplicate(KeyGetter[filterId]);
 
-  // find current semi-colon lists.
-  const [list, list2] = formGroup.querySelectorAll("input[type='text']");
-  const values = list.value.split(";");
-  const values2 = list2?.value.split(";");
+  // The text inputs.
+  const inputs = formGroup.querySelectorAll("input[type='text']");
+  const double = inputs.length === 2;
+
+  const [list, list2] = inputs
+  const values0 = inputs[0].value.split(";");
+  const values1 = inputs[1]?.value.split(";");
   lists.forEach(t => {
-    t.checked = values.includes(t.value);
-    t.checked2 = values2?.includes(t.value);
+    t.checked0 = values0.includes(t.value);
+    t.checked1 = values1?.includes(t.value);
   });
   const selected = await BabonusKeysDialog.prompt({
     label: game.i18n.localize("BABONUS.KeysDialogApplySelection"),
     rejectClose: false,
-    options: { filterId, appId: this.appId, lists, double: list2 ? 2 : 1 },
+    options: { filterId, appId: this.appId, lists, double },
     callback: function(html) {
       const selector = "td:nth-child(2) input[type='checkbox']:checked";
       const selector2 = "td:nth-child(3) input[type='checkbox']:checked";

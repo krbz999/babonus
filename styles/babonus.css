@@ -78,8 +78,11 @@
   flex: 2;
 }
 
-.babonus a[data-type="add-filter"],
-.babonus .available-filters .filter-add {
+.babonus .filter.hidden {
+  display: none !important;
+}
+
+.babonus .filter > [data-action="add-filter"] {
   margin: 0 5px;
   flex: 0 0 20px;
   display: flex;
@@ -259,19 +262,30 @@
 }
 
 /* KEY DIALOGS TABLES */
-.babonus.keys-dialog p.babonus-key-description,
-.babonus.babonus.keys-dialog .dialog-buttons {
+.babonus.keys-dialog {
+  min-width: 300px;
+  min-height: 400px;
+}
+
+.babonus.keys-dialog .dialog-content {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.babonus.keys-dialog .dialog-buttons {
   flex: 0;
 }
 
 table.babonus {
-  overflow: hidden;
-  display: grid;
+  height: 100%;
 }
 
 table.babonus tbody {
-  max-height: 525px;
-  overflow: auto;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 table.babonus tr {
@@ -334,7 +348,7 @@ table.babonus td:not(:first-child) {
   grid-area: d;
 }
 
-.babonus .filter-picker .filter-add {
+.babonus .functions [data-action="add-filter"] {
   grid-area: b;
 }
 

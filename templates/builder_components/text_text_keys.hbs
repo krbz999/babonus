@@ -1,8 +1,8 @@
 <div class="form-group" data-id="{{id}}">
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
-    <input type="text" name="filters.{{id}}.needed">
-    <input type="text" name="filters.{{id}}.unfit">
+    <input type="text" name="filters.{{id}}.needed" value="{{value.needed}}">
+    <input type="text" name="filters.{{id}}.unfit" value="{{value.unfit}}">
     <button data-action="keys-dialog" type="button">
       <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
     </button>
