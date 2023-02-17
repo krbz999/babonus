@@ -204,7 +204,7 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event    The click event.
    */
   _onCancelBuilder(event) {
-    this.render(true);
+    this._toggleMode();
   }
 
   /**
@@ -217,8 +217,11 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   // Initialize the builder when picking a babonus type.
-  async _onPickType(event) {
-    return this.render(false, { type: event.currentTarget.dataset.type });
+  _onPickType(event) {
+    this._type = event.currentTarget.dataset.type;
+    this._bab = null;
+    this._addedFilters.clear();
+    this._toggleMode();
   }
 
   /**
@@ -359,21 +362,28 @@ export class BabonusWorkshop extends FormApplication {
 
   // edit a bonus, with the same id.
   // TODO.
-  async _onEditBonus(event) {
+  _onEditBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const data = this.object.flags.babonus.bonuses[id];
+    this._type = null;
     this._bab = _createBabonus(data, id, { strict: true });
     this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(this._bab.toString()).filters ?? {}));
-    await this._initializeBuilder();
-    return this.render(false, { bab: this._bab });
+    this._toggleMode();
   }
 
-  // TODO.
+  /**
+   * Create a form-group for each filter on a babonus we are editing.
+   */
   async _initializeBuilder() {
     const formData = this._bab.toString();
+    const DIV = document.createElement("DIV");
+    DIV.innerHTML = "";
     for (const id of this._addedFilters) {
-      this._appendNewFilterFormGroup(id, formData);
+      console.log("Creating a form group for", id);
+      DIV.innerHTML += await this._appendNewFilterFormGroup(id, formData);
     }
+    this._appendListenersToFilters(DIV);
+    this.element[0].querySelector("div.filters").append(...DIV.children);
   }
 
   /**
@@ -391,6 +401,15 @@ export class BabonusWorkshop extends FormApplication {
     this.element[0].querySelector("[data-action='dismiss-warning']").classList.toggle("active", true);
   }
 
+  /**
+   * Toggle between builder and overview modes.
+   */
+  _toggleMode() {
+    this.element[0].querySelectorAll(".left-side > *, .right-side > *").forEach(n => {
+      n.style.display = n.style.display === "none" ? "" : "none";
+    });
+  }
+
   // TODO.
   _saveScrollPositions(html) {
     super._saveScrollPositions(html);
@@ -406,27 +425,11 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /** @override */
-  render(force = false, options = {}) {
-    if (options.bab) {
-      // Pass a babonus to the options to indicate that we are editing an old bonus.
-      this._bab = options.bab;
-      this._type = null;
-      this.object.apps[this.appId] = this;
-      return super.render(force, options);
-    } else if (options.type) {
-      // Pass a type to the options to indicate that we are creating a new bonus.
-      this._bab = null;
-      this._addedFilters.clear();
-      this._type = options.type;
-      this.object.apps[this.appId] = this;
-      return super.render(force, options);
-    } else {
-      this._deleteTemporaryValues();
-    }
-    if (foundry.utils.hasProperty(options, "data.flags.babonus") || force) {
-      super.render(force, options);
-      this.object.apps[this.appId] = this;
-    }
+  async render(force = false, options = {}) {
+    const wasBabUpdate = foundry.utils.hasProperty(options, "data.flags.babonus");
+    if (!(wasBabUpdate || force)) return;
+    this.object.apps[this.appId] = this;
+    return super.render(force, options);
   }
 
   /** @override */
@@ -441,6 +444,7 @@ export class BabonusWorkshop extends FormApplication {
   _deleteTemporaryValues() {
     this._type = null;
     this._bab = null;
+    this._addedFilters.clear();
   }
 
   /**
@@ -475,8 +479,11 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onAddFilter(event) {
     const id = event.currentTarget.closest(".filter").dataset.id;
-    if (id === "arbitraryComparison") await this._onAddFilterRepeatable(id);
-    else await this._appendNewFilterFormGroup(id);
+    const DIV = document.createElement("DIV");
+    if (id === "arbitraryComparison") DIV.innerHTML = await this._onAddFilterRepeatable(id);
+    else DIV.innerHTML = await this._appendNewFilterFormGroup(id);
+    this._appendListenersToFilters(DIV);
+    this.element[0].querySelector("div.filters").append(...DIV.children);
     this._updateAddedFilters();
   }
 
@@ -484,6 +491,7 @@ export class BabonusWorkshop extends FormApplication {
    * Create and append the form-group for a specific filter, then add listeners.
    * @param {string} id         The id of the filter to add.
    * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   * @returns {string}          The template.
    */
   async _appendNewFilterFormGroup(id, formData = null) {
     const data = {
@@ -527,10 +535,7 @@ export class BabonusWorkshop extends FormApplication {
       data.canAttune = this._canAttuneToItem(this.object);
     }
 
-    const DIV = document.createElement("DIV");
-    DIV.innerHTML = await renderTemplate(template, data);
-    const fg = this.element[0].querySelector("div.filters").appendChild(...DIV.children);
-    this._appendListenersToFilter(fg);
+    return renderTemplate(template, data);
   }
 
   /**
@@ -545,17 +550,17 @@ export class BabonusWorkshop extends FormApplication {
       label: `BABONUS.Filters${id.capitalize()}Label`,
       id, array: [{ idx, selectOptions: ARBITRARY_OPERATORS }]
     });
-    const fg = this.element[0].querySelector("div.filters").appendChild(...DIV.children);
-    this._appendListenersToFilter(fg);
+    this._appendListenersToFilters(DIV);
+    this.element[0].querySelector("div.filters").append(...DIV.children);
   }
 
   /**
    * Helper function to append listeners to created form groups (filters).
-   * @param {html} fg   The form group created.
+   * @param {html} fg   The form-groups created.
    */
-  _appendListenersToFilter(fg) {
-    fg.querySelector("[data-action='delete-filter']").addEventListener("click", this._onDeleteFilter.bind(this));
-    fg.querySelector("[data-action='keys-dialog']")?.addEventListener("click", _onDisplayKeysDialog.bind(this));
+  _appendListenersToFilters(fg) {
+    fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
+    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", _onDisplayKeysDialog.bind(this)));
   }
 
   /**
