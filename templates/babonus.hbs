@@ -49,7 +49,6 @@
                     value="{{builder.name}}">
                   <span class="sep">{{localize "BABONUS.ID"}}</span>
                   <input type="text" name="id" value="{{builder.id}}" disabled>
-                  {{log this}}
                 </div>
               </div>
               <div class="form-group">
@@ -87,7 +86,7 @@
               {{localize "BABONUS.CurrentFilters"}}
               <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentFiltersTooltip"></i>
             </header>
-            <div class="filters"></div>
+            <div class="filters">{{{_filters}}}</div>
           </div>
         </div>
 
@@ -118,7 +117,7 @@
         <div class="bonuses">
 
           {{#each currentBonuses as |bonus|}}
-          <div class="bonus" data-id="{{bonus.id}}">
+          <div class="bonus {{#if bonus._collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
             <div class="header">
               <div class="label{{#unless bonus.enabled}} disabled{{/unless}}" data-action="current-collapse">
                 {{bonus.name}}

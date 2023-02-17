@@ -15,24 +15,6 @@ import {
 } from "../constants.mjs";
 import { getId } from "../public_api.mjs";
 
-// current bonuses on the document, for HTML purposes only.
-export function _getBonuses(doc) {
-  const flag = doc.flags.babonus?.bonuses ?? {};
-  return Object.entries(flag).map(([id, data]) => {
-    try {
-      return _createBabonus(data, id, { parent: doc });
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  }).filter(b => {
-    // explicitly true for valid ids.
-    return !!b && foundry.data.validators.isValidId(b.id);
-  }).sort((a, b) => {
-    return a.name?.localeCompare(b.name);
-  });
-}
-
 export class KeyGetter {
 
   // base weapon types.
