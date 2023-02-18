@@ -4,7 +4,7 @@
   <div class="form-fields">
     <div class="checkboxes">
       {{#each array as |type|}}
-      <label class="sep" for="{{../appId}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
+      <label for="{{../appId}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
         <input type="checkbox" name="filters.{{../id}}.types" value="{{type.value}}" id="{{../appId}}-{{type.value}}" {{checked type.checked}}>
         <span class="check">{{{type.label}}}</span>
       </label>
