@@ -176,6 +176,7 @@
           <header>
             {{localize "BABONUS.AvailableFilters"}}
             <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.AvailableFiltersTooltip"></i>
+            <a data-action="collapse-filters"><i class="fa-solid fa-chevron-down"></i></a>
           </header>
           <div class="available-filters">
             {{#each filters as |filter|}}
@@ -194,6 +195,7 @@
           <header>
             {{localize "BABONUS.UnavailableFilters"}}
             <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.UnavailableFiltersTooltip"></i>
+            <a data-action="collapse-filters"><i class="fa-solid fa-chevron-down"></i></a>
           </header>
           <div class="unavailable-filters">
             {{#each filters as |filter|}}

@@ -195,7 +195,7 @@ export class BabonusWorkshop extends FormApplication {
     // Otter.
     html[0].querySelector("[data-action='otter-rainbow']").addEventListener("click", this._onOtterRainbow.bind(this));
     html[0].querySelector("[data-action='otter-dance']").addEventListener("click", this._onOtterDance.bind(this));
-    html[0].querySelectorAll("[data-action='current-collapse']").forEach(a => a.addEventListener("click", this._onToggleCollapse.bind(this)));
+    html[0].querySelectorAll("[data-action='current-collapse']").forEach(a => a.addEventListener("click", this._onCollapseBonus.bind(this)));
 
     if (!this.isEditable) {
       html[0].querySelectorAll(".left-side, .right-side .functions").forEach(n => {
@@ -214,6 +214,7 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
     html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
     html[0].querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
+    html[0].querySelectorAll("[data-action='collapse-filters']").forEach(a => a.addEventListener("click", this._onCollapseFilters.bind(this)));
 
     // Current bonuses.
     html[0].querySelectorAll("[data-action='current-toggle']").forEach(a => a.addEventListener("click", this._onToggleBonus.bind(this)));
@@ -366,7 +367,7 @@ export class BabonusWorkshop extends FormApplication {
    * Collapse or expand a babonus and its description.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onToggleCollapse(event) {
+  _onCollapseBonus(event) {
     const bonus = event.currentTarget.closest(".bonus");
     const id = bonus.dataset.id;
     const has = this._collapsedBonuses.has(id);
@@ -491,6 +492,14 @@ export class BabonusWorkshop extends FormApplication {
    */
 
   /**
+   * Collapse a filter section in the filter picker.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onCollapseFilters(event) {
+    event.currentTarget.closest("header").classList.toggle("collapsed");
+  }
+
+  /**
    * Dismiss the warning about invalid data.
    * @param {PointerEvent} event    The initiating click event.
    */
@@ -537,9 +546,9 @@ export class BabonusWorkshop extends FormApplication {
    * When selecting or deselecting an item type in the 'itemTypes' filter, update the _itemTypes set to match.
    * @param {PointerEvent} event      The initiating change event.
    */
-  _onPickItemType(event){
-    const {checked, value} = event.currentTarget;
-    if(checked) this._itemTypes.add(value);
+  _onPickItemType(event) {
+    const { checked, value } = event.currentTarget;
+    if (checked) this._itemTypes.add(value);
     else this._itemTypes.delete(value);
     this._updateFilterPicker();
   }

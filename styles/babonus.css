@@ -300,8 +300,9 @@
   height: 100%;
   overflow-y: auto;
   display: flex;
-  flex: 2;
+  flex: 1;
   flex-direction: column;
+  transition: 300ms;
 }
 
 .babonus.builder .right-side .unavailable-filters {
@@ -311,6 +312,20 @@
   flex: 1;
   flex-direction: column;
   margin-bottom: 0.25em;
+  transition: 300ms;
+}
+
+.babonus.builder .right-side header.collapsed + * {
+  flex: 0;
+}
+
+.babonus.builder .right-side [data-action="collapse-filters"] {
+  float: right;
+  margin-right: 1em;
+}
+
+.babonus.builder .right-side header.collapsed [data-action="collapse-filters"] i::before {
+  content: "\f077";
 }
 
 /* RIGHT SIDE - FITLER PICKER - FILTER */
