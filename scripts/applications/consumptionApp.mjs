@@ -10,7 +10,8 @@ export class ConsumptionDialog extends FormApplication {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE}/templates/subapplications/consumptionApp.hbs`
+      template: `modules/${MODULE}/templates/subapplications/consumptionApp.hbs`,
+      classes: [MODULE, "consumption-config"]
     });
   }
 

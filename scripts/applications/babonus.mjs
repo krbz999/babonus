@@ -43,21 +43,17 @@ export class BabonusWorkshop extends FormApplication {
     return foundry.utils.mergeObject(super.defaultOptions, {
       closeOnSubmit: false,
       width: 900,
-      height: "auto",
+      height: 850,
       template: `modules/${MODULE}/templates/babonus.hbs`,
-      classes: [MODULE],
+      classes: [MODULE, "builder"],
       scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"],
       dragDrop: [{ dragSelector: ".label[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses" }],
+      resizable: true
     });
   }
 
   get id() {
     return _getAppId(this.object);
-  }
-
-  // Whether the builder is active (shown) or not.
-  get activeBuilder() {
-    return !!(this._type || this._bab);
   }
 
   get isEditable() {
@@ -71,7 +67,7 @@ export class BabonusWorkshop extends FormApplication {
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
     data.isActor = this.isActor;
-    data.activeBuilder = this.activeBuilder;
+    data.activeBuilder = !!(this._type || this._bab);
 
     if (data.isItem) {
       data.canEquip = this._canEquipItem(this.object);
@@ -108,7 +104,7 @@ export class BabonusWorkshop extends FormApplication {
       data.bonuses = BONUS_TYPES_FORMDATA[this._type];
     }
 
-    if (this.activeBuilder) {
+    if (data.activeBuilder) {
       for (const id of FILTER_NAMES) {
         const filterData = {
           id, header: game.i18n.localize(`BABONUS.Filters${id.capitalize()}`),
@@ -173,30 +169,25 @@ export class BabonusWorkshop extends FormApplication {
 
   /** @override */
   activateListeners(html) {
+    // Otter.
+    html[0].querySelector("[data-action='otter-rainbow']").addEventListener("click", this._onOtterRainbow.bind(this));
+    html[0].querySelector("[data-action='otter-dance']").addEventListener("click", this._onOtterDance.bind(this));
+    html[0].querySelectorAll("[data-action='current-collapse']").forEach(a => a.addEventListener("click", this._onToggleCollapse.bind(this)));
+
     if (!this.isEditable) {
-      html[0].style.pointerEvents = "none";
-      html[0].classList.add("uneditable");
+      html[0].querySelectorAll(".left-side, .right-side .functions").forEach(n => {
+        n.style.pointerEvents = "none";
+        n.classList.add("locked");
+      });
       return;
     }
     super.activateListeners(html);
 
-    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
-    const time = { duration: 1000, iterations: 1 };
-    html[0].addEventListener("click", (event) => {
-      const otterA = event.target.closest(".babonus h1 .fa-solid.fa-otter:first-child");
-      const otterB = event.target.closest(".babonus h1 .fa-solid.fa-otter:last-child");
-      if (otterA) {
-        otterA.style.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-        this._otterColor = otterA.style.color;
-      }
-      else if (otterB && !otterB.getAnimations().length) otterB.animate(spin, time);
-    });
-
     // Builder methods.
     html[0].querySelector("[data-action='cancel']").addEventListener("click", this._onCancelBuilder.bind(this));
-    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(b => b.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(a => a.addEventListener("click", _onDisplayKeysDialog.bind(this)));
     html[0].querySelectorAll("[data-action='pick-type']").forEach(a => a.addEventListener("click", this._onPickType.bind(this)));
-    html[0].querySelectorAll("[data-action='delete-filter']").forEach(d => d.addEventListener("click", this._onDeleteFilter.bind(this)));
+    html[0].querySelectorAll("[data-action='delete-filter']").forEach(a => a.addEventListener("click", this._onDeleteFilter.bind(this)));
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
     html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
 
@@ -209,7 +200,25 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='current-optional']").forEach(a => a.addEventListener("click", this._onToggleOptional.bind(this)));
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("click", this._onToggleConsume.bind(this)));
     html[0].querySelectorAll("[data-action='current-itemOnly']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
-    html[0].querySelectorAll("[data-action='current-collapse']").forEach(l => l.addEventListener("click", this._onToggleCollapse.bind(this)));
+  }
+
+  /**
+   * Otter Rainbow.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onOtterRainbow(event) {
+    this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    event.currentTarget.style.color = this._otterColor;
+  }
+
+  /**
+   * Otter Dance.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onOtterDance(event) {
+    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
+    const time = { duration: 1000, iterations: 1 };
+    if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
   }
 
   /**

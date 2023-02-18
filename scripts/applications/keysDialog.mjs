@@ -49,7 +49,7 @@ export class BabonusKeysDialog extends Dialog {
    */
   _onToggleAll(event) {
     const idx = event.currentTarget.dataset.index;
-    const table = event.currentTarget.closest("table.babonus");
+    const table = event.currentTarget.closest(".babonus.keys-dialog table");
     const inputs = table.querySelectorAll(`td:nth-child(${idx}) input`);
     const state = !inputs[0].checked;
     inputs.forEach(i => i.checked = state);

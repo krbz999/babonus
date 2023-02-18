@@ -1,12 +1,12 @@
 <!-- (spell components only) -->
 <div class="form-group" data-id="{{id}}">
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
-  <div class="form-fields checkboxes">
+  <div class="form-fields">
     <div class="checkboxes">
       {{#each array as |type|}}
       <label class="sep" for="{{../appId}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
         <input type="checkbox" name="filters.{{../id}}.types" value="{{type.value}}" id="{{../appId}}-{{type.value}}" {{checked type.checked}}>
-        <span class="checkboxes-check">{{{type.label}}}</span>
+        <span class="check">{{{type.label}}}</span>
       </label>
       {{/each}}
     </div>

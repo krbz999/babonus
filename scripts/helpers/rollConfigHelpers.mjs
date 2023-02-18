@@ -19,10 +19,10 @@ export async function _renderDialog(dialog, html) {
   dialog.setPosition({ height: "auto" });
 
   // Append listeners.
-  html[0].querySelectorAll(".babonus-optionals button.add").forEach(btn => {
+  html[0].querySelectorAll(".babonus.optionals button.add").forEach(btn => {
     btn.addEventListener("click", _applyOptionalBonus.bind(dialog));
   });
-  html[0].querySelectorAll(".babonus-optionals .consumption select").forEach(select => {
+  html[0].querySelectorAll(".babonus.optionals .consumption select").forEach(select => {
     select.addEventListener("change", _appendScalingDataset.bind(select));
     select.dispatchEvent(new Event("change"));
   });

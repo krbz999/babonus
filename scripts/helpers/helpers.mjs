@@ -114,7 +114,7 @@ export class KeyGetter {
     return this.effects;
   }
 
-  static get configurationAuraBlockingConditions() {
+  static get auraBlockers() {
     return this.effects;
   }
 

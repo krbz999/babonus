@@ -1,12 +1,14 @@
 <div class="form-group" data-id="{{id}}">
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
-  <div class="form-fields checkboxes">
-    {{#each array as |type|}}
-    <label class="sep" for="{{../appId}}-{{../id}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
-      <input type="checkbox" name="{{concat 'filters.' ../id}}" value="{{type.value}}" id="{{../appId}}-{{../id}}-{{type.value}}" {{checked type.checked}}>
-      <span class="checkboxes-check">{{{type.label}}}</span>
-    </label>
-    {{/each}}
+  <div class="form-fields">
+    <div class="checkboxes">
+      {{#each array as |type|}}
+      <label class="sep" for="{{../appId}}-{{../id}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
+        <input type="checkbox" name="{{concat 'filters.' ../id}}" value="{{type.value}}" id="{{../appId}}-{{../id}}-{{type.value}}" {{checked type.checked}}>
+        <span class="check">{{{type.label}}}</span>
+      </label>
+      {{/each}}
+    </div>
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>

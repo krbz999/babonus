@@ -1,8 +1,8 @@
-<form class="babonus">
-  <h1>
-    <i class="{{{ICON}}}" style="color: {{otterColor}}"></i>
+<form class="babonus" autocomplete="off">
+  <h1 class="otters">
+    <i class="{{{ICON}}}" data-action="otter-rainbow" style="color: {{otterColor}}"></i>
     {{localize "BABONUS.ModuleTitle"}}
-    <i class="{{{ICON}}}"></i>
+    <i class="{{{ICON}}}" data-action="otter-dance"></i>
   </h1>
 
   <div class="components">
@@ -10,8 +10,8 @@
     <!-- LEFT SIDE -->
     <div class="left-side">
 
-      <div class="select-type" {{#if activeBuilder}} style="display: none;" {{/if}}>
-        <header class="select-type">
+      <section class="select-type" {{#if activeBuilder}} style="display: none;" {{/if}}>
+        <header>
           {{localize "BABONUS.SelectType"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
         </header>
@@ -20,15 +20,15 @@
           <a data-action="pick-type" data-type="{{type.value}}"><i class="{{type.icon}}"></i>{{localize type.label}}</a>
           {{/each}}
         </div>
-      </div>
+      </section>
 
-      <div class="inputs" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
+      <section class="inputs" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
 
         <div class="bonus-config">
 
           <div class="required-fields">
 
-            <header class="required-fields">
+            <header>
               {{localize "BABONUS.RequiredFields"}}
               <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.RequiredFieldsTooltip"></i>
             </header>
@@ -65,7 +65,7 @@
           </div>
 
           <div class="bonuses-inputs">
-            <header class="bonuses-inputs">
+            <header>
               {{localize "BABONUS.Bonuses"}}
               <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.BonusesTooltip"></i>
             </header>
@@ -82,7 +82,7 @@
           </div>
 
           <div class="bonus-filters">
-            <header class="bonus-filters">
+            <header>
               {{localize "BABONUS.CurrentFilters"}}
               <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentFiltersTooltip"></i>
             </header>
@@ -102,15 +102,15 @@
           </div>
         </div>
 
-      </div>
+      </section>
 
     </div>
 
     <!-- RIGHT SIDE -->
     <div class="right-side">
 
-      <div class="current-bonuses" {{#if activeBuilder}} style="display: none;" {{/if}}>
-        <header class="current-bonuses">
+      <section class="current-bonuses" {{#if activeBuilder}} style="display: none;" {{/if}}>
+        <header>
           {{localize "BABONUS.CurrentBonuses"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
         </header>
@@ -119,9 +119,9 @@
           {{#each currentBonuses as |bonus|}}
           <div class="bonus {{#if bonus._collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
             <div class="header">
-              <div class="label{{#unless bonus.enabled}} disabled{{/unless}}" data-action="current-collapse">
+              <a class="label{{#unless bonus.enabled}} disabled{{/unless}}" data-action="current-collapse">
                 {{bonus.name}}
-              </div>
+              </a>
               <div class="details">
                 <div class="functions">
                   <a data-action="current-toggle" data-tooltip="BABONUS.ConfigurationToggleTooltip">
@@ -168,12 +168,12 @@
           {{/each}}
 
         </div>
-      </div>
+      </section>
 
-      <div class="filter-picker" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
+      <section class="filter-picker" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
         <div class="filters">
 
-          <header class="available-filters">
+          <header>
             {{localize "BABONUS.AvailableFilters"}}
             <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.AvailableFiltersTooltip"></i>
           </header>
@@ -191,7 +191,7 @@
             {{/each}}
           </div>
 
-          <header class="unavailable-filters">
+          <header>
             {{localize "BABONUS.UnavailableFilters"}}
             <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.UnavailableFiltersTooltip"></i>
           </header>
@@ -207,7 +207,7 @@
 
         </div>
 
-      </div>
+      </section>
 
     </div>
   </div>

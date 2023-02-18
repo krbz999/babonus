@@ -11,7 +11,8 @@ export class AuraConfigurationDialog extends FormApplication {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE}/templates/subapplications/auraConfigurationApp.hbs`
+      template: `modules/${MODULE}/templates/subapplications/auraConfigurationApp.hbs`,
+      classes: [MODULE, "aura-config"]
     });
   }
 
