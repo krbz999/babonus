@@ -179,17 +179,11 @@
 
 /* LEFT SIDE - BUILDER - UTIL BUTTONS */
 .babonus.builder .components .utils {
-  padding-top: 1em;
   margin: 0.25em;
 }
 
-.babonus.builder .warning {
-  transition: 0.15s;
-  opacity: 0;
-}
-
-.babonus.builder .warning.active {
-  opacity: 1;
+.babonus.builder .warning:not(.active) {
+  display: none;
 }
 
 .babonus.builder .utils-buttons {
@@ -300,7 +294,6 @@
   height: 100%;
   flex-direction: column;
   flex: 1;
-  margin-bottom: 0.25em;
 }
 
 .babonus.builder .right-side .available-filters {
@@ -317,6 +310,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  margin-bottom: 0.25em;
 }
 
 /* RIGHT SIDE - FITLER PICKER - FILTER */
