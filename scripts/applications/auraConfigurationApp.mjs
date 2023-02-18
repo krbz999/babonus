@@ -20,9 +20,9 @@ export class AuraConfigurationDialog extends FormApplication {
     return game.i18n.format("BABONUS.ConfigurationAuraTitle", { name: this.options.bab.name });
   }
 
+  /** @override */
   async getData() {
     const aura = this.options.bab.aura;
-
     const templateDisabled = !(this.options.bab.parent instanceof Item);
     const templateChecked = !templateDisabled && aura.isTemplate;
     const blockers = aura.blockers.join(";");
@@ -34,6 +34,7 @@ export class AuraConfigurationDialog extends FormApplication {
     return { aura, templateDisabled, templateChecked, blockers, choices };
   }
 
+  /** @override */
   async _updateObject(event, formData) {
     try {
       formData["aura.enabled"] = true;
@@ -45,11 +46,13 @@ export class AuraConfigurationDialog extends FormApplication {
     }
   }
 
+  /** @override */
   activateListeners(html) {
     super.activateListeners(html);
     html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", _onDisplayKeysDialog.bind(this));
   }
 
+  /** @override */
   _onChangeInput(event) {
     if (event.target.name === "aura.range") {
       event.target.value = Math.clamped(Math.round(event.target.value), -1, 500);

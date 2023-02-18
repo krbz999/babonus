@@ -2,6 +2,7 @@ import { MODULE } from "../constants.mjs";
 import { _createBabonus } from "../helpers/helpers.mjs";
 
 export class ConsumptionDialog extends FormApplication {
+
   get id() {
     return `${MODULE}ConsumptionDialog-${this.options.bab.id}`;
   }
@@ -19,6 +20,7 @@ export class ConsumptionDialog extends FormApplication {
     return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", { name: this.options.bab.name });
   }
 
+  /** @override */
   async getData() {
     const bab = this.options.bab;
     const choices = [{ value: "", label: "" }];
@@ -32,6 +34,7 @@ export class ConsumptionDialog extends FormApplication {
     }
   }
 
+  /** @override */
   async _updateObject(event, formData) {
     try {
       formData["consume.enabled"] = true;
@@ -43,8 +46,17 @@ export class ConsumptionDialog extends FormApplication {
     }
   }
 
-  _onChangeInput(event) {
-    if (event.target.name !== "consume.scales") return;
-    this.element[0].querySelector("[name='consume.value.max']").disabled = !event.target.checked;
+  /** @override */
+  activateListeners(html) {
+    super.activateListeners(html);
+    html[0].querySelector("[name='consume.scales']").addEventListener("change", this._onChangeScales.bind(this));
+  }
+
+  /**
+   * Toggles the disabled state on the 'max' field according to a checkbox.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onChangeScales(event){
+    this.form["consume.value.max"].disabled = !event.currentTarget.checked;
   }
 }
