@@ -16,6 +16,16 @@ import { AuraConfigurationDialog } from "./auraConfigurationApp.mjs";
 
 export class BabonusWorkshop extends FormApplication {
 
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                      VARIABLES
+   *
+   *
+   * ----------------------------------------------------
+   */
+
   // The right-hand side bonuses that have a collapsed description.
   _collapsedBonuses = new Set();
 
@@ -60,7 +70,17 @@ export class BabonusWorkshop extends FormApplication {
     return this.object.sheet.isEditable;
   }
 
-  // gather data for babonus workshop render.
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                      OVERRIDES
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /** @override */
   async getData() {
     const data = await super.getData();
 
@@ -202,66 +222,6 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='current-itemOnly']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
   }
 
-  /**
-   * Otter Rainbow.
-   * @param {PointerEvent} event    The initiating click event.
-   */
-  _onOtterRainbow(event) {
-    this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
-    event.currentTarget.style.color = this._otterColor;
-  }
-
-  /**
-   * Otter Dance.
-   * @param {PointerEvent} event    The initiating click event.
-   */
-  _onOtterDance(event) {
-    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
-    const time = { duration: 1000, iterations: 1 };
-    if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
-  }
-
-  /**
-   * Canceling out of the builder.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
-   */
-  _onCancelBuilder(event) {
-    return this._renderClean(event);
-  }
-
-  /**
-   * Deleting a filter by clicking the trashcan icon.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onDeleteFilter(event) {
-    event.currentTarget.closest(".form-group").remove();
-    this._updateAddedFilters();
-    this._updateFilterPicker();
-  }
-
-  /**
-   * When picking a type to create a new babonus, store the type, remove
-   * any stored bab, set the filters, and then toggle the builder on.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onPickType(event) {
-    this._renderCreator(event);
-  }
-
-  /**
-   * Collapse or expand a babonus and its description.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onToggleCollapse(event) {
-    const bonus = event.currentTarget.closest(".bonus");
-    const id = bonus.dataset.id;
-    const has = this._collapsedBonuses.has(id);
-    bonus.classList.toggle("collapsed", !has);
-    if (has) this._collapsedBonuses.delete(id);
-    else this._collapsedBonuses.add(id);
-  }
-
   /** @override */
   _onDragStart(event) {
     const label = event.currentTarget.closest(".bonus");
@@ -282,6 +242,129 @@ export class BabonusWorkshop extends FormApplication {
     if (doc.uuid === data.uuid) return false;
     const bab = await _babFromDropData(data, doc);
     return doc.setFlag(MODULE, `bonuses.${bab.id}`, bab.toObject());
+  }
+
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                   RENDERING METHODS
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /**
+   * Special implementation of rendering, to reset the entire application to a clean state.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {BabonusWorkshop}     This application.
+   */
+  async _renderClean(event) {
+    this._type = null;
+    this._bab = null;
+    this._addedFilters.clear();
+    delete this._filters; // appended formgroups for editor mode purposes.
+    return super.render(false);
+  }
+
+  /**
+   * Special implementation of rendering, for when entering creation mode.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {BabonusWorkshop}     This application.
+   */
+  async _renderCreator(event) {
+    this._type = event.currentTarget.dataset.type;
+    this._bab = null;
+    this._addedFilters.clear();
+    delete this._filters; // appended formgroups for editor mode purposes.
+    return super.render(false);
+  }
+
+  /**
+   * Special implementation of rendering, for when entering edit mode.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {BabonusWorkshop}     This application.
+   */
+  async _renderEditor(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const data = this.object.flags.babonus.bonuses[id];
+    this._type = null;
+    this._bab = _createBabonus(data, id, { strict: true });
+    const formData = this._bab.toString();
+    this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
+
+    // Create the form groups for each active filter.
+    const DIV = document.createElement("DIV");
+    DIV.innerHTML = "";
+    for (const id of this._addedFilters) {
+      DIV.innerHTML += await this._templateFilter(id, formData);
+    }
+    this._filters = DIV.innerHTML;
+
+    return super.render(false);
+  }
+
+  /** @override */
+  async render(force = false, options = {}) {
+    // To automatically render in a clean state, the reason
+    // for rendering must either be due to an update in the
+    // object's babonus flags, or 'force' must explicitly be set to 'true'.
+    const wasBabUpdate = foundry.utils.hasProperty(options, "data.flags.babonus");
+    if (!(wasBabUpdate || force)) return;
+    this._type = null;
+    this._bab = null;
+    delete this._filters; // appended formgroups for editor mode purposes.
+    this._addedFilters.clear();
+    this.object.apps[this.appId] = this;
+    return super.render(force, options);
+  }
+
+  /** @override */
+  close(...T) {
+    super.close(...T);
+    delete this.object.apps[this.appId];
+  }
+
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                CURRENT BONUSES METHODS
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /**
+   * Otter Rainbow.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onOtterRainbow(event) {
+    this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    event.currentTarget.style.color = this._otterColor;
+  }
+
+  /**
+   * Otter Dance.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onOtterDance(event) {
+    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
+    const time = { duration: 1000, iterations: 1 };
+    if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
+  }
+
+  /**
+   * Collapse or expand a babonus and its description.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onToggleCollapse(event) {
+    const bonus = event.currentTarget.closest(".bonus");
+    const id = bonus.dataset.id;
+    const has = this._collapsedBonuses.has(id);
+    bonus.classList.toggle("collapsed", !has);
+    if (has) this._collapsedBonuses.delete(id);
+    else this._collapsedBonuses.add(id);
   }
 
   /**
@@ -311,10 +394,9 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bab = getId(this.object, id);
     const path = `bonuses.${id}.aura.enabled`;
-    const state = this.object.getFlag(MODULE, path);
     if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !state);
-    return new AuraConfigurationDialog(this.object, { bab, builder: this }).render(true);
+    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
+    return new AuraConfigurationDialog(this.object, { bab }).render(true);
   }
 
   /**
@@ -337,9 +419,8 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bab = getId(this.object, id);
     const path = `bonuses.${id}.consume.enabled`;
-    const state = this.object.flags.babonus.bonuses[id].consume.enabled;
     if (bab.isConsuming) return this.object.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !state);
+    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.consume.enabled);
     return new ConsumptionDialog(this.object, { bab }).render(true);
   }
 
@@ -392,8 +473,18 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
+   * ----------------------------------------------------
+   *
+   *                 FILTER PICKER AND
+   *                  BUILDER METHODS
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /**
    * Dismiss the warning about invalid data.
-   * @param {PointerEvent} event    The click event.
+   * @param {PointerEvent} event    The initiating click event.
    */
   _onDismissWarning(event) {
     event.currentTarget.classList.toggle("active", false);
@@ -406,106 +497,33 @@ export class BabonusWorkshop extends FormApplication {
     this.element[0].querySelector("[data-action='dismiss-warning']").classList.toggle("active", true);
   }
 
-  /** @override */
-  _restoreScrollPositions(html) {
-    this._collapsedBonuses.forEach(id => {
-      const bonus = html[0].querySelector(`.right-side .bonus[data-id='${id}']`);
-      if (bonus) bonus.classList.add("collapsed");
-    });
-    super._restoreScrollPositions(html);
+  /**
+   * Canceling out of the builder.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {BabonusWorkshop}       This application.
+   */
+  _onCancelBuilder(event) {
+    return this._renderClean(event);
   }
 
   /**
-   * ----------------------------------------------------
-   *
-   *
-   *                 RENDERING METHODS
-   *
-   *
-   * ----------------------------------------------------
+   * Deleting a filter by clicking the trashcan icon.
+   * @param {PointerEvent} event      The initiating click event.
    */
-
-  /**
-   * Special implementation of rendering, to reset the entire application to a clean state.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {BabonusWorkshop}     This application.
-   */
-  async _renderClean(event) {
-    this._type = null;
-    this._bab = null;
-    this._addedFilters.clear();
-    delete this._filters; // appended formgroups for editor mode purposes.
-    return super.render(false);
+  _onDeleteFilter(event) {
+    event.currentTarget.closest(".form-group").remove();
+    this._updateAddedFilters();
+    this._updateFilterPicker();
   }
 
   /**
-   * Special implementation of rendering, for when entering creation mode.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {BabonusWorkshop}     This application.
+   * When picking a type to create a new babonus, store the type, remove
+   * any stored bab, set the filters, and then toggle the builder on.
+   * @param {PointerEvent} event      The initiating click event.
    */
-  async _renderCreator(event) {
-    this._type = event.currentTarget.dataset.type;
-    this._bab = null;
-    this._addedFilters.clear();
-    delete this._filters; // appended formgroups for editor mode purposes.
-    return super.render(false);
+  _onPickType(event) {
+    this._renderCreator(event);
   }
-
-  /**
-   * Special implementation of rendering, for when entering edit mode.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {BabonusWorkshop}     This application.
-   */
-  async _renderEditor(event) {
-    const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = this.object.flags.babonus.bonuses[id];
-    this._type = null;
-    this._bab = _createBabonus(data, id, { strict: true });
-    const formData = this._bab.toString();
-    this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
-
-    // Create the form groups for each active filter.
-    const DIV = document.createElement("DIV");
-    DIV.innerHTML = "";
-    for (const id of this._addedFilters) {
-      DIV.innerHTML += await this.__templateFilter(id, formData);
-    }
-    this._filters = DIV.innerHTML;
-
-    return super.render(false);
-  }
-
-  /**
-   * To automatically render in a clean state, the reason for rendering must either
-   * be due to an update in the object's babonus flags, or 'force' must explicitly be set to 'true'.
-   * @override
-   */
-  async render(force = false, options = {}) {
-    const wasBabUpdate = foundry.utils.hasProperty(options, "data.flags.babonus");
-    if (!(wasBabUpdate || force)) return;
-    this._type = null;
-    this._bab = null;
-    delete this._filters; // appended formgroups for editor mode purposes.
-    this._addedFilters.clear();
-    this.object.apps[this.appId] = this;
-    return super.render(force, options);
-  }
-
-  /** @override */
-  close(...T) {
-    super.close(...T);
-    delete this.object.apps[this.appId];
-  }
-
-  /**
-   * ----------------------------------------------------
-   *
-   *
-   *                 FILTER PICKER METHODS
-   *
-   *
-   * ----------------------------------------------------
-   */
 
   /**
    * Update the 'addedFilters' set with what is found in the builder currently.
@@ -540,25 +558,13 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
-   * Append multiple filters to the builder.
-   * @param {Array<string>} ids   The ids of the filters.
-   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
-   */
-  async _appendNewFilters(ids, formData = null) {
-    const DIV = document.createElement("DIV");
-    for (const id of ids) DIV.innerHTML += await this.__templateFilter(id, formData);
-    this._appendListenersToFilters(DIV);
-    this.element[0].querySelector("div.filters").append(...DIV.children);
-  }
-
-  /**
    * Append one specific filter to the builder.
    * @param {string} id         The id of the filter.
    * @param {object} formData   The toString'd data of a babonus in case of one being edited.
    */
   async _appendNewFilter(id, formData = null) {
     const DIV = document.createElement("DIV");
-    DIV.innerHTML = await this.__templateFilter(id, formData);
+    DIV.innerHTML = await this._templateFilter(id, formData);
     this._appendListenersToFilters(DIV);
     this.element[0].querySelector("div.filters").append(...DIV.children);
   }
@@ -569,9 +575,9 @@ export class BabonusWorkshop extends FormApplication {
    * @param {object} formData   The toString'd data of a babonus in case of one being edited.
    * @returns {string}          The template.
    */
-  async __templateFilter(id, formData = null) {
-    if (id !== "arbitraryComparison") return this.__templateFilterUnique(id, formData);
-    else return this.__templateFilterRepeatable(id, formData);
+  async _templateFilter(id, formData = null) {
+    if (id !== "arbitraryComparison") return this._templateFilterUnique(id, formData);
+    else return this._templateFilterRepeatable(id, formData);
   }
 
   /**
@@ -580,7 +586,7 @@ export class BabonusWorkshop extends FormApplication {
    * @param {object} formData   The toString'd data of a babonus in case of one being edited.
    * @returns {string}          The template.
    */
-  async __templateFilterUnique(id, formData) {
+  async _templateFilterUnique(id, formData) {
     const data = {
       tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
       label: `BABONUS.Filters${id.capitalize()}Label`,
@@ -631,7 +637,7 @@ export class BabonusWorkshop extends FormApplication {
    * @param {object} formData   The toString'd data of a babonus in case of one being edited.
    * @returns {string}      The template.
    */
-  async __templateFilterRepeatable(id, formData) {
+  async _templateFilterRepeatable(id, formData) {
     const idx = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`).length;
     const data = {
       tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
@@ -647,7 +653,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
-   * Helper function to append listeners to created form groups (filters).
+   * Helper function to append listeners to created form-groups (filters).
    * @param {html} fg   The form-groups created.
    */
   _appendListenersToFilters(fg) {
