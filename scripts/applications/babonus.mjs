@@ -38,6 +38,9 @@ export class BabonusWorkshop extends FormApplication {
   // The type of babonus being created.
   _type = null;
 
+  // The currently selected item types for the 'itemTypes' filter.
+  _itemTypes = new Set();
+
   // The current babonus being edited.
   _bab = null;
 
@@ -210,6 +213,7 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='delete-filter']").forEach(a => a.addEventListener("click", this._onDeleteFilter.bind(this)));
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
     html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
+    html[0].querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
 
     // Current bonuses.
     html[0].querySelectorAll("[data-action='current-toggle']").forEach(a => a.addEventListener("click", this._onToggleBonus.bind(this)));
@@ -263,6 +267,7 @@ export class BabonusWorkshop extends FormApplication {
     this._type = null;
     this._bab = null;
     this._addedFilters.clear();
+    this._itemTypes.clear();
     delete this._filters; // appended formgroups for editor mode purposes.
     return super.render(false);
   }
@@ -276,6 +281,7 @@ export class BabonusWorkshop extends FormApplication {
     this._type = event.currentTarget.dataset.type;
     this._bab = null;
     this._addedFilters.clear();
+    this._itemTypes.clear();
     delete this._filters; // appended formgroups for editor mode purposes.
     return super.render(false);
   }
@@ -292,6 +298,7 @@ export class BabonusWorkshop extends FormApplication {
     this._bab = _createBabonus(data, id, { strict: true });
     const formData = this._bab.toString();
     this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
+    this._itemTypes = new Set(this._bab.filters.itemTypes ?? []);
 
     // Create the form groups for each active filter.
     const DIV = document.createElement("DIV");
@@ -315,6 +322,7 @@ export class BabonusWorkshop extends FormApplication {
     this._bab = null;
     delete this._filters; // appended formgroups for editor mode purposes.
     this._addedFilters.clear();
+    this._itemTypes.clear();
     this.object.apps[this.appId] = this;
     return super.render(force, options);
   }
@@ -526,6 +534,17 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
+   * When selecting or deselecting an item type in the 'itemTypes' filter, update the _itemTypes set to match.
+   * @param {PointerEvent} event      The initiating change event.
+   */
+  _onPickItemType(event){
+    const {checked, value} = event.currentTarget;
+    if(checked) this._itemTypes.add(value);
+    else this._itemTypes.delete(value);
+    this._updateFilterPicker();
+  }
+
+  /**
    * Update the 'addedFilters' set with what is found in the builder currently.
    */
   _updateAddedFilters() {
@@ -659,6 +678,7 @@ export class BabonusWorkshop extends FormApplication {
   _appendListenersToFilters(fg) {
     fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
     fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    fg.querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
   }
 
   /**
@@ -724,7 +744,7 @@ export class BabonusWorkshop extends FormApplication {
       };
     } else if (data.id === "spellComponents") {
       for (const a of data.array) a.checked = formData[`filters.${data.id}.types`].includes(a.value);
-      data.value = formData[`filters.${data.id}.match`];
+      data.selected = formData[`filters.${data.id}.match`];
     }
   }
 
@@ -757,24 +777,24 @@ export class BabonusWorkshop extends FormApplication {
     if (id === "arbitraryComparison") return true;
     if (this._addedFilters.has(id)) return false;
 
-    return {
-      abilities: ["attack", "damage", "save"].includes(this._type),
-      attackTypes: ["attack", "damage"].includes(this._type),
-      baseWeapons: true,
-      creatureTypes: true,
-      customScripts: true,
-      damageTypes: ["attack", "damage", "save"].includes(this._type),
-      itemRequirements: this._canEquipItem(this.object) || this._canAttuneToItem(this.object),
-      itemTypes: ["attack", "damage", "save"].includes(this._type),
-      remainingSpellSlots: true,
-      saveAbilities: ["save"].includes(this._type),
-      spellComponents: true,
-      spellLevels: true,
-      spellSchools: true,
-      statusEffects: true,
-      targetEffects: true,
-      throwTypes: ["throw"].includes(this._type),
-      weaponProperties: true
-    }[id] ?? false;
+    switch (id) {
+      case "abilities": return ["attack", "damage", "save"].includes(this._type);
+      case "attackTypes": return ["attack", "damage"].includes(this._type);
+      case "baseWeapons": return this._itemTypes.has("weapon");
+      case "creatureTypes": return true;
+      case "customScripts": return true;
+      case "damageTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
+      case "itemTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "remainingSpellSlots": return true;
+      case "saveAbilities": return ["save"].includes(this._type);
+      case "spellComponents": return this._itemTypes.has("spell");
+      case "spellLevels": return this._itemTypes.has("spell");
+      case "spellSchools": return this._itemTypes.has("spell");
+      case "statusEffects": return true;
+      case "targetEffects": return true;
+      case "throwTypes": return ["throw"].includes(this._type);
+      case "weaponProperties": return this._itemTypes.has("weapon");
+    }
   }
 }

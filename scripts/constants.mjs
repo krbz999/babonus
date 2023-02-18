@@ -108,11 +108,5 @@ export const ARBITRARY_OPERATORS = [
   { value: "GE", label: "&ge;" }
 ];
 
-// item types and the keys for the filters that require them.
-export const FILTER_ITEM_TYPE_REQUIREMENTS = {
-  "weapon": ["baseWeapons", "weaponProperties"],
-  "spell": ["spellComponents", "spellLevels", "spellSchools"]
-};
-
 // consumption types for the select.
 export const CONSUMPTION_TYPES = ["", "uses", "quantity", "slots"];

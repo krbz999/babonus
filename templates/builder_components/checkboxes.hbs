@@ -4,7 +4,7 @@
     <div class="checkboxes">
       {{#each array as |type|}}
       <label for="{{../appId}}-{{../id}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
-        <input type="checkbox" name="{{concat 'filters.' ../id}}" value="{{type.value}}" id="{{../appId}}-{{../id}}-{{type.value}}" {{checked type.checked}}>
+        <input type="checkbox" {{#if (eq ../id "itemTypes")}}data-action="item-type"{{/if}} name="{{concat 'filters.' ../id}}" value="{{type.value}}" id="{{../appId}}-{{../id}}-{{type.value}}" {{checked type.checked}}>
         <span class="check">{{{type.label}}}</span>
       </label>
       {{/each}}

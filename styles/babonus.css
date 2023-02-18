@@ -300,6 +300,7 @@
   height: 100%;
   flex-direction: column;
   flex: 1;
+  margin-bottom: 0.25em;
 }
 
 .babonus.builder .right-side .available-filters {
