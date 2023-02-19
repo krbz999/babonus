@@ -92,9 +92,7 @@
 }
 
 /* LEFT SIDE - BUILDER - REQUIRED FIELDS */
-.babonus.builder .left-side .bonus-config .required-fields {}
-
-.babonus.builder .left-side .bonus-config .required-fields .required {}
+.babonus.builder .left-side .bonus-required {}
 
 .babonus.builder .babonus-type {
   font-size: 30px;
@@ -120,23 +118,14 @@
 }
 
 /* LEFT SIDE - BUILDER - BONUS FIELDS */
-.babonus.builder .left-side .bonus-config .bonuses-inputs {}
-
-.babonus.builder .left-side .bonus-config .bonuses-inputs .bonuses {}
+.babonus.builder .left-side .bonus-inputs {}
 
 /* LEFT SIDE - BUILDER - FILTERS */
 .babonus.builder .left-side .bonus-filters {
   height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
-.babonus.builder .left-side .filters {
-  height: 100%;
   overflow-y: auto;
   display: flex;
+  flex: 1;
   flex-direction: column;
 }
 
@@ -289,43 +278,8 @@
   padding-left: 0.3em;
 }
 
-.babonus.builder .right-side .filters {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  flex: 1;
-}
-
-.babonus.builder .right-side .available-filters {
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  transition: 300ms;
-}
-
 .babonus.builder .right-side .unavailable-filters {
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
   margin-bottom: 0.25em;
-  transition: 300ms;
-}
-
-.babonus.builder .right-side header.collapsed + * {
-  flex: 0;
-}
-
-.babonus.builder .right-side [data-action="collapse-filters"] {
-  float: right;
-  margin-right: 1em;
-}
-
-.babonus.builder .right-side header.collapsed [data-action="collapse-filters"] i::before {
-  content: "\f077";
 }
 
 /* RIGHT SIDE - FITLER PICKER - FILTER */
@@ -384,6 +338,28 @@
   background: rgba(0, 0, 0, 0.1);
   padding-left: 0.5em;
   border-radius: 4px;
+}
+
+.babonus.builder header + :is(.bonus-filters, .available-filters, .unavailable-filters) {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  transition: 300ms;
+}
+
+.babonus.builder header.collapsed + * {
+  flex: 0 !important;
+}
+
+.babonus.builder header [data-action="section-collapse"] {
+  float: right;
+  margin-right: 1em;
+}
+
+.babonus.builder header.collapsed [data-action="section-collapse"] i::before {
+  content: "\f077";
 }
 
 .babonus .label {

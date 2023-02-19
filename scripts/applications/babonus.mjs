@@ -214,7 +214,7 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
     html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
     html[0].querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
-    html[0].querySelectorAll("[data-action='collapse-filters']").forEach(a => a.addEventListener("click", this._onCollapseFilters.bind(this)));
+    html[0].querySelectorAll("[data-action='section-collapse']").forEach(a => a.addEventListener("click", this._onSectionCollapse.bind(this)));
 
     // Current bonuses.
     html[0].querySelectorAll("[data-action='current-toggle']").forEach(a => a.addEventListener("click", this._onToggleBonus.bind(this)));
@@ -492,10 +492,10 @@ export class BabonusWorkshop extends FormApplication {
    */
 
   /**
-   * Collapse a filter section in the filter picker.
+   * Collapse a section in the builder.
    * @param {PointerEvent} event    The initiating click event.
    */
-  _onCollapseFilters(event) {
+  _onSectionCollapse(event) {
     event.currentTarget.closest("header").classList.toggle("collapsed");
   }
 
@@ -594,7 +594,7 @@ export class BabonusWorkshop extends FormApplication {
     const DIV = document.createElement("DIV");
     DIV.innerHTML = await this._templateFilter(id, formData);
     this._appendListenersToFilters(DIV);
-    this.element[0].querySelector("div.filters").append(...DIV.children);
+    this.element[0].querySelector(".left-side .bonus-filters").append(...DIV.children);
   }
 
   /**
