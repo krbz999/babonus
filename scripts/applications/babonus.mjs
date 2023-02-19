@@ -1,29 +1,67 @@
-import { BabonusFilterPicker } from "./filterPicker.mjs";
-import { FILTER_ITEM_TYPE_REQUIREMENTS, MODULE, MODULE_ICON, TYPES } from "../constants.mjs";
-import { _babFromDropData, _createBabonus, _displayKeysDialog, _getAppId } from "../helpers/helpers.mjs";
-import { _canAttuneToItem, _canEquipItem, _employFilter } from "../helpers/filterPickerHelpers.mjs";
+import {
+  ARBITRARY_OPERATORS,
+  ATTACK_TYPES,
+  BONUS_TYPES_FORMDATA,
+  EQUIPPABLE_TYPES,
+  FILTER_NAMES,
+  ITEM_ROLL_TYPES,
+  MODULE,
+  MODULE_ICON,
+  TYPES
+} from "../constants.mjs";
+import { _babFromDropData, _createBabonus, _onDisplayKeysDialog, _getAppId } from "../helpers/helpers.mjs";
 import { getId } from "../public_api.mjs";
 import { ConsumptionDialog } from "./consumptionApp.mjs";
 import { AuraConfigurationDialog } from "./auraConfigurationApp.mjs";
 
 export class BabonusWorkshop extends FormApplication {
+
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                      VARIABLES
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  // The right-hand side bonuses that have a collapsed description.
+  _collapsedBonuses = new Set();
+
+  // The ids of the filters that have been added.
+  _addedFilters = new Set();
+
+  // The color of the left-side otter.
+  _otterColor = "black";
+
+  // The type of babonus being created.
+  _type = null;
+
+  // The currently selected item types for the 'itemTypes' filter.
+  _itemTypes = new Set();
+
+  // The current babonus being edited.
+  _bab = null;
+
   constructor(object, options) {
     super(object, options);
-    this.filterPicker = new BabonusFilterPicker(this);
     this.isItem = object.documentName === "Item";
     this.isEffect = object.documentName === "ActiveEffect";
     this.isActor = object.documentName === "Actor";
+    this.appId = `${this.object.uuid.replaceAll(".", "-")}-babonus-workshop`;
   }
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       closeOnSubmit: false,
       width: 900,
-      height: "auto",
+      height: 850,
       template: `modules/${MODULE}/templates/babonus.hbs`,
-      classes: [MODULE],
+      classes: [MODULE, "builder"],
       scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"],
-      dragDrop: [{ dragSelector: "[data-action='bonus-label']", dropSelector: ".current-bonuses .bonuses" }]
+      dragDrop: [{ dragSelector: ".label[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses" }],
+      resizable: true
     });
   }
 
@@ -35,166 +73,161 @@ export class BabonusWorkshop extends FormApplication {
     return this.object.sheet.isEditable;
   }
 
-  // gather data for babonus workshop render.
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                      OVERRIDES
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /** @override */
   async getData() {
     const data = await super.getData();
 
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
     data.isActor = this.isActor;
+    data.activeBuilder = !!(this._type || this._bab);
+
     if (data.isItem) {
-      data.canEquip = _canEquipItem(this.object);
-      data.canAttune = _canAttuneToItem(this.object);
+      data.canEquip = this._canEquipItem(this.object);
+      data.canAttune = this._canAttuneToItem(this.object);
       data.canConfigureTemplate = this.object.hasAreaTarget;
     }
-    data.bonuses = await this.filterPicker.getHTMLCurrentBonuses();
+
+    // Initial values of the filters.
+    data.filters = [];
+
+    if (this._bab) {
+      // Editing a babonus.
+      data.builder = {
+        type: TYPES.find(t => t.value === this._bab.type),
+        id: this._bab.id,
+        intro: "BABONUS.EditingBonus",
+        name: this._bab.name,
+        description: this._bab.description
+      };
+      data._filters = this._filters;
+      delete this._filters;
+      data.bonuses = BONUS_TYPES_FORMDATA[this._bab.type].map(b => {
+        return { value: foundry.utils.getProperty(this._bab, b.NAME), ...b };
+      });
+    } else if (this._type) {
+      // Creating a babonus.
+      data.builder = {
+        type: TYPES.find(t => t.value === this._type),
+        id: foundry.utils.randomID(),
+        intro: "BABONUS.CreatingBonus",
+        name: null,
+        description: null
+      };
+      data.bonuses = BONUS_TYPES_FORMDATA[this._type];
+    }
+
+    if (data.activeBuilder) {
+      for (const id of FILTER_NAMES) {
+        const filterData = {
+          id, header: game.i18n.localize(`BABONUS.Filters${id.capitalize()}`),
+          description: `BABONUS.Filters${id.capitalize()}Tooltip`,
+          requirements: `BABONUS.Filters${id.capitalize()}Requirements`
+        };
+        if (this._isFilterAvailable(id)) filterData.available = true;
+        data.filters.push(filterData);
+      }
+      data.filters.sort((a, b) => a.header.localeCompare(b.header));
+    }
+
+    // Get current bonuses on the document.
+    const flag = this.object.flags.babonus?.bonuses ?? {};
+    data.currentBonuses = Object.entries(flag).reduce((acc, [id, babData]) => {
+      try {
+        const bab = _createBabonus(babData, id, { parent: this.object });
+        bab._collapsed = this._collapsedBonuses.has(id);
+        acc.push(bab);
+        return acc;
+      } catch (err) {
+        console.error(err);
+        return acc;
+      }
+    }, []).sort((a, b) => a.name.localeCompare(b.name));
+
     data.TYPES = TYPES;
     data.ICON = MODULE_ICON;
-
-    data.otterColor = this._otterColor ?? "black";
+    data.otterColor = this._otterColor;
 
     return data;
   }
 
-  // add the babonus to the object.
+  /** @override */
   async _updateObject(event, formData) {
-    // type must be explicitly set on the data.
-    formData.type = this._type;
-    formData.itemOnly = !!this._itemOnly;
-    formData.optional = !!this._optional;
-    formData.consume = this._consume ?? { enabled: false, type: null, value: { min: null, max: null }, scales: false };
-    formData.aura = this._aura ?? { enabled: false, range: null, isTemplate: false, blockers: [], self: false };
-
-    // replace id if it is invalid.
-    const validId = foundry.data.validators.isValidId(this._id) ? true : foundry.utils.randomID();
-    if (validId === true) formData.id = this._id;
-    else {
-      this._id = validId;
-      formData.id = validId;
+    if (this._bab) {
+      // If editing, get some values from the old babonus.
+      formData.id = this._bab.id;
+      formData.type = this._bab.type;
+      formData.itemOnly = this._bab.itemOnly;
+      formData.optional = this._bab.optional;
+      formData.consume = this._bab.consume;
+      formData.aura = this._bab.aura;
+    } else {
+      // Generate some default value(s).
+      formData.id = this.element[0].querySelector("[name='id']").value;
+      formData.type = this._type;
     }
 
+    // Attempt to save the babonus, otherwise show a warning.
     try {
-      const BAB = _createBabonus(formData, formData.id);
-      this._displayWarning(false);
+      const bab = _createBabonus(formData, formData.id);
       await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
-      await this.object.setFlag(MODULE, `bonuses.${formData.id}`, BAB.toObject());
+      await this.object.setFlag(MODULE, `bonuses.${formData.id}`, bab.toObject());
       ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", { name: formData.name, id: formData.id }));
-      return this.render();
     } catch (err) {
       console.warn(err);
-      this._displayWarning(true);
+      this._displayWarning();
       return;
     }
   }
 
-  // rerender the available/unavailable filters on the right-hand side.
-  async _rerenderFilters() {
-    this._saveScrollPositions(this.element);
-    const fp = this.element[0].querySelector(".right-side div.filter-picker");
-    if (fp) fp.innerHTML = await this.filterPicker.getHTMLFilters();
-    this._restoreScrollPositions(this.element);
-  }
-
-  // show/hide aura config, and clamp aura range.
-  async _onChangeInput(event) {
-    await this._rerenderFilters();
-  }
-
+  /** @override */
   activateListeners(html) {
+    // Otter.
+    html[0].querySelector("[data-action='otter-rainbow']").addEventListener("click", this._onOtterRainbow.bind(this));
+    html[0].querySelector("[data-action='otter-dance']").addEventListener("click", this._onOtterDance.bind(this));
+    html[0].querySelectorAll("[data-action='current-collapse']").forEach(a => a.addEventListener("click", this._onCollapseBonus.bind(this)));
+
     if (!this.isEditable) {
-      html[0].style.pointerEvents = "none";
-      html[0].classList.add("uneditable");
+      html[0].querySelectorAll(".left-side, .right-side .functions").forEach(n => {
+        n.style.pointerEvents = "none";
+        n.classList.add("locked");
+      });
       return;
     }
     super.activateListeners(html);
-    this.filterPicker.activateListeners(html);
 
-    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
-    const time = { duration: 1000, iterations: 1 };
-    html[0].addEventListener("click", (event) => {
-      const otterA = event.target.closest(".babonus h1 .fa-solid.fa-otter:first-child");
-      const otterB = event.target.closest(".babonus h1 .fa-solid.fa-otter:last-child");
-      if (otterA) {
-        otterA.style.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-        this._otterColor = otterA.style.color;
-      }
-      else if (otterB && !otterB.getAnimations().length) otterB.animate(spin, time);
-    });
+    // Builder methods.
+    html[0].querySelector("[data-action='cancel']").addEventListener("click", this._onCancelBuilder.bind(this));
+    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(a => a.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    html[0].querySelectorAll("[data-action='pick-type']").forEach(a => a.addEventListener("click", this._onPickType.bind(this)));
+    html[0].querySelectorAll("[data-action='delete-filter']").forEach(a => a.addEventListener("click", this._onDeleteFilter.bind(this)));
+    html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
+    html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
+    html[0].querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
+    html[0].querySelectorAll("[data-action='collapse-filters']").forEach(a => a.addEventListener("click", this._onCollapseFilters.bind(this)));
 
-    // CANCEL button.
-    html[0].addEventListener("click", (event) => {
-      const btn = event.target.closest("button[data-type='cancel-button']");
-      if (!btn) return;
-      return this.render();
-    });
-
-    // KEYS buttons.
-    html[0].addEventListener("click", async (event) => {
-      const keyButton = event.target.closest("button.babonus-keys");
-      if (!keyButton) return;
-      const data = keyButton.closest(".form-group").dataset;
-      return _displayKeysDialog(keyButton, data.name, data.getter, this.appId);
-    });
-
-    // AURA/CONSUME/ITEM_ONLY/TOGGLE/COPY/EDIT/DELETE anchors.
-    html[0].addEventListener("click", async (event) => {
-      const a = event.target.closest(".functions a");
-      if (!a) return;
-      const { type } = a.dataset;
-      const { id } = a.closest(".bonus").dataset;
-
-      if (type === "toggle") return this._toggleBonus(id);
-      else if (type === "copy") return this._copyBonus(id);
-      else if (type === "edit") return this._editBonus(id);
-      else if (type === "delete") {
-        a.style.pointerEvents = "none";
-        const prompt = await this._deleteBonus(id);
-        if (a) a.style.pointerEvents = "";
-        if (!prompt) return;
-      } else if (type === "aura") return this._toggleAura(id, event);
-      else if (type === "optional") return this._toggleOptional(id);
-      else if (type === "itemOnly") return this._toggleItemOnly(id);
-      else if (type === "consume") return this._toggleConsume(id, event);
-    });
-
-    // Collapse description.
-    html[0].addEventListener("click", (event) => {
-      const label = event.target.closest(".bonus .header .label");
-      if (!label) return;
-      const bonus = label.closest(".bonus");
-      bonus.classList.toggle("collapsed");
-    });
-
-    // when you pick a TYPE.
-    html[0].addEventListener("click", async (event) => {
-      const a = event.target.closest(".left-side .select-type .types a");
-      if (!a) return;
-      return this._initializeBuilder({ type: a.dataset.type });
-    });
-
-    // when you pick an item type, update this._itemTypes.
-    html[0].addEventListener("click", (event) => {
-      const a = event.target.closest(".form-group[data-id='itemTypes']");
-      if (!a) return;
-      this._updateItemTypes();
-    });
-
-    // when you hit that delete filter button.
-    html[0].addEventListener("click", (event) => {
-      const a = event.target.closest(".filter-deletion");
-      if (!a) return;
-      a.closest(".form-group").remove();
-      this._updateItemTypes();
-      this._updateAddedFilters();
-    });
-
-    // click warning away.
-    html[0].addEventListener("click", (event) => {
-      const el = event.target.closest("#babonus-warning.active");
-      if (el) this._displayWarning(false);
-    });
+    // Current bonuses.
+    html[0].querySelectorAll("[data-action='current-toggle']").forEach(a => a.addEventListener("click", this._onToggleBonus.bind(this)));
+    html[0].querySelectorAll("[data-action='current-copy']").forEach(a => a.addEventListener("click", this._onCopyBonus.bind(this)));
+    html[0].querySelectorAll("[data-action='current-edit']").forEach(a => a.addEventListener("click", this._onEditBonus.bind(this)));
+    html[0].querySelectorAll("[data-action='current-delete']").forEach(a => a.addEventListener("click", this._onDeleteBonus.bind(this)));
+    html[0].querySelectorAll("[data-action='current-aura']").forEach(a => a.addEventListener("click", this._onToggleAura.bind(this)));
+    html[0].querySelectorAll("[data-action='current-optional']").forEach(a => a.addEventListener("click", this._onToggleOptional.bind(this)));
+    html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("click", this._onToggleConsume.bind(this)));
+    html[0].querySelectorAll("[data-action='current-itemOnly']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
   }
 
+  /** @override */
   _onDragStart(event) {
     const label = event.currentTarget.closest(".bonus");
     let dragData;
@@ -206,6 +239,7 @@ export class BabonusWorkshop extends FormApplication {
     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
 
+  /** @override */
   async _onDrop(event) {
     const data = TextEditor.getDragEventData(event);
     const doc = this.object;
@@ -215,224 +249,561 @@ export class BabonusWorkshop extends FormApplication {
     return doc.setFlag(MODULE, `bonuses.${bab.id}`, bab.toObject());
   }
 
-  // format the UI to show the builder, optionally with current filters when editing an existing babonus.
-  async _initializeBuilder({ type, id, addedFilters }) {
-    this._type = type;
-    this._id = id ?? foundry.utils.randomID();
-    this._addedFilters = addedFilters;
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                   RENDERING METHODS
+   *
+   *
+   * ----------------------------------------------------
+   */
 
-    // create html for required fields, bonuses fields, and sometimes the aura field (if existing bonus).
-    this.element[0].querySelector(".left-side .required-fields .required").innerHTML = await this.filterPicker.getHTMLRequired(!!addedFilters);
-    this.element[0].querySelector(".left-side .bonuses-inputs .bonuses").innerHTML = await this.filterPicker.getHTMLBonuses();
-
-    // only valid when editing an existing bonus:
-    if (this._addedFilters) {
-      // create form-groups for each existing filter in the bonus being edited.
-      for (const name of addedFilters) await _employFilter(this, name);
-      // add the existing babonus's values to the created form-groups.
-      await this._initializeExistingBonusValues();
-    }
-
-    // hide initial UI:
-    const hide = this.element[0].querySelectorAll(".left-side div.select-type, .right-side div.current-bonuses");
-    for (const h of hide) h.style.display = "none";
-    // show builder UI:
-    const show = this.element[0].querySelectorAll(".left-side div.inputs, .right-side div.filter-picker");
-    for (const s of show) s.style.display = "";
-
-    // update the filters.
-    return this._rerenderFilters();
-  }
-
-  /* Update the right-side bonuses. */
-  async _updateCurrentBonuses() {
-    this._saveScrollPositions(this.element);
-    this.element[0].querySelector(".right-side .current-bonuses .bonuses").innerHTML = await this.filterPicker.getHTMLCurrentBonuses();
-    this._restoreScrollPositions(this.element);
-    this._dragDrop.forEach(d => d.bind(this.element[0])); // rebind drag selectors.
-  }
-
-  // paste the values of an existing bonus.
-  async _initializeExistingBonusValues() {
-    const data = this._formData; // flattened values.
-    for (const name of Object.keys(data)) {
-      if (data[name] instanceof Array) {
-        for (const innerName of data[name]) {
-          const el = this.element[0].querySelector(`[name="${name}"][value="${innerName}"]`);
-          if (el) el.checked = true;
-        }
-      } else if (typeof data[name] === "string" || typeof data[name] === "number") {
-        const el = this.element[0].querySelector(`[name="${name}"]`);
-        if (el) el.value = data[name];
-      } else if (typeof data[name] === "boolean") {
-        const el = this.element[0].querySelector(`[name="${name}"]`);
-        if (el) el.checked = data[name];
-      }
-    }
-  }
-
-  /* Update the Set storing current filter names for easy access. */
-  _updateAddedFilters() {
-    this._addedFilters = new Set([
-      ...this.element[0].querySelectorAll(".left-side .bonus-filters .filters .form-group")
-    ].map(i => i.dataset.id).filter(i => i?.length > 0));
-    this._rerenderFilters();
-  }
-
-  /* Helper method that is run every time a filter is added or deleted. */
-  _updateItemTypes() {
-    const formGroup = this.element[0].querySelector(".left-side .filters .form-group[data-id='itemTypes']");
-    const types = formGroup?.querySelectorAll("input[name='filters.itemTypes']:checked") ?? [];
-    this._itemTypes = new Set(Array.from(types).map(t => t.value));
-    for (const key of Object.keys(FILTER_ITEM_TYPE_REQUIREMENTS)) {
-      // if the item type is not present:
-      if (!this._itemTypes.has(key) || this._itemTypes.size > 1) {
-        for (const name of FILTER_ITEM_TYPE_REQUIREMENTS[key]) {
-          const el = this.element[0].querySelector(`.left-side .form-group[data-id="${name}"]`);
-          if (el) {
-            el.remove();
-            this._addedFilters.delete(name);
-          }
-        }
-      }
-    }
-  }
-
-  // method to delete a bonus when hitting the Trashcan button.
-  async _deleteBonus(id) {
-    const { name } = this.object.getFlag(MODULE, `bonuses.${id}`);
-    const prompt = await Dialog.confirm({
-      title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", { name }),
-      content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", { name })
-    });
-    if (!prompt) return false;
-    await this.object.unsetFlag(MODULE, `bonuses.${id}`);
-    ui.notifications.info(game.i18n.format("BABONUS.NotificationDelete", { name, id }));
-  }
-
-  // trigger the aura config app, or turn aura off.
-  async _toggleAura(id, event) {
-    const bab = getId(this.object, id);
-    const path = `bonuses.${id}.aura.enabled`;
-    const state = this.object.getFlag(MODULE, path);
-    if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !state);
-    return new AuraConfigurationDialog(this.object, { bab, builder: this }).render(true);
-  }
-
-  // toggle the 'self only' property of an item.
-  async _toggleItemOnly(id) {
-    const key = `bonuses.${id}.itemOnly`;
-    const state = this.object.getFlag(MODULE, key);
-    return this.object.setFlag(MODULE, key, !state);
-  }
-
-  // trigger the consumption app, or turn consumption off.
-  async _toggleConsume(id, event) {
-    const bab = getId(this.object, id);
-    if (!bab.canConsume) return;
-
-    const path = `bonuses.${id}.consume.enabled`;
-    const state = this.object.getFlag(MODULE, path);
-    if (bab.isConsuming) return this.object.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !state);
-    return new ConsumptionDialog(this.object, { bab }).render(true);
-  }
-
-  // toggle the 'is optional' property of a bonus.
-  async _toggleOptional(id) {
-    const key = `bonuses.${id}.optional`;
-    const state = this.object.getFlag(MODULE, key);
-    return this.object.setFlag(MODULE, key, !state);
-  }
-
-  // toggle a bonus between enabled=true and enabled=false.
-  async _toggleBonus(id) {
-    const key = `bonuses.${id}.enabled`;
-    const state = this.object.getFlag(MODULE, key);
-    if (state !== true && state !== false) return ui.notifications.error("The state of this babonus was invalid.");
-    return this.object.setFlag(MODULE, key, !state);
-  }
-
-  // copy a bonus, with new id, and appended to its name
-  async _copyBonus(id) {
-    const data = this.object.getFlag(MODULE, `bonuses.${id}`) ?? {};
-    const bonusData = foundry.utils.duplicate(data);
-    bonusData.name = `${bonusData.name} (Copy)`;
-    bonusData.id = foundry.utils.randomID();
-    bonusData.enabled = false;
-    await this.object.setFlag(MODULE, `bonuses.${bonusData.id}`, bonusData);
-    ui.notifications.info(game.i18n.format("BABONUS.NotificationCopy", {
-      name: bonusData.name,
-      id: bonusData.id
-    }));
-  }
-
-  // edit a bonus, with the same id.
-  async _editBonus(id) {
-    const data = this.object.getFlag(MODULE, `bonuses.${id}`);
-    const bab = _createBabonus(data, id, { strict: false });
-    const formData = bab.toString();
-    const type = bab.type;
-    this._formData = formData;
-    this._babObject = bab.toObject();
-    this._itemOnly = bab.itemOnly;
-    this._optional = bab.optional;
-    this._consume = bab.consume;
-    this._aura = bab.aura;
-    const addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
-    await this._initializeBuilder({ type, id, addedFilters });
-    this._updateItemTypes();
-    this._updateAddedFilters();
-  }
-
-  // helper method to show/hide a warning in the BAB.
-  _displayWarning(force) {
-    const warning = this.element[0].querySelector("#babonus-warning");
-    warning.classList.toggle("active", force);
-  }
-
-  _saveScrollPositions(html) {
-    const selector = ".right-side .current-bonuses .bonuses .bonus.collapsed";
-    const scrolls = html[0].querySelectorAll(selector);
-    this._collapsedBonuses = [...scrolls].map(c => c.dataset.id);
-    super._saveScrollPositions(html);
-  }
-
-  _restoreScrollPositions(html) {
-    this._collapsedBonuses?.map(c => {
-      const selector = `.right-side .current-bonuses .bonuses .bonus[data-id='${c}']`;
-      html[0].querySelector(selector)?.classList.add("collapsed");
-    });
-    super._restoreScrollPositions(html);
-  }
-
-  render(...T) {
-    super.render(...T);
-    this._deleteTemporaryValues();
-    this.object.apps[this.filterPicker.id] = this.filterPicker;
-  }
-
-  close(...T) {
-    super.close();
-    delete this.object.apps[this.filterPicker.id];
+  /**
+   * Special implementation of rendering, to reset the entire application to a clean state.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {BabonusWorkshop}     This application.
+   */
+  async _renderClean(event) {
+    this._type = null;
+    this._bab = null;
+    this._addedFilters.clear();
+    this._itemTypes.clear();
+    delete this._filters; // appended formgroups for editor mode purposes.
+    return super.render(false);
   }
 
   /**
-   * Delete temporary values from the BAB.
-   * These are only relevant while building a bonus
-   * and are used only by the FilterPicker.
+   * Special implementation of rendering, for when entering creation mode.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {BabonusWorkshop}     This application.
    */
-  _deleteTemporaryValues() {
-    delete this._type;
-    delete this._addedFilters;
-    delete this._itemTypes;
-    delete this._id;
-    delete this._formData;
-    delete this._babObject;
-    delete this._itemOnly;
-    delete this._optional;
-    delete this._consume;
-    delete this._aura;
+  async _renderCreator(event) {
+    this._type = event.currentTarget.dataset.type;
+    this._bab = null;
+    this._addedFilters.clear();
+    this._itemTypes.clear();
+    delete this._filters; // appended formgroups for editor mode purposes.
+    return super.render(false);
+  }
+
+  /**
+   * Special implementation of rendering, for when entering edit mode.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {BabonusWorkshop}     This application.
+   */
+  async _renderEditor(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const data = this.object.flags.babonus.bonuses[id];
+    this._type = null;
+    this._bab = _createBabonus(data, id, { strict: true });
+    const formData = this._bab.toString();
+    this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
+    this._itemTypes = new Set(this._bab.filters.itemTypes ?? []);
+
+    // Create the form groups for each active filter.
+    const DIV = document.createElement("DIV");
+    DIV.innerHTML = "";
+    for (const id of this._addedFilters) {
+      DIV.innerHTML += await this._templateFilter(id, formData);
+    }
+    this._filters = DIV.innerHTML;
+
+    return super.render(false);
+  }
+
+  /** @override */
+  async render(force = false, options = {}) {
+    // To automatically render in a clean state, the reason
+    // for rendering must either be due to an update in the
+    // object's babonus flags, or 'force' must explicitly be set to 'true'.
+    const wasBabUpdate = foundry.utils.hasProperty(options, "data.flags.babonus");
+    if (!(wasBabUpdate || force)) return;
+    this._type = null;
+    this._bab = null;
+    delete this._filters; // appended formgroups for editor mode purposes.
+    this._addedFilters.clear();
+    this._itemTypes.clear();
+    this.object.apps[this.appId] = this;
+    return super.render(force, options);
+  }
+
+  /** @override */
+  close(...T) {
+    super.close(...T);
+    delete this.object.apps[this.appId];
+  }
+
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                CURRENT BONUSES METHODS
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /**
+   * Otter Rainbow.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onOtterRainbow(event) {
+    this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    event.currentTarget.style.color = this._otterColor;
+  }
+
+  /**
+   * Otter Dance.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onOtterDance(event) {
+    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
+    const time = { duration: 1000, iterations: 1 };
+    if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
+  }
+
+  /**
+   * Collapse or expand a babonus and its description.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onCollapseBonus(event) {
+    const bonus = event.currentTarget.closest(".bonus");
+    const id = bonus.dataset.id;
+    const has = this._collapsedBonuses.has(id);
+    bonus.classList.toggle("collapsed", !has);
+    if (has) this._collapsedBonuses.delete(id);
+    else this._collapsedBonuses.add(id);
+  }
+
+  /**
+   * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {Actor5e|Item5e}      The actor or item having its babonus deleted.
+   */
+  async _onDeleteBonus(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const name = this.object.flags.babonus.bonuses[id].name;
+    const prompt = await Dialog.confirm({
+      title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", { name }),
+      content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", { name }),
+      options: { id: `babonus-confirm-delete-${id}` }
+    });
+    if (!prompt) return false;
+    ui.notifications.info(game.i18n.format("BABONUS.NotificationDelete", { name, id }));
+    return this.object.unsetFlag(MODULE, `bonuses.${id}`);
+  }
+
+  /**
+   * Toggle the aura configuration of the babonus on or off, or open the config dialog.
+   * @param {PointerEvent} event                          The initiating click event.
+   * @returns {Actor5e|Item5e|AuraConfigurationDialog}    The actor, item, or aura config.
+   */
+  async _onToggleAura(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const bab = getId(this.object, id);
+    const path = `bonuses.${id}.aura.enabled`;
+    if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
+    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
+    return new AuraConfigurationDialog(this.object, { bab }).render(true);
+  }
+
+  /**
+   * Toggle the exclusivity property on a babonus.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {Actor5e|Item5e}      The actor or item having its babonus toggled.
+   */
+  async _onToggleExclusive(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const state = this.object.flags.babonus.bonuses[id].itemOnly;
+    return this.object.setFlag(MODULE, `bonuses.${id}.itemOnly`, !state);
+  }
+
+  /**
+   * Toggle the consumption property on a babonus.
+   * @param {PointerEvent} event                    The initiating click event.
+   * @returns {Actor5e|Item5e|ConsumptionDialog}    The actor, item, or consumption config.
+   */
+  async _onToggleConsume(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const bab = getId(this.object, id);
+    const path = `bonuses.${id}.consume.enabled`;
+    if (bab.isConsuming) return this.object.setFlag(MODULE, path, false);
+    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.consume.enabled);
+    return new ConsumptionDialog(this.object, { bab }).render(true);
+  }
+
+  /**
+   * Toggle the optional property on a babonus.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {Actor5e|Item5e}      The actor or item having its babonus toggled.
+   */
+  async _onToggleOptional(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const state = this.object.flags.babonus.bonuses[id].optional;
+    return this.object.setFlag(MODULE, `bonuses.${id}.optional`, !state);
+  }
+
+  /**
+   * Toggle the enabled property on a babonus.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {Actor5e|Item5e}      The actor or item having its babonus toggled.
+   */
+  async _onToggleBonus(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const key = `bonuses.${id}.enabled`;
+    const state = this.object.getFlag(MODULE, key);
+    return this.object.setFlag(MODULE, key, !state);
+  }
+
+  /**
+   * Copy a babonus on the actor or item.
+   * @param {PointerEvent} event    The initiating click event.
+   * @returns {Actor5e|Item5e}      The actor or item having its babonus copied.
+   */
+  async _onCopyBonus(event) {
+    const id = event.currentTarget.closest(".bonus").dataset.id;
+    const data = foundry.utils.duplicate(this.object.flags.babonus.bonuses[id]);
+    data.name = game.i18n.format("BABONUS.BonusCopy", { name: data.name });
+    data.id = foundry.utils.randomID();
+    data.enabled = false;
+    ui.notifications.info(game.i18n.format("BABONUS.NotificationCopy", data));
+    return this.object.setFlag(MODULE, `bonuses.${data.id}`, data);
+  }
+
+  /**
+   * Edit a babonus by adding it to the builder. This also sets all related stored values.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {BabonusWorkshop}       This application.
+   */
+  async _onEditBonus(event) {
+    // Render the application specifically in this mode.
+    return this._renderEditor(event);
+  }
+
+  /**
+   * ----------------------------------------------------
+   *
+   *                 FILTER PICKER AND
+   *                  BUILDER METHODS
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /**
+   * Collapse a filter section in the filter picker.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onCollapseFilters(event) {
+    event.currentTarget.closest("header").classList.toggle("collapsed");
+  }
+
+  /**
+   * Dismiss the warning about invalid data.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onDismissWarning(event) {
+    event.currentTarget.classList.toggle("active", false);
+  }
+
+  /**
+   * Show the warning about invalid data. This is usually just a missing name for the babonus.
+   */
+  _displayWarning() {
+    this.element[0].querySelector("[data-action='dismiss-warning']").classList.toggle("active", true);
+  }
+
+  /**
+   * Canceling out of the builder.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {BabonusWorkshop}       This application.
+   */
+  _onCancelBuilder(event) {
+    return this._renderClean(event);
+  }
+
+  /**
+   * Deleting a filter by clicking the trashcan icon.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onDeleteFilter(event) {
+    event.currentTarget.closest(".form-group").remove();
+    this._updateAddedFilters();
+    this._updateFilterPicker();
+  }
+
+  /**
+   * When picking a type to create a new babonus, store the type, remove
+   * any stored bab, set the filters, and then toggle the builder on.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onPickType(event) {
+    this._renderCreator(event);
+  }
+
+  /**
+   * When selecting or deselecting an item type in the 'itemTypes' filter, update the _itemTypes set to match.
+   * @param {PointerEvent} event      The initiating change event.
+   */
+  _onPickItemType(event) {
+    const { checked, value } = event.currentTarget;
+    if (checked) this._itemTypes.add(value);
+    else this._itemTypes.delete(value);
+    this._updateFilterPicker();
+  }
+
+  /**
+   * Update the 'addedFilters' set with what is found in the builder currently.
+   */
+  _updateAddedFilters() {
+    this._addedFilters.clear();
+    const added = this.element[0].querySelectorAll(".left-side .filters [data-id]");
+    added.forEach(a => this._addedFilters.add(a.dataset.id));
+  }
+
+  /**
+   * Update the filter picker by reading the 'addedFilters' set and toggling the hidden states.
+   */
+  _updateFilterPicker() {
+    FILTER_NAMES.forEach(id => {
+      const available = this._isFilterAvailable(id);
+      const [av, unav] = this.element[0].querySelectorAll(`.right-side .filter[data-id="${id}"]`);
+      av.classList.toggle("hidden", !available);
+      unav.classList.toggle("hidden", available || this._addedFilters.has(id));
+    });
+  }
+
+  /**
+   * Handle the click event when adding a new filter to the builder.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  async _onAddFilter(event) {
+    const id = event.currentTarget.closest(".filter").dataset.id;
+    await this._appendNewFilter(id);
+    this._updateAddedFilters();
+    this._updateFilterPicker();
+  }
+
+  /**
+   * Append one specific filter to the builder.
+   * @param {string} id         The id of the filter.
+   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   */
+  async _appendNewFilter(id, formData = null) {
+    const DIV = document.createElement("DIV");
+    DIV.innerHTML = await this._templateFilter(id, formData);
+    this._appendListenersToFilters(DIV);
+    this.element[0].querySelector("div.filters").append(...DIV.children);
+  }
+
+  /**
+   * Get the inner html of a filter you want to add.
+   * @param {string} id         The id of the filter.
+   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   * @returns {string}          The template.
+   */
+  async _templateFilter(id, formData = null) {
+    if (id !== "arbitraryComparison") return this._templateFilterUnique(id, formData);
+    else return this._templateFilterRepeatable(id, formData);
+  }
+
+  /**
+   * Create and append the form-group for a specific filter, then add listeners.
+   * @param {string} id         The id of the filter to add.
+   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   * @returns {string}          The template.
+   */
+  async _templateFilterUnique(id, formData) {
+    const data = {
+      tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
+      label: `BABONUS.Filters${id.capitalize()}Label`,
+      id,
+      appId: this.object.id,
+      array: this._newFilterArrayOptions(id),
+      value: null
+    };
+
+    if (formData) this._prepareData(data, formData);
+
+    const template = ("modules/babonus/templates/builder_components/" + {
+      abilities: "text_keys.hbs",
+      attackTypes: "checkboxes.hbs",
+      baseWeapons: "text_keys.hbs",
+      creatureTypes: "text_text_keys.hbs",
+      customScripts: "textarea.hbs",
+      damageTypes: "text_keys.hbs",
+      itemRequirements: "label_checkbox_label_checkbox.hbs",
+      itemTypes: "checkboxes.hbs",
+      remainingSpellSlots: "text_dash_text.hbs",
+      saveAbilities: "text_keys.hbs",
+      spellComponents: "checkboxes_select.hbs",
+      spellLevels: "checkboxes.hbs",
+      spellSchools: "text_keys.hbs",
+      statusEffects: "text_keys.hbs",
+      targetEffects: "text_keys.hbs",
+      throwTypes: "text_keys.hbs",
+      weaponProperties: "text_text_keys.hbs"
+    }[id]);
+
+    if (id === "spellComponents") {
+      data.selectOptions = [
+        { value: "ANY", label: "BABONUS.FiltersSpellComponentsMatchAny" },
+        { value: "ALL", label: "BABONUS.FiltersSpellComponentsMatchAll" }
+      ];
+    } else if ("itemRequirements" === id) {
+      data.canEquip = this._canEquipItem(this.object);
+      data.canAttune = this._canAttuneToItem(this.object);
+    }
+
+    return renderTemplate(template, data);
+  }
+
+  /**
+   * Create and append the form-group for a specific repeatable filter, then add listeners.
+   * @param {string} id     The id of the filter to add.
+   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   * @returns {string}      The template.
+   */
+  async _templateFilterRepeatable(id, formData) {
+    const idx = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`).length;
+    const data = {
+      tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
+      label: `BABONUS.Filters${id.capitalize()}Label`,
+      id,
+      defaultOptions: ARBITRARY_OPERATORS,
+      placeholderOne: `BABONUS.Filters${id.capitalize()}One`,
+      placeholderOther: `BABONUS.Filters${id.capitalize()}Other`,
+      array: [{ idx }]
+    }
+    if (formData) this._prepareData(data, formData);
+    return renderTemplate("modules/babonus/templates/builder_components/text_select_text.hbs", data);
+  }
+
+  /**
+   * Helper function to append listeners to created form-groups (filters).
+   * @param {html} fg   The form-groups created.
+   */
+  _appendListenersToFilters(fg) {
+    fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
+    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    fg.querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
+  }
+
+  /**
+   * Helper function for array of options.
+   * @param {string} id     The name attribute of the filter.
+   */
+  _newFilterArrayOptions(id) {
+    if (id === "attackTypes") {
+      return ATTACK_TYPES.map(a => ({ value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a] }));
+    } else if (id === "itemTypes") {
+      return ITEM_ROLL_TYPES.map(i => ({ value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}` }));
+    } else if (id === "spellLevels") {
+      return Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => ({ value, label: value, tooltip }));
+    } else if (id === "spellComponents") {
+      return Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags)).map(([key, { abbr, label }]) => ({ value: key, label: abbr, tooltip: label }));
+    }
+  }
+
+  /**
+   * Prepare previous values, checked boxes, etc., for a created form-group when a babonus is edited.
+   * @param {object} data       The pre-mutated object of handlebars data. **will be mutated**
+   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   */
+  _prepareData(data, formData) {
+    if (data.id === "arbitraryComparison") {
+      data.array = foundry.utils.duplicate(this._bab.filters[data.id]).map((n, idx) => {
+        const options = ARBITRARY_OPERATORS.reduce((acc, { value, label }) => {
+          const selected = (value === n.operator) ? "selected" : "";
+          return acc + `<option value="${value}" ${selected}>${label}</option>`;
+        }, "");
+        return { ...n, idx, options };
+      });
+    } else if ([
+      "abilities",
+      "baseWeapons",
+      "customScripts",
+      "damageTypes",
+      "saveAbilities",
+      "spellSchools",
+      "statusEffects",
+      "targetEffects",
+      "throwTypes"
+    ].includes(data.id)) {
+      data.value = formData[`filters.${data.id}`];
+    } else if ([
+      "creatureTypes",
+      "weaponProperties"
+    ].includes(data.id)) {
+      data.value = { needed: formData[`filters.${data.id}.needed`], unfit: formData[`filters.${data.id}.unfit`] };
+    } else if (data.id === "remainingSpellSlots") {
+      data.value = { min: formData[`filters.${data.id}.min`], max: formData[`filters.${data.id}.max`] };
+    } else if ([
+      "attackTypes",
+      "itemTypes",
+      "spellLevels"
+    ].includes(data.id)) {
+      const fd = formData[`filters.${data.id}`];
+      for (const a of data.array) if (fd.includes(a.value)) a.checked = true;
+    } else if (data.id === "itemRequirements") {
+      data.array = {
+        equipped: formData[`filters.${data.id}.equipped`],
+        attuned: formData[`filters.${data.id}.attuned`]
+      };
+    } else if (data.id === "spellComponents") {
+      for (const a of data.array) a.checked = formData[`filters.${data.id}.types`].includes(a.value);
+      data.selected = formData[`filters.${data.id}.match`];
+    }
+  }
+
+  /**
+   * Whether this item is one that can be equipped.
+   * @param {Item5e} item     The item being viewed.
+   * @returns {boolean}       Whether it is or can be equipped.
+   */
+  _canEquipItem(item) {
+    return (item instanceof Item) && EQUIPPABLE_TYPES.includes(item.type);
+  }
+
+  /**
+   * Whether this item has been set as attuned or attunement required.
+   * @param {Item5e} item     The item being viewed.
+   * @returns {boolean}       Whether it is or can be attuned to.
+   */
+  _canAttuneToItem(item) {
+    const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
+    return (item instanceof Item) && [REQUIRED, ATTUNED].includes(item.system.attunement);
+  }
+
+  /**
+   * Returns whether a filter is available to be added to babonus, given the current filters
+   * in use, the type of document it belongs to, as well as the type of babonus.
+   * @param {string} id   The id of the filter.
+   * @returns {boolean}   Whether the filter can be added.
+   */
+  _isFilterAvailable(id) {
+    if (id === "arbitraryComparison") return true;
+    if (this._addedFilters.has(id)) return false;
+
+    switch (id) {
+      case "abilities": return ["attack", "damage", "save"].includes(this._type);
+      case "attackTypes": return ["attack", "damage"].includes(this._type);
+      case "baseWeapons": return this._itemTypes.has("weapon");
+      case "creatureTypes": return true;
+      case "customScripts": return true;
+      case "damageTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
+      case "itemTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "remainingSpellSlots": return true;
+      case "saveAbilities": return ["save"].includes(this._type);
+      case "spellComponents": return this._itemTypes.has("spell");
+      case "spellLevels": return this._itemTypes.has("spell");
+      case "spellSchools": return this._itemTypes.has("spell");
+      case "statusEffects": return true;
+      case "targetEffects": return true;
+      case "throwTypes": return ["throw"].includes(this._type);
+      case "weaponProperties": return this._itemTypes.has("weapon");
+    }
   }
 }

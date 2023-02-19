@@ -1,0 +1,30 @@
+<div class="dialog-content" autocomplete="off">
+  <p>{{{localize description}}}</p>
+  <table {{#if double}}class="double"{{/if}}>
+    <thead>
+      <tr>
+        <th>{{localize "BABONUS.KeysDialogValue"}}</th>
+        <th><a data-action="select-all" data-index="2">{{localize "BABONUS.KeysDialogInclude"}}</a></th>
+        {{#if double}}
+        <th><a data-action="select-all" data-index="3">{{localize "BABONUS.KeysDialogExclude"}}</a></th>
+        {{/if}}
+      </tr>
+    </thead>
+    <tbody>
+      {{#each lists as |list|}}
+      <tr>
+        <td>{{#if list.icon}}<img src="{{list.icon}}">{{/if}}{{list.label}}</td>
+        <td><input type="checkbox" id="{{list.value}}" data-property="needed" {{checked list.checked0}}></td>
+        {{#if ../double}}
+        <td><input type="checkbox" id="{{list.value}}" data-property="unfit" {{checked list.checked1}}></td>
+        {{/if}}
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+<div class="dialog-buttons">
+  <button class="dialog-button ok default" data-button="ok">
+    <i class="fas fa-check"></i> {{localize label}}
+  </button>
+</div>

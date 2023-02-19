@@ -1,7 +1,8 @@
 import { AURA_TARGETS, MODULE } from "../constants.mjs";
-import { _createBabonus, _displayKeysDialog } from "../helpers/helpers.mjs";
+import { _createBabonus, _onDisplayKeysDialog } from "../helpers/helpers.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
+
   get id() {
     return `${MODULE}AuraConfigurationDialog-${this.options.bab.id}`;
   }
@@ -10,7 +11,8 @@ export class AuraConfigurationDialog extends FormApplication {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE}/templates/subapplications/auraConfigurationApp.hbs`
+      template: `modules/${MODULE}/templates/subapplications/auraConfigurationApp.hbs`,
+      classes: [MODULE, "aura-config"]
     });
   }
 
@@ -18,9 +20,9 @@ export class AuraConfigurationDialog extends FormApplication {
     return game.i18n.format("BABONUS.ConfigurationAuraTitle", { name: this.options.bab.name });
   }
 
+  /** @override */
   async getData() {
     const aura = this.options.bab.aura;
-
     const templateDisabled = !(this.options.bab.parent instanceof Item);
     const templateChecked = !templateDisabled && aura.isTemplate;
     const blockers = aura.blockers.join(";");
@@ -32,6 +34,7 @@ export class AuraConfigurationDialog extends FormApplication {
     return { aura, templateDisabled, templateChecked, blockers, choices };
   }
 
+  /** @override */
   async _updateObject(event, formData) {
     try {
       formData["aura.enabled"] = true;
@@ -43,13 +46,13 @@ export class AuraConfigurationDialog extends FormApplication {
     }
   }
 
+  /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelector("button.babonus-keys").addEventListener("click", async (event) => {
-      return _displayKeysDialog(event.currentTarget, "ConfigurationAuraBlockingConditions", "effects", this.appId);
-    });
+    html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", _onDisplayKeysDialog.bind(this));
   }
 
+  /** @override */
   _onChangeInput(event) {
     if (event.target.name === "aura.range") {
       event.target.value = Math.clamped(Math.round(event.target.value), -1, 500);
@@ -57,7 +60,7 @@ export class AuraConfigurationDialog extends FormApplication {
       const checked = event.target.checked;
       this.form["aura.range"].disabled = checked;
       this.form["aura.blockers"].disabled = checked;
-      this.form.querySelector("button.babonus-keys").disabled = checked;
+      this.form.querySelector("[data-action='keys-dialog']").disabled = checked;
     }
   }
 }

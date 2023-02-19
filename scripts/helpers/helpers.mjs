@@ -15,24 +15,6 @@ import {
 } from "../constants.mjs";
 import { getId } from "../public_api.mjs";
 
-// current bonuses on the document, for HTML purposes only.
-export function _getBonuses(doc) {
-  const flag = doc.flags.babonus?.bonuses ?? {};
-  return Object.entries(flag).map(([id, data]) => {
-    try {
-      return _createBabonus(data, id, { parent: doc });
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  }).filter(b => {
-    // explicitly true for valid ids.
-    return !!b && foundry.data.validators.isValidId(b.id);
-  }).sort((a, b) => {
-    return a.name?.localeCompare(b.name);
-  });
-}
-
 export class KeyGetter {
 
   // base weapon types.
@@ -122,6 +104,18 @@ export class KeyGetter {
     }, []).sort((a, b) => {
       return a.value.localeCompare(b.value);
     });
+  }
+
+  static get targetEffects() {
+    return this.effects;
+  }
+
+  static get statusEffects() {
+    return this.effects;
+  }
+
+  static get auraBlockers() {
+    return this.effects;
   }
 
   // all base creature types
@@ -295,34 +289,27 @@ export async function _babFromUuid(uuid) {
   }
 }
 
-export async function _displayKeysDialog(btn, name, getter, id) {
+export async function _onDisplayKeysDialog(event) {
+  const formGroup = event.currentTarget.closest(".form-group");
+  const filterId = formGroup.dataset.id;
 
-  const types = foundry.utils.duplicate(KeyGetter[getter]);
+  const lists = foundry.utils.duplicate(KeyGetter[filterId]);
 
-  // find current semi-colon lists.
-  const [list, list2] = btn.closest(".form-group").querySelectorAll("input[type='text']");
-  const values = list.value.split(";");
-  const values2 = list2?.value.split(";");
-  types.forEach(t => {
-    t.checked = values.includes(t.value);
-    t.checked2 = values2?.includes(t.value);
-  });
-  const data = {
-    description: `BABONUS.${name}Tooltip`,
-    types
-  };
+  // The text inputs.
+  const inputs = formGroup.querySelectorAll("input[type='text']");
+  const double = inputs.length === 2;
 
-  const template = `modules/babonus/templates/subapplications/keys${list2 ? "Double" : "Single"}.hbs`;
-  const content = await renderTemplate(template, data);
-  const title = game.i18n.format("BABONUS.KeysDialogTitle", {
-    name: game.i18n.localize(`BABONUS.${name}`)
+  const [list, list2] = inputs
+  const values0 = inputs[0].value.split(";");
+  const values1 = inputs[1]?.value.split(";");
+  lists.forEach(t => {
+    t.checked0 = values0.includes(t.value);
+    t.checked1 = values1?.includes(t.value);
   });
   const selected = await BabonusKeysDialog.prompt({
-    title,
     label: game.i18n.localize("BABONUS.KeysDialogApplySelection"),
-    content,
     rejectClose: false,
-    options: { name, appId: id },
+    options: { filterId, appId: this.appId, lists, double },
     callback: function(html) {
       const selector = "td:nth-child(2) input[type='checkbox']:checked";
       const selector2 = "td:nth-child(3) input[type='checkbox']:checked";

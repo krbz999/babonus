@@ -1,29 +1,54 @@
 import { MODULE } from "../constants.mjs";
 
 export class BabonusKeysDialog extends Dialog {
-  constructor(object, options) {
-    super(object, options);
-    this.name = options.name;
+
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["dialog", "babonus", "keys-dialog"],
+      resizable: true,
+      height: 600,
+      width: 400
+    });
   }
 
   get id() {
-    return `${MODULE}KeysDialog-${this.name}-${this.options.appId}`;
+    return `${MODULE}KeysDialog-${this.options.filterId}-${this.options.appId}`;
   }
 
+  get template() {
+    return "modules/babonus/templates/subapplications/keysDialog.hbs";
+  }
+
+  get title() {
+    return game.i18n.format("BABONUS.KeysDialogTitle", {
+      name: game.i18n.localize(`BABONUS.Filters${this.options.filterId.capitalize()}`)
+    });
+  }
+
+  /** @override */
+  async getData() {
+    const data = await super.getData();
+    data.double = this.options.double;
+    data.description = `BABONUS.Filters${this.options.filterId.capitalize()}Tooltip`;
+    data.lists = this.options.lists;
+    return data;
+  }
+
+  /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+    html[0].querySelectorAll("[data-action='select-all']").forEach(n => n.addEventListener("click", this._onToggleAll.bind(this)));
+  }
 
-    html[0].addEventListener("click", (event) => {
-      const a = event.target.closest("a");
-      if (!a) return;
-
-      const index = a.closest("th:nth-child(2)") ? 2 : a.closest("th:nth-child(3)") ? 3 : null;
-      if (!index) return;
-      const body = a.closest("table").querySelector("tbody");
-      const boxSelect = `tr td:nth-child(${index}) input[type='checkbox']`;
-      const boxes = body.querySelectorAll(boxSelect);
-      const checked = boxes[0].checked;
-      boxes.forEach(box => box.checked = !checked);
-    });
+  /**
+   * Toggle all inputs in a column.
+   * @param {PointerEvent} event    The initiating click event.
+   */
+  _onToggleAll(event) {
+    const idx = event.currentTarget.dataset.index;
+    const table = event.currentTarget.closest(".babonus.keys-dialog table");
+    const inputs = table.querySelectorAll(`td:nth-child(${idx}) input`);
+    const state = !inputs[0].checked;
+    inputs.forEach(i => i.checked = state);
   }
 }

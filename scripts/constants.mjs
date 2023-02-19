@@ -27,8 +27,8 @@ export const TYPES = [
 export const BONUS_TYPES_FORMDATA = {
   "attack": [
     { TOOLTIP: "BABONUS.TypeAttackBonusTooltip", LABEL: "BABONUS.TypeAttackBonusLabel", NAME: "bonuses.bonus" },
-    { TOOLTIP: "BABONUS.TypeAttackBonusCriticalRangeTooltip", LABEL: "BABONUS.TypeAttackCriticalRangeLabel", NAME: "bonuses.criticalRange", canFlat: false },
-    { TOOLTIP: "BABONUS.TypeAttackBonusFumbleRangeTooltip", LABEL: "BABONUS.TypeAttackFumbleRangeLabel", NAME: "bonuses.fumbleRange", canFlat: false }
+    { TOOLTIP: "BABONUS.TypeAttackBonusCriticalRangeTooltip", LABEL: "BABONUS.TypeAttackCriticalRangeLabel", NAME: "bonuses.criticalRange" },
+    { TOOLTIP: "BABONUS.TypeAttackBonusFumbleRangeTooltip", LABEL: "BABONUS.TypeAttackFumbleRangeLabel", NAME: "bonuses.fumbleRange" }
   ],
   "damage": [
     { TOOLTIP: "BABONUS.TypeDamageBonusTooltip", LABEL: "BABONUS.TypeDamageBonusLabel", NAME: "bonuses.bonus" },
@@ -40,7 +40,7 @@ export const BONUS_TYPES_FORMDATA = {
   ],
   "throw": [
     { TOOLTIP: "BABONUS.TypeThrowBonusTooltip", LABEL: "BABONUS.TypeThrowBonusLabel", NAME: "bonuses.bonus" },
-    { TOOLTIP: "BABONUS.TypeThrowDeathSaveTargetValueTooltip", LABEL: "BABONUS.TypeThrowDeathSaveTargetValueLabel", NAME: "bonuses.deathSaveTargetValue", canFlat: false }
+    { TOOLTIP: "BABONUS.TypeThrowDeathSaveTargetValueTooltip", LABEL: "BABONUS.TypeThrowDeathSaveTargetValueLabel", NAME: "bonuses.deathSaveTargetValue" }
   ],
   "hitdie": [
     { TOOLTIP: "BABONUS.TypeHitdieBonusTooltip", LABEL: "BABONUS.TypeHitdieBonusLabel", NAME: "bonuses.bonus" }
@@ -79,24 +79,24 @@ export const AURA_TARGETS = {
 
 // names of all filters.
 export const FILTER_NAMES = [
-  "itemTypes",
-  "throwTypes",
-  "itemRequirements",
-  "arbitraryComparison",
-  "statusEffects",
-  "targetEffects",
-  "creatureTypes",
-  "attackTypes",
-  "damageTypes",
   "abilities",
+  "arbitraryComparison",
+  "attackTypes",
+  "baseWeapons",
+  "creatureTypes",
+  "customScripts",
+  "damageTypes",
+  "itemRequirements",
+  "itemTypes",
+  "remainingSpellSlots",
   "saveAbilities",
   "spellComponents",
   "spellLevels",
   "spellSchools",
-  "baseWeapons",
-  "weaponProperties",
-  "customScripts",
-  "remainingSpellSlots"
+  "statusEffects",
+  "targetEffects",
+  "throwTypes",
+  "weaponProperties"
 ];
 
 // arbitrary operators
@@ -107,12 +107,6 @@ export const ARBITRARY_OPERATORS = [
   { value: "LE", label: "&le;" },
   { value: "GE", label: "&ge;" }
 ];
-
-// item types and the keys for the filters that require them.
-export const FILTER_ITEM_TYPE_REQUIREMENTS = {
-  "weapon": ["baseWeapons", "weaponProperties"],
-  "spell": ["spellComponents", "spellLevels", "spellSchools"]
-};
 
 // consumption types for the select.
 export const CONSUMPTION_TYPES = ["", "uses", "quantity", "slots"];

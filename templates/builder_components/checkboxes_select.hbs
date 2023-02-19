@@ -1,24 +1,20 @@
 <!-- (spell components only) -->
-<div class="form-group" data-id="{{name}}">
-  <label data-tooltip="{{tooltip}}" class="label">
-    {{localize label}}
-  </label>
-  <div class="form-fields checkboxes">
+<div class="form-group" data-id="{{id}}">
+  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
+  <div class="form-fields">
     <div class="checkboxes">
       {{#each array as |type|}}
-      <label class="sep" for="{{../appId}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
-        <input type="checkbox" name="filters.{{../name}}.types" value="{{type.value}}" id="{{../appId}}-{{type.value}}">
-        <span class="checkboxes-check">{{{type.label}}}</span>
+      <label for="{{../appId}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
+        <input type="checkbox" name="filters.{{../id}}.types" value="{{type.value}}" id="{{../appId}}-{{type.value}}" {{checked type.checked}}>
+        <span class="check">{{{type.label}}}</span>
       </label>
       {{/each}}
     </div>
-    <select name="filters.{{name}}.match">
-      {{#each selectOptions as |option|}}
-      <option value="{{option.value}}">{{localize option.label}}</option>
-      {{/each}}
+    <select name="filters.{{id}}.match">
+      {{selectOptions selectOptions selected=selected nameAttr="value" labelAttr="label" localize=true}}
     </select>
   </div>
-  <a class="filter-deletion" data-tooltip="BABONUS.DeleteThisFilter">
+  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>

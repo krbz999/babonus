@@ -1,18 +1,20 @@
 <!-- (arbitraryComparison only) -->
-<div class="form-group" data-id="{{name}}">
-  <label class="label" data-tooltip="{{tooltip}}">
-    {{localize label}}
-  </label>
+{{#each array as |a|}}
+<div class="form-group" data-id="{{../id}}">
+  <label class="label" data-tooltip="{{../tooltip}}">{{localize ../label}}</label>
   <div class="form-fields">
-    <input type="text" name="filters.{{iterName}}.one" placeholder="{{localize placeholderOne}}">
-    <select name="filters.{{iterName}}.operator">
-      {{#each selectOptions as |option|}}
-      <option value="{{option.value}}">{{{option.label}}}</option>
-      {{/each}}
+    <input type="text" name="filters.{{../id}}.{{idx}}.one" placeholder="{{localize ../placeholderOne}}" value="{{one}}">
+    <select name="filters.{{../id}}.{{idx}}.operator">
+      {{#if options}}
+      {{{options}}}
+      {{else}}
+      {{#each ../defaultOptions as |opt|}}<option value="{{value}}">{{{label}}}</option>{{/each}}
+      {{/if}}
     </select>
-    <input type="text" name="filters.{{iterName}}.other" placeholder="{{localize placeholderOther}}">
+    <input type="text" name="filters.{{../id}}.{{idx}}.other" placeholder="{{localize ../placeholderOther}}" value="{{other}}">
   </div>
-  <a class="filter-deletion" data-tooltip="BABONUS.DeleteThisFilter">
+  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>
+{{/each}}

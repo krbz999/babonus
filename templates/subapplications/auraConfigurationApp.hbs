@@ -1,4 +1,4 @@
-<form class="babonus subapp">
+<form class="dnd5e" autocomplete="off">
 
   <div class="form-group">
     <label data-tooltip="BABONUS.ConfigurationAuraRangeTooltip" class="label">
@@ -24,13 +24,13 @@
     </div>
   </div>
 
-  <div class="form-group" data-name="configurationAuraBlockingConditions">
-    <label data-tooltip="BABONUS.ConfigurationAuraBlockingConditionsTooltip" class="label">
-      {{localize "BABONUS.ConfigurationAuraBlockingConditions"}}
+  <div class="form-group" data-id="auraBlockers">
+    <label data-tooltip="BABONUS.FiltersAuraBlockersTooltip" class="label">
+      {{localize "BABONUS.FiltersAuraBlockers"}}
     </label>
     <div class="form-fields">
       <input type="text" name="aura.blockers" value="{{blockers}}" {{disabled templateChecked}}>
-      <button class="babonus-keys" type="button" {{disabled templateChecked}}>
+      <button data-action="keys-dialog" type="button" {{disabled templateChecked}}>
         <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
       </button>
     </div>
