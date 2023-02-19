@@ -115,4 +115,4 @@ export const FILTER_ITEM_TYPE_REQUIREMENTS = {
 };
 
 // consumption types for the select.
-export const CONSUMPTION_TYPES = ["", "uses", "quantity"];
+export const CONSUMPTION_TYPES = ["", "uses", "quantity", "slots"];
