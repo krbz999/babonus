@@ -763,7 +763,7 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {boolean}       Whether it is or can be equipped.
    */
   _canEquipItem(item) {
-    return EQUIPPABLE_TYPES.includes(item.type);
+    return (item instanceof Item) && EQUIPPABLE_TYPES.includes(item.type);
   }
 
   /**
@@ -773,7 +773,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _canAttuneToItem(item) {
     const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
-    return [REQUIRED, ATTUNED].includes(item.system.attunement);
+    return (item instanceof Item) && [REQUIRED, ATTUNED].includes(item.system.attunement);
   }
 
   /**
