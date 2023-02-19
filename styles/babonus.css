@@ -114,9 +114,9 @@
 
 .babonus.builder .left-side textarea {
   resize: vertical;
-  min-height: var(--form-field-height);
+  min-height: calc(10px + var(--form-field-height));
   height: var(--form-field-height);
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 /* LEFT SIDE - BUILDER - BONUS FIELDS */
