@@ -148,6 +148,28 @@ class Babonus extends foundry.abstract.DataModel {
     return Object.values(this.bonuses).some(val => !!val && (val !== "0"));
   }
 
+  // The source item or actor of a babonus. If an aura, effect, template, always resolves to the ORIGIN item or actor, unless deleted.
+  get origin() {
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const origin = this.parent.flags.dnd5e?.origin ?? "";
+      return fromUuidSync(origin);
+    }
+
+    else if (this.parent instanceof ActiveEffect) {
+      const origin = fromUuidSync(this.parent.origin ?? "");
+      if (origin instanceof TokenDocument) return origin.actor;
+      return origin;
+    }
+
+    else if (this.parent instanceof Item) {
+      return this.parent;
+    }
+
+    else if (this.parent instanceof Actor) {
+      return this.parent;
+    }
+  }
+
   // The actor who is the general source of the babonus, even if the bonus is on an item, effect, or template.
   get actor() {
     if (this.parent instanceof Actor) return this.parent;
@@ -160,8 +182,7 @@ class Babonus extends foundry.abstract.DataModel {
     if (this.parent instanceof Item) return this.parent;
     if (this.parent instanceof MeasuredTemplateDocument) {
       const origin = this.parent.flags.dnd5e?.origin ?? "";
-      const item = fromUuidSync(origin);
-      if (item) return item;
+      return fromUuidSync(origin);
     }
     return null;
   }

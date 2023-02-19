@@ -62,7 +62,6 @@ function _getOwnItemBonuses(actor, type, itemId) {
       return !(bab.isExclusive && item.id !== itemId);
     });
     if (!babs.length) continue;
-    if (item.id !== itemId) _replaceRollData(babs, item.getRollData());
     boni.push(...babs);
   }
   return boni;
@@ -96,7 +95,6 @@ function _filterTokenBonuses(token, type, range, targetDisp) {
 
 function _getTokenBonuses(actor, type) {
   const babs = _getType(actor, type);
-  _replaceRollData(babs, actor.getRollData());
   return babs;
 }
 
@@ -105,7 +103,6 @@ function _getTokenItemBonuses(actor, type) {
   for (const item of actor.items) {
     const babs = _getType(item, type);
     if (!babs.length) continue;
-    _replaceRollData(babs, item.getRollData());
     boni.push(...babs);
   }
   return boni;
@@ -113,11 +110,10 @@ function _getTokenItemBonuses(actor, type) {
 
 function _getTokenEffectBonuses(actor, type) {
   const boni = [];
-  const data = actor.getRollData();
   for (const effect of actor.effects) {
+    if (!effect.modifiesActor) continue;
     const babs = _getType(effect, type);
     if (!babs.length) continue;
-    _replaceRollData(babs, data);
     boni.push(...babs);
   }
   return boni;
@@ -143,28 +139,12 @@ function _filterTemplateBonuses(token, template, type) {
 
 function _getTemplateBonuses(template, type) {
   const babs = _getType(template, type);
-  for (const bab of babs) {
-    const doc = bab.item ?? bab.actor;
-    const data = doc?.getRollData() ?? {};
-    _replaceRollData([bab], data);
-  }
   return babs;
 }
 
 /**
  * Helper Functions
  */
-
-// take an array of baboni and replace all their roll data.
-function _replaceRollData(baboni, data) {
-  for (const bab of baboni) {
-    const update = Object.entries(bab.bonuses).reduce((acc, [key, val]) => {
-      acc[key] = new Roll(val, data).formula;
-      return acc;
-    }, {});
-    try { bab.updateSource({ bonuses: update }) } catch (err) {}
-  }
-}
 
 // take a tokenDoc with an aura, the disposition of the token doing the roll,
 // the targeting type of the aura, and return whether it should apply.
