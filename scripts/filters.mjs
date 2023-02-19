@@ -118,7 +118,34 @@ export class FILTER {
       acc.push(bab);
       return acc;
     }, []);
+    this._replaceRollDataOfBonuses(valids, object);
     return valids;
+  }
+
+  // Replace roll data of bonuses that originate from foreign sources, including transferred effects.
+  static _replaceRollDataOfBonuses(bonuses, object) {
+    const item = (object instanceof Item) ? object : null;
+    const actor = item?.actor ?? object;
+    for (const bonus of bonuses) {
+      const src = bonus.origin;
+
+      // Don't bother if the origin could not be found.
+      if (!src) continue;
+
+      // Don't bother with different roll data if the origin is the current actor rolling.
+      if (src === actor) continue;
+
+      // Don't bother with different roll data if the origin is the item being rolled.
+      if (src.id === item?.id) continue;
+
+      const data = src.getRollData();
+      const update = Object.entries(bonus.bonuses).reduce((acc, [key, val]) => {
+        if (!val) return acc;
+        acc[key] = Roll.replaceFormulaData(val, data);
+        return acc;
+      }, {});
+      try { bonus.updateSource({ bonuses: update }) } catch (err) {}
+    }
   }
 
   /**
