@@ -129,6 +129,14 @@
   flex-direction: column;
 }
 
+.babonus.builder .bonus-filters .form-group:first-child {
+  margin-top: 2px;
+}
+
+.babonus.builder .bonus-filters .form-group {
+  margin: 1.5px 0;
+}
+
 /* LEFT SIDE - BUILDER - FILTERS - COMPONENTS */
 
 /* delete filter anchors */
