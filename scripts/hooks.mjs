@@ -74,8 +74,9 @@ export function _preRollAttack(item, rollConfig) {
   rollConfig.critical = (rollConfig.critical ?? 20) - mods.critical;
   rollConfig.fumble = (rollConfig.fumble ?? 1) + mods.fumble;
 
-  // Don't set crit to below 1.
+  // Don't set crit to below 1, and don't set fumble to below 1 unless explicitly -Infinity.
   if (rollConfig.critical < 1) rollConfig.critical = 1;
+  if ((rollConfig.fumble < 1) && (rollConfig.fumble !== -Infinity)) rollConfig.fumble = 1;
 }
 
 export function _preRollDamage(item, rollConfig) {
