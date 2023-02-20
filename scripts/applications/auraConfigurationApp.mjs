@@ -3,6 +3,11 @@ import { _createBabonus, _onDisplayKeysDialog } from "../helpers/helpers.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
 
+  constructor(object, options = {}) {
+    super(object, options);
+    this.clone = options.bab.clone({}, { parent: options.bab.parent });
+  }
+
   get id() {
     return `${MODULE}AuraConfigurationDialog-${this.options.bab.id}`;
   }
@@ -22,28 +27,17 @@ export class AuraConfigurationDialog extends FormApplication {
 
   /** @override */
   async getData() {
-    const aura = this.options.bab.aura;
-    const templateDisabled = !(this.options.bab.parent instanceof Item);
-    const templateChecked = !templateDisabled && aura.isTemplate;
-    const blockers = aura.blockers.join(";");
     const choices = Object.entries(AURA_TARGETS).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.ConfigurationAuraDisposition.${k}`;
       return acc;
     }, {});
-
-    return { aura, templateDisabled, templateChecked, blockers, choices };
-  }
-
-  /** @override */
-  async _updateObject(event, formData) {
-    try {
-      formData["aura.enabled"] = true;
-      const data = foundry.utils.mergeObject(this.options.bab.toString(), formData);
-      _createBabonus(data); // attempt.
-      return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
-    } catch (err) {
-      console.error(err);
-    }
+    return {
+      disableRange: this.clone.aura.isTemplate && (this.clone.parent instanceof Item),
+      disableTemplate: !(this.clone.parent instanceof Item),
+      blockers: this.clone.aura.blockers.join(";"),
+      choices,
+      ...this.clone
+    };
   }
 
   /** @override */
@@ -53,14 +47,22 @@ export class AuraConfigurationDialog extends FormApplication {
   }
 
   /** @override */
-  _onChangeInput(event) {
-    if (event.target.name === "aura.range") {
-      event.target.value = Math.clamped(Math.round(event.target.value), -1, 500);
-    } else if (event.target.name === "aura.isTemplate") {
-      const checked = event.target.checked;
-      this.form["aura.range"].disabled = checked;
-      this.form["aura.blockers"].disabled = checked;
-      this.form.querySelector("[data-action='keys-dialog']").disabled = checked;
+  async _updateObject(event, formData) {
+    formData["aura.enabled"] = true;
+    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
+  }
+
+  /** @override */
+  async _onChangeInput(event) {
+    await super._onChangeInput(event);
+    let { name, value, type, checked } = event.currentTarget;
+    if (name === "aura.range") {
+      value = Math.clamped(Math.round(value), -1, 500);
     }
+    this.clone.updateSource({
+      [name]: type === "checkbox" ? checked : value,
+      "aura.blockers": this.form["aura.blockers"].value
+    });
+    this._render();
   }
 }

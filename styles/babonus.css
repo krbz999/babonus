@@ -384,6 +384,10 @@
   color: gray;
 }
 
+.babonus form .form-fields :is(input, select):not([type="checkbox"]) {
+  height: calc(var(--form-field-height));
+}
+
 /* keys dialog buttons */
 .babonus [data-action="keys-dialog"] {
   min-width: 100px;
@@ -396,7 +400,6 @@
 
 /* selects */
 .babonus form select {
-  height: calc(var(--form-field-height));
   flex: 0;
   min-width: fit-content;
 }

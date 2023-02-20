@@ -5,9 +5,16 @@
       {{localize "BABONUS.ConfigurationAuraRange"}}
     </label>
     <div class="form-fields">
-      <input type="number" name="aura.range" value="{{aura.range}}" placeholder="{{localize 'BABONUS.ConfigurationAuraRangePlaceholder'}}" {{disabled templateChecked}}>
-      <span class="sep">{{localize "BABONUS.ConfigurationAuraTemplate"}}</span>
-      <input type="checkbox" name="aura.isTemplate" {{disabled templateDisabled}} {{checked templateChecked}}>
+      <input type="number" name="aura.range" value="{{aura.range}}" placeholder="{{localize 'BABONUS.ConfigurationAuraRangePlaceholder'}}" {{disabled disableRange}}>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label data-tooltip="BABONUS.ConfigurationAuraTemplateTooltip" class="label">
+      {{localize "BABONUS.ConfigurationAuraTemplate"}}
+    </label>
+    <div class="form-fields">
+      <input type="checkbox" name="aura.isTemplate" {{disabled disableTemplate}} {{checked aura.isTemplate}}>
     </div>
   </div>
 
@@ -19,7 +26,14 @@
       <select name="aura.disposition" data-dtype="Number">
         {{selectOptions choices selected=aura.disposition localize=true}}
       </select>
-      <span class="sep">{{localize "BABONUS.ConfigurationAuraSelf"}}</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label data-tooltip="BABONUS.ConfigurationAuraSelfTooltip" class="label">
+      {{localize "BABONUS.ConfigurationAuraSelf"}}
+    </label>
+    <div class="form-fields">
       <input type="checkbox" name="aura.self" {{checked aura.self}}>
     </div>
   </div>
@@ -29,8 +43,8 @@
       {{localize "BABONUS.FiltersAuraBlockers"}}
     </label>
     <div class="form-fields">
-      <input type="text" name="aura.blockers" value="{{blockers}}" {{disabled templateChecked}}>
-      <button data-action="keys-dialog" type="button" {{disabled templateChecked}}>
+      <input type="text" name="aura.blockers" value="{{blockers}}">
+      <button data-action="keys-dialog" type="button">
         <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
       </button>
     </div>

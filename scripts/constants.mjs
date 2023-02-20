@@ -109,4 +109,4 @@ export const ARBITRARY_OPERATORS = [
 ];
 
 // consumption types for the select.
-export const CONSUMPTION_TYPES = ["", "uses", "quantity", "slots"];
+export const CONSUMPTION_TYPES = ["", "uses", "quantity", "slots", "effect"];

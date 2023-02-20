@@ -45,13 +45,14 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Whether the babonus can show the Consumption app in the builder.
   get canConsume() {
-    return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots);
+    return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots || this.canConsumeEffect);
   }
 
   // Whether the babonus is scaling.
   get isScaling() {
     if (!this.isConsuming) return false;
     if (!this.consume.scales) return false;
+    if (this.consume.type === "effect") return false;
     return this.consume.value.max > this.consume.value.min;
   }
 
@@ -72,16 +73,21 @@ class Babonus extends foundry.abstract.DataModel {
     return true;
   }
 
+  // whether the babonus can be set to consume the effect on which it lives.
+  get canConsumeEffect() {
+    if(this.hasAura || this.isTemplateAura) return false;
+    return this.parent instanceof ActiveEffect;
+  }
+
   // Whether the babonus consumes uses or quantities of the item on which it is embedded, or slots on the rolling actor.
   get isConsuming() {
-    if (!this.canConsume || !this.consume.enabled || !(this.consume.value.min > 0) || !this.consume.type) return false;
+    if (!this.canConsume || !this.consume.enabled || !this.consume.type) return false;
 
     const type = this.consume.type;
-    if (type === "uses") return this.canConsumeUses && this.item.isOwner;
-    else if (type === "quantity") return this.canConsumeQuantity && this.item.isOwner;
-    else if (type === "slots") return this.canConsumeSlots;
-
-    return false;
+    if (type === "uses") return this.canConsumeUses && this.item.isOwner && (this.consume.value.min > 0);
+    else if (type === "quantity") return this.canConsumeQuantity && this.item.isOwner && (this.consume.value.min > 0);
+    else if (type === "slots") return this.canConsumeSlots && (this.consume.value.min > 0);
+    else if (type === "effect") return this.canConsumeEffect;
   }
 
   // Whether a babonus can be toggled to be optional.
