@@ -42,6 +42,10 @@
   height: 100%;
 }
 
+.babonus.builder .left-side .page {
+  padding-right: 0.3em;
+}
+
 /* LEFT SIDE - TYPE SELECTOR */
 .babonus.builder .left-side .select-type {
   height: 100%;
@@ -49,7 +53,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-right: 0.3em;
 }
 
 .babonus.builder .left-side .select-type .types {
@@ -80,7 +83,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-right: 0.3em;
 }
 
 .babonus.builder .left-side .bonus-config {
@@ -197,6 +199,10 @@
   height: 100%;
 }
 
+.babonus.builder .right-side .page {
+  padding-left: 0.3em;
+}
+
 /* RIGHT SIDE - CURRENT BONUSES */
 .babonus.builder .right-side .current-bonuses {
   height: 100%;
@@ -204,7 +210,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-left: 0.3em;
 }
 
 .babonus.builder .right-side .bonuses {
@@ -283,11 +288,10 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-left: 0.3em;
 }
 
 .babonus.builder .right-side .unavailable-filters {
-  margin-bottom: 0.25em;
+  margin-bottom: 0.3em;
 }
 
 /* RIGHT SIDE - FITLER PICKER - FILTER */
@@ -475,17 +479,8 @@
 
 .babonus.optionals .optional {
   display: grid;
-  width: 100%;
-  grid-template-columns: 8fr 0fr;
-  grid-template-areas:
-    "a b"
-    "c c";
   padding-bottom: 0.5em;
-  gap: 1em;
-}
-
-.babonus.optionals .optional:first-child {
-  padding-top: 0.5em;
+  gap: 0.5em;
 }
 
 .babonus.optionals .optional:not(:last-child) {
@@ -498,17 +493,10 @@
 
 .babonus.optionals .optional .add {
   display: flex;
-  font-size: 20px;
+  padding: 3px;
   justify-content: center;
-  border-radius: 2em;
-  aspect-ratio: 1/1;
-  margin: 0;
-  width: 2em;
+  border-radius: 5px;
   align-items: center;
-}
-
-.babonus.optionals .optional .add > i {
-  margin: 0;
 }
 
 .babonus.optionals .optional.active .add {
@@ -534,13 +522,8 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  grid-area: c;
 }
 
-.babonus.optionals .consumption > :is(label, select) {
+.babonus.optionals .consumption select {
   flex: 1;
-}
-
-.babonus.optionals .consumption > label {
-  font-weight: bold;
 }

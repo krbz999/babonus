@@ -1,5 +1,5 @@
-import { MODULE } from "./constants.mjs";
-import { FILTER } from "./filters.mjs";
+import {MODULE} from "./constants.mjs";
+import {FILTER} from "./filters.mjs";
 import {
   _getMinimumDistanceBetweenTokens,
   _getAppId,
@@ -11,8 +11,8 @@ import {
   _babFromUuid,
   _getTokensWithinRadius
 } from "./helpers/helpers.mjs";
-import { _getAllContainingTemplateDocuments } from "./helpers/templateHelpers.mjs";
-import { migration } from "./migration.mjs";
+import {_getAllContainingTemplateDocuments} from "./helpers/templateHelpers.mjs";
+import {migration} from "./migration.mjs";
 
 export function _createAPI() {
   const API = {
@@ -49,9 +49,9 @@ export function _createAPI() {
  * @param {String} options.throwType    The type of saving throw (key of an ability, 'death' or 'concentration').
  * @param {Boolean} options.isConcSave  Whether the saving throw is for maintaining concentration.
  */
-function getApplicableBonuses(object, type, { throwType = "int", isConcSave = false } = {}) {
+function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false} = {}) {
   if (type === "hitdie") return FILTER.hitDieCheck(object);
-  else if (type === "throw") return FILTER.throwCheck(object, throwType, { throwType, isConcSave });
+  else if (type === "throw") return FILTER.throwCheck(object, throwType, {throwType, isConcSave});
   else if (["attack", "damage", "save"].includes(type)) return FILTER.itemCheck(object, type);
   else return null;
 }
@@ -116,7 +116,7 @@ function getAllContainingTemplates(tokenDoc) {
 async function deleteBonus(object, id) {
   const bonus = getId(object, id);
   if (!bonus) return null;
-  await object.update({ [`flags.babonus.bonuses.-=${bonus.id}`]: null });
+  await object.update({[`flags.babonus.bonuses.-=${bonus.id}`]: null});
   _rerenderApp(object);
   return r;
 }
@@ -183,7 +183,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
       return _getCollection(effect).size > 0;
     });
   }
-  return { effects, items };
+  return {effects, items};
 }
 
 /**
@@ -194,7 +194,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
   if (!bonus) return null;
-  const [_id, { aura }] = bonus;
+  const [_id, {aura}] = bonus;
   if (!aura) return null;
   if (aura.isTemplate) return null;
   const actor = object.actor ?? object;
@@ -248,7 +248,7 @@ function openBabonusWorkshop(object) {
  * This does not save the babonus on the actor.
  */
 function createBabonus(data, parent = null) {
-  return _createBabonus(data, undefined, { parent });
+  return _createBabonus(data, undefined, {parent});
 }
 
 /**
@@ -257,14 +257,14 @@ function createBabonus(data, parent = null) {
  * @returns {Object<Array>}   An object of the three arrays.
  */
 function sceneTokensByDisposition(scene) {
-  const { HOSTILE, FRIENDLY, NEUTRAL } = CONST.TOKEN_DISPOSITIONS;
+  const {HOSTILE, FRIENDLY, NEUTRAL} = CONST.TOKEN_DISPOSITIONS;
   return scene.tokens.reduce((acc, tokenDoc) => {
     const d = tokenDoc.disposition;
     if (d === HOSTILE) acc.hostiles.push(tokenDoc);
     else if (d === FRIENDLY) acc.friendlies.push(tokenDoc);
     else if (d === NEUTRAL) acc.neutrals.push(tokenDoc);
     return acc;
-  }, { hostiles: [], friendlies: [], neutrals: [] });
+  }, {hostiles: [], friendlies: [], neutrals: []});
 }
 
 /**

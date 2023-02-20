@@ -1,6 +1,6 @@
-import { AURA_TARGETS, MODULE } from "../constants.mjs";
-import { _getMinimumDistanceBetweenTokens, _getType } from "./helpers.mjs";
-import { _getAllContainingTemplateDocuments } from "./templateHelpers.mjs";
+import {AURA_TARGETS, MODULE} from "../constants.mjs";
+import {_getMinimumDistanceBetweenTokens, _getType} from "./helpers.mjs";
+import {_getAllContainingTemplateDocuments} from "./templateHelpers.mjs";
 
 /**
  * Retrieve all valid bonuses for a roll.

@@ -6,7 +6,7 @@ import {
   SETTING_HEADERLABEL,
   SETTING_MIGRATION_VERSION
 } from "./constants.mjs";
-import { _openWorkshop } from "./helpers/helpers.mjs";
+import {_openWorkshop} from "./helpers/helpers.mjs";
 
 export function _setup() {
   CONFIG.DND5E.characterFlags[MODULE] = {

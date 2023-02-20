@@ -12,10 +12,10 @@ import {
   _preRollAbilitySave,
   _preRollHitDie
 } from "./scripts/hooks.mjs";
-import { _createAPI } from "./scripts/public_api.mjs";
-import { _preCreateMeasuredTemplate } from "./scripts/helpers/templateHelpers.mjs";
-import { _updateMigrationVersion } from "./scripts/migration.mjs";
-import { _renderDialog } from "./scripts/helpers/rollConfigHelpers.mjs";
+import {_createAPI} from "./scripts/public_api.mjs";
+import {_preCreateMeasuredTemplate} from "./scripts/helpers/templateHelpers.mjs";
+import {_updateMigrationVersion} from "./scripts/migration.mjs";
+import {_renderDialog} from "./scripts/helpers/rollConfigHelpers.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Build-a-Bonus");

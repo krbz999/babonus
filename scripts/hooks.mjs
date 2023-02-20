@@ -1,5 +1,5 @@
-import { MODULE } from "./constants.mjs";
-import { FILTER } from "./filters.mjs";
+import {MODULE} from "./constants.mjs";
+import {FILTER} from "./filters.mjs";
 
 function _bonusToInt(bonus, data) {
   const f = new Roll(bonus, data).formula;
@@ -11,7 +11,7 @@ export function _preDisplayCard(item, chatData) {
   if (!item.hasSave) return;
 
   // Get bonuses:
-  const bonuses = FILTER.itemCheck(item, "save", { spellLevel: item.system.level });
+  const bonuses = FILTER.itemCheck(item, "save", {spellLevel: item.system.level});
   if (!bonuses.length) return;
   const data = item.getRollData();
   const target = game.user.targets.first();
@@ -30,8 +30,8 @@ export function _preDisplayCard(item, chatData) {
   const ability = CONFIG.DND5E.abilities[save.ability] ?? ""; // TODO: fix in 2.2.x.
   const savingThrow = game.i18n.localize("DND5E.ActionSave");
   const dc = Math.max(1, save.dc + totalBonus) || "";
-  chatData.flags[MODULE] = { saveDC: dc };
-  const label = game.i18n.format("DND5E.SaveDC", { dc, ability });
+  chatData.flags[MODULE] = {saveDC: dc};
+  const label = game.i18n.format("DND5E.SaveDC", {dc, ability});
   saveButtons.forEach(b => b.innerText = `${savingThrow} ${label}`);
   chatData.content = DIV.innerHTML;
 }
@@ -39,7 +39,7 @@ export function _preDisplayCard(item, chatData) {
 export function _preRollAttack(item, rollConfig) {
   // get bonuses:
   const spellLevel = rollConfig.data.item.level;
-  const bonuses = FILTER.itemCheck(item, "attack", { spellLevel });
+  const bonuses = FILTER.itemCheck(item, "attack", {spellLevel});
   if (!bonuses.length) return;
   const data = rollConfig.data;
   const target = game.user.targets.first();
@@ -48,7 +48,7 @@ export function _preRollAttack(item, rollConfig) {
   // Gather up all bonuses.
   const parts = [];
   const optionals = [];
-  const mods = { critical: 0, fumble: 0 };
+  const mods = {critical: 0, fumble: 0};
   for (const bab of bonuses) {
     const bonus = bab.bonuses.bonus;
     const valid = !!bonus && Roll.validate(bonus);
@@ -82,21 +82,21 @@ export function _preRollAttack(item, rollConfig) {
 export function _preRollDamage(item, rollConfig) {
   // get bonus:
   const spellLevel = rollConfig.data.item.level;
-  const bonuses = FILTER.itemCheck(item, "damage", { spellLevel });
+  const bonuses = FILTER.itemCheck(item, "damage", {spellLevel});
   if (!bonuses.length) return;
   const data = rollConfig.data;
   const target = game.user.targets.first();
   if (target?.actor) data.target = target.actor.getRollData();
 
   // add to parts:
-  const { parts, optionals } = bonuses.reduce((acc, bab) => {
+  const {parts, optionals} = bonuses.reduce((acc, bab) => {
     const bonus = bab.bonuses.bonus;
     const valid = !!bonus && Roll.validate(bonus);
     if (!valid) return acc;
     if (bab.isOptional) acc.optionals.push(bab);
     else acc.parts.push(bonus);
     return acc;
-  }, { parts: [], optionals: [] });
+  }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
   if (optionals.length) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
@@ -130,7 +130,7 @@ export function _preRollDeathSave(actor, rollConfig) {
   if (target?.actor) data.target = target.actor.getRollData();
 
   // Gather up all bonuses.
-  const death = { bonus: 0 };
+  const death = {bonus: 0};
   const parts = [];
   const optionals = [];
   for (const bab of bonuses) {
@@ -166,14 +166,14 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   if (target?.actor) rollConfig.data.target = target.actor.getRollData();
 
   // add to parts:
-  const { parts, optionals } = bonuses.reduce((acc, bab) => {
+  const {parts, optionals} = bonuses.reduce((acc, bab) => {
     const bonus = bab.bonuses.bonus;
     const valid = !!bonus && Roll.validate(bonus);
     if (!valid) return acc;
     if (bab.isOptional) acc.optionals.push(bab);
     else acc.parts.push(bonus);
     return acc;
-  }, { parts: [], optionals: [] });
+  }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
   if (optionals.length) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {

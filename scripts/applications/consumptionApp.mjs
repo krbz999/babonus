@@ -1,11 +1,11 @@
-import { MODULE } from "../constants.mjs";
-import { _createBabonus } from "../helpers/helpers.mjs";
+import {MODULE} from "../constants.mjs";
+import {_createBabonus} from "../helpers/helpers.mjs";
 
 export class ConsumptionDialog extends FormApplication {
 
   constructor(object, options = {}) {
     super(object, options);
-    this.clone = options.bab.clone({}, { parent: options.bab.parent });
+    this.clone = options.bab.clone({}, {parent: options.bab.parent});
   }
 
   get id() {
@@ -22,16 +22,16 @@ export class ConsumptionDialog extends FormApplication {
   }
 
   get title() {
-    return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", { name: this.options.bab.name });
+    return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", {name: this.options.bab.name});
   }
 
   /** @override */
   async getData() {
-    const choices = [{ value: "", label: "" }];
-    if (this.clone.canConsumeUses) choices.push({ value: "uses", label: "DND5E.LimitedUses" });
-    if (this.clone.canConsumeQuantity) choices.push({ value: "quantity", label: "DND5E.Quantity" });
-    if (this.clone.canConsumeSlots) choices.push({ value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot" });
-    if (this.clone.canConsumeEffect) choices.push({ value: "effect", label: "BABONUS.ConsumptionTypeEffect" });
+    const choices = [{value: "", label: ""}];
+    if (this.clone.canConsumeUses) choices.push({value: "uses", label: "DND5E.LimitedUses"});
+    if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
+    if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot"});
+    if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
     return {
       choices,
       disableMax: (this.clone.consume.type === "effect") || (!this.clone.consume.scales),
@@ -55,8 +55,8 @@ export class ConsumptionDialog extends FormApplication {
   /** @override */
   async _onChangeInput(event) {
     await super._onChangeInput(event);
-    const { name, value, type, checked } = event.currentTarget;
-    this.clone.updateSource({ [name]: type === "checkbox" ? checked : value });
+    const {name, value, type, checked} = event.currentTarget;
+    this.clone.updateSource({[name]: type === "checkbox" ? checked : value});
     this._render();
   }
 }

@@ -1,11 +1,11 @@
-import { AURA_TARGETS, MODULE } from "../constants.mjs";
-import { _createBabonus, _onDisplayKeysDialog } from "../helpers/helpers.mjs";
+import {AURA_TARGETS, MODULE} from "../constants.mjs";
+import {_createBabonus, _onDisplayKeysDialog} from "../helpers/helpers.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
 
   constructor(object, options = {}) {
     super(object, options);
-    this.clone = options.bab.clone({}, { parent: options.bab.parent });
+    this.clone = options.bab.clone({}, {parent: options.bab.parent});
   }
 
   get id() {
@@ -22,7 +22,7 @@ export class AuraConfigurationDialog extends FormApplication {
   }
 
   get title() {
-    return game.i18n.format("BABONUS.ConfigurationAuraTitle", { name: this.options.bab.name });
+    return game.i18n.format("BABONUS.ConfigurationAuraTitle", {name: this.options.bab.name});
   }
 
   /** @override */
@@ -55,7 +55,7 @@ export class AuraConfigurationDialog extends FormApplication {
   /** @override */
   async _onChangeInput(event) {
     await super._onChangeInput(event);
-    let { name, value, type, checked } = event.currentTarget;
+    let {name, value, type, checked} = event.currentTarget;
     if (name === "aura.range") {
       value = Math.clamped(Math.round(value), -1, 500);
     }

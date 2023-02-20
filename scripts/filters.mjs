@@ -3,7 +3,7 @@ import {
   SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
   SPELL_COMPONENT_MATCHING
 } from "./constants.mjs";
-import { _collectBonuses } from "./helpers/bonusCollector.mjs";
+import {_collectBonuses} from "./helpers/bonusCollector.mjs";
 
 /**
  * An example bonus, as it would be stored on an actor, effect, item, or template.
@@ -92,18 +92,18 @@ export class FILTER {
   }
 
   // saving throws (isConcSave for CN compatibility)
-  static throwCheck(actor, throwType, { isConcSave }) {
+  static throwCheck(actor, throwType, {isConcSave}) {
     const bonuses = _collectBonuses(actor, "throw");
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, actor, { throwType, isConcSave });
+    return this.finalFilterBonuses(bonuses, actor, {throwType, isConcSave});
   }
 
 
   // attack rolls, damage rolls, displayCards (save dc)
-  static itemCheck(item, hookType, { spellLevel } = {}) {
+  static itemCheck(item, hookType, {spellLevel} = {}) {
     const bonuses = _collectBonuses(item, hookType);
     if (!bonuses.length) return [];
-    return this.finalFilterBonuses(bonuses, item, { spellLevel });
+    return this.finalFilterBonuses(bonuses, item, {spellLevel});
   }
 
   // Filters the collected array of bonuses. Returns the reduced array.
@@ -144,7 +144,7 @@ export class FILTER {
         acc[key] = Roll.replaceFormulaData(val, data);
         return acc;
       }, {});
-      try { bonus.updateSource({ bonuses: update }) } catch (err) {}
+      try {bonus.updateSource({bonuses: update})} catch (err) {}
     }
   }
 
@@ -220,7 +220,7 @@ export class FILTER {
    * @param {String} match    The type of matching, either ALL or ANY.
    * @returns {Boolean}       Whether the item had any/all of the components.
    */
-  static spellComponents(item, { types, match }) {
+  static spellComponents(item, {types, match}) {
     if (!types?.length) return true;
     if (item.type !== "spell") return false;
 
@@ -241,7 +241,7 @@ export class FILTER {
    * @param {Number} spellLevel   The level at which an attack/damage roll was performed, for spells.
    * @returns {Boolean}           Whether the item is of one of the appropriate levels.
    */
-  static spellLevels(item, filter, { spellLevel = null } = {}) {
+  static spellLevels(item, filter, {spellLevel = null} = {}) {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
     const level = Number(spellLevel ?? item.system.level);
@@ -271,7 +271,7 @@ export class FILTER {
    * @param {Array} unfit     The weapon properties that the item must have none of.
    * @returns {Boolean}       Whether the item has any of the needed properties, and none of the unfit properties.
    */
-  static weaponProperties(item, { needed, unfit }) {
+  static weaponProperties(item, {needed, unfit}) {
     if (!needed?.length && !unfit?.length) return true;
     if (item.type !== "weapon") return false;
     const props = item.system.properties;
@@ -313,7 +313,7 @@ export class FILTER {
     const target = game.user.targets.first();
     if (target?.actor) rollData.target = target.actor.getRollData();
 
-    for (const { one, other, operator } of filter) {
+    for (const {one, other, operator} of filter) {
       // This method immediately returns false if invalid data somehow.
       if (!one || !other) return false;
 
@@ -384,7 +384,7 @@ export class FILTER {
    * @param {Booolean} isConcSave   Whether the saving throw is a conc save (if CN enabled).
    * @returns {Boolean}             Whether the throw type is in the filter.
    */
-  static throwTypes(actor, filter, { throwType, isConcSave }) {
+  static throwTypes(actor, filter, {throwType, isConcSave}) {
     if (!filter?.length) return true;
     if (!throwType) return false;
     return filter.includes(throwType) || (filter.includes("concentration") && isConcSave);
@@ -398,11 +398,11 @@ export class FILTER {
    * @param {Array} unfit             The array of creature types the target must not be.
    * @returns {Boolean}               Whether the target is of a valid creature type.
    */
-  static creatureTypes(object, { needed, unfit }) {
+  static creatureTypes(object, {needed, unfit}) {
     if (!needed?.length && !unfit?.length) return true;
     const target = game.user.targets.first();
     if (!target?.actor) return !needed?.length;
-    const { value, subtype, custom } = target.actor.system.details?.type ?? {};
+    const {value, subtype, custom} = target.actor.system.details?.type ?? {};
     const race = target.actor.system.details?.race;
     function _inclusionTest(array) {
       const val = value ? array.includes(value) : false;
@@ -423,7 +423,7 @@ export class FILTER {
    * @param {Number} max            The maximum value available required for the bonus to apply.
    * @returns {Boolean}             Whether the number of spell slots remaining falls within the bounds.
    */
-  static remainingSpellSlots(object, { min, max }) {
+  static remainingSpellSlots(object, {min, max}) {
     const caster = object.actor ?? object;
     const spells = Object.values(caster.system.spells).reduce((acc, val) => {
       if (!val.value || !val.max) return acc;
