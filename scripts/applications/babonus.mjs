@@ -528,6 +528,9 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event      The initiating click event.
    */
   _onDeleteFilter(event) {
+    if (event.currentTarget.closest(".form-group").dataset.id === "itemTypes") {
+      this._itemTypes.clear();
+    }
     event.currentTarget.closest(".form-group").remove();
     this._updateAddedFilters();
     this._updateFilterPicker();
@@ -558,7 +561,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _updateAddedFilters() {
     this._addedFilters.clear();
-    const added = this.element[0].querySelectorAll(".left-side .filters [data-id]");
+    const added = this.element[0].querySelectorAll(".left-side .bonus-filters [data-id]");
     added.forEach(a => this._addedFilters.add(a.dataset.id));
   }
 
@@ -581,6 +584,7 @@ export class BabonusWorkshop extends FormApplication {
   async _onAddFilter(event) {
     const id = event.currentTarget.closest(".filter").dataset.id;
     await this._appendNewFilter(id);
+    if (id === "itemTypes") this._itemTypes.clear();
     this._updateAddedFilters();
     this._updateFilterPicker();
   }
