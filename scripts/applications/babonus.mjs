@@ -790,23 +790,25 @@ export class BabonusWorkshop extends FormApplication {
     if (id === "arbitraryComparison") return true;
     if (this._addedFilters.has(id)) return false;
 
+    const type = this._type ?? this._bab.type;
+
     switch (id) {
-      case "abilities": return ["attack", "damage", "save"].includes(this._type);
-      case "attackTypes": return ["attack", "damage"].includes(this._type);
+      case "abilities": return ["attack", "damage", "save"].includes(type);
+      case "attackTypes": return ["attack", "damage"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
       case "creatureTypes": return true;
       case "customScripts": return true;
-      case "damageTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "damageTypes": return ["attack", "damage", "save"].includes(type);
       case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
-      case "itemTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "itemTypes": return ["attack", "damage", "save"].includes(type);
       case "remainingSpellSlots": return true;
-      case "saveAbilities": return ["save"].includes(this._type);
+      case "saveAbilities": return ["save"].includes(type);
       case "spellComponents": return this._itemTypes.has("spell");
       case "spellLevels": return this._itemTypes.has("spell");
       case "spellSchools": return this._itemTypes.has("spell");
       case "statusEffects": return true;
       case "targetEffects": return true;
-      case "throwTypes": return ["throw"].includes(this._type);
+      case "throwTypes": return ["throw"].includes(type);
       case "weaponProperties": return this._itemTypes.has("weapon");
     }
   }

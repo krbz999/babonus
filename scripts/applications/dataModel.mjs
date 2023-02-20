@@ -75,7 +75,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   // whether the babonus can be set to consume the effect on which it lives.
   get canConsumeEffect() {
-    if(this.hasAura || this.isTemplateAura) return false;
+    if (this.hasAura || this.isTemplateAura) return false;
     return this.parent instanceof ActiveEffect;
   }
 

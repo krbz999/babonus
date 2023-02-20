@@ -10,7 +10,7 @@
     <!-- LEFT SIDE -->
     <div class="left-side">
 
-      <section class="select-type" {{#if activeBuilder}} style="display: none;" {{/if}}>
+      <section class="select-type page" {{#if activeBuilder}} style="display: none;" {{/if}}>
         <header>
           {{localize "BABONUS.SelectType"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
@@ -24,7 +24,7 @@
 
       <section class="inputs" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
 
-        <div class="bonus-config">
+        <div class="bonus-config page">
 
           <header>
             {{localize "BABONUS.RequiredFields"}}
@@ -101,7 +101,7 @@
     <!-- RIGHT SIDE -->
     <div class="right-side">
 
-      <section class="current-bonuses" {{#if activeBuilder}} style="display: none;" {{/if}}>
+      <section class="current-bonuses page" {{#if activeBuilder}} style="display: none;" {{/if}}>
         <header>
           {{localize "BABONUS.CurrentBonuses"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
@@ -162,7 +162,7 @@
         </div>
       </section>
 
-      <section class="filter-picker" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
+      <section class="filter-picker page" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
 
         <header>
           {{localize "BABONUS.AvailableFilters"}}
