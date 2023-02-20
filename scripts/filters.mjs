@@ -30,7 +30,7 @@ import { _collectBonuses } from "./helpers/bonusCollector.mjs";
         range: 60,                                          // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
         self: false,                                        // Whether the aura affects the owner, too.
         disposition: 1                                      // What token actors within range to affect.
-        blockers: ["dead", "unconscious"]                   // Array of status ids that stop auras from being transferred. Not relevant if template.
+        blockers: ["dead", "unconscious"]                   // Array of status ids that stop auras from being transferred.
       },
       bonuses: {
         bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.

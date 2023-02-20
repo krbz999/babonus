@@ -131,6 +131,7 @@ function _filterTemplateBonuses(token, template, type) {
   return [
     ..._getTemplateBonuses(template, type)
   ].filter(bab => {
+    if (bab.isAuraBlocked) return false;
     const isOwn = token.actor === bab.actor;
     if (isOwn) return bab.aura.self;
     return _matchTemplateDisposition(template, token.disposition, bab);
