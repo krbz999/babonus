@@ -345,16 +345,18 @@ export class OptionalSelector {
    * When applying a bonus that consumes an effect, get its id, apply the bonus, and delete it.
    * @param {PointerEvent} event    The initiating click event.
    */
-  _onApplyEffectsOption(event) {
+  async _onApplyEffectsOption(event) {
+    const e = {currentTarget: event.currentTarget};
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     if (this._canSupplyMinimum(bonus)) {
-      bonus.effect.delete();
+      const confirm = await bonus.effect.deleteDialog();
+      if (!confirm) return;
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
     }
     const sitBonus = this._scaleOptionalBonus(bonus, 0);
-    this._appendToField(event, sitBonus);
+    this._appendToField(e, sitBonus);
   }
 
   /**
