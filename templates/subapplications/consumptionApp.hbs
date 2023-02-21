@@ -23,6 +23,13 @@
     </div>
   </div>
 
+  <div class="form-group">
+    <label class="label">{{localize "BABONUS.ConfigurationConsumptionScalingFormula"}}</label>
+    <div class="form-fields">
+      <input type="text" name="consume.formula" value="{{consume.formula}}" placeholder="{{localize 'DND5E.Formula'}}" {{disabled disableMax}}>
+    </div>
+  </div>
+
   <button type="submit">
     <i class="fa-solid fa-save"></i> {{localize "Save"}}
   </button>

@@ -87,14 +87,14 @@ export class FILTER {
   // hitdie rolls
   static hitDieCheck(actor) {
     const bonuses = _collectBonuses(actor, "hitdie");
-    if (!bonuses.length) return [];
+    if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, throwType, {isConcSave}) {
     const bonuses = _collectBonuses(actor, "throw");
-    if (!bonuses.length) return [];
+    if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor, {throwType, isConcSave});
   }
 
@@ -102,7 +102,7 @@ export class FILTER {
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType, {spellLevel} = {}) {
     const bonuses = _collectBonuses(item, hookType);
-    if (!bonuses.length) return [];
+    if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, item, {spellLevel});
   }
 

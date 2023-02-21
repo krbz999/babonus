@@ -1,5 +1,6 @@
 import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
+import {OptionalSelector} from "./applications/rollConfigApp.mjs";
 
 function _bonusToInt(bonus, data) {
   const f = new Roll(bonus, data).formula;
@@ -64,9 +65,7 @@ export function _preRollAttack(item, rollConfig) {
   if (parts.length) rollConfig.parts.push(...parts);
   if (optionals.length) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals,
-      actorUuid: item.actor.uuid,
-      spellLevel
+      optionals, actor: item.actor, spellLevel, item
     });
   }
 
@@ -100,9 +99,7 @@ export function _preRollDamage(item, rollConfig) {
   if (parts.length) rollConfig.parts.push(...parts);
   if (optionals.length) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals,
-      actorUuid: item.actor.uuid,
-      spellLevel
+      optionals, actor: item.actor, spellLevel, item
     });
   }
 
@@ -147,8 +144,7 @@ export function _preRollDeathSave(actor, rollConfig) {
   if (parts.length) rollConfig.parts.push(...parts);
   if (optionals.length) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals,
-      actorUuid: actor.uuid
+      optionals, actor
     });
   }
 
@@ -177,8 +173,7 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   if (parts.length) rollConfig.parts.push(...parts);
   if (optionals.length) {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals,
-      actorUuid: actor.uuid
+      optionals, actor
     });
   }
 }
@@ -196,4 +191,11 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
     return `${acc} + ${bonus}`;
   }, denomination);
   rollConfig.formula = rollConfig.formula.replace(denomination, denom);
+}
+
+export async function _renderDialog(dialog) {
+  const options = dialog.options.babonus;
+  if (!options) return;
+  options.dialog = dialog;
+  new OptionalSelector(options).render();
 }

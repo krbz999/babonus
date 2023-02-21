@@ -467,11 +467,10 @@
 .babonus.optionals {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 0.5em;
   padding: 0.5em;
   border: 1px inset;
-  border-radius: 1em;
+  border-radius: 0.5em;
   margin-bottom: 1em;
   max-height: 450px;
   overflow-y: auto;
@@ -479,51 +478,49 @@
 
 .babonus.optionals .optional {
   display: grid;
-  padding-bottom: 0.5em;
   gap: 0.5em;
 }
 
 .babonus.optionals .optional:not(:last-child) {
   border-bottom: 2px groove;
+  padding-bottom: 0.5em;
 }
 
-.babonus.optionals .optional.active {
-  pointer-events: none;
-}
-
-.babonus.optionals .optional .add {
+.babonus.optionals .optional button {
   display: flex;
   padding: 3px;
   justify-content: center;
-  border-radius: 5px;
-  align-items: center;
 }
 
-.babonus.optionals .optional.active .add {
+.babonus.optionals .optional.active button {
   background: inherit;
   border: none;
   box-shadow: none;
+  pointer-events: none;
 }
 
-.babonus.optionals .optional.active .add > i:before {
+.babonus.optionals .optional.active button > i:before {
   content: "\f00c";
 }
 
 .babonus.optionals .optional.active .consumption {
-  display: none;
+  pointer-events: none;
 }
 
-.babonus.optionals .bonus-text .name {
+.babonus.optionals .optional .bonus-text .name {
   font-weight: bold;
   font-style: italic;
 }
 
-.babonus.optionals .consumption {
+.babonus.optionals .optional .consumption {
   display: flex;
-  justify-content: space-around;
   align-items: center;
 }
 
-.babonus.optionals .consumption select {
+.babonus.optionals .optional .consumption select {
   flex: 1;
+}
+
+.babonus.optionals .optional.active .consumption > * {
+  color: gray;
 }

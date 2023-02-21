@@ -53,7 +53,7 @@ class Babonus extends foundry.abstract.DataModel {
     if (!this.isConsuming) return false;
     if (!this.consume.scales) return false;
     if (this.consume.type === "effect") return false;
-    return this.consume.value.max > this.consume.value.min;
+    return (this.consume.value.max || Infinity) > this.consume.value.min;
   }
 
   // Whether the babonus can be set to consume limited uses of its parent item.
@@ -218,6 +218,7 @@ class Babonus extends foundry.abstract.DataModel {
         enabled: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
         type: new foundry.data.fields.StringField({required: false, nullable: true, initial: null, choices: CONSUMPTION_TYPES}),
         scales: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
+        formula: new foundry.data.fields.StringField(),
         value: new foundry.data.fields.SchemaField({
           min: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
           max: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),

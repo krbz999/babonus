@@ -56,7 +56,7 @@ export class ConsumptionDialog extends FormApplication {
   async _onChangeInput(event) {
     await super._onChangeInput(event);
     const {name, value, type, checked} = event.currentTarget;
-    this.clone.updateSource({[name]: type === "checkbox" ? checked : value});
+    this.clone.updateSource({[name]: type === "checkbox" ? checked : (value || null)});
     this._render();
   }
 }

@@ -27,7 +27,7 @@ export function _collectBonuses(object, type) {
       baboni.push(..._filterTemplateBonuses(rollingToken, template, type));
     }
   }
-  return baboni;
+  return new foundry.utils.Collection(baboni.map(b => [b.id, b]));
 }
 
 /**
