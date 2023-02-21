@@ -222,8 +222,10 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='current-edit']").forEach(a => a.addEventListener("click", this._onEditBonus.bind(this)));
     html[0].querySelectorAll("[data-action='current-delete']").forEach(a => a.addEventListener("click", this._onDeleteBonus.bind(this)));
     html[0].querySelectorAll("[data-action='current-aura']").forEach(a => a.addEventListener("click", this._onToggleAura.bind(this)));
+    html[0].querySelectorAll("[data-action='current-aura']").forEach(a => a.addEventListener("contextmenu", this._onToggleAura.bind(this)));
     html[0].querySelectorAll("[data-action='current-optional']").forEach(a => a.addEventListener("click", this._onToggleOptional.bind(this)));
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("click", this._onToggleConsume.bind(this)));
+    html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("contextmenu", this._onToggleConsume.bind(this)));
     html[0].querySelectorAll("[data-action='current-itemOnly']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
   }
 
@@ -403,6 +405,8 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bab = getId(this.object, id);
     const path = `bonuses.${id}.aura.enabled`;
+    // Right-click always shows the application.
+    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab}).render(true);
     if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
     return new AuraConfigurationDialog(this.object, {bab}).render(true);
@@ -428,6 +432,8 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bab = getId(this.object, id);
     const path = `bonuses.${id}.consume.enabled`;
+    // Right-click always shows the application.
+    if (event.type === "contextmenu") return new ConsumptionDialog(this.object, {bab}).render(true);
     if (bab.isConsuming) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.consume.enabled);
     return new ConsumptionDialog(this.object, {bab}).render(true);
