@@ -257,6 +257,12 @@ class Babonus extends foundry.abstract.DataModel {
     };
   }
 
+  clone(data = {}, context = {}) {
+    data = foundry.utils.mergeObject(this.toObject(), data, {insertKeys: false, performDeletions: true, inplace: true});
+    context.parent ??= this.parent;
+    return new this.constructor(data, context);
+  }
+
   static migrateData(source) {
     if (!source.filters) source.filters = {};
     this._migrateCreatureTypes(source);
