@@ -23,11 +23,14 @@ export function _collectBonuses(object, type) {
       baboni.push(..._filterTokenBonuses(token, type, range, disp));
     }
     const templates = _getAllContainingTemplateDocuments(rollingToken);
+    // Special consideration for templates; allow overlapping without stacking the same bonus.
+    const templateBabs = [];
     for (const template of templates) {
-      baboni.push(..._filterTemplateBonuses(rollingToken, template, type));
+      templateBabs.push(..._filterTemplateBonuses(rollingToken, template, type));
     }
+    baboni.push(...new foundry.utils.Collection(templateBabs.map(b => [`${b.item.uuid}.Babonus.${b.id}`, b])));
   }
-  return new foundry.utils.Collection(baboni.map(b => [b.id, b]));
+  return new foundry.utils.Collection(baboni.map(b => [b.uuid, b]));
 }
 
 /**
