@@ -3,7 +3,7 @@ import {MODULE} from "../constants.mjs";
 export class OptionalSelector {
   constructor(options) {
     // The bonuses.
-    this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.id, o]));
+    this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));
 
     // The actor doing the roll.
     this.actor = options.actor;
@@ -29,7 +29,7 @@ export class OptionalSelector {
   }
 
   /**
-   * ************************************************
+   **************************************************
    *
    *                 GET DATA METHODS
    *
@@ -211,7 +211,7 @@ export class OptionalSelector {
    * @returns {boolean}             Whether you can add the bonus.
    */
   _canSupplySelected(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusId);
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
     if (bonus.consume.type === "uses") {
       return bonus.item.system.uses.value >= Number(value);
@@ -250,7 +250,7 @@ export class OptionalSelector {
    * @param {PointerEvent} event    The initiating click event.
    */
   _onApplyScalingItemOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusId);
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
     const scale = Number(value) - (bonus.consume.value.min || 1);
     const sitBonus = this._scaleOptionalBonus(bonus, scale);
@@ -270,7 +270,7 @@ export class OptionalSelector {
    * @param {PointerEvent} event    The initiating click event.
    */
   _onApplyItemOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusId);
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const value = Number(bonus.consume.value.min || 1);
     const item = bonus.item;
     if (this._canSupplyMinimum(bonus)) {
@@ -309,7 +309,7 @@ export class OptionalSelector {
    * @param {PointerEvent} event    The initiating click event.
    */
   _onApplyScalingSlotsOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusId);
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const key = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
     const level = key === "pact" ? this.actor.system.spells.pact.level : Number(key.at(-1));
     const scale = Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1);
@@ -329,7 +329,7 @@ export class OptionalSelector {
    * @param {PointerEvent} event    The initiating click event.
    */
   _onApplySlotsOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusId);
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const key = this._getLowestValidSpellSlotProperty(bonus.consume.value.min || 1);
     if (this._canSupplyMinimum(bonus)) {
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
@@ -346,7 +346,7 @@ export class OptionalSelector {
    * @param {PointerEvent} event    The initiating click event.
    */
   _onApplyEffectsOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusId);
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     if (this._canSupplyMinimum(bonus)) {
       bonus.effect.delete();
     } else {
@@ -362,7 +362,7 @@ export class OptionalSelector {
    * @param {PointerEvent} event    The initiating click event.
    */
   _onApplyNoConsumeOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusId);
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const sitBonus = this._scaleOptionalBonus(bonus, 0);
     this._appendToField(event, sitBonus);
   }
