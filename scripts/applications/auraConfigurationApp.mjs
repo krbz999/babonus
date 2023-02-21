@@ -32,7 +32,7 @@ export class AuraConfigurationDialog extends FormApplication {
       return acc;
     }, {});
     return {
-      disableRange: this.clone.aura.isTemplate && (this.clone.parent instanceof Item),
+      disableRange: this.clone.isTemplateAura,
       disableTemplate: !(this.clone.parent instanceof Item),
       blockers: this.clone.aura.blockers.join(";"),
       choices,
@@ -49,6 +49,7 @@ export class AuraConfigurationDialog extends FormApplication {
   /** @override */
   async _updateObject(event, formData) {
     formData["aura.enabled"] = true;
+    if (!(this.object.parent instanceof Item)) formData["aura.isTemplate"] = false;
     return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
   }
 
@@ -59,10 +60,12 @@ export class AuraConfigurationDialog extends FormApplication {
     if (name === "aura.range") {
       value = Math.clamped(Math.round(value), -1, 500);
     }
-    this.clone.updateSource({
+    const update = {
       [name]: type === "checkbox" ? checked : value,
       "aura.blockers": this.form["aura.blockers"].value
-    });
+    };
+    if (!(this.object.parent instanceof Item)) update["aura.isTemplate"] = false;
+    this.clone.updateSource(update);
     this._render();
   }
 }
