@@ -1,4 +1,4 @@
-import { MODULE } from "../constants.mjs";
+import {MODULE} from "../constants.mjs";
 
 export class BabonusKeysDialog extends Dialog {
 

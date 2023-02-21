@@ -9,7 +9,7 @@ import {
   SPELL_COMPONENT_MATCHING,
   TYPES
 } from "../constants.mjs";
-import { KeyGetter, _babonusToString } from "../helpers/helpers.mjs";
+import {KeyGetter, _babonusToString} from "../helpers/helpers.mjs";
 import {
   SemicolonArrayField,
   FilteredArrayField,
@@ -30,7 +30,7 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   toDragData() {
-    const dragData = { type: "Babonus" };
+    const dragData = {type: "Babonus"};
     if (this.parent) {
       dragData.uuid = this.parent.uuid;
       dragData.babId = this.id;
@@ -45,14 +45,15 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Whether the babonus can show the Consumption app in the builder.
   get canConsume() {
-    return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots);
+    return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots || this.canConsumeEffect);
   }
 
   // Whether the babonus is scaling.
   get isScaling() {
     if (!this.isConsuming) return false;
     if (!this.consume.scales) return false;
-    return this.consume.value.max > this.consume.value.min;
+    if (this.consume.type === "effect") return false;
+    return (this.consume.value.max || Infinity) > this.consume.value.min;
   }
 
   // Whether the babonus can be set to consume limited uses of its parent item.
@@ -72,16 +73,21 @@ class Babonus extends foundry.abstract.DataModel {
     return true;
   }
 
+  // whether the babonus can be set to consume the effect on which it lives.
+  get canConsumeEffect() {
+    if (this.hasAura || this.isTemplateAura) return false;
+    return this.parent instanceof ActiveEffect;
+  }
+
   // Whether the babonus consumes uses or quantities of the item on which it is embedded, or slots on the rolling actor.
   get isConsuming() {
-    if (!this.canConsume || !this.consume.enabled || !(this.consume.value.min > 0) || !this.consume.type) return false;
+    if (!this.canConsume || !this.consume.enabled || !this.consume.type) return false;
 
     const type = this.consume.type;
-    if (type === "uses") return this.canConsumeUses && this.item.isOwner;
-    else if (type === "quantity") return this.canConsumeQuantity && this.item.isOwner;
-    else if (type === "slots") return this.canConsumeSlots;
-
-    return false;
+    if (type === "uses") return this.canConsumeUses && this.item.isOwner && (this.consume.value.min > 0);
+    else if (type === "quantity") return this.canConsumeQuantity && this.item.isOwner && (this.consume.value.min > 0);
+    else if (type === "slots") return this.canConsumeSlots && (this.consume.value.min > 0);
+    else if (type === "effect") return this.canConsumeEffect;
   }
 
   // Whether a babonus can be toggled to be optional.
@@ -201,52 +207,53 @@ class Babonus extends foundry.abstract.DataModel {
 
   static defineSchema() {
     return {
-      id: new foundry.data.fields.DocumentIdField({ required: true, nullable: false }),
-      name: new foundry.data.fields.StringField({ required: true, blank: false }),
-      type: new foundry.data.fields.StringField({ required: true, blank: false, choices: TYPES.map(t => t.value) }),
-      enabled: new foundry.data.fields.BooleanField({ required: true, initial: true }),
-      itemOnly: new foundry.data.fields.BooleanField({ required: true, initial: false }),
-      optional: new foundry.data.fields.BooleanField({ required: true, initial: false }),
-      description: new foundry.data.fields.StringField({ required: true, blank: true }),
+      id: new foundry.data.fields.DocumentIdField({required: true, nullable: false}),
+      name: new foundry.data.fields.StringField({required: true, blank: false}),
+      type: new foundry.data.fields.StringField({required: true, blank: false, choices: TYPES.map(t => t.value)}),
+      enabled: new foundry.data.fields.BooleanField({required: true, initial: true}),
+      itemOnly: new foundry.data.fields.BooleanField({required: true, initial: false}),
+      optional: new foundry.data.fields.BooleanField({required: true, initial: false}),
+      description: new foundry.data.fields.StringField({required: true, blank: true}),
       consume: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField({ required: false, nullable: false, initial: false }),
-        type: new foundry.data.fields.StringField({ required: false, nullable: true, initial: null, choices: CONSUMPTION_TYPES }),
-        scales: new foundry.data.fields.BooleanField({ required: false, nullable: false, initial: false }),
+        enabled: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
+        type: new foundry.data.fields.StringField({required: false, nullable: true, initial: null, choices: CONSUMPTION_TYPES}),
+        scales: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
+        formula: new foundry.data.fields.StringField(),
         value: new foundry.data.fields.SchemaField({
-          min: new foundry.data.fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 }),
-          max: new foundry.data.fields.NumberField({ required: false, nullable: true, initial: null, integer: true, min: 1, step: 1 }),
+          min: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
+          max: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
         })
       }),
       aura: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField({ required: false, initial: false }),
-        isTemplate: new foundry.data.fields.BooleanField({ required: false, initial: false }),
-        range: new foundry.data.fields.NumberField({ required: false, initial: null, min: -1, max: 500, step: 1, integer: true }),
-        self: new foundry.data.fields.BooleanField({ required: false, initial: true }),
-        disposition: new foundry.data.fields.NumberField({ required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS) }),
-        blockers: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false }))
+        enabled: new foundry.data.fields.BooleanField({required: false, initial: false}),
+        isTemplate: new foundry.data.fields.BooleanField({required: false, initial: false}),
+        range: new foundry.data.fields.NumberField({required: false, initial: null, min: -1, max: 500, step: 1, integer: true}),
+        self: new foundry.data.fields.BooleanField({required: false, initial: true}),
+        disposition: new foundry.data.fields.NumberField({required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
+        blockers: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false}))
       }),
       filters: new foundry.data.fields.SchemaField({
         itemRequirements: new foundry.data.fields.SchemaField({
-          equipped: new foundry.data.fields.BooleanField({ required: false, initial: null, nullable: true }),
-          attuned: new foundry.data.fields.BooleanField({ required: false, initial: null, nullable: true })
+          equipped: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true}),
+          attuned: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
         }),
         arbitraryComparison: new ArbitraryComparisonField(new foundry.data.fields.SchemaField({
-          one: new foundry.data.fields.StringField({ required: false, blank: false }),
-          other: new foundry.data.fields.StringField({ required: false, blank: false }),
-          operator: new foundry.data.fields.StringField({ required: false, choices: ARBITRARY_OPERATORS.map(t => t.value) })
+          one: new foundry.data.fields.StringField({required: false, blank: false}),
+          other: new foundry.data.fields.StringField({required: false, blank: false}),
+          operator: new foundry.data.fields.StringField({required: false, choices: ARBITRARY_OPERATORS.map(t => t.value)})
         })),
-        statusEffects: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false })),
-        targetEffects: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false })),
+        statusEffects: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
+        targetEffects: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         creatureTypes: new DisjointArraysField({
-          needed: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false }), { required: false }),
-          unfit: new SemicolonArrayField(new foundry.data.fields.StringField({ blank: false }), { required: false })
+          needed: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false}), {required: false}),
+          unfit: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false}), {required: false})
         }),
-        customScripts: new foundry.data.fields.StringField({ initial: null, nullable: true }),
+        customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
         remainingSpellSlots: new SpanField({
-          min: new foundry.data.fields.NumberField({ required: false, initial: null, min: 0, step: 1, integer: true, nullable: true }),
-          max: new foundry.data.fields.NumberField({ required: false, initial: null, min: 0, step: 1, integer: true, nullable: true })
+          min: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true}),
+          max: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true})
         })
-      }, { nullable: false, initial: {} })
+      }, {nullable: false, initial: {}})
     };
   }
 
@@ -259,7 +266,7 @@ class Babonus extends foundry.abstract.DataModel {
   static _migrateCreatureTypes(source) {
     if (!source.filters?.creatureTypes || source.filters.creatureTypes.needed || source.filters.creatureTypes.unfit) return;
     const needed = source.filters.creatureTypes;
-    source.filters.creatureTypes = { needed };
+    source.filters.creatureTypes = {needed};
   }
 }
 

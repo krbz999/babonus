@@ -1,6 +1,6 @@
-import { AURA_TARGETS, MODULE } from "../constants.mjs";
-import { _getMinimumDistanceBetweenTokens, _getType } from "./helpers.mjs";
-import { _getAllContainingTemplateDocuments } from "./templateHelpers.mjs";
+import {AURA_TARGETS, MODULE} from "../constants.mjs";
+import {_getMinimumDistanceBetweenTokens, _getType} from "./helpers.mjs";
+import {_getAllContainingTemplateDocuments} from "./templateHelpers.mjs";
 
 /**
  * Retrieve all valid bonuses for a roll.
@@ -27,7 +27,7 @@ export function _collectBonuses(object, type) {
       baboni.push(..._filterTemplateBonuses(rollingToken, template, type));
     }
   }
-  return baboni;
+  return new foundry.utils.Collection(baboni.map(b => [b.id, b]));
 }
 
 /**
@@ -131,6 +131,7 @@ function _filterTemplateBonuses(token, template, type) {
   return [
     ..._getTemplateBonuses(template, type)
   ].filter(bab => {
+    if (bab.isAuraBlocked) return false;
     const isOwn = token.actor === bab.actor;
     if (isOwn) return bab.aura.self;
     return _matchTemplateDisposition(template, token.disposition, bab);

@@ -1,5 +1,5 @@
-import { CURRENT_MIGRATION_VERSION, MODULE, SETTING_MIGRATION_VERSION, TYPES } from "./constants.mjs";
-import { KeyGetter, _createBabonus } from "./helpers/helpers.mjs";
+import {CURRENT_MIGRATION_VERSION, MODULE, SETTING_MIGRATION_VERSION, TYPES} from "./constants.mjs";
+import {KeyGetter, _createBabonus} from "./helpers/helpers.mjs";
 
 /**
  * ** Migration 1: **
@@ -68,14 +68,14 @@ export async function _migrateWorld(force = false) {
   if (!game.user.isGM) return;
   const migrate = _worldNeedsMigration();
   if (!migrate && !force) return;
-  ui.notifications.info("BABONUS.MigrationBegun", { localize: true, permanent: true });
+  ui.notifications.info("BABONUS.MigrationBegun", {localize: true, permanent: true});
   await _migrateWorldItems();
   await _migrateWorldActors();
   await _migrateCompendiumItems();
   await _migrateCompendiumActors();
   await _migrateScenes();
   await _updateMigrationVersion();
-  ui.notifications.info("BABONUS.MigrationCompleted", { localize: true, permanent: true });
+  ui.notifications.info("BABONUS.MigrationCompleted", {localize: true, permanent: true});
 }
 
 async function _migrateWorldItems() {
@@ -147,10 +147,10 @@ async function _migrateCompendiums(docType) {
 async function _migrateSingleCompendium(pack) {
   if (!game.user.isGM) return;
   if (pack.locked) {
-    ui.notifications.warn("BABONUS.MigrationLockedPack", { localize: true });
+    ui.notifications.warn("BABONUS.MigrationLockedPack", {localize: true});
     return false;
   }
-  const index = await pack.getIndex({ fields: ["flags.babonus.bonuses"] });
+  const index = await pack.getIndex({fields: ["flags.babonus.bonuses"]});
   const ids = index.map(i => i._id);
   for (const id of ids) {
     const object = await pack.getDocument(id);
@@ -166,9 +166,9 @@ async function _migrateDocumentDirect(object) {
   if (!game.user.isGM) return;
   // should any effects on this document be updated?
   const updateEffectsNormally = (object instanceof Actor) || (object instanceof Item && !object.parent);
-  if (updateEffectsNormally) { for (const effect of object.effects) await _migrateDocumentDirect(effect); }
+  if (updateEffectsNormally) {for (const effect of object.effects) await _migrateDocumentDirect(effect);}
   else if (object instanceof Item && object.parent instanceof Actor) await _migrateDoubleEmbeddedEffects(object);
-  if (object instanceof Actor) { for (const item of object.items) await _migrateDocumentDirect(item); }
+  if (object instanceof Actor) {for (const item of object.items) await _migrateDocumentDirect(item);}
 
   const flags = object.getFlag(MODULE, "bonuses");
   if (!flags) return true;
@@ -178,7 +178,7 @@ async function _migrateDocumentDirect(object) {
     for (const bonus in boni) {
       const data = _modifyData(boni[bonus], type);
       try {
-        const bab = _createBabonus(data, data.id, { strict: true });
+        const bab = _createBabonus(data, data.id, {strict: true});
         const set = await object.setFlag("babonus", "bonuses." + data.id, bab.toObject());
         if (set) await object.unsetFlag("babonus", `bonuses.${type}.${bonus}`);
       } catch (err) {
@@ -187,7 +187,7 @@ async function _migrateDocumentDirect(object) {
       }
     }
     const isE = foundry.utils.isEmpty(object.flags.babonus?.bonuses?.[type]);
-    if (isE) await object.update({ [`flags.babonus.bonuses.-=${type}`]: null });
+    if (isE) await object.update({[`flags.babonus.bonuses.-=${type}`]: null});
   }
   return true;
 }
@@ -282,7 +282,7 @@ async function _migrateDoubleEmbeddedEffects(object) {
       for (const bonus in boni) { // id in ids
         const data = _modifyData(boni[bonus], type);
         try {
-          const bab = _createBabonus(data, data.id, { strict: true });
+          const bab = _createBabonus(data, data.id, {strict: true});
           foundry.utils.setProperty(effect, `flags.${MODULE}.bonuses.${data.id}`, bab.toObject());
           foundry.utils.setProperty(effect, `flags.${MODULE}.bonuses.${type}.-=${bonus}`, null);
           delete effect.flags.babonus?.bonuses?.[type]?.[bonus];
@@ -298,5 +298,5 @@ async function _migrateDoubleEmbeddedEffects(object) {
     }
     newEffects.push(effect);
   }
-  return object.update({ effects: newEffects });
+  return object.update({effects: newEffects});
 }

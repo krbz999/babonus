@@ -1,5 +1,5 @@
-import { MODULE } from "../constants.mjs";
-import { _getAllTokenGridSpaces, _getCollection } from "./helpers.mjs";
+import {MODULE} from "../constants.mjs";
+import {_getAllTokenGridSpaces, _getCollection} from "./helpers.mjs";
 
 /**
  * Get the item that created a template.
@@ -12,7 +12,7 @@ export function _preCreateMeasuredTemplate(templateDoc, templateData) {
   if (!item) return;
 
   const bonusData = _getCollection(item).reduce((acc, bab) => {
-    if(!bab.isTemplateAura || bab.isSuppressed) return acc;
+    if (!bab.isTemplateAura || bab.isSuppressed) return acc;
     const data = bab.toObject();
     const path = `flags.${MODULE}.bonuses.${bab.id}`;
     foundry.utils.setProperty(acc, path, data);
@@ -33,12 +33,12 @@ export function _preCreateMeasuredTemplate(templateDoc, templateData) {
  */
 export function _getAllContainingTemplateDocuments(tokenDoc) {
   const size = tokenDoc.parent.grid.size;
-  const centers = _getAllTokenGridSpaces(tokenDoc).map(({ x, y }) => {
-    return { x: x + size / 2, y: y + size / 2 };
+  const centers = _getAllTokenGridSpaces(tokenDoc).map(({x, y}) => {
+    return {x: x + size / 2, y: y + size / 2};
   });
 
   return tokenDoc.parent.templates.filter(template => {
-    return centers.some(({ x, y }) => {
+    return centers.some(({x, y}) => {
       return template.object.shape?.contains(x - template.x, y - template.y);
     });
   });

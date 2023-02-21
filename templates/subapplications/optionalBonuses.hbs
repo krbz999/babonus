@@ -1,18 +1,29 @@
-<div class="babonus optionals" autocomplete="off">
-  {{#each data as |bab|}}
-  <div class="optional{{#if scales}} scales{{/if}}{{#if consumes}} consumes{{/if}}" data-min="{{min}}"
-    data-bonus="{{bonus}}" data-uuid="{{uuid}}" data-type="{{type}}">
+<div class="babonus optionals">
+  {{#each bonuses as |bonus|}}
+  <div class="optional" data-bonus-id="{{bonus.babonus.id}}">
+
     <div class="bonus-text">
-      <span class="name" data-tooltip="{{localize 'BABONUS.OriginName' name=origin}}">{{name}}.</span>
-      <span class="description">{{{desc}}}</span>
+      <span class="name" data-tooltip="{{bonus.tooltip}}">
+        {{bonus.babonus.name}}.
+      </span>
+      <span class="description">
+        {{{bonus.babonus.description}}}
+      </span>
     </div>
-    <button type="button" class="add"><i class="fa-solid fa-plus"></i></button>
-    {{#if scales}}
+
+    {{#if bonus.babonus.isScaling}}
     <div class="consumption">
-      <label>{{localize "BABONUS.ConfigurationConsumptionConsume"}}</label>
-      <select>{{{options}}}</select>
+      <label class="label">
+        {{localize "BABONUS.ConfigurationConsumptionConsume"}}
+      </label>
+      <select>{{{bonus.options}}}</select>
     </div>
     {{/if}}
+
+    <button type="button" data-action="{{bonus.action}}">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+
   </div>
   {{/each}}
 </div>

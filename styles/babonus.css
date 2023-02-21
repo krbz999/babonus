@@ -42,6 +42,10 @@
   height: 100%;
 }
 
+.babonus.builder .left-side .page {
+  padding-right: 0.3em;
+}
+
 /* LEFT SIDE - TYPE SELECTOR */
 .babonus.builder .left-side .select-type {
   height: 100%;
@@ -49,7 +53,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-right: 0.3em;
 }
 
 .babonus.builder .left-side .select-type .types {
@@ -80,7 +83,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-right: 0.3em;
 }
 
 .babonus.builder .left-side .bonus-config {
@@ -92,9 +94,7 @@
 }
 
 /* LEFT SIDE - BUILDER - REQUIRED FIELDS */
-.babonus.builder .left-side .bonus-config .required-fields {}
-
-.babonus.builder .left-side .bonus-config .required-fields .required {}
+.babonus.builder .left-side .bonus-required {}
 
 .babonus.builder .babonus-type {
   font-size: 30px;
@@ -114,30 +114,29 @@
 
 .babonus.builder .left-side textarea {
   resize: vertical;
-  min-height: var(--form-field-height);
+  min-height: calc(10px + var(--form-field-height));
   height: var(--form-field-height);
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 /* LEFT SIDE - BUILDER - BONUS FIELDS */
-.babonus.builder .left-side .bonus-config .bonuses-inputs {}
-
-.babonus.builder .left-side .bonus-config .bonuses-inputs .bonuses {}
+.babonus.builder .left-side .bonus-inputs {}
 
 /* LEFT SIDE - BUILDER - FILTERS */
 .babonus.builder .left-side .bonus-filters {
   height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
   display: flex;
   flex: 1;
   flex-direction: column;
 }
 
-.babonus.builder .left-side .filters {
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+.babonus.builder .bonus-filters .form-group:first-child {
+  margin-top: 2px;
+}
+
+.babonus.builder .bonus-filters .form-group {
+  margin: 1.5px 0;
 }
 
 /* LEFT SIDE - BUILDER - FILTERS - COMPONENTS */
@@ -200,6 +199,10 @@
   height: 100%;
 }
 
+.babonus.builder .right-side .page {
+  padding-left: 0.3em;
+}
+
 /* RIGHT SIDE - CURRENT BONUSES */
 .babonus.builder .right-side .current-bonuses {
   height: 100%;
@@ -207,7 +210,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-left: 0.3em;
 }
 
 .babonus.builder .right-side .bonuses {
@@ -286,46 +288,10 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-left: 0.3em;
-}
-
-.babonus.builder .right-side .filters {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  flex: 1;
-}
-
-.babonus.builder .right-side .available-filters {
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  transition: 300ms;
 }
 
 .babonus.builder .right-side .unavailable-filters {
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  margin-bottom: 0.25em;
-  transition: 300ms;
-}
-
-.babonus.builder .right-side header.collapsed + * {
-  flex: 0;
-}
-
-.babonus.builder .right-side [data-action="collapse-filters"] {
-  float: right;
-  margin-right: 1em;
-}
-
-.babonus.builder .right-side header.collapsed [data-action="collapse-filters"] i::before {
-  content: "\f077";
+  margin-bottom: 0.3em;
 }
 
 /* RIGHT SIDE - FITLER PICKER - FILTER */
@@ -386,6 +352,28 @@
   border-radius: 4px;
 }
 
+.babonus.builder header + :is(.bonus-filters, .available-filters, .unavailable-filters) {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  transition: 300ms;
+}
+
+.babonus.builder header.collapsed + * {
+  flex: 0 !important;
+}
+
+.babonus.builder header [data-action="section-collapse"] {
+  float: right;
+  margin-right: 1em;
+}
+
+.babonus.builder header.collapsed [data-action="section-collapse"] i::before {
+  content: "\f077";
+}
+
 .babonus .label {
   flex: 1;
   font-weight: bold;
@@ -400,6 +388,10 @@
   color: gray;
 }
 
+.babonus form .form-fields :is(input, select):not([type="checkbox"]) {
+  height: calc(var(--form-field-height));
+}
+
 /* keys dialog buttons */
 .babonus [data-action="keys-dialog"] {
   min-width: 100px;
@@ -412,7 +404,6 @@
 
 /* selects */
 .babonus form select {
-  height: calc(var(--form-field-height));
   flex: 0;
   min-width: fit-content;
 }
@@ -476,11 +467,10 @@
 .babonus.optionals {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 0.5em;
   padding: 0.5em;
   border: 1px inset;
-  border-radius: 1em;
+  border-radius: 0.5em;
   margin-bottom: 1em;
   max-height: 450px;
   overflow-y: auto;
@@ -488,72 +478,49 @@
 
 .babonus.optionals .optional {
   display: grid;
-  width: 100%;
-  grid-template-columns: 8fr 0fr;
-  grid-template-areas:
-    "a b"
-    "c c";
-  padding-bottom: 0.5em;
-  gap: 1em;
-}
-
-.babonus.optionals .optional:first-child {
-  padding-top: 0.5em;
+  gap: 0.5em;
 }
 
 .babonus.optionals .optional:not(:last-child) {
   border-bottom: 2px groove;
+  padding-bottom: 0.5em;
 }
 
-.babonus.optionals .optional.active {
-  pointer-events: none;
-}
-
-.babonus.optionals .optional .add {
+.babonus.optionals .optional button {
   display: flex;
-  font-size: 20px;
+  padding: 3px;
   justify-content: center;
-  border-radius: 2em;
-  aspect-ratio: 1/1;
-  margin: 0;
-  width: 2em;
-  align-items: center;
 }
 
-.babonus.optionals .optional .add > i {
-  margin: 0;
-}
-
-.babonus.optionals .optional.active .add {
+.babonus.optionals .optional.active button {
   background: inherit;
   border: none;
   box-shadow: none;
+  pointer-events: none;
 }
 
-.babonus.optionals .optional.active .add > i:before {
+.babonus.optionals .optional.active button > i:before {
   content: "\f00c";
 }
 
 .babonus.optionals .optional.active .consumption {
-  display: none;
+  pointer-events: none;
 }
 
-.babonus.optionals .bonus-text .name {
+.babonus.optionals .optional .bonus-text .name {
   font-weight: bold;
   font-style: italic;
 }
 
-.babonus.optionals .consumption {
+.babonus.optionals .optional .consumption {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  grid-area: c;
 }
 
-.babonus.optionals .consumption > :is(label, select) {
+.babonus.optionals .optional .consumption select {
   flex: 1;
 }
 
-.babonus.optionals .consumption > label {
-  font-weight: bold;
+.babonus.optionals .optional.active .consumption > * {
+  color: gray;
 }

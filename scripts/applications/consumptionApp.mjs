@@ -1,7 +1,12 @@
-import { MODULE } from "../constants.mjs";
-import { _createBabonus } from "../helpers/helpers.mjs";
+import {MODULE} from "../constants.mjs";
+import {_createBabonus} from "../helpers/helpers.mjs";
 
 export class ConsumptionDialog extends FormApplication {
+
+  constructor(object, options = {}) {
+    super(object, options);
+    this.clone = options.bab.clone({}, {parent: options.bab.parent});
+  }
 
   get id() {
     return `${MODULE}ConsumptionDialog-${this.options.bab.id}`;
@@ -17,46 +22,41 @@ export class ConsumptionDialog extends FormApplication {
   }
 
   get title() {
-    return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", { name: this.options.bab.name });
+    return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", {name: this.options.bab.name});
   }
 
   /** @override */
   async getData() {
-    const bab = this.options.bab;
-    const choices = [{ value: "", label: "" }];
-    if (bab.canConsumeUses) choices.push({ value: "uses", label: "DND5E.LimitedUses" });
-    if (bab.canConsumeQuantity) choices.push({ value: "quantity", label: "DND5E.Quantity" });
-    if (bab.canConsumeSlots) choices.push({ value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot" });
+    const choices = [{value: "", label: ""}];
+    if (this.clone.canConsumeUses) choices.push({value: "uses", label: "DND5E.LimitedUses"});
+    if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
+    if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot"});
+    if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
     return {
       choices,
-      value: bab.consume.type,
-      consume: bab.consume // scales, value (min, max), type, enabled
-    }
-  }
-
-  /** @override */
-  async _updateObject(event, formData) {
-    try {
-      formData["consume.enabled"] = true;
-      const data = foundry.utils.mergeObject(this.options.bab.toString(), formData);
-      _createBabonus(data); // attempt.
-      return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
-    } catch (err) {
-      console.error(err);
-    }
+      disableMax: (this.clone.consume.type === "effect") || (!this.clone.consume.scales),
+      isEffect: this.clone.consume.type === "effect",
+      ...this.clone
+    };
   }
 
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelector("[name='consume.scales']").addEventListener("change", this._onChangeScales.bind(this));
+    html[0].querySelectorAll("input[type='number']").forEach(n => n.addEventListener("focus", e => e.currentTarget.select()));
   }
 
-  /**
-   * Toggles the disabled state on the 'max' field according to a checkbox.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onChangeScales(event){
-    this.form["consume.value.max"].disabled = !event.currentTarget.checked;
+  /** @override */
+  async _updateObject(event, formData) {
+    formData["consume.enabled"] = true;
+    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
+  }
+
+  /** @override */
+  async _onChangeInput(event) {
+    await super._onChangeInput(event);
+    const {name, value, type, checked} = event.currentTarget;
+    this.clone.updateSource({[name]: type === "checkbox" ? checked : (value || null)});
+    this._render();
   }
 }

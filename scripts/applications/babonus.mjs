@@ -9,10 +9,10 @@ import {
   MODULE_ICON,
   TYPES
 } from "../constants.mjs";
-import { _babFromDropData, _createBabonus, _onDisplayKeysDialog, _getAppId } from "../helpers/helpers.mjs";
-import { getId } from "../public_api.mjs";
-import { ConsumptionDialog } from "./consumptionApp.mjs";
-import { AuraConfigurationDialog } from "./auraConfigurationApp.mjs";
+import {_babFromDropData, _createBabonus, _onDisplayKeysDialog, _getAppId} from "../helpers/helpers.mjs";
+import {getId} from "../public_api.mjs";
+import {ConsumptionDialog} from "./consumptionApp.mjs";
+import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 
 export class BabonusWorkshop extends FormApplication {
 
@@ -60,7 +60,7 @@ export class BabonusWorkshop extends FormApplication {
       template: `modules/${MODULE}/templates/babonus.hbs`,
       classes: [MODULE, "builder"],
       scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"],
-      dragDrop: [{ dragSelector: ".label[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses" }],
+      dragDrop: [{dragSelector: ".label[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],
       resizable: true
     });
   }
@@ -113,7 +113,7 @@ export class BabonusWorkshop extends FormApplication {
       data._filters = this._filters;
       delete this._filters;
       data.bonuses = BONUS_TYPES_FORMDATA[this._bab.type].map(b => {
-        return { value: foundry.utils.getProperty(this._bab, b.NAME), ...b };
+        return {value: foundry.utils.getProperty(this._bab, b.NAME), ...b};
       });
     } else if (this._type) {
       // Creating a babonus.
@@ -144,7 +144,7 @@ export class BabonusWorkshop extends FormApplication {
     const flag = this.object.flags.babonus?.bonuses ?? {};
     data.currentBonuses = Object.entries(flag).reduce((acc, [id, babData]) => {
       try {
-        const bab = _createBabonus(babData, id, { parent: this.object });
+        const bab = _createBabonus(babData, id, {parent: this.object});
         bab._collapsed = this._collapsedBonuses.has(id);
         acc.push(bab);
         return acc;
@@ -182,7 +182,7 @@ export class BabonusWorkshop extends FormApplication {
       const bab = _createBabonus(formData, formData.id);
       await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
       await this.object.setFlag(MODULE, `bonuses.${formData.id}`, bab.toObject());
-      ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", { name: formData.name, id: formData.id }));
+      ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", {name: formData.name, id: formData.id}));
     } catch (err) {
       console.warn(err);
       this._displayWarning();
@@ -214,7 +214,7 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
     html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
     html[0].querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
-    html[0].querySelectorAll("[data-action='collapse-filters']").forEach(a => a.addEventListener("click", this._onCollapseFilters.bind(this)));
+    html[0].querySelectorAll("[data-action='section-collapse']").forEach(a => a.addEventListener("click", this._onSectionCollapse.bind(this)));
 
     // Current bonuses.
     html[0].querySelectorAll("[data-action='current-toggle']").forEach(a => a.addEventListener("click", this._onToggleBonus.bind(this)));
@@ -296,7 +296,7 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const data = this.object.flags.babonus.bonuses[id];
     this._type = null;
-    this._bab = _createBabonus(data, id, { strict: true });
+    this._bab = _createBabonus(data, id, {strict: true});
     const formData = this._bab.toString();
     this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
     this._itemTypes = new Set(this._bab.filters.itemTypes ?? []);
@@ -358,8 +358,8 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event    The initiating click event.
    */
   _onOtterDance(event) {
-    const spin = [{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }];
-    const time = { duration: 1000, iterations: 1 };
+    const spin = [{transform: 'rotate(0)'}, {transform: 'rotate(360deg)'}];
+    const time = {duration: 1000, iterations: 1};
     if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
   }
 
@@ -385,12 +385,12 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const name = this.object.flags.babonus.bonuses[id].name;
     const prompt = await Dialog.confirm({
-      title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", { name }),
-      content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", { name }),
-      options: { id: `babonus-confirm-delete-${id}` }
+      title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", {name}),
+      content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", {name}),
+      options: {id: `babonus-confirm-delete-${id}`}
     });
     if (!prompt) return false;
-    ui.notifications.info(game.i18n.format("BABONUS.NotificationDelete", { name, id }));
+    ui.notifications.info(game.i18n.format("BABONUS.NotificationDelete", {name, id}));
     return this.object.unsetFlag(MODULE, `bonuses.${id}`);
   }
 
@@ -405,7 +405,7 @@ export class BabonusWorkshop extends FormApplication {
     const path = `bonuses.${id}.aura.enabled`;
     if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
-    return new AuraConfigurationDialog(this.object, { bab }).render(true);
+    return new AuraConfigurationDialog(this.object, {bab}).render(true);
   }
 
   /**
@@ -430,7 +430,7 @@ export class BabonusWorkshop extends FormApplication {
     const path = `bonuses.${id}.consume.enabled`;
     if (bab.isConsuming) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.consume.enabled);
-    return new ConsumptionDialog(this.object, { bab }).render(true);
+    return new ConsumptionDialog(this.object, {bab}).render(true);
   }
 
   /**
@@ -464,7 +464,7 @@ export class BabonusWorkshop extends FormApplication {
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const data = foundry.utils.duplicate(this.object.flags.babonus.bonuses[id]);
-    data.name = game.i18n.format("BABONUS.BonusCopy", { name: data.name });
+    data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
     data.id = foundry.utils.randomID();
     data.enabled = false;
     ui.notifications.info(game.i18n.format("BABONUS.NotificationCopy", data));
@@ -492,10 +492,10 @@ export class BabonusWorkshop extends FormApplication {
    */
 
   /**
-   * Collapse a filter section in the filter picker.
+   * Collapse a section in the builder.
    * @param {PointerEvent} event    The initiating click event.
    */
-  _onCollapseFilters(event) {
+  _onSectionCollapse(event) {
     event.currentTarget.closest("header").classList.toggle("collapsed");
   }
 
@@ -528,6 +528,9 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event      The initiating click event.
    */
   _onDeleteFilter(event) {
+    if (event.currentTarget.closest(".form-group").dataset.id === "itemTypes") {
+      this._itemTypes.clear();
+    }
     event.currentTarget.closest(".form-group").remove();
     this._updateAddedFilters();
     this._updateFilterPicker();
@@ -547,7 +550,7 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event      The initiating change event.
    */
   _onPickItemType(event) {
-    const { checked, value } = event.currentTarget;
+    const {checked, value} = event.currentTarget;
     if (checked) this._itemTypes.add(value);
     else this._itemTypes.delete(value);
     this._updateFilterPicker();
@@ -558,7 +561,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _updateAddedFilters() {
     this._addedFilters.clear();
-    const added = this.element[0].querySelectorAll(".left-side .filters [data-id]");
+    const added = this.element[0].querySelectorAll(".left-side .bonus-filters [data-id]");
     added.forEach(a => this._addedFilters.add(a.dataset.id));
   }
 
@@ -581,6 +584,7 @@ export class BabonusWorkshop extends FormApplication {
   async _onAddFilter(event) {
     const id = event.currentTarget.closest(".filter").dataset.id;
     await this._appendNewFilter(id);
+    if (id === "itemTypes") this._itemTypes.clear();
     this._updateAddedFilters();
     this._updateFilterPicker();
   }
@@ -594,7 +598,7 @@ export class BabonusWorkshop extends FormApplication {
     const DIV = document.createElement("DIV");
     DIV.innerHTML = await this._templateFilter(id, formData);
     this._appendListenersToFilters(DIV);
-    this.element[0].querySelector("div.filters").append(...DIV.children);
+    this.element[0].querySelector(".left-side .bonus-filters").append(...DIV.children);
   }
 
   /**
@@ -648,8 +652,8 @@ export class BabonusWorkshop extends FormApplication {
 
     if (id === "spellComponents") {
       data.selectOptions = [
-        { value: "ANY", label: "BABONUS.FiltersSpellComponentsMatchAny" },
-        { value: "ALL", label: "BABONUS.FiltersSpellComponentsMatchAll" }
+        {value: "ANY", label: "BABONUS.FiltersSpellComponentsMatchAny"},
+        {value: "ALL", label: "BABONUS.FiltersSpellComponentsMatchAll"}
       ];
     } else if ("itemRequirements" === id) {
       data.canEquip = this._canEquipItem(this.object);
@@ -674,7 +678,7 @@ export class BabonusWorkshop extends FormApplication {
       defaultOptions: ARBITRARY_OPERATORS,
       placeholderOne: `BABONUS.Filters${id.capitalize()}One`,
       placeholderOther: `BABONUS.Filters${id.capitalize()}Other`,
-      array: [{ idx }]
+      array: [{idx}]
     }
     if (formData) this._prepareData(data, formData);
     return renderTemplate("modules/babonus/templates/builder_components/text_select_text.hbs", data);
@@ -696,13 +700,13 @@ export class BabonusWorkshop extends FormApplication {
    */
   _newFilterArrayOptions(id) {
     if (id === "attackTypes") {
-      return ATTACK_TYPES.map(a => ({ value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a] }));
+      return ATTACK_TYPES.map(a => ({value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]}));
     } else if (id === "itemTypes") {
-      return ITEM_ROLL_TYPES.map(i => ({ value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}` }));
+      return ITEM_ROLL_TYPES.map(i => ({value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`}));
     } else if (id === "spellLevels") {
-      return Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => ({ value, label: value, tooltip }));
+      return Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => ({value, label: value, tooltip}));
     } else if (id === "spellComponents") {
-      return Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags)).map(([key, { abbr, label }]) => ({ value: key, label: abbr, tooltip: label }));
+      return Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags)).map(([key, {abbr, label}]) => ({value: key, label: abbr, tooltip: label}));
     }
   }
 
@@ -714,11 +718,11 @@ export class BabonusWorkshop extends FormApplication {
   _prepareData(data, formData) {
     if (data.id === "arbitraryComparison") {
       data.array = foundry.utils.duplicate(this._bab.filters[data.id]).map((n, idx) => {
-        const options = ARBITRARY_OPERATORS.reduce((acc, { value, label }) => {
+        const options = ARBITRARY_OPERATORS.reduce((acc, {value, label}) => {
           const selected = (value === n.operator) ? "selected" : "";
           return acc + `<option value="${value}" ${selected}>${label}</option>`;
         }, "");
-        return { ...n, idx, options };
+        return {...n, idx, options};
       });
     } else if ([
       "abilities",
@@ -736,9 +740,9 @@ export class BabonusWorkshop extends FormApplication {
       "creatureTypes",
       "weaponProperties"
     ].includes(data.id)) {
-      data.value = { needed: formData[`filters.${data.id}.needed`], unfit: formData[`filters.${data.id}.unfit`] };
+      data.value = {needed: formData[`filters.${data.id}.needed`], unfit: formData[`filters.${data.id}.unfit`]};
     } else if (data.id === "remainingSpellSlots") {
-      data.value = { min: formData[`filters.${data.id}.min`], max: formData[`filters.${data.id}.max`] };
+      data.value = {min: formData[`filters.${data.id}.min`], max: formData[`filters.${data.id}.max`]};
     } else if ([
       "attackTypes",
       "itemTypes",
@@ -772,7 +776,7 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {boolean}       Whether it is or can be attuned to.
    */
   _canAttuneToItem(item) {
-    const { REQUIRED, ATTUNED } = CONFIG.DND5E.attunementTypes;
+    const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
     return (item instanceof Item) && [REQUIRED, ATTUNED].includes(item.system.attunement);
   }
 
@@ -786,23 +790,25 @@ export class BabonusWorkshop extends FormApplication {
     if (id === "arbitraryComparison") return true;
     if (this._addedFilters.has(id)) return false;
 
+    const type = this._type ?? this._bab.type;
+
     switch (id) {
-      case "abilities": return ["attack", "damage", "save"].includes(this._type);
-      case "attackTypes": return ["attack", "damage"].includes(this._type);
+      case "abilities": return ["attack", "damage", "save"].includes(type);
+      case "attackTypes": return ["attack", "damage"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
       case "creatureTypes": return true;
       case "customScripts": return true;
-      case "damageTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "damageTypes": return ["attack", "damage", "save"].includes(type);
       case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
-      case "itemTypes": return ["attack", "damage", "save"].includes(this._type);
+      case "itemTypes": return ["attack", "damage", "save"].includes(type);
       case "remainingSpellSlots": return true;
-      case "saveAbilities": return ["save"].includes(this._type);
+      case "saveAbilities": return ["save"].includes(type);
       case "spellComponents": return this._itemTypes.has("spell");
       case "spellLevels": return this._itemTypes.has("spell");
       case "spellSchools": return this._itemTypes.has("spell");
       case "statusEffects": return true;
       case "targetEffects": return true;
-      case "throwTypes": return ["throw"].includes(this._type);
+      case "throwTypes": return ["throw"].includes(type);
       case "weaponProperties": return this._itemTypes.has("weapon");
     }
   }
