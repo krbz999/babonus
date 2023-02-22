@@ -3,7 +3,7 @@ import {
   SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
   SPELL_COMPONENT_MATCHING
 } from "./constants.mjs";
-import {_collectBonuses} from "./helpers/bonusCollector.mjs";
+import {BonusCollector} from "./applications/bonusCollector.mjs";
 
 /**
  * An example bonus, as it would be stored on an actor, effect, item, or template.
@@ -86,27 +86,32 @@ export class FILTER {
 
   // hitdie rolls
   static hitDieCheck(actor) {
-    const bonuses = _collectBonuses(actor, "hitdie");
+    const bonuses = new BonusCollector({
+      object: actor, type: "hitdie"
+    }).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
 
   // saving throws (isConcSave for CN compatibility)
   static throwCheck(actor, throwType, {isConcSave}) {
-    const bonuses = _collectBonuses(actor, "throw");
+    const bonuses = new BonusCollector({
+      object: actor, type: "throw"
+    }).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor, {throwType, isConcSave});
   }
 
-
   // attack rolls, damage rolls, displayCards (save dc)
   static itemCheck(item, hookType, {spellLevel} = {}) {
-    const bonuses = _collectBonuses(item, hookType);
+    const bonuses = new BonusCollector({
+      object: item, type: hookType
+    }).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, item, {spellLevel});
   }
 
-  // Filters the collected array of bonuses. Returns the reduced array.
+  // Filters the Collection of bonuses. Returns a reduced array.
   static finalFilterBonuses(bonuses, object, details = {}) {
     const valids = bonuses.reduce((acc, bab) => {
       const filters = Object.entries(bab.filters ?? {});

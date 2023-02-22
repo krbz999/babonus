@@ -5,26 +5,24 @@ import {_getAllTokenGridSpaces, _getCollection} from "./helpers.mjs";
  * Get the item that created a template.
  * If found, get any 'template' auras on the item and merge the data.
  */
-export function _preCreateMeasuredTemplate(templateDoc, templateData) {
-  const origin = foundry.utils.getProperty(templateData, "flags.dnd5e.origin");
+export function _preCreateMeasuredTemplate(templateDoc) {
+  const origin = templateDoc.flags?.dnd5e?.origin;
   if (!origin) return;
   const item = fromUuidSync(origin);
   if (!item) return;
+  const actor = item.actor;
+  if(!actor) return;
+  const tokenDocument = actor.token ?? actor.getActiveTokens(false, true)[0];
+  const disp = tokenDocument?.disposition ?? actor.prototypeToken.disposition;
 
   const bonusData = _getCollection(item).reduce((acc, bab) => {
-    if (!bab.isTemplateAura || bab.isSuppressed) return acc;
-    const data = bab.toObject();
-    const path = `flags.${MODULE}.bonuses.${bab.id}`;
-    foundry.utils.setProperty(acc, path, data);
+    if (bab.isTemplateAura) {
+      acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
+    }
     return acc;
   }, {});
-  const actor = item.actor;
-  if (actor) {
-    const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
-    const path = `flags.${MODULE}.defaultDisposition`;
-    if (tokenDoc) foundry.utils.setProperty(bonusData, path, tokenDoc.disposition);
-    else foundry.utils.setProperty(bonusData, path, actor.prototypeToken.disposition);
-  }
+  if(foundry.utils.isEmpty(bonusData)) return;
+  bonusData["flags.babonus.templateDisposition"] = disp;
   templateDoc.updateSource(bonusData);
 }
 
