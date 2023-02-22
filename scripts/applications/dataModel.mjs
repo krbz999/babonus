@@ -115,11 +115,11 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Whether the babonus is unavailable due to its item being unequipped or unattuned (if it can be).
   get isSuppressed() {
-    const item = this.parent;
+    let item = this.parent;
     // It's not an item.
-    if (!(item instanceof Item)) return false;
+    if (!(item instanceof Item)) item = this.item;
     // It's not an equippable/attunable item.
-    if (!EQUIPPABLE_TYPES.includes(item.type)) return false;
+    if (!EQUIPPABLE_TYPES.includes(item?.type)) return false;
 
     const ir = this.filters.itemRequirements;
     const at = CONFIG.DND5E.attunementTypes.ATTUNED;
