@@ -9,7 +9,7 @@ import {
   SPELL_COMPONENT_MATCHING,
   TYPES
 } from "../constants.mjs";
-import {KeyGetter, _babonusToString} from "../helpers/helpers.mjs";
+import {KeyGetter} from "../helpers/helpers.mjs";
 import {
   SemicolonArrayField,
   FilteredArrayField,
@@ -26,7 +26,24 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   toString() {
-    return _babonusToString(this);
+    const flattened = foundry.utils.flattenObject(this.toObject());
+    const arb = "filters.arbitraryComparison";
+    for (let i = 0; i < flattened[arb].length; i++) {
+      flattened[`${arb}.${i}`] = flattened[arb][i];
+    }
+    delete flattened[arb];
+
+    for (const key of Object.keys(flattened)) {
+      // Delete empty values (null, "", and empty arrays).
+      const ie = flattened[key];
+      if (ie === "" || ie === null || foundry.utils.isEmpty(ie)) {
+        delete flattened[key];
+      }
+      else if (ie instanceof Array) {
+        flattened[key] = ie.join(";");
+      }
+    }
+    return foundry.utils.flattenObject(flattened);
   }
 
   toDragData() {

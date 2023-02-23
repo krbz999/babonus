@@ -1,6 +1,7 @@
 import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
 import {OptionalSelector} from "./applications/rollConfigApp.mjs";
+import {_getCollection} from "./helpers/helpers.mjs";
 
 function _bonusToInt(bonus, data) {
   const f = new Roll(bonus, data).formula;
@@ -198,4 +199,29 @@ export async function _renderDialog(dialog) {
   if (!options) return;
   options.dialog = dialog;
   new OptionalSelector(options).render();
+}
+
+/**
+ * Get the item that created a template.
+ * If found, get any 'template' auras on the item and merge the data.
+ */
+export function _preCreateMeasuredTemplate(templateDoc) {
+  const origin = templateDoc.flags?.dnd5e?.origin;
+  if (!origin) return;
+  const item = fromUuidSync(origin);
+  if (!item) return;
+  const actor = item.actor;
+  if (!actor) return;
+  const tokenDocument = actor.token ?? actor.getActiveTokens(false, true)[0];
+  const disp = tokenDocument?.disposition ?? actor.prototypeToken.disposition;
+
+  const bonusData = _getCollection(item).reduce((acc, bab) => {
+    if (bab.isTemplateAura) {
+      acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
+    }
+    return acc;
+  }, {});
+  if (foundry.utils.isEmpty(bonusData)) return;
+  bonusData["flags.babonus.templateDisposition"] = disp;
+  templateDoc.updateSource(bonusData);
 }

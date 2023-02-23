@@ -9,7 +9,7 @@ import {
   MODULE_ICON,
   TYPES
 } from "../constants.mjs";
-import {_babFromDropData, _createBabonus, _onDisplayKeysDialog, _getAppId} from "../helpers/helpers.mjs";
+import {_createBabonus, _onDisplayKeysDialog} from "../helpers/helpers.mjs";
 import {getId} from "../public_api.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
@@ -66,7 +66,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   get id() {
-    return _getAppId(this.object);
+    return `${MODULE}-${this.object.id}`;
   }
 
   get isEditable() {
@@ -247,8 +247,25 @@ export class BabonusWorkshop extends FormApplication {
     const doc = this.object;
     if (!this.isEditable) return false;
     if (doc.uuid === data.uuid) return false;
-    const bab = await _babFromDropData(data, doc);
+    const bab = await this._fromDropData(data);
     return doc.setFlag(MODULE, `bonuses.${bab.id}`, bab.toObject());
+  }
+
+  /**
+   * Turn drop data into a babonus.
+   * @param {object} data   An object of babonus data or a uuid.
+   * @returns {Babonus}     The created babonus.
+   */
+  async _fromDropData(data) {
+    if (data.data) {
+      return _createBabonus(data.data, null, {parent: this.object});
+    } else if (data.uuid) {
+      const _parent = await fromUuid(data.uuid);
+      const parent = _parent instanceof TokenDocument ? _parent.actor : _parent;
+      const babData = getId(parent, data.babId).toObject();
+      delete babData.id;
+      return _createBabonus(babData, null, {parent: this.object});
+    }
   }
 
   /**

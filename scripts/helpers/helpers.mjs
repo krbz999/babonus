@@ -1,5 +1,4 @@
-import { BabonusWorkshop } from "../applications/babonus.mjs";
-import { ArbitraryComparisonField, SemicolonArrayField } from "../applications/dataFields.mjs";
+import {BabonusWorkshop} from "../applications/babonus.mjs";
 import {
   AttackBabonus,
   DamageBabonus,
@@ -7,14 +6,12 @@ import {
   SaveBabonus,
   ThrowBabonus
 } from "../applications/dataModel.mjs";
-import { BabonusKeysDialog } from "../applications/keysDialog.mjs";
-import {
-  MODULE,
-  MODULE_NAME,
-  TYPES
-} from "../constants.mjs";
-import { getId } from "../public_api.mjs";
+import {BabonusKeysDialog} from "../applications/keysDialog.mjs";
+import {MODULE_NAME, TYPES} from "../constants.mjs";
 
+/**
+ * A collection of getters for Keys dialogs when creating or editing a babonus.
+ */
 export class KeyGetter {
 
   // base weapon types.
@@ -24,31 +21,31 @@ export class KeyGetter {
       const split = uuid.split(".");
       const id = split.pop();
       const packKey = split.length ? split.join(".") : "dnd5e.items";
-      const { index } = game.packs.get(packKey);
-      const { name: label } = index.find(({ _id }) => {
+      const {index} = game.packs.get(packKey);
+      const {name: label} = index.find(({_id}) => {
         return _id === id;
       }) ?? {};
-      return { value, label };
+      return {value, label};
     });
   }
 
   // the types of damage, as well as healing and temp.
   static get damageTypes() {
-    const { damageTypes: d, healingTypes: h } = CONFIG.DND5E;
+    const {damageTypes: d, healingTypes: h} = CONFIG.DND5E;
     const entries = Object.entries(d).concat(Object.entries(h));
-    return entries.map(([value, label]) => ({ value, label }));
+    return entries.map(([value, label]) => ({value, label}));
   }
 
   // the spell schools available.
   static get spellSchools() {
     const schools = Object.entries(CONFIG.DND5E.spellSchools);
-    return schools.map(([value, label]) => ({ value, label }));
+    return schools.map(([value, label]) => ({value, label}));
   }
 
   // ability score keys.
   static get abilities() { // TODO: fix in 2.2.x.
     const abilities = Object.entries(CONFIG.DND5E.abilities);
-    return abilities.map(([value, label]) => ({ value, label }));
+    return abilities.map(([value, label]) => ({value, label}));
   }
 
   static get saveAbilities() {
@@ -73,10 +70,10 @@ export class KeyGetter {
 
   // spell component types.
   static get spellComponents() {
-    const { spellComponents: s, spellTags: t } = CONFIG.DND5E;
+    const {spellComponents: s, spellTags: t} = CONFIG.DND5E;
     const entries = Object.entries(s).concat(Object.entries(t));
-    return entries.map(([value, { label }]) => {
-      return { value, label };
+    return entries.map(([value, {label}]) => {
+      return {value, label};
     }).sort((a, b) => {
       return a.label.localeCompare(b.label);
     });
@@ -85,21 +82,21 @@ export class KeyGetter {
   // spell levels.
   static get spellLevels() {
     const levels = Object.entries(CONFIG.DND5E.spellLevels);
-    return levels.map(([value, label]) => ({ value, label }));
+    return levels.map(([value, label]) => ({value, label}));
   }
 
   // all weapon properties.
   static get weaponProperties() {
     const prop = Object.entries(CONFIG.DND5E.weaponProperties);
-    return prop.map(([value, label]) => ({ value, label }));
+    return prop.map(([value, label]) => ({value, label}));
   }
 
   // all status effects.
   static get effects() {
     const effects = CONFIG.statusEffects;
-    return effects.reduce((acc, { id, icon }) => {
+    return effects.reduce((acc, {id, icon}) => {
       if (!id) return acc;
-      acc.push({ value: id, label: id, icon })
+      acc.push({value: id, label: id, icon})
       return acc;
     }, []).sort((a, b) => {
       return a.value.localeCompare(b.value);
@@ -122,20 +119,25 @@ export class KeyGetter {
   static get creatureTypes() {
     const creatureTypes = CONFIG.DND5E.creatureTypes;
     return Object.entries(creatureTypes).map(([key, local]) => {
-      return { value: key, label: game.i18n.localize(local) };
+      return {value: key, label: game.i18n.localize(local)};
     }).sort((a, b) => {
       return a.label.localeCompare(b.label);
     });
   }
 }
 
-// Gets the minimum distance between two tokens, evaluating all grid spaces they occupy.
+/**
+ * Get the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
+ * @param {Token5e} tokenA    One token placeable.
+ * @param {Token5e} tokenB    Another token placeable.
+ * @returns {number}          The minimum distance.
+ */
 export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   const A = _getAllTokenGridSpaces(tokenA.document);
   const B = _getAllTokenGridSpaces(tokenB.document);
   const rays = A.flatMap(a => {
     return B.map(b => {
-      return { ray: new Ray(a, b) };
+      return {ray: new Ray(a, b)};
     });
   });
   const dist = canvas.scene.grid.distance; // 5ft.
@@ -147,74 +149,34 @@ export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   return Math.max(Math.min(...distances), elevationDiff);
 }
 
-// Get the upper left corners of all grid spaces a token document occupies.
+/**
+ * Get all the upper left corners of all grid spaces one token occupies.
+ * @param {TokenDocument5e} tokenDoc    The token document.
+ * @returns {Array}                     An array of x and y coordinate objects.
+ */
 export function _getAllTokenGridSpaces(tokenDoc) {
-  const { width, height, x, y } = tokenDoc;
-  if (width <= 1 && height <= 1) return [{ x, y }];
-  const centers = [];
+  const {width, height, x, y} = tokenDoc;
+  if (width <= 1 && height <= 1) return [{x, y}];
+  const corners = [];
   const grid = canvas.grid.size;
   for (let a = 0; a < width; a++) {
     for (let b = 0; b < height; b++) {
-      centers.push({
+      corners.push({
         x: x + a * grid,
         y: y + b * grid
       });
     }
   }
-  return centers;
+  return corners;
 }
 
+//
 /**
- * Returns an array of tokens that are within radius ft of the source token.
- * source: source token placeable
- * radius: radius of the aura (in ft)
- * Credit to @Freeze#2689 for much artistic aid.
+ * Create a Babonus with the given id (or a new one if none is provided).
+ * @param {object} data     An object of babonus data.
+ * @param {string} id       Optionally an id to assign the babonus.
+ * @param {object} options  Additional options that modify the babonus creation.
  */
-export function _getTokensWithinRadius(source, radiusFt) {
-  const tokenRadius = Math.abs(source.document.x - source.center.x);
-  const pixels = radiusFt / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
-  const captureArea = new PIXI.Circle(source.center.x, source.center.y, pixels);
-  const grid = canvas.grid.size;
-  return canvas.tokens.placeables.filter(t => {
-    if (t === source) return false;
-
-    const { width, height, x, y } = t.document;
-    if (width <= 1 && height <= 1) return captureArea.contains(t.center.x, t.center.y);
-    for (let a = 0; a < width; a++) {
-      for (let b = 0; b < height; b++) {
-        const test = captureArea.contains(...canvas.grid.getCenter(x + a * grid, y + b * grid));
-        if (test) return true;
-      }
-    }
-    return false;
-  });
-}
-
-// Turn a babonus into something that can easily be 'pasted' into the ui.
-export function _babonusToString(babonus) {
-  let flattened = foundry.utils.flattenObject(babonus);
-  for (const key of Object.keys(flattened)) {
-    const path = "schema.fields." + key.split(".").join(".fields.")
-    const field = foundry.utils.getProperty(babonus, path);
-    if (field instanceof SemicolonArrayField) flattened[key] = flattened[key]?.join(";");
-    else if (field instanceof ArbitraryComparisonField && flattened[key]) {
-      const a = Object.assign({}, flattened[key]);
-      flattened[key] = foundry.utils.flattenObject(a);
-      flattened = foundry.utils.flattenObject(flattened);
-    }
-    // Delete empty values (null, "", and empty arrays).
-    const ie = flattened[key];
-    if (ie === "" || ie === null || foundry.utils.isEmpty(ie)) delete flattened[key];
-  }
-  return flattened;
-}
-
-// same app id everywhere for lookup reasons.
-export function _getAppId(object) {
-  return `${MODULE}-${object.id}`;
-}
-
-// create a Babonus with the given id (or a new one if none is provided).
 export function _createBabonus(data, id, options = {}) {
   const types = TYPES.map(t => t.value);
   if (!types.includes(data.type)) {
@@ -234,61 +196,42 @@ export function _createBabonus(data, id, options = {}) {
   return BAB;
 }
 
+/**
+ * Helper function to render the build-a-bonus application for a document with the correct title.
+ * @param {Document5e} object   An actor, item, effect, or template.
+ * @returns {BabonusWorkshop}   The rendered workshop.
+ */
 export function _openWorkshop(object) {
   return new BabonusWorkshop(object, {
     title: `${MODULE_NAME}: ${object.name ?? object.label}`
   }).render(true);
 }
 
-// Returns an array of the bonuses of a given type on the object.
-export function _getType(object, type) {
-  return _getCollection(object).filter(b => b.type === type);
-}
-
-// Returns a collection of bonuses on the object.
+/**
+ * Get a Collection of babonuses from a document.
+ * @param {Document5e} object   An actor, item, effect, or template.
+ * @returns {Collection}        A collection of babonuses.
+ */
 export function _getCollection(object) {
-  if (!object) return new foundry.utils.Collection();
-  const bonuses = Object.entries(object.getFlag(MODULE, "bonuses") ?? {});
+  const bonuses = Object.entries(object.flags.babonus?.bonuses ?? {});
   const contents = bonuses.reduce((acc, [id, data]) => {
     if (!foundry.data.validators.isValidId(id)) return acc;
     try {
-      const bab = _createBabonus(data, id, { parent: object });
+      const bab = _createBabonus(data, id, {parent: object});
       acc.push([id, bab]);
-      return acc;
     } catch (err) {
       console.warn(err);
-      return acc;
     }
+    return acc;
   }, []);
   return new foundry.utils.Collection(contents);
 }
 
-export async function _babFromDropData(data, parent) {
-  if (data.data) return _createBabonus(data.data, null, { parent });
-  else if (data.uuid) {
-    const pre = await fromUuid(data.uuid);
-    const prevParent = pre instanceof TokenDocument ? pre.actor : pre;
-    const babonusData = getId(prevParent, data.babId).toObject();
-    delete babonusData.id;
-    return _createBabonus(babonusData, null, { parent });
-  }
-  return null;
-}
-
-export async function _babFromUuid(uuid) {
-  try {
-    const parts = uuid.split(".");
-    const id = parts.pop();
-    parts.pop();
-    const parentUuid = parts.join(".");
-    const parent = await fromUuid(parentUuid);
-    return getId(parent, id) ?? null;
-  } catch (err) {
-    console.warn(err);
-    return null;
-  }
-}
-
+/**
+ * Helper function to display the keys dialog and subsequently place the
+ * selected values in the input fields that its button was placed near.
+ * @param {PointerEvent} event      The initiating click event.
+ */
 export async function _onDisplayKeysDialog(event) {
   const formGroup = event.currentTarget.closest(".form-group");
   const filterId = formGroup.dataset.id;
@@ -309,7 +252,7 @@ export async function _onDisplayKeysDialog(event) {
   const selected = await BabonusKeysDialog.prompt({
     label: game.i18n.localize("BABONUS.KeysDialogApplySelection"),
     rejectClose: false,
-    options: { filterId, appId: this.appId, lists, double },
+    options: {filterId, appId: this.appId, lists, double},
     callback: function(html) {
       const selector = "td:nth-child(2) input[type='checkbox']:checked";
       const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
