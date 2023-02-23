@@ -120,7 +120,7 @@ export class OptionalSelector {
    */
   _getDataNoConsume(bonus) {
     const data = {
-      action: "no-consume",
+      action: "consume-none",
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
@@ -137,7 +137,7 @@ export class OptionalSelector {
     this.form.querySelectorAll("[data-action='consume-slots']").forEach(n => n.addEventListener("click", this._onApplySlotsOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-slots-scale']").forEach(n => n.addEventListener("click", this._onApplyScalingSlotsOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-effects']").forEach(n => n.addEventListener("click", this._onApplyEffectsOption.bind(this)));
-    this.form.querySelectorAll("[data-action='no-consume']").forEach(n => n.addEventListener("click", this._onApplyNoConsumeOption.bind(this)));
+    this.form.querySelectorAll("[data-action='consume-none']").forEach(n => n.addEventListener("click", this._onApplyNoConsumeOption.bind(this)));
   }
 
   /** Custom rendering method */
