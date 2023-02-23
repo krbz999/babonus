@@ -9,8 +9,7 @@ import {
   MODULE_ICON,
   TYPES
 } from "../constants.mjs";
-import {_createBabonus, _onDisplayKeysDialog} from "../helpers/helpers.mjs";
-import {getId} from "../public_api.mjs";
+import {_createBabonus, _getCollection, _onDisplayKeysDialog} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 
@@ -234,7 +233,7 @@ export class BabonusWorkshop extends FormApplication {
     const label = event.currentTarget.closest(".bonus");
     let dragData;
     if (label.dataset.id) {
-      const bab = getId(this.object, label.dataset.id);
+      const bab = _getCollection(this.object).get(label.dataset.id);
       dragData = bab.toDragData();
     }
     if (!dragData) return;
@@ -262,7 +261,7 @@ export class BabonusWorkshop extends FormApplication {
     } else if (data.uuid) {
       const _parent = await fromUuid(data.uuid);
       const parent = _parent instanceof TokenDocument ? _parent.actor : _parent;
-      const babData = getId(parent, data.babId).toObject();
+      const babData = _getCollection(parent).get(data.babId).toObject();
       delete babData.id;
       return _createBabonus(babData, null, {parent: this.object});
     }
@@ -420,7 +419,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleAura(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = getId(this.object, id);
+    const bab = _getCollection(this.object).get(id);
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab}).render(true);
@@ -447,7 +446,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleConsume(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = getId(this.object, id);
+    const bab = _getCollection(this.object).get(id);
     const path = `bonuses.${id}.consume.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new ConsumptionDialog(this.object, {bab}).render(true);

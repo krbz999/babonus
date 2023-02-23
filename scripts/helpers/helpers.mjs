@@ -170,7 +170,6 @@ export function _getAllTokenGridSpaces(tokenDoc) {
   return corners;
 }
 
-//
 /**
  * Create a Babonus with the given id (or a new one if none is provided).
  * @param {object} data     An object of babonus data.

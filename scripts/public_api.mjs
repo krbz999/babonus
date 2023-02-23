@@ -2,16 +2,11 @@ import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
 import {
   _getMinimumDistanceBetweenTokens,
-  _getAppId,
   _createBabonus,
   _openWorkshop,
   _getAllTokenGridSpaces,
-  _getType,
-  _getCollection,
-  _babFromUuid,
-  _getTokensWithinRadius
+  _getCollection
 } from "./helpers/helpers.mjs";
-import {_getAllContainingTemplateDocuments} from "./helpers/templateHelpers.mjs";
 import {migration} from "./migration.mjs";
 
 export function _createAPI() {
@@ -42,132 +37,142 @@ export function _createAPI() {
 }
 
 /**
- * Returns all bonuses that applies to a specific roll.
- * @param {Actor5e|Item5e} object       The actor (for hitdie and throw) or item (for attack, damage, save).
- * @param {String} type                 The type of rolling (attack, damage, save, throw, hitdie).
- * @param {Object} options              Additional context for the inner methods.
- * @param {String} options.throwType    The type of saving throw (key of an ability, 'death' or 'concentration').
- * @param {Boolean} options.isConcSave  Whether the saving throw is for maintaining concentration.
+ * Return all bonuses that applies to a specific roll.
+ * @param {Document5e} object           The actor (for hitdie and throw) or item (for attack, damage, save).
+ * @param {string} type                 The type of rolling (attack, damage, save, throw, hitdie).
+ * @param {object} options              Additional context for the inner methods.
+ * @param {string} options.throwType    The type of saving throw (key of an ability, 'death' or 'concentration').
+ * @param {boolean} options.isConcSave  Whether the saving throw is for maintaining concentration.
+ * @returns {array<Babonus>}            An array of valid babonuses.
  */
 function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false} = {}) {
   if (type === "hitdie") return FILTER.hitDieCheck(object);
   else if (type === "throw") return FILTER.throwCheck(object, throwType, {throwType, isConcSave});
   else if (["attack", "damage", "save"].includes(type)) return FILTER.itemCheck(object, type);
-  else return null;
 }
 
 /**
- * Returns the bonus with the given name.
- * If multiple are found, returns the first one.
- * Returned in the form of [id, values].
+ * Return a babonus that has the given name. If more are found, returns the first found.
+ * @param {Document5e} object   The document that has the babonus.
+ * @param {string} name         The name of the babonus.
+ * @returns {Babonus}           The found babonus.
  */
 function getName(object, name) {
   return _getCollection(object).getName(name);
 }
 
 /**
- * Returns the names of all bonuses on the document.
+ * Return the names of all bonuses on the document.
+ * @param {Document5e} object   The document that has the babonuses.
+ * @returns {array<string>}     An array of names.
  */
 function getNames(object) {
-  const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.entries(flag).filter(([id, values]) => {
-    return foundry.data.validators.isValidId(id);
-  }).map(([id, values]) => values.name);
+  return Object.values(object.flags.babonus?.bonuses ?? {}).filter(({name}) => name);
 }
 
 /**
- * Returns the bonus with the given id.
- * Returned in the form of [id, values].
+ * Return a babonus that has the given id.
+ * @param {Document5e} object   The document that has the babonus.
+ * @param {string} id           The id of the babonus.
+ * @returns {Babonus}           The found babonus.
  */
-export function getId(object, id) {
-  if (!id) return null;
-  if (!foundry.data.validators.isValidId(id)) return null;
+function getId(object, id) {
   return _getCollection(object).get(id);
 }
 
 /**
- * Returns the ids of all bonuses on the document.
+ * Return the ids of all bonuses on the document.
+ * @param {Document5e} object   The document that has the babonuses.
+ * @returns {array<string>}     An array of ids.
  */
 function getIds(object) {
-  const flag = object.getFlag(MODULE, "bonuses") ?? {};
-  return Object.keys(flag).filter(id => {
-    return foundry.data.validators.isValidId(id);
-  });
+  return Object.keys(object.flags.babonus?.bonuses ?? {}).filter(id => foundry.data.validators.isValidId(id))
 }
 
 /**
- * Returns an array of the bonuses of a given type.
+ * Return an array of the bonuses of a given type on the document.
+ * @param {Document5e} object     The document that has the babonuses.
+ * @param {array<Babonus>} type    The type of babonuses to find.
  */
 function getType(object, type) {
-  return _getType(object, type);
+  return _getCollection(object).filter(b => b.type === type);
 }
 
 /**
- * Returns the ids of all templates on the scene that contain the TokenDocument.
+ * Return the ids of all templates on the scene if they contain the token document.
+ * @param {TokenDocument5e} tokenDoc    The token document.
+ * @returns {array<string>}             An array of ids.
  */
 function getAllContainingTemplates(tokenDoc) {
-  return _getAllContainingTemplateDocuments(tokenDoc).map(t => t.id);
+  const size = tokenDoc.parent.grid.size;
+  const centers = _getAllTokenGridSpaces(tokenDoc).map(({x, y}) => {
+    return {x: x + size / 2, y: y + size / 2};
+  });
+
+  return tokenDoc.parent.templates.filter(template => {
+    return centers.some(({x, y}) => {
+      return template.object.shape.contains(x - template.x, y - template.y);
+    });
+  }).map(t => t.id);
 }
 
 /**
- * Delete the bonus with the given id from the document.
- * Returns null if the bonus is not found.
+ * Delete a babonus from a document.
+ * @param {Document5e} object       A measured template, active effect, actor, or item to delete from.
+ * @param {string} id               The id of the babonus to remove.
+ * @returns {Promise<Document5e>}   The updated document.
  */
 async function deleteBonus(object, id) {
   const bonus = getId(object, id);
   if (!bonus) return null;
-  await object.update({[`flags.babonus.bonuses.-=${bonus.id}`]: null});
-  _rerenderApp(object);
-  return r;
+  return object.update({[`flags.babonus.bonuses.-=${bonus.id}`]: null});
 }
 
 /**
- * Copy the bonus from one document to another.
- * Returns null if the bonus is not found on the original.
+ * Copy a babonus from a document to another.
+ * @param {Document5e} original     A measured template, active effect, actor, or item to copy from.
+ * @param {Document5e} other        A measured template, active effect, actor, or item to copy to.
+ * @param {string} id               The id of the babonus to copy.
+ * @returns {Promise<Document5e>}   The original after the update.
  */
 async function copyBonus(original, other, id) {
-  const data = getId(original, id)?.toObject();
-  if (!data) return null;
-
-  const rand = foundry.utils.randomID();
-  data.id = rand;
-  const key = `bonuses.${rand}`;
-  const r = await other.setFlag(MODULE, key, data);
-  _rerenderApp(other);
-  return r;
+  const data = getId(original, id).toObject();
+  data.id = foundry.utils.randomID();
+  return other.update({[`flags.babonus.bonuses.${data.id}`]: data});
 }
 
 /**
- * Moves a bonus from one document to another.
- * Returns null if the bonus is not found on the original,
- * or if the other already has a bonus by that id.
+ * Move a babonus from a document to another.
+ * @param {Document5e} original     A measured template, active effect, actor, or item to move from.
+ * @param {Document5e} other        A measured template, active effect, actor, or item to move to.
+ * @param {string} id               The id of the babonus to move.
+ * @returns {Promise<Document5e>}   The other document after the update.
  */
 async function moveBonus(original, other, id) {
   const copy = await copyBonus(original, other, id);
   if (!copy) return null;
-  const r = await deleteBonus(original, id);
-  _rerenderApp(original);
-  return r;
+  return deleteBonus(original, id);
 }
 
 /**
- * Toggle the bonus with the given id on the document.
- * Returns null if the bonus was not found.
+ * Toggle a babonus on a document
+ * @param {Document5e} object       A measured template, active effect, actor, or item.
+ * @param {string} id               The id of the babonus to toggle.
+ * @param {boolean} state           A specific toggle state to set a babonus to (true or false).
+ * @returns {Promise<Document5e>}   The document after the update.
  */
 async function toggleBonus(object, id, state = null) {
   const bonus = getId(object, id);
   if (!bonus) return null;
-  const key = `bonuses.${bonus.id}.enabled`;
-  let r;
-  if (state === null) r = await object.setFlag(MODULE, key, !bonus.enabled);
-  else r = await object.setFlag(MODULE, key, !!state);
-  _rerenderApp(object);
-  return r;
+  const value = (state === null) ? !bonus.enabled : !!state;
+  return object.update({[`flags.babonus.bonuses.${id}.enabled`]: value});
 }
 
 /**
- * Return an object of arrays of items and effects
- * on the given document that have a bonus embedded in them.
+ * Return an object of arrays of items and effects on the given document
+ * that have one or more babonuses embedded in them.
+ * @param {Document5e} object     An actor or item with embedded documents.
+ * @returns {object}              An object with an array of effects and array of items.
  */
 function findEmbeddedDocumentsWithBonuses(object) {
   let items = [];
@@ -187,48 +192,68 @@ function findEmbeddedDocumentsWithBonuses(object) {
 }
 
 /**
- * Returns all token documents that are in range of an aura.
- * Returns null if the bonus is not an aura, or if
- * the bonus is not on an actor with an active token.
+ * Return all token documents that are in range of an aura.
+ * @param {Document5e} object           The actor, item, or effect with the babonus.
+ * @param {string} id                   The id of the babonus.
+ * @returns {array<TokenDocument5e>}    An array of token documents.
  */
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
-  if (!bonus) return null;
-  const [_id, {aura}] = bonus;
-  if (!aura) return null;
-  if (aura.isTemplate) return null;
-  const actor = object.actor ?? object;
-  const tokenDoc = actor?.token ?? actor?.getActiveTokens(false, true)[0];
-  if (!tokenDoc) return null;
-  if (aura.range === -1) {
-    return canvas.scene.tokens.filter(t => t !== tokenDoc);
-  }
+  if (!bonus.hasAura) return null;
+  let actor;
+  if (object instanceof Actor) actor = object;
+  else if (object instanceof Item) actor = object.actor;
+  else if (object instanceof ActiveEffect) actor = object.parent;
+  const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
+  if (bonus.aura.range === -1) return canvas.scene.tokens.filter(t => t !== tokenDoc);
   return canvas.scene.tokens.filter(t => {
     if (t === tokenDoc) return false;
     const distance = _getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
-    return aura.range >= distance;
+    return bonus.aura.range >= distance;
   });
 }
 
 /**
- * Returns an array of tokens that are within radius ft of the source token.
- * source: source token placeable
- * radius: radius of the aura (in ft)
+ * Return an array of tokens that are within a radius of the source token.
+ * Credit to @Freeze#2689 for much artistic aid.
+ * @param {Token5e} source      The source token placeable.
+ * @param {number} radius       The radius (usually feet) to extend from the source.
+ * @returns {array<Token5e>}    An array of token placeables, excluding the source.
  */
 function findTokensInRangeOfToken(source, radius) {
-  return _getTokensWithinRadius(source, radius);
+  const tokenRadius = Math.abs(source.document.x - source.center.x);
+  const pixels = radius / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
+  const captureArea = new PIXI.Circle(source.center.x, source.center.y, pixels);
+  const grid = canvas.grid.size;
+  return canvas.tokens.placeables.filter(t => {
+    if (t === source) return false;
+
+    const {width, height, x, y} = t.document;
+    if (width <= 1 && height <= 1) return captureArea.contains(t.center.x, t.center.y);
+    for (let a = 0; a < width; a++) {
+      for (let b = 0; b < height; b++) {
+        const test = captureArea.contains(...canvas.grid.getCenter(x + a * grid, y + b * grid));
+        if (test) return true;
+      }
+    }
+    return false;
+  });
 }
 
 /**
- * Gets the minimum distance between two token placeables,
- * evaluating all grid spaces they occupy.
+ * Return the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
+ * @param {Token5e} tokenA    One token placeable.
+ * @param {Token5e} tokenB    Another token placeable.
+ * @returns {number}          The minimum distance.
  */
 function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   return _getMinimumDistanceBetweenTokens(tokenA, tokenB);
 }
 
 /**
- * Renders the Build-a-Bonus workship for the document.
+ * Render the build-a-bonus application for a document.
+ * @param {Document5e} object   An actor, item, or effect.
+ * @returns {BabonusWorkshop}   The rendered workshop.
  */
 function openBabonusWorkshop(object) {
   const validDocumentType = (
@@ -244,17 +269,18 @@ function openBabonusWorkshop(object) {
 }
 
 /**
- * Create a babonus given a babonusData object.
- * This does not save the babonus on the actor.
+ * Create a babonus in memory with the given data.
+ * @param {object} data         An object of babonus data.
+ * @param {Document5e} parent   The document to act as parent of the babonus.
  */
 function createBabonus(data, parent = null) {
   return _createBabonus(data, undefined, {parent});
 }
 
 /**
- * Split the scene's tokens into three arrays using their disposition.
- * @param {Array} sceneTokens All tokens on the scene that are not the single token.
- * @returns {Object<Array>}   An object of the three arrays.
+ * Return the scene's token documents in three arrays split by disposition.
+ * @param {Scene} scene       A scene that contains tokens.
+ * @returns {object<array>}   An object of the three arrays.
  */
 function sceneTokensByDisposition(scene) {
   const {HOSTILE, FRIENDLY, NEUTRAL} = CONST.TOKEN_DISPOSITIONS;
@@ -268,29 +294,38 @@ function sceneTokensByDisposition(scene) {
 }
 
 /**
- * Returns an array of occupied grid spaces by a token document.
+ * Return all the upper left corners of all grid spaces one token occupies.
+ * @param {TokenDocument5e} tokenDoc    The token document.
+ * @returns {array<object>}             An array of x and y coordinate objects.
  */
 function getOccupiedGridSpaces(tokenDoc) {
   return _getAllTokenGridSpaces(tokenDoc);
 }
 
 /**
- * Returns a babonus from its uuid.
+ * Return a babonus using its uuid.
+ * @param {string} uuid         The babonus uuid.
+ * @returns {Promise<Babonus>}  The found babonus.
  */
 async function fromUuid(uuid) {
-  return _babFromUuid(uuid);
+  try {
+    const parts = uuid.split(".");
+    const id = parts.pop();
+    parts.pop();
+    const parentUuid = parts.join(".");
+    const parent = await fromUuid(parentUuid);
+    return getId(parent, id) ?? null;
+  } catch (err) {
+    console.warn(err);
+    return null;
+  }
 }
 
 /**
- * Returns the collection of bonuses on the document.
+ * Return the collection of bonuses on the document.
+ * @param {Document5e} object       An actor, item, effect, or template.
+ * @returns {Collection<Babonus>}   A collection of babonuses.
  */
 function getCollection(object) {
   return _getCollection(object);
-}
-
-function _rerenderApp(object) {
-  const apps = Object.values(ui.windows);
-  const id = _getAppId(object);
-  const app = apps.find(a => a.id === id);
-  return app?.render();
 }
