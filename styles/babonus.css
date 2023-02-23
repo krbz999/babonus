@@ -403,7 +403,7 @@
 }
 
 /* selects */
-.babonus form select {
+.babonus form .form-group .form-fields select {
   flex: 0;
   min-width: fit-content;
 }
