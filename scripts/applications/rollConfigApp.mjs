@@ -1,6 +1,7 @@
 import {MODULE} from "../constants.mjs";
 
 export class OptionalSelector {
+
   constructor(options) {
     // The bonuses.
     this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));

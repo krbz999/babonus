@@ -143,8 +143,6 @@
   "BABONUS.SettingsDisableCustomScriptFilterName": "Désactiver le filtre \"Script personnalisé\".",
   "BABONUS.SettingsDisplayLabelHint": "Si cette case est cochée, l'étiquette est affichée dans l'en-tête des objets et des effets actifs.",
   "BABONUS.SettingsDisplayLabelName": "Afficher l'étiquette",
-  "BABONUS.SpecialTraitsHint": "Ouvrez l'atelier Build-a-Bonus. Vous pouvez y créer des bonus situationnels qui s'appliqueront automatiquement à divers jets, tels que les jets de sauvegarde, les jets de dégâts et les jets de dé de vie.",
-  "BABONUS.SpecialTraitsName": "Atelier Build-a-Bonus",
   "BABONUS.TypeAttackBonusCriticalRangeTooltip": "Un nombre entier à soustraire de la zone critique du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.TypeAttackBonusFumbleRangeTooltip": "Un nombre entier à ajouter à la zone d'échec du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.TypeAttackBonusLabel": "Bonus d'attaque",

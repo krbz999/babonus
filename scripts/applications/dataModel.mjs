@@ -299,12 +299,10 @@ class ItemBabonus extends Babonus {
     return foundry.utils.mergeObject(super.defineSchema(), {
       filters: new foundry.data.fields.SchemaField({
         itemTypes: new FilteredArrayField(new foundry.data.fields.StringField({
-          choices: ITEM_ROLL_TYPES,
-          blank: true
+          choices: ITEM_ROLL_TYPES, blank: true
         })),
         attackTypes: new FilteredArrayField(new foundry.data.fields.StringField({
-          choices: ATTACK_TYPES,
-          blank: true
+          choices: ATTACK_TYPES, blank: true
         })),
         damageTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.damageTypes.map(t => t.value)
@@ -317,8 +315,7 @@ class ItemBabonus extends Babonus {
             choices: KeyGetter.spellComponents.map(t => t.value), blank: true
           })),
           match: new foundry.data.fields.StringField({
-            nullable: true, initial: null,
-            choices: Object.keys(SPELL_COMPONENT_MATCHING)
+            nullable: true, initial: null, choices: Object.keys(SPELL_COMPONENT_MATCHING)
           })
         }),
         spellLevels: new FilteredArrayField(new foundry.data.fields.StringField({

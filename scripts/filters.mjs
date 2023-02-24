@@ -19,10 +19,11 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
       itemOnly: false,                                      // whether this bonus only applies to the item on which it is created (attack/damage/save only).
       optional: false,                                      // whether this bonus is toggleable in the roll config.
       consume: {
-        enabled: true,                                      // whether the bonus consumes uses/quantity off its item or slots off its actor.
-        scales: true,                                       // whether the consumption scales between the min and max values given.
-        type: "uses",                                       // whether the consumption is limited "uses" or "quantity" or "slots".
-        value: {min: 1, max: 3}                             // the minimum and maximum number consumed when applying the bonus.
+        enabled: true,                                      // Whether the bonus consumes uses/quantity off its item or slots off its actor.
+        scales: true,                                       // Whether the consumption scales between the min and max values given.
+        type: "uses",                                       // Whether the consumption is limited "uses" or "quantity" or "slots".
+        value: {min: 1, max: 3},                            // The minimum and maximum number consumed when applying the bonus.
+        formula: "1d8"                                      // A formula with which the bonus scales, default being the bonus formula itself.
       },
       aura: {
         enabled: true,                                      // Whether this should be an aura.
@@ -61,7 +62,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         attackTypes: ["mwak", "rwak", "msak", "rsak"],      // The type of attack.
 
         // ATTACK, DAMAGE, SAVE:
-        damageTypes: ["fire", "cold", "bludgeoning"],       // The type of damage the item must have.
+        damageTypes: ["fire", "cold", "bludgeoning"],       // The type of damage or healing the item must have.
         abilities: ["int"],                                 // The ability the item must be using.
         saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
         itemTypes: ["spell", "weapon"],                     // The item types to which it applies; also "feat", "equipment", "consumable".
@@ -70,7 +71,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         throwTypes: ["con", "death", "concentration"],      // The type of saving throw to which it applies.
 
         // SPELL:
-        spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one or match "ANY".
+        spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one, or match "ANY".
         spellLevels: ['0','1','2','3'],                     // The level the spell must be.
         spellSchools: ["evo", "con"],                       // The school the spell must be.
 

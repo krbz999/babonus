@@ -1,10 +1,8 @@
 import {
-  _getActiveEffectConfigHeaderButtons,
-  _getItemSheetHeaderButtons,
-  _renderActorSheetFlags,
-  _setup
-} from "./scripts/setup.mjs";
-import {
+  _addHeaderButtonActor,
+  _addHeaderButtonEffect,
+  _addHeaderButtonItem,
+  _createSettings,
   _preCreateMeasuredTemplate,
   _preDisplayCard,
   _preRollAbilitySave,
@@ -22,10 +20,10 @@ Hooks.once("init", () => {
 });
 
 // Header buttons and special traits.
-Hooks.on("getActiveEffectConfigHeaderButtons", _getActiveEffectConfigHeaderButtons);
-Hooks.on("getItemSheetHeaderButtons", _getItemSheetHeaderButtons);
-Hooks.on("renderActorSheetFlags", _renderActorSheetFlags);
-Hooks.once("setup", _setup);
+Hooks.on("getActorSheetHeaderButtons", _addHeaderButtonActor);
+Hooks.on("getActiveEffectConfigHeaderButtons", _addHeaderButtonEffect);
+Hooks.on("getItemSheetHeaderButtons", _addHeaderButtonItem);
+Hooks.once("setup", _createSettings);
 
 // Roll hooks, dialog injection, etc.
 Hooks.on("preCreateMeasuredTemplate", _preCreateMeasuredTemplate);

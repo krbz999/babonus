@@ -41,7 +41,7 @@ export class BabonusKeysDialog extends Dialog {
   }
 
   /**
-   * Toggle all inputs in a column.
+   * Toggle all inputs in a column to be checked if the first is unchecked, and vice versa.
    * @param {PointerEvent} event    The initiating click event.
    */
   _onToggleAll(event) {

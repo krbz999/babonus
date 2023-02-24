@@ -52,11 +52,6 @@ export const ATTACK_TYPES = [
   "mwak", "rwak", "msak", "rsak"
 ];
 
-// item types that cannot GRANT a bonus.
-export const ILLEGAL_ITEM_TYPES = [
-  "background", "class", "subclass", "race"
-];
-
 // item types that can get a bonus when rolling attack, damage, or showing a save dc.
 export const ITEM_ROLL_TYPES = [
   "consumable", "equipment", "feat", "spell", "weapon"

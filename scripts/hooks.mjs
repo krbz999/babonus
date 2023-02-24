@@ -1,14 +1,26 @@
-import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
 import {OptionalSelector} from "./applications/rollConfigApp.mjs";
-import {_getCollection} from "./helpers/helpers.mjs";
+import {_getCollection, _openWorkshop} from "./helpers/helpers.mjs";
+import {
+  MODULE, MODULE_ICON,
+  SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
+  SETTING_HEADERLABEL,
+  SETTING_MIGRATION_VERSION
+} from "./constants.mjs";
 
+/**
+ * Helper method to evaluate roll data into an integer.
+ * @param {string} bonus    The formula to evaluate.
+ * @param {object} data     The available roll data.
+ * @returns {number}        The bonus, or zero if invalid.
+ */
 function _bonusToInt(bonus, data) {
   const f = new Roll(bonus, data).formula;
   if (!Roll.validate(f)) return 0;
   return Roll.safeEval(f);
 }
 
+/* When you force a saving throw... */
 export function _preDisplayCard(item, chatData) {
   if (!item.hasSave) return;
 
@@ -38,6 +50,7 @@ export function _preDisplayCard(item, chatData) {
   chatData.content = DIV.innerHTML;
 }
 
+/** When you make an attack roll... */
 export function _preRollAttack(item, rollConfig) {
   // get bonuses:
   const spellLevel = rollConfig.data.item.level;
@@ -79,6 +92,7 @@ export function _preRollAttack(item, rollConfig) {
   if ((rollConfig.fumble < 1) && (rollConfig.fumble !== -Infinity)) rollConfig.fumble = 1;
 }
 
+/** When you make a damage roll... */
 export function _preRollDamage(item, rollConfig) {
   // get bonus:
   const spellLevel = rollConfig.data.item.level;
@@ -119,6 +133,7 @@ export function _preRollDamage(item, rollConfig) {
   }, rollConfig.criticalBonusDamage ?? "");
 }
 
+/** When you roll a death saving throw... */
 export function _preRollDeathSave(actor, rollConfig) {
   // get bonus:
   const bonuses = FILTER.throwCheck(actor, "death", {});
@@ -153,6 +168,7 @@ export function _preRollDeathSave(actor, rollConfig) {
   rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.bonus;
 }
 
+/** When you roll a saving throw... */
 export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   // get bonus:
   const bonuses = FILTER.throwCheck(actor, abilityId, {
@@ -179,6 +195,7 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   }
 }
 
+/** When you roll a hit die... */
 export function _preRollHitDie(actor, rollConfig, denomination) {
   const bonuses = FILTER.hitDieCheck(actor);
   if (!bonuses.length) return;
@@ -194,6 +211,7 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
   rollConfig.formula = rollConfig.formula.replace(denomination, denom);
 }
 
+/** Render the optional bonus selector on a roll dialog. */
 export async function _renderDialog(dialog) {
   const options = dialog.options.babonus;
   if (!options) return;
@@ -201,10 +219,7 @@ export async function _renderDialog(dialog) {
   new OptionalSelector(options).render();
 }
 
-/**
- * Get the item that created a template.
- * If found, get any 'template' auras on the item and merge the data.
- */
+/** Inject babonus data on created templates if they have an associated item. */
 export function _preCreateMeasuredTemplate(templateDoc) {
   const origin = templateDoc.flags?.dnd5e?.origin;
   if (!origin) return;
@@ -224,4 +239,78 @@ export function _preCreateMeasuredTemplate(templateDoc) {
   if (foundry.utils.isEmpty(bonusData)) return;
   bonusData["flags.babonus.templateDisposition"] = disp;
   templateDoc.updateSource(bonusData);
+}
+
+/**
+ ****************************************************
+ *
+ *
+ *                     SETUP
+ *
+ *
+ ****************************************************
+ */
+
+/* Settings */
+export function _createSettings() {
+  game.settings.register(MODULE, SETTING_HEADERLABEL, {
+    name: "BABONUS.SettingsDisplayLabelName",
+    hint: "BABONUS.SettingsDisplayLabelHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, {
+    name: "BABONUS.SettingsDisableCustomScriptFilterName",
+    hint: "BABONUS.SettingsDisableCustomScriptFilterHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
+  game.settings.register(MODULE, SETTING_MIGRATION_VERSION, {
+    name: "Migration Version",
+    hint: "Migration Version",
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0
+  });
+}
+
+/* Header Buttons in actors, items, effects. */
+export function _addHeaderButtonActor(app, array) {
+  if (app.document.type === "group") return;
+  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  const button = {
+    class: MODULE, icon: MODULE_ICON,
+    onclick: () => _openWorkshop(app.object)
+  }
+  if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
+  array.unshift(button);
+}
+
+export function _addHeaderButtonItem(app, array) {
+  if (["background", "class", "subclass", "race"].includes(app.object.type)) return;
+  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  const button = {
+    class: MODULE, icon: MODULE_ICON,
+    onclick: () => _openWorkshop(app.object)
+  }
+  if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
+  array.unshift(button);
+}
+
+export function _addHeaderButtonEffect(app, array) {
+  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  const button = {
+    class: MODULE, icon: MODULE_ICON,
+    onclick: () => _openWorkshop(app.object)
+  }
+  if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
+  array.unshift(button);
 }
