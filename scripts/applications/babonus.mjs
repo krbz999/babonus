@@ -1,6 +1,5 @@
 import {
   ARBITRARY_OPERATORS,
-  ATTACK_TYPES,
   BONUS_TYPES_FORMDATA,
   EQUIPPABLE_TYPES,
   FILTER_NAMES,
@@ -722,7 +721,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _newFilterArrayOptions(id) {
     if (id === "attackTypes") {
-      return ATTACK_TYPES.map(a => ({value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]}));
+      return ["mwak", "rwak", "msak", "rsak"].map(a => ({value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]}));
     } else if (id === "itemTypes") {
       return ITEM_ROLL_TYPES.map(i => ({value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`}));
     } else if (id === "spellLevels") {

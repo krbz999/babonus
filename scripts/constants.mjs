@@ -47,11 +47,6 @@ export const BONUS_TYPES_FORMDATA = {
   ]
 };
 
-// the types of attacks an item can make.
-export const ATTACK_TYPES = [
-  "mwak", "rwak", "msak", "rsak"
-];
-
 // item types that can get a bonus when rolling attack, damage, or showing a save dc.
 export const ITEM_ROLL_TYPES = [
   "consumable", "equipment", "feat", "spell", "weapon"

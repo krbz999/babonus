@@ -1,6 +1,5 @@
 import {
   ARBITRARY_OPERATORS,
-  ATTACK_TYPES,
   AURA_TARGETS,
   CONSUMPTION_TYPES,
   EQUIPPABLE_TYPES,
@@ -302,7 +301,7 @@ class ItemBabonus extends Babonus {
           choices: ITEM_ROLL_TYPES, blank: true
         })),
         attackTypes: new FilteredArrayField(new foundry.data.fields.StringField({
-          choices: ATTACK_TYPES, blank: true
+          choices: ["mwak", "rwak", "msak", "rsak"], blank: true
         })),
         damageTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.damageTypes.map(t => t.value)
