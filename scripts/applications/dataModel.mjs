@@ -1,9 +1,7 @@
 import {
   ARBITRARY_OPERATORS,
   AURA_TARGETS,
-  CONSUMPTION_TYPES,
   EQUIPPABLE_TYPES,
-  ITEM_ONLY_BONUS_TYPES,
   ITEM_ROLL_TYPES,
   SPELL_COMPONENT_MATCHING,
   TYPES
@@ -119,7 +117,7 @@ class Babonus extends foundry.abstract.DataModel {
   // Whether the babonus is embedded on an item and valid to be 'item only'.
   get canExclude() {
     return (this.parent instanceof Item)
-      && ITEM_ONLY_BONUS_TYPES.includes(this.type)
+      && ["attack", "damage", "save"].includes(this.type)
       && ITEM_ROLL_TYPES.includes(this.item.type)
       && !this.hasAura && !this.isTemplateAura;
   }
@@ -232,7 +230,7 @@ class Babonus extends foundry.abstract.DataModel {
       description: new foundry.data.fields.StringField({required: true, blank: true}),
       consume: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
-        type: new foundry.data.fields.StringField({required: false, nullable: true, initial: null, choices: CONSUMPTION_TYPES}),
+        type: new foundry.data.fields.StringField({required: false, nullable: true, initial: null, choices: ["", "uses", "quantity", "slots", "effect"]}),
         scales: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
         formula: new foundry.data.fields.StringField(),
         value: new foundry.data.fields.SchemaField({
