@@ -68,7 +68,11 @@ export class BonusCollector {
 
       // Find all templates and all other tokens.
       this.templates = canvas.scene.templates;
-      this.tokens = canvas.scene.tokens.filter(t => t !== this.token);
+      this.tokens = canvas.scene.tokens.filter(t => {
+        if (!t.actor) return false;
+        if (t.actor.type === "group") return false;
+        return t !== this.token;
+      });
     }
 
     this.bonuses = this._collectBonuses();

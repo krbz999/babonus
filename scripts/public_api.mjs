@@ -205,8 +205,14 @@ function findTokensInRangeOfAura(object, id) {
   else if (object instanceof Item) actor = object.actor;
   else if (object instanceof ActiveEffect) actor = object.parent;
   const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
-  if (bonus.aura.range === -1) return canvas.scene.tokens.filter(t => t !== tokenDoc);
+  if (bonus.aura.range === -1) return canvas.scene.tokens.filter(t => {
+    if (!t.actor) return false;
+    if (t.actor.type === "group") return false;
+    return t !== tokenDoc;
+  });
   return canvas.scene.tokens.filter(t => {
+    if (!t.actor) return false;
+    if (t.actor.type === "group") return false;
     if (t === tokenDoc) return false;
     const distance = _getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
     return bonus.aura.range >= distance;
