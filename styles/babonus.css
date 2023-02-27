@@ -116,7 +116,7 @@
   resize: vertical;
   min-height: calc(10px + var(--form-field-height));
   height: var(--form-field-height);
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 /* LEFT SIDE - BUILDER - BONUS FIELDS */
