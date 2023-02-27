@@ -1,7 +1,13 @@
-import { MODULE } from "../constants.mjs";
-import { _createBabonus } from "../helpers/helpers.mjs";
+import {MODULE} from "../constants.mjs";
+import {_createBabonus} from "../helpers/helpers.mjs";
 
 export class ConsumptionDialog extends FormApplication {
+
+  constructor(object, options = {}) {
+    super(object, options);
+    this.clone = options.bab.clone();
+  }
+
   get id() {
     return `${MODULE}ConsumptionDialog-${this.options.bab.id}`;
   }
@@ -10,39 +16,47 @@ export class ConsumptionDialog extends FormApplication {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE}/templates/subapplications/consumptionApp.hbs`
+      template: `modules/${MODULE}/templates/subapplications/consumptionApp.hbs`,
+      classes: [MODULE, "consumption-config"]
     });
   }
 
   get title() {
-    return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", { name: this.options.bab.name });
+    return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", {name: this.options.bab.name});
   }
 
+  /** @override */
   async getData() {
-    const is = this.options.bab.item.system;
-    const choices = [{ value: "", label: "" }];
-    if (is.uses !== undefined) choices.push({ value: "uses", label: "DND5E.LimitedUses" });
-    if (is.quantity !== undefined) choices.push({ value: "quantity", label: "DND5E.Quantity" });
+    const choices = [{value: "", label: ""}];
+    if (this.clone.canConsumeUses) choices.push({value: "uses", label: "DND5E.LimitedUses"});
+    if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
+    if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot"});
+    if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
     return {
       choices,
-      value: this.options.bab.consume.type,
-      consume: this.options.bab.consume // scales, value (min, max), type, enabled
-    }
+      disableMax: (this.clone.consume.type === "effect") || (!this.clone.consume.scales),
+      isEffect: this.clone.consume.type === "effect",
+      ...this.clone
+    };
   }
 
+  /** @override */
+  activateListeners(html) {
+    super.activateListeners(html);
+    html[0].querySelectorAll("input[type='number']").forEach(n => n.addEventListener("focus", e => e.currentTarget.select()));
+  }
+
+  /** @override */
   async _updateObject(event, formData) {
-    try {
-      formData["consume.enabled"] = true;
-      const data = foundry.utils.mergeObject(this.options.bab.toString(), formData);
-      _createBabonus(data); // attempt.
-      return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
-    } catch (err) {
-      console.error(err);
-    }
+    formData["consume.enabled"] = true;
+    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
   }
 
-  _onChangeInput(event) {
-    if (event.target.name !== "consume.scales") return;
-    this.element[0].querySelector("[name='consume.value.max']").disabled = !event.target.checked;
+  /** @override */
+  async _onChangeInput(event) {
+    await super._onChangeInput(event);
+    const {name, value, type, checked} = event.currentTarget;
+    this.clone.updateSource({[name]: type === "checkbox" ? checked : (value || null)});
+    this._render();
   }
 }

@@ -1,13 +1,11 @@
-<div class="form-group" data-id="{{name}}">
-  <label data-tooltip="{{tooltip}}" class="label">
-    {{localize label}}
-  </label>
+<div class="form-group" data-id="{{id}}">
+  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
-    <input type="number" name="filters.{{name}}.min" placeholder="{{{localize 'Minimum'}}}">
+    <input type="number" name="filters.{{id}}.min" placeholder="{{{localize 'Minimum'}}}" value="{{value.min}}">
     <span class="sep">&mdash;</span>
-    <input type="number" name="filters.{{name}}.max" placeholder="{{{localize 'Maximum'}}}">
+    <input type="number" name="filters.{{id}}.max" placeholder="{{{localize 'Maximum'}}}" value="{{value.min}}">
   </div>
-  <a class="filter-deletion" data-tooltip="BABONUS.DeleteThisFilter">
+  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>

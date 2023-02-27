@@ -2,7 +2,7 @@
 
 <p style="text-align: center; font-style: italic;">2022 Package Jam winner of the 'Most Polished' category and runner-up for 'Best Package'</p>
 
-<p>A module for the Foundry <code>dnd5e</code> system. After installing this module, you can find a 'Build-a-Bonus' application in any actor's Special Traits, in the header of any item, or in the header of any Active Effect. This gives you the ability to apply a bonus to any attack roll, damage roll, saving throw DC, saving throw, or hit die roll, for bonuses that should apply only under specific circumstances. If a bonus is embedded in an item or effect, they transfer with the item/effect if placed on another actor.</p>
+<p>A module for the Foundry <code>dnd5e</code> system. After installing this module, you can find a 'Build-a-Bonus' application in any actor's, items, or effect's header. This gives you the ability to apply a bonus to any attack roll, damage roll, saving throw DC, saving throw, or hit die roll, for bonuses that should apply only under specific circumstances. If a bonus is embedded in an item or effect, they transfer with the item/effect if placed on another actor.</p>
 
 <p style="text-align: center"><img src="https://i.imgur.com/PEtyFfQ.png" style="border: none"></p>
 
@@ -19,7 +19,8 @@
 <p style="text-align: center"><img src="https://i.imgur.com/Ygf0fPE.png" style="border: none"></p>
 
 <h1 style="font-weight: bold;">How to Use</h1>
-<p>Open any actor's sheet, then find the Special Traits (on the main tab of the actor sheet if using the core dnd5e sheet) and find the Build-a-Bonus workshop. For an item or effect, click the otter icon in the header. Choose the type of bonus you want to create (attack roll, damage roll, save dc, saving throws, or hit die rolls), then fill out the name, description, and the bonus. Then start narrowing down when and how the bonus should apply, using the available filters and configurations that you can pick and choose from on the left and right.</p>
+<p>Open any actor's sheet, any item sheet, or any effect config, then click the otter icon in the header. Choose the type of bonus you want to create (attack roll, damage roll, save dc, saving throws, or hit die rolls), then fill out the name, description, and the bonus. Then start narrowing down when and how the bonus should apply, using the available filters on the right.<p>
+<p>Once the bonus is created, you can configure it further on the main view of the application on the right.</p>
 <p>If you need additional hints, hover over any of the labels to get tooltips. Not all filters are available for each type of bonus. Below is an example using the artificer's <em>Alchemical Savant</em> feature.</p>
 
 <p style="text-align: center"><img src="https://i.imgur.com/OnLz50Y.png" style="border: none"></p>
@@ -28,6 +29,7 @@
 
 <h1 style="font-weight: bold;">Bonus Creation and Configuration</h1>
 <p>This is the full array of configurations, filters, and choices you can make in the Build-a-Bonus. For any fields that support roll data (such as bonuses or comparison fields detailed below), you can use the roll data of the target as well as your own; use roll data as you normally would, and for targets simply prefix with <code>@target</code>.</p>
+<p>In addition, when a bonus is 'transferred' either via an effect being copied through a template aura or regular aura, the roll data used will be source's roll data, if any.</p>
 
 <h2 style="font-weight: bold;">Required Fields</h2>
 <p><strong><em>Name.</em></strong> The human-readable name of the bonus (you can put anything you like here). The ID shown next to it is the unique identifier that the module uses to refer to the bonus, which is also used in several API methods (see below).</p>
@@ -37,15 +39,15 @@
 <h2 style="font-weight: bold;">Aura and Template Configuration</h2>
 <p>You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not.</p>
 <p>The bonus is applied when another token actor makes a relevant roll. The module never makes use of token movement to calculate ranges, so the usage of auras and templates is incredibly lightweight.</p>
-<p>In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). This blocking feature does not apply to templates, however. A 'status id' is a hidden and unique identifier that any status condition has, and the Keys button in the builder will help you pick it out. The field itself is not validated; if you are able to give an effect a status id of your own choosing, that is respected as well.</p>
+<p>In the Build-a-Bonus, you can configure a list of effect status ids that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). A 'status id' is a hidden and unique identifier that any status condition has, and the Keys button in the builder will help you pick it out. The field itself is not validated; if you are able to give an effect a status id of your own choosing, that is respected as well.</p>
 
 <h3><strong>Item-Specific Bonuses</strong></h3>
-<p>Alternatively, for any bonus created on an item (spell, feature, weapon, etc.), if that bonus does not produce a valid aura of any kind, you may toggle it in the Build-a-Bonus to only apply to that item in question. This is good for any unique weapons for example that have certain properties that should apply only to themselves.</p>
+<p>For any bonus created on an item (spell, feature, weapon, etc.), if that bonus does not produce a valid aura of any kind, you may toggle it in the Build-a-Bonus to only apply to that item in question. This is good for any unique weapons for example that have certain properties that should apply only to themselves.</p>
 
 <h3 style="font-weight: bold;">Optional Bonuses and Consumption</h3>
 <p>If the bonus additively affects an attack roll, damage roll, or saving throw (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will reply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making an attack roll, damage roll, or saving throw.</p>
-<p>If the bonus is not an aura of any kind, is optional as described above, and if the item on which the bonus is embedded has either limited uses or a quantity (such as a quiver of arrows), the bonus can also be configured to consume these when choosing to add the optional bonus. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
-<p>For example, if you create an item with 10 limited uses, a bonus of "+1d6", and configure that the bonus is optional, consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted.</p>
+<p>If the bonus is not an aura of any kind, is optional as described above, and if the item on which the bonus is embedded has either limited uses or a quantity (such as a quiver of arrows), the bonus can also be configured to consume these when choosing to add the optional bonus. You can configure the minimum required consumption, as well as the maximum if the bonus should scale. An optional bonus can also be set to consume spell slots, or consume an active effect if created on one.</p>
+<p>For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect cannot scale.</p>
 
 <h1 style="font-weight: bold;">Available Filters</h1>
 <p>These are the available filters that narrow down if the bonus should apply when making a roll.</p>

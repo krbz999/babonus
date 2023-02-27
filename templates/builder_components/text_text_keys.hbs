@@ -1,15 +1,13 @@
-<div class="form-group" data-id="{{name}}" data-name="{{getterName}}" data-getter="{{getter}}">
-  <label data-tooltip="{{tooltip}}" class="label">
-    {{localize label}}
-  </label>
+<div class="form-group" data-id="{{id}}">
+  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
-    <input type="text" name="filters.{{name}}.needed">
-    <input type="text" name="filters.{{name}}.unfit">
-    <button class="babonus-keys" type="button">
+    <input type="text" name="filters.{{id}}.needed" value="{{value.needed}}">
+    <input type="text" name="filters.{{id}}.unfit" value="{{value.unfit}}">
+    <button data-action="keys-dialog" type="button">
       <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
     </button>
   </div>
-  <a class="filter-deletion" data-tooltip="BABONUS.DeleteThisFilter">
+  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>

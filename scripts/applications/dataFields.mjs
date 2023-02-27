@@ -28,13 +28,11 @@ export class SemicolonArrayField extends foundry.data.fields.ArrayField {
   }
 }
 
-// ArrayField that filters invalid comparison fields. Also workaround for '_babonusToString' so as not to get flattened.
+// ArrayField that filters invalid comparison fields.
 export class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
   _cast(data) {
     const clone = foundry.utils.deepClone(super._cast(data));
-    return clone.filter(i => {
-      return !!i && !foundry.utils.isEmpty(i) && !!i.one && !!i.operator && !!i.other;
-    });
+    return clone.filter(i => !!i?.one && !!i.operator && !!i.other);
   }
 }
 

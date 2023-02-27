@@ -1,174 +1,271 @@
 /* Babonus Editor Application */
-.babonus h1 {
+.babonus.builder.app.window-app {
+  min-height: 700px;
+  min-width: 700px;
+}
+
+.babonus.builder.app.window-app > .window-content {
+  overflow-y: hidden;
+}
+
+.babonus.builder form.babonus {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.babonus.builder h1.otters {
   text-align: center;
   font-size: 55px;
   border-bottom: none;
   font-family: "Modesto Condensed";
 }
 
-.babonus h1 i:first-child {
+.babonus.builder h1.otters [data-action="otter-rainbow"] {
   transform: scaleX(-1);
   transition: 0.5s;
 }
 
-.babonus.uneditable a {
-  color: gray;
+.babonus.builder .components {
+  overflow-y: hidden;
+  flex: 1;
+  display: flex;
+  height: 100%;
 }
 
-.babonus .components {
+/* LEFT SIDE */
+.babonus.builder .left-side {
+  overflow-y: hidden;
+  display: flex;
+  flex: 1;
+  height: 100%;
+}
+
+.babonus.builder .left-side .page {
+  padding-right: 0.3em;
+}
+
+/* LEFT SIDE - TYPE SELECTOR */
+.babonus.builder .left-side .select-type {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.babonus.builder .left-side .select-type .types {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 35px;
+  justify-content: space-evenly;
+}
+
+.babonus.builder .select-type .types a {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 3fr;
+  align-items: center;
 }
 
-.babonus .components .utils {
-  padding-top: 1em;
-  margin: 0.25em;
+.babonus.builder .select-type .types a > i {
+  place-self: center;
+  font-size: 60px;
 }
 
-.babonus [data-hide-input="true"] > input {
-  visibility: hidden;
-  position: absolute;
+/* LEFT SIDE - BUILDER */
+.babonus.builder .left-side .inputs {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
-.babonus span.checkboxes-check {
+.babonus.builder .left-side .bonus-config {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: hidden;
+}
+
+/* LEFT SIDE - BUILDER - REQUIRED FIELDS */
+.babonus.builder .left-side .bonus-required {}
+
+.babonus.builder .babonus-type {
+  font-size: 30px;
+  text-align: center;
+  margin: 0.4em;
+}
+
+.babonus.builder .babonus-type-header {
+  font-size: 16px;
+}
+
+.babonus.builder input[name="id"] {
+  font-family: monospace;
+  font-size: 12px;
+  text-align: center;
+}
+
+.babonus.builder .left-side textarea {
+  resize: vertical;
+  min-height: calc(10px + var(--form-field-height));
+  height: var(--form-field-height);
+  overflow-y: hidden;
+}
+
+/* LEFT SIDE - BUILDER - BONUS FIELDS */
+.babonus.builder .left-side .bonus-inputs {}
+
+/* LEFT SIDE - BUILDER - FILTERS */
+.babonus.builder .left-side .bonus-filters {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.babonus.builder .bonus-filters .form-group:first-child {
+  margin-top: 2px;
+}
+
+.babonus.builder .bonus-filters .form-group {
+  margin: 1.5px 0;
+}
+
+/* LEFT SIDE - BUILDER - FILTERS - COMPONENTS */
+
+/* delete filter anchors */
+.babonus.builder .form-group [data-action="delete-filter"] {
+  flex: 0;
+  padding: 0 0.2em 0 0.5em;
+}
+
+/* hidden checkboxes */
+.babonus.builder .checkboxes {
+  display: flex;
+  overflow-x: auto;
+  flex-flow: wrap;
+  justify-content: space-evenly;
+}
+
+.babonus.builder .checkboxes [type="checkbox"] {
+  display: none !important;
+}
+
+.babonus.builder .checkboxes .check {
   font-weight: bold;
   border: 2px groove gray;
   border-radius: 4px;
   padding: 0 0.4em;
-  transition: inherit;
 }
 
-.babonus .checkboxes > .sep > :checked ~ span.checkboxes-check {
+.babonus.builder .checkboxes [type="checkbox"]:checked ~ .check {
   border: 2px groove #ff00006e;
   box-shadow: 0 0 4px darkred;
   background-color: #ff000066;
 }
 
-.babonus .checkboxes > .sep > :hover ~ span.checkboxes-check {
+.babonus.builder .checkboxes [type="checkbox"] ~ .check:hover {
   text-shadow: 0 0 5px var(--color-shadow-primary);
 }
 
-.babonus div.checkboxes {
-  justify-content: space-evenly;
+/* LEFT SIDE - BUILDER - UTIL BUTTONS */
+.babonus.builder .components .utils {
+  margin: 0.25em;
+}
+
+.babonus.builder .warning:not(.active) {
+  display: none;
+}
+
+.babonus.builder .utils-buttons {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 0.5em;
+}
+
+/* RIGHT SIDE */
+.babonus.builder .right-side {
+  overflow-y: hidden;
   display: flex;
-}
-
-.babonus .form-fields.checkboxes label.sep {
-  padding: 0;
-  transition: 0.15s;
-}
-
-.babonus .components header {
-  height: 30px;
-  line-height: 28px;
-  font-weight: bold;
-  border: 1px solid var(--color-border-light-tertiary);
-  background: rgba(0, 0, 0, 0.1);
-  padding-left: 0.5em;
-  border-radius: 4px;
-}
-
-.babonus .label {
   flex: 1;
-  font-weight: bold;
-  white-space: nowrap;
+  height: 100%;
 }
 
-.babonus.subapp .label {
-  flex: 2;
-}
-
-.babonus a[data-type="add-filter"],
-.babonus .available-filters .filter-add {
-  margin: 0 5px;
-  flex: 0 0 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-}
-
-.babonus .right-side .bonuses,
-.babonus .left-side .types {
-  overflow-y: auto;
-  max-height: 700px;
-  height: 700px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.babonus .left-side > :is(.inputs, .select-type) {
-  padding-right: 0.3em;
-}
-
-.babonus .right-side > :is(.current-bonuses, .filter-picker) {
+.babonus.builder .right-side .page {
   padding-left: 0.3em;
 }
 
-.babonus .left-side .inputs {
-  overflow-y: auto;
-  max-height: 730px;
-  height: 730px;
+/* RIGHT SIDE - CURRENT BONUSES */
+.babonus.builder .right-side .current-bonuses {
+  height: 100%;
+  overflow: hidden;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-.babonus .right-side .filters {
-  display: grid;
-  grid-template-rows: 0fr 1fr 0fr 0.6fr;
-  max-height: 730px;
+.babonus.builder .right-side .bonuses {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1em 0;
 }
 
-.babonus .right-side .bonuses .bonus:first-child {
-  margin-top: 1em;
-}
-
-.babonus .right-side .bonuses .bonus .header {
+.babonus.builder .right-side .bonuses .header {
   display: grid;
   grid-template-columns: 1fr 0fr;
   padding: 0 1em 0 0;
 }
 
-.babonus .right-side .bonuses .bonus .header .label {
+.babonus.builder .right-side .bonuses .label {
   text-align: center;
-  line-height: normal;
   font-size: 25px;
-  align-self: start;
   font-family: 'Modesto Condensed';
-  cursor: pointer;
   margin-top: 0.25em;
 }
 
-.babonus .right-side .bonuses .bonus .header .label:hover {
-  text-shadow: 0 0 8px red;
-}
-
-.babonus .right-side .bonuses .bonus .header .label.disabled {
+.babonus.builder .right-side .bonuses .label.disabled {
   text-decoration: line-through;
 }
 
-.babonus .right-side .bonuses .bonus .header .details {
+/* RIGHT SIDE - CURRENT BONUSES - FUNCTIONS */
+.babonus.builder .right-side .bonuses .details {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.babonus .right-side .bonuses .bonus .header .details .functions {
+.babonus.builder .right-side .bonuses .functions {
   display: grid;
   grid-template-columns: 0fr 0fr 0fr 0fr;
   justify-items: center;
 }
 
-.babonus .right-side .bonuses .bonus .header .details .identifier {
+.babonus.builder .right-side .details .functions a {
+  width: 25px;
+  padding: 3px;
+  text-align: center;
+}
+
+.babonus.builder .right-side .bonuses .identifier {
   color: gray;
   user-select: text;
   font-size: 12px;
   font-family: monospace;
 }
 
-.babonus .right-side .bonuses .bonus .description .content {
+/* RIGHT SIDE - CURRENT BONUSES - DESCRIPTION */
+.babonus.builder .right-side .bonus .content {
   font-style: italic;
   margin: 0.5em;
   border-radius: 5px;
@@ -180,125 +277,25 @@
   opacity: 1;
 }
 
-.babonus .right-side .bonuses .bonus.collapsed .description .content {
+.babonus.builder .right-side .bonus.collapsed .content {
   display: none;
 }
 
-.babonus .left-side .inputs .filters select {
-  flex: 0;
-  min-width: fit-content;
-}
-
-.babonus .left-side .inputs select {
-  height: calc(var(--form-field-height));
-}
-
-.babonus .form-group .form-fields button.babonus-keys {
-  min-width: 100px;
-  flex: 0;
-  box-shadow: none;
-}
-
-.babonus .form-group .form-fields button.babonus-keys:hover {
-  text-shadow: 0 0 5px var(--color-shadow-primary);
-}
-
-.babonus .utils-buttons {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 0.5em;
-}
-
-.babonus .right-side .details .functions a {
-  width: 25px;
-  padding: 3px;
-  text-align: center;
-}
-
-.babonus.locked .right-side .details .functions a {
-  pointer-events: none;
-}
-
-.babonus .bonuses .bonus:last-child hr {
-  display: none;
-}
-
-.babonus .warning.active {
-  opacity: 1;
-}
-
-.babonus .warning {
-  transition: 0.15s;
-  opacity: 0;
-}
-
-.babonus .select-type .types {
-  justify-content: space-evenly;
-  font-size: 35px;
-}
-
-.babonus .select-type .types a {
-  display: grid;
-  grid-template-columns: 2fr 3fr;
-  align-items: center;
-}
-
-.babonus .select-type .types a > i {
-  place-self: center;
-  font-size: 60px;
-}
-
-.babonus .babonus-type {
-  font-size: 30px;
-  text-align: center;
-  margin: 0.4em;
-}
-
-.babonus .babonus-type-header {
-  font-size: 16px;
-}
-
-/* KEY DIALOGS TABLES */
-table.babonus {
+/* RIGHT SIDE - FILTER PICKER */
+.babonus.builder .right-side .filter-picker {
+  height: 100%;
   overflow: hidden;
-  display: grid;
-}
-
-table.babonus tbody {
-  max-height: 525px;
-  overflow: auto;
-}
-
-table.babonus.two-col tr {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-}
-
-table.babonus.three-col tr {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-}
-
-table.babonus td img {
-  height: 25px;
-  border: none;
-}
-
-table.babonus td:first-child {
-  padding-left: 1em;
-  justify-content: left;
-  flex-direction: row;
   display: flex;
-  gap: 0.5em;
-  align-items: center;
+  flex: 1;
+  flex-direction: column;
 }
 
-table.babonus td:not(:first-child) {
-  text-align: center;
+.babonus.builder .right-side .unavailable-filters {
+  margin-bottom: 0.3em;
 }
 
-/* FILTER PICKER */
-.babonus .filter-picker .filter {
+/* RIGHT SIDE - FITLER PICKER - FILTER */
+.babonus.builder .filter-picker .filter {
   display: grid;
   grid-template-areas:
     "a b"
@@ -308,20 +305,26 @@ table.babonus td:not(:first-child) {
   margin: 0.5em 0;
 }
 
-.babonus .filter-picker .filter-header {
-  font-size: 20px;
+.babonus.builder .filter.hidden {
+  display: none !important;
+}
+
+.babonus.builder .filter-picker .filter-header {
+  font-size: 22px;
   text-align: left;
   padding-left: 0.5em;
   grid-area: a;
   margin-bottom: 0;
+  border: none;
+  font-family: 'Modesto Condensed';
 }
 
-.babonus .filter-picker .filter-description {
+.babonus.builder .filter-picker .filter-description {
   padding: 0 0.5em;
   grid-area: c;
 }
 
-.babonus .filter-picker .filter-requirements {
+.babonus.builder .filter-picker .filter-requirements {
   font-style: italic;
   padding: 0.5em 1em;
   font-size: 12px;
@@ -329,105 +332,195 @@ table.babonus td:not(:first-child) {
   grid-area: d;
 }
 
-.babonus .filter-picker .filter-add {
-  grid-area: b;
+.babonus.builder .filter > [data-action="add-filter"] {
+  margin: 0 5px;
+  flex: 0 0 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
 }
 
-.babonus div.available-filters,
-.babonus div.unavailable-filters {
+/* GENERAL */
+.babonus.builder .components header {
+  height: 30px;
+  line-height: 28px;
+  font-weight: bold;
+  border: 1px solid var(--color-border-light-tertiary);
+  background: rgba(0, 0, 0, 0.1);
+  padding-left: 0.5em;
+  border-radius: 4px;
+}
+
+.babonus.builder header + :is(.bonus-filters, .available-filters, .unavailable-filters) {
+  height: 100%;
   overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  transition: 300ms;
 }
 
-.babonus .form-group a.filter-deletion {
-  flex: 0;
-  padding: 0 0.2em 0 0.5em;
+.babonus.builder header.collapsed + * {
+  flex: 0 !important;
 }
 
-.babonus input[name="id"] {
-  font-family: monospace;
-  font-size: 12px;
-  text-align: center;
+.babonus.builder header [data-action="section-collapse"] {
+  float: right;
+  margin-right: 1em;
 }
 
-.babonus .left-side textarea {
-  resize: vertical;
-  min-height: var(--form-field-height);
-  height: var(--form-field-height);
-  overflow-y: hidden;
+.babonus.builder header.collapsed [data-action="section-collapse"] i::before {
+  content: "\f077";
+}
+
+.babonus .label {
+  flex: 1;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .babonus .sep {
   padding: 0 5px;
 }
 
-/* Roll Configuration Optionals */
-.babonus-optionals {
+.babonus .locked a {
+  color: gray;
+}
+
+.babonus form .form-fields :is(input, select):not([type="checkbox"]) {
+  height: calc(var(--form-field-height));
+}
+
+/* keys dialog buttons */
+.babonus [data-action="keys-dialog"] {
+  min-width: 100px;
+  box-shadow: none;
+}
+
+.babonus [data-action="keys-dialog"]:hover {
+  text-shadow: 0 0 5px var(--color-shadow-primary);
+}
+
+/* selects */
+.babonus form .form-group .form-fields select:not(:only-child) {
+  flex: 0;
+  min-width: fit-content;
+}
+
+/* KEY DIALOGS TABLES */
+.babonus.keys-dialog {
+  min-width: 300px;
+  min-height: 400px;
+}
+
+.babonus.keys-dialog .dialog-content {
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+}
+
+.babonus.keys-dialog .dialog-buttons {
+  flex: 0;
+}
+
+.babonus.keys-dialog table {
+  height: 100%;
+}
+
+.babonus.keys-dialog tbody {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.babonus.keys-dialog tr {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.babonus.keys-dialog .double tr {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+}
+
+.babonus.keys-dialog td img {
+  height: 25px;
+  border: none;
+}
+
+.babonus.keys-dialog td:first-child {
+  padding-left: 1em;
+  justify-content: left;
+  flex-direction: row;
+  display: flex;
+  gap: 0.5em;
   align-items: center;
+}
+
+.babonus.keys-dialog td:not(:first-child) {
+  text-align: center;
+}
+
+/* ROLL CONFIGURATION OPTIONALS */
+.babonus.optionals {
+  display: flex;
+  flex-direction: column;
   gap: 0.5em;
   padding: 0.5em;
   border: 1px inset;
-  border-radius: 1em;
+  border-radius: 0.5em;
   margin-bottom: 1em;
   max-height: 450px;
   overflow-y: auto;
 }
 
-.babonus-optionals .optional {
+.babonus.optionals .optional {
   display: grid;
-  width: 100%;
-  grid-template-columns: 8fr 2fr;
-  grid-template-areas:
-    "a b"
-    "c c";
+  gap: 0.5em;
+}
+
+.babonus.optionals .optional:not(:last-child) {
+  border-bottom: 2px groove;
   padding-bottom: 0.5em;
 }
 
-.babonus-optionals .optional:first-child {
-  padding-top: 0.5em;
+.babonus.optionals .optional button {
+  display: flex;
+  padding: 3px;
+  justify-content: center;
 }
 
-.babonus-optionals .optional:not(:last-child) {
-  border-bottom: 2px groove;
-}
-
-.babonus-optionals .optional.active {
+.babonus.optionals .optional.active button {
+  background: inherit;
+  border: none;
+  box-shadow: none;
   pointer-events: none;
 }
 
-.babonus-optionals .optional .add {
-  display: flex;
-  align-items: center;
-  font-size: 20px;
-  justify-content: center;
-  padding: 0.25em;
-}
-
-.babonus-optionals .optional.active .add > i:before {
+.babonus.optionals .optional.active button > i:before {
   content: "\f00c";
 }
 
-.babonus-optionals .optional.active .consumption {
-  display: none;
+.babonus.optionals .optional.active .consumption {
+  pointer-events: none;
 }
 
-.babonus-optionals .bonus-text .name {
+.babonus.optionals .optional .bonus-text .name {
   font-weight: bold;
   font-style: italic;
 }
 
-.babonus-optionals .consumption {
+.babonus.optionals .optional .consumption {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  grid-area: c;
 }
 
-.babonus-optionals .consumption > :is(label, select) {
+.babonus.optionals .optional .consumption select {
   flex: 1;
 }
 
-.babonus-optionals .consumption > label {
-  font-weight: bold;
+.babonus.optionals .optional.active .consumption > * {
+  color: gray;
 }
