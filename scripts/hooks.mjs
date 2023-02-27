@@ -251,7 +251,7 @@ export function _preCreateMeasuredTemplate(templateDoc) {
  ****************************************************
  */
 
-/* Settings */
+/* Settings. */
 export function _createSettings() {
   game.settings.register(MODULE, SETTING_HEADERLABEL, {
     name: "BABONUS.SettingsDisplayLabelName",
