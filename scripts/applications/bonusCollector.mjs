@@ -152,7 +152,7 @@ export class BonusCollector {
 
     // A filter for discarding auras that do not have a long enough radius.
     const rangeChecker = (bab) => {
-      if (!bab.hasAura) return true;
+      if (!bab.hasAura) return false;
 
       const validTargeting = this._matchTokenDisposition(token, bab);
       if (!validTargeting) return false;
