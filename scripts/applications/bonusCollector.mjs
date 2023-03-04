@@ -175,6 +175,7 @@ export class BonusCollector {
    */
   _collectFromTemplate(template) {
     if (template.hidden) return [];
+    if (!this._tokenWithinTemplate(template.object)) return [];
 
     // A filter for discarding template auras that are blocked or do not affect self (if they are your own).
     const templateAuraChecker = (bab) => {
