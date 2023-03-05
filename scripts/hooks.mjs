@@ -10,14 +10,19 @@ import {
 
 /**
  * Helper method to evaluate roll data into an integer.
- * @param {string} bonus    The formula to evaluate.
- * @param {object} data     The available roll data.
- * @returns {number}        The bonus, or zero if invalid.
+ * @param {string} bonus      The formula to evaluate.
+ * @param {object} data       The available roll data.
+ * @returns {number}          The bonus, or zero if invalid.
  */
 function _bonusToInt(bonus, data) {
   const f = new Roll(bonus, data).formula;
   if (!Roll.validate(f)) return 0;
-  return Roll.safeEval(f);
+  try {
+    return Roll.safeEval(f);
+  } catch (err) {
+    console.warn(err);
+    return 0;
+  }
 }
 
 /* When you force a saving throw... */
