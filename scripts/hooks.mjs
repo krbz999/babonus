@@ -221,9 +221,7 @@ export async function _renderDialog(dialog) {
 
 /** Inject babonus data on created templates if they have an associated item. */
 export function _preCreateMeasuredTemplate(templateDoc) {
-  const origin = templateDoc.flags?.dnd5e?.origin;
-  if (!origin) return;
-  const item = fromUuidSync(origin);
+  const item = fromUuidSync(templateDoc.flags.dnd5e?.origin ?? "");
   if (!item) return;
   const actor = item.actor;
   if (!actor) return;

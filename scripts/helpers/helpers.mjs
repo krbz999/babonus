@@ -128,9 +128,9 @@ export class KeyGetter {
 
 /**
  * Get the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
- * @param {Token5e} tokenA    One token placeable.
- * @param {Token5e} tokenB    Another token placeable.
- * @returns {number}          The minimum distance.
+ * @param {Token5e} tokenA      One token placeable.
+ * @param {Token5e} tokenB      Another token placeable.
+ * @returns {number}            The minimum distance.
  */
 export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
   const A = _getAllTokenGridSpaces(tokenA.document);
@@ -151,8 +151,8 @@ export function _getMinimumDistanceBetweenTokens(tokenA, tokenB) {
 
 /**
  * Get all the upper left corners of all grid spaces one token occupies.
- * @param {TokenDocument5e} tokenDoc    The token document.
- * @returns {Array}                     An array of x and y coordinate objects.
+ * @param {TokenDocument5e} tokenDoc      The token document.
+ * @returns {object[]}                    An array of x and y coordinate objects.
  */
 export function _getAllTokenGridSpaces(tokenDoc) {
   const {width, height, x, y} = tokenDoc;
@@ -172,9 +172,10 @@ export function _getAllTokenGridSpaces(tokenDoc) {
 
 /**
  * Create a Babonus with the given id (or a new one if none is provided).
- * @param {object} data     An object of babonus data.
- * @param {string} id       Optionally an id to assign the babonus.
- * @param {object} options  Additional options that modify the babonus creation.
+ * @param {object} data             An object of babonus data.
+ * @param {string} id               Optionally an id to assign the babonus.
+ * @param {object} [options={}]     Additional options that modify the babonus creation.
+ * @returns {Babonus}               The created babonus.
  */
 export function _createBabonus(data, id, options = {}) {
   const types = TYPES.map(t => t.value);
@@ -197,8 +198,8 @@ export function _createBabonus(data, id, options = {}) {
 
 /**
  * Helper function to render the build-a-bonus application for a document with the correct title.
- * @param {Document5e} object   An actor, item, effect, or template.
- * @returns {BabonusWorkshop}   The rendered workshop.
+ * @param {Document5e} object     An actor, item, effect, or template.
+ * @returns {BabonusWorkshop}     The rendered workshop.
  */
 export function _openWorkshop(object) {
   return new BabonusWorkshop(object, {
@@ -208,8 +209,8 @@ export function _openWorkshop(object) {
 
 /**
  * Get a Collection of babonuses from a document.
- * @param {Document5e} object   An actor, item, effect, or template.
- * @returns {Collection}        A collection of babonuses.
+ * @param {Document5e} object         An actor, item, effect, or template.
+ * @returns {Collection<Babonus>}     A collection of babonuses.
  */
 export function _getCollection(object) {
   const bonuses = Object.entries(object.flags.babonus?.bonuses ?? {});

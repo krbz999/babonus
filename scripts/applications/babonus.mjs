@@ -251,8 +251,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Turn drop data into a babonus.
-   * @param {object} data   An object of babonus data or a uuid.
-   * @returns {Babonus}     The created babonus.
+   * @param {object} data     An object of babonus data or a uuid.
+   * @returns {Babonus}       The created babonus.
    */
   async _fromDropData(data) {
     if (data.data) {
@@ -278,8 +278,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Special implementation of rendering, to reset the entire application to a clean state.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {BabonusWorkshop}     This application.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {BabonusWorkshop}       This application.
    */
   async _renderClean(event) {
     this._type = null;
@@ -292,8 +292,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Special implementation of rendering, for when entering creation mode.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {BabonusWorkshop}     This application.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {BabonusWorkshop}       This application.
    */
   async _renderCreator(event) {
     this._type = event.currentTarget.dataset.type;
@@ -306,8 +306,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Special implementation of rendering, for when entering edit mode.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {BabonusWorkshop}     This application.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {BabonusWorkshop}       This application.
    */
   async _renderEditor(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -363,7 +363,7 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Otter Rainbow.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onOtterRainbow(event) {
     this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
@@ -372,7 +372,7 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Otter Dance.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onOtterDance(event) {
     const spin = [{transform: 'rotate(0)'}, {transform: 'rotate(360deg)'}];
@@ -395,8 +395,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {Actor5e|Item5e}      The actor or item having its babonus deleted.
+   * @param {PointerEvent} event            The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus deleted.
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -413,8 +413,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the aura configuration of the babonus on or off, or open the config dialog.
-   * @param {PointerEvent} event                          The initiating click event.
-   * @returns {Actor5e|Item5e|AuraConfigurationDialog}    The actor, item, or aura config.
+   * @param {PointerEvent} event                                    The initiating click event.
+   * @returns {Promise<Actor5e|Item5e|AuraConfigurationDialog>}     The actor, item, or aura config.
    */
   async _onToggleAura(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -429,8 +429,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the exclusivity property on a babonus.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {Actor5e|Item5e}      The actor or item having its babonus toggled.
+   * @param {PointerEvent} event            The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
    */
   async _onToggleExclusive(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -440,8 +440,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the consumption property on a babonus.
-   * @param {PointerEvent} event                    The initiating click event.
-   * @returns {Actor5e|Item5e|ConsumptionDialog}    The actor, item, or consumption config.
+   * @param {PointerEvent} event                              The initiating click event.
+   * @returns {Promise<Actor5e|Item5e|ConsumptionDialog>}     The actor, item, or consumption config.
    */
   async _onToggleConsume(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -456,8 +456,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the optional property on a babonus.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {Actor5e|Item5e}      The actor or item having its babonus toggled.
+   * @param {PointerEvent} event            The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
    */
   async _onToggleOptional(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -467,8 +467,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the enabled property on a babonus.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {Actor5e|Item5e}      The actor or item having its babonus toggled.
+   * @param {PointerEvent} event            The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -479,8 +479,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Copy a babonus on the actor or item.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {Actor5e|Item5e}      The actor or item having its babonus copied.
+   * @param {PointerEvent} event            The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus copied.
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -494,8 +494,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Edit a babonus by adding it to the builder. This also sets all related stored values.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
+   * @param {PointerEvent} event              The initiating click event.
+   * @returns {Promise<BabonusWorkshop>}      This application.
    */
   async _onEditBonus(event) {
     // Render the application specifically in this mode.
@@ -514,7 +514,7 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Collapse a section in the builder.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onSectionCollapse(event) {
     event.currentTarget.closest("header").classList.toggle("collapsed");
@@ -522,7 +522,7 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Dismiss the warning about invalid data.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onDismissWarning(event) {
     event.currentTarget.classList.toggle("active", false);
@@ -600,7 +600,7 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Handle the click event when adding a new filter to the builder.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   async _onAddFilter(event) {
     const id = event.currentTarget.closest(".filter").dataset.id;
@@ -612,8 +612,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Append one specific filter to the builder.
-   * @param {string} id         The id of the filter.
-   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   * @param {string} id                   The id of the filter.
+   * @param {object} [formData=null]      The toString'd data of a babonus in case of one being edited.
    */
   async _appendNewFilter(id, formData = null) {
     const DIV = document.createElement("DIV");
@@ -624,9 +624,9 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Get the inner html of a filter you want to add.
-   * @param {string} id         The id of the filter.
-   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
-   * @returns {string}          The template.
+   * @param {string} id                   The id of the filter.
+   * @param {object} [formData=null]      The toString'd data of a babonus in case of one being edited.
+   * @returns {string}                    The template.
    */
   async _templateFilter(id, formData = null) {
     if (id !== "arbitraryComparison") return this._templateFilterUnique(id, formData);
@@ -635,9 +635,9 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Create and append the form-group for a specific filter, then add listeners.
-   * @param {string} id         The id of the filter to add.
-   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
-   * @returns {string}          The template.
+   * @param {string} id           The id of the filter to add.
+   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
+   * @returns {string}            The template.
    */
   async _templateFilterUnique(id, formData) {
     const data = {
@@ -686,9 +686,9 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Create and append the form-group for a specific repeatable filter, then add listeners.
-   * @param {string} id     The id of the filter to add.
-   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
-   * @returns {string}      The template.
+   * @param {string} id           The id of the filter to add.
+   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
+   * @returns {string}            The template.
    */
   async _templateFilterRepeatable(id, formData) {
     const idx = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`).length;
@@ -707,7 +707,7 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Helper function to append listeners to created form-groups (filters).
-   * @param {html} fg   The form-groups created.
+   * @param {html} fg     The form-groups created.
    */
   _appendListenersToFilters(fg) {
     fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
@@ -733,8 +733,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Prepare previous values, checked boxes, etc., for a created form-group when a babonus is edited.
-   * @param {object} data       The pre-mutated object of handlebars data. **will be mutated**
-   * @param {object} formData   The toString'd data of a babonus in case of one being edited.
+   * @param {object} data         The pre-mutated object of handlebars data. **will be mutated**
+   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
    */
   _prepareData(data, formData) {
     if (data.id === "arbitraryComparison") {
@@ -785,7 +785,7 @@ export class BabonusWorkshop extends FormApplication {
   /**
    * Whether this item is one that can be equipped.
    * @param {Item5e} item     The item being viewed.
-   * @returns {boolean}       Whether it is or can be equipped.
+   * @returns {boolean}       Whether it can be equipped.
    */
   _canEquipItem(item) {
     return (item instanceof Item) && EQUIPPABLE_TYPES.includes(item.type);
@@ -804,8 +804,8 @@ export class BabonusWorkshop extends FormApplication {
   /**
    * Returns whether a filter is available to be added to babonus, given the current filters
    * in use, the type of document it belongs to, as well as the type of babonus.
-   * @param {string} id   The id of the filter.
-   * @returns {boolean}   Whether the filter can be added.
+   * @param {string} id     The id of the filter.
+   * @returns {boolean}     Whether the filter can be added.
    */
   _isFilterAvailable(id) {
     if (id === "arbitraryComparison") return true;

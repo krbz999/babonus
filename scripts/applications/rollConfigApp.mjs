@@ -62,8 +62,8 @@ export class OptionalSelector {
 
   /**
    * Get the template data for bonuses that consume Limited Uses or Quantity.
-   * @param {Babonus} bonus   The bonus that is consuming.
-   * @returns {object}        The data for the template.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
    */
   _getDataConsumeItem(bonus) {
     const data = {
@@ -82,8 +82,8 @@ export class OptionalSelector {
 
   /**
    * Get the template data for bonuses that consume Spell Slots.
-   * @param {Babonus} bonus   The bonus that is consuming.
-   * @returns {object}        The data for the template.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
    */
   _getDataConsumeSlots(bonus) {
     const data = {
@@ -102,8 +102,8 @@ export class OptionalSelector {
 
   /**
    * Get the template data for bonuses that consume Effects.
-   * @param {Babonus} bonus   The bonus that is consuming.
-   * @returns {object}        The data for the template.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
    */
   _getDataConsumeEffects(bonus) {
     const data = {
@@ -116,8 +116,8 @@ export class OptionalSelector {
 
   /**
    * Get the template data for bonuses that do not consume.
-   * @param {Babonus} bonus   The optional bonus.
-   * @returns {object}        The data for the template.
+   * @param {Babonus} bonus     The optional bonus.
+   * @returns {object}          The data for the template.
    */
   _getDataNoConsume(bonus) {
     const data = {
@@ -130,7 +130,7 @@ export class OptionalSelector {
 
   /**
    * Helper method to activate listeners on the optional bonuses' buttons.
-   * @param {html} html   The entire list of html injected onto the dialog.
+   * @param {html} html     The entire list of html injected onto the dialog.
    */
   activateListeners(html) {
     this.form.querySelectorAll("[data-action='consume-item']").forEach(n => n.addEventListener("click", this._onApplyItemOption.bind(this)));
@@ -163,8 +163,8 @@ export class OptionalSelector {
 
   /**
    * Get a tooltip for an optional bonus' origin.
-   * @param {Babonus} bonus    The babonus.
-   * @returns {string}         A localized string.
+   * @param {Babonus} bonus     The babonus.
+   * @returns {string}          A localized string.
    */
   _getTooltip(bonus) {
     let name;
@@ -200,7 +200,7 @@ export class OptionalSelector {
 
   /**
    * Display a warning about lack of limited uses, quantity, spell slots, or missing effect.
-   * @param {string} type   The consumption type of the babonus.
+   * @param {string} type     The consumption type of the babonus.
    */
   _displayConsumptionWarning(type) {
     ui.notifications.warn(`BABONUS.ConsumptionType${type.capitalize()}Unavailable`, {localize: true});
@@ -208,8 +208,8 @@ export class OptionalSelector {
 
   /**
    * Return whether you can consume the selected requirement to add a bonus.
-   * @param {PointerEvent} event    The initiating click event.
-   * @returns {boolean}             Whether you can add the bonus.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {boolean}               Whether you can add the bonus.
    */
   _canSupplySelected(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -226,8 +226,8 @@ export class OptionalSelector {
   /**
    * Construct the scaling options for an optional bonus that scales with limited uses or item quantity.
    * The 'value' of the option is the amount to subtract.
-   * @param {Babonus} bonus   The babonus.
-   * @returns {string}        The string of select options.
+   * @param {Babonus} bonus     The babonus.
+   * @returns {string}          The string of select options.
    */
   _constructScalingItemOptions(bonus) {
     const item = bonus.item;
@@ -248,7 +248,7 @@ export class OptionalSelector {
   /**
    * When applying a scaling bonus that consumes limited uses or quantity, get the value from the select,
    * get the minimum possible value, and calculate how much it should scale up.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onApplyScalingItemOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -268,7 +268,7 @@ export class OptionalSelector {
 
   /**
    * When applying a non-scaling bonus that consumes limited uses or quantity, get the minimum value and consume it.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onApplyItemOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -288,8 +288,8 @@ export class OptionalSelector {
   /**
    * Construct the scaling options for an optional bonus that scales with spell slots.
    * The 'value' of the option is the spell property key, like "spell3" or "pact".
-   * @param {Babonus} bonus   The babonus.
-   * @returns {string}        The string of select options.
+   * @param {Babonus} bonus     The babonus.
+   * @returns {string}          The string of select options.
    */
   _constructScalingSlotsOptions(bonus) {
     return Object.entries(this.actor.system.spells).reduce((acc, [key, val]) => {
@@ -307,7 +307,7 @@ export class OptionalSelector {
   /**
    * When applying a scaling bonus that consumes a spell slot, get the property from the select,
    * and calculate how much it should scale up. The consumed amount is always 1.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onApplyScalingSlotsOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -327,7 +327,7 @@ export class OptionalSelector {
   /**
    * When applying a non-scaling bonus that consumes a spell slot, get the smallest available
    * spell slot, preferring pact slots if equal levels, then consume 1 slot.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onApplySlotsOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -344,7 +344,7 @@ export class OptionalSelector {
 
   /**
    * When applying a bonus that consumes an effect, get its id, apply the bonus, and delete it.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   async _onApplyEffectsOption(event) {
     const e = {currentTarget: event.currentTarget};
@@ -362,7 +362,7 @@ export class OptionalSelector {
 
   /**
    * When applying a bonus that does not consume.
-   * @param {PointerEvent} event    The initiating click event.
+   * @param {PointerEvent} event      The initiating click event.
    */
   _onApplyNoConsumeOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -388,8 +388,8 @@ export class OptionalSelector {
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
-   * @param {PointerEvent} event    The initiating click event.
-   * @param {string} bonus          The bonus to add.
+   * @param {PointerEvent} event      The initiating click event.
+   * @param {string} bonus            The bonus to add.
    */
   _appendToField(event, bonus) {
     if (!this.field.value.trim()) this.field.value = bonus;
@@ -401,8 +401,8 @@ export class OptionalSelector {
   /**
    * Get the attribute key for the lowest available and valid spell slot.
    * If the lowest level is both a pact and spell slot, prefer pact slot.
-   * @param {number} min    The minimum spell level required.
-   * @returns {string}      The attribute key.
+   * @param {number} min      The minimum spell level required.
+   * @returns {string}        The attribute key.
    */
   _getLowestValidSpellSlotProperty(min) {
     const spells = this.actor.system.spells;

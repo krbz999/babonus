@@ -101,7 +101,7 @@ export class BonusCollector {
   /**
    * Main collection method that calls the below collectors for self, all tokens, and all templates.
    * This method also ensures that overlapping templates from one item do not apply twice.
-   * @returns {Array<Babonus>}  The array of bonuses.
+   * @returns {Babonus[]}     The array of bonuses.
    */
   _collectBonuses() {
     const bonuses = [];
@@ -120,7 +120,7 @@ export class BonusCollector {
 
   /**
    * Get all bonuses that originate from yourself.
-   * @returns {Array<Babonus>}  The array of bonuses.
+   * @returns {Babonus[]}     The array of bonuses.
    */
   _collectFromSelf() {
 
@@ -139,7 +139,7 @@ export class BonusCollector {
   /**
    * Get all bonuses that originate from another token on the scene.
    * @param {TokenDocument5e} token     The token.
-   * @returns {Array<Babonus>}          The array of bonuses.
+   * @returns {Babonus[]}               The array of bonuses.
    */
   _collectFromToken(token) {
     if (token.hidden) return [];
@@ -170,8 +170,8 @@ export class BonusCollector {
 
   /**
    * Get all bonuses that originate from templates the rolling token is standing on.
-   * @param {MeasuredTemplateDocument} template   The template.
-   * @returns {Array<Babonus>}                    The array of bonuses.
+   * @param {MeasuredTemplateDocument} template     The template.
+   * @returns {Babonus[]}                           The array of bonuses.
    */
   _collectFromTemplate(template) {
     if (template.hidden) return [];
@@ -192,9 +192,9 @@ export class BonusCollector {
   /**
    * General collection method that all other collection methods call in some fashion.
    * Gets an array of babonuses from that document.
-   * @param {Document} document           The token, actor, item, effect, or template.
-   * @param {Array<function>} filterings  An array of additional functions used to filter.
-   * @returns {Array<Babonus>}            An array of babonuses of the right type.
+   * @param {Document} document         The token, actor, item, effect, or template.
+   * @param {Function[]} filterings     An array of additional functions used to filter.
+   * @returns {Babonus[]}               An array of babonuses of the right type.
    */
   _collectFromDocument(document, filterings = []) {
     // Immediately return an empty array if we are attempting to fetch bonuses from something invalid.
@@ -261,7 +261,7 @@ export class BonusCollector {
   /**
    * Get the centers of all grid spaces that overlap with a token document.
    * @param {TokenDocument5e} tokenDoc    The token document on the scene.
-   * @returns {[[x: number, y: number]]}  A two-dimensional array of xy coordinates.
+   * @returns {number[][]}                A two-dimensional array of xy coordinates.
    */
   _collectTokenCenters(tokenDoc) {
     const {width, height, x, y} = tokenDoc;
