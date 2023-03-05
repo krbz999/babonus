@@ -38,6 +38,7 @@ export class BabonusKeysDialog extends Dialog {
   activateListeners(html) {
     super.activateListeners(html);
     html[0].querySelectorAll("[data-action='select-all']").forEach(n => n.addEventListener("click", this._onToggleAll.bind(this)));
+    html[0].querySelectorAll("td:first-child").forEach(n => n.addEventListener("click", this._onClickLabel.bind(this)));
   }
 
   /**
@@ -50,5 +51,29 @@ export class BabonusKeysDialog extends Dialog {
     const inputs = table.querySelectorAll(`td:nth-child(${idx}) input`);
     const state = !inputs[0].checked;
     inputs.forEach(i => i.checked = state);
+  }
+
+  /**
+   * Custom implementation for label-to-checkbox linking.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onClickLabel(event) {
+    if (this.options.double) {
+      const box1 = event.currentTarget.closest("tr").querySelector("td:nth-child(2) input");
+      const box2 = event.currentTarget.closest("tr").querySelector("td:nth-child(3) input");
+      if (!box1.checked && !box2.checked) {
+        box1.checked = true;
+        box2.checked = false;
+      } else if (box1.checked && !box2.checked) {
+        box1.checked = false;
+        box2.checked = true;
+      } else {
+        box1.checked = false;
+        box2.checked = false;
+      }
+    } else {
+      const box = event.currentTarget.closest("tr").querySelector("td:nth-child(2) input");
+      box.checked = !box.checked;
+    }
   }
 }
