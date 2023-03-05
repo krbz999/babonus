@@ -93,10 +93,17 @@ export class KeyGetter {
 
   // all status effects.
   static get effects() {
-    const effects = CONFIG.statusEffects;
+    let effects = CONFIG.statusEffects;
+    if (game.modules.get("concentrationnotifier")?.active) {
+      // Using .concat as not to mutate.
+      effects = effects.concat({
+        id: "concentration",
+        icon: "icons/magic/light/orb-lightbulb-gray.webp"
+      });
+    }
     return effects.reduce((acc, {id, icon}) => {
       if (!id) return acc;
-      acc.push({value: id, label: id, icon})
+      acc.push({value: id, label: id, icon});
       return acc;
     }, []).sort((a, b) => {
       return a.value.localeCompare(b.value);
@@ -126,7 +133,7 @@ export class KeyGetter {
   }
 
   // Preparation modes.
-  static get preparationModes(){
+  static get preparationModes() {
     const modes = CONFIG.DND5E.spellPreparationModes;
     return Object.entries(modes).map(([key, value]) => {
       return {value: key, label: value};
