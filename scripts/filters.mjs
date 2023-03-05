@@ -57,6 +57,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
+        preparationModes: ["pact", "always"],               // The type of preparation mode the spell must be one of.
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],      // The type of attack.
@@ -516,5 +517,17 @@ export class FILTER {
       console.error(err);
       return false;
     }
+  }
+
+  /**
+   * Find out if the spell that is cast is one able to consume a spell slot.
+   * @param {Item5e} item         The spell being cast, or making an attack or damage roll.
+   * @param {string[]} filter     The types of preparation modes allowed.
+   * @returns {boolean}           Whether the spell matches the preparation mode.
+   */
+  static preparationModes(item, filter) {
+    if (!filter?.length) return true;
+    if (item.type !== "spell") return false;
+    return filter.includes(item.system.preparation.mode);
   }
 }

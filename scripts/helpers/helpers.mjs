@@ -124,6 +124,14 @@ export class KeyGetter {
       return a.label.localeCompare(b.label);
     });
   }
+
+  // Preparation modes.
+  static get preparationModes(){
+    const modes = CONFIG.DND5E.spellPreparationModes;
+    return Object.entries(modes).map(([key, value]) => {
+      return {value: key, label: value};
+    });
+  }
 }
 
 /**

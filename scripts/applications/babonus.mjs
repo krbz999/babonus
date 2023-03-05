@@ -660,6 +660,7 @@ export class BabonusWorkshop extends FormApplication {
       damageTypes: "text_keys.hbs",
       itemRequirements: "label_checkbox_label_checkbox.hbs",
       itemTypes: "checkboxes.hbs",
+      preparationModes: "text_keys.hbs",
       remainingSpellSlots: "text_dash_text.hbs",
       saveAbilities: "text_keys.hbs",
       spellComponents: "checkboxes_select.hbs",
@@ -750,6 +751,7 @@ export class BabonusWorkshop extends FormApplication {
       "baseWeapons",
       "customScripts",
       "damageTypes",
+      "preparationModes",
       "saveAbilities",
       "spellSchools",
       "statusEffects",
@@ -822,6 +824,7 @@ export class BabonusWorkshop extends FormApplication {
       case "damageTypes": return ["attack", "damage", "save"].includes(type);
       case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
       case "itemTypes": return ["attack", "damage", "save"].includes(type);
+      case "preparationModes": return this._itemTypes.has("spell");
       case "remainingSpellSlots": return true;
       case "saveAbilities": return ["save"].includes(type);
       case "spellComponents": return this._itemTypes.has("spell");

@@ -67,6 +67,7 @@ export const FILTER_NAMES = [
   "damageTypes",
   "itemRequirements",
   "itemTypes",
+  "preparationModes",
   "remainingSpellSlots",
   "saveAbilities",
   "spellComponents",

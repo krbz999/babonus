@@ -263,6 +263,7 @@ class Babonus extends foundry.abstract.DataModel {
           unfit: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false}), {required: false})
         }),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
+        preparationModes: new SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
         remainingSpellSlots: new SpanField({
           min: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true}),
           max: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true})
