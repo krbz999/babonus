@@ -361,6 +361,14 @@
   transition: 300ms;
 }
 
+.babonus.builder header + .available-filters {
+  flex: 3;
+}
+
+.babonus.builder header + .unavailable-filters {
+  flex: 2;
+}
+
 .babonus.builder header.collapsed + * {
   flex: 0 !important;
 }
