@@ -180,5 +180,11 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.FiltersPreparationModes": "Type de préparation",
+  "BABONUS.FiltersPreparationModesLabel": "Préparation",
+  "BABONUS.SettingsShowAuraRangesName": "Afficher les portées des Auras",
+  "BABONUS.FiltersPreparationModesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si le type d'objet sélectionné est un \"sort\".",
+  "BABONUS.FiltersPreparationModesTooltip": "Le type de préparation auquel le sort doit être soumis pour que le bonus s'applique, par exemple \"pacte\" pour la magie de pacte, ou \"à volonté\".",
+  "BABONUS.SettingsShowAuraRangesHint": "Créer un indicateur visuel pour les portées des auras de babonus. Cela ne s'applique pas aux auras modèles ou aux auras à portée illimitée. Si le lanceur se trouve à l'intérieur d'une aura, il est marqué en vert, sinon en rouge."
 }
