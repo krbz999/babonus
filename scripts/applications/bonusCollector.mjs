@@ -42,6 +42,12 @@ export class BonusCollector {
   templates = [];
   tokens = [];
 
+  /** The collected bonuses. */
+  actorBonuses = [];
+  tokenBonuses = [];
+  tokenBonusesWithout = [];
+  templateBonuses = [];
+
   constructor(data) {
     // Set up type and class.
     this.type = data.type;
@@ -84,7 +90,8 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    return new foundry.utils.Collection(this.bonuses.map(b => [b.uuid, b]));
+    this._drawAuras();
+    return new foundry.utils.Collection([...this.actorBonuses, ...this.tokenBonuses, ...this.templateBonuses].map(b => [b.uuid, b]));
   }
 
   /**
@@ -101,21 +108,23 @@ export class BonusCollector {
   /**
    * Main collection method that calls the below collectors for self, all tokens, and all templates.
    * This method also ensures that overlapping templates from one item do not apply twice.
-   * @returns {Babonus[]}     The array of bonuses.
    */
   _collectBonuses() {
-    const bonuses = [];
-    bonuses.push(...this._collectFromSelf());
-    for (const token of this.tokens) bonuses.push(...this._collectFromToken(token));
+    // Clear the arrays.
+    this.actorBonuses = [];
+    this.tokenBonuses = [];
+    this.tokenBonusesWithout = [];
+    this.templateBonuses = [];
+
+    this.actorBonuses = this._collectFromSelf();
+    for (const token of this.tokens) this.tokenBonuses.push(...this._collectFromToken(token));
 
     // Special consideration for templates; allow overlapping without stacking the same bonus.
-    const templateBonuses = [];
+    const _templateBonuses = [];
     for (const template of this.templates) {
-      templateBonuses.push(...this._collectFromTemplate(template));
+      _templateBonuses.push(...this._collectFromTemplate(template));
     }
-    bonuses.push(...new foundry.utils.Collection(templateBonuses.map(b => [`${b.item.uuid}.Babonus.${b.id}`, b])));
-
-    return bonuses;
+    this.templateBonuses.push(...new foundry.utils.Collection(_templateBonuses.map(b => [`${b.item.uuid}.Babonus.${b.id}`, b])));
   }
 
   /**
@@ -159,7 +168,7 @@ export class BonusCollector {
 
       if (bab.aura.range === -1) return true;
 
-      return this._tokenWithinAura(token, bab.aura.range);
+      return this._tokenWithinAura(token, bab);
     }
 
     const actor = this._collectFromDocument(token.actor, [validTokenAura, rangeChecker]);
@@ -261,18 +270,22 @@ export class BonusCollector {
   /**
    * Get the centers of all grid spaces that overlap with a token document.
    * @param {TokenDocument5e} tokenDoc    The token document on the scene.
-   * @returns {number[][]}                A two-dimensional array of xy coordinates.
+   * @returns {object[]}                  An array of xy coordinates.
    */
   _collectTokenCenters(tokenDoc) {
     const {width, height, x, y} = tokenDoc;
-    const grid = canvas.grid.grid;
+    const grid = canvas.scene.grid.size;
+    const halfGrid = grid / 2;
 
-    if (width <= 1 && height <= 1) return [grid.getCenter(x, y)];
+    if (width <= 1 && height <= 1) return [tokenDoc.object.center];
 
     const centers = [];
     for (let a = 0; a < width; a++) {
       for (let b = 0; b < height; b++) {
-        centers.push(grid.getCenter(a, b));
+        centers.push({
+          x: x + a * grid + halfGrid,
+          y: y + b * grid + halfGrid
+        });
       }
     }
     return centers;
@@ -296,16 +309,18 @@ export class BonusCollector {
   /**
    * Get whether the rolling token is within a certain number of feet from another given token.
    * @param {TokenDocument5e} token     The token whose actor has the aura.
-   * @param {number} range              The range of the aura, usually in feet.
+   * @param {Babonus} bonus             The bonus with the aura and range, usually in feet.
    * @returns {boolean}                 Whether the rolling token is within range.
    */
-  _tokenWithinAura(token, range) {
+  _tokenWithinAura(token, bonus) {
     // TODO: option to use gridspace setting.
     // TODO: calculate euclidean vertical distance.
     const verticalDistance = Math.abs(token.elevation - this.elevation);
-    if (verticalDistance > range) return false;
-    const circle = this._createCaptureArea(token, range);
-    return this.tokenCenters.some(([x, y]) => circle.contains(x, y));
+    if (verticalDistance > bonus.aura.range) return false;
+    const circle = this._createCaptureArea(token, bonus.aura.range);
+    const within = this.tokenCenters.some(({x, y}) => circle.contains(x, y));
+    if (!within) this.tokenBonusesWithout.push(bonus);
+    return within;
   }
 
   /**
@@ -315,7 +330,7 @@ export class BonusCollector {
    */
   _tokenWithinTemplate(template) {
     const {shape, x: tx, y: ty} = template;
-    return this.tokenCenters.some(([x, y]) => shape.contains(x - tx, y - ty));
+    return this.tokenCenters.some(({x, y}) => shape.contains(x - tx, y - ty));
   }
 
   /**
@@ -359,6 +374,33 @@ export class BonusCollector {
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
       if ([this.disposition, tisp].includes(CONST.TOKEN_DISPOSITIONS.NEUTRAL)) return false;
       return tisp !== this.disposition;
+    }
+  }
+
+  /**
+   * Draw the collected auras, then remove them 5 seconds later or when this function is called again.
+   */
+  async _drawAuras() {
+    canvas.app.stage._babonusCircles ??= new Set();
+    canvas.app.stage._babonusCircles.forEach(c => {
+      canvas.app.stage.removeChild(c);
+      canvas.app.stage._babonusCircles.delete(c);
+    });
+    for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
+      const token = bonus.token;
+      const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
+      const circle = this._createCaptureArea(token.document, bonus.aura.range);
+      const tokenRadius = Math.abs(token.document.x - circle.x);
+      const pixels = bonus.aura.range / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
+      const p = new PIXI.Graphics()
+        .beginFill(color, 0.5).drawCircle(circle.x, circle.y, pixels).endFill()
+        .beginHole().drawCircle(circle.x, circle.y, pixels - 5).endHole();
+      canvas.app.stage.addChild(p);
+      canvas.app.stage._babonusCircles.add(p);
+      setTimeout(() => {
+        canvas.app.stage.removeChild(p);
+        canvas.app.stage._babonusCircles.delete(p);
+      }, 5000);
     }
   }
 }
