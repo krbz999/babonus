@@ -158,6 +158,8 @@
   "BABONUS.SettingsDisableCustomScriptFilterName": "Disable 'Custom Script' filter.",
   "BABONUS.SettingsDisplayLabelHint": "If checked, the label is displayed in the header of applicable actors, items, and effects.",
   "BABONUS.SettingsDisplayLabelName": "Display Label",
+  "BABONUS.SettingsShowAuraRangesHint": "Create a visual indicator for the ranges of babonus auras. This does not apply to template auras or auras with unlimited ranges. If the roller is within an aura, it is marked green, otherwise red.",
+  "BABONUS.SettingsShowAuraRangesName": "Show Aura Ranges",
   "BABONUS.TypeAttackBonusCriticalRangeTooltip": "An integer to subtract from the critical range of the attack roll. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.TypeAttackBonusFumbleRangeTooltip": "An integer to add to the fumble range of the attack roll. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.TypeAttackBonusLabel": "Attack Bonus",

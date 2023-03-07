@@ -5,6 +5,7 @@ export const SETTING_HEADERLABEL = "headerLabel";
 export const SETTING_DISABLE_CUSTOM_SCRIPT_FILTER = "disableCustomScriptFilter";
 export const SETTING_MIGRATION_VERSION = "migrationVersion";
 export const CURRENT_MIGRATION_VERSION = 1; // bump this when new migration is needed.
+export const SHOW_AURA_RANGES = "showAuraRanges";
 
 // the kind of matching done for spell components (at least 1 vs matching all).
 export const SPELL_COMPONENT_MATCHING = {ANY: "ANY", ALL: "ALL"};

@@ -5,7 +5,7 @@ import {
   SaveBabonus,
   ThrowBabonus
 } from "./dataModel.mjs";
-import {AURA_TARGETS} from "../constants.mjs";
+import {AURA_TARGETS, MODULE, SHOW_AURA_RANGES} from "../constants.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -90,7 +90,7 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    this._drawAuras();
+    if(game.settings.get(MODULE, SHOW_AURA_RANGES)) this._drawAuras();
     return new foundry.utils.Collection([...this.actorBonuses, ...this.tokenBonuses, ...this.templateBonuses].map(b => [b.uuid, b]));
   }
 

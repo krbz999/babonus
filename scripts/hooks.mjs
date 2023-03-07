@@ -5,7 +5,8 @@ import {
   MODULE, MODULE_ICON,
   SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
   SETTING_HEADERLABEL,
-  SETTING_MIGRATION_VERSION
+  SETTING_MIGRATION_VERSION,
+  SHOW_AURA_RANGES
 } from "./constants.mjs";
 
 /**
@@ -282,6 +283,16 @@ export function _createSettings() {
     config: false,
     type: Number,
     default: 0
+  });
+
+  game.settings.register(MODULE, SHOW_AURA_RANGES, {
+    name: "BABONUS.SettingsShowAuraRangesName",
+    hint: "BABONUS.SettingsShowAuraRangesHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: false
   });
 }
 
