@@ -39,7 +39,8 @@ export class OptionalSelector {
 
   /** Custom helper method for retrieving all the data for the template. */
   async getData() {
-    const bonuses = this.bonuses.reduce((acc, bonus) => {
+    const bonuses = [];
+    for (const bonus of this.bonuses) {
       let data = null;
       if (bonus.isConsuming) {
         if (["uses", "quantity"].includes(bonus.consume.type)) {
@@ -49,13 +50,18 @@ export class OptionalSelector {
         } else if (bonus.consume.type === "effect") {
           data = this._getDataConsumeEffects(bonus);
         }
-        if (!this._canSupplyMinimum(bonus)) return acc;
+        if (!this._canSupplyMinimum(bonus)) continue;
       } else {
         data = this._getDataNoConsume(bonus);
       }
-      if (data) acc.push(data);
-      return acc;
-    }, []);
+      if (data) bonuses.push({
+        ...data,
+        description: await TextEditor.enrichHTML(bonus.description, {
+          async: true,
+          rollData: bonus.origin?.getRollData() ?? {}
+        })
+      });
+    }
 
     return {bonuses};
   }
@@ -383,7 +389,8 @@ export class OptionalSelector {
     if (!scale) return new CONFIG.Dice.DamageRoll(bonus.bonuses.bonus, data).formula;
     const roll = new CONFIG.Dice.DamageRoll(bonus.consume.formula || bonus.bonuses.bonus, data);
     const formula = roll.alter(scale, 0, {multiplyNumeric: true}).formula;
-    return dnd5e.dice.simplifyRollFormula(`${bonus.bonuses.bonus} + ${formula}`, {preserveFlavor: true});
+    const base = Roll.replaceFormulaData(bonus.bonuses.bonus, data);
+    return dnd5e.dice.simplifyRollFormula(`${base} + ${formula}`, {preserveFlavor: true});
   }
 
   /**
@@ -417,8 +424,8 @@ export class OptionalSelector {
       }
     }
     if (level === Infinity) return false;
-    if ((pact > 0) && (pact <= level)) return "system.spells.pact.value";
-    return `system.spells.spell${level}.value`;
+    if ((pact > 0) && (pact <= level)) return "pact";
+    return `spell${level}`;
   }
 
   /**

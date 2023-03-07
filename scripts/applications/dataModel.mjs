@@ -168,7 +168,7 @@ class Babonus extends foundry.abstract.DataModel {
     return Object.values(this.bonuses).some(val => !!val && (val !== "0"));
   }
 
-  // The source item or actor of a babonus. If an aura, effect, template, always resolves to the ORIGIN item or actor, unless deleted.
+  // The source item or actor of a babonus. Attempts to always return the original source item or actor.
   get origin() {
     if (this.parent instanceof MeasuredTemplateDocument) {
       const origin = this.parent.flags.dnd5e?.origin ?? "";
