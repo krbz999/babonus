@@ -197,6 +197,21 @@ class Babonus extends foundry.abstract.DataModel {
     return this.item?.parent ?? null;
   }
 
+  // The token whose actor has the bonus.
+  get token() {
+    let actor;
+    if ((this.parent instanceof Item) || (this.parent instanceof ActiveEffect)) {
+      actor = this.parent.parent;
+    } else if (this.parent instanceof Actor) {
+      actor = this.parent;
+    }
+    if (!actor) return null;
+
+    const token = actor.token?.object ?? actor.getActiveTokens()[0];
+    if (token) return token;
+    return null;
+  }
+
   // The item that has the babonus, or created the template that has it.
   get item() {
     if (this.parent instanceof Item) return this.parent;
