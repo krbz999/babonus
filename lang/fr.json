@@ -89,6 +89,10 @@
   "BABONUS.FiltersItemTypesLabel": "Ty. d'Objet",
   "BABONUS.FiltersItemTypesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde.",
   "BABONUS.FiltersItemTypesTooltip": "Les types d'objets auxquels le bonus doit s'appliquer. Par exemple, si l'objet ne doit s'appliquer qu'aux sorts ou qu'aux armes.",
+  "BABONUS.FiltersPreparationModes": "Type de préparation",
+  "BABONUS.FiltersPreparationModesLabel": "Préparation",
+  "BABONUS.FiltersPreparationModesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si le type d'objet sélectionné est un \"sort\".",
+  "BABONUS.FiltersPreparationModesTooltip": "Le type de préparation auquel le sort doit être soumis pour que le bonus s'applique, par exemple \"pacte\" pour la magie de pacte, ou \"à volonté\".",
   "BABONUS.FiltersRemainingSpellSlots": "Emplacements de sorts restant",
   "BABONUS.FiltersRemainingSpellSlotsLabel": "Empl. de sort",
   "BABONUS.FiltersRemainingSpellSlotsTooltip": "Le nombre total minimum et maximum d'emplacements de sorts restants que l'acteur doit avoir pour que le bonus s'applique. Par exemple, si vous voulez qu'un bonus ne s'applique que s'il vous reste 3 emplacements de sorts ou plus, ou aucun emplacement de sort.",
@@ -154,6 +158,8 @@
   "BABONUS.SettingsDisableCustomScriptFilterName": "Désactiver le filtre \"Script personnalisé\".",
   "BABONUS.SettingsDisplayLabelHint": "Si cette case est cochée, l'étiquette est affichée dans l'en-tête des objets et des effets actifs.",
   "BABONUS.SettingsDisplayLabelName": "Afficher l'étiquette",
+  "BABONUS.SettingsShowAuraRangesHint": "Créer un indicateur visuel pour les portées des auras de babonus. Cela ne s'applique pas aux auras modèles ou aux auras à portée illimitée. Si le lanceur se trouve à l'intérieur d'une aura, il est marqué en vert, sinon en rouge.",
+  "BABONUS.SettingsShowAuraRangesName": "Afficher les portées des Auras",
   "BABONUS.TypeAttackBonusCriticalRangeTooltip": "Un nombre entier à soustraire de la zone critique du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.TypeAttackBonusFumbleRangeTooltip": "Un nombre entier à ajouter à la zone d'échec du jet d'attaque. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.TypeAttackBonusLabel": "Bonus d'attaque",
@@ -180,11 +186,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.FiltersPreparationModes": "Type de préparation",
-  "BABONUS.FiltersPreparationModesLabel": "Préparation",
-  "BABONUS.SettingsShowAuraRangesName": "Afficher les portées des Auras",
-  "BABONUS.FiltersPreparationModesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si le type d'objet sélectionné est un \"sort\".",
-  "BABONUS.FiltersPreparationModesTooltip": "Le type de préparation auquel le sort doit être soumis pour que le bonus s'applique, par exemple \"pacte\" pour la magie de pacte, ou \"à volonté\".",
-  "BABONUS.SettingsShowAuraRangesHint": "Créer un indicateur visuel pour les portées des auras de babonus. Cela ne s'applique pas aux auras modèles ou aux auras à portée illimitée. Si le lanceur se trouve à l'intérieur d'une aura, il est marqué en vert, sinon en rouge."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
