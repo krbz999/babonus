@@ -90,7 +90,7 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    if(game.settings.get(MODULE, SHOW_AURA_RANGES)) this._drawAuras();
+    if (game.settings.get(MODULE, SHOW_AURA_RANGES)) this._drawAuras();
     return new foundry.utils.Collection([...this.actorBonuses, ...this.tokenBonuses, ...this.templateBonuses].map(b => [b.uuid, b]));
   }
 
@@ -381,26 +381,18 @@ export class BonusCollector {
    * Draw the collected auras, then remove them 5 seconds later or when this function is called again.
    */
   async _drawAuras() {
-    canvas.app.stage._babonusCircles ??= new Set();
-    canvas.app.stage._babonusCircles.forEach(c => {
-      canvas.app.stage.removeChild(c);
-      canvas.app.stage._babonusCircles.delete(c);
-    });
+    for (const token of canvas.tokens.placeables) token.removeChild(token.children.find(c => c.id === "babonusAura"));
+    const shape = new PIXI.Graphics();
+    shape.id = "babonusAura";
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
       const token = bonus.token;
       const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
-      const circle = this._createCaptureArea(token.document, bonus.aura.range);
-      const tokenRadius = Math.abs(token.document.x - circle.x);
-      const pixels = bonus.aura.range / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
-      const p = new PIXI.Graphics()
-        .beginFill(color, 0.5).drawCircle(circle.x, circle.y, pixels).endFill()
-        .beginHole().drawCircle(circle.x, circle.y, pixels - 5).endHole();
-      canvas.app.stage.addChild(p);
-      canvas.app.stage._babonusCircles.add(p);
-      setTimeout(() => {
-        canvas.app.stage.removeChild(p);
-        canvas.app.stage._babonusCircles.delete(p);
-      }, 5000);
+      const pixels = bonus.aura.range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
+      shape.lineStyle(5, color, 0.5);
+      shape.drawCircle(token.w / 2, token.h / 2, pixels);
+      token.addChild(shape);
     }
+    await new Promise(r => setTimeout(r, 5000));
+    for (const token of canvas.tokens.placeables) token.removeChild(shape);
   }
 }
