@@ -183,6 +183,8 @@
   "BABONUS.TypeSavingThrows": "Saving Throws",
   "BABONUS.TypeThrowBonusLabel": "Saving Bonus",
   "BABONUS.TypeThrowBonusTooltip": "Additional parts to add on top of the saving throw such as <span style='font-family: monospace;'>1d4</span> or <span style='font-family: monospace;'>@scale.rogue.sneak-attack</span>.",
+  "BABONUS.TypeThrowDeathSaveCriticalLabel": "Death Critical",
+  "BABONUS.TypeThrowDeathSaveCriticalTooltip": "An integer to subtract from the threshold that decides when a Death Saving Throw results in restoring consciousness and 1 hit point. This field respects roll data properties but not dice rolls.",
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Death Target",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "An integer to subtract from the minimum requirement to pass a death saving throw. This field respects roll data properties such as <span style='font-family: monospace;'>@abilities.int.mod</span>, but not dice rolls such as <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Unavailable Filters",

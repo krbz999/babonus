@@ -41,7 +41,8 @@ export const BONUS_TYPES_FORMDATA = {
   ],
   "throw": [
     {TOOLTIP: "BABONUS.TypeThrowBonusTooltip", LABEL: "BABONUS.TypeThrowBonusLabel", NAME: "bonuses.bonus"},
-    {TOOLTIP: "BABONUS.TypeThrowDeathSaveTargetValueTooltip", LABEL: "BABONUS.TypeThrowDeathSaveTargetValueLabel", NAME: "bonuses.deathSaveTargetValue"}
+    {TOOLTIP: "BABONUS.TypeThrowDeathSaveTargetValueTooltip", LABEL: "BABONUS.TypeThrowDeathSaveTargetValueLabel", NAME: "bonuses.deathSaveTargetValue"},
+    {TOOLTIP: "BABONUS.TypeThrowDeathSaveCriticalTooltip", LABEL: "BABONUS.TypeThrowDeathSaveCriticalLabel", NAME: "bonuses.deathSaveCritical"}
   ],
   "hitdie": [
     {TOOLTIP: "BABONUS.TypeHitdieBonusTooltip", LABEL: "BABONUS.TypeHitdieBonusLabel", NAME: "bonuses.bonus"}

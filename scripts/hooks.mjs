@@ -149,7 +149,7 @@ export function _preRollDeathSave(actor, rollConfig) {
   if (target?.actor) data.target = target.actor.getRollData();
 
   // Gather up all bonuses.
-  const death = {bonus: 0};
+  const death = {targetValue: 0, critical: 0};
   const parts = [];
   const optionals = [];
   for (const bab of bonuses) {
@@ -159,7 +159,8 @@ export function _preRollDeathSave(actor, rollConfig) {
       if (bab.isOptional) optionals.push(bab);
       else parts.push(bonus);
     }
-    death.bonus += _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
+    death.targetValue += _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
+    death.critical += _bonusToInt(bab.bonuses.deathSaveCritical, data);
   }
 
   // Add parts.
@@ -170,8 +171,9 @@ export function _preRollDeathSave(actor, rollConfig) {
     });
   }
 
-  // Add modifiers to raise/lower the target value.
-  rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.bonus;
+  // Add modifiers to raise/lower the target value and crtical threshold.
+  rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.targetValue;
+  rollConfig.critical = (rollConfig.critical ?? 20) - death.critical;
 }
 
 /** When you roll a saving throw... */

@@ -397,7 +397,8 @@ export class ThrowBabonus extends Babonus {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
         bonus: new foundry.data.fields.StringField(),
-        deathSaveTargetValue: new foundry.data.fields.StringField()
+        deathSaveTargetValue: new foundry.data.fields.StringField(),
+        deathSaveCritical: new foundry.data.fields.StringField()
       }),
       filters: new foundry.data.fields.SchemaField({
         throwTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
