@@ -546,16 +546,17 @@ export class FILTER {
     if (!(size > 0)) return true;
     const target = game.user.targets.first()?.document;
     if (!target) return false;
+    const enemySize = Math.max(target.width, target.height);
 
     let se;
     if (self) {
       const actor = object.actor ?? object;
       const token = actor.token ?? actor.getActiveTokens(false, true)[0];
       if (!token) return false;
-      se = token.width;
+      se = Math.max(token.width, token.height);
     } else {
       se = size;
     }
-    return ((type === 0) && (target.width >= Math.max(se, size))) || ((type === 1) && (target.width <= Math.min(se, size)));
+    return ((type === 0) && (enemySize >= Math.max(se, size))) || ((type === 1) && (enemySize <= Math.min(se, size)));
   }
 }
