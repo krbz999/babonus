@@ -66,8 +66,10 @@
 <p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to. Any ability score as well as death saving throws. If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
 <p><strong><em>Spell Components.</em></strong> Filter the bonus to only apply if the item is a spell that has any one (or all) of the given components.</p>
 <p><strong><em>Spell Levels.</em></strong> Filter the bonus to only apply if the item is a spell and is or was cast at one of the given levels.</p>
+<p><strong><em>Spell Preparation Modes.</em></strong> Filter the bonus to only apply if the item is a spell and is one of a selected few preparation modes such as 'pact magic' or 'innate'.</p>
 <p><strong><em>Spell Schools.</em></strong> Filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.</p>
 <p><strong><em>Target Conditions.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by a specific status condition. Same details as above.</p>
+<p><strong><em>Token Sizes.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a token of a certain size or greater (or smaller), and optionally clamped using the roller's token's size.</p>
 <p><strong><em>Weapon Properties.</em></strong> Filter the bonus to only apply if the item is a weapon that has at least one from a set of required weapon properties (if any) while having none of the unfit properties (if any).</p>
 
 <h1 style="font-weight: bold;">API</h1>
