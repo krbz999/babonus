@@ -1,0 +1,15 @@
+<!-- Token Sizes only -->
+<div class="form-group" data-id="{{id}}">
+  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
+  <div class="form-fields">
+    <select name="filters.{{id}}.type">
+      {{selectOptions selectOptions selected=type nameAttr="value" labelAttr="label" localize=true}}
+    </select>
+    <input type="number" data-dtype="Number" name="filters.{{id}}.size" placeholder="{{localize 'BABONUS.SizePlaceholder'}}" value="{{size}}">
+    <span class="sep">{{localize "BABONUS.CompareToSelf"}}</span>
+    <input type="checkbox" name="filters.{{id}}.self" {{checked self}}>
+  </div>
+  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
+    <i class="fa-solid fa-trash"></i>
+  </a>
+</div>

@@ -35,9 +35,10 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
       },
       bonuses: {
         bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.
-        criticalBonusDice: "5",                             // Strings that evaluate to numbers only (including rollData), 'damage' only.
+        criticalBonusDice: "5",                             // A value (can be roll data) that adds more dice on a crit, 'damage' only.
         criticalBonusDamage: "4d6 + 2"                      // Any die roll, 'damage' only.
-        deathSaveTargetValue: "12",                         // Strings that evaluate to numbers only (including rollData), 'throw' only.
+        deathSaveTargetValue: "12",                         // A value (can be roll data) that lowers the target value of death saves, 'throw' only.
+        deathSaveCritical: "5",                             // A value (can be roll data) that lowers the crit range of death saves, 'throw' only.
         criticalRange: "1",                                 // A value (can be roll data) that lowers the crit range, 'attack' only.
         fumbleRange: "3"                                    // A value (can be roll data) that raises the fumble range, 'attack' only.
       },
@@ -58,6 +59,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         customScripts: "return true;",                      // A custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
         preparationModes: ["pact", "always"],               // The type of preparation mode the spell must be one of.
+        tokenSizes: {size: 2, type: 0, self: true},         // The size of the targeted token, whether it must be smaller than/greater than, and whether to clamp with self.
 
         // ATTACK, DAMAGE:
         attackTypes: ["mwak", "rwak", "msak", "rsak"],      // The type of attack.
@@ -473,7 +475,7 @@ export class FILTER {
 
   /**
    * Find out if the actor has a number of spell slots remaining between the min and max.
-   * @param {Actor|Item5e} object     The item or actor.
+   * @param {Actor5e|Item5e} object     The item or actor.
    * @param {object} filter           The filtering for the bonus.
    * @param {number} filter.min       The minimum value available required for the bonus to apply.
    * @param {number} filter.max       The maximum value available required for the bonus to apply.
@@ -529,5 +531,31 @@ export class FILTER {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
     return filter.includes(item.system.preparation.mode);
+  }
+
+  /**
+   * Find out if the targeted token is at least x-by-x or larger, or at most x-by-x or smaller,
+   * while optionally also at most as big or small as the roller's token.
+   * @param {Actor5e|Item5e} object     The roller from which to get their token.
+   * @param {object} filter             The filtering for the bonus.
+   * @param {number} filter.size        The minimum/maximum size of the targeted token.
+   * @param {number} filter.type        Whether it is 'at least' (0) or 'at most' (1).
+   * @param {boolean} filter.self       Whether to clamp using the rolling token's size.
+   */
+  static tokenSizes(object, {size, type, self}) {
+    if (!(size > 0)) return true;
+    const target = game.user.targets.first()?.document;
+    if (!target) return false;
+
+    let se;
+    if (self) {
+      const actor = object.actor ?? object;
+      const token = actor.token ?? actor.getActiveTokens(false, true)[0];
+      if (!token) return false;
+      se = token.width;
+    } else {
+      se = size;
+    }
+    return ((type === 0) && (target.width >= Math.max(se, size))) || ((type === 1) && (target.width <= Math.min(se, size)));
   }
 }

@@ -78,6 +78,7 @@ export const FILTER_NAMES = [
   "statusEffects",
   "targetEffects",
   "throwTypes",
+  "tokenSizes",
   "weaponProperties"
 ];
 

@@ -36,6 +36,21 @@ export class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
   }
 }
 
+// SchemaField that requires a value in all fields.
+export class TokenSizeField extends foundry.data.fields.SchemaField {
+  _validateType(data, options = {}) {
+    if ((data.self !== null) || (data.size !== null) || (data.type !== null)) {
+      const self = [true, false].includes(data.self);
+      const size = Number.isNumeric(data.size) && (data.size > 0);
+      const type = [0, 1].includes(data.type);
+      if (!self) throw new foundry.data.fields.ModelValidationError("self must be a boolean");
+      if (!size) throw new foundry.data.fields.ModelValidationError("size must be a number greater than 0");
+      if (!type) throw new foundry.data.fields.ModelValidationError("type must be 0 or 1");
+    }
+    return super._validateType(data, options);
+  }
+}
+
 // SchemaField with two numeric inputs that requires min < max if both are non-empty.
 export class SpanField extends foundry.data.fields.SchemaField {
   _validateType(data, options = {}) {

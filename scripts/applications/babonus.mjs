@@ -612,12 +612,11 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Append one specific filter to the builder.
-   * @param {string} id                   The id of the filter.
-   * @param {object} [formData=null]      The toString'd data of a babonus in case of one being edited.
+   * @param {string} id     The id of the filter.
    */
-  async _appendNewFilter(id, formData = null) {
+  async _appendNewFilter(id) {
     const DIV = document.createElement("DIV");
-    DIV.innerHTML = await this._templateFilter(id, formData);
+    DIV.innerHTML = await this._templateFilter(id);
     this._appendListenersToFilters(DIV);
     this.element[0].querySelector(".left-side .bonus-filters").append(...DIV.children);
   }
@@ -669,6 +668,7 @@ export class BabonusWorkshop extends FormApplication {
       statusEffects: "text_keys.hbs",
       targetEffects: "text_keys.hbs",
       throwTypes: "text_keys.hbs",
+      tokenSizes: "select_number_checkbox.hbs",
       weaponProperties: "text_text_keys.hbs"
     }[id]);
 
@@ -680,8 +680,12 @@ export class BabonusWorkshop extends FormApplication {
     } else if ("itemRequirements" === id) {
       data.canEquip = this._canEquipItem(this.object);
       data.canAttune = this._canAttuneToItem(this.object);
+    } else if (id === "tokenSizes") {
+      data.selectOptions = [
+        {value: 0, label: "BABONUS.SizeGreaterThan"},
+        {value: 1, label: "BABONUS.SizeSmallerThan"}
+      ];
     }
-
     return renderTemplate(template, data);
   }
 
@@ -781,6 +785,10 @@ export class BabonusWorkshop extends FormApplication {
     } else if (data.id === "spellComponents") {
       for (const a of data.array) a.checked = formData[`filters.${data.id}.types`].includes(a.value);
       data.selected = formData[`filters.${data.id}.match`];
+    } else if (data.id === "tokenSizes") {
+      data.self = formData["filters.tokenSizes.self"];
+      data.type = formData["filters.tokenSizes.type"];
+      data.size = formData["filters.tokenSizes.size"];
     }
   }
 
@@ -833,6 +841,7 @@ export class BabonusWorkshop extends FormApplication {
       case "statusEffects": return true;
       case "targetEffects": return true;
       case "throwTypes": return ["throw"].includes(type);
+      case "tokenSizes": return true;
       case "weaponProperties": return this._itemTypes.has("weapon");
     }
   }

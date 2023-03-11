@@ -12,7 +12,8 @@ import {
   FilteredArrayField,
   ArbitraryComparisonField,
   DisjointArraysField,
-  SpanField
+  SpanField,
+  TokenSizeField
 } from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -279,6 +280,11 @@ class Babonus extends foundry.abstract.DataModel {
         }),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
         preparationModes: new SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
+        tokenSizes: new TokenSizeField({
+          size: new foundry.data.fields.NumberField({initial: null, min: 0.5, step: 0.5, integer: false, nullable: true}),
+          type: new foundry.data.fields.NumberField({choices: [0, 1], nullable: true}),
+          self: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
+        }),
         remainingSpellSlots: new SpanField({
           min: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true}),
           max: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true})
