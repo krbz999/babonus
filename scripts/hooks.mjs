@@ -8,6 +8,7 @@ import {
   SETTING_MIGRATION_VERSION,
   SHOW_AURA_RANGES
 } from "./constants.mjs";
+import {AppliedBonusesDialog} from "./applications/appliedBonusesDialog.mjs";
 
 /**
  * Helper method to evaluate roll data into an integer.
@@ -223,42 +224,10 @@ export async function _renderDialog(dialog) {
 export function _dialogHeaderButtons(dialog, buttons) {
   const bonuses = dialog.options.babonus?.bonuses;
   if (!bonuses?.length) return;
-
-  const onclick = async () => {
-    const content = bonuses.reduce((acc, bab) => {
-      return acc + `
-      <tr>
-        <td>${bab.name}</td>
-        <td>${bab.parent.name ?? bab.parent.label}</td>
-        <td>${bab.actor.name}</td>
-      </tr>`;
-    }, `<table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Immediate Parent</th>
-          <th>Actor</th>
-        </tr>
-      </thead>
-    <tbody>
-    `) + "</tbody></table>";
-    new Dialog({
-      content, title: "Babonuses", buttons: {
-        close: {
-          label: game.i18n.localize("Close"),
-          icon: "<i class='fa-solid fa-check'></i>"
-        }
-      }
-    }, {
-      classes: ["babonus", "overview", "dialog"],
-      id: dialog.id + "bonuses-overview"
-    }).render(true);
-  }
-
   buttons.unshift({
     class: "babonuses",
     icon: MODULE_ICON,
-    onclick
+    onclick: () => new AppliedBonusesDialog({bonuses, dialog}).render(true)
   });
 }
 

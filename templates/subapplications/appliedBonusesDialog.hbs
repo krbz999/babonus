@@ -1,0 +1,34 @@
+<div class="dialog-content">
+  <table>
+    <thead>
+      <tr>
+        <th>{{localize "BABONUS.OverviewName"}}</th>
+        <th>{{localize "BABONUS.OverviewImmediateParent"}}</th>
+        <th>{{localize "BABONUS.OverviewActor"}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each bonuses as |bonus|}}
+      <tr>
+        <td data-tooltip="{{bonus.description}}">
+          {{bonus.name}}
+        </td>
+        <td data-uuid="{{bonus.parent.uuid}}" data-tooltip="{{bonus.parent.uuid}}">
+          {{#if bonus.parent.name}}{{bonus.parent.name}}
+          {{else if bonus.parent.label}}{{bonus.parent.label}}
+          {{else}}{{localize "Template"}}
+          {{/if}}
+        </td>
+        <td data-uuid="{{bonus.actor.uuid}}" data-tooltip="{{bonus.actor.uuid}}">
+          {{bonus.actor.name}}
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+<div class="dialog-buttons">
+  <button class="dialog-button ok default" data-button="ok">
+    <i class="fa-solid fa-check"></i> {{localize "Close"}}
+  </button>
+</div>
