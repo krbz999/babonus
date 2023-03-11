@@ -137,15 +137,27 @@
                   <a data-action="current-itemOnly" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
                     <i class="fa-{{#if bonus.isExclusive}}solid{{else}}regular{{/if}} fa-chess-pawn"></i>
                   </a>
+                  {{else}}
+                  <a class="unavailable" data-tooltip="BABONUS.ConfigurationExclusiveTooltipUnavailable">
+                    <i class="fa-regular fa-chess-pawn"></i>
+                  </a>
                   {{/if}}
                   {{#if bonus.isOptionable}}
                   <a data-action="current-optional" data-tooltip="BABONUS.ConfigurationOptionalTooltip">
                     <i class="fa-{{#if bonus.isOptional}}solid{{else}}regular{{/if}} fa-circle-xmark"></i>
                   </a>
+                  {{else}}
+                  <a class="unavailable" data-tooltip="BABONUS.ConfigurationOptionalTooltipUnavailable">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                  </a>
                   {{/if}}
                   {{#if bonus.canConsume}}
                   <a data-action="current-consume" data-tooltip="BABONUS.ConfigurationConsumptionTooltip">
                     <i class="fa-{{#if bonus.isConsuming}}solid fa-hand-sparkles{{else}}regular fa-hand{{/if}}"></i>
+                  </a>
+                  {{else}}
+                  <a class="unavailable" data-tooltip="BABONUS.ConfigurationConsumptionTooltipUnavailable">
+                    <i class="fa-regular fa-hand"></i>
                   </a>
                   {{/if}}
                 </div>

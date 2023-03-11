@@ -257,6 +257,15 @@
   text-align: center;
 }
 
+.babonus.builder .right-side .details .functions a.unavailable {
+  cursor: revert;
+  color: darkgray;
+}
+
+.babonus.builder .right-side .details .functions a.unavailable:hover {
+  text-shadow: none;
+}
+
 .babonus.builder .right-side .bonuses .identifier {
   color: gray;
   user-select: text;
