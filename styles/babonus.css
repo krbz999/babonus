@@ -532,3 +532,8 @@
 .babonus.optionals .optional.active .consumption > * {
   color: gray;
 }
+
+/* OVERVIEW OF BONUSES */
+.babonus.overview table :is(td, th) {
+  text-align: center;
+}

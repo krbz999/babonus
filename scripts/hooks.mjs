@@ -83,11 +83,9 @@ export function _preRollAttack(item, rollConfig) {
 
   // Add parts.
   if (parts.length) rollConfig.parts.push(...parts);
-  if (optionals.length) {
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals, actor: item.actor, spellLevel, item
-    });
-  }
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
+    optionals, actor: item.actor, spellLevel, item, bonuses
+  });
 
   // Add modifiers to raise/lower the criticial and fumble.
   rollConfig.critical = (rollConfig.critical ?? 20) - mods.critical;
@@ -118,11 +116,9 @@ export function _preRollDamage(item, rollConfig) {
     return acc;
   }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
-  if (optionals.length) {
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals, actor: item.actor, spellLevel, item
-    });
-  }
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
+    optionals, actor: item.actor, spellLevel, item, bonuses
+  });
 
   // add to crit bonus dice:
   rollConfig.criticalBonusDice = bonuses.reduce((acc, bab) => {
@@ -165,11 +161,9 @@ export function _preRollDeathSave(actor, rollConfig) {
 
   // Add parts.
   if (parts.length) rollConfig.parts.push(...parts);
-  if (optionals.length) {
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals, actor
-    });
-  }
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
+    optionals, actor, bonuses
+  });
 
   // Add modifiers to raise/lower the target value and crtical threshold.
   rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.targetValue;
@@ -196,11 +190,9 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
     return acc;
   }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
-  if (optionals.length) {
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-      optionals, actor
-    });
-  }
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
+    optionals, actor, bonuses
+  });
 }
 
 /** When you roll a hit die... */
@@ -221,10 +213,53 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
 
 /** Render the optional bonus selector on a roll dialog. */
 export async function _renderDialog(dialog) {
-  const options = dialog.options.babonus;
-  if (!options) return;
-  options.dialog = dialog;
-  new OptionalSelector(options).render();
+  const optionals = dialog.options.babonus?.optionals;
+  if (!optionals?.length) return;
+  dialog.options.babonus.dialog = dialog;
+  new OptionalSelector(dialog.options.babonus).render();
+}
+
+/** Add a header button to display the source of all applied bonuses. */
+export function _dialogHeaderButtons(dialog, buttons) {
+  const bonuses = dialog.options.babonus?.bonuses;
+  if (!bonuses?.length) return;
+
+  const onclick = async () => {
+    const content = bonuses.reduce((acc, bab) => {
+      return acc + `
+      <tr>
+        <td>${bab.name}</td>
+        <td>${bab.parent.name ?? bab.parent.label}</td>
+        <td>${bab.actor.name}</td>
+      </tr>`;
+    }, `<table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Immediate Parent</th>
+          <th>Actor</th>
+        </tr>
+      </thead>
+    <tbody>
+    `) + "</tbody></table>";
+    new Dialog({
+      content, title: "Babonuses", buttons: {
+        close: {
+          label: game.i18n.localize("Close"),
+          icon: "<i class='fa-solid fa-check'></i>"
+        }
+      }
+    }, {
+      classes: ["babonus", "overview", "dialog"],
+      id: dialog.id + "bonuses-overview"
+    }).render(true);
+  }
+
+  buttons.unshift({
+    class: "babonuses",
+    icon: MODULE_ICON,
+    onclick
+  });
 }
 
 /** Inject babonus data on created templates if they have an associated item. */

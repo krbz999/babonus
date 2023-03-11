@@ -3,6 +3,7 @@ import {
   _addHeaderButtonEffect,
   _addHeaderButtonItem,
   _createSettings,
+  _dialogHeaderButtons,
   _preCreateMeasuredTemplate,
   _preDisplayCard,
   _preRollAbilitySave,
@@ -34,6 +35,7 @@ Hooks.on("dnd5e.preRollDamage", _preRollDamage);
 Hooks.on("dnd5e.preRollDeathSave", _preRollDeathSave);
 Hooks.on("dnd5e.preRollHitDie", _preRollHitDie);
 Hooks.on("renderDialog", _renderDialog);
+Hooks.on("getDialogHeaderButtons", _dialogHeaderButtons);
 
 // Set up api and backend stuff.
 Hooks.once("setup", _createAPI);
