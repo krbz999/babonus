@@ -186,5 +186,22 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.ConfigurationOptionalTooltipUnavailable": "Un bonus ne peut être défini comme optionnel que s'il apporte un bonus supplémentaire à un jet d'attaque, un jet de dégâts ou un jet de sauvegarde.",
+  "BABONUS.ConfigurationConsumptionTooltipUnavailable": "Un bonus ne peut être mis en \"consommation\" que si il est facultatif.",
+  "BABONUS.CompareToSelf": "Comparer au lanceur:",
+  "BABONUS.FiltersTokenSizes": "Taille des Tokens",
+  "BABONUS.FiltersTokenSizesLabel": "Taille des Tokens",
+  "BABONUS.OverviewActor": "Acteur",
+  "BABONUS.OverviewCopied": "L'uuid a été copié dans le presse-papiers.",
+  "BABONUS.OverviewImmediateParent": "Parent immédiat",
+  "BABONUS.OverviewName": "Nom",
+  "BABONUS.OverviewTitle": "Bonus appliqués",
+  "BABONUS.SizeGreaterThan": "Supérieure à",
+  "BABONUS.TypeThrowDeathSaveCriticalLabel": "Mort Critique",
+  "BABONUS.SizePlaceholder": "Taille..",
+  "BABONUS.TypeThrowDeathSaveCriticalTooltip": "Un nombre entier à soustraire du seuil qui détermine quand un jet de sauvegarde contre la mort permet de retrouver la conscience et 1 point de vie. Ce champ respecte les propriétés des données des jets, mais pas les jets de dés.",
+  "BABONUS.ConfigurationExclusiveTooltipUnavailable": "Un bonus ne peut pas être défini pour s'appliquer à un seul objet spécifique, à moins d'être créé sur cet objet, de s'appliquer aux jet d'attaque, de dégâts ou de sauvegarde, et de ne pas être configuré en tant qu'aura.",
+  "BABONUS.FiltersTokenSizesTooltip": "La taille du token ciblé, et s'il faut également comparer avec le token qui lance le jet. Si la case est cochée, la cible doit être au moins ou au plus aussi grande que le lanceur.",
+  "BABONUS.SizeSmallerThan": "Inférieur à"
 }
