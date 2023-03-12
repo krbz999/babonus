@@ -385,6 +385,7 @@ export class BonusCollector {
     const shape = new PIXI.Graphics();
     shape.id = "babonusAura";
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
+      if(bonus.aura.range === -1) continue;
       const token = bonus.token;
       const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
       const pixels = bonus.aura.range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
