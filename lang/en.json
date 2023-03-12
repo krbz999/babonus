@@ -36,7 +36,7 @@
   "BABONUS.ConfigurationDeleteTooltip": "Delete this bonus from this document. Deletion is permanent and the bonus cannot be recovered.",
   "BABONUS.ConfigurationEditTooltip": "Edit this bonus in the builder.",
   "BABONUS.ConfigurationExclusiveTooltip": "Toggle whether this bonus applies only to the item on which it is created.",
-  "BABONUS.ConfigurationExclusiveTooltipUnavailable": "A bonus cannot be set to apply to one specific item only, unless created on said item and not configured as an aura.",
+  "BABONUS.ConfigurationExclusiveTooltipUnavailable": "A bonus cannot be set to apply to one specific item only, unless created on said item, applying to attack, damage, or save DCs, and not configured as an aura.",
   "BABONUS.ConfigurationOptionalTooltip": "Toggle whether this bonus should be opted into when rolling.",
   "BABONUS.ConfigurationOptionalTooltipUnavailable": "A bonus cannot be set to be optional unless it provides an additive bonus on top of an attack roll, damage roll, or saving throw.",
   "BABONUS.ConfigurationToggleTooltip": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored, even if it is an aura.",

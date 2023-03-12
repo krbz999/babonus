@@ -32,7 +32,7 @@ export class AuraConfigurationDialog extends FormApplication {
       return acc;
     }, {});
     return {
-      disableRange: this.clone.isTemplateAura,
+      disableRange: this.clone.isTemplateAura || (this.clone.aura.isTemplate && (this.clone.parent instanceof Item)),
       disableTemplate: !(this.clone.parent instanceof Item),
       blockers: this.clone.aura.blockers.join(";"),
       choices,
@@ -58,7 +58,7 @@ export class AuraConfigurationDialog extends FormApplication {
     await super._onChangeInput(event);
     let {name, value, type, checked} = event.currentTarget;
     if (name === "aura.range") {
-      value = Math.clamped(Math.round(value), -1, 500);
+      value = (value === "") ? null : Math.clamped(Math.round(value), -1, 500);
     }
     const update = {
       [name]: type === "checkbox" ? checked : value,
