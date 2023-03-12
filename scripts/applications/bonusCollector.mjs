@@ -381,11 +381,12 @@ export class BonusCollector {
    * Draw the collected auras, then remove them 5 seconds later or when this function is called again.
    */
   async _drawAuras() {
-    for (const token of canvas.tokens.placeables) token.removeChild(token.children.find(c => c.id === "babonusAura"));
-    const shape = new PIXI.Graphics();
-    shape.id = "babonusAura";
+    const id = `babonus-${foundry.utils.randomID()}`;
+    this._deletePixiAuras();
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
-      if(bonus.aura.range === -1) continue;
+      if (bonus.aura.range === -1) continue;
+      const shape = new PIXI.Graphics();
+      shape.id = id;
       const token = bonus.token;
       const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
       const pixels = bonus.aura.range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
@@ -393,7 +394,20 @@ export class BonusCollector {
       shape.drawCircle(token.w / 2, token.h / 2, pixels);
       token.addChild(shape);
     }
-    await new Promise(r => setTimeout(r, 5000));
-    for (const token of canvas.tokens.placeables) token.removeChild(shape);
+    setTimeout(() => this._deletePixiAuras(id), 5000);
+  }
+
+  /**
+   * Delete pixi auras. If an id is granted, delete only those with that id, otherwise
+   * all pixi auras that have an id starting with 'babonus-'.
+   * @param {string} [id=null]     The optional id.
+   */
+  _deletePixiAuras(id = null) {
+    for (const token of canvas.tokens.placeables) {
+      const children = token.children.filter(c => {
+        return id ? (c.id === id) : c.id?.startsWith("babonus-");
+      });
+      for (const c of children) token.removeChild(c);
+    }
   }
 }
