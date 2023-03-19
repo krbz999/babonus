@@ -46,7 +46,7 @@
 
 <h3 style="font-weight: bold;">Optional Bonuses and Consumption</h3>
 <p>If the bonus additively affects an attack roll, damage roll, or saving throw (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will apply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making an attack roll, damage roll, or saving throw.</p>
-<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, or the active effect on which it is created. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
+<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, or the active effect on which it is created. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
 <p>For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect cannot scale.</p>
 
 <h1 style="font-weight: bold;">Available Filters</h1>

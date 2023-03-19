@@ -32,10 +32,13 @@ export class ConsumptionDialog extends FormApplication {
     if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
     if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot"});
     if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
+    if (this.clone.canConsumeHealth) choices.push({value: "health", label: "BABONUS.ConsumptionTypeHealth"});
     return {
       choices,
       disableMax: (this.clone.consume.type === "effect") || (!this.clone.consume.scales),
       isEffect: this.clone.consume.type === "effect",
+      isHealth: this.clone.consume.type === "health",
+      disableStep: !this.clone.consume.scales,
       ...this.clone
     };
   }

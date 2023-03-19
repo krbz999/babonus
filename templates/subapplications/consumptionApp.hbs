@@ -23,6 +23,15 @@
     </div>
   </div>
 
+  {{#if isHealth}}
+  <div class="form-group">
+    <label class="label">{{localize "BABONUS.ConfigurationConsumptionStep"}}</label>
+    <div class="form-fields">
+      <input type="number" data-dtype="Number" name="consume.value.step" value="{{consume.value.step}}" placeholder="{{localize 'BABONUS.ConfigurationConsumptionStep'}}" {{disabled disableStep}}>
+    </div>
+  </div>
+  {{/if}}
+
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionScalingFormula"}}</label>
     <div class="form-fields">
