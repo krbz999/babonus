@@ -389,10 +389,9 @@ export class OptionalSelector {
     const value = bonus.consume.value;
     const hp = this.actor.system.attributes.hp;
     const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
-    const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
-    if((min < value.min) || (value.min > max) || !(value.step > 0)) return "";
+    if((min < value.min) || !(value.step > 0)) return "";
     let options = "";
-    for(let i = value.min; i <= Math.min(max, value.max); i += value.step){
+    for(let i = value.min; i <= Math.min(min, value.max); i += value.step){
       options += `<option value="${i}">${game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i})}</option>`;
     }
     return options;
