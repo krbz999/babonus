@@ -653,6 +653,7 @@ export class BabonusWorkshop extends FormApplication {
     const template = ("modules/babonus/templates/builder_components/" + {
       abilities: "text_keys.hbs",
       attackTypes: "checkboxes.hbs",
+      baseTools: "text_keys.hbs",
       baseWeapons: "text_keys.hbs",
       creatureTypes: "text_text_keys.hbs",
       customScripts: "textarea.hbs",
@@ -662,6 +663,7 @@ export class BabonusWorkshop extends FormApplication {
       preparationModes: "text_keys.hbs",
       remainingSpellSlots: "text_dash_text.hbs",
       saveAbilities: "text_keys.hbs",
+      skillIds: "text_keys.hbs",
       spellComponents: "checkboxes_select.hbs",
       spellLevels: "checkboxes.hbs",
       spellSchools: "text_keys.hbs",
@@ -752,11 +754,13 @@ export class BabonusWorkshop extends FormApplication {
       });
     } else if ([
       "abilities",
+      "baseTools",
       "baseWeapons",
       "customScripts",
       "damageTypes",
       "preparationModes",
       "saveAbilities",
+      "skillIds",
       "spellSchools",
       "statusEffects",
       "targetEffects",
@@ -824,9 +828,10 @@ export class BabonusWorkshop extends FormApplication {
     const type = this._type ?? this._bab.type;
 
     switch (id) {
-      case "abilities": return ["attack", "damage", "save"].includes(type);
+      case "abilities": return ["attack", "damage", "save", "test"].includes(type);
       case "attackTypes": return ["attack", "damage"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
+      case "baseTools": return ["test"].includes(type);
       case "creatureTypes": return true;
       case "customScripts": return true;
       case "damageTypes": return ["attack", "damage", "save"].includes(type);
@@ -835,6 +840,7 @@ export class BabonusWorkshop extends FormApplication {
       case "preparationModes": return this._itemTypes.has("spell");
       case "remainingSpellSlots": return true;
       case "saveAbilities": return ["save"].includes(type);
+      case "skillIds": return ["test"].includes(type);
       case "spellComponents": return this._itemTypes.has("spell");
       case "spellLevels": return this._itemTypes.has("spell");
       case "spellSchools": return this._itemTypes.has("spell");

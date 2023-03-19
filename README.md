@@ -2,11 +2,11 @@
 
 <p style="text-align: center; font-style: italic;">2022 Package Jam winner of the 'Most Polished' category and runner-up for 'Best Package'</p>
 
-<p>A module for the Foundry <code>dnd5e</code> system. After installing this module, you can find a 'Build-a-Bonus' application in any actor's, items, or effect's header. This gives you the ability to apply a bonus to any attack roll, damage roll, saving throw DC, saving throw, or hit die roll, for bonuses that should apply only under specific circumstances. If a bonus is embedded in an item or effect, they transfer with the item/effect if placed on another actor.</p>
+<p>A module for the Foundry <code>dnd5e</code> system. After installing this module, you can find a 'Build-a-Bonus' application in any actor's, items, or effect's header. This gives you the ability to apply a bonus to any attack roll, damage roll, saving throw DC, saving throw, ability check, or hit die roll, for bonuses that should apply only under specific circumstances. If a bonus is embedded in an item or effect, they transfer with the item/effect if placed on another actor.</p>
 
 <p style="text-align: center"><img src="https://i.imgur.com/PEtyFfQ.png" style="border: none"></p>
 
-<p>Any bonuses you create will automatically be calculated when you perform an attack roll, damage roll, when you use an item that has a saving throw, when you perform a saving throw yourself, or when you roll a hit die. For example:</p>
+<p>Any bonuses you create will automatically be calculated when you perform an attack roll, damage roll, when you use an item that has a saving throw, when you perform a saving throw or ability check yourself, or when you roll a hit die. For example:</p>
 <ul>
 <li>Implement the alchemist artificer's feature to add their intelligence modifier (<code>@abilities.int.mod</code>) to the damage rolls of all Spell-type items, and have Build-a-Bonus filter the bonus so it only applies to spells, only if it deals acid, fire, necrotic, poison, or healing, and only if it has a material (M) component.</li>
 <li>Give your wizard player a bonus to the saving throw DC with just Divination spells, and equal to the level of the spell.</li>
@@ -19,7 +19,7 @@
 <p style="text-align: center"><img src="https://i.imgur.com/Ygf0fPE.png" style="border: none"></p>
 
 <h1 style="font-weight: bold;">How to Use</h1>
-<p>Open any actor's sheet, any item sheet, or any effect config, then click the otter icon in the header. Choose the type of bonus you want to create (attack roll, damage roll, save dc, saving throws, or hit die rolls), then fill out the name, description, and the bonus. Then start narrowing down when and how the bonus should apply, using the available filters on the right.<p>
+<p>Open any actor's sheet, any item sheet, or any effect config, then click the otter icon in the header. Choose the type of bonus you want to create (attack roll, damage roll, save dc, saving throws, ability checks, or hit die rolls), then fill out the name, description, and the bonus. Then start narrowing down when and how the bonus should apply, using the available filters on the right.<p>
 <p>Once the bonus is created, you can configure it further on the main view of the application on the right.</p>
 <p>If you need additional hints, hover over any of the labels to get tooltips. Not all filters are available for each type of bonus. Below is an example using the artificer's <em>Alchemical Savant</em> feature.</p>
 
@@ -45,13 +45,13 @@
 <p>For any bonus created on an item (spell, feature, weapon, etc.), if that bonus does not produce a valid aura of any kind, you may toggle it in the Build-a-Bonus to only apply to that item in question. This is good for any unique weapons for example that have certain properties that should apply only to themselves.</p>
 
 <h3 style="font-weight: bold;">Optional Bonuses and Consumption</h3>
-<p>If the bonus additively affects an attack roll, damage roll, or saving throw (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will apply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making an attack roll, damage roll, or saving throw.</p>
+<p>If the bonus additively affects an attack roll, damage roll, saving throw, or ability check (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will apply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making an attack roll, damage roll, saving throw, or ability check.</p>
 <p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, or the active effect on which it is created. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
 <p>For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect cannot scale.</p>
 
 <h1 style="font-weight: bold;">Available Filters</h1>
 <p>These are the available filters that narrow down if the bonus should apply when making a roll.</p>
-<p><strong><em>Abilities.</em></strong> Filter the bonus to only apply to items that have set the used ability to be one of these types. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons. This is the ability set in the item just below its Action Type in the Details tab.</p>
+<p><strong><em>Abilities.</em></strong> The ability score used for the roll. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity.</p>
 <p><strong><em>Actor Conditions.</em></strong> Filter the bonus to only apply if the actor is affected by a specific status condition. This uses the status id string stored in status conditions, as detailed above.</p>
 <p><strong><em>Arbitrary Comparisons.</em></strong> An arbitrary comparison you can use for anything that is not covered in the Build-a-Bonus natively. This supports numbers, roll data, and strings. If you enter strings, you can use the inequalities to match substrings. It will otherwise attempt to determine numeric values after replacing roll data with the roll data of the item and actor. For example, you can have a bonus apply only when the actor is below half health with <code>@attributes.hp.value <= @attributes.hp.max</code>. Unlike other filters, you can add this filter to the builder multiple times.</p>
 <p><strong><em>Attack Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has an attack roll of that specific kind.</p>
@@ -64,12 +64,14 @@
 <p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells. This filter is only available for attack roll, damage roll, and save DC bonuses.</p>
 <p><strong><em>Save Ability.</em></strong> Filter the bonus such that it only applies if the DC is set using a specific ability. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.</p>
 <p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to. Any ability score as well as death saving throws. If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
+<p><strong><em>Skills.</em></strong> The type of skill the roll must be for the bonus to apply. For example Athletics, Nature, or Survival.</p>
 <p><strong><em>Spell Components.</em></strong> Filter the bonus to only apply if the item is a spell that has any one (or all) of the given components.</p>
 <p><strong><em>Spell Levels.</em></strong> Filter the bonus to only apply if the item is a spell and is or was cast at one of the given levels.</p>
 <p><strong><em>Spell Preparation Modes.</em></strong> Filter the bonus to only apply if the item is a spell and is one of a selected few preparation modes such as 'pact magic' or 'innate'.</p>
 <p><strong><em>Spell Schools.</em></strong> Filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.</p>
 <p><strong><em>Target Conditions.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by a specific status condition. Same details as above.</p>
 <p><strong><em>Token Sizes.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a token of a certain size or greater (or smaller), and optionally clamped using the roller's token's size.</p>
+<p><strong><em>Tool Types.</em></strong> The type of tool the item must be for the bonus to apply. For example Herbalism Kit, Thieves' Tools, or Cobbler's Tools.</p>
 <p><strong><em>Weapon Properties.</em></strong> Filter the bonus to only apply if the item is a weapon that has at least one from a set of required weapon properties (if any) while having none of the unfit properties (if any).</p>
 
 <h1 style="font-weight: bold;">API</h1>
