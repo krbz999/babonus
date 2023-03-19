@@ -60,7 +60,6 @@ export class ConsumptionDialog extends FormApplication {
         value: {min: null, max: null, step: null}
       }
     }, formData);
-    console.log(data);
     return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
