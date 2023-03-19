@@ -6,7 +6,6 @@ import {
   SaveBabonus,
   ThrowBabonus
 } from "../applications/dataModel.mjs";
-import {BabonusKeysDialog} from "../applications/keysDialog.mjs";
 import {MODULE_NAME, TYPES} from "../constants.mjs";
 
 /**
