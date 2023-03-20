@@ -119,11 +119,11 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
-    if(bonus.isScaling){
+    if (bonus.isScaling) {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingHealthOptions(bonus);
-      if(!data.options) return null;
+      if (!data.options) return null;
     }
     return data;
   }
@@ -385,13 +385,14 @@ export class OptionalSelector {
    * @param {Babonus} bonus     The babonus.
    * @returns {string}          The string of select options.
    */
-  _constructScalingHealthOptions(bonus){
+  _constructScalingHealthOptions(bonus) {
     const value = bonus.consume.value;
     const hp = this.actor.system.attributes.hp;
     const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
-    if((min < value.min) || !(value.step > 0)) return "";
+    const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
+    if ((min < value.min) || !(value.step > 0)) return "";
     let options = "";
-    for(let i = value.min; i <= Math.min(min, value.max); i += value.step){
+    for (let i = value.min; i <= Math.min(min, value.max || max); i += value.step) {
       options += `<option value="${i}">${game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i})}</option>`;
     }
     return options;
@@ -402,12 +403,12 @@ export class OptionalSelector {
    * get the minimum possible value, and calculate how much it should scape up.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onApplyScalingHealthOption(event){
+  _onApplyScalingHealthOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
-    const scale = Math.floor((Number(value) - (bonus.consume.value.min || 1))/bonus.consume.value.step);
+    const scale = Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step);
     const sitBonus = this._scaleOptionalBonus(bonus, scale);
-    if(this._canSupplySelected(event)){
+    if (this._canSupplySelected(event)) {
       this.actor.applyDamage(value);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
@@ -420,7 +421,7 @@ export class OptionalSelector {
    * When applying a non-scaling bonus that consumes hit points, get the minimum value and consume it.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onApplyHealthOption(event){
+  _onApplyHealthOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const value = Number(bonus.consume.value.min || 1);
     if (this._canSupplyMinimum(bonus)) {
