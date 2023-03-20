@@ -116,7 +116,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Whether a babonus can be toggled to be optional.
   get isOptionable() {
-    return !!this.bonuses?.bonus && ["attack", "damage", "throw"].includes(this.type);
+    return !!this.bonuses?.bonus && ["attack", "damage", "throw", "test"].includes(this.type);
   }
 
   // Whether a babonus is currently optional.
@@ -126,10 +126,15 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Whether the babonus is embedded on an item and valid to be 'item only'.
   get canExclude() {
-    return (this.parent instanceof Item)
-      && ["attack", "damage", "save"].includes(this.type)
-      && ITEM_ROLL_TYPES.includes(this.item.type)
-      && !this.hasAura && !this.isTemplateAura;
+    if (!(this.parent instanceof Item)) return false;
+
+    // Valid for attack/damage/save:
+    const validityA = ["attack", "damage", "save"].includes(this.type) && ITEM_ROLL_TYPES.includes(this.item.type);
+
+    // Valid for test:
+    const validityB = (this.type === "test") && (this.item.type === "tool");
+
+    return (validityA || validityB) && !this.hasAura && !this.isTemplateAura;
   }
 
   // whether a bonus is currently only possible to apply to its parent item.
@@ -419,6 +424,27 @@ export class ThrowBabonus extends Babonus {
       filters: new foundry.data.fields.SchemaField({
         throwTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.throwTypes.map(t => t.value)
+        }))
+      })
+    });
+  }
+}
+
+export class TestBabonus extends Babonus {
+  static defineSchema() {
+    return foundry.utils.mergeObject(super.defineSchema(), {
+      bonuses: new foundry.data.fields.SchemaField({
+        bonus: new foundry.data.fields.StringField()
+      }),
+      filters: new foundry.data.fields.SchemaField({
+        abilities: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.abilities.map(t => t.value)
+        })),
+        baseTools: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.baseTools.map(t => t.value)
+        })),
+        skillIds: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.skillIds.map(t => t.value)
         }))
       })
     });

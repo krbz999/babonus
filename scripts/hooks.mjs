@@ -196,6 +196,68 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
   });
 }
 
+/** When you roll an ability check... */
+export function _preRollAbilityTest(actor, rollConfig, abilityId) {
+  const bonuses = FILTER.testCheck(actor, abilityId);
+  if (!bonuses.length) return;
+  const target = game.user.targets.first();
+  if (target?.actor) rollConfig.data.target = target.actor.getRollData();
+  const {parts, optionals} = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    if (bab.isOptional) acc.optionals.push(bab);
+    else acc.parts.push(bonus);
+    return acc;
+  }, {parts: [], optionals: []});
+  if (parts.length) rollConfig.parts.push(...parts);
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
+}
+
+/** When you roll a skill... */
+export function _preRollSkill(actor, rollConfig, skillId) {
+  const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.2.0
+  const bonuses = FILTER.testCheck(actor, abilityId, {skillId});
+  if (!bonuses.length) return;
+  const target = game.user.targets.first();
+  if (target?.actor) rollConfig.data.target = target.actor.getRollData();
+  const {parts, optionals} = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    if (bab.isOptional) acc.optionals.push(bab);
+    else acc.parts.push(bonus);
+    return acc;
+  }, {parts: [], optionals: []});
+  if (parts.length) rollConfig.parts.push(...parts);
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
+}
+
+/** When you roll a tool check... */
+export function _preRollToolCheck(item, rollConfig) {
+  const abilityId = item.system.ability; // TODO: fix in 2.2.0
+  const bonuses = FILTER.testCheck(item, abilityId);
+  if (!bonuses.length) return;
+  const target = game.user.targets.first();
+  if (target?.actor) rollConfig.data.target = target.actor.getRollData();
+  const {parts, optionals} = bonuses.reduce((acc, bab) => {
+    const bonus = bab.bonuses.bonus;
+    const valid = !!bonus && Roll.validate(bonus);
+    if (!valid) return acc;
+    if (bab.isOptional) acc.optionals.push(bab);
+    else acc.parts.push(bonus);
+    return acc;
+  }, {parts: [], optionals: []});
+  if (parts.length) rollConfig.parts.push(...parts);
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, item, bonuses});
+}
+
+/** When you roll initiative... */
+export function _preRollInitiative(actor, roll) {
+  // This can barely be made functional.
+  // Bonuses cannot be shown in the dialog, and optional bonuses cannot be shown and applied either.
+}
+
 /** When you roll a hit die... */
 export function _preRollHitDie(actor, rollConfig, denomination) {
   const bonuses = FILTER.hitDieCheck(actor);
