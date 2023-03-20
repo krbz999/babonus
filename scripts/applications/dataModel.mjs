@@ -60,7 +60,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Whether the babonus can show the Consumption app in the builder.
   get canConsume() {
-    return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots || this.canConsumeEffect);
+    return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots || this.canConsumeEffect || this.canConsumeHealth);
   }
 
   // Whether the babonus is scaling.
@@ -68,6 +68,7 @@ class Babonus extends foundry.abstract.DataModel {
     if (!this.isConsuming) return false;
     if (!this.consume.scales) return false;
     if (this.consume.type === "effect") return false;
+    if ((this.consume.type === "health") && !(this.consume.value.step > 0)) return false;
     return (this.consume.value.max || Infinity) > this.consume.value.min;
   }
 
@@ -88,6 +89,11 @@ class Babonus extends foundry.abstract.DataModel {
     return true;
   }
 
+  // Whether the babonus can be set to consume hit points of its owning actor.
+  get canConsumeHealth() {
+    return true;
+  }
+
   // whether the babonus can be set to consume the effect on which it lives.
   get canConsumeEffect() {
     if (this.hasAura || this.isTemplateAura) return false;
@@ -99,10 +105,13 @@ class Babonus extends foundry.abstract.DataModel {
     if (!this.canConsume || !this.consume.enabled || !this.consume.type) return false;
 
     const type = this.consume.type;
-    if (type === "uses") return this.canConsumeUses && this.item.isOwner && (this.consume.value.min > 0);
-    else if (type === "quantity") return this.canConsumeQuantity && this.item.isOwner && (this.consume.value.min > 0);
-    else if (type === "slots") return this.canConsumeSlots && (this.consume.value.min > 0);
+    const value = this.consume.value;
+
+    if (type === "uses") return this.canConsumeUses && this.item.isOwner && (value.min > 0);
+    else if (type === "quantity") return this.canConsumeQuantity && this.item.isOwner && (value.min > 0);
+    else if (type === "slots") return this.canConsumeSlots && (value.min > 0);
     else if (type === "effect") return this.canConsumeEffect;
+    else if (type === "health") return this.canConsumeHealth && (value.min > 0);
   }
 
   // Whether a babonus can be toggled to be optional.
@@ -251,12 +260,13 @@ class Babonus extends foundry.abstract.DataModel {
       description: new foundry.data.fields.StringField({required: true, blank: true}),
       consume: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
-        type: new foundry.data.fields.StringField({required: false, nullable: true, initial: null, choices: ["", "uses", "quantity", "slots", "effect"]}),
+        type: new foundry.data.fields.StringField({required: false, nullable: true, initial: null, choices: ["", "uses", "quantity", "slots", "health", "effect"]}),
         scales: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
         formula: new foundry.data.fields.StringField(),
         value: new foundry.data.fields.SchemaField({
           min: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
           max: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
+          step: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1})
         })
       }),
       aura: new foundry.data.fields.SchemaField({

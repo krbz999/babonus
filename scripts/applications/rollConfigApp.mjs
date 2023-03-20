@@ -47,6 +47,8 @@ export class OptionalSelector {
           data = this._getDataConsumeItem(bonus);
         } else if (bonus.consume.type === "slots") {
           data = this._getDataConsumeSlots(bonus);
+        } else if (bonus.consume.type === "health") {
+          data = this._getDataConsumeHealth(bonus);
         } else if (bonus.consume.type === "effect") {
           data = this._getDataConsumeEffects(bonus);
         }
@@ -107,6 +109,26 @@ export class OptionalSelector {
   }
 
   /**
+   * Get the template data for bonuses that consume health.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
+   */
+  _getDataConsumeHealth(bonus) {
+    const data = {
+      action: "consume-health",
+      tooltip: this._getTooltip(bonus),
+      babonus: bonus
+    };
+    if(bonus.isScaling){
+      // Must have at least 1 option available.
+      data.action += "-scale";
+      data.options = this._constructScalingHealthOptions(bonus);
+      if(!data.options) return null;
+    }
+    return data;
+  }
+
+  /**
    * Get the template data for bonuses that consume Effects.
    * @param {Babonus} bonus     The bonus that is consuming.
    * @returns {object}          The data for the template.
@@ -143,6 +165,8 @@ export class OptionalSelector {
     this.form.querySelectorAll("[data-action='consume-item-scale']").forEach(n => n.addEventListener("click", this._onApplyScalingItemOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-slots']").forEach(n => n.addEventListener("click", this._onApplySlotsOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-slots-scale']").forEach(n => n.addEventListener("click", this._onApplyScalingSlotsOption.bind(this)));
+    this.form.querySelectorAll("[data-action='consume-health']").forEach(n => n.addEventListener("click", this._onApplyHealthOption.bind(this)));
+    this.form.querySelectorAll("[data-action='consume-health-scale']").forEach(n => n.addEventListener("click", this._onApplyScalingHealthOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-effects']").forEach(n => n.addEventListener("click", this._onApplyEffectsOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-none']").forEach(n => n.addEventListener("click", this._onApplyNoConsumeOption.bind(this)));
   }
@@ -201,6 +225,10 @@ export class OptionalSelector {
     } else if (bonus.consume.type === "effect") {
       const effect = bonus.effect;
       return effect.collection.has(effect.id);
+    } else if (bonus.consume.type === "health") {
+      const hp = this.actor.system.attributes.hp;
+      const value = hp.value + (hp.temp || 0);
+      return value >= bonus.consume.value.min;
     }
   }
 
@@ -226,6 +254,9 @@ export class OptionalSelector {
       return bonus.item.system.quantity >= Number(value);
     } else if (bonus.consume.type === "slots") {
       return this.actor.system.spells[value].value > 0;
+    } else if (bonus.consume.type === "health") {
+      const hp = this.actor.system.attributes.hp;
+      return (hp.value + (hp.temp || 0)) >= Number(value);
     }
   }
 
@@ -340,6 +371,60 @@ export class OptionalSelector {
     const key = this._getLowestValidSpellSlotProperty(bonus.consume.value.min || 1);
     if (this._canSupplyMinimum(bonus)) {
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
+    } else {
+      this._displayConsumptionWarning(bonus.consume.type);
+      return null;
+    }
+    const sitBonus = this._scaleOptionalBonus(bonus, 0);
+    this._appendToField(event, sitBonus);
+  }
+
+  /**
+   * Construct the scaling options for an optional bonus that scales with health consumed.
+   * The 'value' of the option is the amount of hp to subtract.
+   * @param {Babonus} bonus     The babonus.
+   * @returns {string}          The string of select options.
+   */
+  _constructScalingHealthOptions(bonus){
+    const value = bonus.consume.value;
+    const hp = this.actor.system.attributes.hp;
+    const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
+    if((min < value.min) || !(value.step > 0)) return "";
+    let options = "";
+    for(let i = value.min; i <= Math.min(min, value.max); i += value.step){
+      options += `<option value="${i}">${game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i})}</option>`;
+    }
+    return options;
+  }
+
+  /**
+   * When applying a scaling bonus that consumes hit points, get the value from the select,
+   * get the minimum possible value, and calculate how much it should scape up.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onApplyScalingHealthOption(event){
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
+    const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+    const scale = Math.floor((Number(value) - (bonus.consume.value.min || 1))/bonus.consume.value.step);
+    const sitBonus = this._scaleOptionalBonus(bonus, scale);
+    if(this._canSupplySelected(event)){
+      this.actor.applyDamage(value);
+    } else {
+      this._displayConsumptionWarning(bonus.consume.type);
+      return null;
+    }
+    this._appendToField(event, sitBonus);
+  }
+
+  /**
+   * When applying a non-scaling bonus that consumes hit points, get the minimum value and consume it.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onApplyHealthOption(event){
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
+    const value = Number(bonus.consume.value.min || 1);
+    if (this._canSupplyMinimum(bonus)) {
+      this.actor.applyDamage(value);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;

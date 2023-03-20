@@ -66,6 +66,7 @@ export class AuraConfigurationDialog extends FormApplication {
     };
     if (!(this.clone.parent instanceof Item)) update["aura.isTemplate"] = false;
     this.clone.updateSource(update);
-    this._render();
+    await this._render();
+    this.element[0].querySelector(`[name='${name}']`).focus();
   }
 }

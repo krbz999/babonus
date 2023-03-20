@@ -21,7 +21,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
       consume: {
         enabled: true,                                      // Whether the bonus consumes uses/quantity off its item or slots off its actor.
         scales: true,                                       // Whether the consumption scales between the min and max values given.
-        type: "uses",                                       // Whether the consumption is limited "uses" or "quantity" or "slots".
+        type: "uses",                                       // Whether the consumption is limited "uses", "quantity", "slots", "health", or "effect".
         value: {min: 1, max: 3},                            // The minimum and maximum number consumed when applying the bonus.
         formula: "1d8"                                      // A formula with which the bonus scales, default being the bonus formula itself.
       },

@@ -32,10 +32,13 @@ export class ConsumptionDialog extends FormApplication {
     if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
     if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot"});
     if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
+    if (this.clone.canConsumeHealth) choices.push({value: "health", label: "BABONUS.ConsumptionTypeHealth"});
     return {
       choices,
       disableMax: (this.clone.consume.type === "effect") || (!this.clone.consume.scales),
       isEffect: this.clone.consume.type === "effect",
+      isHealth: this.clone.consume.type === "health",
+      disableStep: !this.clone.consume.scales,
       ...this.clone
     };
   }
@@ -48,8 +51,16 @@ export class ConsumptionDialog extends FormApplication {
 
   /** @override */
   async _updateObject(event, formData) {
-    formData["consume.enabled"] = true;
-    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
+    const data = foundry.utils.mergeObject({
+      consume: {
+        enabled: true,
+        formula: null,
+        scales: false,
+        type: null,
+        value: {min: null, max: null, step: null}
+      }
+    }, formData);
+    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */
@@ -57,6 +68,7 @@ export class ConsumptionDialog extends FormApplication {
     await super._onChangeInput(event);
     const {name, value, type, checked} = event.currentTarget;
     this.clone.updateSource({[name]: type === "checkbox" ? checked : (value || null)});
-    this._render();
+    await this._render();
+    this.element[0].querySelector(`[name='${name}']`).focus();
   }
 }
