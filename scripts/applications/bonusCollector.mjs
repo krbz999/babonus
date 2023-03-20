@@ -3,6 +3,7 @@ import {
   DamageBabonus,
   HitDieBabonus,
   SaveBabonus,
+  TestBabonus,
   ThrowBabonus
 } from "./dataModel.mjs";
 import {AURA_TARGETS, MODULE, SHOW_AURA_RANGES} from "../constants.mjs";
@@ -54,6 +55,7 @@ export class BonusCollector {
     if (this.type === "attack") this.babonusClass = AttackBabonus;
     else if (this.type === "damage") this.babonusClass = DamageBabonus;
     else if (this.type === "save") this.babonusClass = SaveBabonus;
+    else if (this.type === "test") this.babonusClass = TestBabonus;
     else if (this.type === "throw") this.babonusClass = ThrowBabonus;
     else if (this.type === "hitdie") this.babonusClass = HitDieBabonus;
 

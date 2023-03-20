@@ -4,6 +4,7 @@ import {
   DamageBabonus,
   HitDieBabonus,
   SaveBabonus,
+  TestBabonus,
   ThrowBabonus
 } from "../applications/dataModel.mjs";
 import {BabonusKeysDialog} from "../applications/keysDialog.mjs";
@@ -25,6 +26,19 @@ export class KeyGetter {
       const {name: label} = index.find(({_id}) => {
         return _id === id;
       }) ?? {};
+      return {value, label};
+    });
+  }
+
+  // Base tool types.
+  static get baseTools() {
+    const entries = Object.entries(CONFIG.DND5E.toolIds);
+    return entries.map(([value, uuid]) => {
+      const split = uuid.split(".");
+      const id = split.pop();
+      const packKey = split.length ? split.join(".") : "dnd5e.items";
+      const {index} = game.packs.get(packKey);
+      const {name: label} = index.find(({_id}) => _id === id) ?? {};
       return {value, label};
     });
   }
@@ -139,6 +153,11 @@ export class KeyGetter {
       return {value: key, label: value};
     });
   }
+
+  // Skill ids.
+  static get skillIds() {
+    return Object.entries(CONFIG.DND5E.skills).map(([value, {label}]) => ({value, label}));
+  }
 }
 
 /**
@@ -205,6 +224,7 @@ export function _createBabonus(data, id, options = {}) {
     attack: AttackBabonus,
     damage: DamageBabonus,
     save: SaveBabonus,
+    test: TestBabonus,
     throw: ThrowBabonus,
     hitdie: HitDieBabonus
   }[data.type](data, options);

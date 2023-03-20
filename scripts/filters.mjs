@@ -66,12 +66,20 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 
         // ATTACK, DAMAGE, SAVE:
         damageTypes: ["fire", "cold", "bludgeoning"],       // The type of damage or healing the item must have.
-        abilities: ["int"],                                 // The ability the item must be using.
-        saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
         itemTypes: ["spell", "weapon"],                     // The item types to which it applies; also "feat", "equipment", "consumable".
+
+        // ATTACK, DAMAGE, THROW, TEST:
+        abilities: ["int"],                                 // The ability the actor/item must be using.
+
+        // SAVE:
+        saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
 
         // THROW:
         throwTypes: ["con", "death", "concentration"],      // The type of saving throw to which it applies.
+
+        // TEST:
+        baseTools: ["herb", "alchemist"],                   // The type of tool being used for the tool check.
+        skillIds: ["ath", "acr"],                           // The type of skill being rolled.
 
         // SPELL:
         spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one, or match "ANY".
@@ -115,6 +123,20 @@ export class FILTER {
     }).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor, {throwType, isConcSave});
+  }
+
+  /**
+   * Initiate the collection and filtering of bonuses applying to ability checks.
+   * @param {Actor5e|Item5e} object         The actor or tool performing the test.
+   * @param {string} abilityId              The ability used for the test.
+   * @param {object} [details={}]           Additional context for the filtering and checks.
+   * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
+   * @returns {Babonus[]}                   A filtered array of babonuses to apply.
+   */
+  static testCheck(object, abilityId, {skillId} = {}) {
+    const bonuses = new BonusCollector({object, type: "test"}).returnBonuses();
+    if (!bonuses.size) return [];
+    return this.finalFilterBonuses(bonuses, object, {abilityId, skillId});
   }
 
   /**
@@ -250,15 +272,31 @@ export class FILTER {
    * by the system itself for items set to 'Default' to look for finesse weapons and spellcasting
    * abilities. Note that this is the ability set at the top level of the item's action, and
    * is NOT the ability used to determine the dc of the saving throw.
-   * @param {Item5e} item          The item being filtered against.
-   * @param {string[]} filter      The array of abilities.
-   * @returns {boolean}            Whether the item is using one of the abilities.
+   * @param {Actor5e|Item5e} object           The actor or item being performing the roll.
+   * @param {string[]} filter                 The array of abilities.
+   * @param {object} [details={}]             Additional context for the roll being performed.
+   * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll.
+   * @returns {boolean}                       Whether the actor or item is using one of the abilities.
    */
-  static abilities(item, filter) {
+  static abilities(object, filter, {abilityId} = {}) {
     if (!filter?.length) return true;
-    // if the item has no actionType, it has no ability.
-    if (!item.system.actionType) return false;
-    return filter.includes(item.abilityMod);
+
+    // Case 1: Tool Checks.
+    if ((object instanceof Item) && (object.type === "tool")) {
+      return filter.includes(object.system.ability);
+    }
+
+    // Case 2: Attack/Damage rolls.
+    if (object instanceof Item) {
+      // if the item has no actionType, it has no ability.
+      if (!item.system.actionType) return false;
+      return filter.includes(item.abilityMod);
+    }
+
+    // Case 3: AbilityTest or Skill.
+    if (object instanceof Actor) {
+      return filter.includes(abilityId);
+    }
   }
 
   /**
@@ -558,5 +596,31 @@ export class FILTER {
       se = size;
     }
     return ((type === 0) && (enemySize >= Math.max(se, size))) || ((type === 1) && (enemySize <= Math.min(se, size)));
+  }
+
+  /**
+   * Find out if the tool being rolled for a check is one of the correct types.
+   * @param {Item5e} tool         The tool being used for the check.
+   * @param {string[]} filter     The types of tool types.
+   * @returns {boolean}           Whether the tool type matches the filter.
+   */
+  static baseTools(tool, filter) {
+    if (!filter?.length) return true;
+    if (tool.type !== "tool") return false;
+    return filter.includes(tool.system.baseItem);
+  }
+
+  /**
+   * Find out if the skill being rolled is one of the correct types.
+   * @param {Actor5e} actor               The actor performing the roll.
+   * @param {string[]} filter             The types of skill ids.
+   * @param {object} details              Additional properties for the filtering.
+   * @param {string} details.skillId      The id of the skill being rolled.
+   * @returns {boolean}                   Whether the skill matches the filter.
+   */
+  static skillIds(actor, filter, {skillId}) {
+    if (!filter?.length) return true;
+    if (!skillId) return false;
+    return filter.includes(skillId);
   }
 }
