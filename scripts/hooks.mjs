@@ -1,6 +1,5 @@
 import {FILTER} from "./filters.mjs";
 import {OptionalSelector} from "./applications/rollConfigApp.mjs";
-import {_getCollection, _openWorkshop} from "./helpers/helpers.mjs";
 import {
   MODULE, MODULE_ICON,
   SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
@@ -9,6 +8,7 @@ import {
   SHOW_AURA_RANGES
 } from "./constants.mjs";
 import {AppliedBonusesDialog} from "./applications/appliedBonusesDialog.mjs";
+import {BabonusWorkshop} from "./applications/babonus.mjs";
 
 /**
  * Helper method to evaluate roll data into an integer.
@@ -302,7 +302,7 @@ export function _preCreateMeasuredTemplate(templateDoc) {
   const tokenDocument = actor.token ?? actor.getActiveTokens(false, true)[0];
   const disp = tokenDocument?.disposition ?? actor.prototypeToken.disposition;
 
-  const bonusData = _getCollection(item).reduce((acc, bab) => {
+  const bonusData = BabonusWorkshop._getCollection(item).reduce((acc, bab) => {
     if (bab.isTemplateAura) {
       acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
     }
@@ -370,7 +370,7 @@ export function _addHeaderButtonActor(app, array) {
   const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
-    onclick: () => _openWorkshop(app.object)
+    onclick: () => new BabonusWorkshop(app.object).render(true)
   }
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
@@ -381,7 +381,7 @@ export function _addHeaderButtonItem(app, array) {
   const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
-    onclick: () => _openWorkshop(app.object)
+    onclick: () => new BabonusWorkshop(app.object).render(true)
   }
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
@@ -391,7 +391,7 @@ export function _addHeaderButtonEffect(app, array) {
   const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
-    onclick: () => _openWorkshop(app.object)
+    onclick: () => new BabonusWorkshop(app.object).render(true)
   }
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);

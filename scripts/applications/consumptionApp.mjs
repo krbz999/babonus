@@ -1,5 +1,4 @@
 import {MODULE} from "../constants.mjs";
-import {_createBabonus} from "../helpers/helpers.mjs";
 
 export class ConsumptionDialog extends FormApplication {
 

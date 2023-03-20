@@ -4,7 +4,7 @@ export class BabonusKeysDialog extends Dialog {
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["dialog", "babonus", "keys-dialog"],
+      classes: [MODULE, "keys-dialog"],
       resizable: true,
       height: 600,
       width: 400

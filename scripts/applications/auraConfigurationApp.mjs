@@ -1,5 +1,4 @@
 import {AURA_TARGETS, MODULE} from "../constants.mjs";
-import {_createBabonus} from "../helpers/helpers.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
 

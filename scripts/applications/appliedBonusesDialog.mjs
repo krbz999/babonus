@@ -13,7 +13,7 @@ export class AppliedBonusesDialog extends Dialog {
       width: 400,
       height: "auto",
       template: `modules/${MODULE}/templates/subapplications/appliedBonusesDialog.hbs`,
-      classes: [MODULE, "overview", "dialog"]
+      classes: [MODULE, "overview"]
     });
   }
 

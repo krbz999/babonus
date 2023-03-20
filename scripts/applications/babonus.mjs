@@ -6,12 +6,14 @@ import {
   ITEM_ROLL_TYPES,
   MODULE,
   MODULE_ICON,
+  MODULE_NAME,
   TYPES
 } from "../constants.mjs";
-import {KeyGetter, _createBabonus, _getCollection} from "../helpers/helpers.mjs";
+import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 import {BabonusKeysDialog} from "./keysDialog.mjs";
+import {AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, TestBabonus, ThrowBabonus} from "./dataModel.mjs";
 
 export class BabonusWorkshop extends FormApplication {
 
@@ -70,6 +72,10 @@ export class BabonusWorkshop extends FormApplication {
 
   get isEditable() {
     return this.object.sheet.isEditable;
+  }
+
+  get title() {
+    return `${MODULE_NAME}: ${this.object.name ?? this.object.label}`;
   }
 
   /**
@@ -143,7 +149,7 @@ export class BabonusWorkshop extends FormApplication {
     const flag = this.object.flags.babonus?.bonuses ?? {};
     data.currentBonuses = Object.entries(flag).reduce((acc, [id, babData]) => {
       try {
-        const bab = _createBabonus(babData, id, {parent: this.object});
+        const bab = this.constructor._createBabonus(babData, id, {parent: this.object});
         bab._collapsed = this._collapsedBonuses.has(id);
         acc.push(bab);
         return acc;
@@ -178,7 +184,7 @@ export class BabonusWorkshop extends FormApplication {
 
     // Attempt to save the babonus, otherwise show a warning.
     try {
-      const bab = _createBabonus(formData, formData.id);
+      const bab = this.constructor._createBabonus(formData, formData.id);
       await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
       await this.object.setFlag(MODULE, `bonuses.${formData.id}`, bab.toObject());
       ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", {name: formData.name, id: formData.id}));
@@ -233,7 +239,7 @@ export class BabonusWorkshop extends FormApplication {
     const label = event.currentTarget.closest(".bonus");
     let dragData;
     if (label.dataset.id) {
-      const bab = _getCollection(this.object).get(label.dataset.id);
+      const bab = this.constructor._getCollection(this.object).get(label.dataset.id);
       dragData = bab.toDragData();
     }
     if (!dragData) return;
@@ -257,13 +263,13 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _fromDropData(data) {
     if (data.data) {
-      return _createBabonus(data.data, null, {parent: this.object});
+      return this.constructor._createBabonus(data.data, null, {parent: this.object});
     } else if (data.uuid) {
       const _parent = await fromUuid(data.uuid);
       const parent = _parent instanceof TokenDocument ? _parent.actor : _parent;
-      const babData = _getCollection(parent).get(data.babId).toObject();
+      const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
       delete babData.id;
-      return _createBabonus(babData, null, {parent: this.object});
+      return this.constructor._createBabonus(babData, null, {parent: this.object});
     }
   }
 
@@ -314,7 +320,7 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const data = this.object.flags.babonus.bonuses[id];
     this._type = null;
-    this._bab = _createBabonus(data, id, {strict: true});
+    this._bab = this.constructor._createBabonus(data, id, {strict: true});
     const formData = this._bab.toString();
     this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
     this._itemTypes = new Set(this._bab.filters.itemTypes ?? []);
@@ -419,7 +425,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleAura(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = _getCollection(this.object).get(id);
+    const bab = this.constructor._getCollection(this.object).get(id);
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
@@ -446,7 +452,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleConsume(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = _getCollection(this.object).get(id);
+    const bab = this.constructor._getCollection(this.object).get(id);
     const path = `bonuses.${id}.consume.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new ConsumptionDialog(this.object, {bab}).render(true);
@@ -526,7 +532,7 @@ export class BabonusWorkshop extends FormApplication {
    * selected values in the input fields that its button was placed near.
    * @param {PointerEvent} event      The initiating click event.
    */
-  async _onDisplayKeysDialog(event){
+  async _onDisplayKeysDialog(event) {
     const formGroup = event.currentTarget.closest(".form-group");
     const filterId = formGroup.dataset.id;
 
@@ -544,7 +550,6 @@ export class BabonusWorkshop extends FormApplication {
       t.checked1 = values1?.includes(t.value);
     });
     const selected = await BabonusKeysDialog.prompt({
-      label: game.i18n.localize("BABONUS.KeysDialogApplySelection"),
       rejectClose: false,
       options: {filterId, appId: this.appId, lists, double},
       callback: function(html) {
@@ -897,5 +902,62 @@ export class BabonusWorkshop extends FormApplication {
       case "tokenSizes": return true;
       case "weaponProperties": return this._itemTypes.has("weapon");
     }
+  }
+
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                   STATIC FUNCTIONS
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /**
+   * Gather a collection of babonuses from a document.
+   * @param {Document5e} object         An actor, item, effect, or template.
+   * @returns {Collection<Babonus>}     A collection of babonuses.
+   */
+  static _getCollection(object) {
+    const bonuses = Object.entries(object.flags.babonus?.bonuses ?? {});
+    const contents = bonuses.reduce((acc, [id, data]) => {
+      if (!foundry.data.validators.isValidId(id)) return acc;
+      try {
+        const bonus = this._createBabonus(data, id, {parent: object});
+        acc.push([id, bonus]);
+      } catch (err) {
+        console.warn(err);
+      }
+      return acc;
+    }, []);
+    return new foundry.utils.Collection(contents);
+  }
+
+  /**
+   * Create a Babonus with the given id (or a new one if none is provided).
+   * @param {object} data             An object of babonus data.
+   * @param {string} id               Optionally an id to assign the babonus.
+   * @param {object} [options={}]     Additional options that modify the babonus creation.
+   * @returns {Babonus}               The created babonus.
+   */
+  static _createBabonus(data, id, options = {}) {
+    const types = TYPES.map(t => t.value);
+    if (!types.includes(data.type)) {
+      throw new Error("INVALID BABONUS TYPE.");
+    }
+
+    // if no id explicitly provided, make a new one.
+    data.id = id ?? foundry.utils.randomID();
+
+    const bonus = new {
+      attack: AttackBabonus,
+      damage: DamageBabonus,
+      save: SaveBabonus,
+      test: TestBabonus,
+      throw: ThrowBabonus,
+      hitdie: HitDieBabonus
+    }[data.type](data, options);
+    return bonus;
   }
 }
