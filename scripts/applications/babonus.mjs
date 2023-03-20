@@ -8,9 +8,10 @@ import {
   MODULE_ICON,
   TYPES
 } from "../constants.mjs";
-import {_createBabonus, _getCollection, _onDisplayKeysDialog} from "../helpers/helpers.mjs";
+import {KeyGetter, _createBabonus, _getCollection} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
+import {BabonusKeysDialog} from "./keysDialog.mjs";
 
 export class BabonusWorkshop extends FormApplication {
 
@@ -206,7 +207,7 @@ export class BabonusWorkshop extends FormApplication {
 
     // Builder methods.
     html[0].querySelector("[data-action='cancel']").addEventListener("click", this._onCancelBuilder.bind(this));
-    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(a => a.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(a => a.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
     html[0].querySelectorAll("[data-action='pick-type']").forEach(a => a.addEventListener("click", this._onPickType.bind(this)));
     html[0].querySelectorAll("[data-action='delete-filter']").forEach(a => a.addEventListener("click", this._onDeleteFilter.bind(this)));
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
@@ -421,10 +422,10 @@ export class BabonusWorkshop extends FormApplication {
     const bab = _getCollection(this.object).get(id);
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
-    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab}).render(true);
+    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
     if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
-    return new AuraConfigurationDialog(this.object, {bab}).render(true);
+    return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
   }
 
   /**
@@ -518,6 +519,52 @@ export class BabonusWorkshop extends FormApplication {
    */
   _onSectionCollapse(event) {
     event.currentTarget.closest("header").classList.toggle("collapsed");
+  }
+
+  /**
+   * Helper function to display the keys dialog and subsequently place the
+   * selected values in the input fields that its button was placed near.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  async _onDisplayKeysDialog(event){
+    const formGroup = event.currentTarget.closest(".form-group");
+    const filterId = formGroup.dataset.id;
+
+    const lists = foundry.utils.duplicate(KeyGetter[filterId]);
+
+    // The text inputs.
+    const inputs = formGroup.querySelectorAll("input[type='text']");
+    const double = inputs.length === 2;
+
+    const [list, list2] = inputs
+    const values0 = inputs[0].value.split(";");
+    const values1 = inputs[1]?.value.split(";");
+    lists.forEach(t => {
+      t.checked0 = values0.includes(t.value);
+      t.checked1 = values1?.includes(t.value);
+    });
+    const selected = await BabonusKeysDialog.prompt({
+      label: game.i18n.localize("BABONUS.KeysDialogApplySelection"),
+      rejectClose: false,
+      options: {filterId, appId: this.appId, lists, double},
+      callback: function(html) {
+        const selector = "td:nth-child(2) input[type='checkbox']:checked";
+        const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
+        const checked = [...html[0].querySelectorAll(selector)];
+        const checked2 = [...html[0].querySelectorAll(selector2)];
+        return {
+          first: checked.map(i => i.id).join(";") ?? "",
+          second: checked2.map(i => i.id).join(";") ?? ""
+        };
+      },
+    });
+
+    if (!selected) return;
+    if (Object.values(selected).every(a => foundry.utils.isEmpty(a))) return;
+
+    list.value = selected.first;
+    if (list2) list2.value = selected.second;
+    return;
   }
 
   /**
@@ -718,7 +765,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _appendListenersToFilters(fg) {
     fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
-    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
     fg.querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
   }
 

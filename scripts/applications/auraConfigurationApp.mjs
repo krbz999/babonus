@@ -1,11 +1,12 @@
 import {AURA_TARGETS, MODULE} from "../constants.mjs";
-import {_createBabonus, _onDisplayKeysDialog} from "../helpers/helpers.mjs";
+import {_createBabonus} from "../helpers/helpers.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
 
   constructor(object, options = {}) {
     super(object, options);
     this.clone = options.bab.clone();
+    this.builder = options.builder;
   }
 
   get id() {
@@ -43,7 +44,7 @@ export class AuraConfigurationDialog extends FormApplication {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", _onDisplayKeysDialog.bind(this));
+    html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", this.builder._onDisplayKeysDialog.bind(this));
   }
 
   /** @override */
