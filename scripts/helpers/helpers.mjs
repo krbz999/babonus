@@ -10,8 +10,7 @@ export class KeyGetter {
       const split = uuid.split(".");
       const id = split.pop();
       const packKey = split.length ? split.join(".") : "dnd5e.items";
-      const {name} = game.packs.get(packKey).index.find(({_id}) => _id === id) ?? {};
-      return {value, label: name};
+      return {value, label: game.packs.get(packKey).index.get(id)?.name};
     });
   }
 
@@ -22,8 +21,7 @@ export class KeyGetter {
       const split = uuid.split(".");
       const id = split.pop();
       const packKey = split.length ? split.join(".") : "dnd5e.items";
-      const {name} = game.packs.get(packKey).index.find(({_id}) => _id === id) ?? {};
-      return {value, label: name};
+      return {value, label: game.packs.get(packKey).index.get(id)?.name};
     });
   }
 
