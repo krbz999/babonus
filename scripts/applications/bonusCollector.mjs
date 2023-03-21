@@ -72,7 +72,7 @@ export class BonusCollector {
     if (this.token) {
       this.disposition = this.token.disposition;
       this.elevation = this.token.elevation;
-      this.tokenCenters = this._collectTokenCenters(this.token);
+      this.tokenCenters = this.constructor._collectTokenCenters(this.token);
 
       // Find all templates and all other tokens.
       this.templates = canvas.scene.templates;
@@ -274,7 +274,7 @@ export class BonusCollector {
    * @param {TokenDocument5e} tokenDoc    The token document on the scene.
    * @returns {object[]}                  An array of xy coordinates.
    */
-  _collectTokenCenters(tokenDoc) {
+  static _collectTokenCenters(tokenDoc) {
     const {width, height, x, y} = tokenDoc;
     const grid = canvas.scene.grid.size;
     const halfGrid = grid / 2;

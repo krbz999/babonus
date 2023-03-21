@@ -1,4 +1,5 @@
 import {BabonusWorkshop} from "./applications/babonus.mjs";
+import {BonusCollector} from "./applications/bonusCollector.mjs";
 import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
 import {migration} from "./migration.mjs";
@@ -311,24 +312,12 @@ function sceneTokensByDisposition(scene) {
 }
 
 /**
- * Return all the upper left corners of all grid spaces one token occupies.
- * @param {TokenDocument5e} tokenDoc      The token document.
- * @returns {object[]}                    An array of x and y coordinate objects.
+ * Get the centers of all grid spaces that overlap with a token document.
+ * @param {TokenDocument5e} tokenDoc    The token document on the scene.
+ * @returns {object[]}                  An array of xy coordinates.
  */
 function getOccupiedGridSpaces(tokenDoc) {
-  const {width, height, x, y} = tokenDoc;
-  if (width <= 1 && height <= 1) return [{x, y}];
-  const corners = [];
-  const grid = canvas.grid.size;
-  for (let a = 0; a < width; a++) {
-    for (let b = 0; b < height; b++) {
-      corners.push({
-        x: x + a * grid,
-        y: y + b * grid
-      });
-    }
-  }
-  return corners;
+  return BonusCollector._collectTokenCenters(tokenDoc);
 }
 
 /**
