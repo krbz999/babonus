@@ -64,7 +64,7 @@ function getName(object, name) {
  * @returns {string[]}            An array of names.
  */
 function getNames(object) {
-  return Object.values(object.flags.babonus?.bonuses ?? {}).filter(({name}) => name);
+  return [...new Set(BabonusWorkshop._getCollection(object).map(bonus => bonus.name))];
 }
 
 /**
@@ -83,7 +83,7 @@ function getId(object, id) {
  * @returns {string[]}            An array of ids.
  */
 function getIds(object) {
-  return Object.keys(object.flags.babonus?.bonuses ?? {}).filter(id => foundry.data.validators.isValidId(id))
+  return [...new Set(BabonusWorkshop._getCollection(object).map(bonus => bonus.id))];
 }
 
 /**
@@ -301,12 +301,11 @@ function createBabonus(data, parent = null) {
  * @returns {object}        An object of the three arrays.
  */
 function sceneTokensByDisposition(scene) {
-  const {HOSTILE, FRIENDLY, NEUTRAL} = CONST.TOKEN_DISPOSITIONS;
   return scene.tokens.reduce((acc, tokenDoc) => {
     const d = tokenDoc.disposition;
-    if (d === HOSTILE) acc.hostiles.push(tokenDoc);
-    else if (d === FRIENDLY) acc.friendlies.push(tokenDoc);
-    else if (d === NEUTRAL) acc.neutrals.push(tokenDoc);
+    if (d === CONST.TOKEN_DISPOSITIONS.HOSTILE) acc.hostiles.push(tokenDoc);
+    else if (d === CONST.TOKEN_DISPOSITIONS.FRIENDLY) acc.friendlies.push(tokenDoc);
+    else if (d === CONST.TOKEN_DISPOSITIONS.NEUTRAL) acc.neutrals.push(tokenDoc);
     return acc;
   }, {hostiles: [], friendlies: [], neutrals: []});
 }

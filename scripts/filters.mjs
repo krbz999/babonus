@@ -102,9 +102,7 @@ export class FILTER {
    * @returns {Babonus[]}       A filtered array of babonuses to apply.
    */
   static hitDieCheck(actor) {
-    const bonuses = new BonusCollector({
-      object: actor, type: "hitdie"
-    }).returnBonuses();
+    const bonuses = new BonusCollector({object: actor, type: "hitdie"}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
@@ -118,9 +116,7 @@ export class FILTER {
    * @returns {Babonus[]}                     A filtered array of babonuses to apply.
    */
   static throwCheck(actor, throwType, {isConcSave}) {
-    const bonuses = new BonusCollector({
-      object: actor, type: "throw"
-    }).returnBonuses();
+    const bonuses = new BonusCollector({object: actor, type: "throw"}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor, {throwType, isConcSave});
   }
@@ -148,9 +144,7 @@ export class FILTER {
    * @returns {Babonus[]}                     A filtered array of babonuses to apply.
    */
   static itemCheck(item, hookType, {spellLevel} = {}) {
-    const bonuses = new BonusCollector({
-      object: item, type: hookType
-    }).returnBonuses();
+    const bonuses = new BonusCollector({object: item, type: hookType}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, item, {spellLevel});
   }
@@ -160,7 +154,10 @@ export class FILTER {
    * @param {Collection<Babonus>} bonuses       The babonuses to filter.
    * @param {Actor5e|Item5e} object             The actor or item used in each filter and for roll data.
    * @param {object} [details={}]               Additional data necessary to pass along.
+   * @param {string} [details.throwType]        The type of saving thwo being made (possibly 'death').
    * @param {boolean} [details.isConcSave]      Whether a saving throw is made to maintain concentration.
+   * @param {string} [details.abilityId]        The ability used for an ability check.
+   * @param {string} [details.skillId]          The id of the skill, in case of skill checks.
    * @param {number} [details.spellLevel]       The level of the spell, if needed.
    * @returns {Babonus[]}                       The filtered Collection.
    */
