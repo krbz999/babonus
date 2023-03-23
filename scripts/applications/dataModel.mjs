@@ -7,14 +7,7 @@ import {
   TYPES
 } from "../constants.mjs";
 import {KeyGetter} from "../helpers/helpers.mjs";
-import {
-  SemicolonArrayField,
-  FilteredArrayField,
-  ArbitraryComparisonField,
-  DisjointArraysField,
-  SpanField,
-  TokenSizeField
-} from "./dataFields.mjs";
+import {babonusFields} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
 
@@ -320,29 +313,29 @@ class Babonus extends foundry.abstract.DataModel {
         range: new foundry.data.fields.NumberField({required: false, initial: null, min: -1, max: 500, step: 1, integer: true}),
         self: new foundry.data.fields.BooleanField({required: false, initial: true}),
         disposition: new foundry.data.fields.NumberField({required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
-        blockers: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false}))
+        blockers: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false}))
       }),
       filters: new foundry.data.fields.SchemaField({
         itemRequirements: new foundry.data.fields.SchemaField({
           equipped: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true}),
           attuned: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
         }),
-        arbitraryComparison: new ArbitraryComparisonField(new foundry.data.fields.SchemaField({
+        arbitraryComparison: new babonusFields.ArbitraryComparisonField(new foundry.data.fields.SchemaField({
           one: new foundry.data.fields.StringField({required: false, blank: false}),
           other: new foundry.data.fields.StringField({required: false, blank: false}),
           operator: new foundry.data.fields.StringField({required: false, choices: ARBITRARY_OPERATORS.map(t => t.value)})
         })),
-        statusEffects: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        targetEffects: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        creatureTypes: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
+        statusEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
+        targetEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
+        creatureTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
-        preparationModes: new SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
-        tokenSizes: new TokenSizeField({
+        preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
+        tokenSizes: new babonusFields.TokenSizeField({
           size: new foundry.data.fields.NumberField({initial: null, min: 0.5, step: 0.5, integer: false, nullable: true}),
           type: new foundry.data.fields.NumberField({choices: [0, 1], nullable: true}),
           self: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
         }),
-        remainingSpellSlots: new SpanField({
+        remainingSpellSlots: new babonusFields.SpanField({
           min: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true}),
           max: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true})
         })
@@ -374,9 +367,9 @@ class Babonus extends foundry.abstract.DataModel {
     source.filters.creatureTypes = c;
   }
 
-  static _migrateWeaponProperties(source){
+  static _migrateWeaponProperties(source) {
     const types = source.filters.weaponProperties;
-    if(!types || (types instanceof Array) || (typeof types === "string")) return;
+    if (!types || (types instanceof Array) || (typeof types === "string")) return;
     console.warn("A babonus is using an outdated format for 'Weapon Properties'. Editing and saving the bonus with no changes made will resolve this warning.");
     console.warn("The old format will be supported until FVTT v11.");
     const c = [];
@@ -436,36 +429,36 @@ class ItemBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       filters: new foundry.data.fields.SchemaField({
-        itemTypes: new FilteredArrayField(new foundry.data.fields.StringField({
+        itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
           choices: ITEM_ROLL_TYPES, blank: true
         })),
-        attackTypes: new FilteredArrayField(new foundry.data.fields.StringField({
+        attackTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
           choices: ["mwak", "rwak", "msak", "rsak"], blank: true
         })),
-        damageTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
+        damageTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.damageTypes.flatMap(({value}) => [value, `!${value}`])
         })),
-        abilities: new SemicolonArrayField(new foundry.data.fields.StringField({
+        abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.abilities.map(t => t.value)
         })),
         spellComponents: new foundry.data.fields.SchemaField({
-          types: new FilteredArrayField(new foundry.data.fields.StringField({
+          types: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
             choices: KeyGetter.spellComponents.map(t => t.value), blank: true
           })),
           match: new foundry.data.fields.StringField({
             nullable: true, initial: null, choices: Object.keys(SPELL_COMPONENT_MATCHING)
           })
         }),
-        spellLevels: new FilteredArrayField(new foundry.data.fields.StringField({
+        spellLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.spellLevels.map(t => t.value), blank: true
         })),
-        spellSchools: new SemicolonArrayField(new foundry.data.fields.StringField({
+        spellSchools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.spellSchools.map(t => t.value)
         })),
-        baseWeapons: new SemicolonArrayField(new foundry.data.fields.StringField({
+        baseWeapons: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.baseWeapons.map(t => t.value)
         })),
-        weaponProperties: new SemicolonArrayField(new foundry.data.fields.StringField({
+        weaponProperties: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.weaponProperties.flatMap(({value}) => [value, `!${value}`])
         }))
       })
@@ -517,7 +510,7 @@ export class SaveBabonus extends ItemBabonus {
         bonus: new foundry.data.fields.StringField()
       }),
       filters: new foundry.data.fields.SchemaField({
-        saveAbilities: new SemicolonArrayField(new foundry.data.fields.StringField({
+        saveAbilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.saveAbilities.map(t => t.value)
         }))
       })
@@ -547,7 +540,7 @@ export class ThrowBabonus extends Babonus {
         deathSaveCritical: new foundry.data.fields.StringField()
       }),
       filters: new foundry.data.fields.SchemaField({
-        throwTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
+        throwTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.throwTypes.map(t => t.value)
         }))
       })
@@ -583,13 +576,13 @@ export class TestBabonus extends Babonus {
         bonus: new foundry.data.fields.StringField()
       }),
       filters: new foundry.data.fields.SchemaField({
-        abilities: new SemicolonArrayField(new foundry.data.fields.StringField({
+        abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.abilities.map(t => t.value)
         })),
-        baseTools: new SemicolonArrayField(new foundry.data.fields.StringField({
+        baseTools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.baseTools.map(t => t.value)
         })),
-        skillIds: new SemicolonArrayField(new foundry.data.fields.StringField({
+        skillIds: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.skillIds.map(t => t.value)
         }))
       })
