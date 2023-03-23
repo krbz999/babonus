@@ -154,6 +154,7 @@
   "BABONUS.KeysDialogApplySelection": "Apply Selection",
   "BABONUS.KeysDialogExclude": "Exclude",
   "BABONUS.KeysDialogInclude": "Include",
+  "BABONUS.KeysDialogState": "State",
   "BABONUS.KeysDialogTitle": "Keys: {name}",
   "BABONUS.KeysDialogValue": "Value",
   "BABONUS.MigrationBegun": "Migration from previous Build-a-Bonus versions has begun. Please wait for the migration to complete.",

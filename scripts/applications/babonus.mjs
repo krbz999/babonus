@@ -536,40 +536,36 @@ export class BabonusWorkshop extends FormApplication {
     const formGroup = event.currentTarget.closest(".form-group");
     const filterId = formGroup.dataset.id;
 
-    const lists = foundry.utils.duplicate(KeyGetter[filterId]);
+    const list = foundry.utils.duplicate(KeyGetter[filterId]);
 
-    // The text inputs.
-    const inputs = formGroup.querySelectorAll("input[type='text']");
-    const double = inputs.length === 2;
+    // The text input.
+    const values = formGroup.querySelector("input[type='text']").value.split(";");
+    const canExclude = ["creatureTypes", "statusEffects", "targetEffects", "damageTypes", "weaponProperties"].includes(filterId);
 
-    const [list, list2] = inputs
-    const values0 = inputs[0].value.split(";");
-    const values1 = inputs[1]?.value.split(";");
-    lists.forEach(t => {
-      t.checked0 = values0.includes(t.value);
-      t.checked1 = values1?.includes(t.value);
-    });
-    const selected = await BabonusKeysDialog.prompt({
+    for (let value of values) {
+      value = value.trim();
+      const key = value.replaceAll("!", "");
+      const val = list.find(e => e.value === key);
+      if (!val) continue;
+      if (value.startsWith("!")) val.exclude = true;
+      else val.include = true;
+    }
+
+    const newValue = await BabonusKeysDialog.prompt({
       rejectClose: false,
-      options: {filterId, appId: this.appId, lists, double},
+      options: {filterId, appId: this.appId, values: list, canExclude},
       callback: function(html) {
-        const selector = "td:nth-child(2) input[type='checkbox']:checked";
-        const selector2 = "td:nth-child(3) input[type='checkbox']:checked";
-        const checked = [...html[0].querySelectorAll(selector)];
-        const checked2 = [...html[0].querySelectorAll(selector2)];
-        return {
-          first: checked.map(i => i.id).join(";") ?? "",
-          second: checked2.map(i => i.id).join(";") ?? ""
-        };
+        const selects = Array.from(html[0].querySelectorAll("select"));
+        return selects.reduce((acc, select) => {
+          if (select.value === "include") return `${acc}${select.dataset.value};`;
+          else if (select.value === "exclude") return `${acc}!${select.dataset.value};`;
+          else return acc;
+        }, "");
       },
     });
 
-    if (!selected) return;
-    if (Object.values(selected).every(a => foundry.utils.isEmpty(a))) return;
-
-    list.value = selected.first;
-    if (list2) list2.value = selected.second;
-    return;
+    if (!newValue) return;
+    formGroup.querySelector("input[type='text']").value = newValue;
   }
 
   /**
@@ -707,7 +703,7 @@ export class BabonusWorkshop extends FormApplication {
       attackTypes: "checkboxes.hbs",
       baseTools: "text_keys.hbs",
       baseWeapons: "text_keys.hbs",
-      creatureTypes: "text_text_keys.hbs",
+      creatureTypes: "text_keys.hbs",
       customScripts: "textarea.hbs",
       damageTypes: "text_keys.hbs",
       itemRequirements: "label_checkbox_label_checkbox.hbs",
@@ -723,7 +719,7 @@ export class BabonusWorkshop extends FormApplication {
       targetEffects: "text_keys.hbs",
       throwTypes: "text_keys.hbs",
       tokenSizes: "select_number_checkbox.hbs",
-      weaponProperties: "text_text_keys.hbs"
+      weaponProperties: "text_keys.hbs"
     }[id]);
 
     if (id === "spellComponents") {
@@ -808,6 +804,7 @@ export class BabonusWorkshop extends FormApplication {
       "abilities",
       "baseTools",
       "baseWeapons",
+      "creatureTypes",
       "customScripts",
       "damageTypes",
       "preparationModes",
@@ -816,14 +813,10 @@ export class BabonusWorkshop extends FormApplication {
       "spellSchools",
       "statusEffects",
       "targetEffects",
-      "throwTypes"
-    ].includes(data.id)) {
-      data.value = formData[`filters.${data.id}`];
-    } else if ([
-      "creatureTypes",
+      "throwTypes",
       "weaponProperties"
     ].includes(data.id)) {
-      data.value = {needed: formData[`filters.${data.id}.needed`], unfit: formData[`filters.${data.id}.unfit`]};
+      data.value = formData[`filters.${data.id}`];
     } else if (data.id === "remainingSpellSlots") {
       data.value = {min: formData[`filters.${data.id}.min`], max: formData[`filters.${data.id}.max`]};
     } else if ([

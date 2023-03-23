@@ -23,10 +23,54 @@ class Babonus extends foundry.abstract.DataModel {
     super(expData, options);
   }
 
+  /** @override */
+  toObject(source = true) {
+    const data = super.toObject(source);
+    const filters = data.filters ?? {};
+
+    if ((typeof filters.itemRequirements?.equipped !== "boolean") && (typeof filters.itemRequirements?.attuned !== "boolean")) {
+      delete filters.itemRequirements;
+    }
+
+    if (!filters.arbitraryComparison?.length) {
+      delete filters.arbitraryComparison;
+    }
+
+    if (!filters.statusEffects?.length) {
+      delete filters.statusEffects;
+    }
+
+    if (!filters.targetEffects?.length) {
+      delete filters.targetEffects;
+    }
+
+    if (!filters.creatureTypes?.length) {
+      delete filters.creatureTypes;
+    }
+
+    if (!filters.customScripts) {
+      delete filters.customScripts;
+    }
+
+    if (!filters.preparationModes?.length) {
+      delete filters.preparationModes;
+    }
+
+    if (Object.values(filters.tokenSizes ?? {}).includes(null)) {
+      delete filters.tokenSizes;
+    }
+
+    if ((filters.remainingSpellSlots?.min === null) && (filters.remainingSpellSlots?.max === null)) {
+      delete filters.remainingSpellSlots;
+    }
+
+    return data;
+  }
+
   toString() {
     const flattened = foundry.utils.flattenObject(this.toObject());
     const arb = "filters.arbitraryComparison";
-    for (let i = 0; i < flattened[arb].length; i++) {
+    for (let i = 0; i < flattened[arb]?.length ?? 0; i++) {
       flattened[`${arb}.${i}`] = flattened[arb][i];
     }
     delete flattened[arb];
@@ -41,6 +85,7 @@ class Babonus extends foundry.abstract.DataModel {
         flattened[key] = ie.join(";");
       }
     }
+    console.log(flattened);
     return foundry.utils.flattenObject(flattened);
   }
 
@@ -289,10 +334,7 @@ class Babonus extends foundry.abstract.DataModel {
         })),
         statusEffects: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         targetEffects: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        creatureTypes: new DisjointArraysField({
-          needed: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false}), {required: false}),
-          unfit: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false}), {required: false})
-        }),
+        creatureTypes: new SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
         preparationModes: new SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
         tokenSizes: new TokenSizeField({
@@ -321,14 +363,75 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Remove in v11.
   static _migrateCreatureTypes(source) {
-    if (!source.filters?.creatureTypes || source.filters.creatureTypes.needed || source.filters.creatureTypes.unfit) return;
-    const needed = source.filters.creatureTypes;
-    source.filters.creatureTypes = {needed};
+    const types = source.filters.creatureTypes;
+    if (!types || (types instanceof Array) || (typeof types === "string")) return;
+    console.warn("A babonus is using an outdated format for 'Creature Types'. Editing and saving the bonus with no changes made will resolve this warning.");
+    console.warn("The old format will be supported until FVTT v11.");
+    const c = [];
+    for (const t of (types.needed ?? [])) c.push(t);
+    for (const u of (types.unfit ?? [])) c.push(`!${u}`);
+    source.filters.creatureTypes = c;
+  }
+
+  static _migrateWeaponProperties(source){
+    const types = source.filters.weaponProperties;
+    if(!types || (types instanceof Array) || (typeof types === "string")) return;
+    console.warn("A babonus is using an outdated format for 'Weapon Properties'. Editing and saving the bonus with no changes made will resolve this warning.");
+    console.warn("The old format will be supported until FVTT v11.");
+    const c = [];
+    for (const t of (types.needed ?? [])) c.push(t);
+    for (const u of (types.unfit ?? [])) c.push(`!${u}`);
+    source.filters.weaponProperties = c;
   }
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
 class ItemBabonus extends Babonus {
+
+  /** @override */
+  toObject(source = true) {
+    const data = super.toObject(source);
+    const filters = data.filters ?? {};
+
+    if (!filters.itemTypes?.length) {
+      delete filters.itemTypes;
+    }
+
+    if (!filters.attackTypes?.length) {
+      delete filters.attackTypes;
+    }
+
+    if (!filters.damageTypes?.length) {
+      delete filters.damageTypes;
+    }
+
+    if (!filters.abilities?.length) {
+      delete filters.abilities;
+    }
+
+    if (!filters.spellComponents?.types.length) {
+      delete filters.spellComponents;
+    }
+
+    if (!filters.spellLevels?.length) {
+      delete filters.spellLevels;
+    }
+
+    if (!filters.spellSchools?.length) {
+      delete filters.spellSchools;
+    }
+
+    if (!filters.baseWeapons?.length) {
+      delete filters.baseWeapons;
+    }
+
+    if (!filters.weaponProperties?.length) {
+      delete filters.weaponProperties;
+    }
+
+    return data;
+  }
+
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       filters: new foundry.data.fields.SchemaField({
@@ -339,7 +442,7 @@ class ItemBabonus extends Babonus {
           choices: ["mwak", "rwak", "msak", "rsak"], blank: true
         })),
         damageTypes: new SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.damageTypes.map(t => t.value)
+          choices: KeyGetter.damageTypes.flatMap(({value}) => [value, `!${value}`])
         })),
         abilities: new SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.abilities.map(t => t.value)
@@ -361,17 +464,12 @@ class ItemBabonus extends Babonus {
         baseWeapons: new SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.baseWeapons.map(t => t.value)
         })),
-        weaponProperties: new DisjointArraysField({
-          needed: new SemicolonArrayField(new foundry.data.fields.StringField({
-            choices: KeyGetter.weaponProperties.map(t => t.value)
-          })),
-          unfit: new SemicolonArrayField(new foundry.data.fields.StringField({
-            choices: KeyGetter.weaponProperties.map(t => t.value)
-          }))
-        })
+        weaponProperties: new SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.weaponProperties.flatMap(({value}) => [value, `!${value}`])
+        }))
       })
     });
-  }
+  };
 }
 
 export class AttackBabonus extends ItemBabonus {
@@ -399,6 +497,19 @@ export class DamageBabonus extends ItemBabonus {
 }
 
 export class SaveBabonus extends ItemBabonus {
+
+  /** @override */
+  toObject(source = true) {
+    const data = super.toObject(source);
+    const filters = data.filters ?? {};
+
+    if (!filters.saveAbilities?.length) {
+      delete filters.saveAbilities;
+    }
+
+    return data;
+  }
+
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
@@ -414,6 +525,19 @@ export class SaveBabonus extends ItemBabonus {
 }
 
 export class ThrowBabonus extends Babonus {
+
+  /** @override */
+  toObject(source = true) {
+    const data = super.toObject(source);
+    const filters = data.filters ?? {};
+
+    if (!filters.throwTypes?.length) {
+      delete filters.throwTypes;
+    }
+
+    return data;
+  }
+
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({
@@ -431,6 +555,27 @@ export class ThrowBabonus extends Babonus {
 }
 
 export class TestBabonus extends Babonus {
+
+  /** @override */
+  toObject(source = true) {
+    const data = super.toObject(source);
+    const filters = data.filters ?? {};
+
+    if (!filters.abilities?.length) {
+      delete filters.abilities;
+    }
+
+    if (!filters.baseTools?.length) {
+      delete filters.baseTools;
+    }
+
+    if (!filters.skillIds?.length) {
+      delete filters.skillIds;
+    }
+
+    return data;
+  }
+
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new foundry.data.fields.SchemaField({

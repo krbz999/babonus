@@ -28,52 +28,51 @@ export class BabonusKeysDialog extends Dialog {
   /** @override */
   async getData() {
     const data = await super.getData();
-    data.double = this.options.double;
+    data.canExclude = this.options.canExclude;
     data.description = `BABONUS.Filters${this.options.filterId.capitalize()}Tooltip`;
-    data.lists = this.options.lists;
+    data.values = this.options.values;
     return data;
   }
 
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelectorAll("[data-action='select-all']").forEach(n => n.addEventListener("click", this._onToggleAll.bind(this)));
-    html[0].querySelectorAll("td:first-child").forEach(n => n.addEventListener("click", this._onClickLabel.bind(this)));
+    html[0].querySelectorAll("[data-action='cycle-all']").forEach(n => n.addEventListener("click", this._onCycleAll.bind(this)));
+    html[0].querySelectorAll("[data-action='cycle']").forEach(n => n.addEventListener("click", this._onCycleRight.bind(this)));
+    html[0].querySelectorAll("[data-action='cycle-left']").forEach(n => n.addEventListener("click", this._onCycleLeft.bind(this)));
+    html[0].querySelectorAll("[data-action='cycle-right']").forEach(n => n.addEventListener("click", this._onCycleRight.bind(this)));
   }
 
   /**
-   * Toggle all inputs in a column to be checked if the first is unchecked, and vice versa.
+   * Cycle all selects in a column between the valid options.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onToggleAll(event) {
-    const idx = event.currentTarget.dataset.index;
+  _onCycleAll(event) {
     const table = event.currentTarget.closest(".babonus.keys-dialog table");
-    const inputs = table.querySelectorAll(`td:nth-child(${idx}) input`);
-    const state = !inputs[0].checked;
-    inputs.forEach(i => i.checked = state);
+    const selects = table.querySelectorAll("select");
+    const newIndex = (selects[0].selectedIndex + 1) % selects[0].options.length;
+    selects.forEach(select => select.selectedIndex = newIndex);
   }
 
   /**
    * Custom implementation for label-to-checkbox linking.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onClickLabel(event) {
-    if (this.options.double) {
-      const box1 = event.currentTarget.closest("tr").querySelector("td:nth-child(2) input");
-      const box2 = event.currentTarget.closest("tr").querySelector("td:nth-child(3) input");
-      if (!box1.checked && !box2.checked) {
-        box1.checked = true;
-        box2.checked = false;
-      } else if (box1.checked && !box2.checked) {
-        box1.checked = false;
-        box2.checked = true;
-      } else {
-        box1.checked = false;
-        box2.checked = false;
-      }
-    } else {
-      const box = event.currentTarget.closest("tr").querySelector("td:nth-child(2) input");
-      box.checked = !box.checked;
-    }
+  _onCycleRight(event) {
+    const select = event.currentTarget.closest("tr").querySelector("select");
+    const newIndex = (select.selectedIndex + 1) % select.options.length;
+    select.selectedIndex = newIndex;
+  }
+
+  /**
+   * Cycle backwards in the select options.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onCycleLeft(event) {
+    const select = event.currentTarget.closest("tr").querySelector("select");
+    const n = select.selectedIndex - 1;
+    const mod = select.options.length;
+    const newIndex = ((n % mod) + mod) % mod;
+    select.selectedIndex = newIndex;
   }
 }
