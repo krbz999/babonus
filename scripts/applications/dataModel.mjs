@@ -359,6 +359,7 @@ class Babonus extends foundry.abstract.DataModel {
   static migrateData(source) {
     if (!source.filters) source.filters = {};
     this._migrateCreatureTypes(source);
+    this._migrateWeaponProperties(source);
   }
 
   // Remove in v11.
