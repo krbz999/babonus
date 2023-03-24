@@ -206,7 +206,7 @@ function _modifyData(babonus, type) {
       return KeyGetter.throwTypes.map(t => t.value).includes(i);
     }));
   }
-  if (data.filters["weaponProperties"]) {
+  /*if (data.filters["weaponProperties"]) {
     if (data.filters.weaponProperties.needed) {
       data.filters.weaponProperties.needed = foundry.utils.duplicate(data.filters.weaponProperties.needed.filter(i => {
         return KeyGetter.weaponProperties.map(t => t.value).includes(i);
@@ -217,7 +217,7 @@ function _modifyData(babonus, type) {
         return KeyGetter.weaponProperties.map(t => t.value).includes(i);
       }));
     }
-  }
+  }*/
   if (data.filters["spellComponents"]) {
     if (data.filters.spellComponents.types) {
       data.filters.spellComponents.types = foundry.utils.duplicate(data.filters.spellComponents.types.filter(i => {
