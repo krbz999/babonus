@@ -7,6 +7,7 @@ import {
   TYPES
 } from "../constants.mjs";
 import {KeyGetter} from "../helpers/helpers.mjs";
+import {_bonusToInt} from "../hooks.mjs";
 import {babonusFields} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -78,7 +79,6 @@ class Babonus extends foundry.abstract.DataModel {
         flattened[key] = ie.join(";");
       }
     }
-    console.log(flattened);
     return foundry.utils.flattenObject(flattened);
   }
 
@@ -196,7 +196,9 @@ class Babonus extends foundry.abstract.DataModel {
 
   // Whether a babonus is currently an enabled and valid aura.
   get hasAura() {
-    return this.aura.enabled && ((this.aura.range === -1) || (this.aura.range > 0)) && !this.aura.isTemplate;
+    if (!this.aura.enabled || this.aura.isTemplate) return false;
+    const range = _bonusToInt(this.aura.range, this.origin?.getRollData() ?? {});
+    return (range === -1) || (range > 0);
   }
 
   // Whether this aura is blocked by any of its owner's blockers.
@@ -310,7 +312,7 @@ class Babonus extends foundry.abstract.DataModel {
       aura: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField({required: false, initial: false}),
         isTemplate: new foundry.data.fields.BooleanField({required: false, initial: false}),
-        range: new foundry.data.fields.NumberField({required: false, initial: null, min: -1, max: 500, step: 1, integer: true}),
+        range: new foundry.data.fields.StringField({required: false, initial: null, blank: false, nullable: true}),
         self: new foundry.data.fields.BooleanField({required: false, initial: true}),
         disposition: new foundry.data.fields.NumberField({required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
         blockers: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false}))
@@ -359,7 +361,7 @@ class Babonus extends foundry.abstract.DataModel {
   static _migrateCreatureTypes(source) {
     const types = source.filters.creatureTypes;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    console.warn("A babonus is using an outdated format for 'Creature Types'. Editing and saving the bonus with no changes made will resolve this warning.");
+    console.warn(`A babonus (${source.name}) is using an outdated format for 'Creature Types'. Editing and saving the bonus with no changes made will resolve this warning.`);
     console.warn("The old format will be supported until FVTT v11.");
     const c = [];
     for (const t of (types.needed ?? [])) c.push(t);
@@ -370,7 +372,7 @@ class Babonus extends foundry.abstract.DataModel {
   static _migrateWeaponProperties(source) {
     const types = source.filters.weaponProperties;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    console.warn("A babonus is using an outdated format for 'Weapon Properties'. Editing and saving the bonus with no changes made will resolve this warning.");
+    console.warn(`A babonus (${source.name}) is using an outdated format for 'Weapon Properties'. Editing and saving the bonus with no changes made will resolve this warning.`);
     console.warn("The old format will be supported until FVTT v11.");
     const c = [];
     for (const t of (types.needed ?? [])) c.push(t);

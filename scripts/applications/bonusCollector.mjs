@@ -7,6 +7,7 @@ import {
   ThrowBabonus
 } from "./dataModel.mjs";
 import {AURA_TARGETS, MODULE, SHOW_AURA_RANGES} from "../constants.mjs";
+import {_bonusToInt} from "../hooks.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -164,12 +165,8 @@ export class BonusCollector {
     // A filter for discarding auras that do not have a long enough radius.
     const rangeChecker = (bab) => {
       if (!bab.hasAura) return false;
-
       const validTargeting = this._matchTokenDisposition(token, bab);
       if (!validTargeting) return false;
-
-      if (bab.aura.range === -1) return true;
-
       return this._tokenWithinAura(token, bab);
     }
 
@@ -317,9 +314,12 @@ export class BonusCollector {
   _tokenWithinAura(token, bonus) {
     // TODO: option to use gridspace setting.
     // TODO: calculate euclidean vertical distance.
+    const data = bonus.origin?.getRollData() ?? {};
+    const range = _bonusToInt(bonus.aura.range, data);
+    if (range === -1) return true;
     const verticalDistance = Math.abs(token.elevation - this.elevation);
-    if (verticalDistance > bonus.aura.range) return false;
-    const circle = this._createCaptureArea(token, bonus.aura.range);
+    if (verticalDistance > range) return false;
+    const circle = this._createCaptureArea(token, range);
     const within = this.tokenCenters.some(({x, y}) => circle.contains(x, y));
     if (!within) this.tokenBonusesWithout.push(bonus);
     return within;

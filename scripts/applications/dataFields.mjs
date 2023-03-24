@@ -1,11 +1,3 @@
-export const babonusFields = {
-  ArbitraryComparisonField,
-  FilteredArrayField,
-  SemicolonArrayField,
-  SpanField,
-  TokenSizeField
-};
-
 // ArrayField that only saves its truthy values.
 class FilteredArrayField extends foundry.data.fields.ArrayField {
   _cast(data) {
@@ -58,3 +50,11 @@ class SpanField extends foundry.data.fields.SchemaField {
     return super._validateType(data, options);
   }
 }
+
+export const babonusFields = {
+  ArbitraryComparisonField,
+  FilteredArrayField,
+  SemicolonArrayField,
+  SpanField,
+  TokenSizeField
+};
