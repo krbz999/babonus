@@ -151,7 +151,10 @@ export class BabonusWorkshop extends FormApplication {
       try {
         const bab = this.constructor._createBabonus(babData, id, {parent: this.object});
         bab._collapsed = this._collapsedBonuses.has(id);
-        bab._description = await TextEditor.enrichHTML(bab.description, {async: true, rollData: bab.origin?.getRollData() ?? {}});
+        bab._description = await TextEditor.enrichHTML(bab.description, {
+          async: true,
+          rollData: bab.origin?.getRollData() ?? {}
+        });
         flagBoni.push(bab);
       } catch (err) {
         console.error(err);
