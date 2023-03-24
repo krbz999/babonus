@@ -346,20 +346,20 @@ export class FILTER {
   }
 
   /**
-   * Find out if the item has any of the needed weapon properties, while having none
-   * of the unfit properties. Such as only magical weapons that are not two-handed.
+   * Find out if the item has any of the included weapon properties, while having none
+   * of the excluded properties. Such as only magical weapons that are not two-handed.
    * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of properties you must have one of or none of.
-   * @returns {boolean}           Whether the item has any of the needed properties, and none of the unfit properties.
+   * @returns {boolean}           Whether the item has any of the included properties, and none of the excluded properties.
    */
   static weaponProperties(item, filter) {
     if (!filter?.length) return true;
     if (item.type !== "weapon") return false;
     const props = item.system.properties;
-    const needed = filter.filter(u => !u.startsWith("!"));
-    const unfit = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
-    if (needed.length && !needed.some(p => props[p])) return false;
-    if (unfit.length && unfit.some(p => props[p])) return false;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    if (included.length && !included.some(p => props[p])) return false;
+    if (excluded.length && excluded.some(p => props[p])) return false;
     return true;
   }
 
@@ -436,24 +436,24 @@ export class FILTER {
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
     const actor = object.actor ?? object;
-    const needed = filter.filter(u => !u.startsWith("!"));
-    const unfit = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
 
-    const hasNeeded = needed.some(id => {
+    const hasIncluded = included.some(id => {
       return actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
         return eff.flags.core?.statusId === id;
       });
     });
-    if (needed.length && !hasNeeded) return false;
+    if (included.length && !hasIncluded) return false;
 
-    const hasUnfit = unfit.some(id => {
+    const hasExcluded = excluded.some(id => {
       return actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
         return eff.flags.core?.statusId === id;
       });
     });
-    if (unfit.length && hasUnfit) return false;
+    if (excluded.length && hasExcluded) return false;
 
     return true;
   }
@@ -467,26 +467,26 @@ export class FILTER {
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
-    const needed = filter.filter(u => !u.startsWith("!"));
-    const unfit = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
     const target = game.user.targets.first();
-    if (!target?.actor) return !needed.length;
+    if (!target?.actor) return !included.length;
 
-    const hasNeeded = needed.some(id => {
+    const hasIncluded = included.some(id => {
       return target.actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
         return eff.flags.core?.statusId === id;
       });
     });
-    if (needed.length && !hasNeeded) return false;
+    if (included.length && !hasIncluded) return false;
 
-    const hasUnfit = unfit.some(id => {
+    const hasExcluded = excluded.some(id => {
       return target.actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
         return eff.flags.core?.statusId === id;
       });
     });
-    if (unfit.length && hasUnfit) return false;
+    if (excluded.length && hasExcluded) return false;
 
     return true;
   }
@@ -508,7 +508,7 @@ export class FILTER {
 
   /**
    * Find out if your target is one of the listed creature types. In the case of no targets,
-   * refer to whether a specific creature type was needed.
+   * refer to whether any specific creature type was included.
    * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
    * @param {string[]} filter           The array of creature types the target must or must not be.
    * @returns {boolean}                 Whether the target is of a valid creature type.
@@ -516,9 +516,9 @@ export class FILTER {
   static creatureTypes(object, filter) {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
-    const needed = filter.filter(u => !u.startsWith("!"));
-    const unfit = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
-    if (!target?.actor) return !needed.length;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    if (!target?.actor) return !included.length;
     const {value, subtype, custom} = target.actor.system.details?.type ?? {};
     const race = target.actor.system.details?.race;
     function _inclusionTest(array) {
@@ -528,8 +528,8 @@ export class FILTER {
       const rac = race ? array.includes(race?.toLowerCase()) : false;
       return val || sub || cus || rac;
     }
-    if (needed.length && !_inclusionTest(needed)) return false;
-    if (unfit.length && _inclusionTest(unfit)) return false;
+    if (included.length && !_inclusionTest(included)) return false;
+    if (excluded.length && _inclusionTest(excluded)) return false;
     return true;
   }
 
