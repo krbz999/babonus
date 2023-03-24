@@ -146,18 +146,18 @@ export class BabonusWorkshop extends FormApplication {
     }
 
     // Get current bonuses on the document.
-    const flag = this.object.flags.babonus?.bonuses ?? {};
-    data.currentBonuses = Object.entries(flag).reduce((acc, [id, babData]) => {
+    const flagBoni = [];
+    for (const [id, babData] of Object.entries(this.object.flags.babonus?.bonuses ?? {})) {
       try {
         const bab = this.constructor._createBabonus(babData, id, {parent: this.object});
         bab._collapsed = this._collapsedBonuses.has(id);
-        acc.push(bab);
-        return acc;
+        bab._description = await TextEditor.enrichHTML(bab.description, {async: true, rollData: bab.origin?.getRollData() ?? {}});
+        flagBoni.push(bab);
       } catch (err) {
         console.error(err);
-        return acc;
       }
-    }, []).sort((a, b) => a.name.localeCompare(b.name));
+    }
+    data.currentBonuses = flagBoni.sort((a, b) => a.name.localeCompare(b.name));
 
     data.TYPES = TYPES;
     data.ICON = MODULE_ICON;
@@ -232,6 +232,8 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("click", this._onToggleConsume.bind(this)));
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("contextmenu", this._onToggleConsume.bind(this)));
     html[0].querySelectorAll("[data-action='current-itemOnly']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
+    html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("click", this._onClickId.bind(this)));
+    html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("contextmenu", this._onClickId.bind(this)));
   }
 
   /** @override */
@@ -398,6 +400,19 @@ export class BabonusWorkshop extends FormApplication {
     bonus.classList.toggle("collapsed", !has);
     if (has) this._collapsedBonuses.delete(id);
     else this._collapsedBonuses.add(id);
+  }
+
+  /**
+   * Handle copying the id or uuid of a babonus.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onClickId(event) {
+    const bonus = this.constructor._getCollection(this.object).get(event.currentTarget.closest(".bonus").dataset.id);
+    const id = event.type === "contextmenu" ? bonus.uuid : bonus.id;
+    navigator.clipboard.writeText(id);
+    ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
+      id, label: "Babonus", type: event.type === "contextmenu" ? "uuid" : "id"
+    }));
   }
 
   /**

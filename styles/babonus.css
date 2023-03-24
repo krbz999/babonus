@@ -266,9 +266,8 @@
   text-shadow: none;
 }
 
-.babonus.builder .right-side .bonuses .identifier {
+.babonus.builder .right-side .bonuses [data-action="current-id"] {
   color: gray;
-  user-select: text;
   font-size: 12px;
   font-family: monospace;
 }
