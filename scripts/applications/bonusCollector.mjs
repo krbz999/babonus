@@ -386,12 +386,13 @@ export class BonusCollector {
     const id = `babonus-${foundry.utils.randomID()}`;
     this._deletePixiAuras();
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
-      if (bonus.aura.range === -1) continue;
+      const range = _bonusToInt(bonus.aura.range, bonus.origin?.getRollData() ?? {});
+      if (range === -1) continue;
       const shape = new PIXI.Graphics();
       shape.id = id;
       const token = bonus.token;
       const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
-      const pixels = bonus.aura.range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
+      const pixels = range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
       shape.lineStyle(5, color, 0.5);
       shape.drawCircle(token.w / 2, token.h / 2, pixels);
       token.addChild(shape);
