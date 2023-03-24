@@ -14,7 +14,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
       enabled: true,                                        // Whether this bonus is turned on.
       name: "Special Fire Spell Bonus",                     // The name of the bonus.
       id: "hgienfid783h",                                   // Regular 16 character id.
-      description: "This is ...",                           // Description of the bonus.
+      description: "This is...",                            // Description of the bonus.
       type: "attack",                                       // Or "damage", "save", "throw", "hitdie".
       itemOnly: false,                                      // whether this bonus only applies to the item on which it is created (attack/damage/save only).
       optional: false,                                      // whether this bonus is toggleable in the roll config.
@@ -49,12 +49,9 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
           other: "@abilities.int.mod",                      // The right-side value.
           operator: "EQ"                                    // The method of comparison.
         }],
-        statusEffects: ["blind", "dead", "prone", "mute"],  // Array of status ids to match effects against.
-        targetEffects: ["blind", "dead", "prone", "mute"],  // Array of status ids to match effects on the target against.
-        creatureTypes: {
-          needed: ["undead", "humanoid"],                   // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
-          unfit: ["construct"]
-        },
+        statusEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects against.
+        targetEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects on the target against.
+        creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
         itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
@@ -65,7 +62,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         attackTypes: ["mwak", "rwak", "msak", "rsak"],      // The type of attack.
 
         // ATTACK, DAMAGE, SAVE:
-        damageTypes: ["fire", "cold", "bludgeoning"],       // The type of damage or healing the item must have.
+        damageTypes: ["fire", "cold", "!bludgeoning"],      // The type of damage or healing the item must have.
         itemTypes: ["spell", "weapon"],                     // The item types to which it applies; also "feat", "equipment", "consumable".
 
         // ATTACK, DAMAGE, THROW, TEST:
@@ -88,7 +85,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 
         // WEAPON
         baseWeapons: ["dagger", "lance", "shortsword"],     // The weapon the item must be.
-        weaponProperties: {needed: ["fin"], unfit: []}      // The weapon properties the item must have one of, and have none of.
+        weaponProperties: ["fin", "!two"],                  // The weapon properties the item must have one of, and have none of.
       }
     }
   }
@@ -349,21 +346,21 @@ export class FILTER {
   }
 
   /**
-   * Find out if the item has any of the needed weapon properties, while having none
-   * of the unfit properties. Such as only magical weapons that are not two-handed.
-   * @param {Item5e} item                 The item being filtered against.
-   * @param {object} filter               The filtering object.
-   * @param {string[]} filter.needed      The weapon properties that the item must have at least one of.
-   * @param {string[]} filter.unfit       The weapon properties that the item must have none of.
-   * @returns {boolean}                   Whether the item has any of the needed properties, and none of the unfit properties.
+   * Find out if the item has any of the included weapon properties, while having none
+   * of the excluded properties. Such as only magical weapons that are not two-handed.
+   * @param {Item5e} item         The item being filtered against.
+   * @param {string[]} filter     The array of properties you must have one of or none of.
+   * @returns {boolean}           Whether the item has any of the included properties, and none of the excluded properties.
    */
-  static weaponProperties(item, {needed, unfit}) {
-    if (!needed?.length && !unfit?.length) return true;
+  static weaponProperties(item, filter) {
+    if (!filter?.length) return true;
     if (item.type !== "weapon") return false;
     const props = item.system.properties;
-    const pu = unfit?.length && unfit.some(p => props[p]);
-    const pn = needed?.length ? needed.some(p => props[p]) : true;
-    return !pu && pn;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    if (included.length && !included.some(p => props[p])) return false;
+    if (excluded.length && excluded.some(p => props[p])) return false;
+    return true;
   }
 
   /**
@@ -433,37 +430,65 @@ export class FILTER {
    * Find out if the actor has any of the status conditions required.
    * The bonus will apply if the actor has at least one.
    * @param {Item5e|Actor5e} object     The item or actor being filtered against.
-   * @param {string[]} filter           The array of effect status ids.
+   * @param {string[]} filter           The array of effect status ids you must have or must not have.
    * @returns {boolean}                 Whether the actor has any of the status effects.
    */
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
-    const obj = object.actor ?? object;
-    return filter.some(id => {
-      return !!obj.effects.find(eff => {
+    const actor = object.actor ?? object;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+
+    const hasIncluded = included.some(id => {
+      return actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
-        return eff.getFlag("core", "statusId") === id;
+        return eff.flags.core?.statusId === id;
       });
     });
+    if (included.length && !hasIncluded) return false;
+
+    const hasExcluded = excluded.some(id => {
+      return actor.effects.find(eff => {
+        if (eff.disabled || eff.isSuppressed) return false;
+        return eff.flags.core?.statusId === id;
+      });
+    });
+    if (excluded.length && hasExcluded) return false;
+
+    return true;
   }
 
   /**
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
    * @param {Item5e|Actor5e} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter           The array of effect status ids.
+   * @param {string[]} filter           The array of effect status ids the target must have or must not have.
    * @returns {boolean}                 Whether the target actor has any of the status effects.
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
     const target = game.user.targets.first();
-    if (!target?.actor) return false;
-    return filter.some(id => {
+    if (!target?.actor) return !included.length;
+
+    const hasIncluded = included.some(id => {
       return target.actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
-        return eff.getFlag("core", "statusId") === id;
+        return eff.flags.core?.statusId === id;
       });
     });
+    if (included.length && !hasIncluded) return false;
+
+    const hasExcluded = excluded.some(id => {
+      return target.actor.effects.find(eff => {
+        if (eff.disabled || eff.isSuppressed) return false;
+        return eff.flags.core?.statusId === id;
+      });
+    });
+    if (excluded.length && hasExcluded) return false;
+
+    return true;
   }
 
   /**
@@ -483,17 +508,17 @@ export class FILTER {
 
   /**
    * Find out if your target is one of the listed creature types. In the case of no targets,
-   * refer to whether a specific creature type was needed.
-   * @param {Actor5e|Item5e} object       The item or actor. Not relevant in this case.
-   * @param {object} filter               The filtering for the bonus.
-   * @param {string[]} filter.needed      The array of creature types the target must be.
-   * @param {string[]} filter.unfit       The array of creature types the target must not be.
-   * @returns {boolean}                   Whether the target is of a valid creature type.
+   * refer to whether any specific creature type was included.
+   * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
+   * @param {string[]} filter           The array of creature types the target must or must not be.
+   * @returns {boolean}                 Whether the target is of a valid creature type.
    */
-  static creatureTypes(object, {needed, unfit}) {
-    if (!needed?.length && !unfit?.length) return true;
+  static creatureTypes(object, filter) {
+    if (!filter?.length) return true;
     const target = game.user.targets.first();
-    if (!target?.actor) return !needed?.length;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    if (!target?.actor) return !included.length;
     const {value, subtype, custom} = target.actor.system.details?.type ?? {};
     const race = target.actor.system.details?.race;
     function _inclusionTest(array) {
@@ -503,8 +528,8 @@ export class FILTER {
       const rac = race ? array.includes(race?.toLowerCase()) : false;
       return val || sub || cus || rac;
     }
-    if (needed?.length && !_inclusionTest(needed)) return false;
-    if (unfit?.length && _inclusionTest(unfit)) return false;
+    if (included.length && !_inclusionTest(included)) return false;
+    if (excluded.length && _inclusionTest(excluded)) return false;
     return true;
   }
 
