@@ -49,6 +49,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
           other: "@abilities.int.mod",                      // The right-side value.
           operator: "EQ"                                    // The method of comparison.
         }],
+        healthPercentages: {value: 50, type: 0},            // A percentage value and whether it must be 'and lower' or 'and higher'.
         statusEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects against.
         targetEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects on the target against.
         creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
@@ -644,5 +645,19 @@ export class FILTER {
     if (!filter?.length) return true;
     if (!skillId) return false;
     return filter.includes(skillId);
+  }
+
+  /**
+   * Find out if the health of the actor is at or above/below the threshold.
+   * @param {Actor5e} actor           The actor performing the roll.
+   * @param {object} filter           The object used for the filtering.
+   * @param {number} filter.value     The hit point percentage threshold.
+   * @param {number} filter.type      The type of threshold (0 for 'x or lower' and 1 for 'x and higher').
+   * @returns {boolean}               Whether the threshold is obeyed.
+   */
+  static healthPercentages(actor, {value, type}) {
+    if (!Number.isNumeric(value) || ![0, 1].includes(type)) return true;
+    const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
+    return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
   }
 }

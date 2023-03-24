@@ -330,6 +330,10 @@ class Babonus extends foundry.abstract.DataModel {
         statusEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         targetEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         creatureTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
+        healthPercentages: new foundry.data.fields.SchemaField({
+          value: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, max: 100, step: 1, integer: true, nullable: true}),
+          type: new foundry.data.fields.NumberField({required: false, initial: null, choices: [0, 1], nullable: true})
+        }),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
         preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
         tokenSizes: new babonusFields.TokenSizeField({

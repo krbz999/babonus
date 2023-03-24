@@ -140,6 +140,7 @@ export class BabonusWorkshop extends FormApplication {
           requirements: `BABONUS.Filters${id.capitalize()}Requirements`
         };
         if (this._isFilterAvailable(id)) filterData.available = true;
+        if (this._addedFilters.has(id) && (id !== "arbitraryComparisons")) filterData.unavailable = true;
         data.filters.push(filterData);
       }
       data.filters.sort((a, b) => a.header.localeCompare(b.header));
@@ -724,6 +725,7 @@ export class BabonusWorkshop extends FormApplication {
       creatureTypes: "text_keys.hbs",
       customScripts: "textarea.hbs",
       damageTypes: "text_keys.hbs",
+      healthPercentages: "select_range.hbs",
       itemRequirements: "label_checkbox_label_checkbox.hbs",
       itemTypes: "checkboxes.hbs",
       preparationModes: "text_keys.hbs",
@@ -752,6 +754,12 @@ export class BabonusWorkshop extends FormApplication {
       data.selectOptions = [
         {value: 0, label: "BABONUS.SizeGreaterThan"},
         {value: 1, label: "BABONUS.SizeSmallerThan"}
+      ];
+    } else if (id === "healthPercentages") {
+      if (data.value === null) data.value = 50;
+      data.selectOptions = [
+        {value: 0, label: "BABONUS.OrLess"},
+        {value: 1, label: "BABONUS.OrMore"}
       ];
     }
     return renderTemplate(template, data);
@@ -856,6 +864,9 @@ export class BabonusWorkshop extends FormApplication {
       data.self = formData["filters.tokenSizes.self"];
       data.type = formData["filters.tokenSizes.type"];
       data.size = formData["filters.tokenSizes.size"];
+    } else if (data.id === "healthPercentages") {
+      data.value = formData["filters.healthPercentages.value"];
+      data.type = formData["filters.healthPercentages.type"];
     }
   }
 
@@ -893,11 +904,12 @@ export class BabonusWorkshop extends FormApplication {
     switch (id) {
       case "abilities": return ["attack", "damage", "save", "test"].includes(type);
       case "attackTypes": return ["attack", "damage"].includes(type);
-      case "baseWeapons": return this._itemTypes.has("weapon");
       case "baseTools": return ["test"].includes(type);
+      case "baseWeapons": return this._itemTypes.has("weapon");
       case "creatureTypes": return true;
       case "customScripts": return true;
       case "damageTypes": return ["attack", "damage", "save"].includes(type);
+      case "healthPercentages": return true;
       case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
       case "itemTypes": return ["attack", "damage", "save"].includes(type);
       case "preparationModes": return this._itemTypes.has("spell");
