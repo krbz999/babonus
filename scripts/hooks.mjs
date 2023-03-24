@@ -16,7 +16,7 @@ import {BabonusWorkshop} from "./applications/babonus.mjs";
  * @param {object} data       The available roll data.
  * @returns {number}          The bonus, or zero if invalid.
  */
-function _bonusToInt(bonus, data) {
+export function _bonusToInt(bonus, data) {
   const f = new Roll(bonus, data).formula;
   if (!Roll.validate(f)) return 0;
   try {

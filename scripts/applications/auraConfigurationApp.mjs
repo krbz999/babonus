@@ -48,18 +48,24 @@ export class AuraConfigurationDialog extends FormApplication {
 
   /** @override */
   async _updateObject(event, formData) {
-    formData["aura.enabled"] = true;
-    if (!(this.options.bab.parent instanceof Item)) formData["aura.isTemplate"] = false;
-    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, formData);
+    const data = foundry.utils.mergeObject({
+      aura: {
+        enabled: true,
+        isTemplate: false,
+        range: null,
+        self: null,
+        disposition: null,
+        blockers: null
+      },
+    }, formData);
+    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */
   async _onChangeInput(event) {
     await super._onChangeInput(event);
     let {name, value, type, checked} = event.currentTarget;
-    if (name === "aura.range") {
-      value = (value === "") ? null : Math.clamped(Math.round(value), -1, 500);
-    }
+    if ((name === "aura.range") && (value === "")) value = null;
     const update = {
       [name]: type === "checkbox" ? checked : value,
       "aura.blockers": this.form["aura.blockers"].value
