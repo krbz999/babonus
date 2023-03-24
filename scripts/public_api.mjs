@@ -10,7 +10,7 @@ export function _createAPI() {
     getName, getNames,
     getType,
     getCollection,
-    fromUuid,
+    fromUuid: babonusFromUuid,
 
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
@@ -325,7 +325,7 @@ function getOccupiedGridSpaces(tokenDoc) {
  * @param {string} uuid             The babonus uuid.
  * @returns {Promise<Babonus>}      The found babonus.
  */
-async function fromUuid(uuid) {
+async function babonusFromUuid(uuid) {
   try {
     const parts = uuid.split(".");
     const id = parts.pop();

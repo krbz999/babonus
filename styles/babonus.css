@@ -147,6 +147,11 @@
   padding: 0 0.2em 0 0.5em;
 }
 
+/* Percentage ranges */
+.babonus.builder .range-value.percentage:after {
+  content: "%";
+}
+
 /* hidden checkboxes */
 .babonus.builder .checkboxes {
   display: flex;

@@ -1,0 +1,13 @@
+<div class="form-group" data-id="{{id}}">
+  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
+  <div class="form-fields">
+    <input type="range" name="filters.{{id}}.value" value="{{value}}" min="0" max="100" step="1">
+    <span class="range-value percentage">{{value}}</span>
+    <select name="filters.{{id}}.type">
+      {{selectOptions selectOptions selected=type nameAttr="value" labelAttr="label" localize=true}}
+    </select>
+  </div>
+  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
+    <i class="fa-solid fa-trash"></i>
+  </a>
+</div>

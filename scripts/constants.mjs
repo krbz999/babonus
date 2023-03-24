@@ -73,6 +73,7 @@ export const FILTER_NAMES = [
   "creatureTypes",
   "customScripts",
   "damageTypes",
+  "healthPercentages",
   "itemRequirements",
   "itemTypes",
   "preparationModes",
