@@ -14,14 +14,14 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
       enabled: true,                                        // Whether this bonus is turned on.
       name: "Special Fire Spell Bonus",                     // The name of the bonus.
       id: "hgienfid783h",                                   // Regular 16 character id.
-      description: "This is ...",                           // Description of the bonus.
+      description: "This is...",                            // Description of the bonus.
       type: "attack",                                       // Or "damage", "save", "throw", "hitdie".
       itemOnly: false,                                      // whether this bonus only applies to the item on which it is created (attack/damage/save only).
       optional: false,                                      // whether this bonus is toggleable in the roll config.
       consume: {
         enabled: true,                                      // Whether the bonus consumes uses/quantity off its item or slots off its actor.
         scales: true,                                       // Whether the consumption scales between the min and max values given.
-        type: "uses",                                       // Whether the consumption is limited "uses" or "quantity" or "slots".
+        type: "uses",                                       // Whether the consumption is limited "uses", "quantity", "slots", "health", or "effect".
         value: {min: 1, max: 3},                            // The minimum and maximum number consumed when applying the bonus.
         formula: "1d8"                                      // A formula with which the bonus scales, default being the bonus formula itself.
       },
@@ -49,12 +49,10 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
           other: "@abilities.int.mod",                      // The right-side value.
           operator: "EQ"                                    // The method of comparison.
         }],
-        statusEffects: ["blind", "dead", "prone", "mute"],  // Array of status ids to match effects against.
-        targetEffects: ["blind", "dead", "prone", "mute"],  // Array of status ids to match effects on the target against.
-        creatureTypes: {
-          needed: ["undead", "humanoid"],                   // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
-          unfit: ["construct"]
-        },
+        healthPercentages: {value: 50, type: 0},            // A percentage value and whether it must be 'and lower' or 'and higher'.
+        statusEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects against.
+        targetEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects on the target against.
+        creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
         itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
@@ -65,13 +63,21 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         attackTypes: ["mwak", "rwak", "msak", "rsak"],      // The type of attack.
 
         // ATTACK, DAMAGE, SAVE:
-        damageTypes: ["fire", "cold", "bludgeoning"],       // The type of damage or healing the item must have.
-        abilities: ["int"],                                 // The ability the item must be using.
-        saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
+        damageTypes: ["fire", "cold", "!bludgeoning"],      // The type of damage or healing the item must have.
         itemTypes: ["spell", "weapon"],                     // The item types to which it applies; also "feat", "equipment", "consumable".
+
+        // ATTACK, DAMAGE, THROW, TEST:
+        abilities: ["int"],                                 // The ability the actor/item must be using.
+
+        // SAVE:
+        saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
 
         // THROW:
         throwTypes: ["con", "death", "concentration"],      // The type of saving throw to which it applies.
+
+        // TEST:
+        baseTools: ["herb", "alchemist"],                   // The type of tool being used for the tool check.
+        skillIds: ["ath", "acr"],                           // The type of skill being rolled.
 
         // SPELL:
         spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one, or match "ANY".
@@ -80,7 +86,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 
         // WEAPON
         baseWeapons: ["dagger", "lance", "shortsword"],     // The weapon the item must be.
-        weaponProperties: {needed: ["fin"], unfit: []}      // The weapon properties the item must have one of, and have none of.
+        weaponProperties: ["fin", "!two"],                  // The weapon properties the item must have one of, and have none of.
       }
     }
   }
@@ -94,9 +100,7 @@ export class FILTER {
    * @returns {Babonus[]}       A filtered array of babonuses to apply.
    */
   static hitDieCheck(actor) {
-    const bonuses = new BonusCollector({
-      object: actor, type: "hitdie"
-    }).returnBonuses();
+    const bonuses = new BonusCollector({object: actor, type: "hitdie"}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor);
   }
@@ -110,11 +114,23 @@ export class FILTER {
    * @returns {Babonus[]}                     A filtered array of babonuses to apply.
    */
   static throwCheck(actor, throwType, {isConcSave}) {
-    const bonuses = new BonusCollector({
-      object: actor, type: "throw"
-    }).returnBonuses();
+    const bonuses = new BonusCollector({object: actor, type: "throw"}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, actor, {throwType, isConcSave});
+  }
+
+  /**
+   * Initiate the collection and filtering of bonuses applying to ability checks.
+   * @param {Actor5e|Item5e} object         The actor or tool performing the test.
+   * @param {string} abilityId              The ability used for the test.
+   * @param {object} [details={}]           Additional context for the filtering and checks.
+   * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
+   * @returns {Babonus[]}                   A filtered array of babonuses to apply.
+   */
+  static testCheck(object, abilityId, {skillId} = {}) {
+    const bonuses = new BonusCollector({object, type: "test"}).returnBonuses();
+    if (!bonuses.size) return [];
+    return this.finalFilterBonuses(bonuses, object, {abilityId, skillId});
   }
 
   /**
@@ -126,9 +142,7 @@ export class FILTER {
    * @returns {Babonus[]}                     A filtered array of babonuses to apply.
    */
   static itemCheck(item, hookType, {spellLevel} = {}) {
-    const bonuses = new BonusCollector({
-      object: item, type: hookType
-    }).returnBonuses();
+    const bonuses = new BonusCollector({object: item, type: hookType}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(bonuses, item, {spellLevel});
   }
@@ -138,7 +152,10 @@ export class FILTER {
    * @param {Collection<Babonus>} bonuses       The babonuses to filter.
    * @param {Actor5e|Item5e} object             The actor or item used in each filter and for roll data.
    * @param {object} [details={}]               Additional data necessary to pass along.
+   * @param {string} [details.throwType]        The type of saving thwo being made (possibly 'death').
    * @param {boolean} [details.isConcSave]      Whether a saving throw is made to maintain concentration.
+   * @param {string} [details.abilityId]        The ability used for an ability check.
+   * @param {string} [details.skillId]          The id of the skill, in case of skill checks.
    * @param {number} [details.spellLevel]       The level of the spell, if needed.
    * @returns {Babonus[]}                       The filtered Collection.
    */
@@ -250,15 +267,31 @@ export class FILTER {
    * by the system itself for items set to 'Default' to look for finesse weapons and spellcasting
    * abilities. Note that this is the ability set at the top level of the item's action, and
    * is NOT the ability used to determine the dc of the saving throw.
-   * @param {Item5e} item          The item being filtered against.
-   * @param {string[]} filter      The array of abilities.
-   * @returns {boolean}            Whether the item is using one of the abilities.
+   * @param {Actor5e|Item5e} object           The actor or item being performing the roll.
+   * @param {string[]} filter                 The array of abilities.
+   * @param {object} [details={}]             Additional context for the roll being performed.
+   * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll.
+   * @returns {boolean}                       Whether the actor or item is using one of the abilities.
    */
-  static abilities(item, filter) {
+  static abilities(object, filter, {abilityId} = {}) {
     if (!filter?.length) return true;
-    // if the item has no actionType, it has no ability.
-    if (!item.system.actionType) return false;
-    return filter.includes(item.abilityMod);
+
+    // Case 1: Tool Checks.
+    if ((object instanceof Item) && (object.type === "tool")) {
+      return filter.includes(object.system.ability);
+    }
+
+    // Case 2: Attack/Damage rolls.
+    if (object instanceof Item) {
+      // if the item has no actionType, it has no ability.
+      if (!item.system.actionType) return false;
+      return filter.includes(item.abilityMod);
+    }
+
+    // Case 3: AbilityTest or Skill.
+    if (object instanceof Actor) {
+      return filter.includes(abilityId);
+    }
   }
 
   /**
@@ -314,21 +347,21 @@ export class FILTER {
   }
 
   /**
-   * Find out if the item has any of the needed weapon properties, while having none
-   * of the unfit properties. Such as only magical weapons that are not two-handed.
-   * @param {Item5e} item                 The item being filtered against.
-   * @param {object} filter               The filtering object.
-   * @param {string[]} filter.needed      The weapon properties that the item must have at least one of.
-   * @param {string[]} filter.unfit       The weapon properties that the item must have none of.
-   * @returns {boolean}                   Whether the item has any of the needed properties, and none of the unfit properties.
+   * Find out if the item has any of the included weapon properties, while having none
+   * of the excluded properties. Such as only magical weapons that are not two-handed.
+   * @param {Item5e} item         The item being filtered against.
+   * @param {string[]} filter     The array of properties you must have one of or none of.
+   * @returns {boolean}           Whether the item has any of the included properties, and none of the excluded properties.
    */
-  static weaponProperties(item, {needed, unfit}) {
-    if (!needed?.length && !unfit?.length) return true;
+  static weaponProperties(item, filter) {
+    if (!filter?.length) return true;
     if (item.type !== "weapon") return false;
     const props = item.system.properties;
-    const pu = unfit?.length && unfit.some(p => props[p]);
-    const pn = needed?.length ? needed.some(p => props[p]) : true;
-    return !pu && pn;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    if (included.length && !included.some(p => props[p])) return false;
+    if (excluded.length && excluded.some(p => props[p])) return false;
+    return true;
   }
 
   /**
@@ -398,37 +431,65 @@ export class FILTER {
    * Find out if the actor has any of the status conditions required.
    * The bonus will apply if the actor has at least one.
    * @param {Item5e|Actor5e} object     The item or actor being filtered against.
-   * @param {string[]} filter           The array of effect status ids.
+   * @param {string[]} filter           The array of effect status ids you must have or must not have.
    * @returns {boolean}                 Whether the actor has any of the status effects.
    */
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
-    const obj = object.actor ?? object;
-    return filter.some(id => {
-      return !!obj.effects.find(eff => {
+    const actor = object.actor ?? object;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+
+    const hasIncluded = included.some(id => {
+      return actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
-        return eff.getFlag("core", "statusId") === id;
+        return eff.flags.core?.statusId === id;
       });
     });
+    if (included.length && !hasIncluded) return false;
+
+    const hasExcluded = excluded.some(id => {
+      return actor.effects.find(eff => {
+        if (eff.disabled || eff.isSuppressed) return false;
+        return eff.flags.core?.statusId === id;
+      });
+    });
+    if (excluded.length && hasExcluded) return false;
+
+    return true;
   }
 
   /**
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
    * @param {Item5e|Actor5e} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter           The array of effect status ids.
+   * @param {string[]} filter           The array of effect status ids the target must have or must not have.
    * @returns {boolean}                 Whether the target actor has any of the status effects.
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
     const target = game.user.targets.first();
-    if (!target?.actor) return false;
-    return filter.some(id => {
+    if (!target?.actor) return !included.length;
+
+    const hasIncluded = included.some(id => {
       return target.actor.effects.find(eff => {
         if (eff.disabled || eff.isSuppressed) return false;
-        return eff.getFlag("core", "statusId") === id;
+        return eff.flags.core?.statusId === id;
       });
     });
+    if (included.length && !hasIncluded) return false;
+
+    const hasExcluded = excluded.some(id => {
+      return target.actor.effects.find(eff => {
+        if (eff.disabled || eff.isSuppressed) return false;
+        return eff.flags.core?.statusId === id;
+      });
+    });
+    if (excluded.length && hasExcluded) return false;
+
+    return true;
   }
 
   /**
@@ -448,17 +509,17 @@ export class FILTER {
 
   /**
    * Find out if your target is one of the listed creature types. In the case of no targets,
-   * refer to whether a specific creature type was needed.
-   * @param {Actor5e|Item5e} object       The item or actor. Not relevant in this case.
-   * @param {object} filter               The filtering for the bonus.
-   * @param {string[]} filter.needed      The array of creature types the target must be.
-   * @param {string[]} filter.unfit       The array of creature types the target must not be.
-   * @returns {boolean}                   Whether the target is of a valid creature type.
+   * refer to whether any specific creature type was included.
+   * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
+   * @param {string[]} filter           The array of creature types the target must or must not be.
+   * @returns {boolean}                 Whether the target is of a valid creature type.
    */
-  static creatureTypes(object, {needed, unfit}) {
-    if (!needed?.length && !unfit?.length) return true;
+  static creatureTypes(object, filter) {
+    if (!filter?.length) return true;
     const target = game.user.targets.first();
-    if (!target?.actor) return !needed?.length;
+    const included = filter.filter(u => !u.startsWith("!"));
+    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    if (!target?.actor) return !included.length;
     const {value, subtype, custom} = target.actor.system.details?.type ?? {};
     const race = target.actor.system.details?.race;
     function _inclusionTest(array) {
@@ -468,8 +529,8 @@ export class FILTER {
       const rac = race ? array.includes(race?.toLowerCase()) : false;
       return val || sub || cus || rac;
     }
-    if (needed?.length && !_inclusionTest(needed)) return false;
-    if (unfit?.length && _inclusionTest(unfit)) return false;
+    if (included.length && !_inclusionTest(included)) return false;
+    if (excluded.length && _inclusionTest(excluded)) return false;
     return true;
   }
 
@@ -558,5 +619,46 @@ export class FILTER {
       se = size;
     }
     return ((type === 0) && (enemySize >= Math.max(se, size))) || ((type === 1) && (enemySize <= Math.min(se, size)));
+  }
+
+  /**
+   * Find out if the tool being rolled for a check is one of the correct types.
+   * @param {Item5e} tool         The tool being used for the check.
+   * @param {string[]} filter     The types of tool types.
+   * @returns {boolean}           Whether the tool type matches the filter.
+   */
+  static baseTools(tool, filter) {
+    if (!filter?.length) return true;
+    if (tool.type !== "tool") return false;
+    return filter.includes(tool.system.baseItem);
+  }
+
+  /**
+   * Find out if the skill being rolled is one of the correct types.
+   * @param {Actor5e} actor               The actor performing the roll.
+   * @param {string[]} filter             The types of skill ids.
+   * @param {object} details              Additional properties for the filtering.
+   * @param {string} details.skillId      The id of the skill being rolled.
+   * @returns {boolean}                   Whether the skill matches the filter.
+   */
+  static skillIds(actor, filter, {skillId}) {
+    if (!filter?.length) return true;
+    if (!skillId) return false;
+    return filter.includes(skillId);
+  }
+
+  /**
+   * Find out if the health of the actor is at or above/below the threshold.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {object} filter             The object used for the filtering.
+   * @param {number} filter.value       The hit point percentage threshold.
+   * @param {number} filter.type        The type of threshold (0 for 'x or lower' and 1 for 'x and higher').
+   * @returns {boolean}                 Whether the threshold is obeyed.
+   */
+  static healthPercentages(object, {value, type}) {
+    if (!Number.isNumeric(value) || ![0, 1].includes(type)) return true;
+    const actor = object.actor ?? object;
+    const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
+    return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
   }
 }

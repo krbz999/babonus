@@ -1,5 +1,6 @@
+import {BabonusWorkshop} from "./applications/babonus.mjs";
 import {CURRENT_MIGRATION_VERSION, MODULE, SETTING_MIGRATION_VERSION, TYPES} from "./constants.mjs";
-import {KeyGetter, _createBabonus} from "./helpers/helpers.mjs";
+import {KeyGetter} from "./helpers/helpers.mjs";
 
 /**
  * ** Migration 1: **
@@ -178,7 +179,7 @@ async function _migrateDocumentDirect(object) {
     for (const bonus in boni) {
       const data = _modifyData(boni[bonus], type);
       try {
-        const bab = _createBabonus(data, data.id, {strict: true});
+        const bab = BabonusWorkshop._createBabonus(data, data.id, {strict: true});
         const set = await object.setFlag("babonus", "bonuses." + data.id, bab.toObject());
         if (set) await object.unsetFlag("babonus", `bonuses.${type}.${bonus}`);
       } catch (err) {
@@ -205,7 +206,7 @@ function _modifyData(babonus, type) {
       return KeyGetter.throwTypes.map(t => t.value).includes(i);
     }));
   }
-  if (data.filters["weaponProperties"]) {
+  /*if (data.filters["weaponProperties"]) {
     if (data.filters.weaponProperties.needed) {
       data.filters.weaponProperties.needed = foundry.utils.duplicate(data.filters.weaponProperties.needed.filter(i => {
         return KeyGetter.weaponProperties.map(t => t.value).includes(i);
@@ -216,7 +217,7 @@ function _modifyData(babonus, type) {
         return KeyGetter.weaponProperties.map(t => t.value).includes(i);
       }));
     }
-  }
+  }*/
   if (data.filters["spellComponents"]) {
     if (data.filters.spellComponents.types) {
       data.filters.spellComponents.types = foundry.utils.duplicate(data.filters.spellComponents.types.filter(i => {
@@ -282,7 +283,7 @@ async function _migrateDoubleEmbeddedEffects(object) {
       for (const bonus in boni) { // id in ids
         const data = _modifyData(boni[bonus], type);
         try {
-          const bab = _createBabonus(data, data.id, {strict: true});
+          const bab = BabonusWorkshop._createBabonus(data, data.id, {strict: true});
           foundry.utils.setProperty(effect, `flags.${MODULE}.bonuses.${data.id}`, bab.toObject());
           foundry.utils.setProperty(effect, `flags.${MODULE}.bonuses.${type}.-=${bonus}`, null);
           delete effect.flags.babonus?.bonuses?.[type]?.[bonus];

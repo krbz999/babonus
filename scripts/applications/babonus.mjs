@@ -6,11 +6,14 @@ import {
   ITEM_ROLL_TYPES,
   MODULE,
   MODULE_ICON,
+  MODULE_NAME,
   TYPES
 } from "../constants.mjs";
-import {_createBabonus, _getCollection, _onDisplayKeysDialog} from "../helpers/helpers.mjs";
+import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
+import {BabonusKeysDialog} from "./keysDialog.mjs";
+import {AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, TestBabonus, ThrowBabonus} from "./dataModel.mjs";
 
 export class BabonusWorkshop extends FormApplication {
 
@@ -69,6 +72,10 @@ export class BabonusWorkshop extends FormApplication {
 
   get isEditable() {
     return this.object.sheet.isEditable;
+  }
+
+  get title() {
+    return `${MODULE_NAME}: ${this.object.name ?? this.object.label}`;
   }
 
   /**
@@ -133,24 +140,28 @@ export class BabonusWorkshop extends FormApplication {
           requirements: `BABONUS.Filters${id.capitalize()}Requirements`
         };
         if (this._isFilterAvailable(id)) filterData.available = true;
+        if (this._addedFilters.has(id) && (id !== "arbitraryComparisons")) filterData.unavailable = true;
         data.filters.push(filterData);
       }
       data.filters.sort((a, b) => a.header.localeCompare(b.header));
     }
 
     // Get current bonuses on the document.
-    const flag = this.object.flags.babonus?.bonuses ?? {};
-    data.currentBonuses = Object.entries(flag).reduce((acc, [id, babData]) => {
+    const flagBoni = [];
+    for (const [id, babData] of Object.entries(this.object.flags.babonus?.bonuses ?? {})) {
       try {
-        const bab = _createBabonus(babData, id, {parent: this.object});
+        const bab = this.constructor._createBabonus(babData, id, {parent: this.object});
         bab._collapsed = this._collapsedBonuses.has(id);
-        acc.push(bab);
-        return acc;
+        bab._description = await TextEditor.enrichHTML(bab.description, {
+          async: true,
+          rollData: bab.origin?.getRollData() ?? {}
+        });
+        flagBoni.push(bab);
       } catch (err) {
         console.error(err);
-        return acc;
       }
-    }, []).sort((a, b) => a.name.localeCompare(b.name));
+    }
+    data.currentBonuses = flagBoni.sort((a, b) => a.name.localeCompare(b.name));
 
     data.TYPES = TYPES;
     data.ICON = MODULE_ICON;
@@ -177,7 +188,7 @@ export class BabonusWorkshop extends FormApplication {
 
     // Attempt to save the babonus, otherwise show a warning.
     try {
-      const bab = _createBabonus(formData, formData.id);
+      const bab = this.constructor._createBabonus(formData, formData.id);
       await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
       await this.object.setFlag(MODULE, `bonuses.${formData.id}`, bab.toObject());
       ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", {name: formData.name, id: formData.id}));
@@ -206,7 +217,7 @@ export class BabonusWorkshop extends FormApplication {
 
     // Builder methods.
     html[0].querySelector("[data-action='cancel']").addEventListener("click", this._onCancelBuilder.bind(this));
-    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(a => a.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(a => a.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
     html[0].querySelectorAll("[data-action='pick-type']").forEach(a => a.addEventListener("click", this._onPickType.bind(this)));
     html[0].querySelectorAll("[data-action='delete-filter']").forEach(a => a.addEventListener("click", this._onDeleteFilter.bind(this)));
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
@@ -225,6 +236,8 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("click", this._onToggleConsume.bind(this)));
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("contextmenu", this._onToggleConsume.bind(this)));
     html[0].querySelectorAll("[data-action='current-itemOnly']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
+    html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("click", this._onClickId.bind(this)));
+    html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("contextmenu", this._onClickId.bind(this)));
   }
 
   /** @override */
@@ -232,7 +245,7 @@ export class BabonusWorkshop extends FormApplication {
     const label = event.currentTarget.closest(".bonus");
     let dragData;
     if (label.dataset.id) {
-      const bab = _getCollection(this.object).get(label.dataset.id);
+      const bab = this.constructor._getCollection(this.object).get(label.dataset.id);
       dragData = bab.toDragData();
     }
     if (!dragData) return;
@@ -256,13 +269,13 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _fromDropData(data) {
     if (data.data) {
-      return _createBabonus(data.data, null, {parent: this.object});
+      return this.constructor._createBabonus(data.data, null, {parent: this.object});
     } else if (data.uuid) {
       const _parent = await fromUuid(data.uuid);
       const parent = _parent instanceof TokenDocument ? _parent.actor : _parent;
-      const babData = _getCollection(parent).get(data.babId).toObject();
+      const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
       delete babData.id;
-      return _createBabonus(babData, null, {parent: this.object});
+      return this.constructor._createBabonus(babData, null, {parent: this.object});
     }
   }
 
@@ -313,7 +326,7 @@ export class BabonusWorkshop extends FormApplication {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const data = this.object.flags.babonus.bonuses[id];
     this._type = null;
-    this._bab = _createBabonus(data, id, {strict: true});
+    this._bab = this.constructor._createBabonus(data, id, {strict: true});
     const formData = this._bab.toString();
     this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
     this._itemTypes = new Set(this._bab.filters.itemTypes ?? []);
@@ -394,6 +407,19 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
+   * Handle copying the id or uuid of a babonus.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  _onClickId(event) {
+    const bonus = this.constructor._getCollection(this.object).get(event.currentTarget.closest(".bonus").dataset.id);
+    const id = event.type === "contextmenu" ? bonus.uuid : bonus.id;
+    navigator.clipboard.writeText(id);
+    ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
+      id, label: "Babonus", type: event.type === "contextmenu" ? "uuid" : "id"
+    }));
+  }
+
+  /**
    * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
    * @param {PointerEvent} event            The initiating click event.
    * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus deleted.
@@ -418,13 +444,13 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleAura(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = _getCollection(this.object).get(id);
+    const bab = this.constructor._getCollection(this.object).get(id);
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
-    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab}).render(true);
+    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
     if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
-    return new AuraConfigurationDialog(this.object, {bab}).render(true);
+    return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
   }
 
   /**
@@ -445,7 +471,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleConsume(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = _getCollection(this.object).get(id);
+    const bab = this.constructor._getCollection(this.object).get(id);
     const path = `bonuses.${id}.consume.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new ConsumptionDialog(this.object, {bab}).render(true);
@@ -518,6 +544,47 @@ export class BabonusWorkshop extends FormApplication {
    */
   _onSectionCollapse(event) {
     event.currentTarget.closest("header").classList.toggle("collapsed");
+  }
+
+  /**
+   * Helper function to display the keys dialog and subsequently place the
+   * selected values in the input fields that its button was placed near.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  async _onDisplayKeysDialog(event) {
+    const formGroup = event.currentTarget.closest(".form-group");
+    const filterId = formGroup.dataset.id;
+
+    const list = foundry.utils.duplicate(KeyGetter[filterId]);
+
+    // The text input.
+    const values = formGroup.querySelector("input[type='text']").value.split(";");
+    const canExclude = ["creatureTypes", "statusEffects", "targetEffects", "damageTypes", "weaponProperties"].includes(filterId);
+
+    for (let value of values) {
+      value = value.trim();
+      const key = value.replaceAll("!", "");
+      const val = list.find(e => e.value === key);
+      if (!val) continue;
+      if (value.startsWith("!")) val.exclude = true;
+      else val.include = true;
+    }
+
+    const newValue = await BabonusKeysDialog.prompt({
+      rejectClose: false,
+      options: {filterId, appId: this.appId, values: list, canExclude},
+      callback: function(html) {
+        const selects = Array.from(html[0].querySelectorAll("select"));
+        return selects.reduce((acc, select) => {
+          if (select.value === "include") return `${acc}${select.dataset.value};`;
+          else if (select.value === "exclude") return `${acc}!${select.dataset.value};`;
+          else return acc;
+        }, "");
+      },
+    });
+
+    if (!newValue) return;
+    formGroup.querySelector("input[type='text']").value = newValue;
   }
 
   /**
@@ -653,15 +720,18 @@ export class BabonusWorkshop extends FormApplication {
     const template = ("modules/babonus/templates/builder_components/" + {
       abilities: "text_keys.hbs",
       attackTypes: "checkboxes.hbs",
+      baseTools: "text_keys.hbs",
       baseWeapons: "text_keys.hbs",
-      creatureTypes: "text_text_keys.hbs",
+      creatureTypes: "text_keys.hbs",
       customScripts: "textarea.hbs",
       damageTypes: "text_keys.hbs",
+      healthPercentages: "range_select.hbs",
       itemRequirements: "label_checkbox_label_checkbox.hbs",
       itemTypes: "checkboxes.hbs",
       preparationModes: "text_keys.hbs",
       remainingSpellSlots: "text_dash_text.hbs",
       saveAbilities: "text_keys.hbs",
+      skillIds: "text_keys.hbs",
       spellComponents: "checkboxes_select.hbs",
       spellLevels: "checkboxes.hbs",
       spellSchools: "text_keys.hbs",
@@ -669,7 +739,7 @@ export class BabonusWorkshop extends FormApplication {
       targetEffects: "text_keys.hbs",
       throwTypes: "text_keys.hbs",
       tokenSizes: "select_number_checkbox.hbs",
-      weaponProperties: "text_text_keys.hbs"
+      weaponProperties: "text_keys.hbs"
     }[id]);
 
     if (id === "spellComponents") {
@@ -684,6 +754,12 @@ export class BabonusWorkshop extends FormApplication {
       data.selectOptions = [
         {value: 0, label: "BABONUS.SizeGreaterThan"},
         {value: 1, label: "BABONUS.SizeSmallerThan"}
+      ];
+    } else if (id === "healthPercentages") {
+      if (data.value === null) data.value = 50;
+      data.selectOptions = [
+        {value: 0, label: "BABONUS.OrLess"},
+        {value: 1, label: "BABONUS.OrMore"}
       ];
     }
     return renderTemplate(template, data);
@@ -716,7 +792,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _appendListenersToFilters(fg) {
     fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
-    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", _onDisplayKeysDialog.bind(this)));
+    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
     fg.querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
   }
 
@@ -752,22 +828,21 @@ export class BabonusWorkshop extends FormApplication {
       });
     } else if ([
       "abilities",
+      "baseTools",
       "baseWeapons",
+      "creatureTypes",
       "customScripts",
       "damageTypes",
       "preparationModes",
       "saveAbilities",
+      "skillIds",
       "spellSchools",
       "statusEffects",
       "targetEffects",
-      "throwTypes"
-    ].includes(data.id)) {
-      data.value = formData[`filters.${data.id}`];
-    } else if ([
-      "creatureTypes",
+      "throwTypes",
       "weaponProperties"
     ].includes(data.id)) {
-      data.value = {needed: formData[`filters.${data.id}.needed`], unfit: formData[`filters.${data.id}.unfit`]};
+      data.value = formData[`filters.${data.id}`];
     } else if (data.id === "remainingSpellSlots") {
       data.value = {min: formData[`filters.${data.id}.min`], max: formData[`filters.${data.id}.max`]};
     } else if ([
@@ -789,6 +864,9 @@ export class BabonusWorkshop extends FormApplication {
       data.self = formData["filters.tokenSizes.self"];
       data.type = formData["filters.tokenSizes.type"];
       data.size = formData["filters.tokenSizes.size"];
+    } else if (data.id === "healthPercentages") {
+      data.value = formData["filters.healthPercentages.value"];
+      data.type = formData["filters.healthPercentages.type"];
     }
   }
 
@@ -824,17 +902,20 @@ export class BabonusWorkshop extends FormApplication {
     const type = this._type ?? this._bab.type;
 
     switch (id) {
-      case "abilities": return ["attack", "damage", "save"].includes(type);
+      case "abilities": return ["attack", "damage", "save", "test"].includes(type);
       case "attackTypes": return ["attack", "damage"].includes(type);
+      case "baseTools": return ["test"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
       case "creatureTypes": return true;
       case "customScripts": return true;
       case "damageTypes": return ["attack", "damage", "save"].includes(type);
+      case "healthPercentages": return true;
       case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
       case "itemTypes": return ["attack", "damage", "save"].includes(type);
       case "preparationModes": return this._itemTypes.has("spell");
       case "remainingSpellSlots": return true;
       case "saveAbilities": return ["save"].includes(type);
+      case "skillIds": return ["test"].includes(type);
       case "spellComponents": return this._itemTypes.has("spell");
       case "spellLevels": return this._itemTypes.has("spell");
       case "spellSchools": return this._itemTypes.has("spell");
@@ -844,5 +925,62 @@ export class BabonusWorkshop extends FormApplication {
       case "tokenSizes": return true;
       case "weaponProperties": return this._itemTypes.has("weapon");
     }
+  }
+
+  /**
+   * ----------------------------------------------------
+   *
+   *
+   *                   STATIC FUNCTIONS
+   *
+   *
+   * ----------------------------------------------------
+   */
+
+  /**
+   * Gather a collection of babonuses from a document.
+   * @param {Document5e} object         An actor, item, effect, or template.
+   * @returns {Collection<Babonus>}     A collection of babonuses.
+   */
+  static _getCollection(object) {
+    const bonuses = Object.entries(object.flags.babonus?.bonuses ?? {});
+    const contents = bonuses.reduce((acc, [id, data]) => {
+      if (!foundry.data.validators.isValidId(id)) return acc;
+      try {
+        const bonus = this._createBabonus(data, id, {parent: object});
+        acc.push([id, bonus]);
+      } catch (err) {
+        console.warn(err);
+      }
+      return acc;
+    }, []);
+    return new foundry.utils.Collection(contents);
+  }
+
+  /**
+   * Create a Babonus with the given id (or a new one if none is provided).
+   * @param {object} data             An object of babonus data.
+   * @param {string} id               Optionally an id to assign the babonus.
+   * @param {object} [options={}]     Additional options that modify the babonus creation.
+   * @returns {Babonus}               The created babonus.
+   */
+  static _createBabonus(data, id, options = {}) {
+    const types = TYPES.map(t => t.value);
+    if (!types.includes(data.type)) {
+      throw new Error("INVALID BABONUS TYPE.");
+    }
+
+    // if no id explicitly provided, make a new one.
+    data.id = id ?? foundry.utils.randomID();
+
+    const bonus = new {
+      attack: AttackBabonus,
+      damage: DamageBabonus,
+      save: SaveBabonus,
+      test: TestBabonus,
+      throw: ThrowBabonus,
+      hitdie: HitDieBabonus
+    }[data.type](data, options);
+    return bonus;
   }
 }

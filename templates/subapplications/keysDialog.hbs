@@ -1,30 +1,34 @@
 <div class="dialog-content">
   <p>{{{localize description}}}</p>
-  <table {{#if double}} class="double" {{/if}}>
+  <table>
     <thead>
       <tr>
         <th>{{localize "BABONUS.KeysDialogValue"}}</th>
-        <th><a data-action="select-all" data-index="2">{{localize "BABONUS.KeysDialogInclude"}}</a></th>
-        {{#if double}}
-        <th><a data-action="select-all" data-index="3">{{localize "BABONUS.KeysDialogExclude"}}</a></th>
-        {{/if}}
+        <th><a data-action="cycle-all">{{localize "BABONUS.KeysDialogState"}}</a></th>
       </tr>
     </thead>
     <tbody>
-      {{#each lists as |list|}}
+      {{#each values as |val|}}
       <tr>
-        <td>{{#if list.icon}}<img src="{{list.icon}}">{{/if}}{{list.label}}</td>
-        <td><input type="checkbox" id="{{list.value}}" data-property="needed" {{checked list.checked0}}></td>
-        {{#if ../double}}
-        <td><input type="checkbox" id="{{list.value}}" data-property="unfit" {{checked list.checked1}}></td>
-        {{/if}}
+        <td><a data-action="cycle">{{#if icon}}<img src="{{icon}}">{{/if}}{{label}}</a></td>
+        <td>
+          <a data-action="cycle-left"><i class="fa-solid fa-arrow-left"></i></a>
+          <select data-value="{{value}}">
+            <option value="none">&mdash;</option>
+            <option value="include" {{#if include}}selected{{/if}}>{{localize "BABONUS.KeysDialogInclude"}}</option>
+            {{#if ../canExclude}}
+            <option value="exclude" {{#if exclude}}selected{{/if}}>{{localize "BABONUS.KeysDialogExclude"}}</option>
+            {{/if}}
+          </select>
+          <a data-action="cycle-right"><i class="fa-solid fa-arrow-right"></i></a>
+        </td>
       </tr>
       {{/each}}
     </tbody>
   </table>
 </div>
 <div class="dialog-buttons">
-  <button class="dialog-button ok default" data-button="ok">
-    <i class="fas fa-check"></i> {{localize label}}
+  <button class="dialog-button ok" data-button="ok">
+    <i class="fas fa-check"></i> {{localize "BABONUS.KeysDialogApplySelection"}}
   </button>
 </div>

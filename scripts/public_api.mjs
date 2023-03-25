@@ -1,12 +1,7 @@
+import {BabonusWorkshop} from "./applications/babonus.mjs";
+import {BonusCollector} from "./applications/bonusCollector.mjs";
 import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
-import {
-  _getMinimumDistanceBetweenTokens,
-  _createBabonus,
-  _openWorkshop,
-  _getAllTokenGridSpaces,
-  _getCollection
-} from "./helpers/helpers.mjs";
 import {migration} from "./migration.mjs";
 
 export function _createAPI() {
@@ -15,7 +10,7 @@ export function _createAPI() {
     getName, getNames,
     getType,
     getCollection,
-    fromUuid,
+    fromUuid: babonusFromUuid,
 
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
@@ -39,15 +34,18 @@ export function _createAPI() {
 /**
  * Return all bonuses that applies to a specific roll.
  * @param {Document5e} object                       The actor (for hitdie and throw) or item (for attack, damage, save).
- * @param {string} type                             The type of rolling (attack, damage, save, throw, hitdie).
+ * @param {string} type                             The type of rolling (attack, damage, test, save, throw, hitdie).
  * @param {object} [options={}]                     Additional context for the inner methods.
  * @param {string} [options.throwType="int"]        The type of saving throw (key of an ability, 'death' or 'concentration').
  * @param {boolean} [options.isConcSave=false]      Whether the saving throw is for maintaining concentration.
+ * @param {string} [options.abilityId="int"]        The ability being used for an ability check.
+ * @param {string} [options.skillId=undefined]      The id of the skill being used in a skill check.
  * @returns {Babonus[]}                             An array of valid babonuses.
  */
-function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false} = {}) {
+function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false, abilityId = "int", skillId} = {}) {
   if (type === "hitdie") return FILTER.hitDieCheck(object);
   else if (type === "throw") return FILTER.throwCheck(object, throwType, {throwType, isConcSave});
+  else if (type === "test") return FILTER.testCheck(object, abilityId, {skillId});
   else if (["attack", "damage", "save"].includes(type)) return FILTER.itemCheck(object, type);
 }
 
@@ -58,7 +56,7 @@ function getApplicableBonuses(object, type, {throwType = "int", isConcSave = fal
  * @returns {Babonus}             The found babonus.
  */
 function getName(object, name) {
-  return _getCollection(object).getName(name);
+  return BabonusWorkshop._getCollection(object).getName(name);
 }
 
 /**
@@ -67,7 +65,7 @@ function getName(object, name) {
  * @returns {string[]}            An array of names.
  */
 function getNames(object) {
-  return Object.values(object.flags.babonus?.bonuses ?? {}).filter(({name}) => name);
+  return [...new Set(BabonusWorkshop._getCollection(object).map(bonus => bonus.name))];
 }
 
 /**
@@ -77,7 +75,7 @@ function getNames(object) {
  * @returns {Babonus}             The found babonus.
  */
 function getId(object, id) {
-  return _getCollection(object).get(id);
+  return BabonusWorkshop._getCollection(object).get(id);
 }
 
 /**
@@ -86,7 +84,7 @@ function getId(object, id) {
  * @returns {string[]}            An array of ids.
  */
 function getIds(object) {
-  return Object.keys(object.flags.babonus?.bonuses ?? {}).filter(id => foundry.data.validators.isValidId(id))
+  return [...new Set(BabonusWorkshop._getCollection(object).map(bonus => bonus.id))];
 }
 
 /**
@@ -96,7 +94,7 @@ function getIds(object) {
  * @returns {Babonus[]}           An array of babonuses.
  */
 function getType(object, type) {
-  return _getCollection(object).filter(b => b.type === type);
+  return BabonusWorkshop._getCollection(object).filter(b => b.type === type);
 }
 
 /**
@@ -106,7 +104,7 @@ function getType(object, type) {
  */
 function getAllContainingTemplates(tokenDoc) {
   const size = tokenDoc.parent.grid.size;
-  const centers = _getAllTokenGridSpaces(tokenDoc).map(({x, y}) => {
+  const centers = getOccupiedGridSpaces(tokenDoc).map(({x, y}) => {
     return {x: x + size / 2, y: y + size / 2};
   });
 
@@ -181,12 +179,12 @@ function findEmbeddedDocumentsWithBonuses(object) {
 
   if (object instanceof Actor) {
     items = object.items.filter(item => {
-      return _getCollection(item).size > 0;
+      return BabonusWorkshop._getCollection(item).size > 0;
     });
   }
   if (object instanceof Actor || object instanceof Item) {
     effects = object.effects.filter(effect => {
-      return _getCollection(effect).size > 0;
+      return BabonusWorkshop._getCollection(effect).size > 0;
     });
   }
   return {effects, items};
@@ -215,7 +213,7 @@ function findTokensInRangeOfAura(object, id) {
     if (!t.actor) return false;
     if (t.actor.type === "group") return false;
     if (t === tokenDoc) return false;
-    const distance = _getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
+    const distance = getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
     return bonus.aura.range >= distance;
   });
 }
@@ -254,7 +252,20 @@ function findTokensInRangeOfToken(source, radius) {
  * @returns {number}            The minimum distance.
  */
 function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
-  return _getMinimumDistanceBetweenTokens(tokenA, tokenB);
+  const spacesA = getOccupiedGridSpaces(tokenA.document);
+  const spacesB = getOccupiedGridSpaces(tokenB.document);
+  const rays = spacesA.flatMap(a => {
+    return spacesB.map(b => {
+      return {ray: new Ray(a, b)};
+    });
+  });
+  const dist = canvas.scene.grid.distance; // 5ft.
+  const distances = canvas.grid.measureDistances(rays, {
+    gridSpaces: false
+  }).map(d => Math.round(d / dist) * dist);
+  const eles = [tokenA, tokenB].map(t => t.document.elevation);
+  const elevationDiff = Math.abs(eles[0] - eles[1]);
+  return Math.max(Math.min(...distances), elevationDiff);
 }
 
 /**
@@ -272,7 +283,7 @@ function openBabonusWorkshop(object) {
     console.warn("The document provided is not a valid document type for Build-a-Bonus!");
     return null;
   }
-  return _openWorkshop(object);
+  return new BabonusWorkshop(object).render(true);
 }
 
 /**
@@ -282,7 +293,7 @@ function openBabonusWorkshop(object) {
  * @returns {Babonus}                     The created babonus.
  */
 function createBabonus(data, parent = null) {
-  return _createBabonus(data, undefined, {parent});
+  return BabonusWorkshop._createBabonus(data, undefined, {parent});
 }
 
 /**
@@ -291,23 +302,22 @@ function createBabonus(data, parent = null) {
  * @returns {object}        An object of the three arrays.
  */
 function sceneTokensByDisposition(scene) {
-  const {HOSTILE, FRIENDLY, NEUTRAL} = CONST.TOKEN_DISPOSITIONS;
   return scene.tokens.reduce((acc, tokenDoc) => {
     const d = tokenDoc.disposition;
-    if (d === HOSTILE) acc.hostiles.push(tokenDoc);
-    else if (d === FRIENDLY) acc.friendlies.push(tokenDoc);
-    else if (d === NEUTRAL) acc.neutrals.push(tokenDoc);
+    if (d === CONST.TOKEN_DISPOSITIONS.HOSTILE) acc.hostiles.push(tokenDoc);
+    else if (d === CONST.TOKEN_DISPOSITIONS.FRIENDLY) acc.friendlies.push(tokenDoc);
+    else if (d === CONST.TOKEN_DISPOSITIONS.NEUTRAL) acc.neutrals.push(tokenDoc);
     return acc;
   }, {hostiles: [], friendlies: [], neutrals: []});
 }
 
 /**
- * Return all the upper left corners of all grid spaces one token occupies.
- * @param {TokenDocument5e} tokenDoc      The token document.
- * @returns {object[]}                    An array of x and y coordinate objects.
+ * Get the centers of all grid spaces that overlap with a token document.
+ * @param {TokenDocument5e} tokenDoc    The token document on the scene.
+ * @returns {object[]}                  An array of xy coordinates.
  */
 function getOccupiedGridSpaces(tokenDoc) {
-  return _getAllTokenGridSpaces(tokenDoc);
+  return BonusCollector._collectTokenCenters(tokenDoc);
 }
 
 /**
@@ -315,7 +325,7 @@ function getOccupiedGridSpaces(tokenDoc) {
  * @param {string} uuid             The babonus uuid.
  * @returns {Promise<Babonus>}      The found babonus.
  */
-async function fromUuid(uuid) {
+async function babonusFromUuid(uuid) {
   try {
     const parts = uuid.split(".");
     const id = parts.pop();
@@ -335,5 +345,5 @@ async function fromUuid(uuid) {
  * @returns {Collection<Babonus>}     A collection of babonuses.
  */
 function getCollection(object) {
-  return _getCollection(object);
+  return BabonusWorkshop._getCollection(object);
 }

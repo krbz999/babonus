@@ -13,13 +13,15 @@ export const SPELL_COMPONENT_MATCHING = {ANY: "ANY", ALL: "ALL"};
 // the kinds of bonuses you can make.
 export const TYPES = [
   // bonuses to attack rolls, crit range, fumble range
-  {value: "attack", icon: "fa-solid fa-hand-fist", label: "BABONUS.TypeAttackRolls"},
+  {value: "attack", icon: "fa-solid fa-location-crosshairs", label: "BABONUS.TypeAttackRolls"},
   // bonuses to damage rolls, critical damage, critical bonus dice
   {value: "damage", icon: "fa-solid fa-burst", label: "BABONUS.TypeDamageRolls"},
   // bonuses to the save DC
   {value: "save", icon: "fa-solid fa-hand-sparkles", label: "BABONUS.TypeSaves"},
   // bonuses to a saving throw, and death save target value
   {value: "throw", icon: "fa-solid fa-person-falling-burst", label: "BABONUS.TypeSavingThrows"},
+  // Bonuses to Ability Checks, Skill Checks, Tool Checks, Initiative.
+  {value: "test", icon: "fa-solid fa-bolt", label: "BABONUS.TypeAbilityChecks"},
   // bonuses to hit die rolls
   {value: "hitdie", icon: "fa-solid fa-heart-pulse", label: "BABONUS.TypeHitdieRolls"}
 ];
@@ -30,6 +32,9 @@ export const BONUS_TYPES_FORMDATA = {
     {TOOLTIP: "BABONUS.TypeAttackBonusTooltip", LABEL: "BABONUS.TypeAttackBonusLabel", NAME: "bonuses.bonus"},
     {TOOLTIP: "BABONUS.TypeAttackBonusCriticalRangeTooltip", LABEL: "BABONUS.TypeAttackCriticalRangeLabel", NAME: "bonuses.criticalRange"},
     {TOOLTIP: "BABONUS.TypeAttackBonusFumbleRangeTooltip", LABEL: "BABONUS.TypeAttackFumbleRangeLabel", NAME: "bonuses.fumbleRange"}
+  ],
+  "test": [
+    {TOOLTIP: "BABONUS.TypeTestBonusTooltip", LABEL: "BABONUS.TypeTestBonusLabel", NAME: "bonuses.bonus"}
   ],
   "damage": [
     {TOOLTIP: "BABONUS.TypeDamageBonusTooltip", LABEL: "BABONUS.TypeDamageBonusLabel", NAME: "bonuses.bonus"},
@@ -64,14 +69,17 @@ export const FILTER_NAMES = [
   "arbitraryComparison",
   "attackTypes",
   "baseWeapons",
+  "baseTools",
   "creatureTypes",
   "customScripts",
   "damageTypes",
+  "healthPercentages",
   "itemRequirements",
   "itemTypes",
   "preparationModes",
   "remainingSpellSlots",
   "saveAbilities",
+  "skillIds",
   "spellComponents",
   "spellLevels",
   "spellSchools",

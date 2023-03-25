@@ -161,12 +161,12 @@
                   </a>
                   {{/if}}
                 </div>
-                <div class="identifier">{{bonus.id}}</div>
+                <a data-action="current-id">{{bonus.id}}</a>
               </div>
             </div>
             <div class="description">
               <div class="content">
-                {{{bonus.description}}}
+                {{{bonus._description}}}
               </div>
             </div>
             <hr class="divider">
@@ -204,7 +204,7 @@
         </header>
         <div class="unavailable-filters">
           {{#each filters as |filter|}}
-          <div class="filter {{#if filter.available}}hidden{{/if}}" data-id="{{filter.id}}">
+          <div class="filter {{#if filter.unavailable}}hidden{{/if}}" data-id="{{filter.id}}">
             <h1 class="filter-header">{{filter.header}}</h1>
             <div class="filter-description">{{{localize filter.description}}}</div>
             <div class="filter-requirements">{{{localize filter.requirements}}}</div>

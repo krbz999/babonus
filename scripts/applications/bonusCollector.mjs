@@ -3,9 +3,11 @@ import {
   DamageBabonus,
   HitDieBabonus,
   SaveBabonus,
+  TestBabonus,
   ThrowBabonus
 } from "./dataModel.mjs";
 import {AURA_TARGETS, MODULE, SHOW_AURA_RANGES} from "../constants.mjs";
+import {_bonusToInt} from "../hooks.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -54,6 +56,7 @@ export class BonusCollector {
     if (this.type === "attack") this.babonusClass = AttackBabonus;
     else if (this.type === "damage") this.babonusClass = DamageBabonus;
     else if (this.type === "save") this.babonusClass = SaveBabonus;
+    else if (this.type === "test") this.babonusClass = TestBabonus;
     else if (this.type === "throw") this.babonusClass = ThrowBabonus;
     else if (this.type === "hitdie") this.babonusClass = HitDieBabonus;
 
@@ -70,7 +73,7 @@ export class BonusCollector {
     if (this.token) {
       this.disposition = this.token.disposition;
       this.elevation = this.token.elevation;
-      this.tokenCenters = this._collectTokenCenters(this.token);
+      this.tokenCenters = this.constructor._collectTokenCenters(this.token);
 
       // Find all templates and all other tokens.
       this.templates = canvas.scene.templates;
@@ -162,12 +165,8 @@ export class BonusCollector {
     // A filter for discarding auras that do not have a long enough radius.
     const rangeChecker = (bab) => {
       if (!bab.hasAura) return false;
-
       const validTargeting = this._matchTokenDisposition(token, bab);
       if (!validTargeting) return false;
-
-      if (bab.aura.range === -1) return true;
-
       return this._tokenWithinAura(token, bab);
     }
 
@@ -272,7 +271,7 @@ export class BonusCollector {
    * @param {TokenDocument5e} tokenDoc    The token document on the scene.
    * @returns {object[]}                  An array of xy coordinates.
    */
-  _collectTokenCenters(tokenDoc) {
+  static _collectTokenCenters(tokenDoc) {
     const {width, height, x, y} = tokenDoc;
     const grid = canvas.scene.grid.size;
     const halfGrid = grid / 2;
@@ -315,9 +314,12 @@ export class BonusCollector {
   _tokenWithinAura(token, bonus) {
     // TODO: option to use gridspace setting.
     // TODO: calculate euclidean vertical distance.
+    const data = bonus.origin?.getRollData() ?? {};
+    const range = _bonusToInt(bonus.aura.range, data);
+    if (range === -1) return true;
     const verticalDistance = Math.abs(token.elevation - this.elevation);
-    if (verticalDistance > bonus.aura.range) return false;
-    const circle = this._createCaptureArea(token, bonus.aura.range);
+    if (verticalDistance > range) return false;
+    const circle = this._createCaptureArea(token, range);
     const within = this.tokenCenters.some(({x, y}) => circle.contains(x, y));
     if (!within) this.tokenBonusesWithout.push(bonus);
     return within;
@@ -384,12 +386,13 @@ export class BonusCollector {
     const id = `babonus-${foundry.utils.randomID()}`;
     this._deletePixiAuras();
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
-      if (bonus.aura.range === -1) continue;
+      const range = _bonusToInt(bonus.aura.range, bonus.origin?.getRollData() ?? {});
+      if (range === -1) continue;
       const shape = new PIXI.Graphics();
       shape.id = id;
       const token = bonus.token;
       const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
-      const pixels = bonus.aura.range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
+      const pixels = range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
       shape.lineStyle(5, color, 0.5);
       shape.drawCircle(token.w / 2, token.h / 2, pixels);
       token.addChild(shape);

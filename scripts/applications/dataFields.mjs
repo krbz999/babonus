@@ -1,22 +1,12 @@
 // ArrayField that only saves its truthy values.
-export class FilteredArrayField extends foundry.data.fields.ArrayField {
+class FilteredArrayField extends foundry.data.fields.ArrayField {
   _cast(data) {
     return super._cast(data.filter(i => i));
   }
 }
 
-// SchemaField containing two disjoint arrays.
-export class DisjointArraysField extends foundry.data.fields.SchemaField {
-  _validateType(data, options = {}) {
-    super._validateType(data, options);
-    if (data.needed.some(n => data.unfit.includes(n))) {
-      throw new foundry.data.fields.ModelValidationError("may not intersect");
-    } else return true;
-  }
-}
-
 // ArrayField that turns a semicolon string into an array of strings.
-export class SemicolonArrayField extends foundry.data.fields.ArrayField {
+class SemicolonArrayField extends foundry.data.fields.ArrayField {
   _cast(value, options) {
     if (typeof value === "string") value = value.split(";");
     return super._cast(value, options);
@@ -29,7 +19,7 @@ export class SemicolonArrayField extends foundry.data.fields.ArrayField {
 }
 
 // ArrayField that filters invalid comparison fields.
-export class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
+class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
   _cast(data) {
     const clone = foundry.utils.deepClone(super._cast(data));
     return clone.filter(i => !!i?.one && !!i.operator && !!i.other);
@@ -37,7 +27,7 @@ export class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
 }
 
 // SchemaField that requires a value in all fields.
-export class TokenSizeField extends foundry.data.fields.SchemaField {
+class TokenSizeField extends foundry.data.fields.SchemaField {
   _validateType(data, options = {}) {
     if ((data.self !== null) || (data.size !== null) || (data.type !== null)) {
       const self = [true, false].includes(data.self);
@@ -52,7 +42,7 @@ export class TokenSizeField extends foundry.data.fields.SchemaField {
 }
 
 // SchemaField with two numeric inputs that requires min < max if both are non-empty.
-export class SpanField extends foundry.data.fields.SchemaField {
+class SpanField extends foundry.data.fields.SchemaField {
   _validateType(data, options = {}) {
     if ((data.min !== null && data.max !== null) && (data.min > data.max)) {
       throw new foundry.data.fields.ModelValidationError("min cannot be higher than max");
@@ -60,3 +50,11 @@ export class SpanField extends foundry.data.fields.SchemaField {
     return super._validateType(data, options);
   }
 }
+
+export const babonusFields = {
+  ArbitraryComparisonField,
+  FilteredArrayField,
+  SemicolonArrayField,
+  SpanField,
+  TokenSizeField
+};
