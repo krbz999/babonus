@@ -649,14 +649,15 @@ export class FILTER {
 
   /**
    * Find out if the health of the actor is at or above/below the threshold.
-   * @param {Actor5e} actor           The actor performing the roll.
-   * @param {object} filter           The object used for the filtering.
-   * @param {number} filter.value     The hit point percentage threshold.
-   * @param {number} filter.type      The type of threshold (0 for 'x or lower' and 1 for 'x and higher').
-   * @returns {boolean}               Whether the threshold is obeyed.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {object} filter             The object used for the filtering.
+   * @param {number} filter.value       The hit point percentage threshold.
+   * @param {number} filter.type        The type of threshold (0 for 'x or lower' and 1 for 'x and higher').
+   * @returns {boolean}                 Whether the threshold is obeyed.
    */
-  static healthPercentages(actor, {value, type}) {
+  static healthPercentages(object, {value, type}) {
     if (!Number.isNumeric(value) || ![0, 1].includes(type)) return true;
+    const actor = object.actor ?? object;
     const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
     return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
   }
