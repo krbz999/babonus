@@ -725,7 +725,7 @@ export class BabonusWorkshop extends FormApplication {
       creatureTypes: "text_keys.hbs",
       customScripts: "textarea.hbs",
       damageTypes: "text_keys.hbs",
-      healthPercentages: "select_range.hbs",
+      healthPercentages: "range_select.hbs",
       itemRequirements: "label_checkbox_label_checkbox.hbs",
       itemTypes: "checkboxes.hbs",
       preparationModes: "text_keys.hbs",
