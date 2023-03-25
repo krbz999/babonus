@@ -161,12 +161,9 @@ export class OptionalSelector {
    * @param {html} html     The entire list of html injected onto the dialog.
    */
   activateListeners(html) {
-    this.form.querySelectorAll("[data-action='consume-item']").forEach(n => n.addEventListener("click", this._onApplyItemOption.bind(this)));
-    this.form.querySelectorAll("[data-action='consume-item-scale']").forEach(n => n.addEventListener("click", this._onApplyScalingItemOption.bind(this)));
-    this.form.querySelectorAll("[data-action='consume-slots']").forEach(n => n.addEventListener("click", this._onApplySlotsOption.bind(this)));
-    this.form.querySelectorAll("[data-action='consume-slots-scale']").forEach(n => n.addEventListener("click", this._onApplyScalingSlotsOption.bind(this)));
-    this.form.querySelectorAll("[data-action='consume-health']").forEach(n => n.addEventListener("click", this._onApplyHealthOption.bind(this)));
-    this.form.querySelectorAll("[data-action='consume-health-scale']").forEach(n => n.addEventListener("click", this._onApplyScalingHealthOption.bind(this)));
+    this.form.querySelectorAll("[data-action^='consume-item']").forEach(n => n.addEventListener("click", this._onApplyItemOption.bind(this)));
+    this.form.querySelectorAll("[data-action^='consume-slots']").forEach(n => n.addEventListener("click", this._onApplySlotsOption.bind(this)));
+    this.form.querySelectorAll("[data-action^='consume-health']").forEach(n => n.addEventListener("click", this._onApplyHealthOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-effects']").forEach(n => n.addEventListener("click", this._onApplyEffectsOption.bind(this)));
     this.form.querySelectorAll("[data-action='consume-none']").forEach(n => n.addEventListener("click", this._onApplyNoConsumeOption.bind(this)));
   }
@@ -221,14 +218,38 @@ export class OptionalSelector {
     } else if (bonus.consume.type === "quantity") {
       return bonus.item.system.quantity >= bonus.consume.value.min;
     } else if (bonus.consume.type === "slots") {
-      return !!this._getLowestValidSpellSlotProperty(bonus.consume.value.min);
+      return !!this._getLowestValidSpellSlotProperty(bonus);
     } else if (bonus.consume.type === "effect") {
       const effect = bonus.effect;
       return effect.collection.has(effect.id);
     } else if (bonus.consume.type === "health") {
       const hp = this.actor.system.attributes.hp;
-      const value = hp.value + (hp.temp || 0);
-      return value >= bonus.consume.value.min;
+      return (hp.value + (hp.temp || 0)) >= bonus.consume.value.min;
+    }
+  }
+
+  /**
+   * Return whether you can consume the selected/minimum requirement to add a bonus
+   * when attempting to add the bonus and consume the property or document.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {boolean}               Whether the requirement is met.
+   */
+  _canSupply(event) {
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
+    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+    if (!scales) return this._canSupplyMinimum(bonus);
+    const type = bonus.consume.type;
+    const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+
+    if (type === "uses") {
+      return bonus.item.system.uses.value >= Number(value);
+    } else if (type === "quantity") {
+      return bonus.item.system.quantity >= Number(value);
+    } else if (type === "slots") {
+      return this.actor.system.spells[value].value > 0;
+    } else if (type === "health") {
+      const hp = this.actor.system.attributes.hp;
+      return (hp.value + (hp.temp || 0)) >= Number(value);
     }
   }
 
@@ -238,26 +259,6 @@ export class OptionalSelector {
    */
   _displayConsumptionWarning(type) {
     ui.notifications.warn(`BABONUS.ConsumptionType${type.capitalize()}Unavailable`, {localize: true});
-  }
-
-  /**
-   * Return whether you can consume the selected requirement to add a bonus.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {boolean}               Whether you can add the bonus.
-   */
-  _canSupplySelected(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
-    if (bonus.consume.type === "uses") {
-      return bonus.item.system.uses.value >= Number(value);
-    } else if (bonus.consume.type === "quantity") {
-      return bonus.item.system.quantity >= Number(value);
-    } else if (bonus.consume.type === "slots") {
-      return this.actor.system.spells[value].value > 0;
-    } else if (bonus.consume.type === "health") {
-      const hp = this.actor.system.attributes.hp;
-      return (hp.value + (hp.temp || 0)) >= Number(value);
-    }
   }
 
   /**
@@ -285,41 +286,25 @@ export class OptionalSelector {
   /**
    * When applying a scaling bonus that consumes limited uses or quantity, get the value from the select,
    * get the minimum possible value, and calculate how much it should scale up.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onApplyScalingItemOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
-    const scale = Number(value) - (bonus.consume.value.min || 1);
-    const sitBonus = this._scaleOptionalBonus(bonus, scale);
-    const item = bonus.item;
-    if (this._canSupplySelected(event)) {
-      const property = bonus.consume.type === "uses" ? "system.uses.value" : "system.quantity";
-      item.update({[property]: foundry.utils.getProperty(item, property) - Number(value)});
-    } else {
-      this._displayConsumptionWarning(bonus.consume.type);
-      return null;
-    }
-    this._appendToField(event, sitBonus);
-  }
-
-  /**
-   * When applying a non-scaling bonus that consumes limited uses or quantity, get the minimum value and consume it.
+   * If the bonus does not scale, get the minimum value and consume it.
    * @param {PointerEvent} event      The initiating click event.
    */
   _onApplyItemOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const value = Number(bonus.consume.value.min || 1);
-    const item = bonus.item;
-    if (this._canSupplyMinimum(bonus)) {
+    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
+      const item = bonus.item;
+      const value = scales ? event.currentTarget.closest(".optional").querySelector(".consumption select").value : (bonus.consume.value.min || 1);
       const property = bonus.consume.type === "uses" ? "system.uses.value" : "system.quantity";
-      item.update({[property]: foundry.utils.getProperty(item, property) - value});
+      item.update({[property]: foundry.utils.getProperty(item, property) - Number(value)});
+      const scale = scales ? Number(value) - (bonus.consume.value.min || 1) : 0;
+      const sitBonus = this._scaleOptionalBonus(bonus, scale);
+      this._appendToField(event, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
     }
-    const sitBonus = this._scaleOptionalBonus(bonus, 0);
-    this._appendToField(event, sitBonus);
   }
 
   /**
@@ -344,39 +329,25 @@ export class OptionalSelector {
   /**
    * When applying a scaling bonus that consumes a spell slot, get the property from the select,
    * and calculate how much it should scale up. The consumed amount is always 1.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onApplyScalingSlotsOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const key = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
-    const level = key === "pact" ? this.actor.system.spells.pact.level : Number(key.at(-1));
-    const scale = Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1);
-    const sitBonus = this._scaleOptionalBonus(bonus, scale);
-    if (this._canSupplySelected(event)) {
-      this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
-    } else {
-      this._displayConsumptionWarning(bonus.consume.type);
-      return null;
-    }
-    this._appendToField(event, sitBonus);
-  }
-
-  /**
-   * When applying a non-scaling bonus that consumes a spell slot, get the smallest available
-   * spell slot, preferring pact slots if equal levels, then consume 1 slot.
+   * If the bonus does not scale, get the smallest available spell slot, preferring pact slots if
+   * equal levels, then consume 1 slot.
    * @param {PointerEvent} event      The initiating click event.
    */
   _onApplySlotsOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const key = this._getLowestValidSpellSlotProperty(bonus.consume.value.min || 1);
-    if (this._canSupplyMinimum(bonus)) {
+    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
+      const key = scales ? event.currentTarget.closest(".optional").querySelector(".consumption select").value : this._getLowestValidSpellSlotProperty(bonus);
+      const level = key === "pact" ? this.actor.system.spells.pact.level : Number(key.at(-1));
+      const scale = scales ? Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1) : 0;
+      const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
+      this._appendToField(event, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
     }
-    const sitBonus = this._scaleOptionalBonus(bonus, 0);
-    this._appendToField(event, sitBonus);
   }
 
   /**
@@ -401,37 +372,23 @@ export class OptionalSelector {
   /**
    * When applying a scaling bonus that consumes hit points, get the value from the select,
    * get the minimum possible value, and calculate how much it should scape up.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onApplyScalingHealthOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
-    const scale = Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step);
-    const sitBonus = this._scaleOptionalBonus(bonus, scale);
-    if (this._canSupplySelected(event)) {
-      this.actor.applyDamage(value);
-    } else {
-      this._displayConsumptionWarning(bonus.consume.type);
-      return null;
-    }
-    this._appendToField(event, sitBonus);
-  }
-
-  /**
-   * When applying a non-scaling bonus that consumes hit points, get the minimum value and consume it.
+   * If the bonus does not scale, get the minimum value and consume it.
    * @param {PointerEvent} event      The initiating click event.
    */
   _onApplyHealthOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const value = Number(bonus.consume.value.min || 1);
-    if (this._canSupplyMinimum(bonus)) {
+    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
+      const value = scales ? event.currentTarget.closest(".optional").querySelector(".consumption select").value : Number(bonus.consume.value.min || 1);
+      const scale = scales ? Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step) : 0;
+      const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.applyDamage(value);
+      this._appendToField(event, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
     }
-    const sitBonus = this._scaleOptionalBonus(bonus, 0);
-    this._appendToField(event, sitBonus);
   }
 
   /**
@@ -441,15 +398,16 @@ export class OptionalSelector {
   async _onApplyEffectsOption(event) {
     const e = {currentTarget: event.currentTarget};
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    if (this._canSupplyMinimum(bonus)) {
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
       const confirm = await bonus.effect.deleteDialog();
       if (!confirm) return;
+      const sitBonus = this._scaleOptionalBonus(bonus, 0);
+      this._appendToField(e, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
     }
-    const sitBonus = this._scaleOptionalBonus(bonus, 0);
-    this._appendToField(e, sitBonus);
   }
 
   /**
@@ -494,10 +452,11 @@ export class OptionalSelector {
   /**
    * Get the attribute key for the lowest available and valid spell slot.
    * If the lowest level is both a pact and spell slot, prefer pact slot.
-   * @param {number} min      The minimum spell level required.
-   * @returns {string}        The attribute key.
+   * @param {Babonus} bonus     The bonus used to determine the minimum spell level required.
+   * @returns {string}          The attribute key.
    */
-  _getLowestValidSpellSlotProperty(min) {
+  _getLowestValidSpellSlotProperty(bonus) {
+    const min = bonus.consume.value.min || 1;
     const spells = this.actor.system.spells;
     const pact = spells.pact.level;
     let level = Infinity;
