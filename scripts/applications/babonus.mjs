@@ -156,17 +156,19 @@ export class BabonusWorkshop extends FormApplication {
           async: true,
           rollData: bab.origin?.getRollData() ?? {}
         });
+        // Add the icon property to the bonus object
+        const bonusType = TYPES.find(t => t.value === bab.type);
+        bab.icon = bonusType.icon;
         flagBoni.push(bab);
       } catch (err) {
         console.error(err);
       }
     }
+    // Sort the bonuses alphabetically by name
     data.currentBonuses = flagBoni.sort((a, b) => a.name.localeCompare(b.name));
-
     data.TYPES = TYPES;
     data.ICON = MODULE_ICON;
     data.otterColor = this._otterColor;
-
     return data;
   }
 
