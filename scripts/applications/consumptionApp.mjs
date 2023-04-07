@@ -29,7 +29,7 @@ export class ConsumptionDialog extends FormApplication {
     const choices = [{value: "", label: ""}];
     if (this.clone.canConsumeUses) choices.push({value: "uses", label: "DND5E.LimitedUses"});
     if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
-    if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSpellSlot"});
+    if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSlots"});
     if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
     if (this.clone.canConsumeHealth) choices.push({value: "health", label: "BABONUS.ConsumptionTypeHealth"});
     return {
