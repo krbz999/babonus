@@ -58,6 +58,10 @@ class Babonus extends foundry.abstract.DataModel {
       delete filters.remainingSpellSlots;
     }
 
+    if (Object.values(filters.healthPercentages ?? {}).includes(null)) {
+      delete filters.healthPercentages;
+    }
+
     return data;
   }
 
