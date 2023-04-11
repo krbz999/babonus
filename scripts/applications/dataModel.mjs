@@ -11,58 +11,14 @@ import {_bonusToInt} from "../hooks.mjs";
 import {babonusFields} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
-
   constructor(data, options = {}) {
     const expData = foundry.utils.expandObject(data);
     super(expData, options);
   }
 
   /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if ((typeof filters.itemRequirements?.equipped !== "boolean") && (typeof filters.itemRequirements?.attuned !== "boolean")) {
-      delete filters.itemRequirements;
-    }
-
-    if (!filters.arbitraryComparison?.length) {
-      delete filters.arbitraryComparison;
-    }
-
-    if (!filters.statusEffects?.length) {
-      delete filters.statusEffects;
-    }
-
-    if (!filters.targetEffects?.length) {
-      delete filters.targetEffects;
-    }
-
-    if (!filters.creatureTypes?.length) {
-      delete filters.creatureTypes;
-    }
-
-    if (!filters.customScripts) {
-      delete filters.customScripts;
-    }
-
-    if (!filters.preparationModes?.length) {
-      delete filters.preparationModes;
-    }
-
-    if (Object.values(filters.tokenSizes ?? {}).includes(null)) {
-      delete filters.tokenSizes;
-    }
-
-    if ((filters.remainingSpellSlots?.min === null) && (filters.remainingSpellSlots?.max === null)) {
-      delete filters.remainingSpellSlots;
-    }
-
-    if (Object.values(filters.healthPercentages ?? {}).includes(null)) {
-      delete filters.healthPercentages;
-    }
-
-    return data;
+  toObject(source = false) {
+    return super.toObject(source);
   }
 
   toString() {
@@ -321,8 +277,8 @@ class Babonus extends foundry.abstract.DataModel {
         disposition: new foundry.data.fields.NumberField({required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
         blockers: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false}))
       }),
-      filters: new foundry.data.fields.SchemaField({
-        itemRequirements: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
+        itemRequirements: new babonusFields.ItemRequirementsField({
           equipped: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true}),
           attuned: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
         }),
@@ -334,7 +290,7 @@ class Babonus extends foundry.abstract.DataModel {
         statusEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         targetEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         creatureTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        healthPercentages: new foundry.data.fields.SchemaField({
+        healthPercentages: new babonusFields.HealthPercentagesField({
           value: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, max: 100, step: 1, integer: true, nullable: true}),
           type: new foundry.data.fields.NumberField({required: false, initial: null, choices: [0, 1], nullable: true})
         }),
@@ -391,54 +347,9 @@ class Babonus extends foundry.abstract.DataModel {
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
 class ItemBabonus extends Babonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.itemTypes?.length) {
-      delete filters.itemTypes;
-    }
-
-    if (!filters.attackTypes?.length) {
-      delete filters.attackTypes;
-    }
-
-    if (!filters.damageTypes?.length) {
-      delete filters.damageTypes;
-    }
-
-    if (!filters.abilities?.length) {
-      delete filters.abilities;
-    }
-
-    if (!filters.spellComponents?.types.length) {
-      delete filters.spellComponents;
-    }
-
-    if (!filters.spellLevels?.length) {
-      delete filters.spellLevels;
-    }
-
-    if (!filters.spellSchools?.length) {
-      delete filters.spellSchools;
-    }
-
-    if (!filters.baseWeapons?.length) {
-      delete filters.baseWeapons;
-    }
-
-    if (!filters.weaponProperties?.length) {
-      delete filters.weaponProperties;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
           choices: ITEM_ROLL_TYPES, blank: true
         })),
@@ -451,7 +362,7 @@ class ItemBabonus extends Babonus {
         abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.abilities.map(t => t.value)
         })),
-        spellComponents: new foundry.data.fields.SchemaField({
+        spellComponents: new babonusFields.SpellComponentsField({
           types: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
             choices: KeyGetter.spellComponents.map(t => t.value), blank: true
           })),
@@ -479,7 +390,7 @@ class ItemBabonus extends Babonus {
 export class AttackBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField(),
         criticalRange: new foundry.data.fields.StringField(),
         fumbleRange: new foundry.data.fields.StringField()
@@ -491,7 +402,7 @@ export class AttackBabonus extends ItemBabonus {
 export class DamageBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField(),
         criticalBonusDice: new foundry.data.fields.StringField(),
         criticalBonusDamage: new foundry.data.fields.StringField()
@@ -501,25 +412,12 @@ export class DamageBabonus extends ItemBabonus {
 }
 
 export class SaveBabonus extends ItemBabonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.saveAbilities?.length) {
-      delete filters.saveAbilities;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         saveAbilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.saveAbilities.map(t => t.value)
         }))
@@ -529,27 +427,14 @@ export class SaveBabonus extends ItemBabonus {
 }
 
 export class ThrowBabonus extends Babonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.throwTypes?.length) {
-      delete filters.throwTypes;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField(),
         deathSaveTargetValue: new foundry.data.fields.StringField(),
         deathSaveCritical: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         throwTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.throwTypes.map(t => t.value)
         }))
@@ -559,33 +444,12 @@ export class ThrowBabonus extends Babonus {
 }
 
 export class TestBabonus extends Babonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.abilities?.length) {
-      delete filters.abilities;
-    }
-
-    if (!filters.baseTools?.length) {
-      delete filters.baseTools;
-    }
-
-    if (!filters.skillIds?.length) {
-      delete filters.skillIds;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.abilities.map(t => t.value)
         })),
@@ -603,10 +467,10 @@ export class TestBabonus extends Babonus {
 export class HitDieBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({})
+      filters: new babonusFields.FiltersField({})
     })
   }
 }
