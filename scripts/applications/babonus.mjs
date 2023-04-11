@@ -189,7 +189,7 @@ export class BabonusWorkshop extends FormApplication {
     // Attempt to save the babonus, otherwise show a warning.
     try {
       const bab = this.constructor._createBabonus(formData, formData.id);
-      await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
+      await this.object.update({[`flags.${MODULE}.bonuses.-=${formData.id}`]: null}, {render: false});
       await this.object.setFlag(MODULE, `bonuses.${formData.id}`, bab.toObject());
       ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", {name: formData.name, id: formData.id}));
     } catch (err) {
