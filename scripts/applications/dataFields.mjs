@@ -36,11 +36,21 @@ class FilteredArrayField extends foundry.data.fields.ArrayField {
 
 // ArrayField that turns a semicolon string into an array of strings.
 class SemicolonArrayField extends foundry.data.fields.ArrayField {
+  /**
+   * @override
+   * If the given value is a string, split it at each ';' and trim the results to get an array.
+   */
   _cast(value) {
     if (typeof value === "string") value = value.split(";").map(v => v.trim());
     return super._cast(value);
   }
 
+  /**
+   * @override
+   * If the given value contains invalid options, simply ignore them. This is done
+   * since several filters that make use of this field can be customized through
+   * world scripts or modules, such as 'weapon properties'.
+   */
   _cleanType(value, source) {
     const choices = this.element.choices;
     value = value.reduce((acc, v) => {
@@ -60,6 +70,10 @@ class SemicolonArrayField extends foundry.data.fields.ArrayField {
 
 // ArrayField that filters invalid comparison fields.
 class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
+  /**
+   * @override
+   * Filter out any elements in the array that do not contain all three values.
+   */
   _cast(value) {
     value = super._cast(value);
     return value.filter(i => !!i?.one && !!i.operator && !!i.other);
@@ -73,6 +87,7 @@ class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
 
 // SchemaField that requires a value in all fields.
 class TokenSizeField extends foundry.data.fields.SchemaField {
+  /** @override */
   _validateType(data, options = {}) {
     if ((data.self !== null) || (data.size !== null) || (data.type !== null)) {
       const self = [true, false].includes(data.self);
@@ -94,6 +109,7 @@ class TokenSizeField extends foundry.data.fields.SchemaField {
 
 // SchemaField with two numeric inputs that requires min < max if both are non-empty.
 class SpanField extends foundry.data.fields.SchemaField {
+  /** @override */
   _validateType(data, options = {}) {
     if ((data.min !== null && data.max !== null) && (data.min > data.max)) {
       throw new foundry.data.fields.ModelValidationError("min cannot be higher than max");
