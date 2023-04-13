@@ -499,7 +499,7 @@ export class BabonusWorkshop extends FormApplication {
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const key = `bonuses.${id}.enabled`;
-    const state = this.object.getFlag(MODULE, key);
+    const state = this.object.flags[MODULE][key];
     return this.object.setFlag(MODULE, key, !state);
   }
 

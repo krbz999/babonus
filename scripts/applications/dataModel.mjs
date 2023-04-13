@@ -168,7 +168,7 @@ class Babonus extends foundry.abstract.DataModel {
 
     return this.actor?.effects.some(effect => {
       if (!effect.modifiesActor) return false;
-      const id = effect.getFlag("core", "statusId");
+      const id = effect.flags.core?.statusId;
       return !!id && blockers.includes(id);
     }) ?? false;
   }
