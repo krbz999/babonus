@@ -510,7 +510,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = foundry.utils.duplicate(this.object.flags.babonus.bonuses[id]);
+    const data = foundry.utils.deepClone(this.object.flags.babonus.bonuses[id]);
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
     data.id = foundry.utils.randomID();
     data.enabled = false;
@@ -555,7 +555,7 @@ export class BabonusWorkshop extends FormApplication {
     const formGroup = event.currentTarget.closest(".form-group");
     const filterId = formGroup.dataset.id;
 
-    const list = foundry.utils.duplicate(KeyGetter[filterId]);
+    const list = foundry.utils.deepClone(KeyGetter[filterId]);
 
     // The text input.
     const values = formGroup.querySelector("input[type='text']").value.split(";");
@@ -819,7 +819,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _prepareData(data, formData) {
     if (data.id === "arbitraryComparison") {
-      data.array = foundry.utils.duplicate(this._bab.filters[data.id]).map((n, idx) => {
+      data.array = foundry.utils.deepClone(this._bab.filters[data.id]).map((n, idx) => {
         const options = ARBITRARY_OPERATORS.reduce((acc, {value, label}) => {
           const selected = (value === n.operator) ? "selected" : "";
           return acc + `<option value="${value}" ${selected}>${label}</option>`;

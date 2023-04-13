@@ -198,39 +198,39 @@ async function _migrateDocumentDirect(object) {
  * babonus: an object
  */
 function _modifyData(babonus, type) {
-  const data = foundry.utils.duplicate(babonus);
+  const data = foundry.utils.deepClone(babonus);
 
-  if (data["itemTypes"]) data.filters.itemTypes = foundry.utils.duplicate(data.itemTypes);
+  if (data["itemTypes"]) data.filters.itemTypes = foundry.utils.deepClone(data.itemTypes);
   if (data["throwTypes"]) {
-    data.filters.throwTypes = foundry.utils.duplicate(data.throwTypes.filter(i => {
+    data.filters.throwTypes = foundry.utils.deepClone(data.throwTypes.filter(i => {
       return KeyGetter.throwTypes.map(t => t.value).includes(i);
     }));
   }
   /*if (data.filters["weaponProperties"]) {
     if (data.filters.weaponProperties.needed) {
-      data.filters.weaponProperties.needed = foundry.utils.duplicate(data.filters.weaponProperties.needed.filter(i => {
+      data.filters.weaponProperties.needed = foundry.utils.deepClone(data.filters.weaponProperties.needed.filter(i => {
         return KeyGetter.weaponProperties.map(t => t.value).includes(i);
       }));
     }
     if (data.filters.weaponProperties.unfit) {
-      data.filters.weaponProperties.unfit = foundry.utils.duplicate(data.filters.weaponProperties.unfit.filter(i => {
+      data.filters.weaponProperties.unfit = foundry.utils.deepClone(data.filters.weaponProperties.unfit.filter(i => {
         return KeyGetter.weaponProperties.map(t => t.value).includes(i);
       }));
     }
   }*/
   if (data.filters["spellComponents"]) {
     if (data.filters.spellComponents.types) {
-      data.filters.spellComponents.types = foundry.utils.duplicate(data.filters.spellComponents.types.filter(i => {
+      data.filters.spellComponents.types = foundry.utils.deepClone(data.filters.spellComponents.types.filter(i => {
         return KeyGetter.spellComponents.map(t => t.value).includes(i);
       }))
     }
   }
-  if (data["itemRequirements"]) data.filters.itemRequirements = foundry.utils.duplicate(data.itemRequirements);
+  if (data["itemRequirements"]) data.filters.itemRequirements = foundry.utils.deepClone(data.itemRequirements);
 
   const unstricts = ["abilities", "baseWeapons", "damageTypes", "saveAbilities", "spellSchools"];
   for (const type of unstricts) {
     if (data.filters[type]) {
-      data.filters[type] = foundry.utils.duplicate(data.filters[type].filter(i => {
+      data.filters[type] = foundry.utils.deepClone(data.filters[type].filter(i => {
         return KeyGetter[type].map(t => t.value).includes(i);
       }));
     }
@@ -239,9 +239,9 @@ function _modifyData(babonus, type) {
   data.name = data.label;
   data.type = type;
   data.id = foundry.utils.randomID();
-  data.bonuses = foundry.utils.duplicate(data.values);
+  data.bonuses = foundry.utils.deepClone(data.values);
 
-  if (data.filters["arbitraryComparison"]) data.filters.arbitraryComparison = [foundry.utils.duplicate(data.filters.arbitraryComparison)];
+  if (data.filters["arbitraryComparison"]) data.filters.arbitraryComparison = [foundry.utils.deepClone(data.filters.arbitraryComparison)];
   if (data.filters["spellLevels"]) data.filters.spellLevels = data.filters.spellLevels.map(n => n.toString());
 
   // fix possibly broken auras lacking both aura.range and aura.isTemplate.
@@ -268,7 +268,7 @@ function _modifyData(babonus, type) {
  * object: an item.
  */
 async function _migrateDoubleEmbeddedEffects(object) {
-  const effects = foundry.utils.duplicate(object.effects);
+  const effects = foundry.utils.deepClone(object.effects);
   if (!effects?.length) return true;
 
   const newEffects = [];
