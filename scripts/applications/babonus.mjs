@@ -448,7 +448,7 @@ export class BabonusWorkshop extends FormApplication {
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
-    if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
+    if (bab.isTemplateAura || bab.isTokenAura) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
     return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
   }

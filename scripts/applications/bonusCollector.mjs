@@ -138,7 +138,7 @@ export class BonusCollector {
 
     // A filter for discarding blocked or suppressed auras, template auras, and auras that do not affect self.
     const validSelfAura = (bab) => {
-      const isBlockedAura = bab.hasAura && (bab.isAuraBlocked || !bab.aura.self);
+      const isBlockedAura = bab.isTokenAura && (bab.isAuraBlocked || !bab.aura.self);
       return !isBlockedAura && !bab.isTemplateAura;
     }
 
@@ -158,13 +158,13 @@ export class BonusCollector {
 
     // A filter for discarding blocked or suppressed auras and template auras.
     const validTokenAura = (bab) => {
-      const isBlockedAura = bab.hasAura && bab.isAuraBlocked;
+      const isBlockedAura = bab.isTokenAura && bab.isAuraBlocked;
       return !isBlockedAura && !bab.isTemplateAura;
     }
 
     // A filter for discarding auras that do not have a long enough radius.
     const rangeChecker = (bab) => {
-      if (!bab.hasAura) return false;
+      if (!bab.isTokenAura) return false;
       const validTargeting = this._matchTokenDisposition(token, bab);
       if (!validTargeting) return false;
       return this._tokenWithinAura(token, bab);
