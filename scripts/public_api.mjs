@@ -198,7 +198,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
  */
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
-  if (!bonus.hasAura) return null;
+  if (!bonus.isTokenAura) return null;
   let actor;
   if (object instanceof Actor) actor = object;
   else if (object instanceof Item) actor = object.actor;

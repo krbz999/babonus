@@ -131,7 +131,7 @@
                     <i class="fa-solid fa-trash"></i>
                   </a>
                   <a data-action="current-aura" data-tooltip="BABONUS.ConfigurationAuraTooltip">
-                    <i class="fa-{{#if (or bonus.hasAura bonus.isTemplateAura)}}solid{{else}}regular{{/if}} fa-sun"></i>
+                    <i class="fa-{{#if (or bonus.isTokenAura bonus.isTemplateAura)}}solid{{else}}regular{{/if}} fa-sun"></i>
                   </a>
                   {{#if bonus.canExclude}}
                   <a data-action="current-itemOnly" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
