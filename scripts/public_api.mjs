@@ -182,7 +182,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
       return BabonusWorkshop._getCollection(item).size > 0;
     });
   }
-  if (object instanceof Actor || object instanceof Item) {
+  if ((object instanceof Actor) || (object instanceof Item)) {
     effects = object.effects.filter(effect => {
       return BabonusWorkshop._getCollection(effect).size > 0;
     });
@@ -277,7 +277,7 @@ function openBabonusWorkshop(object) {
   const validDocumentType = (
     (object instanceof Actor)
     || (object instanceof Item)
-    || (object instanceof ActiveEffect && !(object.parent.parent instanceof Actor))
+    || ((object instanceof ActiveEffect) && !(object.parent.parent instanceof Actor))
   );
   if (!validDocumentType) {
     console.warn("The document provided is not a valid document type for Build-a-Bonus!");
