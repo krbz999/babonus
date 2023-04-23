@@ -142,7 +142,7 @@ export class BabonusWorkshop extends FormApplication {
 
         // Set 'available' to true to display it in the available filters.
         filterData.available = this._isFilterAvailable(id);
-        // Set 'unavailable' to true to hide it in in the 'unavailable' filters.
+        // Set 'unavailable' to true to hide it in the 'unavailable' filters.
         filterData.unavailable = filterData.available || (this._addedFilters.has(id) && (id !== "arbitraryComparisons"));
 
         data.filters.push(filterData);
