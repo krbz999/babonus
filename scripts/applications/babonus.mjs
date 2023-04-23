@@ -139,8 +139,12 @@ export class BabonusWorkshop extends FormApplication {
           description: `BABONUS.Filters${id.capitalize()}Tooltip`,
           requirements: `BABONUS.Filters${id.capitalize()}Requirements`
         };
-        if (this._isFilterAvailable(id)) filterData.available = true;
-        if (this._addedFilters.has(id) && (id !== "arbitraryComparisons")) filterData.unavailable = true;
+
+        // Set 'available' to true to display it in the available filters.
+        filterData.available = this._isFilterAvailable(id);
+        // Set 'unavailable' to true to hide it in the 'unavailable' filters.
+        filterData.unavailable = filterData.available || (this._addedFilters.has(id) && (id !== "arbitraryComparisons"));
+
         data.filters.push(filterData);
       }
       data.filters.sort((a, b) => a.header.localeCompare(b.header));
@@ -272,7 +276,7 @@ export class BabonusWorkshop extends FormApplication {
       return this.constructor._createBabonus(data.data, null, {parent: this.object});
     } else if (data.uuid) {
       const _parent = await fromUuid(data.uuid);
-      const parent = _parent instanceof TokenDocument ? _parent.actor : _parent;
+      const parent = (_parent instanceof TokenDocument) ? _parent.actor : _parent;
       const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
       delete babData.id;
       return this.constructor._createBabonus(babData, null, {parent: this.object});
