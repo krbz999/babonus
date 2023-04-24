@@ -159,6 +159,7 @@ export class BabonusWorkshop extends FormApplication {
         // Add the icon property to the bonus object
         const bonusType = TYPES.find(t => t.value === bab.type);
         bab.icon = bonusType.icon;
+        bab.typeTooltip = bonusType.label;
         flagBoni.push(bab);
       } catch (err) {
         console.error(err);
