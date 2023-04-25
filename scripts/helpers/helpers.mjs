@@ -3,6 +3,18 @@
  */
 export class KeyGetter {
 
+  // Base armor types (and 'shield').
+  static get baseArmors() {
+    const entries = Object.entries(CONFIG.DND5E.armorIds).map(([value, uuid]) => {
+      const split = uuid.split(".");
+      const id = split.pop();
+      const packKey = split.length ? split.join(".") : "dnd5e.items";
+      return {value, label: game.packs.get(packKey).index.get(id)?.name};
+    });
+    entries.push({value: "shield", label: game.i18n.localize("DND5E.EquipmentShield")});
+    return entries;
+  }
+
   // base weapon types.
   static get baseWeapons() {
     const entries = Object.entries(CONFIG.DND5E.weaponIds);

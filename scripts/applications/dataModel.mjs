@@ -413,6 +413,9 @@ class Babonus extends foundry.abstract.DataModel {
           other: new foundry.data.fields.StringField({required: false, blank: false}),
           operator: new foundry.data.fields.StringField({required: false, choices: ARBITRARY_OPERATORS.map(t => t.value)})
         })),
+        baseArmors: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.baseArmors.flatMap(({value}) => [value, `!${value}`])
+        })),
         statusEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         targetEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         creatureTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
