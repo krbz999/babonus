@@ -566,7 +566,14 @@ export class BabonusWorkshop extends FormApplication {
 
     // The text input.
     const values = formGroup.querySelector("input[type='text']").value.split(";");
-    const canExclude = ["creatureTypes", "statusEffects", "targetEffects", "damageTypes", "weaponProperties"].includes(filterId);
+    const canExclude = [
+      "baseArmors",
+      "creatureTypes",
+      "statusEffects",
+      "targetEffects",
+      "damageTypes",
+      "weaponProperties"
+    ].includes(filterId);
 
     for (let value of values) {
       value = value.trim();
@@ -727,6 +734,7 @@ export class BabonusWorkshop extends FormApplication {
     const template = ("modules/babonus/templates/builder_components/" + {
       abilities: "text_keys.hbs",
       attackTypes: "checkboxes.hbs",
+      baseArmors: "text_keys.hbs",
       baseTools: "text_keys.hbs",
       baseWeapons: "text_keys.hbs",
       creatureTypes: "text_keys.hbs",
@@ -835,6 +843,7 @@ export class BabonusWorkshop extends FormApplication {
       });
     } else if ([
       "abilities",
+      "baseArmors",
       "baseTools",
       "baseWeapons",
       "creatureTypes",
@@ -911,6 +920,7 @@ export class BabonusWorkshop extends FormApplication {
     switch (id) {
       case "abilities": return ["attack", "damage", "save", "test"].includes(type);
       case "attackTypes": return ["attack", "damage"].includes(type);
+      case "baseArmors": return true;
       case "baseTools": return ["test"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
       case "creatureTypes": return true;
