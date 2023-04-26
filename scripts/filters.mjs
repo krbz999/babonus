@@ -247,8 +247,8 @@ export class FILTER {
    */
   static baseWeapons(item, filter) {
     if (!filter?.length) return true;
-    if (item.type !== "weapon") return false;
     const {included, excluded} = FILTER._splitExlusion(filter);
+    if (item.type !== "weapon") return included.length === 0;
     const type = item.system.baseItem;
     if (included.length && !included.includes(type)) return false;
     if (excluded.length && excluded.includes(type)) return false;
@@ -404,9 +404,9 @@ export class FILTER {
    */
   static weaponProperties(item, filter) {
     if (!filter?.length) return true;
-    if (item.type !== "weapon") return false;
-    const props = item.system.properties;
     const {included, excluded} = FILTER._splitExlusion(filter);
+    if (item.type !== "weapon") return included.length === 0;
+    const props = item.system.properties;
     if (included.length && !included.some(p => props[p])) return false;
     if (excluded.length && excluded.some(p => props[p])) return false;
     return true;
@@ -673,9 +673,9 @@ export class FILTER {
    */
   static baseTools(tool, filter) {
     if (!filter?.length) return true;
-    if (tool.type !== "tool") return false;
     const {included, excluded} = FILTER._splitExlusion(filter);
-    const type = item.system.baseItem;
+    if (tool.type !== "tool") return included.length === 0;
+    const type = tool.system.baseItem;
     if (included.length && !included.includes(type)) return false;
     if (excluded.length && excluded.includes(type)) return false;
     return true;
@@ -691,8 +691,8 @@ export class FILTER {
    */
   static skillIds(actor, filter, {skillId}) {
     if (!filter?.length) return true;
-    if (!skillId) return false;
     const {included, excluded} = FILTER._splitExlusion(filter);
+    if (!skillId) return included.length === 0;
     if (included.length && !included.includes(skillId)) return false;
     if (excluded.length && excluded.includes(skillId)) return false;
     return true;
