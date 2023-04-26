@@ -248,7 +248,11 @@ export class FILTER {
   static baseWeapons(item, filter) {
     if (!filter?.length) return true;
     if (item.type !== "weapon") return false;
-    return filter.includes(item.system.baseItem);
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    const type = item.system.baseItem;
+    if (included.length && !included.includes(type)) return false;
+    if (excluded.length && excluded.includes(type)) return false;
+    return true;
   }
 
   /**
@@ -670,7 +674,11 @@ export class FILTER {
   static baseTools(tool, filter) {
     if (!filter?.length) return true;
     if (tool.type !== "tool") return false;
-    return filter.includes(tool.system.baseItem);
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    const type = item.system.baseItem;
+    if (included.length && !included.includes(type)) return false;
+    if (excluded.length && excluded.includes(type)) return false;
+    return true;
   }
 
   /**
@@ -684,7 +692,10 @@ export class FILTER {
   static skillIds(actor, filter, {skillId}) {
     if (!filter?.length) return true;
     if (!skillId) return false;
-    return filter.includes(skillId);
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    if (included.length && !included.includes(skillId)) return false;
+    if (excluded.length && excluded.includes(skillId)) return false;
+    return true;
   }
 
   /**

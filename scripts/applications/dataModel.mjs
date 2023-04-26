@@ -424,7 +424,9 @@ class Babonus extends foundry.abstract.DataModel {
           type: new foundry.data.fields.NumberField({required: false, initial: null, choices: [0, 1], nullable: true})
         }),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
-        preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
+        preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.preparationModes.map(t => t.value)
+        })),
         tokenSizes: new babonusFields.TokenSizeField({
           size: new foundry.data.fields.NumberField({initial: null, min: 0.5, step: 0.5, integer: false, nullable: true}),
           type: new foundry.data.fields.NumberField({choices: [0, 1], nullable: true}),
@@ -506,7 +508,7 @@ class ItemBabonus extends Babonus {
           choices: KeyGetter.spellSchools.map(t => t.value)
         })),
         baseWeapons: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.baseWeapons.map(t => t.value)
+          choices: KeyGetter.baseWeapons.flatMap(({value}) => [value, `!${value}`])
         })),
         weaponProperties: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.weaponProperties.flatMap(({value}) => [value, `!${value}`])
@@ -583,10 +585,10 @@ export class TestBabonus extends Babonus {
           choices: KeyGetter.abilities.map(t => t.value)
         })),
         baseTools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.baseTools.map(t => t.value)
+          choices: KeyGetter.baseTools.flatMap(({value}) => [value, `!${value}`])
         })),
         skillIds: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.skillIds.map(t => t.value)
+          choices: KeyGetter.skillIds.flatMap(({value}) => [value, `!${value}`])
         }))
       })
     });
