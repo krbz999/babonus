@@ -205,6 +205,20 @@ export class FILTER {
   }
 
   /**
+   * Split an array into 'included' and 'exluded'.
+   * @param {string[]} filter     The array of strings, some with '!' prefixed.
+   * @returns {object}            An object with two arrays of strings.
+   */
+  static _splitExlusion(filter) {
+    const data = filter.reduce((acc, str) => {
+      if (!str.startsWith("!")) acc.included.push(str);
+      else if (str.startsWith("!")) acc.excluded.push(str.slice(1));
+      return acc;
+    }, {included: [], excluded: []});
+    return data;
+  }
+
+  /**
    **********************************************************
    *
    *
@@ -233,21 +247,57 @@ export class FILTER {
    */
   static baseWeapons(item, filter) {
     if (!filter?.length) return true;
-    if (item.type !== "weapon") return false;
-    return filter.includes(item.system.baseItem);
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    if (item.type !== "weapon") return included.length === 0;
+    const type = item.system.baseItem;
+    if (included.length && !included.includes(type)) return false;
+    if (excluded.length && excluded.includes(type)) return false;
+    return true;
   }
 
   /**
-   * Find out if the item has any of the filter's damage types in its damage parts.
+   * Find out if the actor is wearing one of the included armor types in the filter and none of the excluded types.
+   * Note that this includes shields as well.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {string[]} filter           The array of base armor keys.
+   * @returns {boolean}                 Whether the rolling actor is wearing appropriate armor.
+   */
+  static baseArmors(object, filter) {
+    const actor = (object instanceof Item) ? object.actor : object;
+    const {included, excluded} = FILTER._splitExlusion(filter);
+
+    // Vehicles cannot wear base armor.
+    if (actor.type === "vehicle") return !(included.length > 0);
+
+    // Check for shield(s) first.
+    const hasShield = !!actor.system.attributes.ac.equippedShield;
+    if (!hasShield && included.includes("shield")) return false;
+    if (hasShield && excluded.includes("shield")) return false;
+
+    const armor = actor.system.attributes.ac.equippedArmor ?? null;
+
+    // If no armor worn.
+    if (!armor) return !(included.length > 0);
+
+    const type = armor.system.baseItem;
+    if (included.filter(i => i !== "shield").length && !included.includes(type)) return false;
+    if (excluded.length && excluded.includes(type)) return false;
+    return true;
+  }
+
+  /**
+   * Find out if the item has any of the included damage types in its damage parts and none of the excluded types.
    * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of damage types.
    * @returns {boolean}           Whether the item's damage types overlap with the filter.
    */
   static damageTypes(item, filter) {
     if (!filter?.length) return true;
-    return item.getDerivedDamageLabel().some(i => {
-      return filter.includes(i.damageType);
-    });
+    const types = item.getDerivedDamageLabel().map(i => i.damageType);
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    if (included.length && !types.some(t => included.includes(t))) return false;
+    if (excluded.length && types.some(t => excluded.includes(t))) return false;
+    return true;
   }
 
   /**
@@ -347,18 +397,16 @@ export class FILTER {
   }
 
   /**
-   * Find out if the item has any of the included weapon properties, while having none
-   * of the excluded properties. Such as only magical weapons that are not two-handed.
+   * Find out if the item has any of the included weapon properties and none of the excluded properties.
    * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of properties you must have one of or none of.
-   * @returns {boolean}           Whether the item has any of the included properties, and none of the excluded properties.
+   * @returns {boolean}           Whether the item has any of the included properties and none of the excluded properties.
    */
   static weaponProperties(item, filter) {
     if (!filter?.length) return true;
-    if (item.type !== "weapon") return false;
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    if (item.type !== "weapon") return included.length === 0;
     const props = item.system.properties;
-    const included = filter.filter(u => !u.startsWith("!"));
-    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
     if (included.length && !included.some(p => props[p])) return false;
     if (excluded.length && excluded.some(p => props[p])) return false;
     return true;
@@ -428,17 +476,15 @@ export class FILTER {
   }
 
   /**
-   * Find out if the actor has any of the status conditions required.
-   * The bonus will apply if the actor has at least one.
+   * Find out if the actor has any of the included effects and none of the excluded effects.
    * @param {Item5e|Actor5e} object     The item or actor being filtered against.
    * @param {string[]} filter           The array of effect status ids you must have or must not have.
-   * @returns {boolean}                 Whether the actor has any of the status effects.
+   * @returns {boolean}                 Whether the actor has any included effects and no excluded effects.
    */
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
     const actor = object.actor ?? object;
-    const included = filter.filter(u => !u.startsWith("!"));
-    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    const {included, excluded} = FILTER._splitExlusion(filter);
 
     const hasIncluded = included.some(id => {
       return actor.effects.find(eff => {
@@ -468,8 +514,7 @@ export class FILTER {
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
-    const included = filter.filter(u => !u.startsWith("!"));
-    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    const {included, excluded} = FILTER._splitExlusion(filter);
     const target = game.user.targets.first();
     if (!target?.actor) return !included.length;
 
@@ -508,8 +553,8 @@ export class FILTER {
   }
 
   /**
-   * Find out if your target is one of the listed creature types. In the case of no targets,
-   * refer to whether any specific creature type was included.
+   * Find out if the target is one of the included creature types and none of the excluded types.
+   * In the case of no targets, refer to whether any specific creature type was included.
    * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
    * @param {string[]} filter           The array of creature types the target must or must not be.
    * @returns {boolean}                 Whether the target is of a valid creature type.
@@ -517,8 +562,7 @@ export class FILTER {
   static creatureTypes(object, filter) {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
-    const included = filter.filter(u => !u.startsWith("!"));
-    const excluded = filter.filter(u => u.startsWith("!")).map(u => u.slice(1));
+    const {included, excluded} = FILTER._splitExlusion(filter);
     if (!target?.actor) return !included.length;
     const {value, subtype, custom} = target.actor.system.details?.type ?? {};
     const race = target.actor.system.details?.race;
@@ -571,9 +615,9 @@ export class FILTER {
     if (game.settings.get(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER)) return true;
     try {
       const func = Function("actor", "item", "token", script);
-      const actor = object.parent instanceof Actor ? object.parent : object instanceof Actor ? object : null;
+      const actor = (object.parent instanceof Actor) ? object.parent : (object instanceof Actor) ? object : null;
       const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
-      const item = object instanceof Item ? object : null;
+      const item = (object instanceof Item) ? object : null;
       const valid = func.call({}, actor, item, token) === true;
       return valid;
     } catch (err) {
@@ -629,8 +673,12 @@ export class FILTER {
    */
   static baseTools(tool, filter) {
     if (!filter?.length) return true;
-    if (tool.type !== "tool") return false;
-    return filter.includes(tool.system.baseItem);
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    if (tool.type !== "tool") return included.length === 0;
+    const type = tool.system.baseItem;
+    if (included.length && !included.includes(type)) return false;
+    if (excluded.length && excluded.includes(type)) return false;
+    return true;
   }
 
   /**
@@ -643,8 +691,11 @@ export class FILTER {
    */
   static skillIds(actor, filter, {skillId}) {
     if (!filter?.length) return true;
-    if (!skillId) return false;
-    return filter.includes(skillId);
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    if (!skillId) return included.length === 0;
+    if (included.length && !included.includes(skillId)) return false;
+    if (excluded.length && excluded.includes(skillId)) return false;
+    return true;
   }
 
   /**

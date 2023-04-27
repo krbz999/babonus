@@ -68,6 +68,7 @@ export const FILTER_NAMES = [
   "abilities",
   "arbitraryComparison",
   "attackTypes",
+  "baseArmors",
   "baseWeapons",
   "baseTools",
   "creatureTypes",

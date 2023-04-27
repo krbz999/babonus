@@ -139,8 +139,12 @@ export class BabonusWorkshop extends FormApplication {
           description: `BABONUS.Filters${id.capitalize()}Tooltip`,
           requirements: `BABONUS.Filters${id.capitalize()}Requirements`
         };
-        if (this._isFilterAvailable(id)) filterData.available = true;
-        if (this._addedFilters.has(id) && (id !== "arbitraryComparisons")) filterData.unavailable = true;
+
+        // Set 'available' to true to display it in the available filters.
+        filterData.available = this._isFilterAvailable(id);
+        // Set 'unavailable' to true to hide it in the 'unavailable' filters.
+        filterData.unavailable = filterData.available || (this._addedFilters.has(id) && (id !== "arbitraryComparisons"));
+
         data.filters.push(filterData);
       }
       data.filters.sort((a, b) => a.header.localeCompare(b.header));
@@ -156,17 +160,20 @@ export class BabonusWorkshop extends FormApplication {
           async: true,
           rollData: bab.origin?.getRollData() ?? {}
         });
+        // Add the icon property to the bonus object
+        const bonusType = TYPES.find(t => t.value === bab.type);
+        bab.icon = bonusType.icon;
+        bab.typeTooltip = bonusType.label;
         flagBoni.push(bab);
       } catch (err) {
         console.error(err);
       }
     }
+    // Sort the bonuses alphabetically by name
     data.currentBonuses = flagBoni.sort((a, b) => a.name.localeCompare(b.name));
-
     data.TYPES = TYPES;
     data.ICON = MODULE_ICON;
     data.otterColor = this._otterColor;
-
     return data;
   }
 
@@ -189,7 +196,7 @@ export class BabonusWorkshop extends FormApplication {
     // Attempt to save the babonus, otherwise show a warning.
     try {
       const bab = this.constructor._createBabonus(formData, formData.id);
-      await this.object.unsetFlag(MODULE, `bonuses.${formData.id}`);
+      await this.object.update({[`flags.${MODULE}.bonuses.-=${formData.id}`]: null}, {render: false});
       await this.object.setFlag(MODULE, `bonuses.${formData.id}`, bab.toObject());
       ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", {name: formData.name, id: formData.id}));
     } catch (err) {
@@ -272,7 +279,7 @@ export class BabonusWorkshop extends FormApplication {
       return this.constructor._createBabonus(data.data, null, {parent: this.object});
     } else if (data.uuid) {
       const _parent = await fromUuid(data.uuid);
-      const parent = _parent instanceof TokenDocument ? _parent.actor : _parent;
+      const parent = (_parent instanceof TokenDocument) ? _parent.actor : _parent;
       const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
       delete babData.id;
       return this.constructor._createBabonus(babData, null, {parent: this.object});
@@ -448,7 +455,7 @@ export class BabonusWorkshop extends FormApplication {
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
-    if (bab.isTemplateAura || bab.hasAura) return this.object.setFlag(MODULE, path, false);
+    if (bab.isTemplateAura || bab.isTokenAura) return this.object.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
     return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
   }
@@ -499,7 +506,7 @@ export class BabonusWorkshop extends FormApplication {
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const key = `bonuses.${id}.enabled`;
-    const state = this.object.getFlag(MODULE, key);
+    const state = this.object.flags[MODULE][key];
     return this.object.setFlag(MODULE, key, !state);
   }
 
@@ -510,7 +517,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = foundry.utils.duplicate(this.object.flags.babonus.bonuses[id]);
+    const data = foundry.utils.deepClone(this.object.flags.babonus.bonuses[id]);
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
     data.id = foundry.utils.randomID();
     data.enabled = false;
@@ -555,11 +562,22 @@ export class BabonusWorkshop extends FormApplication {
     const formGroup = event.currentTarget.closest(".form-group");
     const filterId = formGroup.dataset.id;
 
-    const list = foundry.utils.duplicate(KeyGetter[filterId]);
+    const list = foundry.utils.deepClone(KeyGetter[filterId]);
 
     // The text input.
     const values = formGroup.querySelector("input[type='text']").value.split(";");
-    const canExclude = ["creatureTypes", "statusEffects", "targetEffects", "damageTypes", "weaponProperties"].includes(filterId);
+    /* If the keys dialog also has 'exclude' as an option for this filter type, add it here: */
+    const canExclude = [
+      "baseArmors",
+      "baseTools",
+      "baseWeapons",
+      "creatureTypes",
+      "damageTypes",
+      "skillIds",
+      "statusEffects",
+      "targetEffects",
+      "weaponProperties"
+    ].includes(filterId);
 
     for (let value of values) {
       value = value.trim();
@@ -720,6 +738,7 @@ export class BabonusWorkshop extends FormApplication {
     const template = ("modules/babonus/templates/builder_components/" + {
       abilities: "text_keys.hbs",
       attackTypes: "checkboxes.hbs",
+      baseArmors: "text_keys.hbs",
       baseTools: "text_keys.hbs",
       baseWeapons: "text_keys.hbs",
       creatureTypes: "text_keys.hbs",
@@ -819,7 +838,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   _prepareData(data, formData) {
     if (data.id === "arbitraryComparison") {
-      data.array = foundry.utils.duplicate(this._bab.filters[data.id]).map((n, idx) => {
+      data.array = foundry.utils.deepClone(this._bab.filters[data.id]).map((n, idx) => {
         const options = ARBITRARY_OPERATORS.reduce((acc, {value, label}) => {
           const selected = (value === n.operator) ? "selected" : "";
           return acc + `<option value="${value}" ${selected}>${label}</option>`;
@@ -828,6 +847,7 @@ export class BabonusWorkshop extends FormApplication {
       });
     } else if ([
       "abilities",
+      "baseArmors",
       "baseTools",
       "baseWeapons",
       "creatureTypes",
@@ -904,6 +924,7 @@ export class BabonusWorkshop extends FormApplication {
     switch (id) {
       case "abilities": return ["attack", "damage", "save", "test"].includes(type);
       case "attackTypes": return ["attack", "damage"].includes(type);
+      case "baseArmors": return true;
       case "baseTools": return ["test"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
       case "creatureTypes": return true;

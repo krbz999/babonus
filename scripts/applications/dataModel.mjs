@@ -11,60 +11,21 @@ import {_bonusToInt} from "../hooks.mjs";
 import {babonusFields} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
-
   constructor(data, options = {}) {
     const expData = foundry.utils.expandObject(data);
     super(expData, options);
   }
 
   /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if ((typeof filters.itemRequirements?.equipped !== "boolean") && (typeof filters.itemRequirements?.attuned !== "boolean")) {
-      delete filters.itemRequirements;
-    }
-
-    if (!filters.arbitraryComparison?.length) {
-      delete filters.arbitraryComparison;
-    }
-
-    if (!filters.statusEffects?.length) {
-      delete filters.statusEffects;
-    }
-
-    if (!filters.targetEffects?.length) {
-      delete filters.targetEffects;
-    }
-
-    if (!filters.creatureTypes?.length) {
-      delete filters.creatureTypes;
-    }
-
-    if (!filters.customScripts) {
-      delete filters.customScripts;
-    }
-
-    if (!filters.preparationModes?.length) {
-      delete filters.preparationModes;
-    }
-
-    if (Object.values(filters.tokenSizes ?? {}).includes(null)) {
-      delete filters.tokenSizes;
-    }
-
-    if ((filters.remainingSpellSlots?.min === null) && (filters.remainingSpellSlots?.max === null)) {
-      delete filters.remainingSpellSlots;
-    }
-
-    return data;
+  toObject(source = false) {
+    return super.toObject(source);
   }
 
+  /** @override */
   toString() {
     const flattened = foundry.utils.flattenObject(this.toObject());
     const arb = "filters.arbitraryComparison";
-    for (let i = 0; i < flattened[arb]?.length ?? 0; i++) {
+    for (let i = 0; i < (flattened[arb]?.length ?? 0); i++) {
       flattened[`${arb}.${i}`] = flattened[arb][i];
     }
     delete flattened[arb];
@@ -72,7 +33,7 @@ class Babonus extends foundry.abstract.DataModel {
     for (const key of Object.keys(flattened)) {
       // Delete empty values (null, "", and empty arrays).
       const ie = flattened[key];
-      if (ie === "" || ie === null || foundry.utils.isEmpty(ie)) {
+      if ((ie === "") || (ie === null) || foundry.utils.isEmpty(ie)) {
         delete flattened[key];
       }
       else if (ie instanceof Array) {
@@ -82,6 +43,7 @@ class Babonus extends foundry.abstract.DataModel {
     return foundry.utils.flattenObject(flattened);
   }
 
+  /** @override */
   toDragData() {
     const dragData = {type: "Babonus"};
     if (this.parent) {
@@ -92,16 +54,36 @@ class Babonus extends foundry.abstract.DataModel {
     return dragData;
   }
 
+  /**
+   * A formatted uuid of a babonus, an extension of its parent's uuid.
+   * @returns {string}
+   */
   get uuid() {
     return `${this.parent.uuid}.Babonus.${this.id}`;
   }
 
-  // Whether the babonus can show the Consumption app in the builder.
+  /**
+   * Whether the babonus can open the Consumption app in the builder, which requires that it is Optional and has at least
+   * one option in the 'type' available.
+   * @returns {boolean}
+   */
   get canConsume() {
-    return this.isOptional && (this.canConsumeUses || this.canConsumeQuantity || this.canConsumeSlots || this.canConsumeEffect || this.canConsumeHealth);
+    if (!this.isOptional) return false;
+    return [
+      this.canConsumeUses,
+      this.canConsumeQuantity,
+      this.canConsumeSlots,
+      this.canConsumeEffect,
+      this.canConsumeHealth
+    ].some(a => a);
   }
 
-  // Whether the babonus is scaling.
+  /**
+   * Whether the bonus is scaling when consuming, which requires that it is consuming, has 'scales' set to true, and does
+   * not consume an effect, which cannot scale. If the type is 'health', then 'step' must be 1 or greater. Otherwise the
+   * 'max', if set, must be strictly greater than 'min'.
+   * @returns {boolean}
+   */
   get isScaling() {
     if (!this.isConsuming) return false;
     if (!this.consume.scales) return false;
@@ -110,120 +92,193 @@ class Babonus extends foundry.abstract.DataModel {
     return (this.consume.value.max || Infinity) > this.consume.value.min;
   }
 
-  // Whether the babonus can be set to consume limited uses of its parent item.
+  /**
+   * Whether 'Limited Uses' should be a valid option in the Consumption app. The babonus must not be an aura, template aura,
+   * and must be embedded on an item that has limited uses.
+   * @returns {boolean}
+   */
   get canConsumeUses() {
-    if (this.hasAura || this.isTemplateAura) return false;
+    if (this.isTokenAura || this.isTemplateAura) return false;
     return (this.parent instanceof Item) && this.parent.hasLimitedUses;
   }
 
-  // Whether the babonus can be set to consume quantities of its parent item.
+  /**
+   * Whether 'Quantity' should be a valid option in the Consumption app. The babonus must not be an aura, template aura, and
+   * must be embedded on an item that has a quantity.
+   * @returns {boolean}
+   */
   get canConsumeQuantity() {
-    if (this.hasAura || this.isTemplateAura) return false;
-    return (this.parent instanceof Item) && (this.parent.system.quantity !== undefined);
+    if (this.isTokenAura || this.isTemplateAura) return false;
+    return (this.parent instanceof Item) && Number.isNumeric(this.parent.system.quantity);
   }
 
-  // Whether the babonus can be set to consume spell slots of its owning actor.
+  /**
+   * Whether 'Spell Slots' should be a valid option in the Consumption app. Since this works fine as an aura, there are no
+   * restrictions to apply here, and it always returns true.
+   * @returns {boolean}
+   */
   get canConsumeSlots() {
     return true;
   }
 
-  // Whether the babonus can be set to consume hit points of its owning actor.
+  /**
+   * Whether 'Hit Points' should be a valid option in the Consumption app. Since this works fine as an aura, there are no
+   * restrictions to apply here, and it always returns true.
+   * @returns {boolean}
+   */
   get canConsumeHealth() {
     return true;
   }
 
-  // whether the babonus can be set to consume the effect on which it lives.
+  /**
+   * Whether 'Effect' should be a valid option in the Consumption app. The babonus must not be an aura, template aura, and
+   * must be embedded on an effect.
+   * @returns {boolean}
+   */
   get canConsumeEffect() {
-    if (this.hasAura || this.isTemplateAura) return false;
-    return this.parent instanceof ActiveEffect;
+    return (this.parent instanceof ActiveEffect) && !this.isTokenAura && !this.isTemplateAura;
   }
 
-  // Whether the babonus consumes uses or quantities of the item on which it is embedded, or slots on the rolling actor.
+  /**
+   * Whether the consumption data on the babonus creates valid consumption for the optional bonus application when rolling.
+   * If it does not, the babonus is ignored there.
+   *
+   * - For limited uses, only users who own the item in question are allowed to edit it by subtracting uses, and the minimum
+   * required value must be a positive integer.
+   * - For quantity, only users who own the item in question are allowed to edit it by subtracting quantities, and the
+   * minimum required value must be a positive integer.
+   * - For spell slots, the minimum required spell slot level must be a positive integer.
+   * - For effects, only users who own the effect in question are allowed to delete it.
+   * @returns {boolean}
+   */
   get isConsuming() {
     if (!this.canConsume || !this.consume.enabled || !this.consume.type) return false;
 
     const type = this.consume.type;
     const value = this.consume.value;
+    const isItemOwner = (this.parent instanceof Item) && this.parent.isOwner;
+    const isEffectOwner = (this.parent instanceof ActiveEffect) && this.parent.isOwner;
 
-    if (type === "uses") return this.canConsumeUses && this.item.isOwner && (value.min > 0);
-    else if (type === "quantity") return this.canConsumeQuantity && this.item.isOwner && (value.min > 0);
+    if (type === "uses") return this.canConsumeUses && isItemOwner && (value.min > 0);
+    else if (type === "quantity") return this.canConsumeQuantity && isItemOwner && (value.min > 0);
     else if (type === "slots") return this.canConsumeSlots && (value.min > 0);
-    else if (type === "effect") return this.canConsumeEffect;
+    else if (type === "effect") return this.canConsumeEffect && isEffectOwner;
     else if (type === "health") return this.canConsumeHealth && (value.min > 0);
   }
 
-  // Whether a babonus can be toggled to be optional.
+  /**
+   * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
+   * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
+   * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
+   * TODO: once hit die rolls have a dialog as well, this should be amended.
+   * TODO: once rolls can be "remade" in 2.2.0, optional bonuses should be able to apply to other properties as well.
+   * @returns {boolean}
+   */
   get isOptionable() {
-    return !!this.bonuses?.bonus && ["attack", "damage", "throw", "test"].includes(this.type);
+    return ["attack", "damage", "throw", "test"].includes(this.type) && !!this.bonuses.bonus;
   }
 
-  // Whether a babonus is currently optional.
+  /**
+   * Whether a babonus is currently optional, which is only true if it is both able to be optional, and toggled as such.
+   * @returns {boolean}
+   */
   get isOptional() {
-    return this.isOptionable && this.optional;
+    return this.optional && this.isOptionable;
   }
 
-  // Whether the babonus is embedded on an item and valid to be 'item only'.
+  /**
+   * Whether a babonus is valid for being 'item only' in the builder. It must be embedded in an item, must not be an aura or
+   * template aura, and must either apply to attack rolls, damage rolls, or save DCs while the parent item can make use of
+   * one of those, or it must apply to ability checks while being embedded on a tool-type item.
+   * @returns {boolean}
+   */
   get canExclude() {
     if (!(this.parent instanceof Item)) return false;
 
     // Valid for attack/damage/save:
-    const validityA = ["attack", "damage", "save"].includes(this.type) && ITEM_ROLL_TYPES.includes(this.item.type);
+    const validityA = ["attack", "damage", "save"].includes(this.type) && ITEM_ROLL_TYPES.includes(this.parent.type);
 
     // Valid for test:
-    const validityB = (this.type === "test") && (this.item.type === "tool");
+    const validityB = (this.type === "test") && (this.parent.type === "tool");
 
-    return (validityA || validityB) && !this.hasAura && !this.isTemplateAura;
+    return (validityA || validityB) && !this.isTokenAura && !this.isTemplateAura;
   }
 
-  // whether a bonus is currently only possible to apply to its parent item.
+  /**
+   * Whether the bonus applies only to its parent item. This is true if it has the property enabled and is valid to do so.
+   * @returns {boolean}
+   */
   get isExclusive() {
     return this.itemOnly && this.canExclude;
   }
 
-  // Whether the babonus is unavailable due to its item being unequipped or unattuned (if it can be).
+  /**
+   * Whether the babonus is unavailable due to its parent item being unequipped or unattuned (if required). This is
+   * different from a babonus that is unavailable due to its parent effect being disabled or unavailable.
+   * @returns {boolean}
+   */
   get isSuppressed() {
-    let item = this.parent;
-    // It's not an item.
-    if (!(item instanceof Item)) item = this.item;
-    // It's not an equippable/attunable item.
-    if (!EQUIPPABLE_TYPES.includes(item?.type)) return false;
+    const item = (this.parent instanceof Item) ? this.parent : this.item;
+    if (!item || !(this.parent instanceof Item) || !EQUIPPABLE_TYPES.includes(item.type)) return false;
 
     const ir = this.filters.itemRequirements;
     const at = CONFIG.DND5E.attunementTypes.ATTUNED;
-    // The item is not attuned and does require attunement.
     return ((item.system.attunement !== at) && ir.attuned) || (!item.system.equipped && ir.equipped);
   }
 
-  // Whether a babonus is currently an enabled and valid aura.
-  get hasAura() {
+  /**
+   * Whether the babonus is an enabled and valid aura centered on a token. This is true if the property is enabled, the
+   * template aura property is not enabled, and the range of the aura has been set to either '-1' for infinite range, or any
+   * positive number, after evaluation using roll data of its origin.
+   * @returns {boolean}
+   */
+  get isTokenAura() {
     if (!this.aura.enabled || this.aura.isTemplate) return false;
     const range = _bonusToInt(this.aura.range, this.origin?.getRollData() ?? {});
     return (range === -1) || (range > 0);
   }
 
-  // Whether this aura is blocked by any of its owner's blockers.
+  /**
+   * Whether the babonus is a template aura. This is true if the aura property is enabled, along with the 'isTemplate' aura
+   * property, and the item on which the babonus is embedded can create a measured template.
+   * @returns {boolean}
+   */
+  get isTemplateAura() {
+    const isItem = this.parent instanceof Item;
+    return this.aura.enabled && this.aura.isTemplate && isItem && this.parent.hasAreaTarget;
+  }
+
+  /**
+   * Whether the babonus aura is suppressed due to its originating actor having at least one of the blocker conditions.
+   * @returns {boolean}
+   */
   get isAuraBlocked() {
     const blockers = this.aura.blockers;
     if (!blockers.length) return false;
 
     return this.actor?.effects.some(effect => {
       if (!effect.modifiesActor) return false;
-      const id = effect.getFlag("core", "statusId");
+      const id = effect.flags.core?.statusId;
       return !!id && blockers.includes(id);
     }) ?? false;
   }
 
-  // Whether this babonus affects a template.
-  get isTemplateAura() {
-    return this.aura.enabled && this.aura.isTemplate && !!this.item?.hasAreaTarget;
-  }
-
-  // Whether a babonus has any valid bonuses.
+  /**
+   * Whether the babonus has any valid entries in Babonus#bonuses. Such an entry is valid for consideration if it is a non-
+   * empty string and is not simply '0'.
+   * @returns {boolean}
+   */
   get hasBonus() {
-    return Object.values(this.bonuses).some(val => !!val && (val !== "0"));
+    return Object.values(this.bonuses).some(val => (val.length > 0) && (val !== "0"));
   }
 
-  // The source item or actor of a babonus. Attempts to always return the original source item or actor.
+  /**
+   * The true source of the babonus.
+   * - If the babonus is embedded on a template, this returns the item that created it.
+   * - If the babonus is embedded on an effect, this returns the actor or item from which the effect originates.
+   * - If the babonus is embedded on an item or actor, this simply returns that item or actor.
+   * @returns {Actor|Item}
+   */
   get origin() {
     if (this.parent instanceof MeasuredTemplateDocument) {
       const origin = this.parent.flags.dnd5e?.origin ?? "";
@@ -232,7 +287,7 @@ class Babonus extends foundry.abstract.DataModel {
 
     else if (this.parent instanceof ActiveEffect) {
       const origin = fromUuidSync(this.parent.origin ?? "");
-      if (origin instanceof TokenDocument) return origin.actor;
+      if (origin instanceof TokenDocument) return origin.actor; // TODO: fix in v11, since uuid will return actor.
       return origin;
     }
 
@@ -245,48 +300,79 @@ class Babonus extends foundry.abstract.DataModel {
     }
   }
 
-  // The actor who is the general source of the babonus, even if the bonus is on an item, effect, or template.
+  /**
+   * Get the source actor of a babonus, no matter what type of document it is embedded in.
+   * @returns {Actor|null}
+   */
   get actor() {
-    if (this.parent instanceof Actor) return this.parent;
-    if (this.parent?.parent instanceof Actor) return this.parent.parent;
-    return this.item?.parent ?? null;
+    if (this.parent instanceof Actor) {
+      return this.parent;
+    }
+
+    else if (this.parent instanceof ActiveEffect) {
+      // TODO: consider effects that live on items in v11.
+      return this.parent.parent;
+    }
+
+    else if (this.parent instanceof Item) {
+      return this.parent.actor;
+    }
+
+    else if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e.origin);
+      return item?.actor ?? null;
+    }
   }
 
-  // The token whose actor has the bonus.
+  /**
+   * Get the token corresponding token of the actor that has the bonus, no matter what type of document it is embedded in.
+   * @returns {Token|null}
+   */
   get token() {
-    let actor;
-    if ((this.parent instanceof Item) || (this.parent instanceof ActiveEffect)) {
-      actor = this.parent.parent;
-    } else if (this.parent instanceof Actor) {
-      actor = this.parent;
-    }
+    const actor = this.actor;
     if (!actor) return null;
 
-    const token = actor.token?.object ?? actor.getActiveTokens()[0];
-    if (token) return token;
-    return null;
+    return actor.token?.object ?? actor.getActiveTokens()[0] ?? null;
   }
 
-  // The item that has the babonus, or created the template that has it.
+  /**
+   * Get the item that has the babonus, no matter if the babonus lives on a template, effect, or item.
+   * @returns {Item|null}
+   */
   get item() {
-    if (this.parent instanceof Item) return this.parent;
-    if (this.parent instanceof MeasuredTemplateDocument) {
-      const origin = this.parent.flags.dnd5e?.origin ?? "";
-      return fromUuidSync(origin);
+    if (this.parent instanceof Item) {
+      return this.parent;
     }
-    return null;
+
+    else if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e.origin);
+      return item ?? null;
+    }
+
+    else if (this.parent instanceof ActiveEffect) {
+      const item = fromUuidSync(this.parent.origin ?? "");
+      return (item instanceof Item) ? item : null;
+    }
+
+    else if (this.parent instanceof Actor) {
+      return null;
+    }
   }
 
-  // The effect that has the babonus, if any.
+  /**
+   * Get the effect that has the babonus.
+   * @returns {ActiveEffect|null}
+   */
   get effect() {
-    if (this.parent instanceof ActiveEffect) return this.parent;
-    return null;
+    return (this.parent instanceof ActiveEffect) ? this.parent : null;
   }
 
-  // The template that has the babonus, if any.
+  /**
+   * Get the tempalte that has the babonus.
+   * @returns {MeasuredTemplateDocument|null}
+   */
   get template() {
-    if (this.parent instanceof MeasuredTemplateDocument) return this.parent;
-    return null;
+    return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
   }
 
   static defineSchema() {
@@ -317,8 +403,8 @@ class Babonus extends foundry.abstract.DataModel {
         disposition: new foundry.data.fields.NumberField({required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
         blockers: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false}))
       }),
-      filters: new foundry.data.fields.SchemaField({
-        itemRequirements: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
+        itemRequirements: new babonusFields.ItemRequirementsField({
           equipped: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true}),
           attuned: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
         }),
@@ -327,15 +413,20 @@ class Babonus extends foundry.abstract.DataModel {
           other: new foundry.data.fields.StringField({required: false, blank: false}),
           operator: new foundry.data.fields.StringField({required: false, choices: ARBITRARY_OPERATORS.map(t => t.value)})
         })),
+        baseArmors: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.baseArmors.flatMap(({value}) => [value, `!${value}`])
+        })),
         statusEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         targetEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         creatureTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        healthPercentages: new foundry.data.fields.SchemaField({
+        healthPercentages: new babonusFields.HealthPercentagesField({
           value: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, max: 100, step: 1, integer: true, nullable: true}),
           type: new foundry.data.fields.NumberField({required: false, initial: null, choices: [0, 1], nullable: true})
         }),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
-        preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({choices: KeyGetter.preparationModes.map(t => t.value)})),
+        preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
+          choices: KeyGetter.preparationModes.map(t => t.value)
+        })),
         tokenSizes: new babonusFields.TokenSizeField({
           size: new foundry.data.fields.NumberField({initial: null, min: 0.5, step: 0.5, integer: false, nullable: true}),
           type: new foundry.data.fields.NumberField({choices: [0, 1], nullable: true}),
@@ -387,54 +478,9 @@ class Babonus extends foundry.abstract.DataModel {
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
 class ItemBabonus extends Babonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.itemTypes?.length) {
-      delete filters.itemTypes;
-    }
-
-    if (!filters.attackTypes?.length) {
-      delete filters.attackTypes;
-    }
-
-    if (!filters.damageTypes?.length) {
-      delete filters.damageTypes;
-    }
-
-    if (!filters.abilities?.length) {
-      delete filters.abilities;
-    }
-
-    if (!filters.spellComponents?.types.length) {
-      delete filters.spellComponents;
-    }
-
-    if (!filters.spellLevels?.length) {
-      delete filters.spellLevels;
-    }
-
-    if (!filters.spellSchools?.length) {
-      delete filters.spellSchools;
-    }
-
-    if (!filters.baseWeapons?.length) {
-      delete filters.baseWeapons;
-    }
-
-    if (!filters.weaponProperties?.length) {
-      delete filters.weaponProperties;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
           choices: ITEM_ROLL_TYPES, blank: true
         })),
@@ -447,7 +493,7 @@ class ItemBabonus extends Babonus {
         abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.abilities.map(t => t.value)
         })),
-        spellComponents: new foundry.data.fields.SchemaField({
+        spellComponents: new babonusFields.SpellComponentsField({
           types: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
             choices: KeyGetter.spellComponents.map(t => t.value), blank: true
           })),
@@ -462,7 +508,7 @@ class ItemBabonus extends Babonus {
           choices: KeyGetter.spellSchools.map(t => t.value)
         })),
         baseWeapons: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.baseWeapons.map(t => t.value)
+          choices: KeyGetter.baseWeapons.flatMap(({value}) => [value, `!${value}`])
         })),
         weaponProperties: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.weaponProperties.flatMap(({value}) => [value, `!${value}`])
@@ -475,7 +521,7 @@ class ItemBabonus extends Babonus {
 export class AttackBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField(),
         criticalRange: new foundry.data.fields.StringField(),
         fumbleRange: new foundry.data.fields.StringField()
@@ -487,7 +533,7 @@ export class AttackBabonus extends ItemBabonus {
 export class DamageBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField(),
         criticalBonusDice: new foundry.data.fields.StringField(),
         criticalBonusDamage: new foundry.data.fields.StringField()
@@ -497,25 +543,12 @@ export class DamageBabonus extends ItemBabonus {
 }
 
 export class SaveBabonus extends ItemBabonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.saveAbilities?.length) {
-      delete filters.saveAbilities;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         saveAbilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.saveAbilities.map(t => t.value)
         }))
@@ -525,27 +558,14 @@ export class SaveBabonus extends ItemBabonus {
 }
 
 export class ThrowBabonus extends Babonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.throwTypes?.length) {
-      delete filters.throwTypes;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField(),
         deathSaveTargetValue: new foundry.data.fields.StringField(),
         deathSaveCritical: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         throwTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.throwTypes.map(t => t.value)
         }))
@@ -555,41 +575,20 @@ export class ThrowBabonus extends Babonus {
 }
 
 export class TestBabonus extends Babonus {
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    const filters = data.filters ?? {};
-
-    if (!filters.abilities?.length) {
-      delete filters.abilities;
-    }
-
-    if (!filters.baseTools?.length) {
-      delete filters.baseTools;
-    }
-
-    if (!filters.skillIds?.length) {
-      delete filters.skillIds;
-    }
-
-    return data;
-  }
-
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({
+      filters: new babonusFields.FiltersField({
         abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
           choices: KeyGetter.abilities.map(t => t.value)
         })),
         baseTools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.baseTools.map(t => t.value)
+          choices: KeyGetter.baseTools.flatMap(({value}) => [value, `!${value}`])
         })),
         skillIds: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.skillIds.map(t => t.value)
+          choices: KeyGetter.skillIds.flatMap(({value}) => [value, `!${value}`])
         }))
       })
     });
@@ -599,10 +598,10 @@ export class TestBabonus extends Babonus {
 export class HitDieBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new foundry.data.fields.SchemaField({
+      bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField()
       }),
-      filters: new foundry.data.fields.SchemaField({})
+      filters: new babonusFields.FiltersField({})
     })
   }
 }

@@ -114,7 +114,7 @@
           <div class="bonus {{#if bonus._collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
             <div class="header">
               <a class="label{{#unless bonus.enabled}} disabled{{/unless}}" data-action="current-collapse">
-                {{bonus.name}}
+                <i class="{{{bonus.icon}}}" data-tooltip="{{bonus.typeTooltip}}"></i> {{bonus.name}}
               </a>
               <div class="details">
                 <div class="functions">
@@ -131,7 +131,7 @@
                     <i class="fa-solid fa-trash"></i>
                   </a>
                   <a data-action="current-aura" data-tooltip="BABONUS.ConfigurationAuraTooltip">
-                    <i class="fa-{{#if (or bonus.hasAura bonus.isTemplateAura)}}solid{{else}}regular{{/if}} fa-sun"></i>
+                    <i class="fa-{{#if (or bonus.isTokenAura bonus.isTemplateAura)}}solid{{else}}regular{{/if}} fa-sun"></i>
                   </a>
                   {{#if bonus.canExclude}}
                   <a data-action="current-itemOnly" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
