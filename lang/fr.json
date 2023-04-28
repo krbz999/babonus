@@ -75,6 +75,9 @@
   "BABONUS.FiltersAttackTypesTooltip": "Le type de jet d'attaque que l'objet doit effectuer pour que le bonus s'applique. Par exemple, si vous lancez un sort, celui-ci doit impliquer une attaque à distance avec un sort (rsak) ou une attaque au corps-à-corps avec une arme(mwak).",
   "BABONUS.FiltersAuraBlockers": "États Bloquent",
   "BABONUS.FiltersAuraBlockersTooltip": "Les états qui bloquent le transfert d'une aura, comme l'aura d'un paladin qui n'est active que lorsque le paladin n'est ni mort ni inconscient.",
+  "BABONUS.FiltersBaseArmors": "Types d'armures",
+  "BABONUS.FiltersBaseArmorsLabel": "Types d'armures",
+  "BABONUS.FiltersBaseArmorsTooltip": "Le type d'armure que vous devez porter ou ne pas porter pour que le bonus s'applique, y compris les boucliers.",
   "BABONUS.FiltersBaseTools": "Catégorie d'outils",
   "BABONUS.FiltersBaseToolsLabel": "Catégorie d'outils",
   "BABONUS.FiltersBaseToolsRequirements": "Ce bonus n'est disponible que pour les bonus s'appliquant aux tests de caractéristique.",
@@ -223,8 +226,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.FiltersBaseArmorsLabel": "Types d'armures",
-  "BABONUS.FiltersBaseArmors": "Types d'armures",
-  "BABONUS.FiltersBaseArmorsTooltip": "Le type d'armure que vous devez porter ou ne pas porter pour que le bonus s'applique, y compris les boucliers."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
