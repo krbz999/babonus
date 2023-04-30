@@ -152,7 +152,7 @@ export class BabonusWorkshop extends FormApplication {
 
     // Get current bonuses on the document.
     const flagBoni = [];
-    for (const [id, babData] of Object.entries(this.object.flags.babonus?.bonuses ?? {})) {
+    for (const [id, babData] of Object.entries(this.object.flags[MODULE]?.bonuses ?? {})) {
       try {
         const bab = this.constructor._createBabonus(babData, id, {parent: this.object});
         bab._collapsed = this._collapsedBonuses.has(id);
@@ -331,7 +331,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _renderEditor(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = this.object.flags.babonus.bonuses[id];
+    const data = this.object.flags[MODULE].bonuses[id];
     this._type = null;
     this._bab = this.constructor._createBabonus(data, id, {strict: true});
     const formData = this._bab.toString();
@@ -354,7 +354,7 @@ export class BabonusWorkshop extends FormApplication {
     // To automatically render in a clean state, the reason
     // for rendering must either be due to an update in the
     // object's babonus flags, or 'force' must explicitly be set to 'true'.
-    const wasBabUpdate = foundry.utils.hasProperty(options, "data.flags.babonus");
+    const wasBabUpdate = foundry.utils.hasProperty(options, `data.flags.${MODULE}`);
     if (!(wasBabUpdate || force)) return;
     this._type = null;
     this._bab = null;
@@ -433,7 +433,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const name = this.object.flags.babonus.bonuses[id].name;
+    const name = this.object.flags[MODULE].bonuses[id].name;
     const prompt = await Dialog.confirm({
       title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", {name}),
       content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", {name}),
@@ -467,7 +467,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleExclusive(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.object.flags.babonus.bonuses[id].itemOnly;
+    const state = this.object.flags[MODULE].bonuses[id].itemOnly;
     return this.object.setFlag(MODULE, `bonuses.${id}.itemOnly`, !state);
   }
 
@@ -494,7 +494,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleOptional(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.object.flags.babonus.bonuses[id].optional;
+    const state = this.object.flags[MODULE].bonuses[id].optional;
     return this.object.setFlag(MODULE, `bonuses.${id}.optional`, !state);
   }
 
@@ -505,9 +505,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const key = `bonuses.${id}.enabled`;
-    const state = this.object.flags[MODULE][key];
-    return this.object.setFlag(MODULE, key, !state);
+    const state = this.object.flags[MODULE].bonuses[id].enabled;
+    return this.object.setFlag(MODULE, `bonuses.${id}.enabled`, !state);
   }
 
   /**
@@ -517,7 +516,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = foundry.utils.deepClone(this.object.flags.babonus.bonuses[id]);
+    const data = foundry.utils.deepClone(this.object.flags[MODULE].bonuses[id]);
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
     data.id = foundry.utils.randomID();
     data.enabled = false;
@@ -964,7 +963,7 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Collection<Babonus>}     A collection of babonuses.
    */
   static _getCollection(object) {
-    const bonuses = Object.entries(object.flags.babonus?.bonuses ?? {});
+    const bonuses = Object.entries(object.flags[MODULE]?.bonuses ?? {});
     const contents = bonuses.reduce((acc, [id, data]) => {
       if (!foundry.data.validators.isValidId(id)) return acc;
       try {
