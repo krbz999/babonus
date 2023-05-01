@@ -31,7 +31,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         range: 60,                                          // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
         self: false,                                        // Whether the aura affects the owner, too.
         disposition: 1                                      // What token actors within range to affect.
-        blockers: ["dead", "unconscious"]                   // Array of status ids that stop auras from being transferred.
+        blockers: ["dead", "unconscious"]                   // Array of statuses that stop auras from being transferred.
       },
       bonuses: {
         bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.
@@ -50,8 +50,8 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
           operator: "EQ"                                    // The method of comparison.
         }],
         healthPercentages: {value: 50, type: 0},            // A percentage value and whether it must be 'and lower' or 'and higher'.
-        statusEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects against.
-        targetEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects on the target against.
+        statusEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects against.
+        targetEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects on the target against.
         creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
         itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
@@ -478,7 +478,7 @@ export class FILTER {
   /**
    * Find out if the actor has any of the included effects and none of the excluded effects.
    * @param {Item5e|Actor5e} object     The item or actor being filtered against.
-   * @param {string[]} filter           The array of effect status ids you must have or must not have.
+   * @param {string[]} filter           The array of effect statuses you must have or must not have.
    * @returns {boolean}                 Whether the actor has any included effects and no excluded effects.
    */
   static statusEffects(object, filter) {
@@ -487,17 +487,15 @@ export class FILTER {
     const {included, excluded} = FILTER._splitExlusion(filter);
 
     const hasIncluded = included.some(id => {
-      return actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
+      return actor.effects.find(e => {
+        return e.modifiesActor && e.statuses.has(id);
       });
     });
     if (included.length && !hasIncluded) return false;
 
     const hasExcluded = excluded.some(id => {
-      return actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
+      return actor.effects.find(e => {
+        return e.modifiesActor && e.statuses.has(id)
       });
     });
     if (excluded.length && hasExcluded) return false;
@@ -509,7 +507,7 @@ export class FILTER {
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
    * @param {Item5e|Actor5e} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter           The array of effect status ids the target must have or must not have.
+   * @param {string[]} filter           The array of effect statuses the target must have or must not have.
    * @returns {boolean}                 Whether the target actor has any of the status effects.
    */
   static targetEffects(object, filter) {
@@ -519,17 +517,15 @@ export class FILTER {
     if (!target?.actor) return !included.length;
 
     const hasIncluded = included.some(id => {
-      return target.actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
+      return target.actor.effects.find(e => {
+        return e.modifiesActor && e.statuses.has(id);
       });
     });
     if (included.length && !hasIncluded) return false;
 
     const hasExcluded = excluded.some(id => {
-      return target.actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
+      return target.actor.effects.find(e => {
+        return e.modifiesActor && e.statuses.has(id);
       });
     });
     if (excluded.length && hasExcluded) return false;
