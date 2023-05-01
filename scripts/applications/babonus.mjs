@@ -75,7 +75,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   get title() {
-    return `${MODULE_NAME}: ${this.object.name ?? this.object.label}`;
+    return `${MODULE_NAME}: ${this.object.name}`;
   }
 
   /**

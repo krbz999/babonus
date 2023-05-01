@@ -195,14 +195,11 @@ export class OptionalSelector {
    */
   _getTooltip(bonus) {
     let name;
+    const docName = bonus.parent.constructor.documentName;
     if (bonus.parent instanceof MeasuredTemplateDocument) {
-      name = game.i18n.localize("DOCUMENT.MeasuredTemplate");
-    } else if (bonus.parent instanceof ActiveEffect) {
-      name = `${bonus.parent.label} (${game.i18n.localize("DOCUMENT.ActiveEffect")})`;
-    } else if (bonus.parent instanceof Actor) {
-      name = `${bonus.parent.name} (${game.i18n.localize("DOCUMENT.Actor")})`;
-    } else if (bonus.parent instanceof Item) {
-      name = `${bonus.parent.name} (${game.i18n.localize("DOCUMENT.Item")})`;
+      name = game.i18n.localize(`DOCUMENT.${docName}`);
+    } else {
+      name = `${bonus.parent.name} (${game.i18n.localize(`DOCUMENT.${docName}`)})`;
     }
     return game.i18n.format("BABONUS.OriginName", {name});
   }
