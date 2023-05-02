@@ -284,9 +284,7 @@ class Babonus extends foundry.abstract.DataModel {
     }
 
     else if (this.parent instanceof ActiveEffect) {
-      const origin = fromUuidSync(this.parent.origin ?? "");
-      if (origin instanceof TokenDocument) return origin.actor; // TODO: fix in v11, since uuid will return actor.
-      return origin;
+      return fromUuidSync(this.parent.origin ?? "");
     }
 
     else if (this.parent instanceof Item) {

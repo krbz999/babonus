@@ -278,8 +278,7 @@ export class BabonusWorkshop extends FormApplication {
     if (data.data) {
       return this.constructor._createBabonus(data.data, null, {parent: this.object});
     } else if (data.uuid) {
-      const _parent = await fromUuid(data.uuid);
-      const parent = (_parent instanceof TokenDocument) ? _parent.actor : _parent;
+      const parent = await fromUuid(data.uuid);
       const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
       delete babData.id;
       return this.constructor._createBabonus(babData, null, {parent: this.object});
