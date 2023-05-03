@@ -1,26 +1,22 @@
 <div class="babonus optionals">
-  {{#each bonuses as |bonus|}}
-  <div class="optional" data-bonus-uuid="{{bonus.babonus.uuid}}">
+  {{#each bonuses}}
+  <div class="optional" data-bonus-uuid="{{babonus.uuid}}">
 
     <div class="bonus-text">
-      <span class="name" data-tooltip="{{bonus.tooltip}}">
-        {{bonus.babonus.name}}.
-      </span>
-      <span class="description">
-        {{{description}}}
-      </span>
+      <span class="name" data-tooltip="{{tooltip}}">{{babonus.name}}.</span>
+      <span class="description">{{{description}}}</span>
     </div>
 
-    {{#if bonus.babonus.isScaling}}
+    {{#if babonus.isScaling}}
     <div class="consumption">
       <label class="label">
         {{localize "BABONUS.ConfigurationConsumptionConsume"}}
       </label>
-      <select>{{{bonus.options}}}</select>
+      <select>{{{options}}}</select>
     </div>
     {{/if}}
 
-    <button type="button" data-action="{{bonus.action}}">
+    <button type="button" data-action="{{action}}">
       <i class="fa-solid fa-plus"></i>
     </button>
 

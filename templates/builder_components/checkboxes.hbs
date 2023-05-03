@@ -2,10 +2,10 @@
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <div class="checkboxes">
-      {{#each array as |type|}}
-      <label for="{{../appId}}-{{../id}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
-        <input type="checkbox" {{#if (eq ../id "itemTypes")}}data-action="item-type"{{/if}} name="{{concat 'filters.' ../id}}" value="{{type.value}}" id="{{../appId}}-{{../id}}-{{type.value}}" {{checked type.checked}}>
-        <span class="check">{{{type.label}}}</span>
+      {{#each array}}
+      <label for="{{../appId}}-{{../id}}-{{value}}" data-hide-input="true" data-tooltip="{{tooltip}}">
+        <input type="checkbox" {{#if (eq ../id "itemTypes")}}data-action="item-type"{{/if}} name="{{concat 'filters.' ../id}}" value="{{value}}" id="{{../appId}}-{{../id}}-{{value}}" {{checked checked}}>
+        <span class="check">{{{label}}}</span>
       </label>
       {{/each}}
     </div>
