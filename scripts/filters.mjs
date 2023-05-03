@@ -487,16 +487,12 @@ export class FILTER {
     const {included, excluded} = FILTER._splitExlusion(filter);
 
     const hasIncluded = included.some(id => {
-      return actor.effects.find(e => {
-        return e.modifiesActor && e.statuses.has(id);
-      });
+      return actor.appliedEffects.some(e => e.statuses.has(id));
     });
     if (included.length && !hasIncluded) return false;
 
     const hasExcluded = excluded.some(id => {
-      return actor.effects.find(e => {
-        return e.modifiesActor && e.statuses.has(id)
-      });
+      return actor.appliedEffects.some(e => e.statuses.has(id));
     });
     if (excluded.length && hasExcluded) return false;
 
@@ -513,20 +509,16 @@ export class FILTER {
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
     const {included, excluded} = FILTER._splitExlusion(filter);
-    const target = game.user.targets.first();
-    if (!target?.actor) return !included.length;
+    const actor = game.user.targets.first()?.actor;
+    if (!actor) return !included.length;
 
     const hasIncluded = included.some(id => {
-      return target.actor.effects.find(e => {
-        return e.modifiesActor && e.statuses.has(id);
-      });
+      return actor.appliedEffects.some(e => e.statuses.has(id));
     });
     if (included.length && !hasIncluded) return false;
 
     const hasExcluded = excluded.some(id => {
-      return target.actor.effects.find(e => {
-        return e.modifiesActor && e.statuses.has(id);
-      });
+      return actor.appliedEffects.some(e => e.statuses.has(id));
     });
     if (excluded.length && hasExcluded) return false;
 
