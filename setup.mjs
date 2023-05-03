@@ -12,13 +12,11 @@ import {
   _preRollDamage,
   _preRollDeathSave,
   _preRollHitDie,
-  _preRollInitiative,
   _preRollSkill,
   _preRollToolCheck,
   _renderDialog
 } from "./scripts/hooks.mjs";
 import {_createAPI} from "./scripts/public_api.mjs";
-import {_updateMigrationVersion} from "./scripts/migration.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Build-a-Bonus");
@@ -38,7 +36,6 @@ Hooks.on("dnd5e.preRollAttack", _preRollAttack);
 Hooks.on("dnd5e.preRollDamage", _preRollDamage);
 Hooks.on("dnd5e.preRollDeathSave", _preRollDeathSave);
 Hooks.on("dnd5e.preRollHitDie", _preRollHitDie);
-//Hooks.on("dnd5e.preRollInitiative", _preRollInitiative);
 Hooks.on("dnd5e.preRollSkill", _preRollSkill);
 Hooks.on("dnd5e.preRollToolCheck", _preRollToolCheck);
 Hooks.on("getDialogHeaderButtons", _dialogHeaderButtons);
@@ -47,4 +44,3 @@ Hooks.on("renderDialog", _renderDialog);
 
 // Set up api and backend stuff.
 Hooks.once("setup", _createAPI);
-Hooks.once("ready", _updateMigrationVersion);

@@ -3,8 +3,6 @@ export const MODULE_NAME = "Build-a-Bonus";
 export const MODULE_ICON = "fa-solid fa-otter";
 export const SETTING_HEADERLABEL = "headerLabel";
 export const SETTING_DISABLE_CUSTOM_SCRIPT_FILTER = "disableCustomScriptFilter";
-export const SETTING_MIGRATION_VERSION = "migrationVersion";
-export const CURRENT_MIGRATION_VERSION = 1; // bump this when new migration is needed.
 export const SHOW_AURA_RANGES = "showAuraRanges";
 
 // the kind of matching done for spell components (at least 1 vs matching all).
@@ -20,7 +18,7 @@ export const TYPES = [
   {value: "save", icon: "fa-solid fa-hand-sparkles", label: "BABONUS.TypeSaves"},
   // bonuses to a saving throw, and death save target value
   {value: "throw", icon: "fa-solid fa-person-falling-burst", label: "BABONUS.TypeSavingThrows"},
-  // Bonuses to Ability Checks, Skill Checks, Tool Checks, Initiative.
+  // Bonuses to Ability Checks, Skill Checks, and Tool Checks.
   {value: "test", icon: "fa-solid fa-bolt", label: "BABONUS.TypeAbilityChecks"},
   // bonuses to hit die rolls
   {value: "hitdie", icon: "fa-solid fa-heart-pulse", label: "BABONUS.TypeHitdieRolls"}

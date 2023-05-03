@@ -4,7 +4,6 @@ import {
   MODULE, MODULE_ICON,
   SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
   SETTING_HEADERLABEL,
-  SETTING_MIGRATION_VERSION,
   SHOW_AURA_RANGES
 } from "./constants.mjs";
 import {AppliedBonusesDialog} from "./applications/appliedBonusesDialog.mjs";
@@ -162,9 +161,7 @@ export function _preRollDeathSave(actor, rollConfig) {
 
   // Add parts.
   if (parts.length) rollConfig.parts.push(...parts);
-  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-    optionals, actor, bonuses
-  });
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
 
   // Add modifiers to raise/lower the target value and crtical threshold.
   rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.targetValue;
@@ -191,9 +188,7 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
     return acc;
   }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
-  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-    optionals, actor, bonuses
-  });
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
 }
 
 /** When you roll an ability check... */
@@ -250,12 +245,6 @@ export function _preRollToolCheck(item, rollConfig) {
   }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
   foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, item, bonuses});
-}
-
-/** When you roll initiative... */
-export function _preRollInitiative(actor, roll) {
-  // This can barely be made functional.
-  // Bonuses cannot be shown in the dialog, and optional bonuses cannot be shown and applied either.
 }
 
 /** When you roll a hit die... */
@@ -344,15 +333,6 @@ export function _createSettings() {
     requiresReload: true
   });
 
-  game.settings.register(MODULE, SETTING_MIGRATION_VERSION, {
-    name: "Migration Version",
-    hint: "Migration Version",
-    scope: "world",
-    config: false,
-    type: Number,
-    default: 0
-  });
-
   game.settings.register(MODULE, SHOW_AURA_RANGES, {
     name: "BABONUS.SettingsShowAuraRangesName",
     hint: "BABONUS.SettingsShowAuraRangesHint",
@@ -371,7 +351,7 @@ export function _addHeaderButtonActor(app, array) {
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
-  }
+  };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }
@@ -382,7 +362,7 @@ export function _addHeaderButtonItem(app, array) {
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
-  }
+  };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }
@@ -392,7 +372,7 @@ export function _addHeaderButtonEffect(app, array) {
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
-  }
+  };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }

@@ -106,7 +106,6 @@
 <li><code>sceneTokensByDisposition(scene)</code> returns an object of three arrays; the tokens on the scene split into three arrays by disposition. If no scene is provided, the currently viewed scene is used.</li>
 <li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
 </ul>
-<p>In addition, if needed, the migration functions used to migrate bonuses in your world from Babonus v10.1.0 to v10.2.0 are exposed in the <code>migration</code> object of the API.</p>
 
 <h1>Compatibility</h1>
-<p>You should not expect this module to work with other modules that overhaul or destroy core roll behaviour, particularly WIRE, RSR, and MIDI. These modules are unsupported, and any compatiblity is sadly nothing but a happy accident.</p>
+<p>You should not expect this module to work with other modules that overhaul or destroy core roll behaviour, particularly WIRE, RSR, and MIDI. These modules are unsupported, and any compatiblity is nothing but a happy accident.</p>

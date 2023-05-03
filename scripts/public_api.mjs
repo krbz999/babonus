@@ -2,7 +2,6 @@ import {BabonusWorkshop} from "./applications/babonus.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
 import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
-import {migration} from "./migration.mjs";
 
 export function _createAPI() {
   const API = {
@@ -24,8 +23,7 @@ export function _createAPI() {
     getMinimumDistanceBetweenTokens,
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
-    getApplicableBonuses,
-    migration: migration
+    getApplicableBonuses
   };
   game.modules.get(MODULE).api = API;
   window.babonus = API;
