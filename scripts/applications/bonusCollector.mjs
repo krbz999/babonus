@@ -6,7 +6,7 @@ import {
   TestBabonus,
   ThrowBabonus
 } from "./dataModel.mjs";
-import {AURA_TARGETS, MODULE, SHOW_AURA_RANGES} from "../constants.mjs";
+import {AURA_TARGETS, MODULE, SETTINGS} from "../constants.mjs";
 import {_bonusToInt} from "../hooks.mjs";
 
 /**
@@ -93,7 +93,7 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    if (game.settings.get(MODULE, SHOW_AURA_RANGES)) this._drawAuras();
+    if (game.settings.get(MODULE, SETTINGS.AURA)) this._drawAuras();
     return new foundry.utils.Collection([...this.actorBonuses, ...this.tokenBonuses, ...this.templateBonuses].map(b => [b.uuid, b]));
   }
 

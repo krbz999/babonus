@@ -1,11 +1,6 @@
 import {FILTER} from "./filters.mjs";
 import {OptionalSelector} from "./applications/rollConfigApp.mjs";
-import {
-  MODULE, MODULE_ICON,
-  SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
-  SETTING_HEADERLABEL,
-  SHOW_AURA_RANGES
-} from "./constants.mjs";
+import {MODULE, MODULE_ICON, SETTINGS} from "./constants.mjs";
 import {AppliedBonusesDialog} from "./applications/appliedBonusesDialog.mjs";
 import {BabonusWorkshop} from "./applications/babonus.mjs";
 
@@ -314,7 +309,16 @@ export function _preCreateMeasuredTemplate(templateDoc) {
 
 /* Settings. */
 export function _createSettings() {
-  game.settings.register(MODULE, SETTING_HEADERLABEL, {
+  game.settings.register(MODULE, SETTINGS.PLAYERS, {
+    name: "BABONUS.SettingsShowBuilderForPlayersName",
+    hint: "BABONUS.SettingsShowBuilderForPlayersHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register(MODULE, SETTINGS.LABEL, {
     name: "BABONUS.SettingsDisplayLabelName",
     hint: "BABONUS.SettingsDisplayLabelHint",
     scope: "world",
@@ -323,7 +327,7 @@ export function _createSettings() {
     default: false
   });
 
-  game.settings.register(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, {
+  game.settings.register(MODULE, SETTINGS.SCRIPT, {
     name: "BABONUS.SettingsDisableCustomScriptFilterName",
     hint: "BABONUS.SettingsDisableCustomScriptFilterHint",
     scope: "world",
@@ -333,7 +337,7 @@ export function _createSettings() {
     requiresReload: true
   });
 
-  game.settings.register(MODULE, SHOW_AURA_RANGES, {
+  game.settings.register(MODULE, SETTINGS.AURA, {
     name: "BABONUS.SettingsShowAuraRangesName",
     hint: "BABONUS.SettingsShowAuraRangesHint",
     scope: "world",
@@ -346,8 +350,9 @@ export function _createSettings() {
 
 /* Header Buttons in actors, items, effects. */
 export function _addHeaderButtonActor(app, array) {
+  if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
   if (app.document.type === "group") return;
-  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
@@ -357,8 +362,9 @@ export function _addHeaderButtonActor(app, array) {
 }
 
 export function _addHeaderButtonItem(app, array) {
+  if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
   if (["background", "class", "subclass", "race"].includes(app.object.type)) return;
-  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
@@ -368,7 +374,8 @@ export function _addHeaderButtonItem(app, array) {
 }
 
 export function _addHeaderButtonEffect(app, array) {
-  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
+  const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)

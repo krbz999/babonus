@@ -1,9 +1,12 @@
 export const MODULE = "babonus";
 export const MODULE_NAME = "Build-a-Bonus";
 export const MODULE_ICON = "fa-solid fa-otter";
-export const SETTING_HEADERLABEL = "headerLabel";
-export const SETTING_DISABLE_CUSTOM_SCRIPT_FILTER = "disableCustomScriptFilter";
-export const SHOW_AURA_RANGES = "showAuraRanges";
+export const SETTINGS = {
+  AURA: "showAuraRanges",
+  LABEL: "headerLabel",
+  PLAYERS: "allowPlayers",
+  SCRIPT: "disableCustomScriptFilter"
+};
 
 // the kind of matching done for spell components (at least 1 vs matching all).
 export const SPELL_COMPONENT_MATCHING = {ANY: "ANY", ALL: "ALL"};

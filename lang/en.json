@@ -189,6 +189,8 @@
   "BABONUS.SettingsDisplayLabelName": "Display Label",
   "BABONUS.SettingsShowAuraRangesHint": "Create a visual indicator for the ranges of babonus auras. This does not apply to template auras or auras with unlimited ranges. If the roller is within an aura, it is marked green, otherwise red.",
   "BABONUS.SettingsShowAuraRangesName": "Show Aura Ranges",
+  "BABONUS.SettingsShowBuilderForPlayersHint": "If disabled, the icon to enter the builder will not be available in the header for players.",
+  "BABONUS.SettingsShowBuilderForPlayersName": "Show for Players",
   "BABONUS.SizeGreaterThan": "Greater than",
   "BABONUS.SizePlaceholder": "Size…",
   "BABONUS.SizeSmallerThan": "Smaller than",
