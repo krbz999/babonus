@@ -416,10 +416,10 @@ export class BabonusWorkshop extends FormApplication {
    * Handle copying the id or uuid of a babonus.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onClickId(event) {
+  async _onClickId(event) {
     const bonus = this.constructor._getCollection(this.object).get(event.currentTarget.closest(".bonus").dataset.id);
-    const id = event.type === "contextmenu" ? bonus.uuid : bonus.id;
-    navigator.clipboard.writeText(id);
+    const id = (event.type === "contextmenu") ? bonus.uuid : bonus.id;
+    await game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
       id, label: "Babonus", type: event.type === "contextmenu" ? "uuid" : "id"
     }));
