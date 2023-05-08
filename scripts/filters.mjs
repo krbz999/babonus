@@ -320,7 +320,7 @@ export class FILTER {
    * @param {Actor5e|Item5e} object           The actor or item being performing the roll.
    * @param {string[]} filter                 The array of abilities.
    * @param {object} [details={}]             Additional context for the roll being performed.
-   * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll.
+   * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll (checks only).
    * @returns {boolean}                       Whether the actor or item is using one of the abilities.
    */
   static abilities(object, filter, {abilityId} = {}) {
@@ -334,8 +334,8 @@ export class FILTER {
     // Case 2: Attack/Damage rolls.
     if (object instanceof Item) {
       // if the item has no actionType, it has no ability.
-      if (!item.system.actionType) return false;
-      return filter.includes(item.abilityMod);
+      if (!object.system.actionType) return false;
+      return filter.includes(object.abilityMod);
     }
 
     // Case 3: AbilityTest or Skill.
