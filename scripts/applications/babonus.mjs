@@ -135,7 +135,8 @@ export class BabonusWorkshop extends FormApplication {
     if (data.activeBuilder) {
       for (const id of FILTER_NAMES) {
         const filterData = {
-          id, header: game.i18n.localize(`BABONUS.Filters${id.capitalize()}`),
+          id,
+          header: `BABONUS.Filters${id.capitalize()}`,
           description: `BABONUS.Filters${id.capitalize()}Tooltip`,
           requirements: `BABONUS.Filters${id.capitalize()}Requirements`
         };
@@ -147,7 +148,7 @@ export class BabonusWorkshop extends FormApplication {
 
         data.filters.push(filterData);
       }
-      data.filters.sort((a, b) => a.header.localeCompare(b.header));
+      data.filters.sort((a, b) => a.header.localeCompare(b.header, game.i18n.lang));
     }
 
     // Get current bonuses on the document.

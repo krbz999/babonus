@@ -186,7 +186,7 @@
           {{#each filters}}
           <div class="filter {{#unless available}}hidden{{/unless}}" data-id="{{id}}">
             <h1 class="filter-header">
-              <a data-action="add-filter">{{header}}</a>
+              <a data-action="add-filter">{{localize header}}</a>
             </h1>
             <div class="filter-description">{{{localize description}}}</div>
             <a data-action="add-filter" data-tooltip="BABONUS.AddThisFilter">
@@ -204,7 +204,7 @@
         <div class="unavailable-filters">
           {{#each filters}}
           <div class="filter {{#if unavailable}}hidden{{/if}}" data-id="{{id}}">
-            <h1 class="filter-header">{{header}}</h1>
+            <h1 class="filter-header">{{localize header}}</h1>
             <div class="filter-description">{{{localize description}}}</div>
             <div class="filter-requirements">{{{localize requirements}}}</div>
           </div>
