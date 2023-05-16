@@ -20,7 +20,6 @@ import {_bonusToInt} from "../hooks.mjs";
  * - effects being unavailable
  */
 export class BonusCollector {
-
   // The type of bonuses being collected.
   type = null;
   babonusClass = null;

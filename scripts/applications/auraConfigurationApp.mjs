@@ -1,7 +1,6 @@
 import {AURA_TARGETS, MODULE} from "../constants.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
-
   constructor(object, options = {}) {
     super(object, options);
     this.clone = options.bab.clone();

@@ -24,6 +24,7 @@ class FiltersField extends foundry.data.fields.SchemaField {
 
 // ArrayField that only saves its truthy values. Used in all fields that have checkboxes.
 class FilteredArrayField extends foundry.data.fields.ArrayField {
+  /** @override */
   _cast(value) {
     return super._cast(value.filter(i => i));
   }

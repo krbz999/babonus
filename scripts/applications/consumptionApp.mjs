@@ -1,7 +1,6 @@
 import {MODULE} from "../constants.mjs";
 
 export class ConsumptionDialog extends FormApplication {
-
   constructor(object, options = {}) {
     super(object, options);
     this.clone = options.bab.clone();

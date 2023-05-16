@@ -1,7 +1,6 @@
 import {MODULE} from "../constants.mjs";
 
 export class OptionalSelector {
-
   constructor(options) {
     // The bonuses.
     this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));
@@ -286,18 +285,30 @@ export class OptionalSelector {
    * If the bonus does not scale, get the minimum value and consume it.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onApplyItemOption(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+  async _onApplyItemOption(event) {
+    const target = event.currentTarget;
+    target.disabled = true;
+    const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
+    const scales = target.dataset.action.endsWith("-scale");
     const canSupply = this._canSupply(event);
     if (canSupply) {
       const item = bonus.item;
-      const value = scales ? event.currentTarget.closest(".optional").querySelector(".consumption select").value : (bonus.consume.value.min || 1);
-      const property = bonus.consume.type === "uses" ? "system.uses.value" : "system.quantity";
-      item.update({[property]: foundry.utils.getProperty(item, property) - Number(value)});
+      const value = scales ? target.closest(".optional").querySelector(".consumption select").value : (bonus.consume.value.min || 1);
+      const property = (bonus.consume.type === "uses") ? "system.uses.value" : "system.quantity";
+      const newValue = foundry.utils.getProperty(item, property) - Number(value);
+      if ((newValue === 0) && (bonus.consume.type === "uses") && item.system.uses.autoDestroy) {
+        const confirm = await item.deleteDialog();
+        if (!confirm) {
+          target.disabled = false;
+          return null;
+        }
+      } else {
+        await item.update({[property]: newValue});
+      }
       const scale = scales ? Number(value) - (bonus.consume.value.min || 1) : 0;
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
-      this._appendToField(event, sitBonus);
+      this._appendToField(target, sitBonus);
+      target.disabled = false;
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -340,7 +351,7 @@ export class OptionalSelector {
       const scale = scales ? Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1) : 0;
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
-      this._appendToField(event, sitBonus);
+      this._appendToField(event.currentTarget, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -381,7 +392,7 @@ export class OptionalSelector {
       const scale = scales ? Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step) : 0;
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.applyDamage(value);
-      this._appendToField(event, sitBonus);
+      this._appendToField(event.currentTarget, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -393,14 +404,18 @@ export class OptionalSelector {
    * @param {PointerEvent} event      The initiating click event.
    */
   async _onApplyEffectsOption(event) {
-    const e = {currentTarget: event.currentTarget};
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
+    const target = event.currentTarget;
+    target.disabled = true;
+    const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
     const canSupply = this._canSupply(event);
     if (canSupply) {
       const confirm = await bonus.effect.deleteDialog();
-      if (!confirm) return;
+      if (!confirm) {
+        target.disabled = false;
+        return null;
+      }
       const sitBonus = this._scaleOptionalBonus(bonus, 0);
-      this._appendToField(e, sitBonus);
+      this._appendToField(target, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -414,7 +429,7 @@ export class OptionalSelector {
   _onApplyNoConsumeOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const sitBonus = this._scaleOptionalBonus(bonus, 0);
-    this._appendToField(event, sitBonus);
+    this._appendToField(event.currentTarget, sitBonus);
   }
 
   /**
@@ -436,13 +451,13 @@ export class OptionalSelector {
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {HTMLElement} target      The target of the initiating click event.
    * @param {string} bonus            The bonus to add.
    */
-  _appendToField(event, bonus) {
+  _appendToField(target, bonus) {
     if (!this.field.value.trim()) this.field.value = bonus;
     else this.field.value = `${this.field.value.trim()} + ${bonus}`;
-    event.currentTarget.closest(".optional").classList.toggle("active", true);
+    target.closest(".optional").classList.toggle("active", true);
     this.dialog.setPosition({height: "auto"});
   }
 

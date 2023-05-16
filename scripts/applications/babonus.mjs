@@ -16,7 +16,6 @@ import {BabonusKeysDialog} from "./keysDialog.mjs";
 import {AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, TestBabonus, ThrowBabonus} from "./dataModel.mjs";
 
 export class BabonusWorkshop extends FormApplication {
-
   /**
    * ----------------------------------------------------
    *
