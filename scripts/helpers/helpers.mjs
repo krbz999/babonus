@@ -51,9 +51,9 @@ export class KeyGetter {
   }
 
   // ability score keys.
-  static get abilities() { // TODO: fix in 2.2.x.
+  static get abilities() {
     const abilities = Object.entries(CONFIG.DND5E.abilities);
-    return abilities.map(([value, label]) => ({value, label}));
+    return abilities.map(([value, {label}]) => ({value, label}));
   }
 
   static get saveAbilities() {

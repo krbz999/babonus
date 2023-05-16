@@ -171,7 +171,7 @@ class Babonus extends foundry.abstract.DataModel {
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
    * TODO: once hit die rolls have a dialog as well, this should be amended.
-   * TODO: once rolls can be "remade" in 2.2.0, optional bonuses should be able to apply to other properties as well.
+   * TODO: once rolls can be "remade" in 2.3.0, optional bonuses should be able to apply to other properties as well.
    * @returns {boolean}
    */
   get isOptionable() {
@@ -306,8 +306,13 @@ class Babonus extends foundry.abstract.DataModel {
     }
 
     else if (this.parent instanceof ActiveEffect) {
-      // TODO: consider effects that live on items in v11.
-      return this.parent.parent;
+      if (this.parent.parent instanceof Actor) {
+        // Case 1: Effect on actor.
+        return this.parent.parent;
+      } else if (this.parent.parent instanceof Item) {
+        // Case 2: Effect on item on actor.
+        return this.parent.parent.actor;
+      }
     }
 
     else if (this.parent instanceof Item) {

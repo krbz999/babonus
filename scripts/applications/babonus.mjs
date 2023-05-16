@@ -820,13 +820,18 @@ export class BabonusWorkshop extends FormApplication {
    */
   _newFilterArrayOptions(id) {
     if (id === "attackTypes") {
-      return ["mwak", "rwak", "msak", "rsak"].map(a => ({value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]}));
+      return ["mwak", "rwak", "msak", "rsak"].map(a => {
+        return {value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]};
+      });
     } else if (id === "itemTypes") {
-      return ITEM_ROLL_TYPES.map(i => ({value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`}));
+      return ITEM_ROLL_TYPES.map(i => {
+        return {value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`};
+      });
     } else if (id === "spellLevels") {
       return Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => ({value, label: value, tooltip}));
     } else if (id === "spellComponents") {
-      return Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags)).map(([key, {abbr, label}]) => ({value: key, label: abbr, tooltip: label}));
+      const entries = Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags));
+      return entries.map(([key, {abbr, label}]) => ({value: key, label: abbr, tooltip: label}));
     }
   }
 

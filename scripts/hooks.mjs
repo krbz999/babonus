@@ -42,7 +42,7 @@ export function _preDisplayCard(item, chatData) {
 
   // Create label (innertext)
   const save = item.system.save;
-  const ability = CONFIG.DND5E.abilities[save.ability] ?? ""; // TODO: fix in 2.2.x.
+  const ability = CONFIG.DND5E.abilities[save.ability]?.label ?? "";
   const savingThrow = game.i18n.localize("DND5E.ActionSave");
   const dc = Math.max(1, save.dc + totalBonus) || "";
   chatData.flags[MODULE] = {saveDC: dc};
@@ -206,7 +206,7 @@ export function _preRollAbilityTest(actor, rollConfig, abilityId) {
 
 /** When you roll a skill... */
 export function _preRollSkill(actor, rollConfig, skillId) {
-  const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.2.0
+  const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.3.0
   const bonuses = FILTER.testCheck(actor, abilityId, {skillId});
   if (!bonuses.length) return;
   const target = game.user.targets.first();
@@ -225,7 +225,7 @@ export function _preRollSkill(actor, rollConfig, skillId) {
 
 /** When you roll a tool check... */
 export function _preRollToolCheck(item, rollConfig) {
-  const abilityId = item.system.ability; // TODO: fix in 2.2.0
+  const abilityId = item.system.ability; // TODO: fix in 2.3.0
   const bonuses = FILTER.testCheck(item, abilityId);
   if (!bonuses.length) return;
   const target = game.user.targets.first();

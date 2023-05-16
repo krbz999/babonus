@@ -171,8 +171,12 @@ export class BonusCollector {
     }
 
     const actor = this._collectFromDocument(token.actor, [validTokenAura, rangeChecker]);
-    const items = token.actor.items.reduce((acc, item) => acc.concat(this._collectFromDocument(item, [validTokenAura, rangeChecker])), []);
-    const effects = token.actor.effects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validTokenAura, rangeChecker])), []);
+    const items = token.actor.items.reduce((acc, item) => {
+      return acc.concat(this._collectFromDocument(item, [validTokenAura, rangeChecker]));
+    }, []);
+    const effects = token.actor.appliedEffects.reduce((acc, effect) => {
+      return acc.concat(this._collectFromDocument(effect, [validTokenAura, rangeChecker]));
+    }, []);
     return [...actor, ...items, ...effects];
   }
 
@@ -374,8 +378,9 @@ export class BonusCollector {
       return tisp === this.disposition;
     } else if (bisp === AURA_TARGETS.ENEMY) {
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
-      if ([this.disposition, tisp].includes(CONST.TOKEN_DISPOSITIONS.NEUTRAL)) return false;
-      return tisp !== this.disposition;
+      const modes = CONST.TOKEN_DISPOSITIONS;
+      const set = new Set([tisp, this.disposition]);
+      return set.has(modes.FRIENDLY) && set.has(modes.HOSTILE);
     }
   }
 

@@ -103,7 +103,7 @@
 <li><code>openBabonusWorkshop(object)</code> opens the Build-a-Bonus workshop for the given document.</li>
 <li><code>getAllContainingTemplates(tokenDoc)</code> returns the ids of all templates on the scene that overlap with the token document.</li>
 <li><code>getMinimumDistanceBetweenTokens(tokenA, tokenB)</code> returns the minimum distance between two token placeables, evaluating every grid cell that they occupy.</li>
-<li><code>sceneTokensByDisposition(scene)</code> returns an object of three arrays; the tokens on the scene split into three arrays by disposition. If no scene is provided, the currently viewed scene is used.</li>
+<li><code>sceneTokensByDisposition(scene)</code> returns an object of four arrays; the tokens on the scene split into four arrays by disposition (friendly, neutral, hostile, and none). If no scene is provided, the currently viewed scene is used.</li>
 <li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
 </ul>
 
