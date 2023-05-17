@@ -117,16 +117,17 @@ export class FILTER {
 
   /**
    * Initiate the collection and filtering of bonuses applying to ability checks.
-   * @param {Actor5e|Item5e} object         The actor or tool performing the test.
+   * @param {Actor5e} actor                 The actor performing the test.
    * @param {string} abilityId              The ability used for the test.
    * @param {object} [details={}]           Additional context for the filtering and checks.
    * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
+   * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
    * @returns {Babonus[]}                   A filtered array of babonuses to apply.
    */
-  static testCheck(object, abilityId, {skillId} = {}) {
-    const bonuses = new BonusCollector({object, type: "test"}).returnBonuses();
+  static testCheck(actor, abilityId, {skillId, toolId} = {}) {
+    const bonuses = new BonusCollector({object: actor, type: "test"}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses(bonuses, object, {abilityId, skillId});
+    return this.finalFilterBonuses(bonuses, actor, {abilityId, skillId, toolId});
   }
 
   /**
@@ -313,18 +314,19 @@ export class FILTER {
    * by the system itself for items set to 'Default' to look for finesse weapons and spellcasting
    * abilities. Note that this is the ability set at the top level of the item's action, and
    * is NOT the ability used to determine the dc of the saving throw.
-   * @param {Actor5e|Item5e} object           The actor or item being performing the roll.
+   * @param {Actor5e|Item5e} object           The actor or item performing the roll.
    * @param {string[]} filter                 The array of abilities.
    * @param {object} [details={}]             Additional context for the roll being performed.
    * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll (checks only).
+   * @param {string} [details.toolId]         The key for a tool type (tool checks only).
    * @returns {boolean}                       Whether the actor or item is using one of the abilities.
    */
-  static abilities(object, filter, {abilityId} = {}) {
+  static abilities(object, filter, {abilityId, toolId} = {}) {
     if (!filter?.length) return true;
 
     // Case 1: Tool Checks.
-    if ((object instanceof Item) && (object.type === "tool")) {
-      return filter.includes(object.system.ability);
+    if (toolId) {
+      return filter.includes(abilityId);
     }
 
     // Case 2: Attack/Damage rolls.
@@ -651,17 +653,17 @@ export class FILTER {
 
   /**
    * Find out if the tool being rolled for a check is one of the correct types.
-   * @param {Item5e} tool         The tool being used for the check.
+   * @param {Actor5e} actor       The actor performing the roll.
    * @param {string[]} filter     The types of tool types.
+   * @param {string} toolId       The type of tool being rolled.
    * @returns {boolean}           Whether the tool type matches the filter.
    */
-  static baseTools(tool, filter) {
+  static baseTools(actor, filter, {toolId}) {
     if (!filter?.length) return true;
     const {included, excluded} = FILTER._splitExlusion(filter);
-    if (tool.type !== "tool") return included.length === 0;
-    const type = tool.system.baseItem;
-    if (included.length && !included.includes(type)) return false;
-    if (excluded.length && excluded.includes(type)) return false;
+    if (!toolId) return included.length === 0;
+    if (included.length && !included.includes(toolId)) return false;
+    if (excluded.length && excluded.includes(toolId)) return false;
     return true;
   }
 

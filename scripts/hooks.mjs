@@ -224,9 +224,9 @@ export function _preRollSkill(actor, rollConfig, skillId) {
 }
 
 /** When you roll a tool check... */
-export function _preRollToolCheck(item, rollConfig) {
-  const abilityId = item.system.ability; // TODO: fix in 2.3.0
-  const bonuses = FILTER.testCheck(item, abilityId);
+export function _preRollToolCheck(actor, rollConfig, toolId) {
+  const abilityId = rollConfig.ability || rollConfig.data.defaultAbility; // TODO: fix in 2.3.0
+  const bonuses = FILTER.testCheck(actor, abilityId, {toolId});
   if (!bonuses.length) return;
   const target = game.user.targets.first();
   if (target?.actor) rollConfig.data.target = target.actor.getRollData();
@@ -239,7 +239,7 @@ export function _preRollToolCheck(item, rollConfig) {
     return acc;
   }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
-  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, item, bonuses});
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
 }
 
 /** When you roll a hit die... */
