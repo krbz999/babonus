@@ -484,14 +484,10 @@ export class FILTER {
     const actor = object.actor ?? object;
     const {included, excluded} = FILTER._splitExlusion(filter);
 
-    const hasIncluded = included.some(id => {
-      return actor.appliedEffects.some(e => e.statuses.has(id));
-    });
+    const hasIncluded = included.some(id => actor.statuses.has(id));
     if (included.length && !hasIncluded) return false;
 
-    const hasExcluded = excluded.some(id => {
-      return actor.appliedEffects.some(e => e.statuses.has(id));
-    });
+    const hasExcluded = excluded.some(id => actor.statuses.has(id));
     if (excluded.length && hasExcluded) return false;
 
     return true;
@@ -510,14 +506,10 @@ export class FILTER {
     const actor = game.user.targets.first()?.actor;
     if (!actor) return !included.length;
 
-    const hasIncluded = included.some(id => {
-      return actor.appliedEffects.some(e => e.statuses.has(id));
-    });
+    const hasIncluded = included.some(id => actor.statuses.has(id));
     if (included.length && !hasIncluded) return false;
 
-    const hasExcluded = excluded.some(id => {
-      return actor.appliedEffects.some(e => e.statuses.has(id));
-    });
+    const hasExcluded = excluded.some(id => actor.statuses.has(id));
     if (excluded.length && hasExcluded) return false;
 
     return true;

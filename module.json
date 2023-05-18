@@ -13,7 +13,7 @@
   "compatibility": {
     "minimum": "11",
     "maximum": "11",
-    "verified": "11.296"
+    "verified": "11.298"
   },
   "esmodules": [
     "setup.mjs"
@@ -28,7 +28,7 @@
         "type": "system",
         "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
         "compatibility": {
-          "minimum": "2.1.5"
+          "minimum": "2.2.0"
         }
       }
     ]

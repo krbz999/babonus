@@ -253,12 +253,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get isAuraBlocked() {
-    const blockers = new Set(this.aura.blockers);
-    if (!blockers.size) return false;
-
-    return (this.actor?.effects ?? []).some(e => {
-      return e.modifiesActor && e.statuses.intersects(blockers);
-    });
+    return new Set(this.aura.blockers).intersects(this.actor.statuses);
   }
 
   /**
