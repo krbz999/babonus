@@ -317,7 +317,7 @@ export class BonusCollector {
   _tokenWithinAura(token, bonus) {
     // TODO: option to use gridspace setting.
     // TODO: calculate euclidean vertical distance.
-    const data = bonus.origin?.getRollData() ?? {};
+    const data = bonus.getRollData({deterministic: true});
     const range = _bonusToInt(bonus.aura.range, data);
     if (range === -1) return true;
     const verticalDistance = Math.abs(token.elevation - this.elevation);
@@ -390,7 +390,7 @@ export class BonusCollector {
     const id = `babonus-${foundry.utils.randomID()}`;
     this._deletePixiAuras();
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
-      const range = _bonusToInt(bonus.aura.range, bonus.origin?.getRollData() ?? {});
+      const range = _bonusToInt(bonus.aura.range, bonus.getRollData({deterministic: true}));
       if (range === -1) continue;
       const shape = new PIXI.Graphics();
       shape.id = id;

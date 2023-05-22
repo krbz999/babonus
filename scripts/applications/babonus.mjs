@@ -158,7 +158,7 @@ export class BabonusWorkshop extends FormApplication {
         bab._collapsed = this._collapsedBonuses.has(id);
         bab._description = await TextEditor.enrichHTML(bab.description, {
           async: true,
-          rollData: bab.origin?.getRollData() ?? {}
+          rollData: bab.getRollData()
         });
         // Add the icon property to the bonus object
         const bonusType = TYPES.find(t => t.value === bab.type);

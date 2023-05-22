@@ -234,7 +234,7 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get isTokenAura() {
     if (!this.aura.enabled || this.aura.isTemplate) return false;
-    const range = _bonusToInt(this.aura.range, this.origin?.getRollData() ?? {});
+    const range = _bonusToInt(this.aura.range, this.getRollData({deterministic: true}));
     return (range === -1) || (range > 0);
   }
 
@@ -469,6 +469,15 @@ class Babonus extends foundry.abstract.DataModel {
     for (const t of (types.needed ?? [])) c.push(t);
     for (const u of (types.unfit ?? [])) c.push(`!${u}`);
     source.filters.weaponProperties = c;
+  }
+
+  /**
+   * Get applicable roll data from the origin.
+   * @param {boolean} deterministic     Whether to force flat values for properties that could be a die term or flat term.
+   * @returns {object}                  The roll data.
+   */
+  getRollData({deterministic=false}={}){
+    return this.origin?.getRollData({deterministic}) ?? {};
   }
 }
 

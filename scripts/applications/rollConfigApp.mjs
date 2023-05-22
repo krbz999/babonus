@@ -59,7 +59,7 @@ export class OptionalSelector {
         ...data,
         description: await TextEditor.enrichHTML(bonus.description, {
           async: true,
-          rollData: bonus.origin?.getRollData() ?? {}
+          rollData: bonus.getRollData()
         })
       });
     }
@@ -493,12 +493,8 @@ export class OptionalSelector {
    * @returns {object}          The roll data.
    */
   _getRollData(bonus) {
-    let data = bonus.origin?.getRollData();
-    if (!data && this.item) {
-      data = this.item.getRollData();
-    } else if (!data) {
-      data = this.actor.getRollData();
-    }
+    const src = bonus.origin ?? this.item ?? this.actor;
+    const data = src.getRollData();
 
     if (bonus.parent.uuid === this.item?.uuid) {
       foundry.utils.setProperty(data, "item.level", this.level);
