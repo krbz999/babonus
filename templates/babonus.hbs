@@ -118,7 +118,7 @@
               <div class="details">
                 <div class="functions">
                   <a data-action="current-toggle" data-tooltip="BABONUS.ConfigurationToggleTooltip">
-                    <i class="fa-solid fa-toggle-{{ifThen enabled "on" "off"}}"></i>
+                    <i class="fa-solid fa-toggle-{{ifThen enabled 'on' 'off'}}"></i>
                   </a>
                   <a data-action="current-copy" data-tooltip="BABONUS.ConfigurationCopyTooltip">
                     <i class="fa-solid fa-copy"></i>
@@ -130,11 +130,11 @@
                     <i class="fa-solid fa-trash"></i>
                   </a>
                   <a data-action="current-aura" data-tooltip="BABONUS.ConfigurationAuraTooltip">
-                    <i class="fa-{{ifThen (or isTokenAura isTemplateAura) "solid" "regular"}} fa-sun"></i>
+                    <i class="fa-{{ifThen (or isTokenAura isTemplateAura) 'solid' 'regular'}} fa-sun"></i>
                   </a>
                   {{#if canExclude}}
                   <a data-action="current-itemOnly" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
-                    <i class="fa-{{ifThen isExclusive "solid" "regular"}} fa-chess-pawn"></i>
+                    <i class="fa-{{ifThen isExclusive 'solid' 'regular'}} fa-chess-pawn"></i>
                   </a>
                   {{else}}
                   <a class="unavailable" data-tooltip="BABONUS.ConfigurationExclusiveTooltipUnavailable">
@@ -143,7 +143,7 @@
                   {{/if}}
                   {{#if isOptionable}}
                   <a data-action="current-optional" data-tooltip="BABONUS.ConfigurationOptionalTooltip">
-                    <i class="fa-{{ifThen isOptional "solid" "regular"}} fa-circle-xmark"></i>
+                    <i class="fa-{{ifThen isOptional 'solid' 'regular'}} fa-circle-xmark"></i>
                   </a>
                   {{else}}
                   <a class="unavailable" data-tooltip="BABONUS.ConfigurationOptionalTooltipUnavailable">
@@ -152,7 +152,7 @@
                   {{/if}}
                   {{#if canConsume}}
                   <a data-action="current-consume" data-tooltip="BABONUS.ConfigurationConsumptionTooltip">
-                    <i class="fa-{{ifThen isConsuming "solid fa-hand-sparkles" "regular fa-hand"}}"></i>
+                    <i class="fa-{{ifThen isConsuming 'solid fa-hand-sparkles' 'regular fa-hand'}}"></i>
                   </a>
                   {{else}}
                   <a class="unavailable" data-tooltip="BABONUS.ConfigurationConsumptionTooltipUnavailable">
