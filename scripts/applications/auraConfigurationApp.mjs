@@ -47,16 +47,9 @@ export class AuraConfigurationDialog extends FormApplication {
 
   /** @override */
   async _updateObject(event, formData) {
-    const data = foundry.utils.mergeObject({
-      aura: {
-        enabled: true,
-        isTemplate: false,
-        range: null,
-        self: null,
-        disposition: null,
-        blockers: null
-      },
-    }, formData);
+    const defaults = this.clone.getDefaults("aura");
+    const data = foundry.utils.mergeObject({aura: defaults}, formData);
+    defaults.enabled = true;
     return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 

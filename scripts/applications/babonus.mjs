@@ -13,7 +13,7 @@ import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 import {BabonusKeysDialog} from "./keysDialog.mjs";
-import {AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, TestBabonus, ThrowBabonus} from "./dataModel.mjs";
+import {BabonusTypes} from "./dataModel.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   /**
@@ -132,6 +132,7 @@ export class BabonusWorkshop extends FormApplication {
     }
 
     if (data.activeBuilder) {
+      // Construct data for each filter.
       for (const id of FILTER_NAMES) {
         const filterData = {
           id,
@@ -997,14 +998,7 @@ export class BabonusWorkshop extends FormApplication {
     // if no id explicitly provided, make a new one.
     data.id = id ?? foundry.utils.randomID();
 
-    const bonus = new {
-      attack: AttackBabonus,
-      damage: DamageBabonus,
-      save: SaveBabonus,
-      test: TestBabonus,
-      throw: ThrowBabonus,
-      hitdie: HitDieBabonus
-    }[data.type](data, options);
+    const bonus = new BabonusTypes[data.type](data, options);
     return bonus;
   }
 }

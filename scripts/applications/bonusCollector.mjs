@@ -1,11 +1,4 @@
-import {
-  AttackBabonus,
-  DamageBabonus,
-  HitDieBabonus,
-  SaveBabonus,
-  TestBabonus,
-  ThrowBabonus
-} from "./dataModel.mjs";
+import {BabonusTypes} from "./dataModel.mjs";
 import {AURA_TARGETS, MODULE, SETTINGS} from "../constants.mjs";
 import {_bonusToInt} from "../hooks.mjs";
 
@@ -52,12 +45,7 @@ export class BonusCollector {
   constructor(data) {
     // Set up type and class.
     this.type = data.type;
-    if (this.type === "attack") this.babonusClass = AttackBabonus;
-    else if (this.type === "damage") this.babonusClass = DamageBabonus;
-    else if (this.type === "save") this.babonusClass = SaveBabonus;
-    else if (this.type === "test") this.babonusClass = TestBabonus;
-    else if (this.type === "throw") this.babonusClass = ThrowBabonus;
-    else if (this.type === "hitdie") this.babonusClass = HitDieBabonus;
+    this.babonusClass = BabonusTypes[this.type];
 
     // Set up item and actor.
     if (data.object instanceof Item) {
