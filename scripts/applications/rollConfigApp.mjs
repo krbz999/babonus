@@ -160,11 +160,21 @@ export class OptionalSelector {
    * @param {html} html     The entire list of html injected onto the dialog.
    */
   activateListeners(html) {
-    this.form.querySelectorAll("[data-action^='consume-item']").forEach(n => n.addEventListener("click", this._onApplyItemOption.bind(this)));
-    this.form.querySelectorAll("[data-action^='consume-slots']").forEach(n => n.addEventListener("click", this._onApplySlotsOption.bind(this)));
-    this.form.querySelectorAll("[data-action^='consume-health']").forEach(n => n.addEventListener("click", this._onApplyHealthOption.bind(this)));
-    this.form.querySelectorAll("[data-action='consume-effects']").forEach(n => n.addEventListener("click", this._onApplyEffectsOption.bind(this)));
-    this.form.querySelectorAll("[data-action='consume-none']").forEach(n => n.addEventListener("click", this._onApplyNoConsumeOption.bind(this)));
+    this.form.querySelectorAll("[data-action^='consume-item']").forEach(n => {
+      n.addEventListener("click", this._onApplyItemOption.bind(this));
+    });
+    this.form.querySelectorAll("[data-action^='consume-slots']").forEach(n => {
+      n.addEventListener("click", this._onApplySlotsOption.bind(this));
+    });
+    this.form.querySelectorAll("[data-action^='consume-health']").forEach(n => {
+      n.addEventListener("click", this._onApplyHealthOption.bind(this));
+    });
+    this.form.querySelectorAll("[data-action='consume-effects']").forEach(n => {
+      n.addEventListener("click", this._onApplyEffectsOption.bind(this));
+    });
+    this.form.querySelectorAll("[data-action='consume-none']").forEach(n => {
+      n.addEventListener("click", this._onApplyNoConsumeOption.bind(this));
+    });
   }
 
   /** Custom rendering method */

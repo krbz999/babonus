@@ -36,10 +36,18 @@ export class BabonusKeysDialog extends Dialog {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelectorAll("[data-action='cycle-all']").forEach(n => n.addEventListener("click", this._onCycleAll.bind(this)));
-    html[0].querySelectorAll("[data-action='cycle']").forEach(n => n.addEventListener("click", this._onCycleRight.bind(this)));
-    html[0].querySelectorAll("[data-action='cycle-left']").forEach(n => n.addEventListener("click", this._onCycleLeft.bind(this)));
-    html[0].querySelectorAll("[data-action='cycle-right']").forEach(n => n.addEventListener("click", this._onCycleRight.bind(this)));
+    html[0].querySelectorAll("[data-action='cycle-all']").forEach(n => {
+      n.addEventListener("click", this._onCycleAll.bind(this));
+    });
+    html[0].querySelectorAll("[data-action='cycle']").forEach(n => {
+      n.addEventListener("click", this._onCycleRight.bind(this));
+    });
+    html[0].querySelectorAll("[data-action='cycle-left']").forEach(n => {
+      n.addEventListener("click", this._onCycleLeft.bind(this));
+    });
+    html[0].querySelectorAll("[data-action='cycle-right']").forEach(n => {
+      n.addEventListener("click", this._onCycleRight.bind(this));
+    });
   }
 
   /**

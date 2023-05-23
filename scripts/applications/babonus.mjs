@@ -212,7 +212,9 @@ export class BabonusWorkshop extends FormApplication {
     // Otter.
     html[0].querySelector("[data-action='otter-rainbow']").addEventListener("click", this._onOtterRainbow.bind(this));
     html[0].querySelector("[data-action='otter-dance']").addEventListener("click", this._onOtterDance.bind(this));
-    html[0].querySelectorAll("[data-action='current-collapse']").forEach(a => a.addEventListener("click", this._onCollapseBonus.bind(this)));
+    html[0].querySelectorAll("[data-action='current-collapse']").forEach(n => {
+      n.addEventListener("click", this._onCollapseBonus.bind(this));
+    });
 
     if (!this.isEditable) {
       html[0].querySelectorAll(".left-side, .right-side .functions").forEach(n => {

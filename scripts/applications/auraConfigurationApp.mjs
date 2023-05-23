@@ -42,7 +42,8 @@ export class AuraConfigurationDialog extends FormApplication {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelector("[data-action='keys-dialog']").addEventListener("click", this.builder._onDisplayKeysDialog.bind(this));
+    const button = html[0].querySelector("[data-action='keys-dialog']");
+    button.addEventListener("click", this.builder._onDisplayKeysDialog.bind(this));
   }
 
   /** @override */
