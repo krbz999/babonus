@@ -1,5 +1,5 @@
 {
-  "BABONUS.AddThisFilter": "Ajoutez ce filtre au constructeur.",
+  "BABONUS.AddThisFilter": "Ajoutez ce filtre à l'atelier.",
   "BABONUS.AvailableFilters": "Filtres disponibles",
   "BABONUS.AvailableFiltersTooltip": "La liste des filtres que vous pouvez appliquer à ce bonus, afin de restreindre davantage les jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
   "BABONUS.BonusCopy": "{name} (Copie)",
@@ -55,7 +55,7 @@
   "BABONUS.CurrentBonusesTooltip": "Les bonus que vous avez créés et qui sont actuellement stockés sur cet Acteur, Objet ou ActiveEffect.",
   "BABONUS.CurrentFilters": "Filtres actuels",
   "BABONUS.CurrentFiltersTooltip": "Les filtres actuellement appliqués au bonus, qui réduisent encore plus le nombre de jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
-  "BABONUS.DeleteThisFilter": "Retirez ce filtre du constructeur.",
+  "BABONUS.DeleteThisFilter": "Retirez ce filtre de l'atelier.",
   "BABONUS.Description": "Description",
   "BABONUS.DescriptionPlaceholder": "Description…",
   "BABONUS.DescriptionTooltip": "Une description du bonus pour votre confort.",
@@ -223,5 +223,7 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.SettingsShowBuilderForPlayersName": "Montrer aux joueurs",
+  "BABONUS.SettingsShowBuilderForPlayersHint": "Si cette option est désactivée, l'icône permettant d'entrer dans l'atelier ne sera pas disponible dans l'en-tête des joueurs."
 }
