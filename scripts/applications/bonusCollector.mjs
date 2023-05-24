@@ -1,12 +1,5 @@
-import {
-  AttackBabonus,
-  DamageBabonus,
-  HitDieBabonus,
-  SaveBabonus,
-  TestBabonus,
-  ThrowBabonus
-} from "./dataModel.mjs";
-import {AURA_TARGETS, MODULE, SHOW_AURA_RANGES} from "../constants.mjs";
+import {BabonusTypes} from "./dataModel.mjs";
+import {AURA_TARGETS, MODULE, SETTINGS} from "../constants.mjs";
 import {_bonusToInt} from "../hooks.mjs";
 
 /**
@@ -20,7 +13,6 @@ import {_bonusToInt} from "../hooks.mjs";
  * - effects being unavailable
  */
 export class BonusCollector {
-
   // The type of bonuses being collected.
   type = null;
   babonusClass = null;
@@ -53,12 +45,7 @@ export class BonusCollector {
   constructor(data) {
     // Set up type and class.
     this.type = data.type;
-    if (this.type === "attack") this.babonusClass = AttackBabonus;
-    else if (this.type === "damage") this.babonusClass = DamageBabonus;
-    else if (this.type === "save") this.babonusClass = SaveBabonus;
-    else if (this.type === "test") this.babonusClass = TestBabonus;
-    else if (this.type === "throw") this.babonusClass = ThrowBabonus;
-    else if (this.type === "hitdie") this.babonusClass = HitDieBabonus;
+    this.babonusClass = BabonusTypes[this.type];
 
     // Set up item and actor.
     if (data.object instanceof Item) {
@@ -93,7 +80,7 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    if (game.settings.get(MODULE, SHOW_AURA_RANGES)) this._drawAuras();
+    if (game.settings.get(MODULE, SETTINGS.AURA)) this._drawAuras();
     return new foundry.utils.Collection([...this.actorBonuses, ...this.tokenBonuses, ...this.templateBonuses].map(b => [b.uuid, b]));
   }
 
@@ -171,8 +158,12 @@ export class BonusCollector {
     }
 
     const actor = this._collectFromDocument(token.actor, [validTokenAura, rangeChecker]);
-    const items = token.actor.items.reduce((acc, item) => acc.concat(this._collectFromDocument(item, [validTokenAura, rangeChecker])), []);
-    const effects = token.actor.effects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validTokenAura, rangeChecker])), []);
+    const items = token.actor.items.reduce((acc, item) => {
+      return acc.concat(this._collectFromDocument(item, [validTokenAura, rangeChecker]));
+    }, []);
+    const effects = token.actor.appliedEffects.reduce((acc, effect) => {
+      return acc.concat(this._collectFromDocument(effect, [validTokenAura, rangeChecker]));
+    }, []);
     return [...actor, ...items, ...effects];
   }
 
@@ -314,7 +305,7 @@ export class BonusCollector {
   _tokenWithinAura(token, bonus) {
     // TODO: option to use gridspace setting.
     // TODO: calculate euclidean vertical distance.
-    const data = bonus.origin?.getRollData() ?? {};
+    const data = bonus.getRollData({deterministic: true});
     const range = _bonusToInt(bonus.aura.range, data);
     if (range === -1) return true;
     const verticalDistance = Math.abs(token.elevation - this.elevation);
@@ -374,8 +365,9 @@ export class BonusCollector {
       return tisp === this.disposition;
     } else if (bisp === AURA_TARGETS.ENEMY) {
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
-      if ([this.disposition, tisp].includes(CONST.TOKEN_DISPOSITIONS.NEUTRAL)) return false;
-      return tisp !== this.disposition;
+      const modes = CONST.TOKEN_DISPOSITIONS;
+      const set = new Set([tisp, this.disposition]);
+      return set.has(modes.FRIENDLY) && set.has(modes.HOSTILE);
     }
   }
 
@@ -386,7 +378,7 @@ export class BonusCollector {
     const id = `babonus-${foundry.utils.randomID()}`;
     this._deletePixiAuras();
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
-      const range = _bonusToInt(bonus.aura.range, bonus.origin?.getRollData() ?? {});
+      const range = _bonusToInt(bonus.aura.range, bonus.getRollData({deterministic: true}));
       if (range === -1) continue;
       const shape = new PIXI.Graphics();
       shape.id = id;

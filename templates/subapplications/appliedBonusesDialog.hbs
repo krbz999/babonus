@@ -8,18 +8,19 @@
       </tr>
     </thead>
     <tbody>
-      {{#each bonuses as |bonus|}}
+      {{#each bonuses}}
       <tr>
-        <td data-tooltip="{{bonus.description}}">{{bonus.name}}</td>
-        <td><a data-uuid="{{bonus.parent.uuid}}" data-tooltip="{{bonus.parent.uuid}}">
-          {{#if bonus.parent.name}}{{bonus.parent.name}}
-          {{else if bonus.parent.label}}{{bonus.parent.label}}
-          {{else}}{{localize "Template"}}
-          {{/if}}
-        </a></td>
-        <td><a data-uuid="{{bonus.actor.uuid}}" data-tooltip="{{bonus.actor.uuid}}">
-          {{bonus.actor.name}}
-        </a></td>
+        <td data-tooltip="{{description}}">{{name}}</td>
+        <td>
+          <a data-uuid="{{parent.uuid}}" data-tooltip="{{parent.uuid}}">
+            {{ifThen parent.name parent.name (localize "Template")}}
+          </a>
+        </td>
+        <td>
+          <a data-uuid="{{actor.uuid}}" data-tooltip="{{actor.uuid}}">
+            {{actor.name}}
+          </a>
+        </td>
       </tr>
       {{/each}}
     </tbody>

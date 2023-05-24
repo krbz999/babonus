@@ -171,7 +171,7 @@ class Babonus extends foundry.abstract.DataModel {
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
    * TODO: once hit die rolls have a dialog as well, this should be amended.
-   * TODO: once rolls can be "remade" in 2.2.0, optional bonuses should be able to apply to other properties as well.
+   * TODO: once rolls can be "remade" in 2.3.0, optional bonuses should be able to apply to other properties as well.
    * @returns {boolean}
    */
   get isOptionable() {
@@ -234,7 +234,7 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get isTokenAura() {
     if (!this.aura.enabled || this.aura.isTemplate) return false;
-    const range = _bonusToInt(this.aura.range, this.origin?.getRollData() ?? {});
+    const range = _bonusToInt(this.aura.range, this.getRollData({deterministic: true}));
     return (range === -1) || (range > 0);
   }
 
@@ -253,14 +253,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get isAuraBlocked() {
-    const blockers = this.aura.blockers;
-    if (!blockers.length) return false;
-
-    return this.actor?.effects.some(effect => {
-      if (!effect.modifiesActor) return false;
-      const id = effect.flags.core?.statusId;
-      return !!id && blockers.includes(id);
-    }) ?? false;
+    return new Set(this.aura.blockers).intersects(this.actor.statuses);
   }
 
   /**
@@ -286,9 +279,7 @@ class Babonus extends foundry.abstract.DataModel {
     }
 
     else if (this.parent instanceof ActiveEffect) {
-      const origin = fromUuidSync(this.parent.origin ?? "");
-      if (origin instanceof TokenDocument) return origin.actor; // TODO: fix in v11, since uuid will return actor.
-      return origin;
+      return fromUuidSync(this.parent.origin ?? "");
     }
 
     else if (this.parent instanceof Item) {
@@ -310,8 +301,13 @@ class Babonus extends foundry.abstract.DataModel {
     }
 
     else if (this.parent instanceof ActiveEffect) {
-      // TODO: consider effects that live on items in v11.
-      return this.parent.parent;
+      if (this.parent.parent instanceof Actor) {
+        // Case 1: Effect on actor.
+        return this.parent.parent;
+      } else if (this.parent.parent instanceof Item) {
+        // Case 2: Effect on item on actor.
+        return this.parent.parent.actor;
+      }
     }
 
     else if (this.parent instanceof Item) {
@@ -375,6 +371,20 @@ class Babonus extends foundry.abstract.DataModel {
     return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
   }
 
+  /**
+   * Get the default values nested within the schema.
+   * @param {string} prefix     The prefix leading to the object of initial values.
+   * @returns {object}          An object of values.
+   */
+  getDefaults(prefix) {
+    const field = this.schema.getField(prefix);
+    return Object.entries(field.fields).reduce((acc, [key, vals]) => {
+      acc[key] = vals.initial;
+      return acc;
+    }, {});
+  }
+
+  /** @override */
   static defineSchema() {
     return {
       id: new foundry.data.fields.DocumentIdField({required: true, nullable: false}),
@@ -386,9 +396,9 @@ class Babonus extends foundry.abstract.DataModel {
       description: new foundry.data.fields.StringField({required: true, blank: true}),
       consume: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
-        type: new foundry.data.fields.StringField({required: false, nullable: true, initial: null, choices: ["", "uses", "quantity", "slots", "health", "effect"]}),
+        type: new foundry.data.fields.StringField({nullable: true, initial: null, choices: ["", "uses", "quantity", "slots", "health", "effect"]}),
         scales: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
-        formula: new foundry.data.fields.StringField(),
+        formula: new foundry.data.fields.StringField({nullable: true, initial: null}),
         value: new foundry.data.fields.SchemaField({
           min: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
           max: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
@@ -398,10 +408,10 @@ class Babonus extends foundry.abstract.DataModel {
       aura: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField({required: false, initial: false}),
         isTemplate: new foundry.data.fields.BooleanField({required: false, initial: false}),
-        range: new foundry.data.fields.StringField({required: false, initial: null, blank: false, nullable: true}),
+        range: new foundry.data.fields.StringField({nullable: true, initial: null}),
         self: new foundry.data.fields.BooleanField({required: false, initial: true}),
         disposition: new foundry.data.fields.NumberField({required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
-        blockers: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false}))
+        blockers: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false}), {initial: []})
       }),
       filters: new babonusFields.FiltersField({
         itemRequirements: new babonusFields.ItemRequirementsField({
@@ -414,7 +424,7 @@ class Babonus extends foundry.abstract.DataModel {
           operator: new foundry.data.fields.StringField({required: false, choices: ARBITRARY_OPERATORS.map(t => t.value)})
         })),
         baseArmors: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.baseArmors.flatMap(({value}) => [value, `!${value}`])
+          choices: KeyGetter._getSchemaFilterOptions("baseArmors", true)
         })),
         statusEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
         targetEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
@@ -425,7 +435,7 @@ class Babonus extends foundry.abstract.DataModel {
         }),
         customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
         preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.preparationModes.map(t => t.value)
+          choices: KeyGetter._getSchemaFilterOptions("preparationModes")
         })),
         tokenSizes: new babonusFields.TokenSizeField({
           size: new foundry.data.fields.NumberField({initial: null, min: 0.5, step: 0.5, integer: false, nullable: true}),
@@ -474,6 +484,15 @@ class Babonus extends foundry.abstract.DataModel {
     for (const u of (types.unfit ?? [])) c.push(`!${u}`);
     source.filters.weaponProperties = c;
   }
+
+  /**
+   * Get applicable roll data from the origin.
+   * @param {boolean} deterministic     Whether to force flat values for properties that could be a die term or flat term.
+   * @returns {object}                  The roll data.
+   */
+  getRollData({deterministic = false} = {}) {
+    return this.origin?.getRollData({deterministic}) ?? {};
+  }
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
@@ -488,41 +507,40 @@ class ItemBabonus extends Babonus {
           choices: ["mwak", "rwak", "msak", "rsak"], blank: true
         })),
         damageTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.damageTypes.flatMap(({value}) => [value, `!${value}`])
+          choices: KeyGetter._getSchemaFilterOptions("damageTypes", true)
         })),
         abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.abilities.map(t => t.value)
+          choices: KeyGetter._getSchemaFilterOptions("abilities")
         })),
         spellComponents: new babonusFields.SpellComponentsField({
           types: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-            choices: KeyGetter.spellComponents.map(t => t.value), blank: true
+            choices: KeyGetter._getSchemaFilterOptions("spellComponents"), blank: true
           })),
           match: new foundry.data.fields.StringField({
             nullable: true, initial: null, choices: Object.keys(SPELL_COMPONENT_MATCHING)
           })
         }),
         spellLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.spellLevels.map(t => t.value), blank: true
+          choices: KeyGetter._getSchemaFilterOptions("spellLevels"), blank: true
         })),
         spellSchools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.spellSchools.map(t => t.value)
+          choices: KeyGetter._getSchemaFilterOptions("spellSchools")
         })),
         baseWeapons: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.baseWeapons.flatMap(({value}) => [value, `!${value}`])
+          choices: KeyGetter._getSchemaFilterOptions("baseWeapons", true)
         })),
         weaponProperties: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.weaponProperties.flatMap(({value}) => [value, `!${value}`])
+          choices: KeyGetter._getSchemaFilterOptions("weaponProperties", true)
         }))
       })
     });
   };
 }
 
-export class AttackBabonus extends ItemBabonus {
+class AttackBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new babonusFields.BonusesField({
-        bonus: new foundry.data.fields.StringField(),
         criticalRange: new foundry.data.fields.StringField(),
         fumbleRange: new foundry.data.fields.StringField()
       })
@@ -530,7 +548,7 @@ export class AttackBabonus extends ItemBabonus {
   }
 }
 
-export class DamageBabonus extends ItemBabonus {
+class DamageBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new babonusFields.BonusesField({
@@ -542,7 +560,7 @@ export class DamageBabonus extends ItemBabonus {
   }
 }
 
-export class SaveBabonus extends ItemBabonus {
+class SaveBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new babonusFields.BonusesField({
@@ -550,14 +568,14 @@ export class SaveBabonus extends ItemBabonus {
       }),
       filters: new babonusFields.FiltersField({
         saveAbilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.saveAbilities.map(t => t.value)
+          choices: KeyGetter._getSchemaFilterOptions("saveAbilities")
         }))
       })
     });
   }
 }
 
-export class ThrowBabonus extends Babonus {
+class ThrowBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new babonusFields.BonusesField({
@@ -567,14 +585,14 @@ export class ThrowBabonus extends Babonus {
       }),
       filters: new babonusFields.FiltersField({
         throwTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.throwTypes.map(t => t.value)
+          choices: KeyGetter._getSchemaFilterOptions("throwTypes")
         }))
       })
     });
   }
 }
 
-export class TestBabonus extends Babonus {
+class TestBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new babonusFields.BonusesField({
@@ -582,26 +600,34 @@ export class TestBabonus extends Babonus {
       }),
       filters: new babonusFields.FiltersField({
         abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.abilities.map(t => t.value)
+          choices: KeyGetter._getSchemaFilterOptions("abilities")
         })),
         baseTools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.baseTools.flatMap(({value}) => [value, `!${value}`])
+          choices: KeyGetter._getSchemaFilterOptions("baseTools", true)
         })),
         skillIds: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter.skillIds.flatMap(({value}) => [value, `!${value}`])
+          choices: KeyGetter._getSchemaFilterOptions("skillIds", true)
         }))
       })
     });
   }
 }
 
-export class HitDieBabonus extends Babonus {
+class HitDieBabonus extends Babonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new babonusFields.BonusesField({
         bonus: new foundry.data.fields.StringField()
-      }),
-      filters: new babonusFields.FiltersField({})
+      })
     })
   }
 }
+
+export const BabonusTypes = {
+  attack: AttackBabonus,
+  damage: DamageBabonus,
+  save: SaveBabonus,
+  throw: ThrowBabonus,
+  test: TestBabonus,
+  hitdie: HitDieBabonus
+};

@@ -3,10 +3,10 @@
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <div class="checkboxes">
-      {{#each array as |type|}}
-      <label for="{{../appId}}-{{type.value}}" data-hide-input="true" data-tooltip="{{type.tooltip}}">
-        <input type="checkbox" name="filters.{{../id}}.types" value="{{type.value}}" id="{{../appId}}-{{type.value}}" {{checked type.checked}}>
-        <span class="check">{{{type.label}}}</span>
+      {{#each array}}
+      <label for="{{../appId}}-{{value}}" data-hide-input="true" data-tooltip="{{tooltip}}">
+        <input type="checkbox" name="filters.{{../id}}.types" value="{{value}}" id="{{../appId}}-{{value}}" {{checked checked}}>
+        <span class="check">{{{label}}}</span>
       </label>
       {{/each}}
     </div>

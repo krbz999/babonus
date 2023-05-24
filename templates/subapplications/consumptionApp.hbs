@@ -3,7 +3,7 @@
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionType"}}</label>
     <div class="form-fields">
       <select name="consume.type">
-        {{selectOptions choices selected=consume.type nameAttr="value" labelAttr="label" localize=true}}
+        {{selectOptions choices selected=clone.consume.type nameAttr="value" labelAttr="label" localize=true blank=""}}
       </select>
     </div>
   </div>
@@ -11,15 +11,15 @@
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionScaling"}}</label>
     <div class="form-fields">
-      <input type="checkbox" name="consume.scales" {{checked consume.scales}} {{disabled isEffect}}>
+      <input type="checkbox" name="consume.scales" {{checked clone.consume.scales}} {{disabled isEffect}}>
     </div>
   </div>
 
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionConsumedValues"}}</label>
     <div class="form-fields">
-      <input type="number" data-dtype="Number" name="consume.value.min" value="{{consume.value.min}}" placeholder="{{localize 'Minimum'}}" {{disabled isEffect}}>
-      <input type="number" data-dtype="Number" name="consume.value.max" value="{{consume.value.max}}" placeholder="{{localize 'Maximum'}}" {{disabled disableMax}}>
+      <input type="number" data-dtype="Number" name="consume.value.min" value="{{clone.consume.value.min}}" placeholder="{{localize 'Minimum'}}" {{disabled isEffect}}>
+      <input type="number" data-dtype="Number" name="consume.value.max" value="{{clone.consume.value.max}}" placeholder="{{localize 'Maximum'}}" {{disabled disableMax}}>
     </div>
   </div>
 
@@ -27,7 +27,7 @@
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionStep"}}</label>
     <div class="form-fields">
-      <input type="number" data-dtype="Number" name="consume.value.step" value="{{consume.value.step}}" placeholder="{{localize 'BABONUS.ConfigurationConsumptionStep'}}" {{disabled disableStep}}>
+      <input type="number" data-dtype="Number" name="consume.value.step" value="{{clone.consume.value.step}}" placeholder="{{localize 'BABONUS.ConfigurationConsumptionStep'}}" {{disabled disableStep}}>
     </div>
   </div>
   {{/if}}
@@ -35,7 +35,7 @@
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionScalingFormula"}}</label>
     <div class="form-fields">
-      <input type="text" name="consume.formula" value="{{consume.formula}}" placeholder="{{localize 'DND5E.Formula'}}" {{disabled disableMax}}>
+      <input type="text" name="consume.formula" value="{{clone.consume.formula}}" placeholder="{{localize 'DND5E.Formula'}}" {{disabled disableMax}}>
     </div>
   </div>
 

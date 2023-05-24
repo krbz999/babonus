@@ -3,6 +3,17 @@
  */
 export class KeyGetter {
 
+  /**
+   * Helper method for creating an array of choices.
+   * @param {string} key                  The choices to retrieve from the KeyGetter.
+   * @param {boolean} [negate=false]      Whether 'exclude' options should be included.
+   * @returns {string[]}                  An array of string options.
+   */
+  static _getSchemaFilterOptions(key, negate = false) {
+    if (negate) return KeyGetter[key].flatMap(({value}) => [value, `!${value}`]);
+    else return KeyGetter[key].map(({value}) => value);
+  }
+
   // Base armor types (and 'shield').
   static get baseArmors() {
     const entries = Object.entries(CONFIG.DND5E.armorIds).map(([value, uuid]) => {
@@ -51,9 +62,9 @@ export class KeyGetter {
   }
 
   // ability score keys.
-  static get abilities() { // TODO: fix in 2.2.x.
+  static get abilities() {
     const abilities = Object.entries(CONFIG.DND5E.abilities);
-    return abilities.map(([value, label]) => ({value, label}));
+    return abilities.map(([value, {label}]) => ({value, label}));
   }
 
   static get saveAbilities() {

@@ -1,12 +1,6 @@
 import {FILTER} from "./filters.mjs";
 import {OptionalSelector} from "./applications/rollConfigApp.mjs";
-import {
-  MODULE, MODULE_ICON,
-  SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
-  SETTING_HEADERLABEL,
-  SETTING_MIGRATION_VERSION,
-  SHOW_AURA_RANGES
-} from "./constants.mjs";
+import {MODULE, MODULE_ICON, SETTINGS} from "./constants.mjs";
 import {AppliedBonusesDialog} from "./applications/appliedBonusesDialog.mjs";
 import {BabonusWorkshop} from "./applications/babonus.mjs";
 
@@ -48,7 +42,7 @@ export function _preDisplayCard(item, chatData) {
 
   // Create label (innertext)
   const save = item.system.save;
-  const ability = CONFIG.DND5E.abilities[save.ability] ?? ""; // TODO: fix in 2.2.x.
+  const ability = CONFIG.DND5E.abilities[save.ability]?.label ?? "";
   const savingThrow = game.i18n.localize("DND5E.ActionSave");
   const dc = Math.max(1, save.dc + totalBonus) || "";
   chatData.flags[MODULE] = {saveDC: dc};
@@ -162,9 +156,7 @@ export function _preRollDeathSave(actor, rollConfig) {
 
   // Add parts.
   if (parts.length) rollConfig.parts.push(...parts);
-  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-    optionals, actor, bonuses
-  });
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
 
   // Add modifiers to raise/lower the target value and crtical threshold.
   rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.targetValue;
@@ -191,9 +183,7 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
     return acc;
   }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
-  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
-    optionals, actor, bonuses
-  });
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
 }
 
 /** When you roll an ability check... */
@@ -216,7 +206,7 @@ export function _preRollAbilityTest(actor, rollConfig, abilityId) {
 
 /** When you roll a skill... */
 export function _preRollSkill(actor, rollConfig, skillId) {
-  const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.2.0
+  const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.3.0
   const bonuses = FILTER.testCheck(actor, abilityId, {skillId});
   if (!bonuses.length) return;
   const target = game.user.targets.first();
@@ -234,9 +224,9 @@ export function _preRollSkill(actor, rollConfig, skillId) {
 }
 
 /** When you roll a tool check... */
-export function _preRollToolCheck(item, rollConfig) {
-  const abilityId = item.system.ability; // TODO: fix in 2.2.0
-  const bonuses = FILTER.testCheck(item, abilityId);
+export function _preRollToolCheck(actor, rollConfig, toolId) {
+  const abilityId = rollConfig.ability || rollConfig.data.defaultAbility; // TODO: fix in 2.3.0
+  const bonuses = FILTER.testCheck(actor, abilityId, {toolId});
   if (!bonuses.length) return;
   const target = game.user.targets.first();
   if (target?.actor) rollConfig.data.target = target.actor.getRollData();
@@ -249,13 +239,7 @@ export function _preRollToolCheck(item, rollConfig) {
     return acc;
   }, {parts: [], optionals: []});
   if (parts.length) rollConfig.parts.push(...parts);
-  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, item, bonuses});
-}
-
-/** When you roll initiative... */
-export function _preRollInitiative(actor, roll) {
-  // This can barely be made functional.
-  // Bonuses cannot be shown in the dialog, and optional bonuses cannot be shown and applied either.
+  foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
 }
 
 /** When you roll a hit die... */
@@ -325,7 +309,16 @@ export function _preCreateMeasuredTemplate(templateDoc) {
 
 /* Settings. */
 export function _createSettings() {
-  game.settings.register(MODULE, SETTING_HEADERLABEL, {
+  game.settings.register(MODULE, SETTINGS.PLAYERS, {
+    name: "BABONUS.SettingsShowBuilderForPlayersName",
+    hint: "BABONUS.SettingsShowBuilderForPlayersHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register(MODULE, SETTINGS.LABEL, {
     name: "BABONUS.SettingsDisplayLabelName",
     hint: "BABONUS.SettingsDisplayLabelHint",
     scope: "world",
@@ -334,7 +327,7 @@ export function _createSettings() {
     default: false
   });
 
-  game.settings.register(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER, {
+  game.settings.register(MODULE, SETTINGS.SCRIPT, {
     name: "BABONUS.SettingsDisableCustomScriptFilterName",
     hint: "BABONUS.SettingsDisableCustomScriptFilterHint",
     scope: "world",
@@ -344,16 +337,7 @@ export function _createSettings() {
     requiresReload: true
   });
 
-  game.settings.register(MODULE, SETTING_MIGRATION_VERSION, {
-    name: "Migration Version",
-    hint: "Migration Version",
-    scope: "world",
-    config: false,
-    type: Number,
-    default: 0
-  });
-
-  game.settings.register(MODULE, SHOW_AURA_RANGES, {
+  game.settings.register(MODULE, SETTINGS.AURA, {
     name: "BABONUS.SettingsShowAuraRangesName",
     hint: "BABONUS.SettingsShowAuraRangesHint",
     scope: "world",
@@ -366,33 +350,36 @@ export function _createSettings() {
 
 /* Header Buttons in actors, items, effects. */
 export function _addHeaderButtonActor(app, array) {
+  if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
   if (app.document.type === "group") return;
-  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
-  }
+  };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }
 
 export function _addHeaderButtonItem(app, array) {
+  if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
   if (["background", "class", "subclass", "race"].includes(app.object.type)) return;
-  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
-  }
+  };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }
 
 export function _addHeaderButtonEffect(app, array) {
-  const label = game.settings.get(MODULE, SETTING_HEADERLABEL);
+  if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
+  const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
     onclick: () => new BabonusWorkshop(app.object).render(true)
-  }
+  };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }

@@ -1,5 +1,5 @@
 <!-- (arbitraryComparison only) -->
-{{#each array as |a|}}
+{{#each array}}
 <div class="form-group" data-id="{{../id}}">
   <label class="label" data-tooltip="{{../tooltip}}">{{localize ../label}}</label>
   <div class="form-fields">
@@ -8,7 +8,7 @@
       {{#if options}}
       {{{options}}}
       {{else}}
-      {{#each ../defaultOptions as |opt|}}<option value="{{value}}">{{{label}}}</option>{{/each}}
+      {{#each ../defaultOptions}}<option value="{{value}}">{{{label}}}</option>{{/each}}
       {{/if}}
     </select>
     <input type="text" name="filters.{{../id}}.{{idx}}.other" placeholder="{{localize ../placeholderOther}}" value="{{other}}">

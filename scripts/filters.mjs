@@ -1,8 +1,4 @@
-import {
-  MODULE,
-  SETTING_DISABLE_CUSTOM_SCRIPT_FILTER,
-  SPELL_COMPONENT_MATCHING
-} from "./constants.mjs";
+import {MODULE, SETTINGS, SPELL_COMPONENT_MATCHING} from "./constants.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
 
 /**
@@ -31,7 +27,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         range: 60,                                          // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
         self: false,                                        // Whether the aura affects the owner, too.
         disposition: 1                                      // What token actors within range to affect.
-        blockers: ["dead", "unconscious"]                   // Array of status ids that stop auras from being transferred.
+        blockers: ["dead", "unconscious"]                   // Array of statuses that stop auras from being transferred.
       },
       bonuses: {
         bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.
@@ -50,8 +46,8 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
           operator: "EQ"                                    // The method of comparison.
         }],
         healthPercentages: {value: 50, type: 0},            // A percentage value and whether it must be 'and lower' or 'and higher'.
-        statusEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects against.
-        targetEffects: ["blind", "dead", "!prone"],         // Array of status ids to match effects on the target against.
+        statusEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects against.
+        targetEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects on the target against.
         creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
         itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
@@ -121,16 +117,17 @@ export class FILTER {
 
   /**
    * Initiate the collection and filtering of bonuses applying to ability checks.
-   * @param {Actor5e|Item5e} object         The actor or tool performing the test.
+   * @param {Actor5e} actor                 The actor performing the test.
    * @param {string} abilityId              The ability used for the test.
    * @param {object} [details={}]           Additional context for the filtering and checks.
    * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
+   * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
    * @returns {Babonus[]}                   A filtered array of babonuses to apply.
    */
-  static testCheck(object, abilityId, {skillId} = {}) {
-    const bonuses = new BonusCollector({object, type: "test"}).returnBonuses();
+  static testCheck(actor, abilityId, {skillId, toolId} = {}) {
+    const bonuses = new BonusCollector({object: actor, type: "test"}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses(bonuses, object, {abilityId, skillId});
+    return this.finalFilterBonuses(bonuses, actor, {abilityId, skillId, toolId});
   }
 
   /**
@@ -317,18 +314,19 @@ export class FILTER {
    * by the system itself for items set to 'Default' to look for finesse weapons and spellcasting
    * abilities. Note that this is the ability set at the top level of the item's action, and
    * is NOT the ability used to determine the dc of the saving throw.
-   * @param {Actor5e|Item5e} object           The actor or item being performing the roll.
+   * @param {Actor5e|Item5e} object           The actor or item performing the roll.
    * @param {string[]} filter                 The array of abilities.
    * @param {object} [details={}]             Additional context for the roll being performed.
    * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll (checks only).
+   * @param {string} [details.toolId]         The key for a tool type (tool checks only).
    * @returns {boolean}                       Whether the actor or item is using one of the abilities.
    */
-  static abilities(object, filter, {abilityId} = {}) {
+  static abilities(object, filter, {abilityId, toolId} = {}) {
     if (!filter?.length) return true;
 
     // Case 1: Tool Checks.
-    if ((object instanceof Item) && (object.type === "tool")) {
-      return filter.includes(object.system.ability);
+    if (toolId) {
+      return filter.includes(abilityId);
     }
 
     // Case 2: Attack/Damage rolls.
@@ -478,7 +476,7 @@ export class FILTER {
   /**
    * Find out if the actor has any of the included effects and none of the excluded effects.
    * @param {Item5e|Actor5e} object     The item or actor being filtered against.
-   * @param {string[]} filter           The array of effect status ids you must have or must not have.
+   * @param {string[]} filter           The array of effect statuses you must have or must not have.
    * @returns {boolean}                 Whether the actor has any included effects and no excluded effects.
    */
   static statusEffects(object, filter) {
@@ -486,20 +484,10 @@ export class FILTER {
     const actor = object.actor ?? object;
     const {included, excluded} = FILTER._splitExlusion(filter);
 
-    const hasIncluded = included.some(id => {
-      return actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
-      });
-    });
+    const hasIncluded = included.some(id => actor.statuses.has(id));
     if (included.length && !hasIncluded) return false;
 
-    const hasExcluded = excluded.some(id => {
-      return actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
-      });
-    });
+    const hasExcluded = excluded.some(id => actor.statuses.has(id));
     if (excluded.length && hasExcluded) return false;
 
     return true;
@@ -509,29 +497,19 @@ export class FILTER {
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
    * @param {Item5e|Actor5e} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter           The array of effect status ids the target must have or must not have.
+   * @param {string[]} filter           The array of effect statuses the target must have or must not have.
    * @returns {boolean}                 Whether the target actor has any of the status effects.
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
     const {included, excluded} = FILTER._splitExlusion(filter);
-    const target = game.user.targets.first();
-    if (!target?.actor) return !included.length;
+    const actor = game.user.targets.first()?.actor;
+    if (!actor) return !included.length;
 
-    const hasIncluded = included.some(id => {
-      return target.actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
-      });
-    });
+    const hasIncluded = included.some(id => actor.statuses.has(id));
     if (included.length && !hasIncluded) return false;
 
-    const hasExcluded = excluded.some(id => {
-      return target.actor.effects.find(eff => {
-        if (eff.disabled || eff.isSuppressed) return false;
-        return eff.flags.core?.statusId === id;
-      });
-    });
+    const hasExcluded = excluded.some(id => actor.statuses.has(id));
     if (excluded.length && hasExcluded) return false;
 
     return true;
@@ -612,7 +590,7 @@ export class FILTER {
    */
   static customScripts(object, script) {
     if (!script?.length) return true;
-    if (game.settings.get(MODULE, SETTING_DISABLE_CUSTOM_SCRIPT_FILTER)) return true;
+    if (game.settings.get(MODULE, SETTINGS.SCRIPT)) return true;
     try {
       const func = Function("actor", "item", "token", script);
       const actor = (object.parent instanceof Actor) ? object.parent : (object instanceof Actor) ? object : null;
@@ -667,17 +645,17 @@ export class FILTER {
 
   /**
    * Find out if the tool being rolled for a check is one of the correct types.
-   * @param {Item5e} tool         The tool being used for the check.
+   * @param {Actor5e} actor       The actor performing the roll.
    * @param {string[]} filter     The types of tool types.
+   * @param {string} toolId       The type of tool being rolled.
    * @returns {boolean}           Whether the tool type matches the filter.
    */
-  static baseTools(tool, filter) {
+  static baseTools(actor, filter, {toolId}) {
     if (!filter?.length) return true;
     const {included, excluded} = FILTER._splitExlusion(filter);
-    if (tool.type !== "tool") return included.length === 0;
-    const type = tool.system.baseItem;
-    if (included.length && !included.includes(type)) return false;
-    if (excluded.length && excluded.includes(type)) return false;
+    if (!toolId) return included.length === 0;
+    if (included.length && !included.includes(toolId)) return false;
+    if (excluded.length && excluded.includes(toolId)) return false;
     return true;
   }
 

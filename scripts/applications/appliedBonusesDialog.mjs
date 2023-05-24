@@ -1,7 +1,6 @@
 import {MODULE} from "../constants.mjs";
 
 export class AppliedBonusesDialog extends Dialog {
-
   constructor(options) {
     super({}, options);
     this.bonuses = options.bonuses;

@@ -13,10 +13,9 @@ import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 import {BabonusKeysDialog} from "./keysDialog.mjs";
-import {AttackBabonus, DamageBabonus, HitDieBabonus, SaveBabonus, TestBabonus, ThrowBabonus} from "./dataModel.mjs";
+import {BabonusTypes} from "./dataModel.mjs";
 
 export class BabonusWorkshop extends FormApplication {
-
   /**
    * ----------------------------------------------------
    *
@@ -75,7 +74,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   get title() {
-    return `${MODULE_NAME}: ${this.object.name ?? this.object.label}`;
+    return `${MODULE_NAME}: ${this.object.name}`;
   }
 
   /**
@@ -133,9 +132,11 @@ export class BabonusWorkshop extends FormApplication {
     }
 
     if (data.activeBuilder) {
+      // Construct data for each filter.
       for (const id of FILTER_NAMES) {
         const filterData = {
-          id, header: game.i18n.localize(`BABONUS.Filters${id.capitalize()}`),
+          id,
+          header: `BABONUS.Filters${id.capitalize()}`,
           description: `BABONUS.Filters${id.capitalize()}Tooltip`,
           requirements: `BABONUS.Filters${id.capitalize()}Requirements`
         };
@@ -147,7 +148,7 @@ export class BabonusWorkshop extends FormApplication {
 
         data.filters.push(filterData);
       }
-      data.filters.sort((a, b) => a.header.localeCompare(b.header));
+      data.filters.sort((a, b) => a.header.localeCompare(b.header, game.i18n.lang));
     }
 
     // Get current bonuses on the document.
@@ -158,7 +159,7 @@ export class BabonusWorkshop extends FormApplication {
         bab._collapsed = this._collapsedBonuses.has(id);
         bab._description = await TextEditor.enrichHTML(bab.description, {
           async: true,
-          rollData: bab.origin?.getRollData() ?? {}
+          rollData: bab.getRollData()
         });
         // Add the icon property to the bonus object
         const bonusType = TYPES.find(t => t.value === bab.type);
@@ -211,7 +212,9 @@ export class BabonusWorkshop extends FormApplication {
     // Otter.
     html[0].querySelector("[data-action='otter-rainbow']").addEventListener("click", this._onOtterRainbow.bind(this));
     html[0].querySelector("[data-action='otter-dance']").addEventListener("click", this._onOtterDance.bind(this));
-    html[0].querySelectorAll("[data-action='current-collapse']").forEach(a => a.addEventListener("click", this._onCollapseBonus.bind(this)));
+    html[0].querySelectorAll("[data-action='current-collapse']").forEach(n => {
+      n.addEventListener("click", this._onCollapseBonus.bind(this));
+    });
 
     if (!this.isEditable) {
       html[0].querySelectorAll(".left-side, .right-side .functions").forEach(n => {
@@ -278,8 +281,7 @@ export class BabonusWorkshop extends FormApplication {
     if (data.data) {
       return this.constructor._createBabonus(data.data, null, {parent: this.object});
     } else if (data.uuid) {
-      const _parent = await fromUuid(data.uuid);
-      const parent = (_parent instanceof TokenDocument) ? _parent.actor : _parent;
+      const parent = await fromUuid(data.uuid);
       const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
       delete babData.id;
       return this.constructor._createBabonus(babData, null, {parent: this.object});
@@ -417,10 +419,10 @@ export class BabonusWorkshop extends FormApplication {
    * Handle copying the id or uuid of a babonus.
    * @param {PointerEvent} event      The initiating click event.
    */
-  _onClickId(event) {
+  async _onClickId(event) {
     const bonus = this.constructor._getCollection(this.object).get(event.currentTarget.closest(".bonus").dataset.id);
-    const id = event.type === "contextmenu" ? bonus.uuid : bonus.id;
-    navigator.clipboard.writeText(id);
+    const id = (event.type === "contextmenu") ? bonus.uuid : bonus.id;
+    await game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
       id, label: "Babonus", type: event.type === "contextmenu" ? "uuid" : "id"
     }));
@@ -820,13 +822,18 @@ export class BabonusWorkshop extends FormApplication {
    */
   _newFilterArrayOptions(id) {
     if (id === "attackTypes") {
-      return ["mwak", "rwak", "msak", "rsak"].map(a => ({value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]}));
+      return ["mwak", "rwak", "msak", "rsak"].map(a => {
+        return {value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]};
+      });
     } else if (id === "itemTypes") {
-      return ITEM_ROLL_TYPES.map(i => ({value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`}));
+      return ITEM_ROLL_TYPES.map(i => {
+        return {value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`};
+      });
     } else if (id === "spellLevels") {
       return Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => ({value, label: value, tooltip}));
     } else if (id === "spellComponents") {
-      return Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags)).map(([key, {abbr, label}]) => ({value: key, label: abbr, tooltip: label}));
+      const entries = Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags));
+      return entries.map(([key, {abbr, label}]) => ({value: key, label: abbr, tooltip: label}));
     }
   }
 
@@ -993,14 +1000,7 @@ export class BabonusWorkshop extends FormApplication {
     // if no id explicitly provided, make a new one.
     data.id = id ?? foundry.utils.randomID();
 
-    const bonus = new {
-      attack: AttackBabonus,
-      damage: DamageBabonus,
-      save: SaveBabonus,
-      test: TestBabonus,
-      throw: ThrowBabonus,
-      hitdie: HitDieBabonus
-    }[data.type](data, options);
+    const bonus = new BabonusTypes[data.type](data, options);
     return bonus;
   }
 }

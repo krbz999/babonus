@@ -2,7 +2,6 @@ import {BabonusWorkshop} from "./applications/babonus.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
 import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
-import {migration} from "./migration.mjs";
 
 export function _createAPI() {
   const API = {
@@ -24,8 +23,7 @@ export function _createAPI() {
     getMinimumDistanceBetweenTokens,
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
-    getApplicableBonuses,
-    migration: migration
+    getApplicableBonuses
   };
   game.modules.get(MODULE).api = API;
   window.babonus = API;
@@ -297,9 +295,9 @@ function createBabonus(data, parent = null) {
 }
 
 /**
- * Return the scene's token documents in three arrays split by disposition.
+ * Return the scene's token documents in four arrays split by disposition.
  * @param {Scene} scene     A scene that contains tokens.
- * @returns {object}        An object of the three arrays.
+ * @returns {object}        An object of the four arrays.
  */
 function sceneTokensByDisposition(scene) {
   return scene.tokens.reduce((acc, tokenDoc) => {
@@ -307,8 +305,9 @@ function sceneTokensByDisposition(scene) {
     if (d === CONST.TOKEN_DISPOSITIONS.HOSTILE) acc.hostiles.push(tokenDoc);
     else if (d === CONST.TOKEN_DISPOSITIONS.FRIENDLY) acc.friendlies.push(tokenDoc);
     else if (d === CONST.TOKEN_DISPOSITIONS.NEUTRAL) acc.neutrals.push(tokenDoc);
+    else if (d === CONST.TOKEN_DISPOSITIONS.NONE) acc.none.push(tokenDoc);
     return acc;
-  }, {hostiles: [], friendlies: [], neutrals: []});
+  }, {hostiles: [], friendlies: [], neutrals: [], none: []});
 }
 
 /**
