@@ -4,7 +4,7 @@ class BonusesField extends foundry.data.fields.SchemaField {
   toObject(value) {
     const data = super.toObject(value);
     for (const [key, val] of Object.entries(value)) {
-      if (val.length > 0) data[key] = val;
+      if (!val?.length) delete data[key];
     }
     return data;
   }
