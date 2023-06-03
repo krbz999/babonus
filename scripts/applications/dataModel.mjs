@@ -541,6 +541,7 @@ class AttackBabonus extends ItemBabonus {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
       bonuses: new babonusFields.BonusesField({
+        bonus: new foundry.data.fields.StringField(),
         criticalRange: new foundry.data.fields.StringField(),
         fumbleRange: new foundry.data.fields.StringField()
       })

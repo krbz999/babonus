@@ -189,6 +189,8 @@
   "BABONUS.SettingsDisplayLabelName": "Afficher l'étiquette",
   "BABONUS.SettingsShowAuraRangesHint": "Créer un indicateur visuel pour les portées des auras de babonus. Cela ne s'applique pas aux auras modèles ou aux auras à portée illimitée. Si le lanceur se trouve à l'intérieur d'une aura, il est marqué en vert, sinon en rouge.",
   "BABONUS.SettingsShowAuraRangesName": "Afficher les portées des Auras",
+  "BABONUS.SettingsShowBuilderForPlayersHint": "Si cette option est désactivée, l'icône permettant d'entrer dans l'atelier ne sera pas disponible dans l'en-tête des joueurs.",
+  "BABONUS.SettingsShowBuilderForPlayersName": "Montrer aux joueurs",
   "BABONUS.SizeGreaterThan": "Supérieure à",
   "BABONUS.SizePlaceholder": "Taille…",
   "BABONUS.SizeSmallerThan": "Inférieur à",
@@ -223,7 +225,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.SettingsShowBuilderForPlayersName": "Montrer aux joueurs",
-  "BABONUS.SettingsShowBuilderForPlayersHint": "Si cette option est désactivée, l'icône permettant d'entrer dans l'atelier ne sera pas disponible dans l'en-tête des joueurs."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
