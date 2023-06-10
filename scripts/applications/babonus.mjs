@@ -797,24 +797,15 @@ export class BabonusWorkshop extends FormApplication {
     }[id]);
 
     if (id === "spellComponents") {
-      data.selectOptions = [
-        {value: "ANY", label: "BABONUS.FiltersSpellComponentsMatchAny"},
-        {value: "ALL", label: "BABONUS.FiltersSpellComponentsMatchAll"}
-      ];
-    } else if ("itemRequirements" === id) {
+      data.selectOptions = {ANY: "BABONUS.FiltersSpellComponentsMatchAny", ALL: "BABONUS.FiltersSpellComponentsMatchAll"};
+    } else if (id === "itemRequirements") {
       data.canEquip = this._canEquipItem(this.object);
       data.canAttune = this._canAttuneToItem(this.object);
     } else if (id === "tokenSizes") {
-      data.selectOptions = [
-        {value: 0, label: "BABONUS.SizeGreaterThan"},
-        {value: 1, label: "BABONUS.SizeSmallerThan"}
-      ];
+      data.selectOptions = {0: "BABONUS.SizeGreaterThan", 1: "BABONUS.SizeSmallerThan"};
     } else if (id === "healthPercentages") {
       if (data.value === null) data.value = 50;
-      data.selectOptions = [
-        {value: 0, label: "BABONUS.OrLess"},
-        {value: 1, label: "BABONUS.OrMore"}
-      ];
+      data.selectOptions = {0: "BABONUS.OrLess", 1: "BABONUS.OrMore"};
     }
     return renderTemplate(template, data);
   }
@@ -844,9 +835,15 @@ export class BabonusWorkshop extends FormApplication {
    * @param {html} fg     The form-groups created.
    */
   _appendListenersToFilters(fg) {
-    fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
-    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
-    fg.querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
+    fg.querySelectorAll("[data-action='delete-filter']").forEach(n => {
+      n.addEventListener("click", this._onDeleteFilter.bind(this));
+    });
+    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
+      n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
+    });
+    fg.querySelectorAll("[data-action='item-type']").forEach(a => {
+      a.addEventListener("change", this._onPickItemType.bind(this));
+    });
   }
 
   /**
