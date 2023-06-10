@@ -1,10 +1,13 @@
+import {ARBITRARY_OPERATORS, SPELL_COMPONENT_MATCHING} from "../constants.mjs";
+import {KeyGetter} from "../helpers/helpers.mjs";
+
 // The Bonuses field. A simple override to delete all zero-length strings.
 class BonusesField extends foundry.data.fields.SchemaField {
   /** @override */
   toObject(value) {
     const data = super.toObject(value);
     for (const [key, val] of Object.entries(value)) {
-      if (val.length > 0) data[key] = val;
+      if (!val?.length) delete data[key];
     }
     return data;
   }
@@ -37,6 +40,13 @@ class FilteredArrayField extends foundry.data.fields.ArrayField {
 
 // ArrayField that turns a semicolon string into an array of strings.
 class SemicolonArrayField extends foundry.data.fields.ArrayField {
+  constructor(name, negate = false) {
+    let element;
+    if (name) element = new foundry.data.fields.StringField({choices: KeyGetter._getSchemaFilterOptions(name, negate)});
+    else element = new foundry.data.fields.StringField({blank: false});
+    super(element);
+  }
+
   /**
    * @override
    * If the given value is a string, split it at each ';' and trim the results to get an array.
@@ -71,6 +81,15 @@ class SemicolonArrayField extends foundry.data.fields.ArrayField {
 
 // ArrayField that filters invalid comparison fields.
 class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
+  /** @override */
+  constructor(options = {}) {
+    super(new foundry.data.fields.SchemaField({
+      one: new foundry.data.fields.StringField({blank: false}),
+      other: new foundry.data.fields.StringField({blank: false}),
+      operator: new foundry.data.fields.StringField({choices: ARBITRARY_OPERATORS})
+    }), options);
+  }
+
   /**
    * @override
    * Filter out any elements in the array that do not contain all three values.
@@ -88,6 +107,15 @@ class ArbitraryComparisonField extends foundry.data.fields.ArrayField {
 
 // SchemaField that requires a value in all fields.
 class TokenSizeField extends foundry.data.fields.SchemaField {
+  /** @override */
+  _initialize() {
+    return super._initialize({
+      size: new foundry.data.fields.NumberField({min: 0.5, step: 0.5}),
+      type: new foundry.data.fields.NumberField({nullable: true, choices: [0, 1]}),
+      self: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
+    });
+  }
+
   /** @override */
   _validateType(data, options = {}) {
     if ((data.self !== null) || (data.size !== null) || (data.type !== null)) {
@@ -111,6 +139,14 @@ class TokenSizeField extends foundry.data.fields.SchemaField {
 // SchemaField with two numeric inputs that requires min < max if both are non-empty.
 class SpanField extends foundry.data.fields.SchemaField {
   /** @override */
+  _initialize() {
+    return super._initialize({
+      min: new foundry.data.fields.NumberField({min: 0, step: 1, integer: true}),
+      max: new foundry.data.fields.NumberField({min: 0, step: 1, integer: true})
+    });
+  }
+
+  /** @override */
   _validateType(data, options = {}) {
     if ((data.min !== null && data.max !== null) && (data.min > data.max)) {
       throw new foundry.data.fields.ModelValidationError("min cannot be higher than max");
@@ -127,6 +163,18 @@ class SpanField extends foundry.data.fields.SchemaField {
 
 class SpellComponentsField extends foundry.data.fields.SchemaField {
   /** @override */
+  _initialize() {
+    return super._initialize({
+      types: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
+        choices: KeyGetter._getSchemaFilterOptions("spellComponents")
+      })),
+      match: new foundry.data.fields.StringField({
+        nullable: true, initial: null, choices: SPELL_COMPONENT_MATCHING
+      })
+    });
+  }
+
+  /** @override */
   toObject(value) {
     const badData = [value.types, value.match].includes(null) || !value.types?.length;
     return badData ? null : value;
@@ -135,6 +183,14 @@ class SpellComponentsField extends foundry.data.fields.SchemaField {
 
 class ItemRequirementsField extends foundry.data.fields.SchemaField {
   /** @override */
+  _initialize() {
+    return super._initialize({
+      equipped: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true}),
+      attuned: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
+    });
+  }
+
+  /** @override */
   toObject(value) {
     const badData = (value.equipped === null) && (value.attuned === null);
     return badData ? null : value;
@@ -142,6 +198,14 @@ class ItemRequirementsField extends foundry.data.fields.SchemaField {
 }
 
 class HealthPercentagesField extends foundry.data.fields.SchemaField {
+  /** @override */
+  _initialize() {
+    return super._initialize({
+      value: new foundry.data.fields.NumberField({min: 0, max: 100, step: 1, integer: true}),
+      type: new foundry.data.fields.NumberField({nullable: true, choices: [0, 1]})
+    });
+  }
+
   /** @override */
   toObject(value) {
     const badData = (value.value === null) || (value.type === null);

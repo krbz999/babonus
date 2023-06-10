@@ -1,13 +1,11 @@
 import {
   ARBITRARY_OPERATORS,
-  BONUS_TYPES_FORMDATA,
   EQUIPPABLE_TYPES,
   FILTER_NAMES,
   ITEM_ROLL_TYPES,
   MODULE,
   MODULE_ICON,
-  MODULE_NAME,
-  TYPES
+  MODULE_NAME
 } from "../constants.mjs";
 import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
@@ -25,6 +23,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   // The right-hand side bonuses that have a collapsed description.
   _collapsedBonuses = new Set();
@@ -77,6 +77,8 @@ export class BabonusWorkshop extends FormApplication {
     return `${MODULE_NAME}: ${this.object.name}`;
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -86,6 +88,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   /** @override */
   async getData() {
@@ -105,10 +109,15 @@ export class BabonusWorkshop extends FormApplication {
     // Initial values of the filters.
     data.filters = [];
 
+    const type = this._bab?.type ?? this._type;
+
     if (this._bab) {
       // Editing a babonus.
       data.builder = {
-        type: TYPES.find(t => t.value === this._bab.type),
+        type: {
+          icon: this._getIcon(type),
+          label: `BABONUS.Type${type.capitalize()}`
+        },
         id: this._bab.id,
         intro: "BABONUS.EditingBonus",
         name: this._bab.name,
@@ -116,19 +125,27 @@ export class BabonusWorkshop extends FormApplication {
       };
       data._filters = this._filters;
       delete this._filters;
-      data.bonuses = BONUS_TYPES_FORMDATA[this._bab.type].map(b => {
-        return {value: foundry.utils.getProperty(this._bab, b.NAME), ...b};
+      data.bonuses = Object.entries(this._bab.bonuses).map(([key, value]) => {
+        const prefix = `BABONUS.Type${type.capitalize()}${key.capitalize()}`;
+        return {tooltip: `${prefix}Tooltip`, label: `${prefix}Label`, name: `bonuses.${key}`, value};
       });
     } else if (this._type) {
       // Creating a babonus.
       data.builder = {
-        type: TYPES.find(t => t.value === this._type),
+        type: {
+          icon: this._getIcon(type),
+          label: `BABONUS.Type${type.capitalize()}`
+        },
         id: foundry.utils.randomID(),
         intro: "BABONUS.CreatingBonus",
         name: null,
         description: null
       };
-      data.bonuses = BONUS_TYPES_FORMDATA[this._type];
+      // The bonuses section on a new babonus.
+      data.bonuses = Object.keys(BabonusTypes[type].schema.fields.bonuses.fields).map(key => {
+        const prefix = `BABONUS.Type${type.capitalize()}${key.capitalize()}`;
+        return {tooltip: `${prefix}Tooltip`, label: `${prefix}Label`, name: `bonuses.${key}`};
+      });
     }
 
     if (data.activeBuilder) {
@@ -148,7 +165,9 @@ export class BabonusWorkshop extends FormApplication {
 
         data.filters.push(filterData);
       }
-      data.filters.sort((a, b) => a.header.localeCompare(b.header, game.i18n.lang));
+      data.filters.sort((a, b) => {
+        return game.i18n.localize(a.header).localeCompare(game.i18n.localize(b.header));
+      });
     }
 
     // Get current bonuses on the document.
@@ -162,9 +181,8 @@ export class BabonusWorkshop extends FormApplication {
           rollData: bab.getRollData()
         });
         // Add the icon property to the bonus object
-        const bonusType = TYPES.find(t => t.value === bab.type);
-        bab.icon = bonusType.icon;
-        bab.typeTooltip = bonusType.label;
+        bab.icon = this._getIcon(bab.type);
+        bab.typeTooltip = `BABONUS.Type${bab.type.capitalize()}`;
         flagBoni.push(bab);
       } catch (err) {
         console.error(err);
@@ -172,7 +190,13 @@ export class BabonusWorkshop extends FormApplication {
     }
     // Sort the bonuses alphabetically by name
     data.currentBonuses = flagBoni.sort((a, b) => a.name.localeCompare(b.name));
-    data.TYPES = TYPES;
+
+    // New babonus buttons.
+    data.createButtons = Object.keys(BabonusTypes).map(type => ({
+      type,
+      icon: this._getIcon(type),
+      label: `BABONUS.Type${type.capitalize()}`
+    }));
     data.ICON = MODULE_ICON;
     data.otterColor = this._otterColor;
     return data;
@@ -288,6 +312,8 @@ export class BabonusWorkshop extends FormApplication {
     }
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -297,6 +323,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   /**
    * Special implementation of rendering, to reset the entire application to a clean state.
@@ -373,6 +401,8 @@ export class BabonusWorkshop extends FormApplication {
     delete this.object.apps[this.appId];
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -382,6 +412,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   /**
    * Otter Rainbow.
@@ -536,6 +568,8 @@ export class BabonusWorkshop extends FormApplication {
     return this._renderEditor(event);
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -545,6 +579,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   /**
    * Collapse a section in the builder.
@@ -797,10 +833,9 @@ export class BabonusWorkshop extends FormApplication {
       tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
       label: `BABONUS.Filters${id.capitalize()}Label`,
       id,
-      defaultOptions: ARBITRARY_OPERATORS,
       placeholderOne: `BABONUS.Filters${id.capitalize()}One`,
       placeholderOther: `BABONUS.Filters${id.capitalize()}Other`,
-      array: [{idx}]
+      array: [{idx, options: ARBITRARY_OPERATORS}]
     }
     if (formData) this._prepareData(data, formData);
     return renderTemplate("modules/babonus/templates/builder_components/text_select_text.hbs", data);
@@ -827,13 +862,12 @@ export class BabonusWorkshop extends FormApplication {
       });
     } else if (id === "itemTypes") {
       return ITEM_ROLL_TYPES.map(i => {
-        return {value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`};
+        return {value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `TYPES.Item.${i}`};
       });
     } else if (id === "spellLevels") {
-      return Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => ({value, label: value, tooltip}));
+      return KeyGetter[id].map(e => ({value: e.value, label: e.value, tooltip: e.label}));
     } else if (id === "spellComponents") {
-      const entries = Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags));
-      return entries.map(([key, {abbr, label}]) => ({value: key, label: abbr, tooltip: label}));
+      return KeyGetter[id].map(e => ({value: e.value, label: e.abbr, tooltip: e.label}));
     }
   }
 
@@ -845,11 +879,7 @@ export class BabonusWorkshop extends FormApplication {
   _prepareData(data, formData) {
     if (data.id === "arbitraryComparison") {
       data.array = foundry.utils.deepClone(this._bab.filters[data.id]).map((n, idx) => {
-        const options = ARBITRARY_OPERATORS.reduce((acc, {value, label}) => {
-          const selected = (value === n.operator) ? "selected" : "";
-          return acc + `<option value="${value}" ${selected}>${label}</option>`;
-        }, "");
-        return {...n, idx, options};
+        return {...n, idx, options: ARBITRARY_OPERATORS, selected: n.operator};
       });
     } else if ([
       "abilities",
@@ -933,7 +963,7 @@ export class BabonusWorkshop extends FormApplication {
       case "baseArmors": return true;
       case "baseTools": return ["test"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
-      case "creatureTypes": return true;
+      case "creatureTypes": return ["attack", "damage", "save", "throw"].includes(type);
       case "customScripts": return true;
       case "damageTypes": return ["attack", "damage", "save"].includes(type);
       case "healthPercentages": return true;
@@ -947,12 +977,29 @@ export class BabonusWorkshop extends FormApplication {
       case "spellLevels": return this._itemTypes.has("spell");
       case "spellSchools": return this._itemTypes.has("spell");
       case "statusEffects": return true;
-      case "targetEffects": return true;
+      case "targetEffects": return ["attack", "damage", "save", "throw"].includes(type);
       case "throwTypes": return ["throw"].includes(type);
       case "tokenSizes": return true;
       case "weaponProperties": return this._itemTypes.has("weapon");
     }
   }
+
+  /**
+   * Get the icon for specific babonus type.
+   * @param {string} type     The babonus type.
+   */
+  _getIcon(type) {
+    return {
+      attack: "fa-solid fa-location-crosshairs",
+      damage: "fa-solid fa-burst",
+      save: "fa-solid fa-hand-sparkles",
+      throw: "fa-solid fa-person-falling-burst",
+      test: "fa-solid fa-bolt",
+      hitdie: "fa-solid fa-heart-pulse"
+    }[type];
+  }
+
+  //#endregion
 
   /**
    * ----------------------------------------------------
@@ -963,6 +1010,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   /**
    * Gather a collection of babonuses from a document.
@@ -992,8 +1041,7 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Babonus}               The created babonus.
    */
   static _createBabonus(data, id, options = {}) {
-    const types = TYPES.map(t => t.value);
-    if (!types.includes(data.type)) {
+    if (!(data.type in BabonusTypes)) {
       throw new Error("INVALID BABONUS TYPE.");
     }
 
@@ -1003,4 +1051,6 @@ export class BabonusWorkshop extends FormApplication {
     const bonus = new BabonusTypes[data.type](data, options);
     return bonus;
   }
+
+  //#endregion
 }

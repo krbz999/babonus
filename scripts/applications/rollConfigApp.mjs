@@ -398,8 +398,15 @@ export class OptionalSelector {
     const scales = event.currentTarget.dataset.action.endsWith("-scale");
     const canSupply = this._canSupply(event);
     if (canSupply) {
-      const value = scales ? event.currentTarget.closest(".optional").querySelector(".consumption select").value : Number(bonus.consume.value.min || 1);
-      const scale = scales ? Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step) : 0;
+      let value;
+      let scale;
+      if (scales) {
+        value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        scale = Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step);
+      } else {
+        value = Number(bonus.consume.value.min || 1);
+        scale = 0;
+      }
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.applyDamage(value);
       this._appendToField(event.currentTarget, sitBonus);

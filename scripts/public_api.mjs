@@ -1,5 +1,7 @@
 import {BabonusWorkshop} from "./applications/babonus.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
+import {babonusFields} from "./applications/dataFields.mjs";
+import {BabonusTypes} from "./applications/dataModel.mjs";
 import {MODULE} from "./constants.mjs";
 import {FILTER} from "./filters.mjs";
 
@@ -23,7 +25,13 @@ export function _createAPI() {
     getMinimumDistanceBetweenTokens,
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
-    getApplicableBonuses
+    getApplicableBonuses,
+
+    abstract: {
+      DataModels: BabonusTypes,
+      DataFields: babonusFields,
+      TYPES: Object.keys(BabonusTypes)
+    }
   };
   game.modules.get(MODULE).api = API;
   window.babonus = API;

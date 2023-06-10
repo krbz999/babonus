@@ -16,8 +16,8 @@
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
         </header>
         <div class="types">
-          {{#each TYPES}}
-          <a data-action="pick-type" data-type="{{value}}"><i class="{{icon}}"></i>{{localize label}}</a>
+          {{#each createButtons}}
+          <a data-action="pick-type" data-type="{{type}}"><i class="{{icon}}"></i>{{localize label}}</a>
           {{/each}}
         </div>
       </section>
@@ -65,9 +65,9 @@
           <div class="bonus-inputs">
             {{#each bonuses}}
             <div class="form-group">
-              <label class="label" data-tooltip="{{TOOLTIP}}">{{localize LABEL}}</label>
+              <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
               <div class="form-fields">
-                <input type="text" name="{{NAME}}" value="{{value}}">
+                <input type="text" name="{{name}}" value="{{value}}">
               </div>
             </div>
             {{/each}}

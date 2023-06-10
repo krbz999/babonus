@@ -1,6 +1,5 @@
 import {BabonusTypes} from "./dataModel.mjs";
 import {AURA_TARGETS, MODULE, SETTINGS} from "../constants.mjs";
-import {_bonusToInt} from "../hooks.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -306,7 +305,7 @@ export class BonusCollector {
     // TODO: option to use gridspace setting.
     // TODO: calculate euclidean vertical distance.
     const data = bonus.getRollData({deterministic: true});
-    const range = _bonusToInt(bonus.aura.range, data);
+    const range = dnd5e.utils.simplifyBonus(bonus.aura.range, data);
     if (range === -1) return true;
     const verticalDistance = Math.abs(token.elevation - this.elevation);
     if (verticalDistance > range) return false;
@@ -378,7 +377,7 @@ export class BonusCollector {
     const id = `babonus-${foundry.utils.randomID()}`;
     this._deletePixiAuras();
     for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
-      const range = _bonusToInt(bonus.aura.range, bonus.getRollData({deterministic: true}));
+      const range = dnd5e.utils.simplifyBonus(bonus.aura.range, bonus.getRollData({deterministic: true}));
       if (range === -1) continue;
       const shape = new PIXI.Graphics();
       shape.id = id;

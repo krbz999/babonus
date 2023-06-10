@@ -14,38 +14,38 @@ export class KeyGetter {
     else return KeyGetter[key].map(({value}) => value);
   }
 
+  /**
+   * Get key and names from compendium packs given an object of ids in the CONFIG.
+   * @param {object} key      The key of the object of ids in CONFIG.DND5E.
+   * @returns {object[]}      An array of objects with 'value' and 'label.
+   */
+  static _getEntriesFromConfig(key) {
+    return Object.entries(CONFIG.DND5E[key]).reduce((acc, [value, uuid]) => {
+      let pack = CONFIG.DND5E.sourcePacks.ITEMS;
+      let [scope, collection, id] = uuid.split(".");
+      if (scope && collection) pack = `${scope}.${collection}`;
+      if (!id) id = uuid;
+      const name = game.packs.get(pack)?.index.get(id)?.name;
+      if (name) acc.push({value, label: name});
+      return acc;
+    }, []);
+  }
+
   // Base armor types (and 'shield').
   static get baseArmors() {
-    const entries = Object.entries(CONFIG.DND5E.armorIds).map(([value, uuid]) => {
-      const split = uuid.split(".");
-      const id = split.pop();
-      const packKey = split.length ? split.join(".") : "dnd5e.items";
-      return {value, label: game.packs.get(packKey).index.get(id)?.name};
+    return KeyGetter._getEntriesFromConfig("armorIds").concat({
+      value: "shield", label: game.i18n.localize("DND5E.EquipmentShield")
     });
-    entries.push({value: "shield", label: game.i18n.localize("DND5E.EquipmentShield")});
-    return entries;
   }
 
   // base weapon types.
   static get baseWeapons() {
-    const entries = Object.entries(CONFIG.DND5E.weaponIds);
-    return entries.map(([value, uuid]) => {
-      const split = uuid.split(".");
-      const id = split.pop();
-      const packKey = split.length ? split.join(".") : "dnd5e.items";
-      return {value, label: game.packs.get(packKey).index.get(id)?.name};
-    });
+    return KeyGetter._getEntriesFromConfig("weaponIds");
   }
 
   // Base tool types.
   static get baseTools() {
-    const entries = Object.entries(CONFIG.DND5E.toolIds);
-    return entries.map(([value, uuid]) => {
-      const split = uuid.split(".");
-      const id = split.pop();
-      const packKey = split.length ? split.join(".") : "dnd5e.items";
-      return {value, label: game.packs.get(packKey).index.get(id)?.name};
-    });
+    return KeyGetter._getEntriesFromConfig("toolIds");
   }
 
   // the types of damage, as well as healing and temp.
@@ -82,7 +82,7 @@ export class KeyGetter {
       abl.push({
         value: "concentration",
         label: game.i18n.localize("DND5E.Concentration")
-      })
+      });
     }
     return abl;
   }
@@ -91,8 +91,8 @@ export class KeyGetter {
   static get spellComponents() {
     const comps = Object.entries(CONFIG.DND5E.spellComponents);
     const tags = Object.entries(CONFIG.DND5E.spellTags);
-    return [...comps, ...tags].map(([value, {label}]) => {
-      return {value, label};
+    return [...comps, ...tags].map(([value, {abbr, label}]) => {
+      return {value, label, abbr};
     }).sort((a, b) => a.label.localeCompare(b.label));
   }
 

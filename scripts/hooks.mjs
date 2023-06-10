@@ -4,25 +4,27 @@ import {MODULE, MODULE_ICON, SETTINGS} from "./constants.mjs";
 import {AppliedBonusesDialog} from "./applications/appliedBonusesDialog.mjs";
 import {BabonusWorkshop} from "./applications/babonus.mjs";
 
-/**
- * Helper method to evaluate roll data into an integer.
- * @param {string} bonus      The formula to evaluate.
- * @param {object} data       The available roll data.
- * @returns {number}          The bonus, or zero if invalid.
- */
-export function _bonusToInt(bonus, data) {
-  const f = new Roll(bonus, data).formula;
-  if (!Roll.validate(f)) return 0;
-  try {
-    return Roll.safeEval(f);
-  } catch (err) {
-    console.warn(err);
-    return 0;
-  }
-}
+export const moduleHooks = {
+  createSettings: _createSettings,
+  getDialogHeaderButtons: _dialogHeaderButtons,
+  headerButtonActor: _addHeaderButtonActor,
+  headerButtonEffect: _addHeaderButtonEffect,
+  headerButtonItem: _addHeaderButtonItem,
+  preCreateMeasuredTemplate: _preCreateMeasuredTemplate,
+  preDisplayCard: _preDisplayCard,
+  preRollAbilitySave: _preRollAbilitySave,
+  preRollAbilityTest: _preRollAbilityTest,
+  preRollAttack: _preRollAttack,
+  preRollDamage: _preRollDamage,
+  preRollDeathSave: _preRollDeathSave,
+  preRollHitDie: _preRollHitDie,
+  preRollSkill: _preRollSkill,
+  preRollToolCheck: _preRollToolCheck,
+  renderDialog: _renderDialog
+};
 
 /* When you force a saving throw... */
-export function _preDisplayCard(item, chatData) {
+function _preDisplayCard(item, chatData) {
   if (!item.hasSave) return;
 
   // Get bonuses:
@@ -32,13 +34,13 @@ export function _preDisplayCard(item, chatData) {
   const target = game.user.targets.first();
   if (target?.actor) data.target = target.actor.getRollData();
   const totalBonus = bonuses.reduce((acc, bab) => {
-    return acc + _bonusToInt(bab.bonuses.bonus, data);
+    return acc + dnd5e.utils.simplifyBonus(bab.bonuses.bonus, data);
   }, 0);
 
   // Get all buttons:
-  const DIV = document.createElement("DIV");
-  DIV.innerHTML = chatData.content;
-  const saveButtons = DIV.querySelectorAll("button[data-action='save']");
+  const div = document.createElement("DIV");
+  div.innerHTML = chatData.content;
+  const saveButtons = div.querySelectorAll("button[data-action='save']");
 
   // Create label (innertext)
   const save = item.system.save;
@@ -48,11 +50,11 @@ export function _preDisplayCard(item, chatData) {
   chatData.flags[MODULE] = {saveDC: dc};
   const label = game.i18n.format("DND5E.SaveDC", {dc, ability});
   saveButtons.forEach(b => b.innerText = `${savingThrow} ${label}`);
-  chatData.content = DIV.innerHTML;
+  chatData.content = div.innerHTML;
 }
 
 /** When you make an attack roll... */
-export function _preRollAttack(item, rollConfig) {
+function _preRollAttack(item, rollConfig) {
   // get bonuses:
   const spellLevel = rollConfig.data.item.level;
   const bonuses = FILTER.itemCheck(item, "attack", {spellLevel});
@@ -72,8 +74,8 @@ export function _preRollAttack(item, rollConfig) {
       if (bab.isOptional) optionals.push(bab);
       else parts.push(bonus);
     }
-    mods.critical += _bonusToInt(bab.bonuses.criticalRange, data);
-    mods.fumble += _bonusToInt(bab.bonuses.fumbleRange, data);
+    mods.critical += dnd5e.utils.simplifyBonus(bab.bonuses.criticalRange, data);
+    mods.fumble += dnd5e.utils.simplifyBonus(bab.bonuses.fumbleRange, data);
   }
 
   // Add parts.
@@ -92,7 +94,7 @@ export function _preRollAttack(item, rollConfig) {
 }
 
 /** When you make a damage roll... */
-export function _preRollDamage(item, rollConfig) {
+function _preRollDamage(item, rollConfig) {
   // get bonus:
   const spellLevel = rollConfig.data.item.level;
   const bonuses = FILTER.itemCheck(item, "damage", {spellLevel});
@@ -117,7 +119,7 @@ export function _preRollDamage(item, rollConfig) {
 
   // add to crit bonus dice:
   rollConfig.criticalBonusDice = bonuses.reduce((acc, bab) => {
-    return acc + _bonusToInt(bab.bonuses.criticalBonusDice, data);
+    return acc + dnd5e.utils.simplifyBonus(bab.bonuses.criticalBonusDice, data);
   }, rollConfig.criticalBonusDice ?? 0);
   if (rollConfig.criticalBonusDice < 0) rollConfig.criticalBonusDice = 0;
 
@@ -131,7 +133,7 @@ export function _preRollDamage(item, rollConfig) {
 }
 
 /** When you roll a death saving throw... */
-export function _preRollDeathSave(actor, rollConfig) {
+function _preRollDeathSave(actor, rollConfig) {
   // get bonus:
   const bonuses = FILTER.throwCheck(actor, "death", {});
   if (!bonuses.length) return;
@@ -150,8 +152,8 @@ export function _preRollDeathSave(actor, rollConfig) {
       if (bab.isOptional) optionals.push(bab);
       else parts.push(bonus);
     }
-    death.targetValue += _bonusToInt(bab.bonuses.deathSaveTargetValue, data);
-    death.critical += _bonusToInt(bab.bonuses.deathSaveCritical, data);
+    death.targetValue += dnd5e.utils.simplifyBonus(bab.bonuses.deathSaveTargetValue, data);
+    death.critical += dnd5e.utils.simplifyBonus(bab.bonuses.deathSaveCritical, data);
   }
 
   // Add parts.
@@ -164,7 +166,7 @@ export function _preRollDeathSave(actor, rollConfig) {
 }
 
 /** When you roll a saving throw... */
-export function _preRollAbilitySave(actor, rollConfig, abilityId) {
+function _preRollAbilitySave(actor, rollConfig, abilityId) {
   // get bonus:
   const bonuses = FILTER.throwCheck(actor, abilityId, {
     isConcSave: rollConfig.isConcSave
@@ -187,7 +189,7 @@ export function _preRollAbilitySave(actor, rollConfig, abilityId) {
 }
 
 /** When you roll an ability check... */
-export function _preRollAbilityTest(actor, rollConfig, abilityId) {
+function _preRollAbilityTest(actor, rollConfig, abilityId) {
   const bonuses = FILTER.testCheck(actor, abilityId);
   if (!bonuses.length) return;
   const target = game.user.targets.first();
@@ -205,7 +207,7 @@ export function _preRollAbilityTest(actor, rollConfig, abilityId) {
 }
 
 /** When you roll a skill... */
-export function _preRollSkill(actor, rollConfig, skillId) {
+function _preRollSkill(actor, rollConfig, skillId) {
   const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.3.0
   const bonuses = FILTER.testCheck(actor, abilityId, {skillId});
   if (!bonuses.length) return;
@@ -224,7 +226,7 @@ export function _preRollSkill(actor, rollConfig, skillId) {
 }
 
 /** When you roll a tool check... */
-export function _preRollToolCheck(actor, rollConfig, toolId) {
+function _preRollToolCheck(actor, rollConfig, toolId) {
   const abilityId = rollConfig.ability || rollConfig.data.defaultAbility; // TODO: fix in 2.3.0
   const bonuses = FILTER.testCheck(actor, abilityId, {toolId});
   if (!bonuses.length) return;
@@ -243,7 +245,7 @@ export function _preRollToolCheck(actor, rollConfig, toolId) {
 }
 
 /** When you roll a hit die... */
-export function _preRollHitDie(actor, rollConfig, denomination) {
+function _preRollHitDie(actor, rollConfig, denomination) {
   const bonuses = FILTER.hitDieCheck(actor);
   if (!bonuses.length) return;
   const target = game.user.targets.first();
@@ -259,7 +261,7 @@ export function _preRollHitDie(actor, rollConfig, denomination) {
 }
 
 /** Render the optional bonus selector on a roll dialog. */
-export async function _renderDialog(dialog) {
+async function _renderDialog(dialog) {
   const optionals = dialog.options.babonus?.optionals;
   if (!optionals?.length) return;
   dialog.options.babonus.dialog = dialog;
@@ -267,7 +269,7 @@ export async function _renderDialog(dialog) {
 }
 
 /** Add a header button to display the source of all applied bonuses. */
-export function _dialogHeaderButtons(dialog, buttons) {
+function _dialogHeaderButtons(dialog, buttons) {
   const bonuses = dialog.options.babonus?.bonuses;
   if (!bonuses?.length) return;
   buttons.unshift({
@@ -278,7 +280,7 @@ export function _dialogHeaderButtons(dialog, buttons) {
 }
 
 /** Inject babonus data on created templates if they have an associated item. */
-export function _preCreateMeasuredTemplate(templateDoc) {
+function _preCreateMeasuredTemplate(templateDoc) {
   const item = fromUuidSync(templateDoc.flags.dnd5e?.origin ?? "");
   if (!item) return;
   const actor = item.actor;
@@ -308,7 +310,7 @@ export function _preCreateMeasuredTemplate(templateDoc) {
  */
 
 /* Settings. */
-export function _createSettings() {
+function _createSettings() {
   game.settings.register(MODULE, SETTINGS.PLAYERS, {
     name: "BABONUS.SettingsShowBuilderForPlayersName",
     hint: "BABONUS.SettingsShowBuilderForPlayersHint",
@@ -349,36 +351,36 @@ export function _createSettings() {
 }
 
 /* Header Buttons in actors, items, effects. */
-export function _addHeaderButtonActor(app, array) {
+function _addHeaderButtonActor(app, array) {
   if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
   if (app.document.type === "group") return;
   const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
-    onclick: () => new BabonusWorkshop(app.object).render(true)
+    onclick: () => new BabonusWorkshop(app.document).render(true)
   };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }
 
-export function _addHeaderButtonItem(app, array) {
+function _addHeaderButtonItem(app, array) {
   if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
-  if (["background", "class", "subclass", "race"].includes(app.object.type)) return;
+  if (["background", "class", "subclass", "race"].includes(app.document.type)) return;
   const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
-    onclick: () => new BabonusWorkshop(app.object).render(true)
+    onclick: () => new BabonusWorkshop(app.document).render(true)
   };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
 }
 
-export function _addHeaderButtonEffect(app, array) {
+function _addHeaderButtonEffect(app, array) {
   if (!game.settings.get(MODULE, SETTINGS.PLAYERS) && !game.user.isGM) return;
   const label = game.settings.get(MODULE, SETTINGS.LABEL);
   const button = {
     class: MODULE, icon: MODULE_ICON,
-    onclick: () => new BabonusWorkshop(app.object).render(true)
+    onclick: () => new BabonusWorkshop(app.document).render(true)
   };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);

@@ -27,7 +27,7 @@ export class AuraConfigurationDialog extends FormApplication {
   /** @override */
   async getData() {
     const choices = Object.entries(AURA_TARGETS).reduce((acc, [k, v]) => {
-      acc[v] = `BABONUS.ConfigurationAuraDisposition.${k}`;
+      acc[v] = `BABONUS.ConfigurationAuraDisposition${k.titleCase()}`;
       return acc;
     }, {});
     return {
@@ -50,7 +50,6 @@ export class AuraConfigurationDialog extends FormApplication {
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("aura");
     const data = foundry.utils.mergeObject({aura: defaults}, formData);
-    defaults.enabled = true;
     return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
@@ -60,7 +59,7 @@ export class AuraConfigurationDialog extends FormApplication {
     let {name, value, type, checked} = event.currentTarget;
     if ((name === "aura.range") && (value === "")) value = null;
     const update = {
-      [name]: type === "checkbox" ? checked : value,
+      [name]: (type === "checkbox") ? checked : value,
       "aura.blockers": this.form["aura.blockers"].value
     };
     if (!(this.clone.parent instanceof Item)) update["aura.isTemplate"] = false;

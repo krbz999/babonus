@@ -1,13 +1,5 @@
-import {
-  ARBITRARY_OPERATORS,
-  AURA_TARGETS,
-  EQUIPPABLE_TYPES,
-  ITEM_ROLL_TYPES,
-  SPELL_COMPONENT_MATCHING,
-  TYPES
-} from "../constants.mjs";
+import {AURA_TARGETS, EQUIPPABLE_TYPES, ITEM_ROLL_TYPES} from "../constants.mjs";
 import {KeyGetter} from "../helpers/helpers.mjs";
-import {_bonusToInt} from "../hooks.mjs";
 import {babonusFields} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -234,7 +226,7 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get isTokenAura() {
     if (!this.aura.enabled || this.aura.isTemplate) return false;
-    const range = _bonusToInt(this.aura.range, this.getRollData({deterministic: true}));
+    const range = dnd5e.utils.simplifyBonus(this.aura.range, this.getRollData({deterministic: true}));
     return (range === -1) || (range > 0);
   }
 
@@ -378,91 +370,89 @@ class Babonus extends foundry.abstract.DataModel {
    */
   getDefaults(prefix) {
     const field = this.schema.getField(prefix);
-    return Object.entries(field.fields).reduce((acc, [key, vals]) => {
-      acc[key] = vals.initial;
-      return acc;
-    }, {});
+    return field.getInitialValue();
   }
 
   /** @override */
   static defineSchema() {
+    const base = this._defineBaseSchema();
+    base.bonuses = new babonusFields.BonusesField(this._defineBonusSchema());
+    base.filters = new babonusFields.FiltersField(this._defineFilterSchema());
+    return base;
+  }
+
+  /**
+   * Define the basics of the schema, properties that are not type specific.
+   * @returns {object}      An object of properties.
+   */
+  static _defineBaseSchema() {
     return {
-      id: new foundry.data.fields.DocumentIdField({required: true, nullable: false}),
+      id: new foundry.data.fields.DocumentIdField({nullable: false}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
-      type: new foundry.data.fields.StringField({required: true, blank: false, choices: TYPES.map(t => t.value)}),
-      enabled: new foundry.data.fields.BooleanField({required: true, initial: true}),
-      itemOnly: new foundry.data.fields.BooleanField({required: true, initial: false}),
-      optional: new foundry.data.fields.BooleanField({required: true, initial: false}),
-      description: new foundry.data.fields.StringField({required: true, blank: true}),
+      type: new foundry.data.fields.StringField({required: true, blank: false, choices: BabonusTypes}),
+      enabled: new foundry.data.fields.BooleanField({initial: true}),
+      itemOnly: new foundry.data.fields.BooleanField(),
+      optional: new foundry.data.fields.BooleanField(),
+      description: new foundry.data.fields.StringField({required: true}),
       consume: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
+        enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
         type: new foundry.data.fields.StringField({nullable: true, initial: null, choices: ["", "uses", "quantity", "slots", "health", "effect"]}),
-        scales: new foundry.data.fields.BooleanField({required: false, nullable: false, initial: false}),
+        scales: new foundry.data.fields.BooleanField({required: false}),
         formula: new foundry.data.fields.StringField({nullable: true, initial: null}),
         value: new foundry.data.fields.SchemaField({
-          min: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
-          max: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1}),
-          step: new foundry.data.fields.NumberField({required: false, nullable: true, initial: null, integer: true, min: 1, step: 1})
+          min: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),
+          max: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),
+          step: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1})
         })
       }),
       aura: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField({required: false, initial: false}),
-        isTemplate: new foundry.data.fields.BooleanField({required: false, initial: false}),
+        enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
+        isTemplate: new foundry.data.fields.BooleanField({required: false}),
         range: new foundry.data.fields.StringField({nullable: true, initial: null}),
         self: new foundry.data.fields.BooleanField({required: false, initial: true}),
-        disposition: new foundry.data.fields.NumberField({required: false, initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
-        blockers: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false}), {initial: []})
-      }),
-      filters: new babonusFields.FiltersField({
-        itemRequirements: new babonusFields.ItemRequirementsField({
-          equipped: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true}),
-          attuned: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
-        }),
-        arbitraryComparison: new babonusFields.ArbitraryComparisonField(new foundry.data.fields.SchemaField({
-          one: new foundry.data.fields.StringField({required: false, blank: false}),
-          other: new foundry.data.fields.StringField({required: false, blank: false}),
-          operator: new foundry.data.fields.StringField({required: false, choices: ARBITRARY_OPERATORS.map(t => t.value)})
-        })),
-        baseArmors: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("baseArmors", true)
-        })),
-        statusEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        targetEffects: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        creatureTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({blank: false})),
-        healthPercentages: new babonusFields.HealthPercentagesField({
-          value: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, max: 100, step: 1, integer: true, nullable: true}),
-          type: new foundry.data.fields.NumberField({required: false, initial: null, choices: [0, 1], nullable: true})
-        }),
-        customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
-        preparationModes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("preparationModes")
-        })),
-        tokenSizes: new babonusFields.TokenSizeField({
-          size: new foundry.data.fields.NumberField({initial: null, min: 0.5, step: 0.5, integer: false, nullable: true}),
-          type: new foundry.data.fields.NumberField({choices: [0, 1], nullable: true}),
-          self: new foundry.data.fields.BooleanField({required: false, initial: null, nullable: true})
-        }),
-        remainingSpellSlots: new babonusFields.SpanField({
-          min: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true}),
-          max: new foundry.data.fields.NumberField({required: false, initial: null, min: 0, step: 1, integer: true, nullable: true})
-        })
-      }, {nullable: false, initial: {}})
+        disposition: new foundry.data.fields.NumberField({initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
+        blockers: new babonusFields.SemicolonArrayField()
+      })
     };
   }
 
-  clone(data = {}, context = {}) {
-    data = foundry.utils.mergeObject(this.toObject(), data, {insertKeys: false, performDeletions: true, inplace: true});
-    context.parent ??= this.parent;
-    return new this.constructor(data, context);
+  /**
+   * Define the bonuses data of the schema.
+   * @returns {object}      An object of properties.
+   */
+  static _defineBonusSchema() {
+    return {};
   }
 
+  /**
+   * Define the filter data of the schema.
+   * @returns {object}      An object of properties.
+   */
+  static _defineFilterSchema() {
+    return {
+      itemRequirements: new babonusFields.ItemRequirementsField(),
+      arbitraryComparison: new babonusFields.ArbitraryComparisonField(),
+      baseArmors: new babonusFields.SemicolonArrayField("baseArmors", true),
+      statusEffects: new babonusFields.SemicolonArrayField(),
+      healthPercentages: new babonusFields.HealthPercentagesField(),
+      customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
+      preparationModes: new babonusFields.SemicolonArrayField("preparationModes"),
+      tokenSizes: new babonusFields.TokenSizeField(),
+      remainingSpellSlots: new babonusFields.SpanField()
+    };
+  }
+
+  /** @override */
   static migrateData(source) {
     if (!source.filters) source.filters = {};
     this._migrateCreatureTypes(source);
     this._migrateWeaponProperties(source);
   }
 
-  // Remove in v11.
+  /**
+   * Migrate creature types filter into a single array of strings.
+   * @param {object} source     The initial source data of the babonus.
+   */
   static _migrateCreatureTypes(source) {
     const types = source.filters.creatureTypes;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
@@ -474,6 +464,10 @@ class Babonus extends foundry.abstract.DataModel {
     source.filters.creatureTypes = c;
   }
 
+  /**
+   * Migrate weapon properties filter into a single array of strings.
+   * @param {object} source     The initial source data of the babonus.
+   */
   static _migrateWeaponProperties(source) {
     const types = source.filters.weaponProperties;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
@@ -497,130 +491,120 @@ class Babonus extends foundry.abstract.DataModel {
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
 class ItemBabonus extends Babonus {
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      filters: new babonusFields.FiltersField({
-        itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-          choices: ITEM_ROLL_TYPES, blank: true
-        })),
-        attackTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-          choices: ["mwak", "rwak", "msak", "rsak"], blank: true
-        })),
-        damageTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("damageTypes", true)
-        })),
-        abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("abilities")
-        })),
-        spellComponents: new babonusFields.SpellComponentsField({
-          types: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-            choices: KeyGetter._getSchemaFilterOptions("spellComponents"), blank: true
-          })),
-          match: new foundry.data.fields.StringField({
-            nullable: true, initial: null, choices: Object.keys(SPELL_COMPONENT_MATCHING)
-          })
-        }),
-        spellLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("spellLevels"), blank: true
-        })),
-        spellSchools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("spellSchools")
-        })),
-        baseWeapons: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("baseWeapons", true)
-        })),
-        weaponProperties: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("weaponProperties", true)
-        }))
-      })
-    });
-  };
+  /** @override */
+  static _defineFilterSchema() {
+    return {
+      ...super._defineFilterSchema(),
+      itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({choices: ITEM_ROLL_TYPES})),
+      attackTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
+        choices: ["mwak", "rwak", "msak", "rsak"]
+      })),
+      damageTypes: new babonusFields.SemicolonArrayField("damageTypes", true),
+      abilities: new babonusFields.SemicolonArrayField("abilities"),
+      spellComponents: new babonusFields.SpellComponentsField(),
+      spellLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
+        choices: KeyGetter._getSchemaFilterOptions("spellLevels")
+      })),
+      spellSchools: new babonusFields.SemicolonArrayField("spellSchools"),
+      baseWeapons: new babonusFields.SemicolonArrayField("baseWeapons", true),
+      weaponProperties: new babonusFields.SemicolonArrayField("weaponProperties", true),
+      targetEffects: new babonusFields.SemicolonArrayField(),
+      creatureTypes: new babonusFields.SemicolonArrayField()
+    };
+  }
 }
 
 class AttackBabonus extends ItemBabonus {
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new babonusFields.BonusesField({
-        bonus: new foundry.data.fields.StringField(),
-        criticalRange: new foundry.data.fields.StringField(),
-        fumbleRange: new foundry.data.fields.StringField()
-      })
-    });
+  /** @override */
+  static _defineBonusSchema() {
+    return {
+      ...super._defineBonusSchema(),
+      bonus: new foundry.data.fields.StringField(),
+      criticalRange: new foundry.data.fields.StringField(),
+      fumbleRange: new foundry.data.fields.StringField()
+    };
   }
 }
 
 class DamageBabonus extends ItemBabonus {
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new babonusFields.BonusesField({
-        bonus: new foundry.data.fields.StringField(),
-        criticalBonusDice: new foundry.data.fields.StringField(),
-        criticalBonusDamage: new foundry.data.fields.StringField()
-      })
-    });
+  /** @override */
+  static _defineBonusSchema() {
+    return {
+      ...super._defineBonusSchema(),
+      bonus: new foundry.data.fields.StringField(),
+      criticalBonusDice: new foundry.data.fields.StringField(),
+      criticalBonusDamage: new foundry.data.fields.StringField()
+    };
   }
 }
 
 class SaveBabonus extends ItemBabonus {
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new babonusFields.BonusesField({
-        bonus: new foundry.data.fields.StringField()
-      }),
-      filters: new babonusFields.FiltersField({
-        saveAbilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("saveAbilities")
-        }))
-      })
-    });
+  /** @override */
+  static _defineBonusSchema() {
+    return {
+      ...super._defineBonusSchema(),
+      bonus: new foundry.data.fields.StringField()
+    };
+  }
+
+  /** @override */
+  static _defineFilterSchema() {
+    return {
+      ...super._defineFilterSchema(),
+      saveAbilities: new babonusFields.SemicolonArrayField("saveAbilities")
+    };
   }
 }
 
 class ThrowBabonus extends Babonus {
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new babonusFields.BonusesField({
-        bonus: new foundry.data.fields.StringField(),
-        deathSaveTargetValue: new foundry.data.fields.StringField(),
-        deathSaveCritical: new foundry.data.fields.StringField()
-      }),
-      filters: new babonusFields.FiltersField({
-        throwTypes: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("throwTypes")
-        }))
-      })
-    });
+  /** @override */
+  static _defineBonusSchema() {
+    return {
+      ...super._defineBonusSchema(),
+      bonus: new foundry.data.fields.StringField(),
+      deathSaveTargetValue: new foundry.data.fields.StringField(),
+      deathSaveCritical: new foundry.data.fields.StringField()
+    };
+  }
+
+  /** @override */
+  static _defineFilterSchema() {
+    return {
+      ...super._defineFilterSchema(),
+      throwTypes: new babonusFields.SemicolonArrayField("throwTypes"),
+      targetEffects: new babonusFields.SemicolonArrayField(),
+      creatureTypes: new babonusFields.SemicolonArrayField()
+    };
   }
 }
 
 class TestBabonus extends Babonus {
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new babonusFields.BonusesField({
-        bonus: new foundry.data.fields.StringField()
-      }),
-      filters: new babonusFields.FiltersField({
-        abilities: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("abilities")
-        })),
-        baseTools: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("baseTools", true)
-        })),
-        skillIds: new babonusFields.SemicolonArrayField(new foundry.data.fields.StringField({
-          choices: KeyGetter._getSchemaFilterOptions("skillIds", true)
-        }))
-      })
-    });
+  /** @override */
+  static _defineBonusSchema() {
+    return {
+      ...super._defineBonusSchema(),
+      bonus: new foundry.data.fields.StringField()
+    };
+  }
+
+  /** @override */
+  static _defineFilterSchema() {
+    return {
+      ...super._defineFilterSchema(),
+      abilities: new babonusFields.SemicolonArrayField("abilities"),
+      baseTools: new babonusFields.SemicolonArrayField("baseTools", true),
+      skillIds: new babonusFields.SemicolonArrayField("skillIds", true)
+    };
   }
 }
 
 class HitDieBabonus extends Babonus {
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      bonuses: new babonusFields.BonusesField({
-        bonus: new foundry.data.fields.StringField()
-      })
-    })
+  /** @override */
+  static _defineBonusSchema() {
+    return {
+      ...super._defineBonusSchema(),
+      bonus: new foundry.data.fields.StringField()
+    };
   }
 }
 
