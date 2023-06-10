@@ -985,6 +985,7 @@ export class BabonusWorkshop extends FormApplication {
   /**
    * Get the icon for specific babonus type.
    * @param {string} type     The babonus type.
+   * @returns {string}        The FA class.
    */
   _getIcon(type) {
     return {
