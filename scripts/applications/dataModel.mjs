@@ -1,4 +1,4 @@
-import {AURA_TARGETS, EQUIPPABLE_TYPES, ITEM_ROLL_TYPES} from "../constants.mjs";
+import {AURA_TARGETS} from "../constants.mjs";
 import {KeyGetter} from "../helpers/helpers.mjs";
 import {babonusFields} from "./dataFields.mjs";
 
@@ -188,7 +188,8 @@ class Babonus extends foundry.abstract.DataModel {
     if (!(this.parent instanceof Item)) return false;
 
     // Valid for attack/damage/save:
-    const validityA = ["attack", "damage", "save"].includes(this.type) && ITEM_ROLL_TYPES.includes(this.parent.type);
+    const model = dnd5e.dataModels.item.config[this.parent.type];
+    const validityA = ["attack", "damage", "save"].includes(this.type) && model.schema.getField("damage.parts");
 
     // Valid for test:
     const validityB = (this.type === "test") && (this.parent.type === "tool");
@@ -211,7 +212,9 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get isSuppressed() {
     const item = (this.parent instanceof Item) ? this.parent : this.item;
-    if (!item || !(this.parent instanceof Item) || !EQUIPPABLE_TYPES.includes(item.type)) return false;
+    if (!item || !(this.parent instanceof Item) || !dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) {
+      return false;
+    }
 
     const ir = this.filters.itemRequirements;
     const at = CONFIG.DND5E.attunementTypes.ATTUNED;
@@ -495,7 +498,9 @@ class ItemBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({choices: ITEM_ROLL_TYPES})),
+      itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
+        choices: Object.keys(dnd5e.dataModels.item.config).filter(u => dnd5e.dataModels.item.config[u].schema.getField("damage.parts"))
+      })),
       attackTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
         choices: ["mwak", "rwak", "msak", "rsak"]
       })),

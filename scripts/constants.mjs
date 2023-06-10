@@ -11,12 +11,6 @@ export const SETTINGS = {
 // the kind of matching done for spell components (at least 1 vs matching all).
 export const SPELL_COMPONENT_MATCHING = {ANY: "ANY", ALL: "ALL"};
 
-// item types that can get a bonus when rolling attack, damage, or showing a save dc.
-export const ITEM_ROLL_TYPES = ["consumable", "equipment", "feat", "spell", "weapon"];
-
-// item types that can be equipped/attuned (as of 2.1.0).
-export const EQUIPPABLE_TYPES = ["weapon", "equipment", "consumable", "tool", "backpack"];
-
 // the disposition of an aura (targeting allies, enemies, or all).
 export const AURA_TARGETS = {ALLY: 1, ENEMY: -1, ANY: 2};
 

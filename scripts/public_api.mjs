@@ -262,11 +262,8 @@ function findTokensInRangeOfToken(source, radius) {
 function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
   const spacesA = getOccupiedGridSpaces(tokenA.document);
   const spacesB = getOccupiedGridSpaces(tokenB.document);
-  const rays = spacesA.flatMap(a => {
-    return spacesB.map(b => {
-      return {ray: new Ray(a, b)};
-    });
-  });
+  // Construct rays between each grid center of tokenA to each grid center of tokenB.
+  const rays = spacesA.flatMap(a => spacesB.map(b => ({ray: new Ray(a, b)})));
   const horizontalDistance = canvas.grid.measureDistances(rays, options).reduce((acc, n) => {
     const dist = n * canvas.dimensions.distancePixels;
     return Math.min(dist, acc);
@@ -307,12 +304,13 @@ function createBabonus(data, parent = null) {
 function sceneTokensByDisposition(scene) {
   return scene.tokens.reduce((acc, tokenDoc) => {
     const d = tokenDoc.disposition;
-    if (d === CONST.TOKEN_DISPOSITIONS.HOSTILE) acc.hostiles.push(tokenDoc);
-    else if (d === CONST.TOKEN_DISPOSITIONS.FRIENDLY) acc.friendlies.push(tokenDoc);
-    else if (d === CONST.TOKEN_DISPOSITIONS.NEUTRAL) acc.neutrals.push(tokenDoc);
-    else if (d === CONST.TOKEN_DISPOSITIONS.NONE) acc.none.push(tokenDoc);
+    const t = CONST.TOKEN_DISPOSITIONS;
+    if (d === t.HOSTILE) acc.hostiles.push(tokenDoc);
+    else if (d === t.FRIENDLY) acc.friendlies.push(tokenDoc);
+    else if (d === t.NEUTRAL) acc.neutrals.push(tokenDoc);
+    else if (d === t.SECRET) acc.secret.push(tokenDoc);
     return acc;
-  }, {hostiles: [], friendlies: [], neutrals: [], none: []});
+  }, {hostiles: [], friendlies: [], neutrals: [], secret: []});
 }
 
 /**

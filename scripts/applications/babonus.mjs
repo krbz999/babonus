@@ -1,8 +1,6 @@
 import {
   ARBITRARY_OPERATORS,
-  EQUIPPABLE_TYPES,
   FILTER_NAMES,
-  ITEM_ROLL_TYPES,
   MODULE,
   MODULE_ICON,
   MODULE_NAME
@@ -861,9 +859,12 @@ export class BabonusWorkshop extends FormApplication {
         return {value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]};
       });
     } else if (id === "itemTypes") {
-      return ITEM_ROLL_TYPES.map(i => {
-        return {value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `TYPES.Item.${i}`};
-      });
+      const models = dnd5e.dataModels.item.config;
+      return Item.TYPES.reduce((acc, type) => {
+        const hasDamage = models[type]?.schema.getField("damage.parts");
+        if (hasDamage) acc.push({value: type, label: type.slice(0, 4).toUpperCase(), tooltip: `TYPES.Item.${type}`});
+        return acc;
+      }, []);
     } else if (id === "spellLevels") {
       return KeyGetter[id].map(e => ({value: e.value, label: e.value, tooltip: e.label}));
     } else if (id === "spellComponents") {
@@ -932,7 +933,7 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {boolean}       Whether it can be equipped.
    */
   _canEquipItem(item) {
-    return (item instanceof Item) && EQUIPPABLE_TYPES.includes(item.type);
+    return (item instanceof Item) && !!dnd5e.dataModels.item.config[item.type].schema.getField("equipped");
   }
 
   /**
