@@ -210,7 +210,8 @@ function findTokensInRangeOfAura(object, id) {
   else if (object instanceof Item) actor = object.actor;
   else if (object instanceof ActiveEffect) actor = object.parent;
   const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
-  if (bonus.aura.range === -1) return canvas.scene.tokens.filter(t => {
+  const range = dnd5e.utils.simplifyBonus(bonus.aura.range, bonus.getRollData({deterministic: true}));
+  if (range === -1) return canvas.scene.tokens.filter(t => {
     if (!t.actor) return false;
     if (t.actor.type === "group") return false;
     return t !== tokenDoc;
@@ -220,7 +221,7 @@ function findTokensInRangeOfAura(object, id) {
     if (t.actor.type === "group") return false;
     if (t === tokenDoc) return false;
     const distance = getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
-    return bonus.aura.range >= distance;
+    return range >= distance;
   });
 }
 
@@ -233,9 +234,9 @@ function findTokensInRangeOfAura(object, id) {
  */
 function findTokensInRangeOfToken(source, radius) {
   const tokenRadius = Math.abs(source.document.x - source.center.x);
-  const pixels = radius / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
+  const pixels = radius * canvas.dimensions.distancePixels + tokenRadius;
   const captureArea = new PIXI.Circle(source.center.x, source.center.y, pixels);
-  const grid = canvas.grid.size;
+  const grid = canvas.dimensions.size;
   return canvas.tokens.placeables.filter(t => {
     if (t === source) return false;
 
@@ -255,9 +256,10 @@ function findTokensInRangeOfToken(source, radius) {
  * Return the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
  * @param {Token5e} tokenA      One token placeable.
  * @param {Token5e} tokenB      Another token placeable.
+ * @param {object} options      Options to modify the measurements.
  * @returns {number}            The minimum distance.
  */
-function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
+function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
   const spacesA = getOccupiedGridSpaces(tokenA.document);
   const spacesB = getOccupiedGridSpaces(tokenB.document);
   const rays = spacesA.flatMap(a => {
@@ -265,13 +267,12 @@ function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
       return {ray: new Ray(a, b)};
     });
   });
-  const dist = canvas.scene.grid.distance; // 5ft.
-  const distances = canvas.grid.measureDistances(rays, {
-    gridSpaces: false
-  }).map(d => Math.round(d / dist) * dist);
-  const eles = [tokenA, tokenB].map(t => t.document.elevation);
-  const elevationDiff = Math.abs(eles[0] - eles[1]);
-  return Math.max(Math.min(...distances), elevationDiff);
+  const horizontalDistance = canvas.grid.measureDistances(rays, options).reduce((acc, n) => {
+    const dist = n * canvas.dimensions.distancePixels;
+    return Math.min(dist, acc);
+  }, Infinity);
+  const verticalDistance = Math.abs(tokenA.document.elevation - tokenB.document.elevation);
+  return Math.max(horizontalDistance, verticalDistance);
 }
 
 /**
@@ -280,11 +281,7 @@ function getMinimumDistanceBetweenTokens(tokenA, tokenB) {
  * @returns {BabonusWorkshop}     The rendered workshop.
  */
 function openBabonusWorkshop(object) {
-  const validDocumentType = (
-    (object instanceof Actor)
-    || (object instanceof Item)
-    || ((object instanceof ActiveEffect) && !(object.parent.parent instanceof Actor))
-  );
+  const validDocumentType = ["Actor", "Item", "ActiveEffect"].includes(object.documentName);
   if (!validDocumentType) {
     console.warn("The document provided is not a valid document type for Build-a-Bonus!");
     return null;

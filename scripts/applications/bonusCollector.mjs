@@ -234,10 +234,10 @@ export class BonusCollector {
     }
 
     // Stuff that applies only if the bonus is on an effect.
-    if (bonus.parent instanceof ActiveEffect) {}
+    else if (bonus.parent instanceof ActiveEffect) {}
 
     // Stuff that applies only if the bonus is on a template.
-    if (bonus.parent instanceof MeasuredTemplateDocument) {
+    else if (bonus.parent instanceof MeasuredTemplateDocument) {
       const item = bonus.item;
       if (!item || bonus.isSuppressed) return false;
     }
@@ -291,7 +291,7 @@ export class BonusCollector {
   _createCaptureArea(token, range) {
     const center = token.object.center;
     const tokenRadius = Math.abs(token.x - center.x);
-    const pixels = range / canvas.scene.grid.distance * canvas.scene.grid.size + tokenRadius;
+    const pixels = range * canvas.dimensions.distancePixels + tokenRadius;
     return new PIXI.Circle(center.x, center.y, pixels);
   }
 
@@ -383,7 +383,7 @@ export class BonusCollector {
       shape.id = id;
       const token = bonus.token;
       const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
-      const pixels = range / canvas.scene.grid.distance * canvas.scene.grid.size + token.h / 2;
+      const pixels = range * canvas.dimensions.distancePixels + token.h / 2;
       shape.lineStyle(5, color, 0.5);
       shape.drawCircle(token.w / 2, token.h / 2, pixels);
       token.addChild(shape);
