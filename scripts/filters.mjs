@@ -91,6 +91,18 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 export class FILTER {
 
   /**
+   **********************************************************
+   *
+   *
+   *                  CHECKING FUNCTIONS
+   *
+   *
+   **********************************************************
+   */
+
+  //#region
+
+  /**
    * Initiate the collection and filtering of bonuses applying to hit die rolls.
    * @param {Actor5e} actor     The actor performing the roll.
    * @returns {Babonus[]}       A filtered array of babonuses to apply.
@@ -215,15 +227,19 @@ export class FILTER {
     return data;
   }
 
+  //#endregion
+
   /**
    **********************************************************
    *
    *
-   *                        FILTERS
+   *                   FILTERS FUNCTIONS
    *
    *
    **********************************************************
    */
+
+  //#region
 
   /**
    * Find out if the item's type is one of the valid ones in the filter.
@@ -690,4 +706,6 @@ export class FILTER {
     const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
     return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
   }
+
+  //#endregion
 }
