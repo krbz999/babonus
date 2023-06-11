@@ -296,8 +296,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Turn drop data into a babonus.
-   * @param {object} data     An object of babonus data or a uuid.
-   * @returns {Babonus}       The created babonus.
+   * @param {object} data             An object of babonus data or a uuid.
+   * @returns {Promise<Babonus>}      The created babonus.
    */
   async _fromDropData(data) {
     if (data.data) {
@@ -326,8 +326,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Special implementation of rendering, to reset the entire application to a clean state.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
+   * @param {PointerEvent} event              The initiating click event.
+   * @returns {Promise<BabonusWorkshop>}      This application.
    */
   async _renderClean(event) {
     this._type = null;
@@ -340,8 +340,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Special implementation of rendering, for when entering creation mode.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
+   * @param {PointerEvent} event              The initiating click event.
+   * @returns {Promise<BabonusWorkshop>}      This application.
    */
   async _renderCreator(event) {
     this._type = event.currentTarget.dataset.type;
@@ -354,8 +354,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Special implementation of rendering, for when entering edit mode.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
+   * @param {PointerEvent} event              The initiating click event.
+   * @returns {Promise<BabonusWorkshop>}      This application.
    */
   async _renderEditor(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -745,7 +745,7 @@ export class BabonusWorkshop extends FormApplication {
    * Get the inner html of a filter you want to add.
    * @param {string} id                   The id of the filter.
    * @param {object} [formData=null]      The toString'd data of a babonus in case of one being edited.
-   * @returns {string}                    The template.
+   * @returns {Promise<string>}           The template.
    */
   async _templateFilter(id, formData = null) {
     if (id !== "arbitraryComparison") return this._templateFilterUnique(id, formData);
@@ -754,9 +754,9 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Create and append the form-group for a specific filter, then add listeners.
-   * @param {string} id           The id of the filter to add.
-   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
-   * @returns {string}            The template.
+   * @param {string} id             The id of the filter to add.
+   * @param {object} formData       The toString'd data of a babonus in case of one being edited.
+   * @returns {Promise<string>}     The template.
    */
   async _templateFilterUnique(id, formData) {
     const data = {
@@ -812,9 +812,9 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Create and append the form-group for a specific repeatable filter, then add listeners.
-   * @param {string} id           The id of the filter to add.
-   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
-   * @returns {string}            The template.
+   * @param {string} id             The id of the filter to add.
+   * @param {object} formData       The toString'd data of a babonus in case of one being edited.
+   * @returns {Promise<string>}     The template.
    */
   async _templateFilterRepeatable(id, formData) {
     const idx = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`).length;
@@ -955,30 +955,20 @@ export class BabonusWorkshop extends FormApplication {
 
     const type = this._type ?? this._bab.type;
 
+    // The filter must be a property on the babonus type's schema.
+    const hasFilter = BabonusTypes[type].schema.getField(`filters.${id}`);
+    if (!hasFilter) return false;
+
+    // Handle special cases.
     switch (id) {
-      case "abilities": return ["attack", "damage", "save", "test"].includes(type);
-      case "attackTypes": return ["attack", "damage"].includes(type);
-      case "baseArmors": return true;
-      case "baseTools": return ["test"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
-      case "creatureTypes": return ["attack", "damage", "save", "throw"].includes(type);
-      case "customScripts": return true;
-      case "damageTypes": return ["attack", "damage", "save"].includes(type);
-      case "healthPercentages": return true;
       case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
-      case "itemTypes": return ["attack", "damage", "save"].includes(type);
       case "preparationModes": return this._itemTypes.has("spell");
-      case "remainingSpellSlots": return true;
-      case "saveAbilities": return ["save"].includes(type);
-      case "skillIds": return ["test"].includes(type);
       case "spellComponents": return this._itemTypes.has("spell");
       case "spellLevels": return this._itemTypes.has("spell");
       case "spellSchools": return this._itemTypes.has("spell");
-      case "statusEffects": return true;
-      case "targetEffects": return ["attack", "damage", "save", "throw"].includes(type);
-      case "throwTypes": return ["throw"].includes(type);
-      case "tokenSizes": return true;
       case "weaponProperties": return this._itemTypes.has("weapon");
+      default: return true;
     }
   }
 
