@@ -147,15 +147,15 @@ class Babonus extends foundry.abstract.DataModel {
     if (!this.canConsume || !this.consume.enabled || !this.consume.type) return false;
 
     const type = this.consume.type;
-    const value = this.consume.value;
+    const min = Number.isNumeric(this.consume.value.min) ? this.consume.value.min : 1;
     const isItemOwner = (this.parent instanceof Item) && this.parent.isOwner;
     const isEffectOwner = (this.parent instanceof ActiveEffect) && this.parent.isOwner;
 
-    if (type === "uses") return this.canConsumeUses && isItemOwner && (value.min > 0);
-    else if (type === "quantity") return this.canConsumeQuantity && isItemOwner && (value.min > 0);
-    else if (type === "slots") return this.canConsumeSlots && (value.min > 0);
+    if (type === "uses") return this.canConsumeUses && isItemOwner && (min > 0);
+    else if (type === "quantity") return this.canConsumeQuantity && isItemOwner && (min > 0);
+    else if (type === "slots") return this.canConsumeSlots && (min > 0);
     else if (type === "effect") return this.canConsumeEffect && isEffectOwner;
-    else if (type === "health") return this.canConsumeHealth && (value.min > 0);
+    else if (type === "health") return this.canConsumeHealth && (min > 0);
   }
 
   /**
@@ -211,8 +211,10 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get isSuppressed() {
-    const item = (this.parent instanceof Item) ? this.parent : this.item;
-    if (!item || !(this.parent instanceof Item) || !dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) {
+    if (!(this.parent instanceof Item)) return false;
+
+    const item = this.item;
+    if (!item || !dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) {
       return false;
     }
 
