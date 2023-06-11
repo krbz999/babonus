@@ -171,10 +171,9 @@ export class BabonusWorkshop extends FormApplication {
       const previousData = this._currentBabonus.toObject();
       delete previousData.filters;
       foundry.utils.mergeObject(newData, previousData, {overwrite: false});
-      const data = this.constructor._createBabonus(newData, newData.id, {strict: true}).toObject();
-      await this.object.update({[`flags.${MODULE}.bonuses.-=${data.id}`]: null}, {render: false});
-      await this.object.setFlag(MODULE, `bonuses.${data.id}`, data);
-      ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", data));
+      const bonus = this.constructor._createBabonus(newData, newData.id, {strict: true});
+      await this.constructor._embedBabonus(this.object, bonus);
+      ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", bonus));
     } catch (err) {
       console.warn(err);
       this._displayWarning();
@@ -296,7 +295,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _renderCreator(event) {
     const type = event.currentTarget.dataset.type;
-    this._currentBabonus = this.constructor._createBabonus({type, name: "NEW BABONUS"});
+    this._currentBabonus = this.constructor._createBabonus({type, name: game.i18n.localize("BABONUS.NewBabonus")});
     this._addedFilters.clear();
     this._itemTypes.clear();
     return super.render(false);
@@ -973,15 +972,22 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Babonus}               The created babonus.
    */
   static _createBabonus(data, id, options = {}) {
-    if (!(data.type in BabonusTypes)) {
-      throw new Error("INVALID BABONUS TYPE.");
-    }
-
     // if no id explicitly provided, make a new one.
     data.id = id ?? foundry.utils.randomID();
 
     const bonus = new BabonusTypes[data.type](data, options);
     return bonus;
+  }
+
+  /**
+   * Embed a created babonus onto the target object.
+   * @param {Document} object         The actor, item, or effect that should have the babonus.
+   * @param {Babonus} bonus           The created babonus.
+   * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+   */
+  static async _embedBabonus(object, bonus) {
+    await object.update({[`flags.${MODULE}.bonuses.-=${bonus.id}`]: null}, {render: false});
+    return object.setFlag(MODULE, `bonuses.${bonus.id}`, bonus.toObject());
   }
 
   //#endregion

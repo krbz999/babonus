@@ -15,7 +15,7 @@ export function _createAPI() {
 
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
-    createBabonus,
+    createBabonus, embedBabonus,
 
     findEmbeddedDocumentsWithBonuses,
     findTokensInRangeOfAura,
@@ -293,6 +293,7 @@ function openBabonusWorkshop(object) {
  * @returns {Babonus}                     The created babonus.
  */
 function createBabonus(data, parent = null) {
+  if (!(data.type in BabonusTypes)) throw new Error("INVALID BABONUS TYPE.");
   return BabonusWorkshop._createBabonus(data, undefined, {parent});
 }
 
@@ -348,4 +349,20 @@ async function babonusFromUuid(uuid) {
  */
 function getCollection(object) {
   return BabonusWorkshop._getCollection(object);
+}
+
+/**
+ * Embed a created babonus onto the target object.
+ * @param {Document} object         The actor, item, or effect that should have the babonus.
+ * @param {Babonus} bonus           The created babonus.
+ * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+ */
+async function embedBabonus(object, bonus) {
+  const validDocumentType = ["Actor", "Item", "ActiveEffect"].includes(object.documentName);
+  if (!validDocumentType) {
+    console.warn("The document provided is not a valid document type for Build-a-Bonus!");
+    return null;
+  }
+  if (!Object.values(BabonusTypes).some(t => bonus instanceof t)) return null;
+  return BabonusWorkshop._embedBabonus(object, bonus);
 }

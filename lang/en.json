@@ -168,6 +168,7 @@
   "BABONUS.ModuleTitle": "Build-a-Bonus",
   "BABONUS.Name": "Name",
   "BABONUS.NamePlaceholder": "Name…",
+  "BABONUS.NewBabonus": "New Babonus",
   "BABONUS.NotificationCopy": "The bonus '{name}' with id '{id}' has been successfully copied.",
   "BABONUS.NotificationDelete": "The bonus '{name}' with id '{id}' has been successfully deleted.",
   "BABONUS.NotificationInvalid": "Some of the data is invalid. Please re-evaluate your selections.",

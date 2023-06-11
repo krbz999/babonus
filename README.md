@@ -93,6 +93,7 @@
 <li><code>getCollection(object)</code> returns a Collection of bonuses on the object.</li>
 <li><code>fromUuid(uuid)</code> returns a bonus on a given document. The uuid is the uuid of the parent document appended with <code>.Babonus.< id ></code>.</li>
 <li><code>createBabonus(data)</code> returns a new Babonus document created with the provided data. This does not create the bonus on the document, only in memory.</li>
+<li><code>embedBabonus(object, bonus)</code> embeds the data of the given babonus into the given actor, item, or effect.</li>
 <li><code>copyBonus(original, other, id)</code> copies a bonus with the given id from one document to another. Note that a bonus can also be dragged and dropped via the ui.</li>
 <li><code>deleteBonus(object, id)</code> removes the bonus with the given id from the document.</li>
 <li><code>moveBonus(original, other, id)</code> copies a bonus with the given id from one document to another, then removes the original bonus.</li>
