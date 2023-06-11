@@ -206,7 +206,7 @@ export class FILTER {
       const data = src.getRollData();
       const update = Object.entries(bonus.bonuses).reduce((acc, [key, val]) => {
         if (!val) return acc;
-        acc[key] = Roll.replaceFormulaData(val, data);
+        acc[key] = Roll.replaceFormulaData(val, data, {missing: 0});
         return acc;
       }, {});
       try {bonus.updateSource({bonuses: update})} catch (err) {}

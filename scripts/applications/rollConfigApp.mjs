@@ -450,16 +450,16 @@ export class OptionalSelector {
   }
 
   /**
-   * Return an upscaled bonus given a base and a number to multiply with.
-   * If 'scale' is 0, the default bonus is returned and no scaling is performed.
-   * Evaluating roll data properties is necessary here, otherwise scaling will not work.
+   * Return an upscaled bonus given a base and a number to multiply with. If 'scale' is 0, the default bonus is returned
+   * and no scaling is performed. Evaluating roll data properties is necessary here, otherwise scaling will not work. But
+   * it is not needed for bonuses that do not scale, since their roll data (if necessary) has already been replaced.
    * @param {Babonus} bonus     The babonus.
    * @param {number} scale      The number to upscale by multiplicatively.
    * @returns {string}          The upscaled bonus, simplified, and with the base attached.
    */
   _scaleOptionalBonus(bonus, scale) {
+    if (!scale) return bonus.bonuses.bonus;
     const data = this._getRollData(bonus);
-    if (!scale) return new CONFIG.Dice.DamageRoll(bonus.bonuses.bonus, data).formula;
     const roll = new CONFIG.Dice.DamageRoll(bonus.consume.formula || bonus.bonuses.bonus, data);
     const formula = roll.alter(scale, 0, {multiplyNumeric: true}).formula;
     const base = Roll.replaceFormulaData(bonus.bonuses.bonus, data);
