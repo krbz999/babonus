@@ -1,15 +1,17 @@
 import {FILTER} from "./filters.mjs";
 import {OptionalSelector} from "./applications/rollConfigApp.mjs";
-import {MODULE, MODULE_ICON, SETTINGS} from "./constants.mjs";
+import {ARBITRARY_OPERATORS, MODULE, MODULE_ICON, SETTINGS} from "./constants.mjs";
 import {AppliedBonusesDialog} from "./applications/appliedBonusesDialog.mjs";
 import {BabonusWorkshop} from "./applications/babonus.mjs";
 
 export const moduleHooks = {
   createSettings: _createSettings,
   getDialogHeaderButtons: _dialogHeaderButtons,
+  handlebars: _handlebarsHelpers,
   headerButtonActor: _addHeaderButtonActor,
   headerButtonEffect: _addHeaderButtonEffect,
   headerButtonItem: _addHeaderButtonItem,
+  loadPartials: _preloadPartials,
   preCreateMeasuredTemplate: _preCreateMeasuredTemplate,
   preDisplayCard: _preDisplayCard,
   preRollAbilitySave: _preRollAbilitySave,
@@ -384,4 +386,22 @@ function _addHeaderButtonEffect(app, array) {
   };
   if (label) button.label = game.i18n.localize("BABONUS.ModuleTitle");
   array.unshift(button);
+}
+
+/** Handlebars helpers. */
+function _handlebarsHelpers() {
+  /** Helper to capitalize each value. If more than one is given, also concatenate. */
+  Handlebars.registerHelper("babonusCapitalize", function(...values) {
+    return values.reduce((acc, v) => {
+      if (typeof v === "string") return acc + v.capitalize();
+      return acc;
+    }, "");
+  });
+}
+
+/* Preload all template partials for the builder. */
+async function _preloadPartials() {
+  console.log("Build-a-Bonus | Loading template partials.");
+  const {files} = await FilePicker.browse("data", "modules/babonus/templates/builder_components");
+  loadTemplates(files);
 }

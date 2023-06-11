@@ -4,6 +4,8 @@ import {_createAPI} from "./scripts/public_api.mjs";
 // General setup.
 Hooks.once("setup", _createAPI);
 Hooks.once("setup", moduleHooks.createSettings);
+Hooks.once("setup", moduleHooks.handlebars);
+Hooks.once("setup", moduleHooks.loadPartials);
 
 // Any application injections.
 Hooks.on("getActiveEffectConfigHeaderButtons", moduleHooks.headerButtonEffect);
