@@ -1,13 +1,9 @@
 import {
   ARBITRARY_OPERATORS,
-  BONUS_TYPES_FORMDATA,
-  EQUIPPABLE_TYPES,
   FILTER_NAMES,
-  ITEM_ROLL_TYPES,
   MODULE,
   MODULE_ICON,
-  MODULE_NAME,
-  TYPES
+  MODULE_NAME
 } from "../constants.mjs";
 import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
@@ -26,6 +22,8 @@ export class BabonusWorkshop extends FormApplication {
    * ----------------------------------------------------
    */
 
+  //#region
+
   // The right-hand side bonuses that have a collapsed description.
   _collapsedBonuses = new Set();
 
@@ -35,14 +33,8 @@ export class BabonusWorkshop extends FormApplication {
   // The color of the left-side otter.
   _otterColor = "black";
 
-  // The type of babonus being created.
-  _type = null;
-
   // The currently selected item types for the 'itemTypes' filter.
   _itemTypes = new Set();
-
-  // The current babonus being edited.
-  _bab = null;
 
   constructor(object, options) {
     super(object, options);
@@ -55,8 +47,8 @@ export class BabonusWorkshop extends FormApplication {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       closeOnSubmit: false,
-      width: 900,
-      height: 850,
+      width: 1000,
+      height: 900,
       template: `modules/${MODULE}/templates/babonus.hbs`,
       classes: [MODULE, "builder"],
       scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"],
@@ -77,6 +69,8 @@ export class BabonusWorkshop extends FormApplication {
     return `${MODULE_NAME}: ${this.object.name}`;
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -87,6 +81,8 @@ export class BabonusWorkshop extends FormApplication {
    * ----------------------------------------------------
    */
 
+  //#region
+
   /** @override */
   async getData() {
     const data = await super.getData();
@@ -94,7 +90,7 @@ export class BabonusWorkshop extends FormApplication {
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
     data.isActor = this.isActor;
-    data.activeBuilder = !!(this._type || this._bab);
+    data.activeBuilder = !!this._currentBabonus;
 
     if (data.isItem) {
       data.canEquip = this._canEquipItem(this.object);
@@ -105,50 +101,33 @@ export class BabonusWorkshop extends FormApplication {
     // Initial values of the filters.
     data.filters = [];
 
-    if (this._bab) {
-      // Editing a babonus.
-      data.builder = {
-        type: TYPES.find(t => t.value === this._bab.type),
-        id: this._bab.id,
-        intro: "BABONUS.EditingBonus",
-        name: this._bab.name,
-        description: this._bab.description
-      };
-      data._filters = this._filters;
-      delete this._filters;
-      data.bonuses = BONUS_TYPES_FORMDATA[this._bab.type].map(b => {
-        return {value: foundry.utils.getProperty(this._bab, b.NAME), ...b};
-      });
-    } else if (this._type) {
-      // Creating a babonus.
-      data.builder = {
-        type: TYPES.find(t => t.value === this._type),
-        id: foundry.utils.randomID(),
-        intro: "BABONUS.CreatingBonus",
-        name: null,
-        description: null
-      };
-      data.bonuses = BONUS_TYPES_FORMDATA[this._type];
-    }
-
     if (data.activeBuilder) {
-      // Construct data for each filter.
+      // The type of the bonus.
+      const type = this._currentBabonus.type;
+
+      // Whether it is edit mode or create mode.
+      data.isEditing = this.constructor._getCollection(this.object).has(this._currentBabonus.id);
+      if (data.isEditing) data._filters = this._filters;
+
+      // The current bonus being made or edited.
+      data.currentBabonus = this._currentBabonus;
+      data.builder = {icon: this._getIcon(type), label: `BABONUS.Type${type.capitalize()}`};
+      data.addedFilters = this._addedFilters;
+
+      // Construct data for the filter pickers.
       for (const id of FILTER_NAMES) {
         const filterData = {
-          id,
-          header: `BABONUS.Filters${id.capitalize()}`,
-          description: `BABONUS.Filters${id.capitalize()}Tooltip`,
-          requirements: `BABONUS.Filters${id.capitalize()}Requirements`
+          id: id,
+          available: this._isFilterAvailable(id) // whether is should be shown in 'available filters'.
         };
-
-        // Set 'available' to true to display it in the available filters.
-        filterData.available = this._isFilterAvailable(id);
-        // Set 'unavailable' to true to hide it in the 'unavailable' filters.
         filterData.unavailable = filterData.available || (this._addedFilters.has(id) && (id !== "arbitraryComparisons"));
-
         data.filters.push(filterData);
       }
-      data.filters.sort((a, b) => a.header.localeCompare(b.header, game.i18n.lang));
+      data.filters.sort((a, b) => {
+        a = `BABONUS.Filters${a.id.capitalize()}`;
+        b = `BABONUS.Filters${b.id.capitalize()}`;
+        return game.i18n.localize(a).localeCompare(game.i18n.localize(b));
+      });
     }
 
     // Get current bonuses on the document.
@@ -162,9 +141,8 @@ export class BabonusWorkshop extends FormApplication {
           rollData: bab.getRollData()
         });
         // Add the icon property to the bonus object
-        const bonusType = TYPES.find(t => t.value === bab.type);
-        bab.icon = bonusType.icon;
-        bab.typeTooltip = bonusType.label;
+        bab.icon = this._getIcon(bab.type);
+        bab.typeTooltip = `BABONUS.Type${bab.type.capitalize()}`;
         flagBoni.push(bab);
       } catch (err) {
         console.error(err);
@@ -172,34 +150,30 @@ export class BabonusWorkshop extends FormApplication {
     }
     // Sort the bonuses alphabetically by name
     data.currentBonuses = flagBoni.sort((a, b) => a.name.localeCompare(b.name));
-    data.TYPES = TYPES;
+
+    // New babonus buttons.
+    data.createButtons = Object.keys(BabonusTypes).map(type => ({
+      type,
+      icon: this._getIcon(type),
+      label: `BABONUS.Type${type.capitalize()}`
+    }));
     data.ICON = MODULE_ICON;
     data.otterColor = this._otterColor;
+
+    delete this._filters;
     return data;
   }
 
   /** @override */
   async _updateObject(event, formData) {
-    if (this._bab) {
-      // If editing, get some values from the old babonus.
-      formData.id = this._bab.id;
-      formData.type = this._bab.type;
-      formData.itemOnly = this._bab.itemOnly;
-      formData.optional = this._bab.optional;
-      formData.consume = this._bab.consume;
-      formData.aura = this._bab.aura;
-    } else {
-      // Generate some default value(s).
-      formData.id = this.element[0].querySelector("[name='id']").value;
-      formData.type = this._type;
-    }
-
-    // Attempt to save the babonus, otherwise show a warning.
     try {
-      const bab = this.constructor._createBabonus(formData, formData.id);
-      await this.object.update({[`flags.${MODULE}.bonuses.-=${formData.id}`]: null}, {render: false});
-      await this.object.setFlag(MODULE, `bonuses.${formData.id}`, bab.toObject());
-      ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", {name: formData.name, id: formData.id}));
+      const newData = foundry.utils.expandObject(formData);
+      const previousData = this._currentBabonus.toObject();
+      delete previousData.filters;
+      foundry.utils.mergeObject(newData, previousData, {overwrite: false});
+      const bonus = this.constructor._createBabonus(newData, newData.id, {strict: true});
+      await this.constructor._embedBabonus(this.object, bonus);
+      ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", bonus));
     } catch (err) {
       console.warn(err);
       this._displayWarning();
@@ -274,8 +248,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Turn drop data into a babonus.
-   * @param {object} data     An object of babonus data or a uuid.
-   * @returns {Babonus}       The created babonus.
+   * @param {object} data             An object of babonus data or a uuid.
+   * @returns {Promise<Babonus>}      The created babonus.
    */
   async _fromDropData(data) {
     if (data.data) {
@@ -288,6 +262,8 @@ export class BabonusWorkshop extends FormApplication {
     }
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -298,51 +274,49 @@ export class BabonusWorkshop extends FormApplication {
    * ----------------------------------------------------
    */
 
+  //#region
+
   /**
    * Special implementation of rendering, to reset the entire application to a clean state.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
+   * @param {PointerEvent} event              The initiating click event.
+   * @returns {Promise<BabonusWorkshop>}      This application.
    */
   async _renderClean(event) {
-    this._type = null;
-    this._bab = null;
     this._addedFilters.clear();
     this._itemTypes.clear();
-    delete this._filters; // appended formgroups for editor mode purposes.
+    delete this._currentBabonus;
     return super.render(false);
   }
 
   /**
    * Special implementation of rendering, for when entering creation mode.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
+   * @param {PointerEvent} event              The initiating click event.
+   * @returns {Promise<BabonusWorkshop>}      This application.
    */
   async _renderCreator(event) {
-    this._type = event.currentTarget.dataset.type;
-    this._bab = null;
+    const type = event.currentTarget.dataset.type;
+    this._currentBabonus = this.constructor._createBabonus({type, name: game.i18n.localize("BABONUS.NewBabonus")});
     this._addedFilters.clear();
     this._itemTypes.clear();
-    delete this._filters; // appended formgroups for editor mode purposes.
     return super.render(false);
   }
 
   /**
    * Special implementation of rendering, for when entering edit mode.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
+   * @param {PointerEvent} event              The initiating click event.
+   * @returns {Promise<BabonusWorkshop>}      This application.
    */
   async _renderEditor(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const data = this.object.flags[MODULE].bonuses[id];
-    this._type = null;
-    this._bab = this.constructor._createBabonus(data, id, {strict: true});
-    const formData = this._bab.toString();
-    this._addedFilters = new Set(Object.keys(foundry.utils.expandObject(formData).filters ?? {}));
-    this._itemTypes = new Set(this._bab.filters.itemTypes ?? []);
+    this._currentBabonus = this.constructor._createBabonus(data, id, {strict: true});
+    this._addedFilters = new Set(Object.keys(this._currentBabonus.toObject().filters));
+    this._itemTypes = new Set(this._currentBabonus.filters.itemTypes ?? []);
 
     // Create the form groups for each active filter.
     const DIV = document.createElement("DIV");
     DIV.innerHTML = "";
+    const formData = this._currentBabonus.toString();
     for (const id of this._addedFilters) {
       DIV.innerHTML += await this._templateFilter(id, formData);
     }
@@ -358,9 +332,7 @@ export class BabonusWorkshop extends FormApplication {
     // object's babonus flags, or 'force' must explicitly be set to 'true'.
     const wasBabUpdate = foundry.utils.hasProperty(options, `data.flags.${MODULE}`);
     if (!(wasBabUpdate || force)) return;
-    this._type = null;
-    this._bab = null;
-    delete this._filters; // appended formgroups for editor mode purposes.
+    delete this._currentBabonus;
     this._addedFilters.clear();
     this._itemTypes.clear();
     this.object.apps[this.appId] = this;
@@ -373,6 +345,8 @@ export class BabonusWorkshop extends FormApplication {
     delete this.object.apps[this.appId];
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -382,6 +356,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   /**
    * Otter Rainbow.
@@ -430,8 +406,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus deleted.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus deleted.
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -448,8 +424,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the aura configuration of the babonus on or off, or open the config dialog.
-   * @param {PointerEvent} event                                    The initiating click event.
-   * @returns {Promise<Actor5e|Item5e|AuraConfigurationDialog>}     The actor, item, or aura config.
+   * @param {PointerEvent} event                                The initiating click event.
+   * @returns {Promise<Actor|Item|AuraConfigurationDialog>}     The actor, item, or aura config.
    */
   async _onToggleAura(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -464,8 +440,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the exclusivity property on a babonus.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
    */
   async _onToggleExclusive(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -475,8 +451,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the consumption property on a babonus.
-   * @param {PointerEvent} event                              The initiating click event.
-   * @returns {Promise<Actor5e|Item5e|ConsumptionDialog>}     The actor, item, or consumption config.
+   * @param {PointerEvent} event                          The initiating click event.
+   * @returns {Promise<Actor|Item|ConsumptionDialog>}     The actor, item, or consumption config.
    */
   async _onToggleConsume(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -491,8 +467,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the optional property on a babonus.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
    */
   async _onToggleOptional(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -502,8 +478,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the enabled property on a babonus.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -513,8 +489,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Copy a babonus on the actor or item.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus copied.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus copied.
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -536,6 +512,8 @@ export class BabonusWorkshop extends FormApplication {
     return this._renderEditor(event);
   }
 
+  //#endregion
+
   /**
    * ----------------------------------------------------
    *
@@ -545,6 +523,8 @@ export class BabonusWorkshop extends FormApplication {
    *
    * ----------------------------------------------------
    */
+
+  //#region
 
   /**
    * Collapse a section in the builder.
@@ -711,7 +691,7 @@ export class BabonusWorkshop extends FormApplication {
    * Get the inner html of a filter you want to add.
    * @param {string} id                   The id of the filter.
    * @param {object} [formData=null]      The toString'd data of a babonus in case of one being edited.
-   * @returns {string}                    The template.
+   * @returns {Promise<string>}           The template.
    */
   async _templateFilter(id, formData = null) {
     if (id !== "arbitraryComparison") return this._templateFilterUnique(id, formData);
@@ -720,9 +700,9 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Create and append the form-group for a specific filter, then add listeners.
-   * @param {string} id           The id of the filter to add.
-   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
-   * @returns {string}            The template.
+   * @param {string} id             The id of the filter to add.
+   * @param {object} formData       The toString'd data of a babonus in case of one being edited.
+   * @returns {Promise<string>}     The template.
    */
   async _templateFilterUnique(id, formData) {
     const data = {
@@ -763,33 +743,24 @@ export class BabonusWorkshop extends FormApplication {
     }[id]);
 
     if (id === "spellComponents") {
-      data.selectOptions = [
-        {value: "ANY", label: "BABONUS.FiltersSpellComponentsMatchAny"},
-        {value: "ALL", label: "BABONUS.FiltersSpellComponentsMatchAll"}
-      ];
-    } else if ("itemRequirements" === id) {
+      data.selectOptions = {ANY: "BABONUS.FiltersSpellComponentsMatchAny", ALL: "BABONUS.FiltersSpellComponentsMatchAll"};
+    } else if (id === "itemRequirements") {
       data.canEquip = this._canEquipItem(this.object);
       data.canAttune = this._canAttuneToItem(this.object);
     } else if (id === "tokenSizes") {
-      data.selectOptions = [
-        {value: 0, label: "BABONUS.SizeGreaterThan"},
-        {value: 1, label: "BABONUS.SizeSmallerThan"}
-      ];
+      data.selectOptions = {0: "BABONUS.SizeGreaterThan", 1: "BABONUS.SizeSmallerThan"};
     } else if (id === "healthPercentages") {
       if (data.value === null) data.value = 50;
-      data.selectOptions = [
-        {value: 0, label: "BABONUS.OrLess"},
-        {value: 1, label: "BABONUS.OrMore"}
-      ];
+      data.selectOptions = {0: "BABONUS.OrLess", 1: "BABONUS.OrMore"};
     }
     return renderTemplate(template, data);
   }
 
   /**
    * Create and append the form-group for a specific repeatable filter, then add listeners.
-   * @param {string} id           The id of the filter to add.
-   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
-   * @returns {string}            The template.
+   * @param {string} id             The id of the filter to add.
+   * @param {object} formData       The toString'd data of a babonus in case of one being edited.
+   * @returns {Promise<string>}     The template.
    */
   async _templateFilterRepeatable(id, formData) {
     const idx = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`).length;
@@ -797,10 +768,9 @@ export class BabonusWorkshop extends FormApplication {
       tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
       label: `BABONUS.Filters${id.capitalize()}Label`,
       id,
-      defaultOptions: ARBITRARY_OPERATORS,
       placeholderOne: `BABONUS.Filters${id.capitalize()}One`,
       placeholderOther: `BABONUS.Filters${id.capitalize()}Other`,
-      array: [{idx}]
+      array: [{idx, options: ARBITRARY_OPERATORS}]
     }
     if (formData) this._prepareData(data, formData);
     return renderTemplate("modules/babonus/templates/builder_components/text_select_text.hbs", data);
@@ -811,9 +781,15 @@ export class BabonusWorkshop extends FormApplication {
    * @param {html} fg     The form-groups created.
    */
   _appendListenersToFilters(fg) {
-    fg.querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onDeleteFilter.bind(this)));
-    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
-    fg.querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
+    fg.querySelectorAll("[data-action='delete-filter']").forEach(n => {
+      n.addEventListener("click", this._onDeleteFilter.bind(this));
+    });
+    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
+      n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
+    });
+    fg.querySelectorAll("[data-action='item-type']").forEach(a => {
+      a.addEventListener("change", this._onPickItemType.bind(this));
+    });
   }
 
   /**
@@ -822,18 +798,18 @@ export class BabonusWorkshop extends FormApplication {
    */
   _newFilterArrayOptions(id) {
     if (id === "attackTypes") {
-      return ["mwak", "rwak", "msak", "rsak"].map(a => {
-        return {value: a, label: a.toUpperCase(), tooltip: CONFIG.DND5E.itemActionTypes[a]};
-      });
+      return ["mwak", "rwak", "msak", "rsak"].map(a => ({value: a, label: a, tooltip: CONFIG.DND5E.itemActionTypes[a]}));
     } else if (id === "itemTypes") {
-      return ITEM_ROLL_TYPES.map(i => {
-        return {value: i, label: i.slice(0, 4).toUpperCase(), tooltip: `ITEM.Type${i.titleCase()}`};
-      });
+      const models = dnd5e.dataModels.item.config;
+      return Item.TYPES.reduce((acc, type) => {
+        const hasDamage = models[type]?.schema.getField("damage.parts");
+        if (hasDamage) acc.push({value: type, label: type.slice(0, 4), tooltip: `TYPES.Item.${type}`});
+        return acc;
+      }, []);
     } else if (id === "spellLevels") {
-      return Object.entries(CONFIG.DND5E.spellLevels).map(([value, tooltip]) => ({value, label: value, tooltip}));
+      return KeyGetter[id].map(e => ({value: e.value, label: e.value, tooltip: e.label}));
     } else if (id === "spellComponents") {
-      const entries = Object.entries(CONFIG.DND5E.spellComponents).concat(Object.entries(CONFIG.DND5E.spellTags));
-      return entries.map(([key, {abbr, label}]) => ({value: key, label: abbr, tooltip: label}));
+      return KeyGetter[id].map(e => ({value: e.value, label: e.abbr, tooltip: e.label}));
     }
   }
 
@@ -844,12 +820,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   _prepareData(data, formData) {
     if (data.id === "arbitraryComparison") {
-      data.array = foundry.utils.deepClone(this._bab.filters[data.id]).map((n, idx) => {
-        const options = ARBITRARY_OPERATORS.reduce((acc, {value, label}) => {
-          const selected = (value === n.operator) ? "selected" : "";
-          return acc + `<option value="${value}" ${selected}>${label}</option>`;
-        }, "");
-        return {...n, idx, options};
+      data.array = foundry.utils.deepClone(this._currentBabonus.filters[data.id]).map((n, idx) => {
+        return {...n, idx, options: ARBITRARY_OPERATORS, selected: n.operator};
       });
     } else if ([
       "abilities",
@@ -898,17 +870,17 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Whether this item is one that can be equipped.
-   * @param {Item5e} item     The item being viewed.
-   * @returns {boolean}       Whether it can be equipped.
+   * @param {Item} item     The item being viewed.
+   * @returns {boolean}     Whether it can be equipped.
    */
   _canEquipItem(item) {
-    return (item instanceof Item) && EQUIPPABLE_TYPES.includes(item.type);
+    return (item instanceof Item) && !!dnd5e.dataModels.item.config[item.type].schema.getField("equipped");
   }
 
   /**
    * Whether this item has been set as attuned or attunement required.
-   * @param {Item5e} item     The item being viewed.
-   * @returns {boolean}       Whether it is or can be attuned to.
+   * @param {Item} item     The item being viewed.
+   * @returns {boolean}     Whether it is or can be attuned to.
    */
   _canAttuneToItem(item) {
     const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
@@ -925,34 +897,40 @@ export class BabonusWorkshop extends FormApplication {
     if (id === "arbitraryComparison") return true;
     if (this._addedFilters.has(id)) return false;
 
-    const type = this._type ?? this._bab.type;
+    // The filter must be a property on the babonus type's schema.
+    const hasFilter = BabonusTypes[this._currentBabonus.type].schema.getField(`filters.${id}`);
+    if (!hasFilter) return false;
 
+    // Handle special cases.
     switch (id) {
-      case "abilities": return ["attack", "damage", "save", "test"].includes(type);
-      case "attackTypes": return ["attack", "damage"].includes(type);
-      case "baseArmors": return true;
-      case "baseTools": return ["test"].includes(type);
       case "baseWeapons": return this._itemTypes.has("weapon");
-      case "creatureTypes": return true;
-      case "customScripts": return true;
-      case "damageTypes": return ["attack", "damage", "save"].includes(type);
-      case "healthPercentages": return true;
       case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
-      case "itemTypes": return ["attack", "damage", "save"].includes(type);
       case "preparationModes": return this._itemTypes.has("spell");
-      case "remainingSpellSlots": return true;
-      case "saveAbilities": return ["save"].includes(type);
-      case "skillIds": return ["test"].includes(type);
       case "spellComponents": return this._itemTypes.has("spell");
       case "spellLevels": return this._itemTypes.has("spell");
       case "spellSchools": return this._itemTypes.has("spell");
-      case "statusEffects": return true;
-      case "targetEffects": return true;
-      case "throwTypes": return ["throw"].includes(type);
-      case "tokenSizes": return true;
       case "weaponProperties": return this._itemTypes.has("weapon");
+      default: return true;
     }
   }
+
+  /**
+   * Get the icon for specific babonus type.
+   * @param {string} type     The babonus type.
+   * @returns {string}        The FA class.
+   */
+  _getIcon(type) {
+    return {
+      attack: "fa-solid fa-location-crosshairs",
+      damage: "fa-solid fa-burst",
+      save: "fa-solid fa-hand-sparkles",
+      throw: "fa-solid fa-person-falling-burst",
+      test: "fa-solid fa-bolt",
+      hitdie: "fa-solid fa-heart-pulse"
+    }[type];
+  }
+
+  //#endregion
 
   /**
    * ----------------------------------------------------
@@ -964,9 +942,11 @@ export class BabonusWorkshop extends FormApplication {
    * ----------------------------------------------------
    */
 
+  //#region
+
   /**
    * Gather a collection of babonuses from a document.
-   * @param {Document5e} object         An actor, item, effect, or template.
+   * @param {Document} object           An actor, item, effect, or template.
    * @returns {Collection<Babonus>}     A collection of babonuses.
    */
   static _getCollection(object) {
@@ -992,15 +972,23 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Babonus}               The created babonus.
    */
   static _createBabonus(data, id, options = {}) {
-    const types = TYPES.map(t => t.value);
-    if (!types.includes(data.type)) {
-      throw new Error("INVALID BABONUS TYPE.");
-    }
-
     // if no id explicitly provided, make a new one.
     data.id = id ?? foundry.utils.randomID();
 
     const bonus = new BabonusTypes[data.type](data, options);
     return bonus;
   }
+
+  /**
+   * Embed a created babonus onto the target object.
+   * @param {Document} object         The actor, item, or effect that should have the babonus.
+   * @param {Babonus} bonus           The created babonus.
+   * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+   */
+  static async _embedBabonus(object, bonus) {
+    await object.update({[`flags.${MODULE}.bonuses.-=${bonus.id}`]: null}, {render: false});
+    return object.setFlag(MODULE, `bonuses.${bonus.id}`, bonus.toObject());
+  }
+
+  //#endregion
 }

@@ -16,8 +16,8 @@
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
         </header>
         <div class="types">
-          {{#each TYPES}}
-          <a data-action="pick-type" data-type="{{value}}"><i class="{{icon}}"></i>{{localize label}}</a>
+          {{#each createButtons}}
+          <a data-action="pick-type" data-type="{{type}}"><i class="{{icon}}"></i>{{localize label}}</a>
           {{/each}}
         </div>
       </section>
@@ -33,8 +33,10 @@
           <div class="bonus-required">
 
             <div class="babonus-type">
-              <div class="babonus-type-header">{{localize builder.intro}}</div>
-              <i class="{{{builder.type.icon}}}"></i> {{localize builder.type.label}}
+              <div class="babonus-type-header">
+                {{localize (ifThen isEditing 'BABONUS.EditingBonus' 'BABONUS.CreatingBonus')}}
+              </div>
+              <i class="{{builder.icon}}"></i> {{localize builder.label}}
             </div>
             <div class="form-group">
               <label class="label" data-tooltip="BABONUS.IdentifiersTooltip">
@@ -42,17 +44,17 @@
               </label>
               <div class="form-fields">
                 <span class="sep">{{localize "BABONUS.Name"}}</span>
-                <input type="text" name="name" placeholder="{{localize 'BABONUS.NamePlaceholder'}}"
-                  value="{{builder.name}}">
+                <input type="text" name="name" placeholder="{{localize 'BABONUS.NamePlaceholder'}}" value="{{currentBabonus.name}}">
                 <span class="sep">{{localize "BABONUS.ID"}}</span>
-                <input type="text" name="id" value="{{builder.id}}" disabled>
+                <input type="text" name="id" value="{{currentBabonus.id}}" disabled>
               </div>
             </div>
             <div class="form-group">
               <label class="label" data-tooltip="BABONUS.DescriptionTooltip">{{localize "BABONUS.Description"}}</label>
               <div class="form-fields">
-                <textarea name="description"
-                  placeholder="{{localize 'BABONUS.DescriptionPlaceholder'}}">{{builder.description}}</textarea>
+                <textarea name="description" placeholder="{{localize 'BABONUS.DescriptionPlaceholder'}}">
+                  {{~currentBabonus.description~}}
+                </textarea>
               </div>
             </div>
 
@@ -63,11 +65,13 @@
             <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.BonusesTooltip"></i>
           </header>
           <div class="bonus-inputs">
-            {{#each bonuses}}
+            {{#each currentBabonus.bonuses}}
             <div class="form-group">
-              <label class="label" data-tooltip="{{TOOLTIP}}">{{localize LABEL}}</label>
+              <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key}}">
+                {{localize (concat "BABONUS.Type" (babonusCapitalize ../currentBabonus.type @key) "Label")}}
+              </label>
               <div class="form-fields">
-                <input type="text" name="{{NAME}}" value="{{value}}">
+                <input type="text" name="bonuses.{{@key}}" value="{{this}}">
               </div>
             </div>
             {{/each}}
@@ -186,9 +190,13 @@
           {{#each filters}}
           <div class="filter {{#unless available}}hidden{{/unless}}" data-id="{{id}}">
             <h1 class="filter-header">
-              <a data-action="add-filter">{{localize header}}</a>
+              <a data-action="add-filter">
+                {{localize (concat "BABONUS.Filters" (babonusCapitalize id))}}
+              </a>
             </h1>
-            <div class="filter-description">{{{localize description}}}</div>
+            <div class="filter-description">
+              {{{localize (concat "BABONUS.Filters" (babonusCapitalize id) "Tooltip")}}}
+            </div>
             <a data-action="add-filter" data-tooltip="BABONUS.AddThisFilter">
               <i class="fa-solid fa-plus"></i>
             </a>
@@ -204,9 +212,15 @@
         <div class="unavailable-filters">
           {{#each filters}}
           <div class="filter {{#if unavailable}}hidden{{/if}}" data-id="{{id}}">
-            <h1 class="filter-header">{{localize header}}</h1>
-            <div class="filter-description">{{{localize description}}}</div>
-            <div class="filter-requirements">{{{localize requirements}}}</div>
+            <h1 class="filter-header">
+              {{localize (concat "BABONUS.Filters" (babonusCapitalize id))}}
+            </h1>
+            <div class="filter-description">
+              {{{localize (concat "BABONUS.Filters" (babonusCapitalize id) "Tooltip")}}}
+            </div>
+            <div class="filter-requirements">
+              {{{localize (concat "BABONUS.Filters" (babonusCapitalize id) "Requirements")}}}
+            </div>
           </div>
           {{/each}}
         </div>

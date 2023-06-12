@@ -157,23 +157,16 @@ export class OptionalSelector {
 
   /**
    * Helper method to activate listeners on the optional bonuses' buttons.
-   * @param {html} html     The entire list of html injected onto the dialog.
+   * @param {HTMLElement} html     The entire list of html injected onto the dialog.
    */
   activateListeners(html) {
-    this.form.querySelectorAll("[data-action^='consume-item']").forEach(n => {
-      n.addEventListener("click", this._onApplyItemOption.bind(this));
-    });
-    this.form.querySelectorAll("[data-action^='consume-slots']").forEach(n => {
-      n.addEventListener("click", this._onApplySlotsOption.bind(this));
-    });
-    this.form.querySelectorAll("[data-action^='consume-health']").forEach(n => {
-      n.addEventListener("click", this._onApplyHealthOption.bind(this));
-    });
-    this.form.querySelectorAll("[data-action='consume-effects']").forEach(n => {
-      n.addEventListener("click", this._onApplyEffectsOption.bind(this));
-    });
-    this.form.querySelectorAll("[data-action='consume-none']").forEach(n => {
-      n.addEventListener("click", this._onApplyNoConsumeOption.bind(this));
+    html.querySelectorAll("[data-action^='consume']").forEach(n => {
+      const action = n.dataset.action;
+      if (action.startsWith("consume-item")) n.addEventListener("click", this._onApplyItemOption.bind(this));
+      else if (action.startsWith("consume-slots")) n.addEventListener("click", this._onApplySlotsOption.bind(this));
+      else if (action.startsWith("consume-health")) n.addEventListener("click", this._onApplyHealthOption.bind(this));
+      else if (action.startsWith("consume-effects")) n.addEventListener("click", this._onApplyEffectsOption.bind(this));
+      else if (action === "consume-none") n.addEventListener("click", this._onApplyNoConsumeOption.bind(this));
     });
   }
 
@@ -334,10 +327,10 @@ export class OptionalSelector {
   _constructScalingSlotsOptions(bonus) {
     return Object.entries(this.actor.system.spells).reduce((acc, [key, val]) => {
       if (!val.value || !val.max) return acc;
-      const level = key === "pact" ? val.level : Number(key.at(-1));
+      const level = (key === "pact") ? val.level : Number(key.at(-1));
       if (level < (bonus.consume.value.min || 1)) return acc;
-      const label = game.i18n.format(`DND5E.SpellLevel${key === "pact" ? "Pact" : "Slot"}`, {
-        level: key === "pact" ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
+      const label = game.i18n.format(`DND5E.SpellLevel${(key === "pact") ? "Pact" : "Slot"}`, {
+        level: (key === "pact") ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
         n: `${val.value}/${val.max}`,
       });
       return acc + `<option value="${key}">${label}</option>`;
@@ -356,9 +349,16 @@ export class OptionalSelector {
     const scales = event.currentTarget.dataset.action.endsWith("-scale");
     const canSupply = this._canSupply(event);
     if (canSupply) {
-      const key = scales ? event.currentTarget.closest(".optional").querySelector(".consumption select").value : this._getLowestValidSpellSlotProperty(bonus);
-      const level = key === "pact" ? this.actor.system.spells.pact.level : Number(key.at(-1));
-      const scale = scales ? Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1) : 0;
+      let key;
+      let scale;
+      if (scales) {
+        key = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        scale = Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1);
+      } else {
+        key = this._getLowestValidSpellSlotProperty(bonus);
+        scale = 0;
+      }
+      const level = (key === "pact") ? this.actor.system.spells.pact.level : Number(key.at(-1));
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
       this._appendToField(event.currentTarget, sitBonus);
@@ -381,7 +381,7 @@ export class OptionalSelector {
     const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
     if ((min < value.min) || !(value.step > 0)) return "";
     let options = "";
-    for (let i = value.min; i <= Math.min(min, value.max || max); i += value.step) {
+    for (let i = (value.min || 1); i <= Math.min(min, value.max || max); i += value.step) {
       options += `<option value="${i}">${game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i})}</option>`;
     }
     return options;
@@ -398,8 +398,15 @@ export class OptionalSelector {
     const scales = event.currentTarget.dataset.action.endsWith("-scale");
     const canSupply = this._canSupply(event);
     if (canSupply) {
-      const value = scales ? event.currentTarget.closest(".optional").querySelector(".consumption select").value : Number(bonus.consume.value.min || 1);
-      const scale = scales ? Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step) : 0;
+      let value;
+      let scale;
+      if (scales) {
+        value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        scale = Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step);
+      } else {
+        value = Number(bonus.consume.value.min || 1);
+        scale = 0;
+      }
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.applyDamage(value);
       this._appendToField(event.currentTarget, sitBonus);
@@ -443,16 +450,16 @@ export class OptionalSelector {
   }
 
   /**
-   * Return an upscaled bonus given a base and a number to multiply with.
-   * If 'scale' is 0, the default bonus is returned and no scaling is performed.
-   * Evaluating roll data properties is necessary here, otherwise scaling will not work.
+   * Return an upscaled bonus given a base and a number to multiply with. If 'scale' is 0, the default bonus is returned
+   * and no scaling is performed. Evaluating roll data properties is necessary here, otherwise scaling will not work. But
+   * it is not needed for bonuses that do not scale, since their roll data (if necessary) has already been replaced.
    * @param {Babonus} bonus     The babonus.
    * @param {number} scale      The number to upscale by multiplicatively.
    * @returns {string}          The upscaled bonus, simplified, and with the base attached.
    */
   _scaleOptionalBonus(bonus, scale) {
+    if (!scale) return bonus.bonuses.bonus;
     const data = this._getRollData(bonus);
-    if (!scale) return new CONFIG.Dice.DamageRoll(bonus.bonuses.bonus, data).formula;
     const roll = new CONFIG.Dice.DamageRoll(bonus.consume.formula || bonus.bonuses.bonus, data);
     const formula = roll.alter(scale, 0, {multiplyNumeric: true}).formula;
     const base = Roll.replaceFormulaData(bonus.bonuses.bonus, data);

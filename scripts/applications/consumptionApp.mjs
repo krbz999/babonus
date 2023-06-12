@@ -53,7 +53,6 @@ export class ConsumptionDialog extends FormApplication {
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("consume");
     const data = foundry.utils.mergeObject({consume: defaults}, formData);
-    defaults.enabled = true;
     return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
