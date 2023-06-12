@@ -406,8 +406,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus deleted.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus deleted.
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -424,8 +424,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the aura configuration of the babonus on or off, or open the config dialog.
-   * @param {PointerEvent} event                                    The initiating click event.
-   * @returns {Promise<Actor5e|Item5e|AuraConfigurationDialog>}     The actor, item, or aura config.
+   * @param {PointerEvent} event                                The initiating click event.
+   * @returns {Promise<Actor|Item|AuraConfigurationDialog>}     The actor, item, or aura config.
    */
   async _onToggleAura(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -440,8 +440,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the exclusivity property on a babonus.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
    */
   async _onToggleExclusive(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -451,8 +451,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the consumption property on a babonus.
-   * @param {PointerEvent} event                              The initiating click event.
-   * @returns {Promise<Actor5e|Item5e|ConsumptionDialog>}     The actor, item, or consumption config.
+   * @param {PointerEvent} event                          The initiating click event.
+   * @returns {Promise<Actor|Item|ConsumptionDialog>}     The actor, item, or consumption config.
    */
   async _onToggleConsume(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -467,8 +467,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the optional property on a babonus.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
    */
   async _onToggleOptional(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -478,8 +478,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Toggle the enabled property on a babonus.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -489,8 +489,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Copy a babonus on the actor or item.
-   * @param {PointerEvent} event            The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus copied.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<Actor|Item>}     The actor or item having its babonus copied.
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -870,8 +870,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Whether this item is one that can be equipped.
-   * @param {Item5e} item     The item being viewed.
-   * @returns {boolean}       Whether it can be equipped.
+   * @param {Item} item     The item being viewed.
+   * @returns {boolean}     Whether it can be equipped.
    */
   _canEquipItem(item) {
     return (item instanceof Item) && !!dnd5e.dataModels.item.config[item.type].schema.getField("equipped");
@@ -879,8 +879,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Whether this item has been set as attuned or attunement required.
-   * @param {Item5e} item     The item being viewed.
-   * @returns {boolean}       Whether it is or can be attuned to.
+   * @param {Item} item     The item being viewed.
+   * @returns {boolean}     Whether it is or can be attuned to.
    */
   _canAttuneToItem(item) {
     const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
@@ -946,7 +946,7 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Gather a collection of babonuses from a document.
-   * @param {Document5e} object         An actor, item, effect, or template.
+   * @param {Document} object           An actor, item, effect, or template.
    * @returns {Collection<Babonus>}     A collection of babonuses.
    */
   static _getCollection(object) {

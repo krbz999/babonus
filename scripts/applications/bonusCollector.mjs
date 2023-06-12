@@ -136,8 +136,8 @@ export class BonusCollector {
 
   /**
    * Get all bonuses that originate from another token on the scene.
-   * @param {TokenDocument5e} token     The token.
-   * @returns {Babonus[]}               The array of bonuses.
+   * @param {TokenDocument} token     The token.
+   * @returns {Babonus[]}             The array of bonuses.
    */
   _collectFromToken(token) {
     if (token.hidden) return [];
@@ -258,7 +258,7 @@ export class BonusCollector {
 
   /**
    * Get the centers of all grid spaces that overlap with a token document.
-   * @param {TokenDocument5e} tokenDoc    The token document on the scene.
+   * @param {TokenDocument} tokenDoc      The token document on the scene.
    * @returns {object[]}                  An array of xy coordinates.
    */
   static _collectTokenCenters(tokenDoc) {
@@ -284,9 +284,9 @@ export class BonusCollector {
    * Given a token and an aura's 'descriptive' radius, returns the area of effect of
    * the aura, as a circle. This is given that measuring is done from the edge of a
    * token, and not from its center.
-   * @param {TokenDocument5e} token     The token whose actor has the aura.
-   * @param {number} range              The range of the aura, usually in feet.
-   * @returns {PIXI}                    The capture area of the aura.
+   * @param {TokenDocument} token     The token whose actor has the aura.
+   * @param {number} range            The range of the aura, usually in feet.
+   * @returns {PIXI}                  The capture area of the aura.
    */
   _createCaptureArea(token, range) {
     const center = token.object.center;
@@ -297,9 +297,9 @@ export class BonusCollector {
 
   /**
    * Get whether the rolling token is within a certain number of feet from another given token.
-   * @param {TokenDocument5e} token     The token whose actor has the aura.
-   * @param {Babonus} bonus             The bonus with the aura and range, usually in feet.
-   * @returns {boolean}                 Whether the rolling token is within range.
+   * @param {TokenDocument} token     The token whose actor has the aura.
+   * @param {Babonus} bonus           The bonus with the aura and range, usually in feet.
+   * @returns {boolean}               Whether the rolling token is within range.
    */
   _tokenWithinAura(token, bonus) {
     // TODO: option to use gridspace setting.
@@ -327,9 +327,9 @@ export class BonusCollector {
 
   /**
    * Get whether an aura can target the rolling actor's token depending on its targeting.
-   * @param {TokenDocument5e} token     The token on whom the aura was found.
-   * @param {Babonus} bonus             The babonus with the aura.
-   * @returns {boolean}                 Whether the bonus can apply.
+   * @param {TokenDocument} token     The token on whom the aura was found.
+   * @param {Babonus} bonus           The babonus with the aura.
+   * @returns {boolean}               Whether the bonus can apply.
    */
   _matchTokenDisposition(token, bonus) {
     const tisp = token.disposition;
