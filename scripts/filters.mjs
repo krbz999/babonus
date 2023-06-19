@@ -557,18 +557,28 @@ export class FILTER {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
     const {included, excluded} = FILTER._splitExlusion(filter);
-    if (!target?.actor) return !included.length;
-    const {value, subtype, custom} = target.actor.system.details?.type ?? {};
-    const race = target.actor.system.details?.race;
-    function _inclusionTest(array) {
-      const val = value ? array.includes(value) : false;
-      const sub = subtype ? array.includes(subtype?.toLowerCase()) : false;
-      const cus = custom ? array.includes(custom?.toLowerCase()) : false;
-      const rac = race ? array.includes(race?.toLowerCase()) : false;
-      return val || sub || cus || rac;
+    if (!target?.actor?.system.details) return !included.length;
+
+    // All the races the target is a member of.
+    let races = [];
+    if (target.actor.type === "npc") {
+      races = split(details.type.subtype);
+      if (details.type.value === "custom") races.push(...split(details.type.custom));
+      else races.push(details.type.value);
+    } else if (target.actor.type === "character") {
+      races = split(details.race);
     }
-    if (included.length && !_inclusionTest(included)) return false;
-    if (excluded.length && _inclusionTest(excluded)) return false;
+
+    function split(str) {
+      return str?.split("/").reduce((acc, e) => {
+        const trim = e.trim().toLowerCase();
+        if (trim.length) acc.push(trim);
+        return acc;
+      }, []) ?? [];
+    }
+
+    if (included.length && !included.some(e => races.includes(e))) return false;
+    if (excluded.length && excluded.some(e => races.includes(e))) return false;
     return true;
   }
 
