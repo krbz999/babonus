@@ -88,6 +88,7 @@
   "BABONUS.FiltersBaseWeaponsTooltip": "Les types d'armes dont l'objet doit faire partie ou ne pas faire partie pour que le bonus s'applique. Par exemple, la hache de guerre, l'arc court ou l'épée longue.",
   "BABONUS.FiltersCreatureTypes": "Types de créatures",
   "BABONUS.FiltersCreatureTypesLabel": "Ty. de Créatures",
+  "BABONUS.FiltersCreatureTypesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts, aux DD de sauvegarde et aux jets de sauvegarde.",
   "BABONUS.FiltersCreatureTypesTooltip": "Le type de créature dont l'acteur cible doit faire partie (ou avoir comme sous-type), ou le type de créature dont la cible ne doit pas faire partie. Par exemple, \"mort-vivant\", \"fée\" ou \"construction\".",
   "BABONUS.FiltersCustomScripts": "Script personnalisé",
   "BABONUS.FiltersCustomScriptsLabel": "Script",
@@ -141,6 +142,7 @@
   "BABONUS.FiltersStatusEffectsTooltip": "Les conditions auxquelles l'acteur doit être affecté ou ne doit pas être affecté. Par exemple <span style='font-family: monospace;'>blind;charm</span> signifie que vous n'obtiendrez ce bonus que si vous êtes aveuglé ou charmé. Le module recherche les ID d'état dans les effets.",
   "BABONUS.FiltersTargetEffects": "Conditions de la cible",
   "BABONUS.FiltersTargetEffectsLabel": "Conds. Cibles",
+  "BABONUS.FiltersTargetEffectsRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts, aux DD de sauvegarde et aux jets de sauvegarde.",
   "BABONUS.FiltersTargetEffectsTooltip": "Les conditions auxquelles l'acteur cible doit être affecté ou ne doit pas être affecté. Par exemple <span style='font-family: monospace;'>blind;charm</span> signifie que vous n'obtiendrez ce bonus que si votre cible est soit aveuglée, soit charmée. Le module recherche les ID dans les effets.",
   "BABONUS.FiltersThrowTypes": "Types de jets",
   "BABONUS.FiltersThrowTypesLabel": "Ty. de Jets",
@@ -166,6 +168,7 @@
   "BABONUS.ModuleTitle": "Build-a-Bonus",
   "BABONUS.Name": "Nom",
   "BABONUS.NamePlaceholder": "Nom…",
+  "BABONUS.NewBabonus": "Nouveau Babonus",
   "BABONUS.NotificationCopy": "Le bonus '{name}' avec l'identifiant '{id}' a été copié avec succès.",
   "BABONUS.NotificationDelete": "Le bonus '{name}' avec l'identifiant '{id}' a été enregistré avec succès.",
   "BABONUS.NotificationInvalid": "Certaines des données sont invalides. Veuillez réévaluer vos sélections.",
@@ -225,8 +228,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.NewBabonus": "Nouveau Babonus",
-  "BABONUS.FiltersCreatureTypesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts, aux DD de sauvegarde et aux jets de sauvegarde.",
-  "BABONUS.FiltersTargetEffectsRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts, aux DD de sauvegarde et aux jets de sauvegarde."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
