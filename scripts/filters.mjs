@@ -557,7 +557,8 @@ export class FILTER {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
     const {included, excluded} = FILTER._splitExlusion(filter);
-    if (!target?.actor?.system.details) return !included.length;
+    const details = target?.actor?.system.details;
+    if (!details) return !included.length;
 
     // All the races the target is a member of.
     let races = [];
