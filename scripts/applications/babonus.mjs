@@ -549,6 +549,7 @@ export class BabonusWorkshop extends FormApplication {
     const values = formGroup.querySelector("input[type='text']").value.split(";");
     /* If the keys dialog also has 'exclude' as an option for this filter type, add it here: */
     const canExclude = [
+      "actorCreatureTypes",
       "baseArmors",
       "baseTools",
       "baseWeapons",
@@ -718,6 +719,7 @@ export class BabonusWorkshop extends FormApplication {
 
     const template = ("modules/babonus/templates/builder_components/" + {
       abilities: "text_keys.hbs",
+      actorCreatureTypes: "text_keys.hbs",
       attackTypes: "checkboxes.hbs",
       baseArmors: "text_keys.hbs",
       baseTools: "text_keys.hbs",
@@ -825,6 +827,7 @@ export class BabonusWorkshop extends FormApplication {
       });
     } else if ([
       "abilities",
+      "actorCreatureTypes",
       "baseArmors",
       "baseTools",
       "baseWeapons",

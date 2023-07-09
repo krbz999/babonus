@@ -443,7 +443,8 @@ class Babonus extends foundry.abstract.DataModel {
       customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
       preparationModes: new babonusFields.SemicolonArrayField("preparationModes"),
       tokenSizes: new babonusFields.TokenSizeField(),
-      remainingSpellSlots: new babonusFields.SpanField()
+      remainingSpellSlots: new babonusFields.SpanField(),
+      actorCreatureTypes: new babonusFields.SemicolonArrayField()
     };
   }
 

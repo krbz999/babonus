@@ -145,6 +145,10 @@ export class KeyGetter {
     }).sort((a, b) => a.label.localeCompare(b.label));
   }
 
+  static get actorCreatureTypes(){
+    return this.creatureTypes;
+  }
+
   // Preparation modes.
   static get preparationModes() {
     const modes = Object.entries(CONFIG.DND5E.spellPreparationModes);

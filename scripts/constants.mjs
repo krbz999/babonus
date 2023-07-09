@@ -17,6 +17,7 @@ export const AURA_TARGETS = {ALLY: 1, ENEMY: -1, ANY: 2};
 // names of all filters.
 export const FILTER_NAMES = [
   "abilities",
+  "actorCreatureTypes",
   "arbitraryComparison",
   "attackTypes",
   "baseArmors",

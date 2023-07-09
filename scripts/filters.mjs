@@ -49,6 +49,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         statusEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects against.
         targetEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects on the target against.
         creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
+        actorCreatureTypes: ["undead", "!humanoid"],        // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
         itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
@@ -225,6 +226,19 @@ export class FILTER {
       return acc;
     }, {included: [], excluded: []});
     return data;
+  }
+
+  /**
+   * Utility function to split a string by '/'.
+   * @param {string} str      The string to split.
+   * @returns {string[]}      The array of strings.
+   */
+  static _split(str) {
+    return str?.split("/").reduce((acc, e) => {
+      const trim = e.trim().toLowerCase();
+      if (trim.length) acc.push(trim);
+      return acc;
+    }, []) ?? [];
   }
 
   //#endregion
@@ -563,19 +577,40 @@ export class FILTER {
     // All the races the target is a member of.
     let races = [];
     if (target.actor.type === "npc") {
-      races = split(details.type.subtype);
-      if (details.type.value === "custom") races.push(...split(details.type.custom));
+      races = FILTER._split(details.type.subtype);
+      if (details.type.value === "custom") races.push(...FILTER._split(details.type.custom));
       else races.push(details.type.value);
     } else if (target.actor.type === "character") {
-      races = split(details.race);
+      races = FILTER._split(details.race);
     }
 
-    function split(str) {
-      return str?.split("/").reduce((acc, e) => {
-        const trim = e.trim().toLowerCase();
-        if (trim.length) acc.push(trim);
-        return acc;
-      }, []) ?? [];
+    if (included.length && !included.some(e => races.includes(e))) return false;
+    if (excluded.length && excluded.some(e => races.includes(e))) return false;
+    return true;
+  }
+
+  /**
+   * Find out if the rolling actor is one of the included creature etypes and none of the excluded types.
+   * In the case of no values, refer to whether any specific creature type was included.
+   * @param {Actor|Item} object     The rolling actor or item.
+   * @param {string[]} filter       The array of creature types the rolling actor must or must not be.
+   * @returns {boolean}             Whether the rolling actor is of a valid creature type.
+   */
+  static actorCreatureTypes(object, filter) {
+    if (!filter?.length) return true;
+    const {included, excluded} = FILTER._splitExlusion(filter);
+    const actor = object.actor ?? object;
+    const details = actor.system.details;
+    if (!details) return !included.length;
+
+    // All the races the rolling actor is a member of.
+    let races = [];
+    if (actor.type === "npc") {
+      races = FILTER._split(details.type.subtype);
+      if (details.type.value === "custom") races.push(...FILTER._split(details.type.custom));
+      else races.push(details.type.value);
+    } else if (actor.type === "character") {
+      races = FILTER._split(details.race);
     }
 
     if (included.length && !included.some(e => races.includes(e))) return false;
