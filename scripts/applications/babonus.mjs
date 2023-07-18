@@ -731,6 +731,7 @@ export class BabonusWorkshop extends FormApplication {
       itemRequirements: "label_checkbox_label_checkbox.hbs",
       itemTypes: "checkboxes.hbs",
       preparationModes: "text_keys.hbs",
+      proficiencyLevels: "checkboxes.hbs",
       remainingSpellSlots: "text_dash_text.hbs",
       saveAbilities: "text_keys.hbs",
       skillIds: "text_keys.hbs",
@@ -812,6 +813,8 @@ export class BabonusWorkshop extends FormApplication {
       return KeyGetter[id].map(e => ({value: e.value, label: e.value, tooltip: e.label}));
     } else if (id === "spellComponents") {
       return KeyGetter[id].map(e => ({value: e.value, label: e.abbr, tooltip: e.label}));
+    } else if (id === "proficiencyLevels") {
+      return KeyGetter[id].map(e => ({value: e.value, label: e.value, tooltip: e.label}));
     }
   }
 
@@ -849,6 +852,7 @@ export class BabonusWorkshop extends FormApplication {
     } else if ([
       "attackTypes",
       "itemTypes",
+      "proficiencyLevels",
       "spellLevels"
     ].includes(data.id)) {
       const fd = formData[`filters.${data.id}`];

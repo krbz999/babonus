@@ -510,7 +510,7 @@ class ItemBabonus extends Babonus {
       damageTypes: new babonusFields.SemicolonArrayField("damageTypes", true),
       abilities: new babonusFields.SemicolonArrayField("abilities"),
       spellComponents: new babonusFields.SpellComponentsField(),
-      spellLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
+      spellLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
         choices: KeyGetter._getSchemaFilterOptions("spellLevels")
       })),
       spellSchools: new babonusFields.SemicolonArrayField("spellSchools"),
@@ -530,6 +530,16 @@ class AttackBabonus extends ItemBabonus {
       bonus: new foundry.data.fields.StringField(),
       criticalRange: new foundry.data.fields.StringField(),
       fumbleRange: new foundry.data.fields.StringField()
+    };
+  }
+
+  /** @override */
+  static _defineFilterSchema() {
+    return {
+      ...super._defineFilterSchema(),
+      proficiencyLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
+        choices: KeyGetter._getSchemaFilterOptions("proficiencyLevels")
+      }))
     };
   }
 }
@@ -581,7 +591,10 @@ class ThrowBabonus extends Babonus {
       ...super._defineFilterSchema(),
       throwTypes: new babonusFields.SemicolonArrayField("throwTypes"),
       targetEffects: new babonusFields.SemicolonArrayField(),
-      creatureTypes: new babonusFields.SemicolonArrayField()
+      creatureTypes: new babonusFields.SemicolonArrayField(),
+      proficiencyLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
+        choices: KeyGetter._getSchemaFilterOptions("proficiencyLevels")
+      }))
     };
   }
 }
@@ -601,7 +614,10 @@ class TestBabonus extends Babonus {
       ...super._defineFilterSchema(),
       abilities: new babonusFields.SemicolonArrayField("abilities"),
       baseTools: new babonusFields.SemicolonArrayField("baseTools", true),
-      skillIds: new babonusFields.SemicolonArrayField("skillIds", true)
+      skillIds: new babonusFields.SemicolonArrayField("skillIds", true),
+      proficiencyLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
+        choices: KeyGetter._getSchemaFilterOptions("proficiencyLevels")
+      }))
     };
   }
 }
