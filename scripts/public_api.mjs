@@ -33,8 +33,7 @@ export function _createAPI() {
       TYPES: Object.keys(BabonusTypes)
     }
   };
-  game.modules.get(MODULE).api = API;
-  window.babonus = API;
+  window.babonus = game.modules.get(MODULE).api = API;
 }
 
 /**

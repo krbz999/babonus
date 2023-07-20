@@ -1,6 +1,4 @@
-/**
- * A collection of getters for Keys dialogs when creating or editing a babonus.
- */
+/** A collection of getters for Keys dialogs when creating or editing a babonus. */
 export class KeyGetter {
 
   /**
