@@ -257,7 +257,7 @@ function findTokensInRangeOfToken(source, radius) {
  * @param {Token} tokenA        One token placeable.
  * @param {Token} tokenB        Another token placeable.
  * @param {object} options      Options to modify the measurements.
- * @returns {number}            The minimum distance (in feet).
+ * @returns {number}            The minimum distance (in units of measurement).
  */
 function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
   const spacesA = getOccupiedGridSpaces(tokenA.document);
