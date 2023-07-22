@@ -86,8 +86,8 @@
   "BABONUS.FiltersBaseWeaponsLabel": "Armes",
   "BABONUS.FiltersBaseWeaponsRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts et aux DD de sauvegarde, et uniquement si \"arme\" est sélectionné comme l'un des types d'objet.",
   "BABONUS.FiltersBaseWeaponsTooltip": "Les types d'armes dont l'objet doit faire partie ou ne pas faire partie pour que le bonus s'applique. Par exemple, la hache de guerre, l'arc court ou l'épée longue.",
-  "BABONUS.FiltersCreatureTypes": "Types de créatures",
-  "BABONUS.FiltersCreatureTypesLabel": "Ty. de Créatures",
+  "BABONUS.FiltersCreatureTypes": "Types de créatures ciblées",
+  "BABONUS.FiltersCreatureTypesLabel": "Créature cible",
   "BABONUS.FiltersCreatureTypesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts, aux DD de sauvegarde et aux jets de sauvegarde.",
   "BABONUS.FiltersCreatureTypesTooltip": "Le type de créature dont l'acteur cible doit faire partie (ou avoir comme sous-type), ou le type de créature dont la cible ne doit pas faire partie. Par exemple, \"mort-vivant\", \"fée\" ou \"construction\".",
   "BABONUS.FiltersCustomScripts": "Script personnalisé",
@@ -228,5 +228,8 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.FiltersActorCreatureTypesLabel": "Types de créatures",
+  "BABONUS.FiltersActorCreatureTypes": "Types de créatures de l'acteur",
+  "BABONUS.FiltersActorCreatureTypesTooltip": "Le type de créature dont l'acteur doit faire partie (ou qu'il doit avoir comme sous-type), ou le type de créature dont l'acteur ne doit pas faire partie. Par exemple \"mort-vivant\", \"fée\", ou \"construction\"."
 }
