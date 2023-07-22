@@ -5,7 +5,7 @@
     <select name="filters.{{id}}.type">
       {{selectOptions selectOptions selected=type localize=true}}
     </select>
-    <input type="number" data-dtype="Number" name="filters.{{id}}.size" placeholder="{{localize 'BABONUS.SizePlaceholder'}}" value="{{size}}">
+    <input type="number" name="filters.{{id}}.size" placeholder="{{localize 'BABONUS.SizePlaceholder'}}" value="{{size}}">
     <span class="sep">{{localize "BABONUS.CompareToSelf"}}</span>
     <input type="checkbox" name="filters.{{id}}.self" {{checked self}}>
   </div>
