@@ -126,7 +126,7 @@ export class BonusCollector {
     const validSelfAura = (bab) => {
       const isBlockedAura = bab.isTokenAura && (bab.isAuraBlocked || !bab.aura.self);
       return !isBlockedAura && !bab.isTemplateAura;
-    }
+    };
 
     const actor = this._collectFromDocument(this.actor, [validSelfAura]);
     const items = this.actor.items.reduce((acc, item) => acc.concat(this._collectFromDocument(item, [validSelfAura])), []);
@@ -146,7 +146,7 @@ export class BonusCollector {
     const validTokenAura = (bab) => {
       const isBlockedAura = bab.isTokenAura && bab.isAuraBlocked;
       return !isBlockedAura && !bab.isTemplateAura;
-    }
+    };
 
     // A filter for discarding auras that do not have a long enough radius.
     const rangeChecker = (bab) => {
@@ -154,14 +154,29 @@ export class BonusCollector {
       const validTargeting = this._matchTokenDisposition(token, bab);
       if (!validTargeting) return false;
       return this._tokenWithinAura(token, bab);
-    }
+    };
 
-    const actor = this._collectFromDocument(token.actor, [validTokenAura, rangeChecker]);
+    // A filter for discarding auras that require but do not have line of sight.
+    const sightChecker = (bab) => {
+      if (!bab.aura.require.sight || !canvas.scene.tokenVision) return true;
+      return canvas.effects.visibility.testVisibility(token.object.center, {object: this.token.object});
+    };
+
+    // A filter for discarding auras that require but do not have an unobstructed path.
+    const moveChecker = (bab) => {
+      if (!bab.aura.require.move) return true;
+      const area = CONFIG.Canvas.polygonBackends.move.create(token.object.center, {type: "move"});
+      return this.tokenCenters.some(({x, y}) => area.contains(x, y));
+    };
+
+    const checkers = [validTokenAura, rangeChecker, sightChecker, moveChecker];
+
+    const actor = this._collectFromDocument(token.actor, checkers);
     const items = token.actor.items.reduce((acc, item) => {
-      return acc.concat(this._collectFromDocument(item, [validTokenAura, rangeChecker]));
+      return acc.concat(this._collectFromDocument(item, checkers));
     }, []);
     const effects = token.actor.appliedEffects.reduce((acc, effect) => {
-      return acc.concat(this._collectFromDocument(effect, [validTokenAura, rangeChecker]));
+      return acc.concat(this._collectFromDocument(effect, checkers));
     }, []);
     return [...actor, ...items, ...effects];
   }
@@ -181,7 +196,7 @@ export class BonusCollector {
       const isOwn = this.token.actor === bab.actor;
       if (isOwn) return bab.aura.self;
       return this._matchTemplateDisposition(template, bab);
-    }
+    };
 
     const templates = this._collectFromDocument(template, [templateAuraChecker]);
     return templates;
