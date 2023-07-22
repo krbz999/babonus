@@ -28,7 +28,8 @@
         "type": "system",
         "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
         "compatibility": {
-          "minimum": "2.2.1"
+          "minimum": "2.2.1",
+          "maximum": "2.2.9"
         }
       }
     ]
@@ -50,6 +51,10 @@
   "flags": {
     "fvttdevleague": {
       "package-jam": 2022
+    },
+    "hotReload": {
+      "extensions": ["css", "hbs", "json"],
+      "paths": []
     }
   },
   "url": "https://github.com/krbz999/babonus",
