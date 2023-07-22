@@ -28,6 +28,10 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         self: false,                                        // Whether the aura affects the owner, too.
         disposition: 1                                      // What token actors within range to affect.
         blockers: ["dead", "unconscious"]                   // Array of statuses that stop auras from being transferred.
+        require: {                                          // Obstructions that might block an aura.
+          sight: true,                                      // Whether the aura requires that the receiver can see the source.
+          move: true                                        // Whether the aura requires an unobstructed path from the source to the receiver.
+        }
       },
       bonuses: {
         bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.

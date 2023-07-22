@@ -416,7 +416,11 @@ class Babonus extends foundry.abstract.DataModel {
         range: new foundry.data.fields.StringField({nullable: true, initial: null}),
         self: new foundry.data.fields.BooleanField({required: false, initial: true}),
         disposition: new foundry.data.fields.NumberField({initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
-        blockers: new babonusFields.SemicolonArrayField()
+        blockers: new babonusFields.SemicolonArrayField(),
+        require: new foundry.data.fields.SchemaField({
+          sight: new foundry.data.fields.BooleanField(),
+          move: new foundry.data.fields.BooleanField()
+        })
       })
     };
   }
