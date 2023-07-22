@@ -256,17 +256,14 @@ function findTokensInRangeOfToken(source, radius) {
  * @param {Token} tokenA        One token placeable.
  * @param {Token} tokenB        Another token placeable.
  * @param {object} options      Options to modify the measurements.
- * @returns {number}            The minimum distance.
+ * @returns {number}            The minimum distance (in units of measurement).
  */
 function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
   const spacesA = getOccupiedGridSpaces(tokenA.document);
   const spacesB = getOccupiedGridSpaces(tokenB.document);
   // Construct rays between each grid center of tokenA to each grid center of tokenB.
   const rays = spacesA.flatMap(a => spacesB.map(b => ({ray: new Ray(a, b)})));
-  const horizontalDistance = canvas.grid.measureDistances(rays, options).reduce((acc, n) => {
-    const dist = n * canvas.dimensions.distancePixels;
-    return Math.min(dist, acc);
-  }, Infinity);
+  const horizontalDistance = Math.min(Infinity, ...canvas.grid.measureDistances(rays, options));
   const verticalDistance = Math.abs(tokenA.document.elevation - tokenB.document.elevation);
   return Math.max(horizontalDistance, verticalDistance);
 }
