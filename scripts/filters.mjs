@@ -66,6 +66,9 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         // ATTACK, DAMAGE, THROW, TEST:
         abilities: ["int"],                                 // The ability the actor/item must be using.
 
+        // ATTACK, TEST, THROW:
+        proficiencyLevels: [0, 1, 2, 0.5],                  // The valid proficiency levels.
+
         // SAVE:
         saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
 
@@ -78,7 +81,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 
         // SPELL:
         spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one, or match "ANY".
-        spellLevels: ['0','1','2','3'],                     // The level the spell must be.
+        spellLevels: [0, 1, 2, 3],                          // The level the spell must be.
         spellSchools: ["evo", "con"],                       // The school the spell must be.
 
         // WEAPON
@@ -167,6 +170,7 @@ export class FILTER {
    * @param {string} [details.abilityId]        The ability used for an ability check.
    * @param {string} [details.skillId]          The id of the skill, in case of skill checks.
    * @param {number} [details.spellLevel]       The level of the spell, if needed.
+   * @param {string} [details.toolId]           The id of the tool type, in case of tool checks.
    * @returns {Babonus[]}                       The filtered Collection.
    */
   static finalFilterBonuses(bonuses, object, details = {}) {
@@ -407,8 +411,7 @@ export class FILTER {
   static spellLevels(item, filter, {spellLevel = null} = {}) {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
-    const level = Number(spellLevel ?? item.system.level);
-    return filter.some(f => (f == level));
+    return filter.includes(spellLevel ?? item.system.level);
   }
 
   /**
@@ -646,19 +649,26 @@ export class FILTER {
 
   /**
    * Find out if the embedded script returns true.
-   * @param {Actor|Item} object     The item or actor.
-   * @param {string} script         The script saved in the filter.
-   * @returns {boolean}             True if the script returns true, otherwise false.
+   * @param {Actor|Item} object               The item or actor.
+   * @param {string} script                   The script saved in the filter.
+   * @param {object} details                  Additional context to help filter the bonus.
+   * @param {boolean} details.isConcSave      Whether this saving throw is made to maintain concentration.
+   * @param {string} details.abilityId        The ability used for an ability check.
+   * @param {string} details.skillId          The id of the skill, in case of skill checks.
+   * @param {string} details.toolId           The id of the tool type, in case of tool checks.
+   * @param {number} details.spellLevel       The level of the spell, if needed.
+   * @param {string} details.throwType        The type of saving thwo being made (possibly 'death').
+   * @returns {boolean}                       True if the script returns true, otherwise false.
    */
-  static customScripts(object, script) {
+  static customScripts(object, script, details = {}) {
     if (!script?.length) return true;
     if (game.settings.get(MODULE, SETTINGS.SCRIPT)) return true;
     try {
-      const func = Function("actor", "item", "token", script);
+      const func = Function("actor", "item", "token", "details", script);
       const actor = (object.parent instanceof Actor) ? object.parent : (object instanceof Actor) ? object : null;
       const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
       const item = (object instanceof Item) ? object : null;
-      const valid = func.call({}, actor, item, token) === true;
+      const valid = func.call({}, actor, item, token, details) === true;
       return valid;
     } catch (err) {
       console.error(err);
@@ -751,6 +761,42 @@ export class FILTER {
     const actor = object.actor ?? object;
     const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
     return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
+  }
+
+  /**
+   * Find out if the roll was proficient, and if at a valid level.
+   * @param {Actor|Item} object             The actor or item performing the roll.
+   * @param {number[]} filter               The levels of valid proficiencies.
+   * @param {object} details                Additional properties for the filtering.
+   * @param {string} details.throwType      The type of saving throw.
+   * @param {string} details.abilityId      The type of ability check.
+   * @param {string} details.skillId        The type of skill check.
+   * @param {string} details.toolId         The type of tool check.
+   * @returns {boolean}                     Whether the roll was one of the proficiency levels.
+   */
+  static proficiencyLevels(object, filter, {throwType, abilityId, skillId, toolId}) {
+    if (!filter?.length) return true;
+
+    // Case 1: Tool.
+    else if (toolId) return filter.includes(object.system.tools[toolId]?.prof.multiplier);
+
+    // Case 2: Skill.
+    else if (skillId) return filter.includes(object.system.skills[skillId]?.prof.multiplier);
+
+    // Case 3: Ability Check.
+    else if (abilityId) return false; // cannot be proficient in standard ability checks.
+
+    // Case 4: Attack Roll.
+    else if (object instanceof Item) return filter.includes(Number(object.system.proficient));
+
+    // Case 5: Death Saving Throw.
+    else if (throwType === "death") return filter.includes(Number(object.flags.dnd5e?.diamondSoul));
+
+    // Case 6: Saving Throw.
+    else if (throwType) return filter.includes(object.system.abilities[throwType]?.saveProf.multiplier);
+
+    // Else somehow return false.
+    else return false;
   }
 
   //#endregion

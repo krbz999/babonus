@@ -99,7 +99,13 @@ export class KeyGetter {
   // spell levels.
   static get spellLevels() {
     const levels = Object.entries(CONFIG.DND5E.spellLevels);
-    return levels.map(([value, label]) => ({value, label}));
+    return levels.map(([value, label]) => ({value: Number(value), label}));
+  }
+
+  // Proficiency levels.
+  static get proficiencyLevels() {
+    const levels = Object.entries(CONFIG.DND5E.proficiencyLevels);
+    return levels.map(([value, label]) => ({value: Number(value), label}));
   }
 
   // all weapon properties.
@@ -145,7 +151,7 @@ export class KeyGetter {
     }).sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  static get actorCreatureTypes(){
+  static get actorCreatureTypes() {
     return this.creatureTypes;
   }
 

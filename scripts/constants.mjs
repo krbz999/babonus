@@ -33,6 +33,7 @@ export const FILTER_NAMES = [
   "remainingSpellSlots",
   "saveAbilities",
   "skillIds",
+  "proficiencyLevels",
   "spellComponents",
   "spellLevels",
   "spellSchools",
