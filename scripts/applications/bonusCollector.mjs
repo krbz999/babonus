@@ -387,6 +387,7 @@ export class BonusCollector {
 
   /**
    * Draw the collected auras, then remove them 5 seconds later or when this function is called again.
+   * @credit to @freeze2689
    */
   async _drawAuras() {
     const id = `babonus-${foundry.utils.randomID()}`;
@@ -399,8 +400,36 @@ export class BonusCollector {
       const token = bonus.token;
       const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
       const pixels = range * canvas.dimensions.distancePixels + token.h / 2;
-      shape.lineStyle(5, color, 0.5);
-      shape.drawCircle(token.w / 2, token.h / 2, pixels);
+
+      let m, s;
+      if (bonus.aura.require.move) {
+        m = CONFIG.Canvas.polygonBackends.move.create(token.center, {
+          type: "move", hasLimitedRadius: true, radius: pixels
+        });
+      }
+      if (bonus.aura.require.sight) {
+        s = CONFIG.Canvas.polygonBackends.sight.create(token.center, {
+          type: "sight", hasLimitedRadius: true, radius: pixels
+        });
+      }
+
+      // Case 1: No constraints.
+      if (!m && !s) {
+        shape.beginFill(color, 0.25).drawCircle(token.w / 2, token.h / 2, pixels).endFill();
+      }
+
+      // Case 2: Both constraints.
+      else if (m && s) {
+        shape.beginFill(color, 0.25).drawPolygon(m.intersectPolygon(s)).endFill();
+        shape.pivot.set(token.x, token.y);
+      }
+
+      // Case 3: Single constraint.
+      else if (m || s) {
+        shape.beginFill(color, 0.25).drawShape(m ?? s).endFill();
+        shape.pivot.set(token.x, token.y);
+      }
+
       token.addChild(shape);
     }
     setTimeout(() => this._deletePixiAuras(id), 5000);
