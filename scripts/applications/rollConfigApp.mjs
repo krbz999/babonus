@@ -353,12 +353,12 @@ export class OptionalSelector {
       let scale;
       if (scales) {
         key = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        const level = (key === "pact") ? this.actor.system.spells.pact.level : Number(key.at(-1));
         scale = Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1);
       } else {
         key = this._getLowestValidSpellSlotProperty(bonus);
         scale = 0;
       }
-      const level = (key === "pact") ? this.actor.system.spells.pact.level : Number(key.at(-1));
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
       this._appendToField(event.currentTarget, sitBonus);
