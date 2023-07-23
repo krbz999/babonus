@@ -3,7 +3,7 @@
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <select name="filters.{{id}}.type">
-      {{selectOptions selectOptions selected=type localize=true}}
+      {{selectOptions options selected=type localize=true}}
     </select>
     <input type="number" name="filters.{{id}}.size" placeholder="{{localize 'BABONUS.SizePlaceholder'}}" value="{{size}}">
     <span class="sep">{{localize "BABONUS.CompareToSelf"}}</span>

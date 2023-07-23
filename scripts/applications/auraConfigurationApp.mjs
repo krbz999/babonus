@@ -35,7 +35,8 @@ export class AuraConfigurationDialog extends FormApplication {
       disableTemplate: !(this.clone.parent instanceof Item),
       blockers: this.clone.aura.blockers.join(";"),
       choices,
-      ...this.clone
+      source: this.clone.toObject(),
+      clone: this.clone
     };
   }
 

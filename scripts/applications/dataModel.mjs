@@ -1,5 +1,4 @@
 import {AURA_TARGETS} from "../constants.mjs";
-import {KeyGetter} from "../helpers/helpers.mjs";
 import {babonusFields} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -9,7 +8,13 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  toObject(source = false) {
+  _initialize(...args) {
+    super._initialize(...args);
+    this.prepareDerivedData();
+  }
+
+  /** @override */
+  toObject(source = true) {
     return super.toObject(source);
   }
 
@@ -230,9 +235,8 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get isTokenAura() {
-    if (!this.aura.enabled || this.aura.isTemplate) return false;
-    const range = dnd5e.utils.simplifyBonus(this.aura.range, this.getRollData({deterministic: true}));
-    return (range === -1) || (range > 0);
+    const aura = this.aura;
+    return (aura.enabled && !aura.isTemplate) && ((aura.range === -1) || (aura.range > 0));
   }
 
   /**
@@ -381,8 +385,8 @@ class Babonus extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     const base = this._defineBaseSchema();
-    base.bonuses = new babonusFields.BonusesField(this._defineBonusSchema());
-    base.filters = new babonusFields.FiltersField(this._defineFilterSchema());
+    base.bonuses = new babonusFields.data.bonuses(this._defineBonusSchema());
+    base.filters = new babonusFields.data.filters(this._defineFilterSchema());
     return base;
   }
 
@@ -416,7 +420,7 @@ class Babonus extends foundry.abstract.DataModel {
         range: new foundry.data.fields.StringField({nullable: true, initial: null}),
         self: new foundry.data.fields.BooleanField({required: false, initial: true}),
         disposition: new foundry.data.fields.NumberField({initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
-        blockers: new babonusFields.SemicolonArrayField(),
+        blockers: new babonusFields.filters.statusEffects(),
         require: new foundry.data.fields.SchemaField({
           sight: new foundry.data.fields.BooleanField(),
           move: new foundry.data.fields.BooleanField()
@@ -439,16 +443,16 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineFilterSchema() {
     return {
-      itemRequirements: new babonusFields.ItemRequirementsField(),
-      arbitraryComparison: new babonusFields.ArbitraryComparisonField(),
-      baseArmors: new babonusFields.SemicolonArrayField("baseArmors", true),
-      statusEffects: new babonusFields.SemicolonArrayField(),
-      healthPercentages: new babonusFields.HealthPercentagesField(),
-      customScripts: new foundry.data.fields.StringField({initial: null, nullable: true}),
-      preparationModes: new babonusFields.SemicolonArrayField("preparationModes"),
-      tokenSizes: new babonusFields.TokenSizeField(),
-      remainingSpellSlots: new babonusFields.SpanField(),
-      actorCreatureTypes: new babonusFields.SemicolonArrayField()
+      itemRequirements: new babonusFields.filters.itemRequirements(),
+      arbitraryComparison: new babonusFields.filters.arbitraryComparison(),
+      baseArmors: new babonusFields.filters.baseArmors(),
+      statusEffects: new babonusFields.filters.statusEffects(),
+      healthPercentages: new babonusFields.filters.healthPercentages(),
+      customScripts: new babonusFields.filters.customScripts(),
+      preparationModes: new babonusFields.filters.preparationModes(),
+      tokenSizes: new babonusFields.filters.tokenSizes(),
+      remainingSpellSlots: new babonusFields.filters.remainingSpellSlots(),
+      actorCreatureTypes: new babonusFields.filters.actorCreatureTypes()
     };
   }
 
@@ -497,6 +501,15 @@ class Babonus extends foundry.abstract.DataModel {
   getRollData({deterministic = false} = {}) {
     return this.origin?.getRollData({deterministic}) ?? {};
   }
+
+  /** @override */
+  prepareDerivedData() {
+    // Prepare aura range.
+    if (this.aura.range) {
+      const range = dnd5e.utils.simplifyBonus(this.aura.range, this.getRollData({deterministic: true}));
+      this.aura.range = range;
+    }
+  }
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
@@ -505,23 +518,17 @@ class ItemBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      itemTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-        choices: Object.keys(dnd5e.dataModels.item.config).filter(u => dnd5e.dataModels.item.config[u].schema.getField("damage.parts"))
-      })),
-      attackTypes: new babonusFields.FilteredArrayField(new foundry.data.fields.StringField({
-        choices: ["mwak", "rwak", "msak", "rsak"]
-      })),
-      damageTypes: new babonusFields.SemicolonArrayField("damageTypes", true),
-      abilities: new babonusFields.SemicolonArrayField("abilities"),
-      spellComponents: new babonusFields.SpellComponentsField(),
-      spellLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
-        choices: KeyGetter._getSchemaFilterOptions("spellLevels")
-      })),
-      spellSchools: new babonusFields.SemicolonArrayField("spellSchools"),
-      baseWeapons: new babonusFields.SemicolonArrayField("baseWeapons", true),
-      weaponProperties: new babonusFields.SemicolonArrayField("weaponProperties", true),
-      targetEffects: new babonusFields.SemicolonArrayField(),
-      creatureTypes: new babonusFields.SemicolonArrayField()
+      itemTypes: new babonusFields.filters.itemTypes(),
+      attackTypes: new babonusFields.filters.attackTypes(),
+      damageTypes: new babonusFields.filters.damageTypes(),
+      abilities: new babonusFields.filters.abilities(),
+      spellComponents: new babonusFields.filters.spellComponents(),
+      spellLevels: new babonusFields.filters.spellLevels(),
+      spellSchools: new babonusFields.filters.spellSchools(),
+      baseWeapons: new babonusFields.filters.baseWeapons(),
+      weaponProperties: new babonusFields.filters.weaponProperties(),
+      targetEffects: new babonusFields.filters.targetEffects(),
+      creatureTypes: new babonusFields.filters.creatureTypes()
     };
   }
 }
@@ -541,9 +548,7 @@ class AttackBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      proficiencyLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
-        choices: KeyGetter._getSchemaFilterOptions("proficiencyLevels")
-      }))
+      proficiencyLevels: new babonusFields.filters.proficiencyLevels()
     };
   }
 }
@@ -573,7 +578,7 @@ class SaveBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      saveAbilities: new babonusFields.SemicolonArrayField("saveAbilities")
+      saveAbilities: new babonusFields.filters.saveAbilities()
     };
   }
 }
@@ -593,12 +598,10 @@ class ThrowBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      throwTypes: new babonusFields.SemicolonArrayField("throwTypes"),
-      targetEffects: new babonusFields.SemicolonArrayField(),
-      creatureTypes: new babonusFields.SemicolonArrayField(),
-      proficiencyLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
-        choices: KeyGetter._getSchemaFilterOptions("proficiencyLevels")
-      }))
+      throwTypes: new babonusFields.filters.throwTypes(),
+      targetEffects: new babonusFields.filters.targetEffects(),
+      creatureTypes: new babonusFields.filters.creatureTypes(),
+      proficiencyLevels: new babonusFields.filters.proficiencyLevels()
     };
   }
 }
@@ -616,12 +619,10 @@ class TestBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      abilities: new babonusFields.SemicolonArrayField("abilities"),
-      baseTools: new babonusFields.SemicolonArrayField("baseTools", true),
-      skillIds: new babonusFields.SemicolonArrayField("skillIds", true),
-      proficiencyLevels: new babonusFields.FilteredArrayField(new foundry.data.fields.NumberField({
-        choices: KeyGetter._getSchemaFilterOptions("proficiencyLevels")
-      }))
+      abilities: new babonusFields.filters.abilities(),
+      baseTools: new babonusFields.filters.baseTools(),
+      skillIds: new babonusFields.filters.skillIds(),
+      proficiencyLevels: new babonusFields.filters.proficiencyLevels()
     };
   }
 }

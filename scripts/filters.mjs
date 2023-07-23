@@ -1,4 +1,4 @@
-import {MODULE, SETTINGS, SPELL_COMPONENT_MATCHING} from "./constants.mjs";
+import {MODULE, SETTINGS} from "./constants.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
 
 /**
@@ -395,9 +395,9 @@ export class FILTER {
 
     const comps = item.system.components;
     // If it must match all, then filter is a (proper) subset of the spell's comps.
-    if (match === SPELL_COMPONENT_MATCHING.ALL) return types.every(type => comps[type]);
+    if (match === "ALL") return types.every(type => comps[type]);
     // Else ensure it matches at least one comp.
-    else if (match === SPELL_COMPONENT_MATCHING.ANY) return types.some(type => comps[type]);
+    else if (match === "ANY") return types.some(type => comps[type]);
     return false;
   }
 

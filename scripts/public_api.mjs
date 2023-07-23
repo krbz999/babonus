@@ -209,7 +209,7 @@ function findTokensInRangeOfAura(object, id) {
   else if (object instanceof Item) actor = object.actor;
   else if (object instanceof ActiveEffect) actor = object.parent;
   const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
-  const range = dnd5e.utils.simplifyBonus(bonus.aura.range, bonus.getRollData({deterministic: true}));
+  const range = bonus.aura.range;
   if (range === -1) return canvas.scene.tokens.filter(t => {
     if (!t.actor) return false;
     if (t.actor.type === "group") return false;

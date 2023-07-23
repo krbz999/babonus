@@ -1,6 +1,4 @@
 import {
-  ARBITRARY_OPERATORS,
-  FILTER_NAMES,
   MODULE,
   MODULE_ICON,
   MODULE_NAME
@@ -10,6 +8,7 @@ import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 import {BabonusKeysDialog} from "./keysDialog.mjs";
 import {BabonusTypes} from "./dataModel.mjs";
+import {babonusFields} from "./dataFields.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   /**
@@ -33,8 +32,8 @@ export class BabonusWorkshop extends FormApplication {
   // The color of the left-side otter.
   _otterColor = "black";
 
-  // The currently selected item types for the 'itemTypes' filter.
-  _itemTypes = new Set();
+  // The babonuses that exist on this document.
+  collection = null;
 
   constructor(object, options) {
     super(object, options);
@@ -87,6 +86,9 @@ export class BabonusWorkshop extends FormApplication {
   async getData() {
     const data = await super.getData();
 
+    // Save the collection of bonuses that exist on this document.
+    this.collection = this.constructor._getCollection(this.object);
+
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
     data.isActor = this.isActor;
@@ -106,7 +108,7 @@ export class BabonusWorkshop extends FormApplication {
       const type = this._currentBabonus.type;
 
       // Whether it is edit mode or create mode.
-      data.isEditing = this.constructor._getCollection(this.object).has(this._currentBabonus.id);
+      data.isEditing = this.collection.has(this._currentBabonus.id);
       if (data.isEditing) data._filters = this._filters;
 
       // The current bonus being made or edited.
@@ -115,12 +117,12 @@ export class BabonusWorkshop extends FormApplication {
       data.addedFilters = this._addedFilters;
 
       // Construct data for the filter pickers.
-      for (const id of FILTER_NAMES) {
+      for (const [id, cls] of Object.entries(babonusFields.filters)) {
         const filterData = {
           id: id,
-          available: this._isFilterAvailable(id) // whether is should be shown in 'available filters'.
+          available: cls.isFilterAvailable(this._addedFilters, this._currentBabonus) // whether is should be shown in 'available filters'.
         };
-        filterData.unavailable = filterData.available || (this._addedFilters.has(id) && (id !== "arbitraryComparisons"));
+        filterData.unavailable = !(filterData.available || this._addedFilters.has(id));
         data.filters.push(filterData);
       }
       data.filters.sort((a, b) => {
@@ -131,25 +133,20 @@ export class BabonusWorkshop extends FormApplication {
     }
 
     // Get current bonuses on the document.
-    const flagBoni = [];
-    for (const [id, babData] of Object.entries(this.object.flags[MODULE]?.bonuses ?? {})) {
-      try {
-        const bab = this.constructor._createBabonus(babData, id, {parent: this.object});
-        bab._collapsed = this._collapsedBonuses.has(id);
-        bab._description = await TextEditor.enrichHTML(bab.description, {
-          async: true,
-          rollData: bab.getRollData()
-        });
-        // Add the icon property to the bonus object
-        bab.icon = this._getIcon(bab.type);
-        bab.typeTooltip = `BABONUS.Type${bab.type.capitalize()}`;
-        flagBoni.push(bab);
-      } catch (err) {
-        console.error(err);
-      }
+    data.currentBonuses = [];
+    for (const bonus of this.collection) {
+      data.currentBonuses.push({
+        bonus: bonus,
+        context: {
+          collapsed: this._collapsedBonuses.has(bonus.id),
+          description: await TextEditor.enrichHTML(bonus.description, {async: true, rollData: bonus.getRollData()}),
+          icon: this._getIcon(bonus.type),
+          typeTooltip: `BABONUS.Type${bonus.type.capitalize()}`
+        }
+      });
     }
     // Sort the bonuses alphabetically by name
-    data.currentBonuses = flagBoni.sort((a, b) => a.name.localeCompare(b.name));
+    data.currentBonuses.sort((a, b) => a.bonus.name.localeCompare(b.bonus.name));
 
     // New babonus buttons.
     data.createButtons = Object.keys(BabonusTypes).map(type => ({
@@ -206,7 +203,6 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='delete-filter']").forEach(a => a.addEventListener("click", this._onDeleteFilter.bind(this)));
     html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
     html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
-    html[0].querySelectorAll("[data-action='item-type']").forEach(a => a.addEventListener("change", this._onPickItemType.bind(this)));
     html[0].querySelectorAll("[data-action='section-collapse']").forEach(a => a.addEventListener("click", this._onSectionCollapse.bind(this)));
 
     // Current bonuses.
@@ -229,7 +225,7 @@ export class BabonusWorkshop extends FormApplication {
     const label = event.currentTarget.closest(".bonus");
     let dragData;
     if (label.dataset.id) {
-      const bab = this.constructor._getCollection(this.object).get(label.dataset.id);
+      const bab = this.collection.get(label.dataset.id);
       dragData = bab.toDragData();
     }
     if (!dragData) return;
@@ -243,7 +239,7 @@ export class BabonusWorkshop extends FormApplication {
     if (!this.isEditable) return false;
     if (doc.uuid === data.uuid) return false;
     const bab = await this._fromDropData(data);
-    return doc.setFlag(MODULE, `bonuses.${bab.id}`, bab.toObject());
+    return this.constructor._embedBabonus(doc, bab);
   }
 
   /**
@@ -283,7 +279,6 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _renderClean(event) {
     this._addedFilters.clear();
-    this._itemTypes.clear();
     delete this._currentBabonus;
     return super.render(false);
   }
@@ -295,9 +290,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _renderCreator(event) {
     const type = event.currentTarget.dataset.type;
-    this._currentBabonus = this.constructor._createBabonus({type, name: game.i18n.localize("BABONUS.NewBabonus")});
+    this._currentBabonus = this.constructor._createBabonus({type, name: game.i18n.localize("BABONUS.NewBabonus")}, null, {parent: this.object});
     this._addedFilters.clear();
-    this._itemTypes.clear();
     return super.render(false);
   }
 
@@ -308,17 +302,15 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _renderEditor(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = this.object.flags[MODULE].bonuses[id];
-    this._currentBabonus = this.constructor._createBabonus(data, id, {strict: true});
-    this._addedFilters = new Set(Object.keys(this._currentBabonus.toObject().filters));
-    this._itemTypes = new Set(this._currentBabonus.filters.itemTypes ?? []);
+    this._currentBabonus = this.collection.get(id);
+    this._addedFilters = new Set(Object.keys(this._currentBabonus.toObject(false).filters));
 
     // Create the form groups for each active filter.
     const DIV = document.createElement("DIV");
     DIV.innerHTML = "";
-    const formData = this._currentBabonus.toString();
+    //const formData = this._currentBabonus.toString();
     for (const id of this._addedFilters) {
-      DIV.innerHTML += await this._templateFilter(id, formData);
+      DIV.innerHTML += await babonusFields.filters[id].render(this._currentBabonus);
     }
     this._filters = DIV.innerHTML;
 
@@ -334,7 +326,6 @@ export class BabonusWorkshop extends FormApplication {
     if (!(wasBabUpdate || force)) return;
     delete this._currentBabonus;
     this._addedFilters.clear();
-    this._itemTypes.clear();
     this.object.apps[this.appId] = this;
     return super.render(force, options);
   }
@@ -396,7 +387,7 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event      The initiating click event.
    */
   async _onClickId(event) {
-    const bonus = this.constructor._getCollection(this.object).get(event.currentTarget.closest(".bonus").dataset.id);
+    const bonus = this.collection.get(event.currentTarget.closest(".bonus").dataset.id);
     const id = (event.type === "contextmenu") ? bonus.uuid : bonus.id;
     await game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
@@ -429,7 +420,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleAura(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = this.constructor._getCollection(this.object).get(id);
+    const bab = this.collection.get(id);
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
@@ -456,7 +447,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleConsume(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = this.constructor._getCollection(this.object).get(id);
+    const bab = this.collection.get(id);
     const path = `bonuses.${id}.consume.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new ConsumptionDialog(this.object, {bab}).render(true);
@@ -547,19 +538,7 @@ export class BabonusWorkshop extends FormApplication {
 
     // The text input.
     const values = formGroup.querySelector("input[type='text']").value.split(";");
-    /* If the keys dialog also has 'exclude' as an option for this filter type, add it here: */
-    const canExclude = [
-      "actorCreatureTypes",
-      "baseArmors",
-      "baseTools",
-      "baseWeapons",
-      "creatureTypes",
-      "damageTypes",
-      "skillIds",
-      "statusEffects",
-      "targetEffects",
-      "weaponProperties"
-    ].includes(filterId);
+    const canExclude = babonusFields.filters[filterId].canExclude;
 
     for (let value of values) {
       value = value.trim();
@@ -616,9 +595,6 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event      The initiating click event.
    */
   _onDeleteFilter(event) {
-    if (event.currentTarget.closest(".form-group").dataset.id === "itemTypes") {
-      this._itemTypes.clear();
-    }
     event.currentTarget.closest(".form-group").remove();
     this._updateAddedFilters();
     this._updateFilterPicker();
@@ -634,17 +610,6 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
-   * When selecting or deselecting an item type in the 'itemTypes' filter, update the _itemTypes set to match.
-   * @param {PointerEvent} event      The initiating change event.
-   */
-  _onPickItemType(event) {
-    const {checked, value} = event.currentTarget;
-    if (checked) this._itemTypes.add(value);
-    else this._itemTypes.delete(value);
-    this._updateFilterPicker();
-  }
-
-  /**
    * Update the 'addedFilters' set with what is found in the builder currently.
    */
   _updateAddedFilters() {
@@ -657,8 +622,8 @@ export class BabonusWorkshop extends FormApplication {
    * Update the filter picker by reading the 'addedFilters' set and toggling the hidden states.
    */
   _updateFilterPicker() {
-    FILTER_NAMES.forEach(id => {
-      const available = this._isFilterAvailable(id);
+    Object.keys(babonusFields.filters).forEach(id => {
+      const available = babonusFields.filters[id].isFilterAvailable(this._addedFilters, this._currentBabonus);
       const [av, unav] = this.element[0].querySelectorAll(`.right-side .filter[data-id="${id}"]`);
       av.classList.toggle("hidden", !available);
       unav.classList.toggle("hidden", available || this._addedFilters.has(id));
@@ -672,7 +637,6 @@ export class BabonusWorkshop extends FormApplication {
   async _onAddFilter(event) {
     const id = event.currentTarget.closest(".filter").dataset.id;
     await this._appendNewFilter(id);
-    if (id === "itemTypes") this._itemTypes.clear();
     this._updateAddedFilters();
     this._updateFilterPicker();
   }
@@ -691,92 +655,16 @@ export class BabonusWorkshop extends FormApplication {
   /**
    * Get the inner html of a filter you want to add.
    * @param {string} id                   The id of the filter.
-   * @param {object} [formData=null]      The toString'd data of a babonus in case of one being edited.
    * @returns {Promise<string>}           The template.
    */
-  async _templateFilter(id, formData = null) {
-    if (id !== "arbitraryComparison") return this._templateFilterUnique(id, formData);
-    else return this._templateFilterRepeatable(id, formData);
-  }
-
-  /**
-   * Create and append the form-group for a specific filter, then add listeners.
-   * @param {string} id             The id of the filter to add.
-   * @param {object} formData       The toString'd data of a babonus in case of one being edited.
-   * @returns {Promise<string>}     The template.
-   */
-  async _templateFilterUnique(id, formData) {
-    const data = {
-      tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
-      label: `BABONUS.Filters${id.capitalize()}Label`,
-      id,
-      appId: this.object.id,
-      array: this._newFilterArrayOptions(id),
-      value: null
-    };
-
-    if (formData) this._prepareData(data, formData);
-
-    const template = ("modules/babonus/templates/builder_components/" + {
-      abilities: "text_keys.hbs",
-      actorCreatureTypes: "text_keys.hbs",
-      attackTypes: "checkboxes.hbs",
-      baseArmors: "text_keys.hbs",
-      baseTools: "text_keys.hbs",
-      baseWeapons: "text_keys.hbs",
-      creatureTypes: "text_keys.hbs",
-      customScripts: "textarea.hbs",
-      damageTypes: "text_keys.hbs",
-      healthPercentages: "range_select.hbs",
-      itemRequirements: "label_checkbox_label_checkbox.hbs",
-      itemTypes: "checkboxes.hbs",
-      preparationModes: "text_keys.hbs",
-      proficiencyLevels: "checkboxes.hbs",
-      remainingSpellSlots: "text_dash_text.hbs",
-      saveAbilities: "text_keys.hbs",
-      skillIds: "text_keys.hbs",
-      spellComponents: "checkboxes_select.hbs",
-      spellLevels: "checkboxes.hbs",
-      spellSchools: "text_keys.hbs",
-      statusEffects: "text_keys.hbs",
-      targetEffects: "text_keys.hbs",
-      throwTypes: "text_keys.hbs",
-      tokenSizes: "select_number_checkbox.hbs",
-      weaponProperties: "text_keys.hbs"
-    }[id]);
-
-    if (id === "spellComponents") {
-      data.selectOptions = {ANY: "BABONUS.FiltersSpellComponentsMatchAny", ALL: "BABONUS.FiltersSpellComponentsMatchAll"};
-    } else if (id === "itemRequirements") {
-      data.canEquip = this._canEquipItem(this.object);
-      data.canAttune = this._canAttuneToItem(this.object);
-    } else if (id === "tokenSizes") {
-      data.selectOptions = {0: "BABONUS.SizeGreaterThan", 1: "BABONUS.SizeSmallerThan"};
-    } else if (id === "healthPercentages") {
-      if (data.value === null) data.value = 50;
-      data.selectOptions = {0: "BABONUS.OrLess", 1: "BABONUS.OrMore"};
+  async _templateFilter(id) {
+    const field = babonusFields.filters[id];
+    if(!field.repeatable) return field.render();
+    else {
+      const nodes = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`);
+      const idx = Math.max(...Array.from(nodes).map(node => node.dataset.idx));
+      return field.render(null, idx + 1);
     }
-    return renderTemplate(template, data);
-  }
-
-  /**
-   * Create and append the form-group for a specific repeatable filter, then add listeners.
-   * @param {string} id             The id of the filter to add.
-   * @param {object} formData       The toString'd data of a babonus in case of one being edited.
-   * @returns {Promise<string>}     The template.
-   */
-  async _templateFilterRepeatable(id, formData) {
-    const idx = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`).length;
-    const data = {
-      tooltip: `BABONUS.Filters${id.capitalize()}Tooltip`,
-      label: `BABONUS.Filters${id.capitalize()}Label`,
-      id,
-      placeholderOne: `BABONUS.Filters${id.capitalize()}One`,
-      placeholderOther: `BABONUS.Filters${id.capitalize()}Other`,
-      array: [{idx, options: ARBITRARY_OPERATORS}]
-    }
-    if (formData) this._prepareData(data, formData);
-    return renderTemplate("modules/babonus/templates/builder_components/text_select_text.hbs", data);
   }
 
   /**
@@ -790,89 +678,6 @@ export class BabonusWorkshop extends FormApplication {
     fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
       n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
     });
-    fg.querySelectorAll("[data-action='item-type']").forEach(a => {
-      a.addEventListener("change", this._onPickItemType.bind(this));
-    });
-  }
-
-  /**
-   * Helper function for array of options.
-   * @param {string} id     The name attribute of the filter.
-   */
-  _newFilterArrayOptions(id) {
-    if (id === "attackTypes") {
-      return ["mwak", "rwak", "msak", "rsak"].map(a => ({value: a, label: a, tooltip: CONFIG.DND5E.itemActionTypes[a]}));
-    } else if (id === "itemTypes") {
-      const models = dnd5e.dataModels.item.config;
-      return Item.TYPES.reduce((acc, type) => {
-        const hasDamage = models[type]?.schema.getField("damage.parts");
-        if (hasDamage) acc.push({value: type, label: type.slice(0, 4), tooltip: `TYPES.Item.${type}`});
-        return acc;
-      }, []);
-    } else if (id === "spellLevels") {
-      return KeyGetter[id].map(e => ({value: e.value, label: e.value, tooltip: e.label}));
-    } else if (id === "spellComponents") {
-      return KeyGetter[id].map(e => ({value: e.value, label: e.abbr, tooltip: e.label}));
-    } else if (id === "proficiencyLevels") {
-      return KeyGetter[id].map(e => ({value: e.value, label: e.value, tooltip: e.label}));
-    }
-  }
-
-  /**
-   * Prepare previous values, checked boxes, etc., for a created form-group when a babonus is edited.
-   * @param {object} data         The pre-mutated object of handlebars data. **will be mutated**
-   * @param {object} formData     The toString'd data of a babonus in case of one being edited.
-   */
-  _prepareData(data, formData) {
-    if (data.id === "arbitraryComparison") {
-      data.array = foundry.utils.deepClone(this._currentBabonus.filters[data.id]).map((n, idx) => {
-        return {...n, idx, options: ARBITRARY_OPERATORS, selected: n.operator};
-      });
-    } else if ([
-      "abilities",
-      "actorCreatureTypes",
-      "baseArmors",
-      "baseTools",
-      "baseWeapons",
-      "creatureTypes",
-      "customScripts",
-      "damageTypes",
-      "preparationModes",
-      "saveAbilities",
-      "skillIds",
-      "spellSchools",
-      "statusEffects",
-      "targetEffects",
-      "throwTypes",
-      "weaponProperties"
-    ].includes(data.id)) {
-      data.value = formData[`filters.${data.id}`];
-    } else if (data.id === "remainingSpellSlots") {
-      data.value = {min: formData[`filters.${data.id}.min`], max: formData[`filters.${data.id}.max`]};
-    } else if ([
-      "attackTypes",
-      "itemTypes",
-      "proficiencyLevels",
-      "spellLevels"
-    ].includes(data.id)) {
-      const fd = formData[`filters.${data.id}`];
-      for (const a of data.array) if (fd.includes(a.value)) a.checked = true;
-    } else if (data.id === "itemRequirements") {
-      data.array = {
-        equipped: formData[`filters.${data.id}.equipped`],
-        attuned: formData[`filters.${data.id}.attuned`]
-      };
-    } else if (data.id === "spellComponents") {
-      for (const a of data.array) a.checked = formData[`filters.${data.id}.types`].includes(a.value);
-      data.selected = formData[`filters.${data.id}.match`];
-    } else if (data.id === "tokenSizes") {
-      data.self = formData["filters.tokenSizes.self"];
-      data.type = formData["filters.tokenSizes.type"];
-      data.size = formData["filters.tokenSizes.size"];
-    } else if (data.id === "healthPercentages") {
-      data.value = formData["filters.healthPercentages.value"];
-      data.type = formData["filters.healthPercentages.type"];
-    }
   }
 
   /**
@@ -892,33 +697,6 @@ export class BabonusWorkshop extends FormApplication {
   _canAttuneToItem(item) {
     const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
     return (item instanceof Item) && [REQUIRED, ATTUNED].includes(item.system.attunement);
-  }
-
-  /**
-   * Returns whether a filter is available to be added to babonus, given the current filters
-   * in use, the type of document it belongs to, as well as the type of babonus.
-   * @param {string} id     The id of the filter.
-   * @returns {boolean}     Whether the filter can be added.
-   */
-  _isFilterAvailable(id) {
-    if (id === "arbitraryComparison") return true;
-    if (this._addedFilters.has(id)) return false;
-
-    // The filter must be a property on the babonus type's schema.
-    const hasFilter = BabonusTypes[this._currentBabonus.type].schema.getField(`filters.${id}`);
-    if (!hasFilter) return false;
-
-    // Handle special cases.
-    switch (id) {
-      case "baseWeapons": return this._itemTypes.has("weapon");
-      case "itemRequirements": return this._canEquipItem(this.object) || this._canAttuneToItem(this.object);
-      case "preparationModes": return this._itemTypes.has("spell");
-      case "spellComponents": return this._itemTypes.has("spell");
-      case "spellLevels": return this._itemTypes.has("spell");
-      case "spellSchools": return this._itemTypes.has("spell");
-      case "weaponProperties": return this._itemTypes.has("weapon");
-      default: return true;
-    }
   }
 
   /**
@@ -994,7 +772,9 @@ export class BabonusWorkshop extends FormApplication {
    */
   static async _embedBabonus(object, bonus) {
     await object.update({[`flags.${MODULE}.bonuses.-=${bonus.id}`]: null}, {render: false});
-    return object.setFlag(MODULE, `bonuses.${bonus.id}`, bonus.toObject());
+    const data = bonus.toObject();
+    for(const key in data.filters) if(!babonusFields.filters[key].storage(data)) delete data.filters[key];
+    return object.setFlag(MODULE, `bonuses.${bonus.id}`, data);
   }
 
   //#endregion

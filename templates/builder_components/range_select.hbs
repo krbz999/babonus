@@ -4,7 +4,7 @@
     <input type="range" name="filters.{{id}}.value" value="{{value}}" min="0" max="100" step="1">
     <span class="range-value percentage">{{value}}</span>
     <select name="filters.{{id}}.type">
-      {{selectOptions selectOptions selected=type localize=true}}
+      {{selectOptions options selected=selected localize=true}}
     </select>
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">

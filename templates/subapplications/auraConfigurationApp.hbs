@@ -5,7 +5,8 @@
       {{localize "BABONUS.ConfigurationAuraRange"}}
     </label>
     <div class="form-fields">
-      <input type="text" name="aura.range" value="{{aura.range}}" placeholder="{{localize 'BABONUS.ConfigurationAuraRangePlaceholder'}}" {{disabled disableRange}}>
+      <input type="text" name="aura.range" value="{{source.aura.range}}" placeholder="{{localize 'BABONUS.ConfigurationAuraRangePlaceholder'}}" {{disabled disableRange}}>
+      <span class="sep">({{clone.aura.range}})</span>
     </div>
   </div>
 
@@ -14,7 +15,7 @@
       {{localize "BABONUS.ConfigurationAuraTemplate"}}
     </label>
     <div class="form-fields">
-      <input type="checkbox" name="aura.isTemplate" {{disabled disableTemplate}} {{checked aura.isTemplate}}>
+      <input type="checkbox" name="aura.isTemplate" {{disabled disableTemplate}} {{checked clone.aura.isTemplate}}>
     </div>
   </div>
 
@@ -24,7 +25,7 @@
     </label>
     <div class="form-fields">
       <select name="aura.disposition">
-        {{selectOptions choices selected=aura.disposition localize=true}}
+        {{selectOptions choices selected=clone.aura.disposition localize=true}}
       </select>
     </div>
   </div>
@@ -34,11 +35,11 @@
       {{localize "BABONUS.ConfigurationAuraSelf"}}
     </label>
     <div class="form-fields">
-      <input type="checkbox" name="aura.self" {{checked aura.self}}>
+      <input type="checkbox" name="aura.self" {{checked clone.aura.self}}>
     </div>
   </div>
 
-  <div class="form-group" data-id="auraBlockers">
+  <div class="form-group" data-id="statusEffects">
     <label data-tooltip="BABONUS.FiltersAuraBlockersTooltip" class="label">
       {{localize "BABONUS.FiltersAuraBlockers"}}
     </label>
@@ -58,11 +59,11 @@
       <span class="sep" data-tooltip="BABONUS.ConfigurationAuraRequireSightTooltip">
         {{localize "BABONUS.ConfigurationAuraRequireSight"}}
       </span>
-      <input type="checkbox" name="aura.require.sight" {{checked aura.require.sight}} {{disabled disableRange}}>
+      <input type="checkbox" name="aura.require.sight" {{checked clone.aura.require.sight}} {{disabled disableRange}}>
       <span class="sep" data-tooltip="BABONUS.ConfigurationAuraRequireMoveTooltip">
         {{localize "BABONUS.ConfigurationAuraRequireMove"}}
       </span>
-      <input type="checkbox" name="aura.require.move" {{checked aura.require.move}} {{disabled disableRange}}>
+      <input type="checkbox" name="aura.require.move" {{checked clone.aura.require.move}} {{disabled disableRange}}>
     </div>
   </div>
 
