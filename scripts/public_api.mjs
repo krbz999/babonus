@@ -29,7 +29,7 @@ export function _createAPI() {
 
     abstract: {
       DataModels: BabonusTypes,
-      DataFields: babonusFields,
+      DataFields: babonusFields.filters,
       TYPES: Object.keys(BabonusTypes)
     }
   };
@@ -203,7 +203,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
  */
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
-  if (!bonus.isTokenAura) return null;
+  if (!bonus.aura.isToken) return null;
   let actor;
   if (object instanceof Actor) actor = object;
   else if (object instanceof Item) actor = object.actor;

@@ -6,7 +6,7 @@
     </label>
     <div class="form-fields">
       <input type="text" name="aura.range" value="{{source.aura.range}}" placeholder="{{localize 'BABONUS.ConfigurationAuraRangePlaceholder'}}" {{disabled disableRange}}>
-      <span class="sep">({{clone.aura.range}})</span>
+      <span class="sep">({{displayedRange}})</span>
     </div>
   </div>
 
@@ -15,7 +15,7 @@
       {{localize "BABONUS.ConfigurationAuraTemplate"}}
     </label>
     <div class="form-fields">
-      <input type="checkbox" name="aura.isTemplate" {{disabled disableTemplate}} {{checked clone.aura.isTemplate}}>
+      <input type="checkbox" name="aura.template" {{disabled disableTemplate}} {{checked clone.aura.template}}>
     </div>
   </div>
 

@@ -2,6 +2,7 @@ import {AbilitiesField} from "../data/fields/filters/AbilitiesField.mjs";
 import {ActorCreatureTypesField} from "../data/fields/filters/ActorCreatureTypesField.mjs";
 import {ArbitraryComparisonField} from "../data/fields/filters/ArbitraryComparisonField.mjs";
 import {AttackTypesField} from "../data/fields/filters/AttackTypesField.mjs";
+import {AuraModel} from "../data/AuraModel.mjs";
 import {BaseArmorsField} from "../data/fields/filters/BaseArmorsField.mjs";
 import {BaseToolsField} from "../data/fields/filters/BaseToolsField.mjs";
 import {BaseWeaponsField} from "../data/fields/filters/BaseWeaponsField.mjs";
@@ -28,7 +29,8 @@ import {WeaponPropertiesField} from "../data/fields/filters/WeaponPropertiesFiel
 
 export const babonusFields = {
   data: {
-    bonuses: BonusesField,
+    aura: AuraModel,
+    bonuses: BonusesField
   },
   filters: {
     abilities: AbilitiesField,

@@ -192,7 +192,7 @@ export class RollHooks {
     const disp = tokenDocument?.disposition ?? item.actor.prototypeToken.disposition;
 
     const bonusData = BabonusWorkshop._getCollection(item).reduce((acc, bab) => {
-      if (bab.isTemplateAura) acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
+      if (bab.aura.isTemplate) acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
       return acc;
     }, {});
     if (foundry.utils.isEmpty(bonusData)) return;

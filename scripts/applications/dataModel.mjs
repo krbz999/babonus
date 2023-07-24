@@ -1,4 +1,3 @@
-import {AURA_TARGETS} from "../constants.mjs";
 import {babonusFields} from "./dataFields.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
@@ -78,7 +77,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get canConsumeUses() {
-    if (this.isTokenAura || this.isTemplateAura) return false;
+    if (this.aura.isToken || this.aura.isTemplate) return false;
     return (this.parent instanceof Item) && this.parent.hasLimitedUses;
   }
 
@@ -88,7 +87,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get canConsumeQuantity() {
-    if (this.isTokenAura || this.isTemplateAura) return false;
+    if (this.aura.isToken || this.aura.isTemplate) return false;
     return (this.parent instanceof Item) && Number.isNumeric(this.parent.system.quantity);
   }
 
@@ -116,7 +115,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get canConsumeEffect() {
-    return (this.parent instanceof ActiveEffect) && !this.isTokenAura && !this.isTemplateAura;
+    return (this.parent instanceof ActiveEffect) && !this.aura.isToken && !this.aura.isTemplate;
   }
 
   /**
@@ -182,7 +181,7 @@ class Babonus extends foundry.abstract.DataModel {
     // Valid for test:
     const validityB = (this.type === "test") && (this.parent.type === "tool");
 
-    return (validityA || validityB) && !this.isTokenAura && !this.isTemplateAura;
+    return (validityA || validityB) && !this.aura.isToken && !this.aura.isTemplate;
   }
 
   /**
@@ -211,33 +210,17 @@ class Babonus extends foundry.abstract.DataModel {
     return ((item.system.attunement !== at) && ir.attuned) || (!item.system.equipped && ir.equipped);
   }
 
-  /**
-   * Whether the babonus is an enabled and valid aura centered on a token. This is true if the property is enabled, the
-   * template aura property is not enabled, and the range of the aura has been set to either '-1' for infinite range, or any
-   * positive number, after evaluation using roll data of its origin.
-   * @returns {boolean}
-   */
   get isTokenAura() {
-    const aura = this.aura;
-    return (aura.enabled && !aura.isTemplate) && ((aura.range === -1) || (aura.range > 0));
+    console.warn(`'Babonus#isTokenAura' has been deprecated and should be accessed in 'Babonus#aura#isToken'.`);
+    return this.aura.isToken;
   }
-
-  /**
-   * Whether the babonus is a template aura. This is true if the aura property is enabled, along with the 'isTemplate' aura
-   * property, and the item on which the babonus is embedded can create a measured template.
-   * @returns {boolean}
-   */
   get isTemplateAura() {
-    const isItem = this.parent instanceof Item;
-    return this.aura.enabled && this.aura.isTemplate && isItem && this.parent.hasAreaTarget;
+    console.warn(`'Babonus#isTemplateAura' has been deprecated and should be accessed in 'Babonus#aura#isTemplate'.`);
+    return this.aura.isTemplate;
   }
-
-  /**
-   * Whether the babonus aura is suppressed due to its originating actor having at least one of the blocker conditions.
-   * @returns {boolean}
-   */
   get isAuraBlocked() {
-    return new Set(this.aura.blockers).intersects(this.actor.statuses);
+    console.warn(`'Babonus#isAuraBlocked' has been deprecated and should be accessed in 'Babonus#aura#isBlocked'.`);
+    return this.aura.isBlocked;
   }
 
   /**
@@ -397,18 +380,7 @@ class Babonus extends foundry.abstract.DataModel {
           step: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1})
         })
       }),
-      aura: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
-        isTemplate: new foundry.data.fields.BooleanField({required: false}),
-        range: new foundry.data.fields.StringField({nullable: true, initial: null}),
-        self: new foundry.data.fields.BooleanField({required: false, initial: true}),
-        disposition: new foundry.data.fields.NumberField({initial: AURA_TARGETS.ANY, choices: Object.values(AURA_TARGETS)}),
-        blockers: new babonusFields.filters.statusEffects(),
-        require: new foundry.data.fields.SchemaField({
-          sight: new foundry.data.fields.BooleanField(),
-          move: new foundry.data.fields.BooleanField()
-        })
-      })
+      aura: new foundry.data.fields.EmbeddedDataField(babonusFields.data.aura)
     };
   }
 
@@ -487,11 +459,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /** @override */
   prepareDerivedData() {
-    // Prepare aura range.
-    if (this.aura.range) {
-      const range = dnd5e.utils.simplifyBonus(this.aura.range, this.getRollData({deterministic: true}));
-      this.aura.range = range;
-    }
+    return;
   }
 }
 

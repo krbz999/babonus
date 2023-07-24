@@ -18,13 +18,13 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         enabled: true,                                      // Whether the bonus consumes uses/quantity off its item or slots off its actor.
         scales: true,                                       // Whether the consumption scales between the min and max values given.
         type: "uses",                                       // Whether the consumption is limited "uses", "quantity", "slots", "health", or "effect".
-        value: {min: 1, max: 3},                            // The minimum and maximum number consumed when applying the bonus.
+        value: {min: 5, max: 15, step: 5},                  // The minimum and maximum number consumed when applying the bonus.
         formula: "1d8"                                      // A formula with which the bonus scales, default being the bonus formula itself.
       },
       aura: {
         enabled: true,                                      // Whether this should be an aura.
-        isTemplate: true,                                   // Whether this should be a template aura, not a regular aura.
-        range: 60,                                          // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
+        template: true,                                     // Whether this should be a template aura, not a regular aura.
+        range: "60",                                        // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
         self: false,                                        // Whether the aura affects the owner, too.
         disposition: 1                                      // What token actors within range to affect.
         blockers: ["dead", "unconscious"]                   // Array of statuses that stop auras from being transferred.

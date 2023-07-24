@@ -1,5 +1,6 @@
 import {BabonusTypes} from "./dataModel.mjs";
-import {AURA_TARGETS, MODULE, SETTINGS} from "../constants.mjs";
+import {MODULE, SETTINGS} from "../constants.mjs";
+import {babonusFields} from "./dataFields.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -124,8 +125,7 @@ export class BonusCollector {
 
     // A filter for discarding blocked or suppressed auras, template auras, and auras that do not affect self.
     const validSelfAura = (bab) => {
-      const isBlockedAura = bab.isTokenAura && (bab.isAuraBlocked || !bab.aura.self);
-      return !isBlockedAura && !bab.isTemplateAura;
+      return bab.aura.isAffectingSelf;
     };
 
     const actor = this._collectFromDocument(this.actor, [validSelfAura]);
@@ -144,13 +144,12 @@ export class BonusCollector {
 
     // A filter for discarding blocked or suppressed auras and template auras.
     const validTokenAura = (bab) => {
-      const isBlockedAura = bab.isTokenAura && bab.isAuraBlocked;
-      return !isBlockedAura && !bab.isTemplateAura;
+      return bab.aura.isActiveTokenAura;
     };
 
     // A filter for discarding auras that do not have a long enough radius.
     const rangeChecker = (bab) => {
-      if (!bab.isTokenAura) return false;
+      if (!bab.aura.isToken) return false;
       const validTargeting = this._matchTokenDisposition(token, bab);
       if (!validTargeting) return false;
       return this._tokenWithinAura(token, bab);
@@ -192,7 +191,7 @@ export class BonusCollector {
 
     // A filter for discarding template auras that are blocked or do not affect self (if they are your own).
     const templateAuraChecker = (bab) => {
-      if (bab.isAuraBlocked) return false;
+      if (bab.aura.isBlocked) return false;
       const isOwn = this.token.actor === bab.actor;
       if (isOwn) return bab.aura.self;
       return this._matchTemplateDisposition(template, bab);
@@ -370,13 +369,14 @@ export class BonusCollector {
    * @returns {boolean}     Whether the targeting applies.
    */
   _matchDisposition(tisp, bisp) {
-    if (bisp === AURA_TARGETS.ANY) {
+    const aura = babonusFields.data.aura.OPTIONS;
+    if (bisp === aura.ANY) {
       // If the bonus targets everyone, immediately return true.
       return true;
-    } else if (bisp === AURA_TARGETS.ALLY) {
+    } else if (bisp === aura.ALLY) {
       // If the bonus targets allies, the roller and the source must match.
       return tisp === this.disposition;
-    } else if (bisp === AURA_TARGETS.ENEMY) {
+    } else if (bisp === aura.ENEMY) {
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
       const modes = CONST.TOKEN_DISPOSITIONS;
       const set = new Set([tisp, this.disposition]);

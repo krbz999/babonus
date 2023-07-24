@@ -1,4 +1,5 @@
-import {AURA_TARGETS, MODULE} from "../constants.mjs";
+import {MODULE} from "../constants.mjs";
+import {babonusFields} from "./dataFields.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
   constructor(object, options = {}) {
@@ -30,17 +31,20 @@ export class AuraConfigurationDialog extends FormApplication {
 
   /** @override */
   async getData() {
-    const choices = Object.entries(AURA_TARGETS).reduce((acc, [k, v]) => {
+    const choices = Object.entries(babonusFields.data.aura.OPTIONS).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.ConfigurationAuraDisposition${k.titleCase()}`;
       return acc;
     }, {});
+
+    const aura = this.clone.aura;
     return {
-      disableRange: this.clone.isTemplateAura || (this.clone.aura.isTemplate && (this.clone.parent instanceof Item)),
+      disableRange: this.clone.aura.isTemplate || (aura.template && (this.clone.parent instanceof Item)),
       disableTemplate: !(this.clone.parent instanceof Item),
-      blockers: this.clone.aura.blockers.join(";"),
+      blockers: aura.blockers.join(";"),
       choices,
       source: this.clone.toObject(),
-      clone: this.clone
+      clone: this.clone,
+      displayedRange: aura.range > 0 ? aura.range : aura.range === -1 ? game.i18n.localize("DND5E.Unlimited") : 0
     };
   }
 
@@ -67,7 +71,7 @@ export class AuraConfigurationDialog extends FormApplication {
       [name]: (type === "checkbox") ? checked : value,
       "aura.blockers": this.form["aura.blockers"].value
     };
-    if (!(this.clone.parent instanceof Item)) update["aura.isTemplate"] = false;
+    if (!(this.clone.parent instanceof Item)) update["aura.template"] = false;
     this.clone.updateSource(update);
     await this._render();
     this.element[0].querySelector(`[name='${name}']`).focus();
