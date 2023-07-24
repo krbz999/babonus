@@ -20,6 +20,10 @@ export class AuraConfigurationDialog extends FormApplication {
     });
   }
 
+  get document() {
+    return this.object;
+  }
+
   get title() {
     return game.i18n.format("BABONUS.ConfigurationAuraTitle", {name: this.options.bab.name});
   }
@@ -51,7 +55,7 @@ export class AuraConfigurationDialog extends FormApplication {
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("aura");
     const data = foundry.utils.mergeObject({aura: defaults}, formData);
-    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
+    return this.document.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */

@@ -1,8 +1,4 @@
-import {
-  MODULE,
-  MODULE_ICON,
-  MODULE_NAME
-} from "../constants.mjs";
+import {MODULE, MODULE_ICON, MODULE_NAME} from "../constants.mjs";
 import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
@@ -40,7 +36,7 @@ export class BabonusWorkshop extends FormApplication {
     this.isItem = object.documentName === "Item";
     this.isEffect = object.documentName === "ActiveEffect";
     this.isActor = object.documentName === "Actor";
-    this.appId = `${this.object.uuid.replaceAll(".", "-")}-babonus-workshop`;
+    this.appId = `${this.document.uuid.replaceAll(".", "-")}-babonus-workshop`;
   }
 
   static get defaultOptions() {
@@ -56,16 +52,20 @@ export class BabonusWorkshop extends FormApplication {
     });
   }
 
+  get document() {
+    return this.object;
+  }
+
   get id() {
-    return `${MODULE}-${this.object.id}`;
+    return `${MODULE}-${this.document.id}`;
   }
 
   get isEditable() {
-    return this.object.sheet.isEditable;
+    return this.document.sheet.isEditable;
   }
 
   get title() {
-    return `${MODULE_NAME}: ${this.object.name}`;
+    return `${MODULE_NAME}: ${this.document.name}`;
   }
 
   //#endregion
@@ -87,7 +87,7 @@ export class BabonusWorkshop extends FormApplication {
     const data = await super.getData();
 
     // Save the collection of bonuses that exist on this document.
-    this.collection = this.constructor._getCollection(this.object);
+    this.collection = this.constructor._getCollection(this.document);
 
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
@@ -95,9 +95,9 @@ export class BabonusWorkshop extends FormApplication {
     data.activeBuilder = !!this._currentBabonus;
 
     if (data.isItem) {
-      data.canEquip = this._canEquipItem(this.object);
-      data.canAttune = this._canAttuneToItem(this.object);
-      data.canConfigureTemplate = this.object.hasAreaTarget;
+      data.canEquip = this._canEquipItem(this.document);
+      data.canAttune = this._canAttuneToItem(this.document);
+      data.canConfigureTemplate = this.document.hasAreaTarget;
     }
 
     // Initial values of the filters.
@@ -169,7 +169,7 @@ export class BabonusWorkshop extends FormApplication {
       delete previousData.filters;
       foundry.utils.mergeObject(newData, previousData, {overwrite: false});
       const bonus = this.constructor._createBabonus(newData, newData.id, {strict: true});
-      await this.constructor._embedBabonus(this.object, bonus);
+      await this.constructor._embedBabonus(this.document, bonus);
       ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", bonus));
     } catch (err) {
       console.warn(err);
@@ -235,7 +235,7 @@ export class BabonusWorkshop extends FormApplication {
   /** @override */
   async _onDrop(event) {
     const data = TextEditor.getDragEventData(event);
-    const doc = this.object;
+    const doc = this.document;
     if (!this.isEditable) return false;
     if (doc.uuid === data.uuid) return false;
     const bab = await this._fromDropData(data);
@@ -249,12 +249,12 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _fromDropData(data) {
     if (data.data) {
-      return this.constructor._createBabonus(data.data, null, {parent: this.object});
+      return this.constructor._createBabonus(data.data, null, {parent: this.document});
     } else if (data.uuid) {
       const parent = await fromUuid(data.uuid);
       const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
       delete babData.id;
-      return this.constructor._createBabonus(babData, null, {parent: this.object});
+      return this.constructor._createBabonus(babData, null, {parent: this.document});
     }
   }
 
@@ -290,7 +290,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _renderCreator(event) {
     const type = event.currentTarget.dataset.type;
-    this._currentBabonus = this.constructor._createBabonus({type, name: game.i18n.localize("BABONUS.NewBabonus")}, null, {parent: this.object});
+    this._currentBabonus = this.constructor._createBabonus({type, name: game.i18n.localize("BABONUS.NewBabonus")}, null, {parent: this.document});
     this._addedFilters.clear();
     return super.render(false);
   }
@@ -325,14 +325,14 @@ export class BabonusWorkshop extends FormApplication {
     if (!(wasBabUpdate || force)) return;
     delete this._currentBabonus;
     this._addedFilters.clear();
-    this.object.apps[this.appId] = this;
+    this.document.apps[this.appId] = this;
     return super.render(force, options);
   }
 
   /** @override */
   close(...T) {
     super.close(...T);
-    delete this.object.apps[this.appId];
+    delete this.document.apps[this.appId];
   }
 
   //#endregion
@@ -401,7 +401,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const name = this.object.flags[MODULE].bonuses[id].name;
+    const name = this.document.flags[MODULE].bonuses[id].name;
     const prompt = await Dialog.confirm({
       title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", {name}),
       content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", {name}),
@@ -409,7 +409,7 @@ export class BabonusWorkshop extends FormApplication {
     });
     if (!prompt) return false;
     ui.notifications.info(game.i18n.format("BABONUS.NotificationDelete", {name, id}));
-    return this.object.unsetFlag(MODULE, `bonuses.${id}`);
+    return this.document.unsetFlag(MODULE, `bonuses.${id}`);
   }
 
   /**
@@ -422,10 +422,10 @@ export class BabonusWorkshop extends FormApplication {
     const bab = this.collection.get(id);
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
-    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
-    if (bab.isTemplateAura || bab.isTokenAura) return this.object.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.aura.enabled);
-    return new AuraConfigurationDialog(this.object, {bab, builder: this}).render(true);
+    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.document, {bab, builder: this}).render(true);
+    if (bab.isTemplateAura || bab.isTokenAura) return this.document.setFlag(MODULE, path, false);
+    else if (event.shiftKey) return this.document.setFlag(MODULE, path, !bab.aura.enabled);
+    return new AuraConfigurationDialog(this.document, {bab, builder: this}).render(true);
   }
 
   /**
@@ -435,8 +435,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleExclusive(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.object.flags[MODULE].bonuses[id].itemOnly;
-    return this.object.setFlag(MODULE, `bonuses.${id}.itemOnly`, !state);
+    const state = this.document.flags[MODULE].bonuses[id].itemOnly;
+    return this.document.setFlag(MODULE, `bonuses.${id}.itemOnly`, !state);
   }
 
   /**
@@ -449,10 +449,10 @@ export class BabonusWorkshop extends FormApplication {
     const bab = this.collection.get(id);
     const path = `bonuses.${id}.consume.enabled`;
     // Right-click always shows the application.
-    if (event.type === "contextmenu") return new ConsumptionDialog(this.object, {bab}).render(true);
-    if (bab.isConsuming) return this.object.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.object.setFlag(MODULE, path, !bab.consume.enabled);
-    return new ConsumptionDialog(this.object, {bab}).render(true);
+    if (event.type === "contextmenu") return new ConsumptionDialog(this.document, {bab}).render(true);
+    if (bab.isConsuming) return this.document.setFlag(MODULE, path, false);
+    else if (event.shiftKey) return this.document.setFlag(MODULE, path, !bab.consume.enabled);
+    return new ConsumptionDialog(this.document, {bab}).render(true);
   }
 
   /**
@@ -462,8 +462,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleOptional(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.object.flags[MODULE].bonuses[id].optional;
-    return this.object.setFlag(MODULE, `bonuses.${id}.optional`, !state);
+    const state = this.document.flags[MODULE].bonuses[id].optional;
+    return this.document.setFlag(MODULE, `bonuses.${id}.optional`, !state);
   }
 
   /**
@@ -473,8 +473,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.object.flags[MODULE].bonuses[id].enabled;
-    return this.object.setFlag(MODULE, `bonuses.${id}.enabled`, !state);
+    const state = this.document.flags[MODULE].bonuses[id].enabled;
+    return this.document.setFlag(MODULE, `bonuses.${id}.enabled`, !state);
   }
 
   /**
@@ -484,12 +484,12 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = foundry.utils.deepClone(this.object.flags[MODULE].bonuses[id]);
+    const data = foundry.utils.deepClone(this.document.flags[MODULE].bonuses[id]);
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
     data.id = foundry.utils.randomID();
     data.enabled = false;
     ui.notifications.info(game.i18n.format("BABONUS.NotificationCopy", data));
-    return this.object.setFlag(MODULE, `bonuses.${data.id}`, data);
+    return this.document.setFlag(MODULE, `bonuses.${data.id}`, data);
   }
 
   /**
@@ -658,7 +658,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _templateFilter(id) {
     const field = babonusFields.filters[id];
-    if(!field.repeatable) return field.render();
+    if (!field.repeatable) return field.render();
     else {
       const nodes = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`);
       const idx = Math.max(...Array.from(nodes).map(node => node.dataset.idx));

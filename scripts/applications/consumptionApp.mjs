@@ -19,6 +19,10 @@ export class ConsumptionDialog extends FormApplication {
     });
   }
 
+  get document() {
+    return this.object;
+  }
+
   get title() {
     return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", {name: this.options.bab.name});
   }
@@ -53,7 +57,7 @@ export class ConsumptionDialog extends FormApplication {
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("consume");
     const data = foundry.utils.mergeObject({consume: defaults}, formData);
-    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
+    return this.document.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */
