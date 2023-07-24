@@ -34,18 +34,4 @@ export class SemicolonArrayField extends foundry.data.fields.ArrayField {
     value = super._cleanType(value, source);
     return [...new Set(value)];
   }
-
-  /** @override */
-  toObject(value) {
-    return value.length ? value : null;
-  }
-
-  /**
-   * Get the current data values of this filter.
-   * @param {Babonus} bonus     The instance of the babonus on which this field lives.
-   * @returns {string[]}        An array of strings.
-   */
-  static value(bonus) {
-    return foundry.utils.getProperty(bonus, `filters.${this.name}`);
-  }
 }

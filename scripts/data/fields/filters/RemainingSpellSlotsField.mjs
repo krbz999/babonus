@@ -12,4 +12,9 @@ export class RemainingSpellSlotsField extends FilterMixin(SpanField) {
     data.max = value.max ?? null;
     return data;
   }
+
+  /** @override */
+  static storage(bonus) {
+    return Object.values(this.value(bonus)).some(v => Number.isNumeric(v));
+  }
 }

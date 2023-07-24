@@ -20,17 +20,11 @@ export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField
       const self = [true, false].includes(data.self);
       const size = Number.isNumeric(data.size) && (data.size > 0);
       const type = [0, 1].includes(data.type);
-      if (!self) throw new foundry.data.fields.ModelValidationError("self must be a boolean");
-      if (!size) throw new foundry.data.fields.ModelValidationError("size must be a number greater than 0");
-      if (!type) throw new foundry.data.fields.ModelValidationError("type must be 0 or 1");
+      if (!self) throw new foundry.data.validation.DataModelValidationError("self must be a boolean");
+      if (!size) throw new foundry.data.validation.DataModelValidationError("size must be a number greater than 0");
+      if (!type) throw new foundry.data.validation.DataModelValidationError("type must be 0 or 1");
     }
     return super._validateType(data, options);
-  }
-
-  /** @override */
-  toObject(value) {
-    const badData = [value.self, value.size, value.type].includes(null);
-    return badData ? null : value;
   }
 
   /** @override */
@@ -42,5 +36,10 @@ export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField
     data.self = value.self ?? null;
     data.options = {0: "BABONUS.SizeGreaterThan", 1: "BABONUS.SizeSmallerThan"};
     return data;
+  }
+
+  /** @override */
+  static storage(bonus) {
+    return !Object.values(this.value(bonus)).includes(null);
   }
 }

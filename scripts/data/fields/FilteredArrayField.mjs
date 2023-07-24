@@ -5,11 +5,6 @@ export class FilteredArrayField extends foundry.data.fields.ArrayField {
     return super._cast(value.filter(i => i));
   }
 
-  /** @override */
-  toObject(value) {
-    return value.length ? value : null;
-  }
-
   static get choices(){
     throw new Error("This getter must be subclassed!");
   }

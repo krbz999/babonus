@@ -19,12 +19,6 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
   }
 
   /** @override */
-  toObject(value) {
-    const badData = [value.types, value.match].includes(null) || !value.types?.length;
-    return badData ? null : value;
-  }
-
-  /** @override */
   static getData(bonus = null) {
     const value = bonus ? this.value(bonus) : {};
     const types = value.types ?? [];
@@ -38,5 +32,10 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
       ALL: "BABONUS.FiltersSpellComponentsMatchAll"
     };
     return data;
+  }
+
+  /** @override */
+  static storage(bonus) {
+    return !!this.value(bonus).types?.length;
   }
 }

@@ -15,29 +15,12 @@ class Babonus extends foundry.abstract.DataModel {
 
   /** @override */
   toObject(source = true) {
-    return super.toObject(source);
-  }
-
-  /** @override */
-  toString() {
-    const flattened = foundry.utils.flattenObject(this.toObject());
-    const arb = "filters.arbitraryComparison";
-    for (let i = 0; i < (flattened[arb]?.length ?? 0); i++) {
-      flattened[`${arb}.${i}`] = flattened[arb][i];
+    const data = super.toObject(source);
+    if(!source) return data;
+    for(const id in data.filters){
+      if(!babonusFields.filters[id].storage(this)) delete data.filters[id];
     }
-    delete flattened[arb];
-
-    for (const key of Object.keys(flattened)) {
-      // Delete empty values (null, "", and empty arrays).
-      const ie = flattened[key];
-      if ((ie === "") || (ie === null) || foundry.utils.isEmpty(ie)) {
-        delete flattened[key];
-      }
-      else if (ie instanceof Array) {
-        flattened[key] = ie.join(";");
-      }
-    }
-    return foundry.utils.flattenObject(flattened);
+    return data;
   }
 
   /** @override */
@@ -386,7 +369,7 @@ class Babonus extends foundry.abstract.DataModel {
   static defineSchema() {
     const base = this._defineBaseSchema();
     base.bonuses = new babonusFields.data.bonuses(this._defineBonusSchema());
-    base.filters = new babonusFields.data.filters(this._defineFilterSchema());
+    base.filters = new foundry.data.fields.SchemaField(this._defineFilterSchema());
     return base;
   }
 

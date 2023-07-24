@@ -303,12 +303,11 @@ export class BabonusWorkshop extends FormApplication {
   async _renderEditor(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     this._currentBabonus = this.collection.get(id);
-    this._addedFilters = new Set(Object.keys(this._currentBabonus.toObject(false).filters));
+    this._addedFilters = new Set(Object.keys(this._currentBabonus.toObject().filters));
 
     // Create the form groups for each active filter.
     const DIV = document.createElement("DIV");
     DIV.innerHTML = "";
-    //const formData = this._currentBabonus.toString();
     for (const id of this._addedFilters) {
       DIV.innerHTML += await babonusFields.filters[id].render(this._currentBabonus);
     }
@@ -771,10 +770,8 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
    */
   static async _embedBabonus(object, bonus) {
-    await object.update({[`flags.${MODULE}.bonuses.-=${bonus.id}`]: null}, {render: false});
-    const data = bonus.toObject();
-    for(const key in data.filters) if(!babonusFields.filters[key].storage(data)) delete data.filters[key];
-    return object.setFlag(MODULE, `bonuses.${bonus.id}`, data);
+    await object.update({[`flags.${MODULE}.bonuses.-=${bonus.id}`]: null}, {render: false, noHook: true});
+    return object.setFlag(MODULE, `bonuses.${bonus.id}`, bonus.toObject());
   }
 
   //#endregion

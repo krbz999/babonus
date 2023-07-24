@@ -24,11 +24,6 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
     return value.filter(i => !!i?.one && !!i.operator && !!i.other);
   }
 
-  /** @override */
-  toObject(value) {
-    return value.length ? value : null;
-  }
-
   /**
    * A class getData method for rendering purposes.
    * @param {Babonus} bonus     The bonus, in case this is a filter being edited, not added.

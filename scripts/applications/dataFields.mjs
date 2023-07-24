@@ -9,7 +9,6 @@ import {BonusesField} from "../data/fields/BonusesField.mjs";
 import {CreatureTypesField} from "../data/fields/filters/CreatureTypesField.mjs";
 import {CustomScriptsField} from "../data/fields/filters/CustomScriptsField.mjs";
 import {DamageTypesField} from "../data/fields/filters/DamageTypesField.mjs";
-import {FiltersField} from "../data/fields/FiltersField.mjs";
 import {HealthPercentagesField} from "../data/fields/filters/HealthPercentagesField.mjs";
 import {ItemRequirementsField} from "../data/fields/filters/ItemRequirementsField.mjs";
 import {ItemTypesField} from "../data/fields/filters/ItemTypesField.mjs";
@@ -30,7 +29,6 @@ import {WeaponPropertiesField} from "../data/fields/filters/WeaponPropertiesFiel
 export const babonusFields = {
   data: {
     bonuses: BonusesField,
-    filters: FiltersField,
   },
   filters: {
     abilities: AbilitiesField,

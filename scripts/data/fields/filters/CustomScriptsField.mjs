@@ -14,4 +14,9 @@ export class CustomScriptsField extends FilterMixin(foundry.data.fields.StringFi
     data.value = bonus ? this.value(bonus) : null;
     return data;
   }
+
+  /** @override */
+  static storage(bonus) {
+    return !!this.value(bonus)?.length;
+  }
 }

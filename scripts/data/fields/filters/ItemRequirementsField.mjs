@@ -13,12 +13,6 @@ export class ItemRequirementsField extends FilterMixin(foundry.data.fields.Schem
   }
 
   /** @override */
-  toObject(value) {
-    const badData = (value.equipped === null) && (value.attuned === null);
-    return badData ? null : value;
-  }
-
-  /** @override */
   static isFilterAvailable(filters, bonus) {
     if (!super.isFilterAvailable(filters, bonus)) return false;
     const item = bonus.item;
@@ -45,5 +39,10 @@ export class ItemRequirementsField extends FilterMixin(foundry.data.fields.Schem
     data.canEquip = true;
     data.canAttune = true;
     return data;
+  }
+
+  /** @override */
+  static storage(bonus) {
+    return Object.values(this.value(bonus)).includes(true);
   }
 }

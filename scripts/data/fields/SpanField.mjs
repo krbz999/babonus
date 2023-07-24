@@ -11,14 +11,8 @@ export class SpanField extends foundry.data.fields.SchemaField {
   /** @override */
   _validateType(data, options = {}) {
     if ((data.min !== null && data.max !== null) && (data.min > data.max)) {
-      throw new foundry.data.fields.ModelValidationError("min cannot be higher than max");
+      throw new foundry.data.validation.DataModelValidationError("min cannot be higher than max");
     }
     return super._validateType(data, options);
-  }
-
-  /** @override */
-  toObject(value) {
-    const badData = [value.min, value.max].includes(null);
-    return badData ? null : value;
   }
 }

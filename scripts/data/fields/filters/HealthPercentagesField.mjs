@@ -13,12 +13,6 @@ export class HealthPercentagesField extends FilterMixin(foundry.data.fields.Sche
   }
 
   /** @override */
-  toObject(value) {
-    const badData = (value.value === null) || (value.type === null);
-    return badData ? null : value;
-  }
-
-  /** @override */
   static getData(bonus = null) {
     const data = super.getData();
     const {value, type} = bonus ? this.value(bonus) : {};
@@ -26,5 +20,10 @@ export class HealthPercentagesField extends FilterMixin(foundry.data.fields.Sche
     data.selected = type ?? null;
     data.value = value ?? 50;
     return data;
+  }
+
+  /** @override */
+  static storage(bonus) {
+    return !Object.values(this.value(bonus)).includes(null);
   }
 }

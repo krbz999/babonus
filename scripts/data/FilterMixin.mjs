@@ -53,7 +53,7 @@ export function FilterMixin(Base) {
      * @returns {boolean}         Whether to save the filter.
      */
     static storage(bonus){
-      throw new Error("Storage must be subclassed!");
+      return this.value(bonus).length > 0;
     }
   }
 }
