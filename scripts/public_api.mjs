@@ -31,7 +31,12 @@ export function _createAPI() {
       DataModels: BabonusTypes,
       DataFields: babonusFields.filters,
       TYPES: Object.keys(BabonusTypes)
-    }
+    },
+
+    filters: Object.keys(babonusFields.filters).reduce((acc, key) => {
+      acc[key] = FILTER[key];
+      return acc;
+    }, {})
   };
   window.babonus = game.modules.get(MODULE).api = API;
 }
