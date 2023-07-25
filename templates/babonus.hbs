@@ -36,7 +36,7 @@
               <div class="babonus-type-header">
                 {{localize (ifThen isEditing 'BABONUS.EditingBonus' 'BABONUS.CreatingBonus')}}
               </div>
-              <i class="{{builder.icon}}"></i> {{localize builder.label}}
+              <i class="{{currentBabonus.icon}}"></i> {{localize builder.label}}
             </div>
             <div class="form-group">
               <label class="label" data-tooltip="BABONUS.IdentifiersTooltip">
@@ -117,7 +117,7 @@
           <div class="bonus {{#if context.collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
             <div class="header">
               <a class="label{{#unless bonus.enabled}} disabled{{/unless}}" data-action="current-collapse">
-                <i class="{{{context.icon}}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
+                <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
               </a>
               <div class="details">
                 <div class="functions">

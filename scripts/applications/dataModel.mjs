@@ -42,6 +42,17 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
+   * The FA icon unique to this babonus type. Must be subclassed.
+   * @returns {string}
+   */
+  static get icon() {
+    return null;
+  }
+  get icon() {
+    return this.constructor.icon;
+  }
+
+  /**
    * Whether the babonus can open the Consumption app in the builder, which requires that it is Optional and has at least
    * one option in the 'type' available.
    * @returns {boolean}
@@ -502,6 +513,11 @@ class AttackBabonus extends ItemBabonus {
       proficiencyLevels: new babonusFields.filters.proficiencyLevels()
     };
   }
+
+  /** @override */
+  static get icon() {
+    return "fa-solid fa-location-crosshairs";
+  }
 }
 
 class DamageBabonus extends ItemBabonus {
@@ -513,6 +529,11 @@ class DamageBabonus extends ItemBabonus {
       criticalBonusDice: new foundry.data.fields.StringField(),
       criticalBonusDamage: new foundry.data.fields.StringField()
     };
+  }
+
+  /** @override */
+  static get icon() {
+    return "fa-solid fa-burst";
   }
 }
 
@@ -531,6 +552,11 @@ class SaveBabonus extends ItemBabonus {
       ...super._defineFilterSchema(),
       saveAbilities: new babonusFields.filters.saveAbilities()
     };
+  }
+
+  /** @override */
+  static get icon() {
+    return "fa-solid fa-hand-sparkles";
   }
 }
 
@@ -555,6 +581,11 @@ class ThrowBabonus extends Babonus {
       proficiencyLevels: new babonusFields.filters.proficiencyLevels()
     };
   }
+
+  /** @override */
+  static get icon() {
+    return "fa-solid fa-person-falling-burst";
+  }
 }
 
 class TestBabonus extends Babonus {
@@ -576,6 +607,11 @@ class TestBabonus extends Babonus {
       proficiencyLevels: new babonusFields.filters.proficiencyLevels()
     };
   }
+
+  /** @override */
+  static get icon() {
+    return "fa-solid fa-bolt";
+  }
 }
 
 class HitDieBabonus extends Babonus {
@@ -585,6 +621,11 @@ class HitDieBabonus extends Babonus {
       ...super._defineBonusSchema(),
       bonus: new foundry.data.fields.StringField()
     };
+  }
+
+  /** @override */
+  static get icon() {
+    return "fa-solid fa-heart-pulse";
   }
 }
 

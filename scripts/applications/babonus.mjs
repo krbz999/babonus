@@ -112,14 +112,15 @@ export class BabonusWorkshop extends FormApplication {
 
       // The current bonus being made or edited.
       data.currentBabonus = this._currentBabonus;
-      data.builder = {icon: this._getIcon(type), label: `BABONUS.Type${type.capitalize()}`};
+      data.builder = {label: `BABONUS.Type${type.capitalize()}`};
       data.addedFilters = this._addedFilters;
 
       // Construct data for the filter pickers.
       for (const [id, cls] of Object.entries(babonusFields.filters)) {
         const filterData = {
           id: id,
-          available: cls.isFilterAvailable(this._addedFilters, this._currentBabonus) // whether is should be shown in 'available filters'.
+          // whether is should be shown in 'available filters'.
+          available: cls.isFilterAvailable(this._addedFilters, this._currentBabonus)
         };
         filterData.unavailable = !(filterData.available || this._addedFilters.has(id));
         data.filters.push(filterData);
@@ -139,7 +140,7 @@ export class BabonusWorkshop extends FormApplication {
         context: {
           collapsed: this._collapsedBonuses.has(bonus.id),
           description: await TextEditor.enrichHTML(bonus.description, {async: true, rollData: bonus.getRollData()}),
-          icon: this._getIcon(bonus.type),
+          icon: bonus.icon,
           typeTooltip: `BABONUS.Type${bonus.type.capitalize()}`
         }
       });
@@ -148,9 +149,9 @@ export class BabonusWorkshop extends FormApplication {
     data.currentBonuses.sort((a, b) => a.bonus.name.localeCompare(b.bonus.name));
 
     // New babonus buttons.
-    data.createButtons = Object.keys(BabonusTypes).map(type => ({
+    data.createButtons = Object.entries(BabonusTypes).map(([type, cls]) => ({
       type,
-      icon: this._getIcon(type),
+      icon: cls.icon,
       label: `BABONUS.Type${type.capitalize()}`
     }));
     data.ICON = MODULE_ICON;
@@ -389,7 +390,7 @@ export class BabonusWorkshop extends FormApplication {
     const id = (event.type === "contextmenu") ? bonus.uuid : bonus.id;
     await game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
-      id, label: "Babonus", type: event.type === "contextmenu" ? "uuid" : "id"
+      id, label: "Babonus", type: (event.type === "contextmenu") ? "uuid" : "id"
     }));
   }
 
@@ -595,7 +596,6 @@ export class BabonusWorkshop extends FormApplication {
    */
   _onDeleteFilter(event) {
     event.currentTarget.closest(".form-group").remove();
-    this._updateAddedFilters();
     this._updateFilterPicker();
   }
 
@@ -609,18 +609,15 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   /**
-   * Update the 'addedFilters' set with what is found in the builder currently.
+   * Convenience method to update the right-side filter picker and the internal set of filters.
    */
-  _updateAddedFilters() {
+  _updateFilterPicker() {
+    //  Update the 'addedFilters' set with what is found in the builder currently.
     this._addedFilters.clear();
     const added = this.element[0].querySelectorAll(".left-side .bonus-filters [data-id]");
     added.forEach(a => this._addedFilters.add(a.dataset.id));
-  }
 
-  /**
-   * Update the filter picker by reading the 'addedFilters' set and toggling the hidden states.
-   */
-  _updateFilterPicker() {
+    // Update the filter picker by reading the 'addedFilters' set and toggling the hidden states.
     Object.keys(babonusFields.filters).forEach(id => {
       const available = babonusFields.filters[id].isFilterAvailable(this._addedFilters, this._currentBabonus);
       const [av, unav] = this.element[0].querySelectorAll(`.right-side .filter[data-id="${id}"]`);
@@ -636,7 +633,6 @@ export class BabonusWorkshop extends FormApplication {
   async _onAddFilter(event) {
     const id = event.currentTarget.closest(".filter").dataset.id;
     await this._appendNewFilter(id);
-    this._updateAddedFilters();
     this._updateFilterPicker();
   }
 
@@ -653,8 +649,8 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Get the inner html of a filter you want to add.
-   * @param {string} id                   The id of the filter.
-   * @returns {Promise<string>}           The template.
+   * @param {string} id             The id of the filter.
+   * @returns {Promise<string>}     The template.
    */
   async _templateFilter(id) {
     const field = babonusFields.filters[id];
@@ -696,22 +692,6 @@ export class BabonusWorkshop extends FormApplication {
   _canAttuneToItem(item) {
     const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
     return (item instanceof Item) && [REQUIRED, ATTUNED].includes(item.system.attunement);
-  }
-
-  /**
-   * Get the icon for specific babonus type.
-   * @param {string} type     The babonus type.
-   * @returns {string}        The FA class.
-   */
-  _getIcon(type) {
-    return {
-      attack: "fa-solid fa-location-crosshairs",
-      damage: "fa-solid fa-burst",
-      save: "fa-solid fa-hand-sparkles",
-      throw: "fa-solid fa-person-falling-burst",
-      test: "fa-solid fa-bolt",
-      hitdie: "fa-solid fa-heart-pulse"
-    }[type];
   }
 
   //#endregion
