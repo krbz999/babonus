@@ -1,5 +1,4 @@
 import {MODULE, MODULE_ICON, MODULE_NAME} from "../constants.mjs";
-import {KeyGetter} from "../helpers/helpers.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 import {BabonusKeysDialog} from "./keysDialog.mjs";
@@ -533,11 +532,12 @@ export class BabonusWorkshop extends FormApplication {
     const formGroup = event.currentTarget.closest(".form-group");
     const filterId = formGroup.dataset.id;
 
-    const list = foundry.utils.deepClone(KeyGetter[filterId]);
+    const field = babonusFields.filters[filterId];
+    const list = field.choices;
+    const canExclude = field.canExclude;
 
     // The text input.
     const values = formGroup.querySelector("input[type='text']").value.split(";");
-    const canExclude = babonusFields.filters[filterId].canExclude;
 
     for (let value of values) {
       value = value.trim();

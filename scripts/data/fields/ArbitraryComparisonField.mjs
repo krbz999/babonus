@@ -1,4 +1,4 @@
-import {FilterMixin} from "../../FilterMixin.mjs";
+import {FilterMixin} from "../FilterMixin.mjs";
 
 // ArrayField that filters invalid comparison fields.
 export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.ArrayField) {
@@ -11,7 +11,7 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
     super(new foundry.data.fields.SchemaField({
       one: new foundry.data.fields.StringField({blank: false}),
       other: new foundry.data.fields.StringField({blank: false}),
-      operator: new foundry.data.fields.StringField({choices: {EQ: "=", LT: "<", GT: ">", LE: "<=", GE: ">="}})
+      operator: new foundry.data.fields.StringField({choices: ArbitraryComparisonField.selectOptions})
     }), options);
   }
 
@@ -25,6 +25,7 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
   }
 
   /**
+   * @override
    * A class getData method for rendering purposes.
    * @param {Babonus} bonus     The bonus, in case this is a filter being edited, not added.
    * @param {number} cnt        How many of this filter are currently rendered, when adding a new one.
@@ -32,7 +33,7 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
    */
   static getData(bonus = null, cnt = 0) {
     const data = super.getData();
-    data.options = {EQ: "=", LT: "<", GT: ">", LE: "<=", GE: ">="};
+    data.options = this.selectOptions;
     data.placeholderOne = "BABONUS.FiltersArbitraryComparisonOne";
     data.placeholderOther = "BABONUS.FiltersArbitraryComparisonOther";
 
@@ -40,6 +41,15 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
     return this.value(bonus).map((v, idx) => ({...v, ...data, idx}));
   }
 
+  /**
+   * Get an object for a dropdown.
+   * @returns {object}
+   */
+  static get selectOptions(){
+    return {EQ: "=", LT: "<", GT: ">", LE: "<=", GE: ">="};
+  }
+
+  /** @override */
   static async render(bonus = null, cnt = 0) {
     return renderTemplate(this.template, this.getData(bonus, cnt));
   }

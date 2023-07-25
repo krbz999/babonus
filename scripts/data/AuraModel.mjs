@@ -98,11 +98,12 @@ export class AuraModel extends foundry.abstract.DataModel {
   /* ----------------------------- */
 
   /**
-   * Does this non-template aura currently affect its owner?
+   * Return whether this should be filtered out of token auras due to being blocked from affecting its owner.
    * @returns {boolean}
    */
   get isAffectingSelf() {
-    return this.isToken && !this.isBlocked && this.self;
+    if (!this.isToken) return true;
+    return !this.isBlocked && this.self;
   }
 
   /**

@@ -15,9 +15,9 @@ class Babonus extends foundry.abstract.DataModel {
   /** @override */
   toObject(source = true) {
     const data = super.toObject(source);
-    if(!source) return data;
-    for(const id in data.filters){
-      if(!babonusFields.filters[id].storage(this)) delete data.filters[id];
+    if (!source) return data;
+    for (const id in data.filters) {
+      if (!babonusFields.filters[id].storage(this)) delete data.filters[id];
     }
     return data;
   }
@@ -351,7 +351,7 @@ class Babonus extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     const base = this._defineBaseSchema();
-    base.bonuses = new babonusFields.data.bonuses(this._defineBonusSchema());
+    base.bonuses = new foundry.data.fields.SchemaField(this._defineBonusSchema());
     base.filters = new foundry.data.fields.SchemaField(this._defineFilterSchema());
     return base;
   }

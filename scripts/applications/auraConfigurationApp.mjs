@@ -38,7 +38,7 @@ export class AuraConfigurationDialog extends FormApplication {
 
     const aura = this.clone.aura;
     return {
-      disableRange: this.clone.aura.isTemplate || (aura.template && (this.clone.parent instanceof Item)),
+      disableRange: aura.isTemplate || (aura.template && (this.clone.parent instanceof Item)),
       disableTemplate: !(this.clone.parent instanceof Item),
       blockers: aura.blockers.join(";"),
       choices,

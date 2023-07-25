@@ -1,4 +1,4 @@
-import {FilterMixin} from "../../FilterMixin.mjs";
+import {FilterMixin} from "../FilterMixin.mjs";
 
 // SchemaField that requires a value in all fields.
 export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField) {

@@ -1,4 +1,4 @@
-import {FilterMixin} from "../../FilterMixin.mjs";
+import {FilterMixin} from "../FilterMixin.mjs";
 
 export class ItemRequirementsField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "itemRequirements";

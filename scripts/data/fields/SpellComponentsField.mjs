@@ -1,6 +1,4 @@
-import {KeyGetter} from "../../../helpers/helpers.mjs";
-import {FilterMixin} from "../../FilterMixin.mjs";
-import {FilteredArrayField} from "../FilteredArrayField.mjs";
+import {FilterMixin} from "../FilterMixin.mjs";
 
 export class SpellComponentsField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "spellComponents";
@@ -9,12 +7,8 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
   /** @override */
   _initialize() {
     return super._initialize({
-      types: new FilteredArrayField(new foundry.data.fields.StringField({
-        choices: KeyGetter._getSchemaFilterOptions("spellComponents")
-      })),
-      match: new foundry.data.fields.StringField({
-        nullable: true, initial: null, choices: ["ANY", "ALL"]
-      })
+      types: new foundry.data.fields.ArrayField(new foundry.data.fields.StringField({blank: false, required: false})),
+      match: new foundry.data.fields.StringField({nullable: true, initial: null, choices: ["ANY", "ALL"]})
     });
   }
 
@@ -25,13 +19,27 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
     const match = value.match ?? null;
     const data = super.getData();
 
-    data.types = KeyGetter[this.name].map(c => ({checked: types.includes(c.value), value: c.value, label: c.abbr, tooltip: c.label}));
+    data.types = this.choices.map(c => ({
+      checked: types.includes(c.value),
+      value: c.value,
+      label: c.abbr,
+      tooltip: c.label
+    }));
     data.selected = match;
     data.options = {
       ANY: "BABONUS.FiltersSpellComponentsMatchAny",
       ALL: "BABONUS.FiltersSpellComponentsMatchAll"
     };
     return data;
+  }
+
+  /** @override */
+  static get choices() {
+    const comps = Object.entries(CONFIG.DND5E.spellComponents);
+    const tags = Object.entries(CONFIG.DND5E.spellTags);
+    return [...comps, ...tags].map(([value, {abbr, label}]) => {
+      return {value, label, abbr};
+    }).sort((a, b) => a.label.localeCompare(b.label));
   }
 
   /** @override */
