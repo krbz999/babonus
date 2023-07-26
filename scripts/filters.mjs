@@ -96,7 +96,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
   }
  */
 
-export class FILTER {
+export class FilterManager {
 
   /**
    **********************************************************
@@ -282,7 +282,7 @@ export class FILTER {
    */
   static baseWeapons(item, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (item.type !== "weapon") return included.length === 0;
     const type = item.system.baseItem;
     if (included.length && !included.includes(type)) return false;
@@ -299,7 +299,7 @@ export class FILTER {
    */
   static baseArmors(object, filter) {
     const actor = (object instanceof Item) ? object.actor : object;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
 
     // Vehicles cannot wear base armor.
     if (actor.type === "vehicle") return !(included.length > 0);
@@ -329,7 +329,7 @@ export class FILTER {
   static damageTypes(item, filter) {
     if (!filter?.length) return true;
     const types = item.getDerivedDamageLabel().map(i => i.damageType);
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (included.length && !types.some(t => included.includes(t))) return false;
     if (excluded.length && types.some(t => excluded.includes(t))) return false;
     return true;
@@ -439,7 +439,7 @@ export class FILTER {
    */
   static weaponProperties(item, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (item.type !== "weapon") return included.length === 0;
     const props = item.system.properties;
     if (included.length && !included.some(p => props[p])) return false;
@@ -519,7 +519,7 @@ export class FILTER {
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
     const actor = object.actor ?? object;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
 
     const hasIncluded = included.some(id => actor.statuses.has(id));
     if (included.length && !hasIncluded) return false;
@@ -539,7 +539,7 @@ export class FILTER {
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = game.user.targets.first()?.actor;
     if (!actor) return !included.length;
 
@@ -577,18 +577,18 @@ export class FILTER {
   static creatureTypes(object, filter) {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     const details = target?.actor?.system.details;
     if (!details) return !included.length;
 
     // All the races the target is a member of.
     let races = [];
     if (target.actor.type === "npc") {
-      races = FILTER._split(details.type.subtype);
-      if (details.type.value === "custom") races.push(...FILTER._split(details.type.custom));
+      races = FilterManager._split(details.type.subtype);
+      if (details.type.value === "custom") races.push(...FilterManager._split(details.type.custom));
       else races.push(details.type.value);
     } else if (target.actor.type === "character") {
-      races = FILTER._split(details.race);
+      races = FilterManager._split(details.race);
     }
 
     if (included.length && !included.some(e => races.includes(e))) return false;
@@ -605,7 +605,7 @@ export class FILTER {
    */
   static actorCreatureTypes(object, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = object.actor ?? object;
     const details = actor.system.details;
     if (!details) return !included.length;
@@ -613,11 +613,11 @@ export class FILTER {
     // All the races the rolling actor is a member of.
     let races = [];
     if (actor.type === "npc") {
-      races = FILTER._split(details.type.subtype);
-      if (details.type.value === "custom") races.push(...FILTER._split(details.type.custom));
+      races = FilterManager._split(details.type.subtype);
+      if (details.type.value === "custom") races.push(...FilterManager._split(details.type.custom));
       else races.push(details.type.value);
     } else if (actor.type === "character") {
-      races = FILTER._split(details.race);
+      races = FilterManager._split(details.race);
     }
 
     if (included.length && !included.some(e => races.includes(e))) return false;
@@ -728,7 +728,7 @@ export class FILTER {
    */
   static baseTools(actor, filter, {toolId}) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (!toolId) return included.length === 0;
     if (included.length && !included.includes(toolId)) return false;
     if (excluded.length && excluded.includes(toolId)) return false;
@@ -745,7 +745,7 @@ export class FILTER {
    */
   static skillIds(actor, filter, {skillId}) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (!skillId) return included.length === 0;
     if (included.length && !included.includes(skillId)) return false;
     if (excluded.length && excluded.includes(skillId)) return false;

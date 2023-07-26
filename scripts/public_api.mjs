@@ -3,7 +3,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 import {babonusFields} from "./applications/dataFields.mjs";
 import {BabonusTypes} from "./applications/dataModel.mjs";
 import {MODULE} from "./constants.mjs";
-import {FILTER} from "./filters.mjs";
+import {FilterManager} from "./filters.mjs";
 
 export function _createAPI() {
   const API = {
@@ -34,7 +34,7 @@ export function _createAPI() {
     },
 
     filters: Object.keys(babonusFields.filters).reduce((acc, key) => {
-      acc[key] = FILTER[key];
+      acc[key] = FilterManager[key];
       return acc;
     }, {})
   };
@@ -53,10 +53,10 @@ export function _createAPI() {
  * @returns {Babonus[]}                             An array of valid babonuses.
  */
 function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false, abilityId = "int", skillId} = {}) {
-  if (type === "hitdie") return FILTER.hitDieCheck(object);
-  else if (type === "throw") return FILTER.throwCheck(object, throwType, {throwType, isConcSave});
-  else if (type === "test") return FILTER.testCheck(object, abilityId, {skillId});
-  else if (["attack", "damage", "save"].includes(type)) return FILTER.itemCheck(object, type);
+  if (type === "hitdie") return FilterManager.hitDieCheck(object);
+  else if (type === "throw") return FilterManager.throwCheck(object, throwType, {throwType, isConcSave});
+  else if (type === "test") return FilterManager.testCheck(object, abilityId, {skillId});
+  else if (["attack", "damage", "save"].includes(type)) return FilterManager.itemCheck(object, type);
 }
 
 /**
