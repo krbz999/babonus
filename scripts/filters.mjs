@@ -12,7 +12,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
       id: "hgienfid783h",                                   // Regular 16 character id.
       description: "This is...",                            // Description of the bonus.
       type: "attack",                                       // Or "damage", "save", "throw", "hitdie".
-      itemOnly: false,                                      // whether this bonus only applies to the item on which it is created (attack/damage/save only).
+      exclusive: false,                                     // whether this bonus only applies to the item on which it is created (attack/damage/save only).
       optional: false,                                      // whether this bonus is toggleable in the roll config.
       consume: {
         enabled: true,                                      // Whether the bonus consumes uses/quantity off its item or slots off its actor.

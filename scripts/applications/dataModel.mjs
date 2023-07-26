@@ -53,110 +53,6 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the babonus can open the Consumption app in the builder, which requires that it is Optional and has at least
-   * one option in the 'type' available.
-   * @returns {boolean}
-   */
-  get canConsume() {
-    if (!this.isOptional) return false;
-    return [
-      this.canConsumeUses,
-      this.canConsumeQuantity,
-      this.canConsumeSlots,
-      this.canConsumeEffect,
-      this.canConsumeHealth
-    ].some(a => a);
-  }
-
-  /**
-   * Whether the bonus is scaling when consuming, which requires that it is consuming, has 'scales' set to true, and does
-   * not consume an effect, which cannot scale. If the type is 'health', then 'step' must be 1 or greater. Otherwise the
-   * 'max', if set, must be strictly greater than 'min'.
-   * @returns {boolean}
-   */
-  get isScaling() {
-    if (!this.isConsuming) return false;
-    if (!this.consume.scales) return false;
-    if (this.consume.type === "effect") return false;
-    if ((this.consume.type === "health") && !(this.consume.value.step > 0)) return false;
-    return (this.consume.value.max || Infinity) > this.consume.value.min;
-  }
-
-  /**
-   * Whether 'Limited Uses' should be a valid option in the Consumption app. The babonus must not be an aura, template aura,
-   * and must be embedded on an item that has limited uses.
-   * @returns {boolean}
-   */
-  get canConsumeUses() {
-    if (this.aura.isToken || this.aura.isTemplate) return false;
-    return (this.parent instanceof Item) && this.parent.hasLimitedUses;
-  }
-
-  /**
-   * Whether 'Quantity' should be a valid option in the Consumption app. The babonus must not be an aura, template aura, and
-   * must be embedded on an item that has a quantity.
-   * @returns {boolean}
-   */
-  get canConsumeQuantity() {
-    if (this.aura.isToken || this.aura.isTemplate) return false;
-    return (this.parent instanceof Item) && Number.isNumeric(this.parent.system.quantity);
-  }
-
-  /**
-   * Whether 'Spell Slots' should be a valid option in the Consumption app. Since this works fine as an aura, there are no
-   * restrictions to apply here, and it always returns true.
-   * @returns {boolean}
-   */
-  get canConsumeSlots() {
-    return true;
-  }
-
-  /**
-   * Whether 'Hit Points' should be a valid option in the Consumption app. Since this works fine as an aura, there are no
-   * restrictions to apply here, and it always returns true.
-   * @returns {boolean}
-   */
-  get canConsumeHealth() {
-    return true;
-  }
-
-  /**
-   * Whether 'Effect' should be a valid option in the Consumption app. The babonus must not be an aura, template aura, and
-   * must be embedded on an effect.
-   * @returns {boolean}
-   */
-  get canConsumeEffect() {
-    return (this.parent instanceof ActiveEffect) && !this.aura.isToken && !this.aura.isTemplate;
-  }
-
-  /**
-   * Whether the consumption data on the babonus creates valid consumption for the optional bonus application when rolling.
-   * If it does not, the babonus is ignored there.
-   *
-   * - For limited uses, only users who own the item in question are allowed to edit it by subtracting uses, and the minimum
-   * required value must be a positive integer.
-   * - For quantity, only users who own the item in question are allowed to edit it by subtracting quantities, and the
-   * minimum required value must be a positive integer.
-   * - For spell slots, the minimum required spell slot level must be a positive integer.
-   * - For effects, only users who own the effect in question are allowed to delete it.
-   * @returns {boolean}
-   */
-  get isConsuming() {
-    if (!this.canConsume || !this.consume.enabled || !this.consume.type) return false;
-
-    const type = this.consume.type;
-    const min = Number.isNumeric(this.consume.value.min) ? this.consume.value.min : 1;
-    const isItemOwner = (this.parent instanceof Item) && this.parent.isOwner;
-    const isEffectOwner = (this.parent instanceof ActiveEffect) && this.parent.isOwner;
-
-    if (type === "uses") return this.canConsumeUses && isItemOwner && (min > 0);
-    else if (type === "quantity") return this.canConsumeQuantity && isItemOwner && (min > 0);
-    else if (type === "slots") return this.canConsumeSlots && (min > 0);
-    else if (type === "effect") return this.canConsumeEffect && isEffectOwner;
-    else if (type === "health") return this.canConsumeHealth && (min > 0);
-  }
-
-  /**
    * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
@@ -200,7 +96,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get isExclusive() {
-    return this.itemOnly && this.canExclude;
+    return this.exclusive && this.canExclude;
   }
 
   /**
@@ -377,20 +273,10 @@ class Babonus extends foundry.abstract.DataModel {
       name: new foundry.data.fields.StringField({required: true, blank: false}),
       type: new foundry.data.fields.StringField({required: true, blank: false, choices: BabonusTypes}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),
-      itemOnly: new foundry.data.fields.BooleanField(),
+      exclusive: new foundry.data.fields.BooleanField(),
       optional: new foundry.data.fields.BooleanField(),
       description: new foundry.data.fields.StringField({required: true}),
-      consume: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
-        type: new foundry.data.fields.StringField({nullable: true, initial: null, choices: ["", "uses", "quantity", "slots", "health", "effect"]}),
-        scales: new foundry.data.fields.BooleanField({required: false}),
-        formula: new foundry.data.fields.StringField({nullable: true, initial: null}),
-        value: new foundry.data.fields.SchemaField({
-          min: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),
-          max: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),
-          step: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1})
-        })
-      }),
+      consume: new foundry.data.fields.EmbeddedDataField(babonusFields.data.consume),
       aura: new foundry.data.fields.EmbeddedDataField(babonusFields.data.aura)
     };
   }
@@ -427,6 +313,7 @@ class Babonus extends foundry.abstract.DataModel {
     if (!source.filters) source.filters = {};
     this._migrateCreatureTypes(source);
     this._migrateWeaponProperties(source);
+    this._migrateExclusive(source);
   }
 
   /**
@@ -457,6 +344,15 @@ class Babonus extends foundry.abstract.DataModel {
     for (const t of (types.needed ?? [])) c.push(t);
     for (const u of (types.unfit ?? [])) c.push(`!${u}`);
     source.filters.weaponProperties = c;
+  }
+
+  /**
+   * Migrate the 'itemOnly' property to be renamed 'exclusive'.
+   * @param {object} source     The initial source data of the babonus.
+   */
+  static _migrateExclusive(source) {
+    if (source.itemOnly) source.exclusive = true;
+    delete source.itemOnly;
   }
 
   /**

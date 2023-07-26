@@ -1,4 +1,5 @@
 import {AuraModel} from "../data/AuraModel.mjs";
+import {ConsumptionModel} from "../data/ConsumptionModel.mjs";
 import {ArbitraryComparisonField} from "../data/fields/ArbitraryComparisonField.mjs";
 import {checkboxFields} from "../data/fields/CheckboxFields.mjs";
 import {CustomScriptsField} from "../data/fields/CustomScriptsField.mjs";
@@ -11,7 +12,8 @@ import {TokenSizesField} from "../data/fields/TokenSizesField.mjs";
 
 export const babonusFields = {
   data: {
-    aura: AuraModel
+    aura: AuraModel,
+    consume: ConsumptionModel
   },
   filters: {
     arbitraryComparison: ArbitraryComparisonField,

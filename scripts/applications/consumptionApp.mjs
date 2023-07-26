@@ -29,19 +29,14 @@ export class ConsumptionDialog extends FormApplication {
 
   /** @override */
   async getData() {
-    const choices = [];
-    if (this.clone.canConsumeUses) choices.push({value: "uses", label: "DND5E.LimitedUses"});
-    if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
-    if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSlots"});
-    if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
-    if (this.clone.canConsumeHealth) choices.push({value: "health", label: "BABONUS.ConsumptionTypeHealth"});
+    const consume = this.clone.consume;
     return {
       clone: this.clone,
-      choices,
-      disableMax: (this.clone.consume.type === "effect") || (!this.clone.consume.scales),
-      isEffect: this.clone.consume.type === "effect",
-      isHealth: this.clone.consume.type === "health",
-      disableStep: !this.clone.consume.scales
+      choices: consume.OPTIONS,
+      disableMax: (consume.type === "effect") || (!consume.scales),
+      isEffect: consume.type === "effect",
+      isHealth: consume.type === "health",
+      disableStep: !consume.scales
     };
   }
 

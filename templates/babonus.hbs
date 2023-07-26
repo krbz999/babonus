@@ -137,7 +137,7 @@
                     <i class="fa-{{ifThen (or bonus.aura.isToken bonus.aura.isTemplate) 'solid' 'regular'}} fa-sun"></i>
                   </a>
                   {{#if bonus.canExclude}}
-                  <a data-action="current-itemOnly" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
+                  <a data-action="current-exclusive" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
                     <i class="fa-{{ifThen bonus.isExclusive 'solid' 'regular'}} fa-chess-pawn"></i>
                   </a>
                   {{else}}
@@ -154,9 +154,9 @@
                     <i class="fa-regular fa-circle-xmark"></i>
                   </a>
                   {{/if}}
-                  {{#if bonus.canConsume}}
+                  {{#if bonus.consume.canConsume}}
                   <a data-action="current-consume" data-tooltip="BABONUS.ConfigurationConsumptionTooltip">
-                    <i class="fa-{{ifThen bonus.isConsuming 'solid fa-hand-sparkles' 'regular fa-hand'}}"></i>
+                    <i class="fa-{{ifThen bonus.consume.isConsuming 'solid fa-hand-sparkles' 'regular fa-hand'}}"></i>
                   </a>
                   {{else}}
                   <a class="unavailable" data-tooltip="BABONUS.ConfigurationConsumptionTooltipUnavailable">

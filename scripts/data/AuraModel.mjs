@@ -1,8 +1,6 @@
 import {babonusFields} from "../applications/dataFields.mjs";
 
 export class AuraModel extends foundry.abstract.DataModel {
-  static OPTIONS = {ALLY: 1, ENEMY: -1, ANY: 2};
-
   static defineSchema() {
     return {
       enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
@@ -16,6 +14,10 @@ export class AuraModel extends foundry.abstract.DataModel {
         move: new foundry.data.fields.BooleanField()
       })
     };
+  }
+
+  static get OPTIONS() {
+    return {ALLY: 1, ENEMY: -1, ANY: 2};
   }
 
   /** @override */

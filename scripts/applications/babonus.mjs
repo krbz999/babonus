@@ -215,7 +215,7 @@ export class BabonusWorkshop extends FormApplication {
     html[0].querySelectorAll("[data-action='current-optional']").forEach(a => a.addEventListener("click", this._onToggleOptional.bind(this)));
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("click", this._onToggleConsume.bind(this)));
     html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("contextmenu", this._onToggleConsume.bind(this)));
-    html[0].querySelectorAll("[data-action='current-itemOnly']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
+    html[0].querySelectorAll("[data-action='current-exclusive']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
     html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("click", this._onClickId.bind(this)));
     html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("contextmenu", this._onClickId.bind(this)));
   }
@@ -435,8 +435,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleExclusive(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.document.flags[MODULE].bonuses[id].itemOnly;
-    return this.document.setFlag(MODULE, `bonuses.${id}.itemOnly`, !state);
+    const state = this.document.flags[MODULE].bonuses[id].exclusive;
+    return this.document.setFlag(MODULE, `bonuses.${id}.exclusive`, !state);
   }
 
   /**
@@ -450,7 +450,7 @@ export class BabonusWorkshop extends FormApplication {
     const path = `bonuses.${id}.consume.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new ConsumptionDialog(this.document, {bab}).render(true);
-    if (bab.isConsuming) return this.document.setFlag(MODULE, path, false);
+    if (bab.consume.isConsuming) return this.document.setFlag(MODULE, path, false);
     else if (event.shiftKey) return this.document.setFlag(MODULE, path, !bab.consume.enabled);
     return new ConsumptionDialog(this.document, {bab}).render(true);
   }
