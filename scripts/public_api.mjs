@@ -3,7 +3,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 import {babonusFields} from "./applications/dataFields.mjs";
 import {BabonusTypes} from "./applications/dataModel.mjs";
 import {MODULE} from "./constants.mjs";
-import {FILTER} from "./filters.mjs";
+import {FilterManager} from "./filters.mjs";
 
 export function _createAPI() {
   const API = {
@@ -29,9 +29,14 @@ export function _createAPI() {
 
     abstract: {
       DataModels: BabonusTypes,
-      DataFields: babonusFields,
+      DataFields: babonusFields.filters,
       TYPES: Object.keys(BabonusTypes)
-    }
+    },
+
+    filters: Object.keys(babonusFields.filters).reduce((acc, key) => {
+      acc[key] = FilterManager[key];
+      return acc;
+    }, {})
   };
   window.babonus = game.modules.get(MODULE).api = API;
 }
@@ -48,10 +53,10 @@ export function _createAPI() {
  * @returns {Babonus[]}                             An array of valid babonuses.
  */
 function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false, abilityId = "int", skillId} = {}) {
-  if (type === "hitdie") return FILTER.hitDieCheck(object);
-  else if (type === "throw") return FILTER.throwCheck(object, throwType, {throwType, isConcSave});
-  else if (type === "test") return FILTER.testCheck(object, abilityId, {skillId});
-  else if (["attack", "damage", "save"].includes(type)) return FILTER.itemCheck(object, type);
+  if (type === "hitdie") return FilterManager.hitDieCheck(object);
+  else if (type === "throw") return FilterManager.throwCheck(object, throwType, {throwType, isConcSave});
+  else if (type === "test") return FilterManager.testCheck(object, abilityId, {skillId});
+  else if (["attack", "damage", "save"].includes(type)) return FilterManager.itemCheck(object, type);
 }
 
 /**
@@ -203,13 +208,13 @@ function findEmbeddedDocumentsWithBonuses(object) {
  */
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
-  if (!bonus.isTokenAura) return null;
+  if (!bonus.aura.isToken) return null;
   let actor;
   if (object instanceof Actor) actor = object;
   else if (object instanceof Item) actor = object.actor;
   else if (object instanceof ActiveEffect) actor = object.parent;
   const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
-  const range = dnd5e.utils.simplifyBonus(bonus.aura.range, bonus.getRollData({deterministic: true}));
+  const range = bonus.aura.range;
   if (range === -1) return canvas.scene.tokens.filter(t => {
     if (!t.actor) return false;
     if (t.actor.type === "group") return false;

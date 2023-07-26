@@ -19,25 +19,24 @@ export class ConsumptionDialog extends FormApplication {
     });
   }
 
+  get document() {
+    return this.object;
+  }
+
   get title() {
     return game.i18n.format("BABONUS.ConfigurationConsumptionTitle", {name: this.options.bab.name});
   }
 
   /** @override */
   async getData() {
-    const choices = [];
-    if (this.clone.canConsumeUses) choices.push({value: "uses", label: "DND5E.LimitedUses"});
-    if (this.clone.canConsumeQuantity) choices.push({value: "quantity", label: "DND5E.Quantity"});
-    if (this.clone.canConsumeSlots) choices.push({value: "slots", label: "BABONUS.ConsumptionTypeSlots"});
-    if (this.clone.canConsumeEffect) choices.push({value: "effect", label: "BABONUS.ConsumptionTypeEffect"});
-    if (this.clone.canConsumeHealth) choices.push({value: "health", label: "BABONUS.ConsumptionTypeHealth"});
+    const consume = this.clone.consume;
     return {
       clone: this.clone,
-      choices,
-      disableMax: (this.clone.consume.type === "effect") || (!this.clone.consume.scales),
-      isEffect: this.clone.consume.type === "effect",
-      isHealth: this.clone.consume.type === "health",
-      disableStep: !this.clone.consume.scales
+      choices: consume.OPTIONS,
+      disableMax: (consume.type === "effect") || (!consume.scales),
+      isEffect: consume.type === "effect",
+      isHealth: consume.type === "health",
+      disableStep: !consume.scales
     };
   }
 
@@ -53,7 +52,7 @@ export class ConsumptionDialog extends FormApplication {
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("consume");
     const data = foundry.utils.mergeObject({consume: defaults}, formData);
-    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
+    return this.document.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */

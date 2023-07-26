@@ -3,7 +3,7 @@
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionType"}}</label>
     <div class="form-fields">
       <select name="consume.type">
-        {{selectOptions choices selected=clone.consume.type nameAttr="value" labelAttr="label" localize=true blank=""}}
+        {{selectOptions choices selected=clone.consume.type localize=true blank="-" sort=true}}
       </select>
     </div>
   </div>

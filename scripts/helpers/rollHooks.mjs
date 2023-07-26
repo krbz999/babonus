@@ -1,4 +1,4 @@
-import {FILTER} from "../filters.mjs";
+import {FilterManager} from "../filters.mjs";
 import {MODULE} from "../constants.mjs";
 import {BabonusWorkshop} from "../applications/babonus.mjs";
 
@@ -10,7 +10,7 @@ export class RollHooks {
     if (!item.hasSave) return;
 
     // Get bonuses:
-    const bonuses = FILTER.itemCheck(item, "save", {spellLevel: item.system.level});
+    const bonuses = FilterManager.itemCheck(item, "save", {spellLevel: item.system.level});
     if (!bonuses.length) return;
     const rollConfig = {data: item.getRollData()};
     RollHooks._addTargetData(rollConfig);
@@ -38,7 +38,7 @@ export class RollHooks {
   static preRollAttack(item, rollConfig) {
     // get bonuses:
     const spellLevel = rollConfig.data.item.level;
-    const bonuses = FILTER.itemCheck(item, "attack", {spellLevel});
+    const bonuses = FilterManager.itemCheck(item, "attack", {spellLevel});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -74,7 +74,7 @@ export class RollHooks {
   static preRollDamage(item, rollConfig) {
     // get bonus:
     const spellLevel = rollConfig.data.item.level;
-    const bonuses = FILTER.itemCheck(item, "damage", {spellLevel});
+    const bonuses = FilterManager.itemCheck(item, "damage", {spellLevel});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -102,7 +102,7 @@ export class RollHooks {
   /** When you roll a death saving throw... */
   static preRollDeathSave(actor, rollConfig) {
     // get bonus:
-    const bonuses = FILTER.throwCheck(actor, "death", {});
+    const bonuses = FilterManager.throwCheck(actor, "death", {});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -131,7 +131,7 @@ export class RollHooks {
   /** When you roll a saving throw... */
   static preRollAbilitySave(actor, rollConfig, abilityId) {
     // get bonus:
-    const bonuses = FILTER.throwCheck(actor, abilityId, {isConcSave: rollConfig.isConcSave});
+    const bonuses = FilterManager.throwCheck(actor, abilityId, {isConcSave: rollConfig.isConcSave});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -142,7 +142,7 @@ export class RollHooks {
 
   /** When you roll an ability check... */
   static preRollAbilityTest(actor, rollConfig, abilityId) {
-    const bonuses = FILTER.testCheck(actor, abilityId);
+    const bonuses = FilterManager.testCheck(actor, abilityId);
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
     const optionals = RollHooks._getParts(bonuses, rollConfig);
@@ -152,7 +152,7 @@ export class RollHooks {
   /** When you roll a skill... */
   static preRollSkill(actor, rollConfig, skillId) {
     const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.3.0
-    const bonuses = FILTER.testCheck(actor, abilityId, {skillId});
+    const bonuses = FilterManager.testCheck(actor, abilityId, {skillId});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
     const optionals = RollHooks._getParts(bonuses, rollConfig);
@@ -162,7 +162,7 @@ export class RollHooks {
   /** When you roll a tool check... */
   static preRollToolCheck(actor, rollConfig, toolId) {
     const abilityId = rollConfig.ability || rollConfig.data.defaultAbility; // TODO: fix in 2.3.0
-    const bonuses = FILTER.testCheck(actor, abilityId, {toolId});
+    const bonuses = FilterManager.testCheck(actor, abilityId, {toolId});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
     const optionals = RollHooks._getParts(bonuses, rollConfig);
@@ -171,7 +171,7 @@ export class RollHooks {
 
   /** When you roll a hit die... */
   static preRollHitDie(actor, rollConfig, denomination) {
-    const bonuses = FILTER.hitDieCheck(actor);
+    const bonuses = FilterManager.hitDieCheck(actor);
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -192,7 +192,7 @@ export class RollHooks {
     const disp = tokenDocument?.disposition ?? item.actor.prototypeToken.disposition;
 
     const bonusData = BabonusWorkshop._getCollection(item).reduce((acc, bab) => {
-      if (bab.isTemplateAura) acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
+      if (bab.aura.isTemplate) acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
       return acc;
     }, {});
     if (foundry.utils.isEmpty(bonusData)) return;

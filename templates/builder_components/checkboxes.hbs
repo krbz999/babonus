@@ -2,7 +2,7 @@
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <div class="checkboxes">
-      {{#each array}}
+      {{#each value}}
       <label for="{{../appId}}-{{../id}}-{{value}}" data-hide-input="true" data-tooltip="{{tooltip}}">
         <input type="checkbox" {{#if (eq ../id "itemTypes")}}data-action="item-type"{{/if}} name="filters.{{../id}}" value="{{value}}" id="{{../appId}}-{{../id}}-{{value}}" {{checked checked}}>
         <span class="check">{{{label}}}</span>

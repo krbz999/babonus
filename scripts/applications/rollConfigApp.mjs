@@ -41,7 +41,7 @@ export class OptionalSelector {
     const bonuses = [];
     for (const bonus of this.bonuses) {
       let data = null;
-      if (bonus.isConsuming) {
+      if (bonus.consume.isConsuming) {
         if (["uses", "quantity"].includes(bonus.consume.type)) {
           data = this._getDataConsumeItem(bonus);
         } else if (bonus.consume.type === "slots") {
@@ -78,7 +78,7 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
-    if (bonus.isScaling) {
+    if (bonus.consume.isScaling) {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingItemOptions(bonus);
@@ -98,7 +98,7 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
-    if (bonus.isScaling) {
+    if (bonus.consume.isScaling) {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingSlotsOptions(bonus);
@@ -118,7 +118,7 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
-    if (bonus.isScaling) {
+    if (bonus.consume.isScaling) {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingHealthOptions(bonus);
