@@ -666,7 +666,7 @@ export class FilterManager {
    */
   static customScripts(object, script, details = {}) {
     if (!script?.length) return true;
-    if (game.settings.get(MODULE, SETTINGS.SCRIPT)) return true;
+    if (game.settings.get(MODULE.ID, SETTINGS.SCRIPT)) return true;
     try {
       const func = Function("actor", "item", "token", "details", script);
       const actor = (object.parent instanceof Actor) ? object.parent : (object instanceof Actor) ? object : null;

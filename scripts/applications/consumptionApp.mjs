@@ -7,15 +7,15 @@ export class ConsumptionDialog extends FormApplication {
   }
 
   get id() {
-    return `${MODULE}ConsumptionDialog-${this.options.bab.id}`;
+    return `${MODULE.ID}ConsumptionDialog-${this.options.bab.id}`;
   }
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE}/templates/subapplications/consumptionApp.hbs`,
-      classes: [MODULE, "consumption-config"]
+      template: `modules/${MODULE.ID}/templates/subapplications/consumptionApp.hbs`,
+      classes: [MODULE.ID, "consumption-config"]
     });
   }
 
@@ -52,7 +52,7 @@ export class ConsumptionDialog extends FormApplication {
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("consume");
     const data = foundry.utils.mergeObject({consume: defaults}, formData);
-    return this.document.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
+    return this.document.setFlag(MODULE.ID, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */

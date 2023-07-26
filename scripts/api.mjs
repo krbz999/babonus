@@ -1,11 +1,10 @@
 import {BabonusWorkshop} from "./applications/babonus.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
-import {babonusFields} from "./applications/dataFields.mjs";
-import {BabonusTypes} from "./applications/dataModel.mjs";
 import {MODULE} from "./constants.mjs";
+import {module} from "./data/_module.mjs";
 import {FilterManager} from "./filters.mjs";
 
-export function _createAPI() {
+export function createAPI() {
   const API = {
     getId, getIds,
     getName, getNames,
@@ -28,17 +27,17 @@ export function _createAPI() {
     getApplicableBonuses,
 
     abstract: {
-      DataModels: BabonusTypes,
-      DataFields: babonusFields.filters,
-      TYPES: Object.keys(BabonusTypes)
+      DataModels: module.models,
+      DataFields: module.filters,
+      TYPES: Object.keys(module.models)
     },
 
-    filters: Object.keys(babonusFields.filters).reduce((acc, key) => {
+    filters: Object.keys(module.filters).reduce((acc, key) => {
       acc[key] = FilterManager[key];
       return acc;
     }, {})
   };
-  window.babonus = game.modules.get(MODULE).api = API;
+  window.babonus = game.modules.get(MODULE.ID).api = API;
 }
 
 /**
@@ -294,7 +293,7 @@ function openBabonusWorkshop(object) {
  * @returns {Babonus}                   The created babonus.
  */
 function createBabonus(data, parent = null) {
-  if (!(data.type in BabonusTypes)) throw new Error("INVALID BABONUS TYPE.");
+  if (!(data.type in module.models)) throw new Error("INVALID BABONUS TYPE.");
   return BabonusWorkshop._createBabonus(data, undefined, {parent});
 }
 
@@ -364,6 +363,6 @@ async function embedBabonus(object, bonus) {
     console.warn("The document provided is not a valid document type for Build-a-Bonus!");
     return null;
   }
-  if (!Object.values(BabonusTypes).some(t => bonus instanceof t)) return null;
+  if (!Object.values(module.models).some(t => bonus instanceof t)) return null;
   return BabonusWorkshop._embedBabonus(object, bonus);
 }

@@ -1,4 +1,4 @@
-import {babonusFields} from "../applications/dataFields.mjs";
+import {module} from "./_module.mjs";
 
 export class AuraModel extends foundry.abstract.DataModel {
   static defineSchema() {
@@ -8,7 +8,7 @@ export class AuraModel extends foundry.abstract.DataModel {
       range: new foundry.data.fields.StringField({nullable: true, initial: null}),
       self: new foundry.data.fields.BooleanField({required: false, initial: true}),
       disposition: new foundry.data.fields.NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
-      blockers: new babonusFields.filters.statusEffects(),
+      blockers: new module.filters.statusEffects(),
       require: new foundry.data.fields.SchemaField({
         sight: new foundry.data.fields.BooleanField(),
         move: new foundry.data.fields.BooleanField()

@@ -1,5 +1,5 @@
 import {MODULE} from "../constants.mjs";
-import {babonusFields} from "./dataFields.mjs";
+import {module} from "../data/_module.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
   constructor(object, options = {}) {
@@ -9,15 +9,15 @@ export class AuraConfigurationDialog extends FormApplication {
   }
 
   get id() {
-    return `${MODULE}AuraConfigurationDialog-${this.options.bab.id}`;
+    return `${MODULE.ID}AuraConfigurationDialog-${this.options.bab.id}`;
   }
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE}/templates/subapplications/auraConfigurationApp.hbs`,
-      classes: [MODULE, "aura-config"]
+      template: `modules/${MODULE.ID}/templates/subapplications/auraConfigurationApp.hbs`,
+      classes: [MODULE.ID, "aura-config"]
     });
   }
 
@@ -31,7 +31,7 @@ export class AuraConfigurationDialog extends FormApplication {
 
   /** @override */
   async getData() {
-    const choices = Object.entries(babonusFields.data.aura.OPTIONS).reduce((acc, [k, v]) => {
+    const choices = Object.entries(module.fields.aura.OPTIONS).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.ConfigurationAuraDisposition${k.titleCase()}`;
       return acc;
     }, {});
@@ -59,7 +59,7 @@ export class AuraConfigurationDialog extends FormApplication {
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("aura");
     const data = foundry.utils.mergeObject({aura: defaults}, formData);
-    return this.document.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
+    return this.document.setFlag(MODULE.ID, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */

@@ -25,7 +25,7 @@ export class OptionalSelector {
   }
 
   get template() {
-    return `modules/${MODULE}/templates/subapplications/optionalBonuses.hbs`;
+    return `modules/${MODULE.ID}/templates/subapplications/optionalBonuses.hbs`;
   }
 
   /**

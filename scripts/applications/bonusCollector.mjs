@@ -1,7 +1,6 @@
-import {BabonusTypes} from "./dataModel.mjs";
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {babonusFields} from "./dataFields.mjs";
 import {BabonusWorkshop} from "./babonus.mjs";
+import {module} from "../data/_module.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -46,7 +45,7 @@ export class BonusCollector {
   constructor(data) {
     // Set up type and class.
     this.type = data.type;
-    this.babonusClass = BabonusTypes[this.type];
+    this.babonusClass = module.models[this.type];
 
     // Set up item and actor.
     if (data.object instanceof Item) {
@@ -82,7 +81,7 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    if (game.settings.get(MODULE, SETTINGS.AURA)) this.drawAuras();
+    if (game.settings.get(MODULE.ID, SETTINGS.AURA)) this.drawAuras();
     return new foundry.utils.Collection(this.bonuses.map(b => [b.uuid, b]));
   }
 
@@ -320,7 +319,7 @@ export class BonusCollector {
    * @returns {boolean}     Whether the targeting applies.
    */
   _matchDisposition(tisp, bisp) {
-    const aura = babonusFields.data.aura.OPTIONS;
+    const aura = module.fields.aura.OPTIONS;
     if (bisp === aura.ANY) {
       // If the bonus targets everyone, immediately return true.
       return true;
@@ -338,9 +337,9 @@ export class BonusCollector {
   /**
    * Create a PIXI aura without drawing it, and return whether the roller is within it.
    * @credit to @freeze2689
-   * @param {Token} token                       A token placeable with an aura.
-   * @param {Babonus} bonus                     The bonus with an aura.
-   * @returns {array<Token, PIXI, Babonus, boolean>}     The token, the PIXI graphic, and whether the roller is contained within.
+   * @param {Token} token       A token placeable with an aura.
+   * @param {Babonus} bonus     The bonus with an aura.
+   * @returns {array<*>}        The token, the PIXI graphic, the babonus, and whether the roller is contained within.
    */
   auraMaker(token, bonus) {
     const shape = new PIXI.Graphics();
@@ -356,7 +355,7 @@ export class BonusCollector {
     }
     if (bonus.aura.require.sight) {
       s = CONFIG.Canvas.polygonBackends.sight.create(token.center, {
-        type: "sight", hasLimitedRadius: true, radius
+        type: "sight", hasLimitedRadius: true, radius, useThreshold: true
       });
     }
 
@@ -383,7 +382,7 @@ export class BonusCollector {
 
   /**
    * Draw auras on the canvas.
-   * @param {array<Token, PIXI, Babonus, boolean>} array     The token, the PIXI graphic, and whether the roller is contained within.
+   * @param {array<*>} array     The token, the PIXI graphic, the babonus, and whether the roller is contained within.
    */
   drawAuras() {
     for (const [token, aura, bonus, bool] of this.tokenBonuses) {

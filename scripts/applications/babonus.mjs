@@ -1,9 +1,8 @@
-import {MODULE, MODULE_ICON, MODULE_NAME} from "../constants.mjs";
+import {MODULE} from "../constants.mjs";
 import {ConsumptionDialog} from "./consumptionApp.mjs";
 import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
 import {BabonusKeysDialog} from "./keysDialog.mjs";
-import {BabonusTypes} from "./dataModel.mjs";
-import {babonusFields} from "./dataFields.mjs";
+import {module} from "../data/_module.mjs";
 
 export class BabonusWorkshop extends FormApplication {
   /**
@@ -43,8 +42,8 @@ export class BabonusWorkshop extends FormApplication {
       closeOnSubmit: false,
       width: 1000,
       height: 900,
-      template: `modules/${MODULE}/templates/babonus.hbs`,
-      classes: [MODULE, "builder"],
+      template: `modules/${MODULE.ID}/templates/babonus.hbs`,
+      classes: [MODULE.ID, "builder"],
       scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"],
       dragDrop: [{dragSelector: ".label[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],
       resizable: true
@@ -56,7 +55,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   get id() {
-    return `${MODULE}-${this.document.id}`;
+    return `${MODULE.ID}-${this.document.id}`;
   }
 
   get isEditable() {
@@ -64,7 +63,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   get title() {
-    return `${MODULE_NAME}: ${this.document.name}`;
+    return `${MODULE.NAME}: ${this.document.name}`;
   }
 
   //#endregion
@@ -116,7 +115,7 @@ export class BabonusWorkshop extends FormApplication {
       data.addedFilters = this._addedFilters;
 
       // Construct data for the filter pickers.
-      for (const [id, cls] of Object.entries(babonusFields.filters)) {
+      for (const [id, cls] of Object.entries(module.filters)) {
         const filterData = {
           id: id,
           // whether is should be shown in 'available filters'.
@@ -149,12 +148,12 @@ export class BabonusWorkshop extends FormApplication {
     data.currentBonuses.sort((a, b) => a.bonus.name.localeCompare(b.bonus.name));
 
     // New babonus buttons.
-    data.createButtons = Object.entries(BabonusTypes).map(([type, cls]) => ({
+    data.createButtons = Object.entries(module.models).map(([type, cls]) => ({
       type,
       icon: cls.icon,
       label: `BABONUS.Type${type.capitalize()}`
     }));
-    data.ICON = MODULE_ICON;
+    data.ICON = MODULE.ICON;
     data.otterColor = this._otterColor;
 
     delete this._filters;
@@ -309,7 +308,7 @@ export class BabonusWorkshop extends FormApplication {
     const DIV = document.createElement("DIV");
     DIV.innerHTML = "";
     for (const id of this._addedFilters) {
-      DIV.innerHTML += await babonusFields.filters[id].render(this._currentBabonus);
+      DIV.innerHTML += await module.filters[id].render(this._currentBabonus);
     }
     this._filters = DIV.innerHTML;
 
@@ -321,7 +320,7 @@ export class BabonusWorkshop extends FormApplication {
     // To automatically render in a clean state, the reason
     // for rendering must either be due to an update in the
     // object's babonus flags, or 'force' must explicitly be set to 'true'.
-    const wasBabUpdate = foundry.utils.hasProperty(options, `data.flags.${MODULE}`);
+    const wasBabUpdate = foundry.utils.hasProperty(options, `data.flags.${MODULE.ID}`);
     if (!(wasBabUpdate || force)) return;
     delete this._currentBabonus;
     this._addedFilters.clear();
@@ -401,7 +400,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const name = this.document.flags[MODULE].bonuses[id].name;
+    const name = this.collection.get(id).name;
     const prompt = await Dialog.confirm({
       title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", {name}),
       content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", {name}),
@@ -409,7 +408,7 @@ export class BabonusWorkshop extends FormApplication {
     });
     if (!prompt) return false;
     ui.notifications.info(game.i18n.format("BABONUS.NotificationDelete", {name, id}));
-    return this.document.unsetFlag(MODULE, `bonuses.${id}`);
+    return this.document.unsetFlag(MODULE.ID, `bonuses.${id}`);
   }
 
   /**
@@ -423,8 +422,8 @@ export class BabonusWorkshop extends FormApplication {
     const path = `bonuses.${id}.aura.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new AuraConfigurationDialog(this.document, {bab, builder: this}).render(true);
-    if (bab.aura.isTemplate || bab.aura.isToken) return this.document.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.document.setFlag(MODULE, path, !bab.aura.enabled);
+    if (bab.aura.isTemplate || bab.aura.isToken) return this.document.setFlag(MODULE.ID, path, false);
+    else if (event.shiftKey) return this.document.setFlag(MODULE.ID, path, !bab.aura.enabled);
     return new AuraConfigurationDialog(this.document, {bab, builder: this}).render(true);
   }
 
@@ -435,8 +434,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleExclusive(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.document.flags[MODULE].bonuses[id].exclusive;
-    return this.document.setFlag(MODULE, `bonuses.${id}.exclusive`, !state);
+    const state = this.collection.get(id).exclusive;
+    return this.document.setFlag(MODULE.ID, `bonuses.${id}.exclusive`, !state);
   }
 
   /**
@@ -450,8 +449,8 @@ export class BabonusWorkshop extends FormApplication {
     const path = `bonuses.${id}.consume.enabled`;
     // Right-click always shows the application.
     if (event.type === "contextmenu") return new ConsumptionDialog(this.document, {bab}).render(true);
-    if (bab.consume.isConsuming) return this.document.setFlag(MODULE, path, false);
-    else if (event.shiftKey) return this.document.setFlag(MODULE, path, !bab.consume.enabled);
+    if (bab.consume.isConsuming) return this.document.setFlag(MODULE.ID, path, false);
+    else if (event.shiftKey) return this.document.setFlag(MODULE.ID, path, !bab.consume.enabled);
     return new ConsumptionDialog(this.document, {bab}).render(true);
   }
 
@@ -462,8 +461,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleOptional(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.document.flags[MODULE].bonuses[id].optional;
-    return this.document.setFlag(MODULE, `bonuses.${id}.optional`, !state);
+    const state = this.collection(id).optional;
+    return this.document.setFlag(MODULE.ID, `bonuses.${id}.optional`, !state);
   }
 
   /**
@@ -473,8 +472,8 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.document.flags[MODULE].bonuses[id].enabled;
-    return this.document.setFlag(MODULE, `bonuses.${id}.enabled`, !state);
+    const state = this.collection.get(id).enabled;
+    return this.document.setFlag(MODULE.ID, `bonuses.${id}.enabled`, !state);
   }
 
   /**
@@ -484,12 +483,12 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = foundry.utils.deepClone(this.document.flags[MODULE].bonuses[id]);
+    const data = this.collection.get(id).toObject();
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
     data.id = foundry.utils.randomID();
     data.enabled = false;
     ui.notifications.info(game.i18n.format("BABONUS.NotificationCopy", data));
-    return this.document.setFlag(MODULE, `bonuses.${data.id}`, data);
+    return this.document.setFlag(MODULE.ID, `bonuses.${data.id}`, data);
   }
 
   /**
@@ -533,7 +532,7 @@ export class BabonusWorkshop extends FormApplication {
     const formGroup = event.currentTarget.closest(".form-group");
     const filterId = formGroup.dataset.id;
 
-    const field = babonusFields.filters[filterId];
+    const field = module.filters[filterId];
     const list = field.choices;
     const canExclude = field.canExclude;
 
@@ -618,8 +617,8 @@ export class BabonusWorkshop extends FormApplication {
     added.forEach(a => this._addedFilters.add(a.dataset.id));
 
     // Update the filter picker by reading the 'addedFilters' set and toggling the hidden states.
-    Object.keys(babonusFields.filters).forEach(id => {
-      const available = babonusFields.filters[id].isFilterAvailable(this._addedFilters, this._currentBabonus);
+    Object.keys(module.filters).forEach(id => {
+      const available = module.filters[id].isFilterAvailable(this._addedFilters, this._currentBabonus);
       const [av, unav] = this.element[0].querySelectorAll(`.right-side .filter[data-id="${id}"]`);
       av.classList.toggle("hidden", !available);
       unav.classList.toggle("hidden", available || this._addedFilters.has(id));
@@ -653,7 +652,7 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Promise<string>}     The template.
    */
   async _templateFilter(id) {
-    const field = babonusFields.filters[id];
+    const field = module.filters[id];
     if (!field.repeatable) return field.render();
     else {
       const nodes = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`);
@@ -714,7 +713,7 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Collection<Babonus>}     A collection of babonuses.
    */
   static _getCollection(object) {
-    const bonuses = Object.entries(object.flags[MODULE]?.bonuses ?? {});
+    const bonuses = Object.entries(object.flags[MODULE.ID]?.bonuses ?? {});
     const contents = bonuses.reduce((acc, [id, data]) => {
       if (!foundry.data.validators.isValidId(id)) return acc;
       try {
@@ -739,7 +738,7 @@ export class BabonusWorkshop extends FormApplication {
     // if no id explicitly provided, make a new one.
     data.id = id ?? foundry.utils.randomID();
 
-    const bonus = new BabonusTypes[data.type](data, options);
+    const bonus = new module.models[data.type](data, options);
     return bonus;
   }
 
@@ -750,8 +749,8 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
    */
   static async _embedBabonus(object, bonus) {
-    await object.update({[`flags.${MODULE}.bonuses.-=${bonus.id}`]: null}, {render: false, noHook: true});
-    return object.setFlag(MODULE, `bonuses.${bonus.id}`, bonus.toObject());
+    await object.update({[`flags.${MODULE.ID}.bonuses.-=${bonus.id}`]: null}, {render: false, noHook: true});
+    return object.setFlag(MODULE.ID, `bonuses.${bonus.id}`, bonus.toObject());
   }
 
   //#endregion

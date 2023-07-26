@@ -1,6 +1,8 @@
-export const MODULE = "babonus";
-export const MODULE_NAME = "Build-a-Bonus";
-export const MODULE_ICON = "fa-solid fa-otter";
+export const MODULE = {
+  ID: "babonus",
+  NAME: "Build-a-Bonus",
+  ICON: "fa-solid fa-otter"
+};
 export const SETTINGS = {
   AURA: "showAuraRanges",
   LABEL: "headerLabel",

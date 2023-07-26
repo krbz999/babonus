@@ -30,7 +30,7 @@ export class RollHooks {
         dc, ability: CONFIG.DND5E.abilities[button.dataset.ability]?.label ?? ""
       })}`;
     }
-    chatData.flags[MODULE] = {saveDC: dc};
+    chatData.flags[MODULE.ID] = {saveDC: dc};
     chatData.content = div.innerHTML;
   }
 
@@ -57,7 +57,7 @@ export class RollHooks {
     }
 
     // Add parts.
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {
       optionals, actor: item.actor, spellLevel, item, bonuses
     });
 
@@ -80,7 +80,7 @@ export class RollHooks {
 
     // add to parts:
     const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {
       optionals, actor: item.actor, spellLevel, item, bonuses
     });
 
@@ -121,7 +121,7 @@ export class RollHooks {
     }
 
     // Add parts.
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
 
     // Add modifiers to raise/lower the target value and crtical threshold.
     rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.targetValue;
@@ -137,7 +137,7 @@ export class RollHooks {
 
     // add to parts:
     const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
   /** When you roll an ability check... */
@@ -146,7 +146,7 @@ export class RollHooks {
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
     const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
   /** When you roll a skill... */
@@ -156,7 +156,7 @@ export class RollHooks {
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
     const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
   /** When you roll a tool check... */
@@ -166,7 +166,7 @@ export class RollHooks {
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
     const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE}`, {optionals, actor, bonuses});
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
   /** When you roll a hit die... */
@@ -192,7 +192,7 @@ export class RollHooks {
     const disp = tokenDocument?.disposition ?? item.actor.prototypeToken.disposition;
 
     const bonusData = BabonusWorkshop._getCollection(item).reduce((acc, bab) => {
-      if (bab.aura.isTemplate) acc[`flags.${MODULE}.bonuses.${bab.id}`] = bab.toObject();
+      if (bab.aura.isTemplate) acc[`flags.${MODULE.ID}.bonuses.${bab.id}`] = bab.toObject();
       return acc;
     }, {});
     if (foundry.utils.isEmpty(bonusData)) return;

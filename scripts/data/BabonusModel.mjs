@@ -1,4 +1,4 @@
-import {babonusFields} from "./dataFields.mjs";
+import {module} from "./_module.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
@@ -17,7 +17,7 @@ class Babonus extends foundry.abstract.DataModel {
     const data = super.toObject(source);
     if (!source) return data;
     for (const id in data.filters) {
-      if (!babonusFields.filters[id].storage(this)) delete data.filters[id];
+      if (!module.filters[id].storage(this)) delete data.filters[id];
     }
     return data;
   }
@@ -128,15 +128,6 @@ class Babonus extends foundry.abstract.DataModel {
   get isAuraBlocked() {
     console.warn(`'Babonus#isAuraBlocked' has been deprecated and should be accessed in 'Babonus#aura#isBlocked'.`);
     return this.aura.isBlocked;
-  }
-
-  /**
-   * Whether the babonus has any valid entries in Babonus#bonuses. Such an entry is valid for consideration if it is a non-
-   * empty string and is not simply '0'.
-   * @returns {boolean}
-   */
-  get hasBonus() {
-    return Object.values(this.bonuses).some(val => (val.length > 0) && (val !== "0"));
   }
 
   /**
@@ -271,13 +262,13 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new foundry.data.fields.DocumentIdField({nullable: false}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
-      type: new foundry.data.fields.StringField({required: true, blank: false, choices: BabonusTypes}),
+      type: new foundry.data.fields.StringField({required: true, blank: false, choices: module.models}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),
       exclusive: new foundry.data.fields.BooleanField(),
       optional: new foundry.data.fields.BooleanField(),
       description: new foundry.data.fields.StringField({required: true}),
-      consume: new foundry.data.fields.EmbeddedDataField(babonusFields.data.consume),
-      aura: new foundry.data.fields.EmbeddedDataField(babonusFields.data.aura)
+      consume: new foundry.data.fields.EmbeddedDataField(module.fields.consume),
+      aura: new foundry.data.fields.EmbeddedDataField(module.fields.aura)
     };
   }
 
@@ -295,16 +286,16 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineFilterSchema() {
     return {
-      itemRequirements: new babonusFields.filters.itemRequirements(),
-      arbitraryComparison: new babonusFields.filters.arbitraryComparison(),
-      baseArmors: new babonusFields.filters.baseArmors(),
-      statusEffects: new babonusFields.filters.statusEffects(),
-      healthPercentages: new babonusFields.filters.healthPercentages(),
-      customScripts: new babonusFields.filters.customScripts(),
-      preparationModes: new babonusFields.filters.preparationModes(),
-      tokenSizes: new babonusFields.filters.tokenSizes(),
-      remainingSpellSlots: new babonusFields.filters.remainingSpellSlots(),
-      actorCreatureTypes: new babonusFields.filters.actorCreatureTypes()
+      itemRequirements: new module.filters.itemRequirements(),
+      arbitraryComparison: new module.filters.arbitraryComparison(),
+      baseArmors: new module.filters.baseArmors(),
+      statusEffects: new module.filters.statusEffects(),
+      healthPercentages: new module.filters.healthPercentages(),
+      customScripts: new module.filters.customScripts(),
+      preparationModes: new module.filters.preparationModes(),
+      tokenSizes: new module.filters.tokenSizes(),
+      remainingSpellSlots: new module.filters.remainingSpellSlots(),
+      actorCreatureTypes: new module.filters.actorCreatureTypes()
     };
   }
 
@@ -376,17 +367,17 @@ class ItemBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      itemTypes: new babonusFields.filters.itemTypes(),
-      attackTypes: new babonusFields.filters.attackTypes(),
-      damageTypes: new babonusFields.filters.damageTypes(),
-      abilities: new babonusFields.filters.abilities(),
-      spellComponents: new babonusFields.filters.spellComponents(),
-      spellLevels: new babonusFields.filters.spellLevels(),
-      spellSchools: new babonusFields.filters.spellSchools(),
-      baseWeapons: new babonusFields.filters.baseWeapons(),
-      weaponProperties: new babonusFields.filters.weaponProperties(),
-      targetEffects: new babonusFields.filters.targetEffects(),
-      creatureTypes: new babonusFields.filters.creatureTypes()
+      itemTypes: new module.filters.itemTypes(),
+      attackTypes: new module.filters.attackTypes(),
+      damageTypes: new module.filters.damageTypes(),
+      abilities: new module.filters.abilities(),
+      spellComponents: new module.filters.spellComponents(),
+      spellLevels: new module.filters.spellLevels(),
+      spellSchools: new module.filters.spellSchools(),
+      baseWeapons: new module.filters.baseWeapons(),
+      weaponProperties: new module.filters.weaponProperties(),
+      targetEffects: new module.filters.targetEffects(),
+      creatureTypes: new module.filters.creatureTypes()
     };
   }
 }
@@ -406,7 +397,7 @@ class AttackBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      proficiencyLevels: new babonusFields.filters.proficiencyLevels()
+      proficiencyLevels: new module.filters.proficiencyLevels()
     };
   }
 
@@ -446,7 +437,7 @@ class SaveBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      saveAbilities: new babonusFields.filters.saveAbilities()
+      saveAbilities: new module.filters.saveAbilities()
     };
   }
 
@@ -471,10 +462,10 @@ class ThrowBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      throwTypes: new babonusFields.filters.throwTypes(),
-      targetEffects: new babonusFields.filters.targetEffects(),
-      creatureTypes: new babonusFields.filters.creatureTypes(),
-      proficiencyLevels: new babonusFields.filters.proficiencyLevels()
+      throwTypes: new module.filters.throwTypes(),
+      targetEffects: new module.filters.targetEffects(),
+      creatureTypes: new module.filters.creatureTypes(),
+      proficiencyLevels: new module.filters.proficiencyLevels()
     };
   }
 
@@ -497,10 +488,10 @@ class TestBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      abilities: new babonusFields.filters.abilities(),
-      baseTools: new babonusFields.filters.baseTools(),
-      skillIds: new babonusFields.filters.skillIds(),
-      proficiencyLevels: new babonusFields.filters.proficiencyLevels()
+      abilities: new module.filters.abilities(),
+      baseTools: new module.filters.baseTools(),
+      skillIds: new module.filters.skillIds(),
+      proficiencyLevels: new module.filters.proficiencyLevels()
     };
   }
 
@@ -525,7 +516,7 @@ class HitDieBabonus extends Babonus {
   }
 }
 
-export const BabonusTypes = {
+export const models = {
   attack: AttackBabonus,
   damage: DamageBabonus,
   save: SaveBabonus,

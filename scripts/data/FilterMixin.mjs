@@ -1,4 +1,4 @@
-import {BabonusTypes} from "../applications/dataModel.mjs";
+import {module} from "./_module.mjs";
 
 export function FilterMixin(Base) {
   return class BaseFilter extends Base {
@@ -17,7 +17,7 @@ export function FilterMixin(Base) {
     static isFilterAvailable(filters, bonus) {
       if (this.repeatable) return true;
       if (filters.has(this.name)) return false;
-      return !!BabonusTypes[bonus.type].schema.getField(`filters.${this.name}`);
+      return !!module.models[bonus.type].schema.getField(`filters.${this.name}`);
     }
 
     /**

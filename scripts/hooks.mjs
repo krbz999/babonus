@@ -2,7 +2,7 @@ import {OptionalSelector} from "./applications/rollConfigApp.mjs";
 import {MODULE, SETTINGS} from "./constants.mjs";
 import {buttons} from "./helpers/headerButtons.mjs";
 import {RollHooks} from "./helpers/rollHooks.mjs";
-import {_createAPI} from "./public_api.mjs";
+import {createAPI} from "./api.mjs";
 
 /** Render the optional bonus selector on a roll dialog. */
 async function _renderDialog(dialog) {
@@ -14,7 +14,7 @@ async function _renderDialog(dialog) {
 
 /* Settings. */
 function _createSettings() {
-  game.settings.register(MODULE, SETTINGS.PLAYERS, {
+  game.settings.register(MODULE.ID, SETTINGS.PLAYERS, {
     name: "BABONUS.SettingsShowBuilderForPlayersName",
     hint: "BABONUS.SettingsShowBuilderForPlayersHint",
     scope: "world",
@@ -23,7 +23,7 @@ function _createSettings() {
     default: true
   });
 
-  game.settings.register(MODULE, SETTINGS.LABEL, {
+  game.settings.register(MODULE.ID, SETTINGS.LABEL, {
     name: "BABONUS.SettingsDisplayLabelName",
     hint: "BABONUS.SettingsDisplayLabelHint",
     scope: "world",
@@ -32,7 +32,7 @@ function _createSettings() {
     default: false
   });
 
-  game.settings.register(MODULE, SETTINGS.SCRIPT, {
+  game.settings.register(MODULE.ID, SETTINGS.SCRIPT, {
     name: "BABONUS.SettingsDisableCustomScriptFilterName",
     hint: "BABONUS.SettingsDisableCustomScriptFilterHint",
     scope: "world",
@@ -42,7 +42,7 @@ function _createSettings() {
     requiresReload: true
   });
 
-  game.settings.register(MODULE, SETTINGS.AURA, {
+  game.settings.register(MODULE.ID, SETTINGS.AURA, {
     name: "BABONUS.SettingsShowAuraRangesName",
     hint: "BABONUS.SettingsShowAuraRangesHint",
     scope: "world",
@@ -78,5 +78,5 @@ export const moduleHooks = {
   loadPartials: _preloadPartials,
   renderDialog: _renderDialog,
   rolls: RollHooks,
-  setupAPI: _createAPI
+  setupAPI: createAPI
 };
