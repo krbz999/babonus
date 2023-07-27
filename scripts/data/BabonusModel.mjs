@@ -24,13 +24,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /** @override */
   toDragData() {
-    const dragData = {type: "Babonus"};
-    if (this.parent) {
-      dragData.uuid = this.parent.uuid;
-      dragData.babId = this.id;
-    }
-    else dragData.data = this.toObject();
-    return dragData;
+    return {type: "Babonus", uuid: this.uuid};
   }
 
   /**
@@ -260,7 +254,7 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineBaseSchema() {
     return {
-      id: new foundry.data.fields.DocumentIdField({nullable: false}),
+      id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
       type: new foundry.data.fields.StringField({required: true, blank: false, choices: module.models}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),

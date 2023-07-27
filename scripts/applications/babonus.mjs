@@ -235,9 +235,9 @@ export class BabonusWorkshop extends FormApplication {
   async _onDrop(event) {
     const data = TextEditor.getDragEventData(event);
     const doc = this.document;
-    if (!this.isEditable) return false;
-    if (doc.uuid === data.uuid) return false;
+    if (!this.isEditable) return null;
     const bab = await this._fromDropData(data);
+    if (!bab) return null;
     return this.constructor._embedBabonus(doc, bab);
   }
 
@@ -247,14 +247,12 @@ export class BabonusWorkshop extends FormApplication {
    * @returns {Promise<Babonus>}      The created babonus.
    */
   async _fromDropData(data) {
-    if (data.data) {
-      return this.constructor._createBabonus(data.data, null, {parent: this.document});
-    } else if (data.uuid) {
-      const parent = await fromUuid(data.uuid);
-      const babData = this.constructor._getCollection(parent).get(data.babId).toObject();
-      delete babData.id;
-      return this.constructor._createBabonus(babData, null, {parent: this.document});
-    }
+    if (!data.uuid || (data.type !== "Babonus")) return null;
+    const bonus = await this.constructor._fromUuid(data.uuid);
+    if (!bonus) return null;
+    const babonusData = bonus.toObject();
+    if (bonus.parent === this.document) return null;
+    return this.constructor._createBabonus(babonusData, null, {parent: this.document});
   }
 
   //#endregion
@@ -472,8 +470,12 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.collection.get(id).enabled;
-    return this.document.setFlag(MODULE.ID, `bonuses.${id}.enabled`, !state);
+    const bonus = this.collection.get(id);
+    return this.constructor._onToggleBonus(bonus);
+  }
+  static async _onToggleBonus(bonus, state=null){
+    const value = (state === null) ? !bonus.enabled : !!state;
+    return bonus.parent.update({[`flags.babonus.bonuses.${bonus.id}.enabled`]: value});
   }
 
   /**
@@ -751,6 +753,25 @@ export class BabonusWorkshop extends FormApplication {
   static async _embedBabonus(object, bonus) {
     await object.update({[`flags.${MODULE.ID}.bonuses.-=${bonus.id}`]: null}, {render: false, noHook: true});
     return object.setFlag(MODULE.ID, `bonuses.${bonus.id}`, bonus.toObject());
+  }
+
+  /**
+   * Return a babonus using its uuid.
+   * @param {string} uuid             The babonus uuid.
+   * @returns {Promise<Babonus>}      The found babonus.
+   */
+  static async _fromUuid(uuid) {
+    try {
+      const parts = uuid.split(".");
+      const id = parts.pop();
+      parts.pop();
+      const parentUuid = parts.join(".");
+      const parent = await fromUuid(parentUuid);
+      return this._getCollection(parent).get(id);
+    } catch (err) {
+      console.warn(err);
+      return null;
+    }
   }
 
   //#endregion
