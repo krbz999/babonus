@@ -70,30 +70,25 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
 
   /**
    * Whether 'Limited Uses' should be a valid option in the Consumption app.
-   * The babonus must not be an aura, template aura, and must be embedded on
-   * an item that has limited uses.
+   * The babonus must be embedded on an item that has limited uses.
    * @returns {boolean}
    */
   get canConsumeUses() {
-    if (this.bonus.aura.isToken || this.bonus.aura.isTemplate) return false;
     return (this.bonus.parent instanceof Item) && this.bonus.parent.hasLimitedUses;
   }
 
   /**
    * Whether 'Quantity' should be a valid option in the Consumption app.
-   * The babonus must not be an aura, template aura, and must be embedded
-   * on an item that has a quantity.
+   * The babonus must be embedded on an item that has a quantity.
    * @returns {boolean}
    */
   get canConsumeQuantity() {
-    if (this.bonus.aura.isToken || this.bonus.aura.isTemplate) return false;
     return (this.bonus.parent instanceof Item) && Number.isNumeric(this.bonus.parent.system.quantity);
   }
 
   /**
-   * Whether 'Spell Slots' should be a valid option in the Consumption app.
-   * Since this works fine as an aura, there are no restrictions to apply here,
-   * and it always returns true.
+   * Whether 'Spell Slots' should be a valid option in the Consumption app. Since this works
+   * fine as an aura, there are no restrictions to apply here, and it always returns true.
    * @returns {boolean}
    */
   get canConsumeSlots() {
@@ -101,9 +96,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Hit Points' should be a valid option in the Consumption app.
-   * Since this works fine as an aura, there are no restrictions to apply here,
-   * and it always returns true.
+   * Whether 'Hit Points' should be a valid option in the Consumption app. Since this works
+   * fine as an aura, there are no restrictions to apply here, and it always returns true.
    * @returns {boolean}
    */
   get canConsumeHealth() {
@@ -111,8 +105,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Effect' should be a valid option in the Consumption app. The babonus
-   * must not be an aura, template aura, and must be embedded on an effect.
+   * Whether 'Effect' should be a valid option in the Consumption app.
+   * The babonus must be embedded on an effect.
    * @returns {boolean}
    */
   get canConsumeEffect() {
