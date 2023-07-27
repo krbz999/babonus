@@ -116,7 +116,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get canConsumeEffect() {
-    return (this.bonus.parent instanceof ActiveEffect) && !this.bonus.aura.isToken && !this.bonus.aura.isTemplate;
+    return this.bonus.parent instanceof ActiveEffect;
   }
 
   /**
