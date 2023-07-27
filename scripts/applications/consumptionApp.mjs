@@ -33,7 +33,7 @@ export class ConsumptionDialog extends FormApplication {
 
     // Construct subtypes.
     const subtypes = {};
-    if (this.clone.type === "currency") {
+    if (consume.type === "currency") {
       Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
         subtypes[c[0]] = c[1].label;
       });
