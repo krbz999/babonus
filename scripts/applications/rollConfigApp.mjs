@@ -50,6 +50,8 @@ export class OptionalSelector {
           data = this._getDataConsumeHealth(bonus);
         } else if (bonus.consume.type === "effect") {
           data = this._getDataConsumeEffects(bonus);
+        } else if (bonus.consume.type === "currency") {
+          data = this._getDataConsumeCurrency(bonus);
         }
         if (!this._canSupplyMinimum(bonus)) continue;
       } else {
@@ -142,6 +144,26 @@ export class OptionalSelector {
   }
 
   /**
+   * Get the template data for bonuses that consume currencies.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
+   */
+  _getDataConsumeCurrency(bonus) {
+    const data = {
+      action: "consume-currency",
+      tooltip: this._getTooltip(bonus),
+      babonus: bonus
+    };
+    if (bonus.consume.isScaling) {
+      // Must have at least 1 option available.
+      data.action += "-scale";
+      data.options = this._constructScalingCurrencyOptions(bonus);
+      if (!data.options) return null;
+    }
+    return data;
+  }
+
+  /**
    * Get the template data for bonuses that do not consume.
    * @param {Babonus} bonus     The optional bonus.
    * @returns {object}          The data for the template.
@@ -166,6 +188,7 @@ export class OptionalSelector {
       else if (action.startsWith("consume-slots")) n.addEventListener("click", this._onApplySlotsOption.bind(this));
       else if (action.startsWith("consume-health")) n.addEventListener("click", this._onApplyHealthOption.bind(this));
       else if (action.startsWith("consume-effects")) n.addEventListener("click", this._onApplyEffectsOption.bind(this));
+      else if (action.startsWith("consume-currency")) n.addEventListener("click", this._onApplyCurrencyOption.bind(this));
       else if (action === "consume-none") n.addEventListener("click", this._onApplyNoConsumeOption.bind(this));
     });
   }
@@ -212,10 +235,12 @@ export class OptionalSelector {
    * @returns {boolean}         Whether you have the minimum requirements.
    */
   _canSupplyMinimum(bonus) {
+    const min = bonus.consume.value.min || 1;
+
     if (bonus.consume.type === "uses") {
-      return bonus.item.system.uses.value >= bonus.consume.value.min;
+      return bonus.item.system.uses.value >= min;
     } else if (bonus.consume.type === "quantity") {
-      return bonus.item.system.quantity >= bonus.consume.value.min;
+      return bonus.item.system.quantity >= min;
     } else if (bonus.consume.type === "slots") {
       return !!this._getLowestValidSpellSlotProperty(bonus);
     } else if (bonus.consume.type === "effect") {
@@ -223,7 +248,11 @@ export class OptionalSelector {
       return effect.collection.has(effect.id);
     } else if (bonus.consume.type === "health") {
       const hp = this.actor.system.attributes.hp;
-      return (hp.value + (hp.temp || 0)) >= bonus.consume.value.min;
+      return (hp.value + (hp.temp || 0)) >= min;
+    } else if (bonus.consume.type === "currency") {
+      const subtype = bonus.consume.subtype;
+      const currency = this.actor.system.currency;
+      return (currency[subtype] || 0) >= min;
     }
   }
 
@@ -238,6 +267,7 @@ export class OptionalSelector {
     const scales = event.currentTarget.dataset.action.endsWith("-scale");
     if (!scales) return this._canSupplyMinimum(bonus);
     const type = bonus.consume.type;
+    const subtype = bonus.consume.subtype;
     const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
 
     if (type === "uses") {
@@ -249,6 +279,9 @@ export class OptionalSelector {
     } else if (type === "health") {
       const hp = this.actor.system.attributes.hp;
       return (hp.value + (hp.temp || 0)) >= Number(value);
+    } else if (type === "currency") {
+      const currency = this.actor.system.currency;
+      return (currency[subtype] || 0) >= Number(value);
     }
   }
 
@@ -389,7 +422,7 @@ export class OptionalSelector {
 
   /**
    * When applying a scaling bonus that consumes hit points, get the value from the select,
-   * get the minimum possible value, and calculate how much it should scape up.
+   * get the minimum possible value, and calculate how much it should scale up.
    * If the bonus does not scale, get the minimum value and consume it.
    * @param {PointerEvent} event      The initiating click event.
    */
@@ -433,6 +466,56 @@ export class OptionalSelector {
       }
       const sitBonus = this._scaleOptionalBonus(bonus, 0);
       this._appendToField(target, sitBonus);
+    } else {
+      this._displayConsumptionWarning(bonus.consume.type);
+      return null;
+    }
+  }
+
+  /**
+   * Construct the scaling options for an optional bonus that scales with currency consumed.
+   * The 'value' of the option is the amount of coins to subtract.
+   * @param {Babonus} bonus     The babonus.
+   * @returns {string}          The string of select options.
+   */
+  _constructScalingCurrencyOptions(bonus) {
+    const value = bonus.consume.value;
+    const denom = bonus.consume.subtype;
+    const label = CONFIG.DND5E.currencies[denom].label;
+    const currency = this.actor.system.currency[denom];
+    if ((currency < value.min) || !(value.step > 0)) return "";
+    let options = "";
+    for (let i = (value.min || 1); i <= Math.min(currency, value.max || Infinity); i += value.step) {
+      const entry = game.i18n.format("BABONUS.ConsumptionTypeCurrencyOption", {value: i, denom: label});
+      options += `<option value="${i}">${entry}</option>`;
+    }
+    return options;
+  }
+
+  /**
+   * When applying a bonus that consumes a currency, get the value from the select, get the
+   * minimum possible value, and calculate how much it should scale up. If the bonus does not
+   * scale, get the minimum value and consume it.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  async _onApplyCurrencyOption(event) {
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
+    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
+      let value;
+      let scale;
+      if (scales) {
+        value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        scale = Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step);
+      } else {
+        value = Number(bonus.consume.value.min || 1);
+        scale = 0;
+      }
+      const sitBonus = this._scaleOptionalBonus(bonus, scale);
+      const currency = this.actor.system.currency[bonus.consume.subtype];
+      this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
+      this._appendToField(event.currentTarget, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;

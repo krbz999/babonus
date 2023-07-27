@@ -2,7 +2,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
-      type: new foundry.data.fields.StringField(),
+      type: new foundry.data.fields.StringField({required: true}),
+      subtype: new foundry.data.fields.StringField({required: true}),
       scales: new foundry.data.fields.BooleanField({required: false}),
       formula: new foundry.data.fields.StringField({nullable: true, initial: null}),
       value: new foundry.data.fields.SchemaField({
@@ -20,6 +21,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     if (this.canConsumeSlots) options.slots = "BABONUS.ConsumptionTypeSlots";
     if (this.canConsumeEffect) options.effect = "BABONUS.ConsumptionTypeEffect";
     if (this.canConsumeHealth) options.health = "BABONUS.ConsumptionTypeHealth";
+    if (this.canConsumeCurrency) options.currency = "BABONUS.ConsumptionTypeCurrency";
     return options;
   }
 
@@ -114,6 +116,14 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
+   * Whether 'Currency' should be a valid option in the Consumption app.
+   * @returns {boolean}
+   */
+  get canConsumeCurrency() {
+    return true;
+  }
+
+  /**
    * Whether the consumption data on the babonus creates valid consumption
    * for the optional bonus application when rolling. If it does not, the
    * babonus is ignored there.
@@ -140,6 +150,10 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     else if (type === "slots") return this.canConsumeSlots && (min > 0);
     else if (type === "effect") return this.canConsumeEffect && isEffectOwner;
     else if (type === "health") return this.canConsumeHealth && (min > 0);
+    else if (type === "currency") {
+      const subtype = this.subtype;
+      return !!subtype && (subtype in CONFIG.DND5E.currencies) && (min > 0);
+    }
   }
 
   /**
@@ -152,7 +166,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   get isScaling() {
     if (!this.scales || !this.isConsuming) return false;
     if (this.type === "effect") return false;
-    if ((this.type === "health") && !(this.value.step > 0)) return false;
+    else if ((this.type === "health") && !(this.value.step > 0)) return false;
+    else if ((this.type === "currency") && !(this.value.step > 0)) return false;
     return (this.value.max || Infinity) > this.value.min;
   }
 

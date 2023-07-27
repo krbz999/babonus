@@ -8,6 +8,17 @@
     </div>
   </div>
 
+  {{#if showSubtype}}
+  <div class="form-group">
+    <label class="label">{{localize subtypeLabel}}</label>
+    <div class="form-fields">
+      <select name="consume.subtype">
+        {{selectOptions subtypeOptions selected=clone.consume.subtype blank="-"}}
+      </select>
+    </div>
+  </div>
+  {{/if}}
+
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionScaling"}}</label>
     <div class="form-fields">
@@ -23,7 +34,7 @@
     </div>
   </div>
 
-  {{#if isHealth}}
+  {{#if showStep}}
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionStep"}}</label>
     <div class="form-fields">
