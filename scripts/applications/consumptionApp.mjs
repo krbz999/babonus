@@ -30,13 +30,25 @@ export class ConsumptionDialog extends FormApplication {
   /** @override */
   async getData() {
     const consume = this.clone.consume;
+
+    // Construct subtypes.
+    const subtypes = {};
+    if (this.clone.type === "currency") {
+      Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
+        subtypes[c[0]] = c[1].label;
+      });
+    }
+
     return {
       clone: this.clone,
       choices: consume.OPTIONS,
       disableMax: (consume.type === "effect") || (!consume.scales),
       isEffect: consume.type === "effect",
-      isHealth: consume.type === "health",
-      disableStep: !consume.scales
+      showStep: ["health", "currency"].includes(consume.type),
+      disableStep: !consume.scales,
+      showSubtype: !foundry.utils.isEmpty(subtypes),
+      subtypeLabel: `BABONUS.ConsumptionType${consume.type.capitalize()}Subtype`,
+      subtypeOptions: subtypes
     };
   }
 
@@ -62,5 +74,19 @@ export class ConsumptionDialog extends FormApplication {
     this.clone.updateSource({[name]: (type === "checkbox") ? checked : (value || null)});
     await this._render();
     this.element[0].querySelector(`[name='${name}']`).focus();
+  }
+
+  /**
+   * Get the subtypes for a given type of consumption.
+   * @returns {object}
+   */
+  _getSubtypes() {
+    const subtypes = {};
+    if (this.clone.type === "currency") {
+      Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
+        subtypes[c[0]] = c[1].label;
+      });
+    }
+    return subtypes;
   }
 }
