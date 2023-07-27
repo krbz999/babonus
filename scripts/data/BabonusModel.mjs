@@ -47,6 +47,14 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
+   * Get the type of a babonus.
+   * @returns {string}
+   */
+  static get type(){
+    return null;
+  }
+
+  /**
    * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
@@ -256,7 +264,7 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
-      type: new foundry.data.fields.StringField({required: true, blank: false, choices: module.models}),
+      type: new foundry.data.fields.StringField({required: true, initial: this.type, choices: [this.type]}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),
       exclusive: new foundry.data.fields.BooleanField(),
       optional: new foundry.data.fields.BooleanField(),
@@ -399,6 +407,11 @@ class AttackBabonus extends ItemBabonus {
   static get icon() {
     return "fa-solid fa-location-crosshairs";
   }
+
+  /** @override */
+  static get type(){
+    return "attack";
+  }
 }
 
 class DamageBabonus extends ItemBabonus {
@@ -415,6 +428,11 @@ class DamageBabonus extends ItemBabonus {
   /** @override */
   static get icon() {
     return "fa-solid fa-burst";
+  }
+
+  /** @override */
+  static get type(){
+    return "damage";
   }
 }
 
@@ -438,6 +456,11 @@ class SaveBabonus extends ItemBabonus {
   /** @override */
   static get icon() {
     return "fa-solid fa-hand-sparkles";
+  }
+
+  /** @override */
+  static get type(){
+    return "save";
   }
 }
 
@@ -467,6 +490,11 @@ class ThrowBabonus extends Babonus {
   static get icon() {
     return "fa-solid fa-person-falling-burst";
   }
+
+  /** @override */
+  static get type(){
+    return "throw";
+  }
 }
 
 class TestBabonus extends Babonus {
@@ -493,6 +521,11 @@ class TestBabonus extends Babonus {
   static get icon() {
     return "fa-solid fa-bolt";
   }
+
+  /** @override */
+  static get type(){
+    return "test";
+  }
 }
 
 class HitDieBabonus extends Babonus {
@@ -507,6 +540,11 @@ class HitDieBabonus extends Babonus {
   /** @override */
   static get icon() {
     return "fa-solid fa-heart-pulse";
+  }
+
+  /** @override */
+  static get type(){
+    return "hitdie";
   }
 }
 
