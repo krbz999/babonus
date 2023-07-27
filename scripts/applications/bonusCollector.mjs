@@ -136,7 +136,7 @@ export class BonusCollector {
 
     const actor = this._collectFromDocument(this.actor, [validSelfAura]);
     const items = this.actor.items.reduce((acc, item) => acc.concat(this._collectFromDocument(item, [validSelfAura])), []);
-    const effects = this.actor.effects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validSelfAura])), []);
+    const effects = this.actor.appliedEffects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validSelfAura])), []);
     return [...actor, ...items, ...effects];
   }
 
