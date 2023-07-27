@@ -461,7 +461,7 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _onToggleOptional(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.collection(id).optional;
+    const state = this.collection.get(id).optional;
     return this.document.setFlag(MODULE.ID, `bonuses.${id}.optional`, !state);
   }
 
