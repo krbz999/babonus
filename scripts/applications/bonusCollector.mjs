@@ -343,39 +343,41 @@ export class BonusCollector {
    */
   auraMaker(token, bonus) {
     const shape = new PIXI.Graphics();
-    const radius = bonus.aura.range * canvas.dimensions.distancePixels + token.h / 2;
+    const hasLimitedRadius = bonus.aura.range > 0;
+    const radius = hasLimitedRadius ? bonus.aura.range * canvas.dimensions.distancePixels + token.h / 2 : undefined;
     const alpha = 0.08;
     const color = 0xFFFFFF;
 
     let m, s;
     if (bonus.aura.require.move) {
       m = CONFIG.Canvas.polygonBackends.move.create(token.center, {
-        type: "move", hasLimitedRadius: true, radius
+        type: "move", hasLimitedRadius, radius
       });
     }
     if (bonus.aura.require.sight) {
       s = CONFIG.Canvas.polygonBackends.sight.create(token.center, {
-        type: "sight", hasLimitedRadius: true, radius, useThreshold: true
+        type: "sight", hasLimitedRadius, radius, useThreshold: true
       });
     }
 
     // Case 1: No constraints.
     if (!m && !s) {
-      shape.beginFill(color, alpha).drawCircle(token.w / 2, token.h / 2, radius).endFill();
+      if (!hasLimitedRadius) return [token, null, bonus, true];
+      const center = token.center;
+      shape.beginFill(color, alpha).drawCircle(center.x, center.y, radius).endFill();
     }
 
     // Case 2: Both constraints.
     else if (m && s) {
       shape.beginFill(color, alpha).drawPolygon(m.intersectPolygon(s)).endFill();
-      shape.pivot.set(token.x, token.y);
     }
 
     // Case 3: Single constraint.
     else if (m || s) {
       shape.beginFill(color, alpha).drawShape(m ?? s).endFill();
-      shape.pivot.set(token.x, token.y);
     }
 
+    shape.pivot.set(token.x, token.y);
     const contains = this.tokenCenters.some(p => shape.containsPoint(p));
     return [token, shape, bonus, contains];
   }
@@ -386,6 +388,7 @@ export class BonusCollector {
    */
   drawAuras() {
     for (const [token, aura, bonus, bool] of this.tokenBonuses) {
+      if (!(bonus.aura.range > 0)) continue;
       aura.tint = bool ? 0x00FF00 : 0xFF0000;
       aura.id = foundry.utils.randomID();
       token.addChild(aura);
