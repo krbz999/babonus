@@ -42,6 +42,7 @@ export class OptionalSelector {
     for (const bonus of this.bonuses) {
       let data = null;
       if (bonus.consume.isConsuming) {
+        if (!this._canSupplyMinimum(bonus)) continue;
         if (["uses", "quantity"].includes(bonus.consume.type)) {
           data = this._getDataConsumeItem(bonus);
         } else if (bonus.consume.type === "slots") {
@@ -53,7 +54,6 @@ export class OptionalSelector {
         } else if (bonus.consume.type === "currency") {
           data = this._getDataConsumeCurrency(bonus);
         }
-        if (!this._canSupplyMinimum(bonus)) continue;
       } else {
         data = this._getDataNoConsume(bonus);
       }
@@ -84,7 +84,6 @@ export class OptionalSelector {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingItemOptions(bonus);
-      if (!data.options) return null;
     }
     return data;
   }
@@ -104,7 +103,6 @@ export class OptionalSelector {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingSlotsOptions(bonus);
-      if (!data.options) return null;
     }
     return data;
   }
@@ -124,7 +122,6 @@ export class OptionalSelector {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingHealthOptions(bonus);
-      if (!data.options) return null;
     }
     return data;
   }
@@ -158,7 +155,6 @@ export class OptionalSelector {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingCurrencyOptions(bonus);
-      if (!data.options) return null;
     }
     return data;
   }
@@ -305,14 +301,14 @@ export class OptionalSelector {
       min: bonus.consume.type === "uses" ? item.system.uses.value : item.system.quantity,
       max: bonus.consume.type === "uses" ? item.system.uses.max : item.system.quantity
     };
-    if (bounds.min <= 0) return "";
+    if (bounds.min <= 0) return {};
     const min = bonus.consume.value.min || 1;
     const max = bonus.consume.value.max || Infinity;
     return Array.fromRange(bounds.min, 1).reduce((acc, n) => {
       if (!n.between(min, max)) return acc;
-      const label = `${n}/${bounds.max}`;
-      return acc + `<option value="${n}">${label}</option>`;
-    }, "");
+      acc[n] = `${n}/${bounds.max}`;
+      return acc;
+    }, {});
   }
 
   /**
@@ -366,8 +362,9 @@ export class OptionalSelector {
         level: (key === "pact") ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
         n: `${val.value}/${val.max}`,
       });
-      return acc + `<option value="${key}">${label}</option>`;
-    }, "");
+      acc[key] = label;
+      return acc;
+    }, {});
   }
 
   /**
@@ -412,10 +409,10 @@ export class OptionalSelector {
     const hp = this.actor.system.attributes.hp;
     const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
     const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
-    if ((min < value.min) || !(value.step > 0)) return "";
-    let options = "";
+    if ((min < value.min) || !(value.step > 0)) return {};
+    const options = {};
     for (let i = (value.min || 1); i <= Math.min(min, value.max || max); i += value.step) {
-      options += `<option value="${i}">${game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i})}</option>`;
+      options[i] = game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i});
     }
     return options;
   }
@@ -483,11 +480,10 @@ export class OptionalSelector {
     const denom = bonus.consume.subtype;
     const label = CONFIG.DND5E.currencies[denom].label;
     const currency = this.actor.system.currency[denom];
-    if ((currency < value.min) || !(value.step > 0)) return "";
-    let options = "";
+    if ((currency < value.min) || !(value.step > 0)) return {};
+    const options = {};
     for (let i = (value.min || 1); i <= Math.min(currency, value.max || Infinity); i += value.step) {
-      const entry = game.i18n.format("BABONUS.ConsumptionTypeCurrencyOption", {value: i, denom: label});
-      options += `<option value="${i}">${entry}</option>`;
+      options[i] = game.i18n.format("BABONUS.ConsumptionTypeCurrencyOption", {value: i, denom: label});
     }
     return options;
   }
