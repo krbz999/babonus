@@ -50,7 +50,7 @@ class Babonus extends foundry.abstract.DataModel {
    * Get the type of a babonus.
    * @returns {string}
    */
-  static get type(){
+  static get type() {
     return null;
   }
 
@@ -108,13 +108,13 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get isSuppressed() {
     const item = this.item;
-    if(!item) return false;
+    if (!item) return false;
 
     // The item type must be equippable.
     if (!dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) return false;
 
     // The item is not equipped.
-    if(!item.system.equipped) return true;
+    if (!item.system.equipped) return true;
     // The item requires but is not attuned.
     return item.system.attunement === CONFIG.DND5E.attunementTypes.REQUIRED;
   }
@@ -408,7 +408,7 @@ class AttackBabonus extends ItemBabonus {
   }
 
   /** @override */
-  static get type(){
+  static get type() {
     return "attack";
   }
 }
@@ -430,7 +430,7 @@ class DamageBabonus extends ItemBabonus {
   }
 
   /** @override */
-  static get type(){
+  static get type() {
     return "damage";
   }
 }
@@ -458,7 +458,7 @@ class SaveBabonus extends ItemBabonus {
   }
 
   /** @override */
-  static get type(){
+  static get type() {
     return "save";
   }
 }
@@ -491,7 +491,7 @@ class ThrowBabonus extends Babonus {
   }
 
   /** @override */
-  static get type(){
+  static get type() {
     return "throw";
   }
 }
@@ -522,7 +522,7 @@ class TestBabonus extends Babonus {
   }
 
   /** @override */
-  static get type(){
+  static get type() {
     return "test";
   }
 }
@@ -542,7 +542,7 @@ class HitDieBabonus extends Babonus {
   }
 
   /** @override */
-  static get type(){
+  static get type() {
     return "hitdie";
   }
 }
