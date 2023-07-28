@@ -64,6 +64,9 @@
   "BABONUS.FiltersAbilitiesLabel": "Caractéristiques",
   "BABONUS.FiltersAbilitiesRequirements": "Ce filtre n'est disponible que pour les bonus s'appliquant aux jets d'attaque, aux jets de dégâts, aux DD de sauvegarde et aux jets de caractéristique.",
   "BABONUS.FiltersAbilitiesTooltip": "Le score de caractéristique utilisé pour le jet. Cela respecte les objets définis pour utiliser les valeurs par défaut, comme les sorts utilisant la caractéristique d'incantation, ou les armes avec la propriété Finesse utilisant la Force ou la Dextérité.",
+  "BABONUS.FiltersActorCreatureTypes": "Types de créatures de l'acteur",
+  "BABONUS.FiltersActorCreatureTypesLabel": "Types de créatures",
+  "BABONUS.FiltersActorCreatureTypesTooltip": "Le type de créature dont l'acteur doit faire partie (ou qu'il doit avoir comme sous-type), ou le type de créature dont l'acteur ne doit pas faire partie. Par exemple \"mort-vivant\", \"fée\", ou \"construction\".",
   "BABONUS.FiltersArbitraryComparison": "Comparaison arbitraire",
   "BABONUS.FiltersArbitraryComparisonLabel": "Comparaison",
   "BABONUS.FiltersArbitraryComparisonOne": "Valeur…",
@@ -228,8 +231,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.FiltersActorCreatureTypesLabel": "Types de créatures",
-  "BABONUS.FiltersActorCreatureTypes": "Types de créatures de l'acteur",
-  "BABONUS.FiltersActorCreatureTypesTooltip": "Le type de créature dont l'acteur doit faire partie (ou qu'il doit avoir comme sous-type), ou le type de créature dont l'acteur ne doit pas faire partie. Par exemple \"mort-vivant\", \"fée\", ou \"construction\"."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
