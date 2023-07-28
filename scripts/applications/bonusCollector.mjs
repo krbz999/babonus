@@ -223,20 +223,12 @@ export class BonusCollector {
    */
   _generalFilter(bonus) {
     if (!bonus.enabled) return false;
+    if (bonus.isSuppressed) return false; // if the origin item (if there is one) is unequipped/unattuned.
 
     // Stuff that applies only if the bonus is on an item.
     if (bonus.parent instanceof Item) {
-      if (bonus.isSuppressed) return false;
+      // Apply this bonus only to the triggering item if set up to do so.
       if (bonus.isExclusive && (this.item?.uuid !== bonus.parent.uuid)) return false;
-    }
-
-    // Stuff that applies only if the bonus is on an effect.
-    else if (bonus.parent instanceof ActiveEffect) {}
-
-    // Stuff that applies only if the bonus is on a template.
-    else if (bonus.parent instanceof MeasuredTemplateDocument) {
-      const item = bonus.item;
-      if (!item || bonus.isSuppressed) return false;
     }
 
     return true;

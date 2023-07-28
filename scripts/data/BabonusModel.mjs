@@ -102,21 +102,21 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the babonus is unavailable due to its parent item being unequipped or unattuned (if required). This is
-   * different from a babonus that is unavailable due to its parent effect being disabled or unavailable.
+   * Whether the babonus is unavailable due to its parent item being unequipped or unattuned (if required).
+   * This is different from a babonus that is unavailable due to its parent effect being disabled or unavailable.
    * @returns {boolean}
    */
   get isSuppressed() {
-    if (!(this.parent instanceof Item)) return false;
-
     const item = this.item;
-    if (!item || !dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) {
-      return false;
-    }
+    if(!item) return false;
 
-    const ir = this.filters.itemRequirements;
-    const at = CONFIG.DND5E.attunementTypes.ATTUNED;
-    return ((item.system.attunement !== at) && ir.attuned) || (!item.system.equipped && ir.equipped);
+    // The item type must be equippable.
+    if (!dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) return false;
+
+    // The item is not equipped.
+    if(!item.system.equipped) return true;
+    // The item requires but is not attuned.
+    return item.system.attunement === CONFIG.DND5E.attunementTypes.REQUIRED;
   }
 
   get isTokenAura() {
@@ -288,7 +288,6 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineFilterSchema() {
     return {
-      itemRequirements: new module.filters.itemRequirements(),
       arbitraryComparison: new module.filters.arbitraryComparison(),
       baseArmors: new module.filters.baseArmors(),
       statusEffects: new module.filters.statusEffects(),
