@@ -45,7 +45,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * @returns {object}      The roll data.
    */
   getRollData() {
-    return this.parent.getRollData({deterministic: true});
+    return this.bonus.getRollData({deterministic: true});
   }
 
   /* ----------------------------- */
