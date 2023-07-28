@@ -54,7 +54,6 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         targetEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects on the target against.
         creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
         actorCreatureTypes: ["undead", "!humanoid"],        // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
-        itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
         preparationModes: ["pact", "always"],               // The type of preparation mode the spell must be one of.
@@ -640,15 +639,6 @@ export class FilterManager {
       return acc + val.value;
     }, 0);
     return (!!min ? min <= spells : true) && (!!max ? spells <= max : true);
-  }
-
-  /**
-   * This always returns true because it is filtered elsewhere. A babonus on an item
-   * is immediately discarded if the item requires equipped/attuned but was not.
-   * @returns {boolean}     Always returns true.
-   */
-  static itemRequirements() {
-    return true;
   }
 
   /**

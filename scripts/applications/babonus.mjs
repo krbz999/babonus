@@ -92,12 +92,6 @@ export class BabonusWorkshop extends FormApplication {
     data.isActor = this.isActor;
     data.activeBuilder = !!this._currentBabonus;
 
-    if (data.isItem) {
-      data.canEquip = this._canEquipItem(this.document);
-      data.canAttune = this._canAttuneToItem(this.document);
-      data.canConfigureTemplate = this.document.hasAreaTarget;
-    }
-
     // Initial values of the filters.
     data.filters = [];
 
@@ -674,25 +668,6 @@ export class BabonusWorkshop extends FormApplication {
     fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
       n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
     });
-  }
-
-  /**
-   * Whether this item is one that can be equipped.
-   * @param {Item} item     The item being viewed.
-   * @returns {boolean}     Whether it can be equipped.
-   */
-  _canEquipItem(item) {
-    return (item instanceof Item) && !!dnd5e.dataModels.item.config[item.type].schema.getField("equipped");
-  }
-
-  /**
-   * Whether this item has been set as attuned or attunement required.
-   * @param {Item} item     The item being viewed.
-   * @returns {boolean}     Whether it is or can be attuned to.
-   */
-  _canAttuneToItem(item) {
-    const {REQUIRED, ATTUNED} = CONFIG.DND5E.attunementTypes;
-    return (item instanceof Item) && [REQUIRED, ATTUNED].includes(item.system.attunement);
   }
 
   //#endregion
