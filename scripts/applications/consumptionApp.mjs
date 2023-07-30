@@ -55,7 +55,7 @@ export class ConsumptionDialog extends FormApplication {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelectorAll("input[type='number']").forEach(n => {
+    html[0].querySelectorAll("input[type=number], input[type=text]").forEach(n => {
       n.addEventListener("focus", e => e.currentTarget.select());
     });
   }

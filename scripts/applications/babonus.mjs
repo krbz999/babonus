@@ -44,8 +44,12 @@ export class BabonusWorkshop extends FormApplication {
       height: 900,
       template: `modules/${MODULE.ID}/templates/babonus.hbs`,
       classes: [MODULE.ID, "builder"],
-      scrollY: [".current-bonuses .bonuses", "div.available-filters", "div.unavailable-filters"],
-      dragDrop: [{dragSelector: ".label[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],
+      scrollY: [
+        ".current-bonuses .bonuses",
+        ".available-filters",
+        ".unavailable-filters"
+      ],
+      dragDrop: [{dragSelector: "[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],
       resizable: true
     });
   }
@@ -55,7 +59,7 @@ export class BabonusWorkshop extends FormApplication {
   }
 
   get id() {
-    return `${MODULE.ID}-${this.document.id}`;
+    return `${MODULE.ID}-${this.document.uuid.replaceAll(".", "-")}`;
   }
 
   get isEditable() {
@@ -96,16 +100,12 @@ export class BabonusWorkshop extends FormApplication {
     data.filters = [];
 
     if (data.activeBuilder) {
-      // The type of the bonus.
-      const type = this._currentBabonus.type;
-
       // Whether it is edit mode or create mode.
       data.isEditing = this.collection.has(this._currentBabonus.id);
       if (data.isEditing) data._filters = this._filters;
 
       // The current bonus being made or edited.
       data.currentBabonus = this._currentBabonus;
-      data.builder = {label: `BABONUS.Type${type.capitalize()}`};
       data.addedFilters = this._addedFilters;
 
       // Construct data for the filter pickers.
@@ -173,11 +173,24 @@ export class BabonusWorkshop extends FormApplication {
 
   /** @override */
   activateListeners(html) {
-    // Otter.
-    html[0].querySelector("[data-action='otter-rainbow']").addEventListener("click", this._onOtterRainbow.bind(this));
-    html[0].querySelector("[data-action='otter-dance']").addEventListener("click", this._onOtterDance.bind(this));
-    html[0].querySelectorAll("[data-action='current-collapse']").forEach(n => {
-      n.addEventListener("click", this._onCollapseBonus.bind(this));
+    // Listeners that are always active.
+    html[0].querySelectorAll("[data-action]").forEach(n => {
+      const action = n.dataset.action;
+      switch (action) {
+        case "otter-rainbow":
+          n.addEventListener("click", this._onOtterRainbow.bind(this));
+          break;
+        case "otter-dance":
+          n.addEventListener("click", this._onOtterDance.bind(this));
+          break;
+        case "current-collapse":
+          n.addEventListener("click", this._onCollapseBonus.bind(this));
+          break;
+        case "current-id":
+          n.addEventListener("click", this._onClickId.bind(this));
+          n.addEventListener("contextmenu", this._onClickId.bind(this));
+          break;
+      }
     });
 
     if (!this.isEditable) {
@@ -189,28 +202,63 @@ export class BabonusWorkshop extends FormApplication {
     }
     super.activateListeners(html);
 
-    // Builder methods.
-    html[0].querySelector("[data-action='cancel']").addEventListener("click", this._onCancelBuilder.bind(this));
-    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(a => a.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
-    html[0].querySelectorAll("[data-action='pick-type']").forEach(a => a.addEventListener("click", this._onPickType.bind(this)));
-    html[0].querySelectorAll("[data-action='delete-filter']").forEach(a => a.addEventListener("click", this._onDeleteFilter.bind(this)));
-    html[0].querySelectorAll("[data-action='add-filter']").forEach(a => a.addEventListener("click", this._onAddFilter.bind(this)));
-    html[0].querySelector("[data-action='dismiss-warning']").addEventListener("click", this._onDismissWarning.bind(this));
-    html[0].querySelectorAll("[data-action='section-collapse']").forEach(a => a.addEventListener("click", this._onSectionCollapse.bind(this)));
+    html[0].querySelectorAll("[name^=bonuses], [name=name]").forEach(n => {
+      n.addEventListener("focus", e => e.currentTarget.select());
+    });
 
-    // Current bonuses.
-    html[0].querySelectorAll("[data-action='current-toggle']").forEach(a => a.addEventListener("click", this._onToggleBonus.bind(this)));
-    html[0].querySelectorAll("[data-action='current-copy']").forEach(a => a.addEventListener("click", this._onCopyBonus.bind(this)));
-    html[0].querySelectorAll("[data-action='current-edit']").forEach(a => a.addEventListener("click", this._onEditBonus.bind(this)));
-    html[0].querySelectorAll("[data-action='current-delete']").forEach(a => a.addEventListener("click", this._onDeleteBonus.bind(this)));
-    html[0].querySelectorAll("[data-action='current-aura']").forEach(a => a.addEventListener("click", this._onToggleAura.bind(this)));
-    html[0].querySelectorAll("[data-action='current-aura']").forEach(a => a.addEventListener("contextmenu", this._onToggleAura.bind(this)));
-    html[0].querySelectorAll("[data-action='current-optional']").forEach(a => a.addEventListener("click", this._onToggleOptional.bind(this)));
-    html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("click", this._onToggleConsume.bind(this)));
-    html[0].querySelectorAll("[data-action='current-consume']").forEach(a => a.addEventListener("contextmenu", this._onToggleConsume.bind(this)));
-    html[0].querySelectorAll("[data-action='current-exclusive']").forEach(a => a.addEventListener("click", this._onToggleExclusive.bind(this)));
-    html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("click", this._onClickId.bind(this)));
-    html[0].querySelectorAll("[data-action='current-id']").forEach(a => a.addEventListener("contextmenu", this._onClickId.bind(this)));
+    // Listeners that require ability to edit.
+    html[0].querySelectorAll("[data-action]").forEach(n => {
+      const action = n.dataset.action;
+      switch (action) {
+        case "cancel":
+          n.addEventListener("click", this._onCancelBuilder.bind(this));
+          break;
+        case "keys-dialog":
+          n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
+          break;
+        case "pick-type":
+          n.addEventListener("click", this._onPickType.bind(this));
+          break;
+        case "delete-filter":
+          n.addEventListener("click", this._onDeleteFilter.bind(this));
+          break;
+        case "add-filter":
+          n.addEventListener("click", this._onAddFilter.bind(this));
+          break;
+        case "dismiss-warning":
+          n.addEventListener("click", this._onDismissWarning.bind(this));
+          break;
+        case "section-collapse":
+          n.addEventListener("click", this._onSectionCollapse.bind(this));
+          break;
+        case "current-toggle":
+          n.addEventListener("click", this._onToggleBonus.bind(this));
+          break;
+        case "current-copy":
+          n.addEventListener("click", this._onCopyBonus.bind(this));
+          break;
+        case "current-edit":
+          n.addEventListener("click", this._onEditBonus.bind(this));
+          break;
+        case "current-delete":
+          n.addEventListener("click", this._onDeleteBonus.bind(this));
+          break;
+        case "current-aura":
+          n.addEventListener("click", this._onToggleAura.bind(this));
+          n.addEventListener("contextmenu", this._onToggleAura.bind(this));
+          break;
+        case "current-optional":
+          n.addEventListener("click", this._onToggleOptional.bind(this));
+          break;
+        case "current-consume":
+          n.addEventListener("click", this._onToggleConsume.bind(this));
+          n.addEventListener("contextmenu", this._onToggleConsume.bind(this));
+          break;
+        case "current-exclusive":
+          n.addEventListener("click", this._onToggleExclusive.bind(this));
+          break;
+      }
+    });
   }
 
   /** @override */
@@ -467,7 +515,7 @@ export class BabonusWorkshop extends FormApplication {
     const bonus = this.collection.get(id);
     return this.constructor._onToggleBonus(bonus);
   }
-  static async _onToggleBonus(bonus, state=null){
+  static async _onToggleBonus(bonus, state = null) {
     const value = (state === null) ? !bonus.enabled : !!state;
     return bonus.parent.update({[`flags.babonus.bonuses.${bonus.id}.enabled`]: value});
   }

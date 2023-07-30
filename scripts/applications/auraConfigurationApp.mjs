@@ -53,6 +53,7 @@ export class AuraConfigurationDialog extends FormApplication {
     super.activateListeners(html);
     const button = html[0].querySelector("[data-action='keys-dialog']");
     button.addEventListener("click", this.builder._onDisplayKeysDialog.bind(this));
+    html[0].querySelector("[name='aura.range']").addEventListener("focus", e => e.currentTarget.select());
   }
 
   /** @override */
