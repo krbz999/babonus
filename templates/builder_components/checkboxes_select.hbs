@@ -3,7 +3,7 @@
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <div class="checkboxes">
-      {{#each array}}
+      {{#each types}}
       <label for="{{../appId}}-{{value}}" data-hide-input="true" data-tooltip="{{tooltip}}">
         <input type="checkbox" name="filters.{{../id}}.types" value="{{value}}" id="{{../appId}}-{{value}}" {{checked checked}}>
         <span class="check">{{{label}}}</span>
@@ -11,7 +11,7 @@
       {{/each}}
     </div>
     <select name="filters.{{id}}.match">
-      {{selectOptions selectOptions selected=selected localize=true}}
+      {{selectOptions options selected=selected localize=true}}
     </select>
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">

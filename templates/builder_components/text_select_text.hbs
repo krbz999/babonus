@@ -1,13 +1,13 @@
 <!-- (arbitraryComparison only) -->
-{{#each array}}
-<div class="form-group" data-id="{{../id}}">
-  <label class="label" data-tooltip="{{../tooltip}}">{{localize ../label}}</label>
+{{#each this}}
+<div class="form-group" data-id="{{id}}" data-idx="{{idx}}">
+  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
-    <input type="text" name="filters.{{../id}}.{{idx}}.one" placeholder="{{localize ../placeholderOne}}" value="{{one}}">
-    <select name="filters.{{../id}}.{{idx}}.operator">
-      {{selectOptions options selected=selected}}
+    <input type="text" name="filters.{{id}}.{{idx}}.one" placeholder="{{localize placeholderOne}}" value="{{one}}">
+    <select name="filters.{{id}}.{{idx}}.operator">
+      {{selectOptions options selected=operator}}
     </select>
-    <input type="text" name="filters.{{../id}}.{{idx}}.other" placeholder="{{localize ../placeholderOther}}" value="{{other}}">
+    <input type="text" name="filters.{{id}}.{{idx}}.other" placeholder="{{localize placeholderOther}}" value="{{other}}">
   </div>
   <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
     <i class="fa-solid fa-trash"></i>

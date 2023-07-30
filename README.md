@@ -41,6 +41,7 @@
 <p>You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not.</p>
 <p>The bonus is applied when another token actor makes a relevant roll. The module never makes use of token movement to calculate ranges, so the usage of auras and templates is incredibly lightweight.</p>
 <p>You can configure a list of effect statuses that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). The Keys button in the builder will help you pick out statuses from those that exist on the token HUD. The field itself is not validated; if you are able to give an effect a status of your own choosing, that is respected as well; simply write the status in the field.</p>
+<p>Lastly, you can configure a non-template aura to require direct line of sight from the source token to the rolling token's actor, or to require an unobstructed path of movement.</p>
 
 <h3><strong>Item-Specific Bonuses</strong></h3>
 <p>For any bonus created on an item (spell, feature, weapon, etc.), if that bonus does not produce a valid aura of any kind, you may toggle it in the Build-a-Bonus to only apply to that item in question. This is good for any unique weapons for example that have certain properties that should apply only to themselves.</p>
@@ -49,7 +50,7 @@
 
 <h3 style="font-weight: bold;">Optional Bonuses and Consumption</h3>
 <p>If the bonus additively affects an attack roll, damage roll, saving throw, or ability check (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will apply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making the roll.</p>
-<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, or the active effect on which it is created. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
+<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, currencies, or the active effect on which it is created. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
 <p>For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect cannot scale.</p>
 
 <p style="text-align: center"><img src="https://i.imgur.com/XcEOZU7.png" style="border: none"></p>
@@ -66,11 +67,11 @@
 <p><strong><em>Base Weapons.</em></strong> Filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'.</p>
 <p><strong><em>Actor Creature Types.</em></strong> Filter the bonus to only apply if you are belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not belonging to any of the excluded creature types.</p>
 <p><strong><em>Target Creature Types.</em></strong> Filter the bonus to only apply if you are targeting an enemy belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not targeting any of the excluded creature types.</p>
-<p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be fully synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, and <code>token</code> are always provided if possible. For those uncomfortable with having all clients execute these scripts, a setting is available for the module which will completely ignore the scripts and simply immediately return true.</p>
+<p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be fully synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, and <code>token</code> are always provided if possible, as well as an object, <code>details</code>, used for the iteration of parsing the validity of the bonuses. For those uncomfortable with having all clients execute these scripts, a setting is available for the module which will completely ignore the scripts and simply immediately return true.</p>
 <p><strong><em>Damage Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has a damage formula with any of the included damage types while having none of the excluded damage types.</p>
 <p><strong><em>Health Percentages.</em></strong> A percentage value and whether the actor must have at least or at most this amount of remaining hit points for the bonus to apply.</p>
-<p><strong><em>Item Requirements.</em></strong> An available filter to check whether the item should require being equipped and/or attuned for the bonus to be active. This filter is only available when creating a bonus on an item that can be either of these things.</p>
 <p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells.</p>
+<p><strong><em>Proficiency Levels.</em></strong> The level of proficiency that the actor must have with the roll made. This is available for ability checks, saving throws, and attack rolls.</p>
 <p><strong><em>Save Ability.</em></strong> Filter the bonus such that it only applies if the DC is set using a specific ability. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.</p>
 <p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to (any ability score as well as death saving throws). If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
 <p><strong><em>Skills.</em></strong> The type of skill the roll must be for the bonus to apply. For example Athletics, Nature, or Survival.</p>
@@ -108,6 +109,7 @@
 <li><code>getMinimumDistanceBetweenTokens(tokenA, tokenB)</code> returns the minimum distance between two token placeables, evaluating every grid cell that they occupy.</li>
 <li><code>sceneTokensByDisposition(scene)</code> returns an object of four arrays; the tokens on the scene split into four arrays by disposition (friendly, neutral, hostile, and none). If no scene is provided, the currently viewed scene is used.</li>
 <li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
+<li>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</li>
 </ul>
 
 <h1>Compatibility</h1>

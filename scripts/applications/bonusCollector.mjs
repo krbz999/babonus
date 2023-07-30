@@ -1,5 +1,6 @@
-import {BabonusTypes} from "./dataModel.mjs";
-import {AURA_TARGETS, MODULE, SETTINGS} from "../constants.mjs";
+import {MODULE, SETTINGS} from "../constants.mjs";
+import {BabonusWorkshop} from "./babonus.mjs";
+import {module} from "../data/_module.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -28,6 +29,7 @@ export class BonusCollector {
    * properties, such as its disposition and the grid spaces that it occupies.
    */
   token = null;
+  tokenObject = null;
   disposition = null;
   elevation = null;
   tokenCenters = null;
@@ -38,13 +40,12 @@ export class BonusCollector {
   /** The collected bonuses. */
   actorBonuses = [];
   tokenBonuses = [];
-  tokenBonusesWithout = [];
   templateBonuses = [];
 
   constructor(data) {
     // Set up type and class.
     this.type = data.type;
-    this.babonusClass = BabonusTypes[this.type];
+    this.babonusClass = module.models[this.type];
 
     // Set up item and actor.
     if (data.object instanceof Item) {
@@ -55,18 +56,19 @@ export class BonusCollector {
     }
 
     // Set up canvas elements.
-    this.token = this.actor.token ?? this.actor.getActiveTokens(false, true)[0];
+    this.token = this.actor.token?.object ?? this.actor.getActiveTokens()[0];
     if (this.token) {
-      this.disposition = this.token.disposition;
-      this.elevation = this.token.elevation;
-      this.tokenCenters = this.constructor._collectTokenCenters(this.token);
+      this.tokenDocument = this.token.document;
+      this.disposition = this.tokenDocument.disposition;
+      this.elevation = this.tokenDocument.elevation;
+      this.tokenCenters = this.constructor._collectTokenCenters(this.tokenDocument);
 
       // Find all templates and all other tokens.
       this.templates = canvas.scene.templates;
       this.tokens = canvas.scene.tokens.filter(t => {
         if (!t.actor) return false;
         if (t.actor.type === "group") return false;
-        return t !== this.token;
+        return t !== this.token.document;
       });
     }
 
@@ -79,8 +81,8 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    if (game.settings.get(MODULE, SETTINGS.AURA)) this._drawAuras();
-    return new foundry.utils.Collection([...this.actorBonuses, ...this.tokenBonuses, ...this.templateBonuses].map(b => [b.uuid, b]));
+    if (game.settings.get(MODULE.ID, SETTINGS.AURA)) this.drawAuras();
+    return new foundry.utils.Collection(this.bonuses.map(b => [b.uuid, b]));
   }
 
   /**
@@ -102,11 +104,10 @@ export class BonusCollector {
     // Clear the arrays.
     this.actorBonuses = [];
     this.tokenBonuses = [];
-    this.tokenBonusesWithout = [];
     this.templateBonuses = [];
 
     this.actorBonuses = this._collectFromSelf();
-    for (const token of this.tokens) this.tokenBonuses.push(...this._collectFromToken(token));
+    for (const token of this.tokens) if (!token.hidden) this.tokenBonuses.push(...this._collectFromToken(token));
 
     // Special consideration for templates; allow overlapping without stacking the same bonus.
     const _templateBonuses = [];
@@ -114,6 +115,12 @@ export class BonusCollector {
       _templateBonuses.push(...this._collectFromTemplate(template));
     }
     this.templateBonuses.push(...new foundry.utils.Collection(_templateBonuses.map(b => [`${b.item.uuid}.Babonus.${b.id}`, b])));
+
+    const bonuses = Array.from(this.actorBonuses).concat(this.templateBonuses);
+    for (const [token, pixi, bonus, bool] of this.tokenBonuses) if (bool) bonuses.push(bonus);
+
+
+    return bonuses;
   }
 
   /**
@@ -124,46 +131,41 @@ export class BonusCollector {
 
     // A filter for discarding blocked or suppressed auras, template auras, and auras that do not affect self.
     const validSelfAura = (bab) => {
-      const isBlockedAura = bab.isTokenAura && (bab.isAuraBlocked || !bab.aura.self);
-      return !isBlockedAura && !bab.isTemplateAura;
-    }
+      return bab.aura.isAffectingSelf;
+    };
 
     const actor = this._collectFromDocument(this.actor, [validSelfAura]);
     const items = this.actor.items.reduce((acc, item) => acc.concat(this._collectFromDocument(item, [validSelfAura])), []);
-    const effects = this.actor.effects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validSelfAura])), []);
+    const effects = this.actor.appliedEffects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validSelfAura])), []);
     return [...actor, ...items, ...effects];
   }
 
   /**
    * Get all bonuses that originate from another token on the scene.
-   * @param {TokenDocument} token     The token.
-   * @returns {Babonus[]}             The array of bonuses.
+   * @param {TokenDocument} token                         The token.
+   * @returns {array<Token, PIXI, Babonus, boolean>}      An array from `this.auraMaker`.
    */
   _collectFromToken(token) {
-    if (token.hidden) return [];
+    // array of arrays: token / pixi graphic / babonus / 'contained?'
+    const bonuses = [];
 
-    // A filter for discarding blocked or suppressed auras and template auras.
-    const validTokenAura = (bab) => {
-      const isBlockedAura = bab.isTokenAura && bab.isAuraBlocked;
-      return !isBlockedAura && !bab.isTemplateAura;
+    const checker = (object) => {
+      const collection = BabonusWorkshop._getCollection(object);
+      for (const bonus of collection) {
+        if (this.type !== bonus.type) continue; // discard bonuses of the wrong type.
+        if (!bonus.aura.isActiveTokenAura) continue; // discard blocked, suppressed, and template auras.
+        if (!this._matchTokenDisposition(token, bonus)) continue; // discard invalid targeting bonuses.
+        if (this._generalFilter(bonus)) {
+          bonuses.push(this.auraMaker(token.object, bonus));
+        }
+      }
     }
 
-    // A filter for discarding auras that do not have a long enough radius.
-    const rangeChecker = (bab) => {
-      if (!bab.isTokenAura) return false;
-      const validTargeting = this._matchTokenDisposition(token, bab);
-      if (!validTargeting) return false;
-      return this._tokenWithinAura(token, bab);
-    }
+    checker(token.actor);
+    for (const item of token.actor.items) checker(item);
+    for (const effect of token.actor.appliedEffects) checker(effect);
 
-    const actor = this._collectFromDocument(token.actor, [validTokenAura, rangeChecker]);
-    const items = token.actor.items.reduce((acc, item) => {
-      return acc.concat(this._collectFromDocument(item, [validTokenAura, rangeChecker]));
-    }, []);
-    const effects = token.actor.appliedEffects.reduce((acc, effect) => {
-      return acc.concat(this._collectFromDocument(effect, [validTokenAura, rangeChecker]));
-    }, []);
-    return [...actor, ...items, ...effects];
+    return bonuses;
   }
 
   /**
@@ -177,11 +179,11 @@ export class BonusCollector {
 
     // A filter for discarding template auras that are blocked or do not affect self (if they are your own).
     const templateAuraChecker = (bab) => {
-      if (bab.isAuraBlocked) return false;
+      if (bab.aura.isBlocked) return false;
       const isOwn = this.token.actor === bab.actor;
       if (isOwn) return bab.aura.self;
       return this._matchTemplateDisposition(template, bab);
-    }
+    };
 
     const templates = this._collectFromDocument(template, [templateAuraChecker]);
     return templates;
@@ -195,11 +197,6 @@ export class BonusCollector {
    * @returns {Babonus[]}               An array of babonuses of the right type.
    */
   _collectFromDocument(document, filterings = []) {
-    // Immediately return an empty array if we are attempting to fetch bonuses from something invalid.
-    if (document instanceof ActiveEffect) {
-      if (!document.modifiesActor) return [];
-    }
-
     const flags = document.flags.babonus?.bonuses ?? {};
     const bonuses = Object.entries(flags).reduce((acc, [id, data]) => {
       if (this.type !== data.type) return acc;
@@ -226,20 +223,12 @@ export class BonusCollector {
    */
   _generalFilter(bonus) {
     if (!bonus.enabled) return false;
+    if (bonus.isSuppressed) return false; // if the origin item (if there is one) is unequipped/unattuned.
 
     // Stuff that applies only if the bonus is on an item.
     if (bonus.parent instanceof Item) {
-      if (bonus.isSuppressed) return false;
+      // Apply this bonus only to the triggering item if set up to do so.
       if (bonus.isExclusive && (this.item?.uuid !== bonus.parent.uuid)) return false;
-    }
-
-    // Stuff that applies only if the bonus is on an effect.
-    else if (bonus.parent instanceof ActiveEffect) {}
-
-    // Stuff that applies only if the bonus is on a template.
-    else if (bonus.parent instanceof MeasuredTemplateDocument) {
-      const item = bonus.item;
-      if (!item || bonus.isSuppressed) return false;
     }
 
     return true;
@@ -262,11 +251,12 @@ export class BonusCollector {
    * @returns {object[]}                  An array of xy coordinates.
    */
   static _collectTokenCenters(tokenDoc) {
-    const {width, height, x, y} = tokenDoc;
+    const object = tokenDoc.document ? tokenDoc : tokenDoc.object;
+    const {width, height, x, y} = object.document;
     const grid = canvas.scene.grid.size;
     const halfGrid = grid / 2;
 
-    if (width <= 1 && height <= 1) return [tokenDoc.object.center];
+    if (width <= 1 && height <= 1) return [object.center];
 
     const centers = [];
     for (let a = 0; a < width; a++) {
@@ -278,41 +268,6 @@ export class BonusCollector {
       }
     }
     return centers;
-  }
-
-  /**
-   * Given a token and an aura's 'descriptive' radius, returns the area of effect of
-   * the aura, as a circle. This is given that measuring is done from the edge of a
-   * token, and not from its center.
-   * @param {TokenDocument} token     The token whose actor has the aura.
-   * @param {number} range            The range of the aura, usually in feet.
-   * @returns {PIXI}                  The capture area of the aura.
-   */
-  _createCaptureArea(token, range) {
-    const center = token.object.center;
-    const tokenRadius = Math.abs(token.x - center.x);
-    const pixels = range * canvas.dimensions.distancePixels + tokenRadius;
-    return new PIXI.Circle(center.x, center.y, pixels);
-  }
-
-  /**
-   * Get whether the rolling token is within a certain number of feet from another given token.
-   * @param {TokenDocument} token     The token whose actor has the aura.
-   * @param {Babonus} bonus           The bonus with the aura and range, usually in feet.
-   * @returns {boolean}               Whether the rolling token is within range.
-   */
-  _tokenWithinAura(token, bonus) {
-    // TODO: option to use gridspace setting.
-    // TODO: calculate euclidean vertical distance.
-    const data = bonus.getRollData({deterministic: true});
-    const range = dnd5e.utils.simplifyBonus(bonus.aura.range, data);
-    if (range === -1) return true;
-    const verticalDistance = Math.abs(token.elevation - this.elevation);
-    if (verticalDistance > range) return false;
-    const circle = this._createCaptureArea(token, range);
-    const within = this.tokenCenters.some(({x, y}) => circle.contains(x, y));
-    if (!within) this.tokenBonusesWithout.push(bonus);
-    return within;
   }
 
   /**
@@ -356,13 +311,14 @@ export class BonusCollector {
    * @returns {boolean}     Whether the targeting applies.
    */
   _matchDisposition(tisp, bisp) {
-    if (bisp === AURA_TARGETS.ANY) {
+    const aura = module.fields.aura.OPTIONS;
+    if (bisp === aura.ANY) {
       // If the bonus targets everyone, immediately return true.
       return true;
-    } else if (bisp === AURA_TARGETS.ALLY) {
+    } else if (bisp === aura.ALLY) {
       // If the bonus targets allies, the roller and the source must match.
       return tisp === this.disposition;
-    } else if (bisp === AURA_TARGETS.ENEMY) {
+    } else if (bisp === aura.ENEMY) {
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
       const modes = CONST.TOKEN_DISPOSITIONS;
       const set = new Set([tisp, this.disposition]);
@@ -371,37 +327,64 @@ export class BonusCollector {
   }
 
   /**
-   * Draw the collected auras, then remove them 5 seconds later or when this function is called again.
+   * Create a PIXI aura without drawing it, and return whether the roller is within it.
+   * @credit to @freeze2689
+   * @param {Token} token       A token placeable with an aura.
+   * @param {Babonus} bonus     The bonus with an aura.
+   * @returns {array<*>}        The token, the PIXI graphic, the babonus, and whether the roller is contained within.
    */
-  async _drawAuras() {
-    const id = `babonus-${foundry.utils.randomID()}`;
-    this._deletePixiAuras();
-    for (const bonus of this.tokenBonuses.concat(this.tokenBonusesWithout)) {
-      const range = dnd5e.utils.simplifyBonus(bonus.aura.range, bonus.getRollData({deterministic: true}));
-      if (range === -1) continue;
-      const shape = new PIXI.Graphics();
-      shape.id = id;
-      const token = bonus.token;
-      const color = this.tokenBonuses.includes(bonus) ? "0x00FF00" : "0xFF0000";
-      const pixels = range * canvas.dimensions.distancePixels + token.h / 2;
-      shape.lineStyle(5, color, 0.5);
-      shape.drawCircle(token.w / 2, token.h / 2, pixels);
-      token.addChild(shape);
+  auraMaker(token, bonus) {
+    const shape = new PIXI.Graphics();
+    const hasLimitedRadius = bonus.aura.range > 0;
+    const radius = hasLimitedRadius ? bonus.aura.range * canvas.dimensions.distancePixels + token.h / 2 : undefined;
+    const alpha = 0.08;
+    const color = 0xFFFFFF;
+
+    let m, s;
+    if (bonus.aura.require.move) {
+      m = CONFIG.Canvas.polygonBackends.move.create(token.center, {
+        type: "move", hasLimitedRadius, radius
+      });
     }
-    setTimeout(() => this._deletePixiAuras(id), 5000);
+    if (bonus.aura.require.sight) {
+      s = CONFIG.Canvas.polygonBackends.sight.create(token.center, {
+        type: "sight", hasLimitedRadius, radius, useThreshold: true
+      });
+    }
+
+    // Case 1: No constraints.
+    if (!m && !s) {
+      if (!hasLimitedRadius) return [token, null, bonus, true];
+      const center = token.center;
+      shape.beginFill(color, alpha).drawCircle(center.x, center.y, radius).endFill();
+    }
+
+    // Case 2: Both constraints.
+    else if (m && s) {
+      shape.beginFill(color, alpha).drawPolygon(m.intersectPolygon(s)).endFill();
+    }
+
+    // Case 3: Single constraint.
+    else if (m || s) {
+      shape.beginFill(color, alpha).drawShape(m ?? s).endFill();
+    }
+
+    shape.pivot.set(token.x, token.y);
+    const contains = this.tokenCenters.some(p => shape.containsPoint(p));
+    return [token, shape, bonus, contains];
   }
 
   /**
-   * Delete pixi auras. If an id is granted, delete only those with that id, otherwise
-   * all pixi auras that have an id starting with 'babonus-'.
-   * @param {string} [id=null]     The optional id.
+   * Draw auras on the canvas.
+   * @param {array<*>} array     The token, the PIXI graphic, the babonus, and whether the roller is contained within.
    */
-  _deletePixiAuras(id = null) {
-    for (const token of canvas.tokens.placeables) {
-      const children = token.children.filter(c => {
-        return id ? (c.id === id) : c.id?.startsWith("babonus-");
-      });
-      for (const c of children) token.removeChild(c);
+  drawAuras() {
+    for (const [token, aura, bonus, bool] of this.tokenBonuses) {
+      if (!(bonus.aura.range > 0)) continue;
+      aura.tint = bool ? 0x00FF00 : 0xFF0000;
+      aura.id = foundry.utils.randomID();
+      token.addChild(aura);
+      setTimeout(() => token.removeChild(aura), 5000);
     }
   }
 }

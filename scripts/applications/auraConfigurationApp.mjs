@@ -1,4 +1,5 @@
-import {AURA_TARGETS, MODULE} from "../constants.mjs";
+import {MODULE} from "../constants.mjs";
+import {module} from "../data/_module.mjs";
 
 export class AuraConfigurationDialog extends FormApplication {
   constructor(object, options = {}) {
@@ -8,16 +9,20 @@ export class AuraConfigurationDialog extends FormApplication {
   }
 
   get id() {
-    return `${MODULE}AuraConfigurationDialog-${this.options.bab.id}`;
+    return `${MODULE.ID}AuraConfigurationDialog-${this.options.bab.id}`;
   }
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE}/templates/subapplications/auraConfigurationApp.hbs`,
-      classes: [MODULE, "aura-config"]
+      template: `modules/${MODULE.ID}/templates/subapplications/auraConfigurationApp.hbs`,
+      classes: [MODULE.ID, "aura-config"]
     });
+  }
+
+  get document() {
+    return this.object;
   }
 
   get title() {
@@ -26,16 +31,20 @@ export class AuraConfigurationDialog extends FormApplication {
 
   /** @override */
   async getData() {
-    const choices = Object.entries(AURA_TARGETS).reduce((acc, [k, v]) => {
+    const choices = Object.entries(module.fields.aura.OPTIONS).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.ConfigurationAuraDisposition${k.titleCase()}`;
       return acc;
     }, {});
+
+    const aura = this.clone.aura;
     return {
-      disableRange: this.clone.isTemplateAura || (this.clone.aura.isTemplate && (this.clone.parent instanceof Item)),
+      disableRange: aura.isTemplate || (aura.template && (this.clone.parent instanceof Item)),
       disableTemplate: !(this.clone.parent instanceof Item),
-      blockers: this.clone.aura.blockers.join(";"),
+      blockers: aura.blockers.join(";"),
       choices,
-      ...this.clone
+      source: this.clone.toObject(),
+      clone: this.clone,
+      displayedRange: aura.range > 0 ? aura.range : aura.range === -1 ? game.i18n.localize("DND5E.Unlimited") : 0
     };
   }
 
@@ -44,13 +53,14 @@ export class AuraConfigurationDialog extends FormApplication {
     super.activateListeners(html);
     const button = html[0].querySelector("[data-action='keys-dialog']");
     button.addEventListener("click", this.builder._onDisplayKeysDialog.bind(this));
+    html[0].querySelector("[name='aura.range']").addEventListener("focus", e => e.currentTarget.select());
   }
 
   /** @override */
   async _updateObject(event, formData) {
     const defaults = this.clone.getDefaults("aura");
     const data = foundry.utils.mergeObject({aura: defaults}, formData);
-    return this.object.setFlag(MODULE, `bonuses.${this.options.bab.id}`, data);
+    return this.document.setFlag(MODULE.ID, `bonuses.${this.options.bab.id}`, data);
   }
 
   /** @override */
@@ -62,7 +72,7 @@ export class AuraConfigurationDialog extends FormApplication {
       [name]: (type === "checkbox") ? checked : value,
       "aura.blockers": this.form["aura.blockers"].value
     };
-    if (!(this.clone.parent instanceof Item)) update["aura.isTemplate"] = false;
+    if (!(this.clone.parent instanceof Item)) update["aura.template"] = false;
     this.clone.updateSource(update);
     await this._render();
     this.element[0].querySelector(`[name='${name}']`).focus();

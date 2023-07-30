@@ -34,9 +34,9 @@
 
             <div class="babonus-type">
               <div class="babonus-type-header">
-                {{localize (ifThen isEditing 'BABONUS.EditingBonus' 'BABONUS.CreatingBonus')}}
+                {{localize (ifThen isEditing "BABONUS.EditingBonus" "BABONUS.CreatingBonus")}}
               </div>
-              <i class="{{builder.icon}}"></i> {{localize builder.label}}
+              <i class="{{currentBabonus.icon}}"></i> {{localize (babonusCapitalize "BABONUS.Type" currentBabonus.type)}}
             </div>
             <div class="form-group">
               <label class="label" data-tooltip="BABONUS.IdentifiersTooltip">
@@ -68,7 +68,7 @@
             {{#each currentBabonus.bonuses}}
             <div class="form-group">
               <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key}}">
-                {{localize (concat "BABONUS.Type" (babonusCapitalize ../currentBabonus.type @key) "Label")}}
+                {{localize (babonusCapitalize "BABONUS.Type" ../currentBabonus.type @key "Label")}}
               </label>
               <div class="form-fields">
                 <input type="text" name="bonuses.{{@key}}" value="{{this}}">
@@ -114,15 +114,15 @@
         <div class="bonuses">
 
           {{#each currentBonuses}}
-          <div class="bonus {{#if _collapsed}}collapsed{{/if}}" data-id="{{id}}">
+          <div class="bonus {{#if context.collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
             <div class="header">
-              <a class="label{{#unless enabled}} disabled{{/unless}}" data-action="current-collapse">
-                <i class="{{{icon}}}" data-tooltip="{{typeTooltip}}"></i> {{name}}
+              <a class="label {{#unless bonus.enabled}}disabled{{/unless}}" data-action="current-collapse">
+                <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
               </a>
               <div class="details">
                 <div class="functions">
                   <a data-action="current-toggle" data-tooltip="BABONUS.ConfigurationToggleTooltip">
-                    <i class="fa-solid fa-toggle-{{ifThen enabled 'on' 'off'}}"></i>
+                    <i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i>
                   </a>
                   <a data-action="current-copy" data-tooltip="BABONUS.ConfigurationCopyTooltip">
                     <i class="fa-solid fa-copy"></i>
@@ -134,29 +134,29 @@
                     <i class="fa-solid fa-trash"></i>
                   </a>
                   <a data-action="current-aura" data-tooltip="BABONUS.ConfigurationAuraTooltip">
-                    <i class="fa-{{ifThen (or isTokenAura isTemplateAura) 'solid' 'regular'}} fa-sun"></i>
+                    <i class="fa-{{ifThen (or bonus.aura.isToken bonus.aura.isTemplate) 'solid' 'regular'}} fa-sun"></i>
                   </a>
-                  {{#if canExclude}}
-                  <a data-action="current-itemOnly" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
-                    <i class="fa-{{ifThen isExclusive 'solid' 'regular'}} fa-chess-pawn"></i>
+                  {{#if bonus.canExclude}}
+                  <a data-action="current-exclusive" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
+                    <i class="fa-{{ifThen bonus.isExclusive 'solid' 'regular'}} fa-chess-pawn"></i>
                   </a>
                   {{else}}
                   <a class="unavailable" data-tooltip="BABONUS.ConfigurationExclusiveTooltipUnavailable">
                     <i class="fa-regular fa-chess-pawn"></i>
                   </a>
                   {{/if}}
-                  {{#if isOptionable}}
+                  {{#if bonus.isOptionable}}
                   <a data-action="current-optional" data-tooltip="BABONUS.ConfigurationOptionalTooltip">
-                    <i class="fa-{{ifThen isOptional 'solid' 'regular'}} fa-circle-xmark"></i>
+                    <i class="fa-{{ifThen bonus.isOptional 'solid' 'regular'}} fa-circle-xmark"></i>
                   </a>
                   {{else}}
                   <a class="unavailable" data-tooltip="BABONUS.ConfigurationOptionalTooltipUnavailable">
                     <i class="fa-regular fa-circle-xmark"></i>
                   </a>
                   {{/if}}
-                  {{#if canConsume}}
+                  {{#if bonus.consume.canConsume}}
                   <a data-action="current-consume" data-tooltip="BABONUS.ConfigurationConsumptionTooltip">
-                    <i class="fa-{{ifThen isConsuming 'solid fa-hand-sparkles' 'regular fa-hand'}}"></i>
+                    <i class="fa-{{ifThen bonus.consume.isConsuming 'solid fa-hand-sparkles' 'regular fa-hand'}}"></i>
                   </a>
                   {{else}}
                   <a class="unavailable" data-tooltip="BABONUS.ConfigurationConsumptionTooltipUnavailable">
@@ -164,12 +164,12 @@
                   </a>
                   {{/if}}
                 </div>
-                <a data-action="current-id">{{id}}</a>
+                <a data-action="current-id">{{bonus.id}}</a>
               </div>
             </div>
             <div class="description">
               <div class="content">
-                {{{_description}}}
+                {{{context.description}}}
               </div>
             </div>
             <hr class="divider">
@@ -191,11 +191,11 @@
           <div class="filter {{#unless available}}hidden{{/unless}}" data-id="{{id}}">
             <h1 class="filter-header">
               <a data-action="add-filter">
-                {{localize (concat "BABONUS.Filters" (babonusCapitalize id))}}
+                {{localize (babonusCapitalize "BABONUS.Filters" id)}}
               </a>
             </h1>
             <div class="filter-description">
-              {{{localize (concat "BABONUS.Filters" (babonusCapitalize id) "Tooltip")}}}
+              {{{localize (babonusCapitalize "BABONUS.Filters" id "Tooltip")}}}
             </div>
             <a data-action="add-filter" data-tooltip="BABONUS.AddThisFilter">
               <i class="fa-solid fa-plus"></i>
@@ -204,22 +204,22 @@
           {{/each}}
         </div>
 
-        <header>
+        <header class="collapsed">
           {{localize "BABONUS.UnavailableFilters"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.UnavailableFiltersTooltip"></i>
           <a data-action="section-collapse"><i class="fa-solid fa-chevron-down"></i></a>
         </header>
         <div class="unavailable-filters">
           {{#each filters}}
-          <div class="filter {{#if unavailable}}hidden{{/if}}" data-id="{{id}}">
+          <div class="filter {{#unless unavailable}}hidden{{/unless}}" data-id="{{id}}">
             <h1 class="filter-header">
-              {{localize (concat "BABONUS.Filters" (babonusCapitalize id))}}
+              {{localize (babonusCapitalize "BABONUS.Filters" id)}}
             </h1>
             <div class="filter-description">
-              {{{localize (concat "BABONUS.Filters" (babonusCapitalize id) "Tooltip")}}}
+              {{{localize (babonusCapitalize "BABONUS.Filters" id "Tooltip")}}}
             </div>
             <div class="filter-requirements">
-              {{{localize (concat "BABONUS.Filters" (babonusCapitalize id) "Requirements")}}}
+              {{{localize (babonusCapitalize "BABONUS.Filters" id "Requirements")}}}
             </div>
           </div>
           {{/each}}

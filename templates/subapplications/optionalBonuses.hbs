@@ -7,12 +7,12 @@
       <span class="description">{{{description}}}</span>
     </div>
 
-    {{#if babonus.isScaling}}
+    {{#if babonus.consume.isScaling}}
     <div class="consumption">
       <label class="label">
         {{localize "BABONUS.ConfigurationConsumptionConsume"}}
       </label>
-      <select>{{{options}}}</select>
+      <select>{{selectOptions options}}</select>
     </div>
     {{/if}}
 

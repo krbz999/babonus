@@ -1,4 +1,4 @@
-import {MODULE, SETTINGS, SPELL_COMPONENT_MATCHING} from "./constants.mjs";
+import {MODULE, SETTINGS} from "./constants.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
 
 /**
@@ -12,22 +12,26 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
       id: "hgienfid783h",                                   // Regular 16 character id.
       description: "This is...",                            // Description of the bonus.
       type: "attack",                                       // Or "damage", "save", "throw", "hitdie".
-      itemOnly: false,                                      // whether this bonus only applies to the item on which it is created (attack/damage/save only).
+      exclusive: false,                                     // whether this bonus only applies to the item on which it is created (attack/damage/save only).
       optional: false,                                      // whether this bonus is toggleable in the roll config.
       consume: {
         enabled: true,                                      // Whether the bonus consumes uses/quantity off its item or slots off its actor.
         scales: true,                                       // Whether the consumption scales between the min and max values given.
         type: "uses",                                       // Whether the consumption is limited "uses", "quantity", "slots", "health", or "effect".
-        value: {min: 1, max: 3},                            // The minimum and maximum number consumed when applying the bonus.
+        value: {min: 5, max: 15, step: 5},                  // The minimum and maximum number consumed when applying the bonus.
         formula: "1d8"                                      // A formula with which the bonus scales, default being the bonus formula itself.
       },
       aura: {
         enabled: true,                                      // Whether this should be an aura.
-        isTemplate: true,                                   // Whether this should be a template aura, not a regular aura.
-        range: 60,                                          // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
+        template: true,                                     // Whether this should be a template aura, not a regular aura.
+        range: "60",                                        // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
         self: false,                                        // Whether the aura affects the owner, too.
         disposition: 1                                      // What token actors within range to affect.
         blockers: ["dead", "unconscious"]                   // Array of statuses that stop auras from being transferred.
+        require: {                                          // Obstructions that might block an aura.
+          sight: true,                                      // Whether the aura requires that the receiver can see the source.
+          move: true                                        // Whether the aura requires an unobstructed path from the source to the receiver.
+        }
       },
       bonuses: {
         bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.
@@ -50,7 +54,6 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         targetEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects on the target against.
         creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
         actorCreatureTypes: ["undead", "!humanoid"],        // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
-        itemRequirements: {equipped: true, attuned: false}, // Whether it must be attuned/equipped.
         customScripts: "return true;",                      // A custom script that returns true or false.
         remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
         preparationModes: ["pact", "always"],               // The type of preparation mode the spell must be one of.
@@ -66,6 +69,9 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
         // ATTACK, DAMAGE, THROW, TEST:
         abilities: ["int"],                                 // The ability the actor/item must be using.
 
+        // ATTACK, TEST, THROW:
+        proficiencyLevels: [0, 1, 2, 0.5],                  // The valid proficiency levels.
+
         // SAVE:
         saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
 
@@ -78,7 +84,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
 
         // SPELL:
         spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one, or match "ANY".
-        spellLevels: ['0','1','2','3'],                     // The level the spell must be.
+        spellLevels: [0, 1, 2, 3],                          // The level the spell must be.
         spellSchools: ["evo", "con"],                       // The school the spell must be.
 
         // WEAPON
@@ -89,7 +95,7 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
   }
  */
 
-export class FILTER {
+export class FilterManager {
 
   /**
    **********************************************************
@@ -167,6 +173,7 @@ export class FILTER {
    * @param {string} [details.abilityId]        The ability used for an ability check.
    * @param {string} [details.skillId]          The id of the skill, in case of skill checks.
    * @param {number} [details.spellLevel]       The level of the spell, if needed.
+   * @param {string} [details.toolId]           The id of the tool type, in case of tool checks.
    * @returns {Babonus[]}                       The filtered Collection.
    */
   static finalFilterBonuses(bonuses, object, details = {}) {
@@ -274,7 +281,7 @@ export class FILTER {
    */
   static baseWeapons(item, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (item.type !== "weapon") return included.length === 0;
     const type = item.system.baseItem;
     if (included.length && !included.includes(type)) return false;
@@ -291,7 +298,7 @@ export class FILTER {
    */
   static baseArmors(object, filter) {
     const actor = (object instanceof Item) ? object.actor : object;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
 
     // Vehicles cannot wear base armor.
     if (actor.type === "vehicle") return !(included.length > 0);
@@ -321,7 +328,7 @@ export class FILTER {
   static damageTypes(item, filter) {
     if (!filter?.length) return true;
     const types = item.getDerivedDamageLabel().map(i => i.damageType);
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (included.length && !types.some(t => included.includes(t))) return false;
     if (excluded.length && types.some(t => excluded.includes(t))) return false;
     return true;
@@ -387,9 +394,9 @@ export class FILTER {
 
     const comps = item.system.components;
     // If it must match all, then filter is a (proper) subset of the spell's comps.
-    if (match === SPELL_COMPONENT_MATCHING.ALL) return types.every(type => comps[type]);
+    if (match === "ALL") return types.every(type => comps[type]);
     // Else ensure it matches at least one comp.
-    else if (match === SPELL_COMPONENT_MATCHING.ANY) return types.some(type => comps[type]);
+    else if (match === "ANY") return types.some(type => comps[type]);
     return false;
   }
 
@@ -407,8 +414,7 @@ export class FILTER {
   static spellLevels(item, filter, {spellLevel = null} = {}) {
     if (!filter?.length) return true;
     if (item.type !== "spell") return false;
-    const level = Number(spellLevel ?? item.system.level);
-    return filter.some(f => (f == level));
+    return filter.includes(spellLevel ?? item.system.level);
   }
 
   /**
@@ -432,7 +438,7 @@ export class FILTER {
    */
   static weaponProperties(item, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (item.type !== "weapon") return included.length === 0;
     const props = item.system.properties;
     if (included.length && !included.some(p => props[p])) return false;
@@ -512,7 +518,7 @@ export class FILTER {
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
     const actor = object.actor ?? object;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
 
     const hasIncluded = included.some(id => actor.statuses.has(id));
     if (included.length && !hasIncluded) return false;
@@ -532,7 +538,7 @@ export class FILTER {
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = game.user.targets.first()?.actor;
     if (!actor) return !included.length;
 
@@ -570,18 +576,18 @@ export class FILTER {
   static creatureTypes(object, filter) {
     if (!filter?.length) return true;
     const target = game.user.targets.first();
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     const details = target?.actor?.system.details;
     if (!details) return !included.length;
 
     // All the races the target is a member of.
     let races = [];
     if (target.actor.type === "npc") {
-      races = FILTER._split(details.type.subtype);
-      if (details.type.value === "custom") races.push(...FILTER._split(details.type.custom));
+      races = FilterManager._split(details.type.subtype);
+      if (details.type.value === "custom") races.push(...FilterManager._split(details.type.custom));
       else races.push(details.type.value);
     } else if (target.actor.type === "character") {
-      races = FILTER._split(details.race);
+      races = FilterManager._split(details.race);
     }
 
     if (included.length && !included.some(e => races.includes(e))) return false;
@@ -598,7 +604,7 @@ export class FILTER {
    */
   static actorCreatureTypes(object, filter) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = object.actor ?? object;
     const details = actor.system.details;
     if (!details) return !included.length;
@@ -606,11 +612,11 @@ export class FILTER {
     // All the races the rolling actor is a member of.
     let races = [];
     if (actor.type === "npc") {
-      races = FILTER._split(details.type.subtype);
-      if (details.type.value === "custom") races.push(...FILTER._split(details.type.custom));
+      races = FilterManager._split(details.type.subtype);
+      if (details.type.value === "custom") races.push(...FilterManager._split(details.type.custom));
       else races.push(details.type.value);
     } else if (actor.type === "character") {
-      races = FILTER._split(details.race);
+      races = FilterManager._split(details.race);
     }
 
     if (included.length && !included.some(e => races.includes(e))) return false;
@@ -636,29 +642,27 @@ export class FILTER {
   }
 
   /**
-   * This always returns true because it is filtered elsewhere. A babonus on an item
-   * is immediately discarded if the item requires equipped/attuned but was not.
-   * @returns {boolean}     Always returns true.
-   */
-  static itemRequirements() {
-    return true;
-  }
-
-  /**
    * Find out if the embedded script returns true.
-   * @param {Actor|Item} object     The item or actor.
-   * @param {string} script         The script saved in the filter.
-   * @returns {boolean}             True if the script returns true, otherwise false.
+   * @param {Actor|Item} object               The item or actor.
+   * @param {string} script                   The script saved in the filter.
+   * @param {object} details                  Additional context to help filter the bonus.
+   * @param {boolean} details.isConcSave      Whether this saving throw is made to maintain concentration.
+   * @param {string} details.abilityId        The ability used for an ability check.
+   * @param {string} details.skillId          The id of the skill, in case of skill checks.
+   * @param {string} details.toolId           The id of the tool type, in case of tool checks.
+   * @param {number} details.spellLevel       The level of the spell, if needed.
+   * @param {string} details.throwType        The type of saving thwo being made (possibly 'death').
+   * @returns {boolean}                       True if the script returns true, otherwise false.
    */
-  static customScripts(object, script) {
+  static customScripts(object, script, details = {}) {
     if (!script?.length) return true;
-    if (game.settings.get(MODULE, SETTINGS.SCRIPT)) return true;
+    if (game.settings.get(MODULE.ID, SETTINGS.SCRIPT)) return true;
     try {
-      const func = Function("actor", "item", "token", script);
+      const func = Function("actor", "item", "token", "details", script);
       const actor = (object.parent instanceof Actor) ? object.parent : (object instanceof Actor) ? object : null;
       const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
       const item = (object instanceof Item) ? object : null;
-      const valid = func.call({}, actor, item, token) === true;
+      const valid = func.call({}, actor, item, token, details) === true;
       return valid;
     } catch (err) {
       console.error(err);
@@ -714,7 +718,7 @@ export class FILTER {
    */
   static baseTools(actor, filter, {toolId}) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (!toolId) return included.length === 0;
     if (included.length && !included.includes(toolId)) return false;
     if (excluded.length && excluded.includes(toolId)) return false;
@@ -731,7 +735,7 @@ export class FILTER {
    */
   static skillIds(actor, filter, {skillId}) {
     if (!filter?.length) return true;
-    const {included, excluded} = FILTER._splitExlusion(filter);
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     if (!skillId) return included.length === 0;
     if (included.length && !included.includes(skillId)) return false;
     if (excluded.length && excluded.includes(skillId)) return false;
@@ -751,6 +755,42 @@ export class FILTER {
     const actor = object.actor ?? object;
     const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
     return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
+  }
+
+  /**
+   * Find out if the roll was proficient, and if at a valid level.
+   * @param {Actor|Item} object             The actor or item performing the roll.
+   * @param {number[]} filter               The levels of valid proficiencies.
+   * @param {object} details                Additional properties for the filtering.
+   * @param {string} details.throwType      The type of saving throw.
+   * @param {string} details.abilityId      The type of ability check.
+   * @param {string} details.skillId        The type of skill check.
+   * @param {string} details.toolId         The type of tool check.
+   * @returns {boolean}                     Whether the roll was one of the proficiency levels.
+   */
+  static proficiencyLevels(object, filter, {throwType, abilityId, skillId, toolId}) {
+    if (!filter?.length) return true;
+
+    // Case 1: Tool.
+    else if (toolId) return filter.includes(object.system.tools[toolId]?.prof.multiplier);
+
+    // Case 2: Skill.
+    else if (skillId) return filter.includes(object.system.skills[skillId]?.prof.multiplier);
+
+    // Case 3: Ability Check.
+    else if (abilityId) return false; // cannot be proficient in standard ability checks.
+
+    // Case 4: Attack Roll.
+    else if (object instanceof Item) return filter.includes(Number(object.system.proficient));
+
+    // Case 5: Death Saving Throw.
+    else if (throwType === "death") return filter.includes(Number(object.flags.dnd5e?.diamondSoul));
+
+    // Case 6: Saving Throw.
+    else if (throwType) return filter.includes(object.system.abilities[throwType]?.saveProf.multiplier);
+
+    // Else somehow return false.
+    else return false;
   }
 
   //#endregion

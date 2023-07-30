@@ -1,11 +1,10 @@
 import {BabonusWorkshop} from "./applications/babonus.mjs";
 import {BonusCollector} from "./applications/bonusCollector.mjs";
-import {babonusFields} from "./applications/dataFields.mjs";
-import {BabonusTypes} from "./applications/dataModel.mjs";
 import {MODULE} from "./constants.mjs";
-import {FILTER} from "./filters.mjs";
+import {module} from "./data/_module.mjs";
+import {FilterManager} from "./filters.mjs";
 
-export function _createAPI() {
+export function createAPI() {
   const API = {
     getId, getIds,
     getName, getNames,
@@ -28,17 +27,22 @@ export function _createAPI() {
     getApplicableBonuses,
 
     abstract: {
-      DataModels: BabonusTypes,
-      DataFields: babonusFields,
-      TYPES: Object.keys(BabonusTypes)
-    }
+      DataModels: module.models,
+      DataFields: module.filters,
+      TYPES: Object.keys(module.models)
+    },
+
+    filters: Object.keys(module.filters).reduce((acc, key) => {
+      acc[key] = FilterManager[key];
+      return acc;
+    }, {})
   };
-  game.modules.get(MODULE).api = API;
-  window.babonus = API;
+  window.babonus = game.modules.get(MODULE.ID).api = API;
 }
 
 /**
  * Return all bonuses that applies to a specific roll.
+ * @deprecated
  * @param {Document} object                         The actor (for hitdie and throw) or item (for attack, damage, save).
  * @param {string} type                             The type of rolling (attack, damage, test, save, throw, hitdie).
  * @param {object} [options={}]                     Additional context for the inner methods.
@@ -49,10 +53,11 @@ export function _createAPI() {
  * @returns {Babonus[]}                             An array of valid babonuses.
  */
 function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false, abilityId = "int", skillId} = {}) {
-  if (type === "hitdie") return FILTER.hitDieCheck(object);
-  else if (type === "throw") return FILTER.throwCheck(object, throwType, {throwType, isConcSave});
-  else if (type === "test") return FILTER.testCheck(object, abilityId, {skillId});
-  else if (["attack", "damage", "save"].includes(type)) return FILTER.itemCheck(object, type);
+  console.warn(`API#getApplicableBonuses has been deprecated since version 11.1.0. Instead use any of the functions found in API#filters. Support will be removed in version 11.2.0.`);
+  if (type === "hitdie") return FilterManager.hitDieCheck(object);
+  else if (type === "throw") return FilterManager.throwCheck(object, throwType, {throwType, isConcSave});
+  else if (type === "test") return FilterManager.testCheck(object, abilityId, {skillId});
+  else if (["attack", "damage", "save"].includes(type)) return FilterManager.itemCheck(object, type);
 }
 
 /**
@@ -71,7 +76,9 @@ function getName(object, name) {
  * @returns {string[]}          An array of names.
  */
 function getNames(object) {
-  return [...new Set(BabonusWorkshop._getCollection(object).map(bonus => bonus.name))];
+  const set = new Set();
+  BabonusWorkshop._getCollection(object).forEach(bonus => set.add(bonus.name));
+  return Array.from(set);
 }
 
 /**
@@ -90,7 +97,9 @@ function getId(object, id) {
  * @returns {string[]}          An array of ids.
  */
 function getIds(object) {
-  return [...new Set(BabonusWorkshop._getCollection(object).map(bonus => bonus.id))];
+  const set = new Set();
+  BabonusWorkshop._getCollection(object).forEach(bonus => set.add(bonus.id));
+  return Array.from(set);
 }
 
 /**
@@ -106,19 +115,18 @@ function getType(object, type) {
 /**
  * Return the ids of all templates on the scene if they contain the token document.
  * @param {TokenDocument} tokenDoc      The token document.
+ * @param {boolean} [ids=true]          Whether to return ids or template documents.
  * @returns {string[]}                  An array of ids.
  */
-function getAllContainingTemplates(tokenDoc) {
-  const size = tokenDoc.parent.grid.size;
-  const centers = getOccupiedGridSpaces(tokenDoc).map(({x, y}) => {
-    return {x: x + size / 2, y: y + size / 2};
-  });
-
-  return tokenDoc.parent.templates.filter(template => {
-    return centers.some(({x, y}) => {
-      return template.object.shape.contains(x - template.x, y - template.y);
-    });
-  }).map(t => t.id);
+function getAllContainingTemplates(tokenDoc, {ids = true} = {}) {
+  const centers = getOccupiedGridSpaces(tokenDoc);
+  const templates = tokenDoc.parent.templates.reduce((acc, template) => {
+    const contains = centers.some(({x, y}) => template.object.shape.contains(x - template.x, y - template.y));
+    if (!contains) return acc;
+    acc.push(ids ? template.id : template);
+    return acc;
+  }, []);
+  return templates;
 }
 
 /**
@@ -169,8 +177,7 @@ async function moveBonus(original, other, id) {
 async function toggleBonus(object, id, state = null) {
   const bonus = getId(object, id);
   if (!bonus) return null;
-  const value = (state === null) ? !bonus.enabled : !!state;
-  return object.update({[`flags.babonus.bonuses.${id}.enabled`]: value});
+  return BabonusWorkshop._onToggleBonus(bonus, state);
 }
 
 /**
@@ -198,31 +205,22 @@ function findEmbeddedDocumentsWithBonuses(object) {
 
 /**
  * Return all token documents that are in range of an aura.
+ * This does not take sight and movement restrictions into account.
  * @param {Document} object       The actor, item, or effect with the babonus.
  * @param {string} id             The id of the babonus.
  * @returns {TokenDocument[]}     An array of token documents.
  */
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
-  if (!bonus.isTokenAura) return null;
+  if (!bonus.aura.isToken) return null;
   let actor;
   if (object instanceof Actor) actor = object;
   else if (object instanceof Item) actor = object.actor;
   else if (object instanceof ActiveEffect) actor = object.parent;
-  const tokenDoc = actor.token ?? actor.getActiveTokens(false, true)[0];
-  const range = dnd5e.utils.simplifyBonus(bonus.aura.range, bonus.getRollData({deterministic: true}));
-  if (range === -1) return canvas.scene.tokens.filter(t => {
-    if (!t.actor) return false;
-    if (t.actor.type === "group") return false;
-    return t !== tokenDoc;
-  });
-  return canvas.scene.tokens.filter(t => {
-    if (!t.actor) return false;
-    if (t.actor.type === "group") return false;
-    if (t === tokenDoc) return false;
-    const distance = getMinimumDistanceBetweenTokens(t.object, tokenDoc.object);
-    return range >= distance;
-  });
+  const token = actor.token?.object ?? actor.getActiveTokens()[0];
+  const range = bonus.aura.range;
+  if (range === -1) return canvas.scene.tokens.filter(t !== token.document);
+  return findTokensInRangeOfToken(token, range).map(t => t.document);
 }
 
 /**
@@ -233,22 +231,14 @@ function findTokensInRangeOfAura(object, id) {
  * @returns {Token[]}         An array of token placeables, excluding the source.
  */
 function findTokensInRangeOfToken(source, radius) {
-  const tokenRadius = Math.abs(source.document.x - source.center.x);
-  const pixels = radius * canvas.dimensions.distancePixels + tokenRadius;
-  const captureArea = new PIXI.Circle(source.center.x, source.center.y, pixels);
-  const grid = canvas.dimensions.size;
+  const pixels = radius * canvas.dimensions.distancePixels + source.h / 2;
+  const center = source.center;
+  const captureArea = new PIXI.Circle(center.x, center.y, pixels);
   return canvas.tokens.placeables.filter(t => {
     if (t === source) return false;
 
-    const {width, height, x, y} = t.document;
-    if (width <= 1 && height <= 1) return captureArea.contains(t.center.x, t.center.y);
-    for (let a = 0; a < width; a++) {
-      for (let b = 0; b < height; b++) {
-        const test = captureArea.contains(...canvas.grid.getCenter(x + a * grid, y + b * grid));
-        if (test) return true;
-      }
-    }
-    return false;
+    const centers = getOccupiedGridSpaces(t.document);
+    return centers.some(c => captureArea.contains(c.x, c.y));
   });
 }
 
@@ -257,17 +247,14 @@ function findTokensInRangeOfToken(source, radius) {
  * @param {Token} tokenA        One token placeable.
  * @param {Token} tokenB        Another token placeable.
  * @param {object} options      Options to modify the measurements.
- * @returns {number}            The minimum distance.
+ * @returns {number}            The minimum distance (in units of measurement).
  */
 function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
   const spacesA = getOccupiedGridSpaces(tokenA.document);
   const spacesB = getOccupiedGridSpaces(tokenB.document);
   // Construct rays between each grid center of tokenA to each grid center of tokenB.
   const rays = spacesA.flatMap(a => spacesB.map(b => ({ray: new Ray(a, b)})));
-  const horizontalDistance = canvas.grid.measureDistances(rays, options).reduce((acc, n) => {
-    const dist = n * canvas.dimensions.distancePixels;
-    return Math.min(dist, acc);
-  }, Infinity);
+  const horizontalDistance = Math.min(Infinity, ...canvas.grid.measureDistances(rays, options));
   const verticalDistance = Math.abs(tokenA.document.elevation - tokenB.document.elevation);
   return Math.max(horizontalDistance, verticalDistance);
 }
@@ -279,10 +266,7 @@ function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
  */
 function openBabonusWorkshop(object) {
   const validDocumentType = ["Actor", "Item", "ActiveEffect"].includes(object.documentName);
-  if (!validDocumentType) {
-    console.warn("The document provided is not a valid document type for Build-a-Bonus!");
-    return null;
-  }
+  if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
   return new BabonusWorkshop(object).render(true);
 }
 
@@ -293,7 +277,7 @@ function openBabonusWorkshop(object) {
  * @returns {Babonus}                   The created babonus.
  */
 function createBabonus(data, parent = null) {
-  if (!(data.type in BabonusTypes)) throw new Error("INVALID BABONUS TYPE.");
+  if (!(data.type in module.models)) throw new Error("INVALID BABONUS TYPE.");
   return BabonusWorkshop._createBabonus(data, undefined, {parent});
 }
 
@@ -329,17 +313,7 @@ function getOccupiedGridSpaces(tokenDoc) {
  * @returns {Promise<Babonus>}      The found babonus.
  */
 async function babonusFromUuid(uuid) {
-  try {
-    const parts = uuid.split(".");
-    const id = parts.pop();
-    parts.pop();
-    const parentUuid = parts.join(".");
-    const parent = await fromUuid(parentUuid);
-    return getId(parent, id) ?? null;
-  } catch (err) {
-    console.warn(err);
-    return null;
-  }
+  return BabonusWorkshop._fromUuid(uuid);
 }
 
 /**
@@ -359,10 +333,7 @@ function getCollection(object) {
  */
 async function embedBabonus(object, bonus) {
   const validDocumentType = ["Actor", "Item", "ActiveEffect"].includes(object.documentName);
-  if (!validDocumentType) {
-    console.warn("The document provided is not a valid document type for Build-a-Bonus!");
-    return null;
-  }
-  if (!Object.values(BabonusTypes).some(t => bonus instanceof t)) return null;
+  if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
+  if (!Object.values(module.models).some(t => bonus instanceof t)) return null;
   return BabonusWorkshop._embedBabonus(object, bonus);
 }

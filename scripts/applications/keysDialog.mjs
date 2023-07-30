@@ -3,7 +3,7 @@ import {MODULE} from "../constants.mjs";
 export class BabonusKeysDialog extends Dialog {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: [MODULE, "keys-dialog"],
+      classes: [MODULE.ID, "keys-dialog"],
       resizable: true,
       height: 600,
       width: 400
@@ -11,7 +11,7 @@ export class BabonusKeysDialog extends Dialog {
   }
 
   get id() {
-    return `${MODULE}KeysDialog-${this.options.filterId}-${this.options.appId}`;
+    return `${MODULE.ID}KeysDialog-${this.options.filterId}-${this.options.appId}`;
   }
 
   get template() {

@@ -3,10 +3,21 @@
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionType"}}</label>
     <div class="form-fields">
       <select name="consume.type">
-        {{selectOptions choices selected=clone.consume.type nameAttr="value" labelAttr="label" localize=true blank=""}}
+        {{selectOptions choices selected=clone.consume.type localize=true blank="-" sort=true}}
       </select>
     </div>
   </div>
+
+  {{#if showSubtype}}
+  <div class="form-group">
+    <label class="label">{{localize subtypeLabel}}</label>
+    <div class="form-fields">
+      <select name="consume.subtype">
+        {{selectOptions subtypeOptions selected=clone.consume.subtype blank="-"}}
+      </select>
+    </div>
+  </div>
+  {{/if}}
 
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionScaling"}}</label>
@@ -18,16 +29,16 @@
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionConsumedValues"}}</label>
     <div class="form-fields">
-      <input type="number" data-dtype="Number" name="consume.value.min" value="{{clone.consume.value.min}}" placeholder="{{localize 'Minimum'}}" {{disabled isEffect}}>
-      <input type="number" data-dtype="Number" name="consume.value.max" value="{{clone.consume.value.max}}" placeholder="{{localize 'Maximum'}}" {{disabled disableMax}}>
+      <input type="number" name="consume.value.min" value="{{clone.consume.value.min}}" placeholder="{{localize 'Minimum'}}" {{disabled isEffect}}>
+      <input type="number" name="consume.value.max" value="{{clone.consume.value.max}}" placeholder="{{localize 'Maximum'}}" {{disabled disableMax}}>
     </div>
   </div>
 
-  {{#if isHealth}}
+  {{#if showStep}}
   <div class="form-group">
     <label class="label">{{localize "BABONUS.ConfigurationConsumptionStep"}}</label>
     <div class="form-fields">
-      <input type="number" data-dtype="Number" name="consume.value.step" value="{{clone.consume.value.step}}" placeholder="{{localize 'BABONUS.ConfigurationConsumptionStep'}}" {{disabled disableStep}}>
+      <input type="number" name="consume.value.step" value="{{clone.consume.value.step}}" placeholder="{{localize 'BABONUS.ConfigurationConsumptionStep'}}" {{disabled disableStep}}>
     </div>
   </div>
   {{/if}}

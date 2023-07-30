@@ -25,7 +25,7 @@ export class OptionalSelector {
   }
 
   get template() {
-    return `modules/${MODULE}/templates/subapplications/optionalBonuses.hbs`;
+    return `modules/${MODULE.ID}/templates/subapplications/optionalBonuses.hbs`;
   }
 
   /**
@@ -41,7 +41,8 @@ export class OptionalSelector {
     const bonuses = [];
     for (const bonus of this.bonuses) {
       let data = null;
-      if (bonus.isConsuming) {
+      if (bonus.consume.isConsuming) {
+        if (!this._canSupplyMinimum(bonus)) continue;
         if (["uses", "quantity"].includes(bonus.consume.type)) {
           data = this._getDataConsumeItem(bonus);
         } else if (bonus.consume.type === "slots") {
@@ -50,8 +51,9 @@ export class OptionalSelector {
           data = this._getDataConsumeHealth(bonus);
         } else if (bonus.consume.type === "effect") {
           data = this._getDataConsumeEffects(bonus);
+        } else if (bonus.consume.type === "currency") {
+          data = this._getDataConsumeCurrency(bonus);
         }
-        if (!this._canSupplyMinimum(bonus)) continue;
       } else {
         data = this._getDataNoConsume(bonus);
       }
@@ -78,11 +80,10 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
-    if (bonus.isScaling) {
+    if (bonus.consume.isScaling) {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingItemOptions(bonus);
-      if (!data.options) return null;
     }
     return data;
   }
@@ -98,11 +99,10 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
-    if (bonus.isScaling) {
+    if (bonus.consume.isScaling) {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingSlotsOptions(bonus);
-      if (!data.options) return null;
     }
     return data;
   }
@@ -118,11 +118,10 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus
     };
-    if (bonus.isScaling) {
+    if (bonus.consume.isScaling) {
       // Must have at least 1 option available.
       data.action += "-scale";
       data.options = this._constructScalingHealthOptions(bonus);
-      if (!data.options) return null;
     }
     return data;
   }
@@ -138,6 +137,25 @@ export class OptionalSelector {
       tooltip: this._getTooltip(bonus),
       babonus: bonus,
     };
+    return data;
+  }
+
+  /**
+   * Get the template data for bonuses that consume currencies.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
+   */
+  _getDataConsumeCurrency(bonus) {
+    const data = {
+      action: "consume-currency",
+      tooltip: this._getTooltip(bonus),
+      babonus: bonus
+    };
+    if (bonus.consume.isScaling) {
+      // Must have at least 1 option available.
+      data.action += "-scale";
+      data.options = this._constructScalingCurrencyOptions(bonus);
+    }
     return data;
   }
 
@@ -166,6 +184,7 @@ export class OptionalSelector {
       else if (action.startsWith("consume-slots")) n.addEventListener("click", this._onApplySlotsOption.bind(this));
       else if (action.startsWith("consume-health")) n.addEventListener("click", this._onApplyHealthOption.bind(this));
       else if (action.startsWith("consume-effects")) n.addEventListener("click", this._onApplyEffectsOption.bind(this));
+      else if (action.startsWith("consume-currency")) n.addEventListener("click", this._onApplyCurrencyOption.bind(this));
       else if (action === "consume-none") n.addEventListener("click", this._onApplyNoConsumeOption.bind(this));
     });
   }
@@ -212,10 +231,12 @@ export class OptionalSelector {
    * @returns {boolean}         Whether you have the minimum requirements.
    */
   _canSupplyMinimum(bonus) {
+    const min = bonus.consume.value.min || 1;
+
     if (bonus.consume.type === "uses") {
-      return bonus.item.system.uses.value >= bonus.consume.value.min;
+      return bonus.item.system.uses.value >= min;
     } else if (bonus.consume.type === "quantity") {
-      return bonus.item.system.quantity >= bonus.consume.value.min;
+      return bonus.item.system.quantity >= min;
     } else if (bonus.consume.type === "slots") {
       return !!this._getLowestValidSpellSlotProperty(bonus);
     } else if (bonus.consume.type === "effect") {
@@ -223,7 +244,11 @@ export class OptionalSelector {
       return effect.collection.has(effect.id);
     } else if (bonus.consume.type === "health") {
       const hp = this.actor.system.attributes.hp;
-      return (hp.value + (hp.temp || 0)) >= bonus.consume.value.min;
+      return (hp.value + (hp.temp || 0)) >= min;
+    } else if (bonus.consume.type === "currency") {
+      const subtype = bonus.consume.subtype;
+      const currency = this.actor.system.currency;
+      return (currency[subtype] || 0) >= min;
     }
   }
 
@@ -238,6 +263,7 @@ export class OptionalSelector {
     const scales = event.currentTarget.dataset.action.endsWith("-scale");
     if (!scales) return this._canSupplyMinimum(bonus);
     const type = bonus.consume.type;
+    const subtype = bonus.consume.subtype;
     const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
 
     if (type === "uses") {
@@ -249,6 +275,9 @@ export class OptionalSelector {
     } else if (type === "health") {
       const hp = this.actor.system.attributes.hp;
       return (hp.value + (hp.temp || 0)) >= Number(value);
+    } else if (type === "currency") {
+      const currency = this.actor.system.currency;
+      return (currency[subtype] || 0) >= Number(value);
     }
   }
 
@@ -272,14 +301,14 @@ export class OptionalSelector {
       min: bonus.consume.type === "uses" ? item.system.uses.value : item.system.quantity,
       max: bonus.consume.type === "uses" ? item.system.uses.max : item.system.quantity
     };
-    if (bounds.min <= 0) return "";
+    if (bounds.min <= 0) return {};
     const min = bonus.consume.value.min || 1;
     const max = bonus.consume.value.max || Infinity;
     return Array.fromRange(bounds.min, 1).reduce((acc, n) => {
       if (!n.between(min, max)) return acc;
-      const label = `${n}/${bounds.max}`;
-      return acc + `<option value="${n}">${label}</option>`;
-    }, "");
+      acc[n] = `${n}/${bounds.max}`;
+      return acc;
+    }, {});
   }
 
   /**
@@ -333,8 +362,9 @@ export class OptionalSelector {
         level: (key === "pact") ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
         n: `${val.value}/${val.max}`,
       });
-      return acc + `<option value="${key}">${label}</option>`;
-    }, "");
+      acc[key] = label;
+      return acc;
+    }, {});
   }
 
   /**
@@ -353,12 +383,12 @@ export class OptionalSelector {
       let scale;
       if (scales) {
         key = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        const level = (key === "pact") ? this.actor.system.spells.pact.level : Number(key.at(-1));
         scale = Math.min(level - (bonus.consume.value.min || 1), (bonus.consume.value.max || Infinity) - 1);
       } else {
         key = this._getLowestValidSpellSlotProperty(bonus);
         scale = 0;
       }
-      const level = (key === "pact") ? this.actor.system.spells.pact.level : Number(key.at(-1));
       const sitBonus = this._scaleOptionalBonus(bonus, scale);
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
       this._appendToField(event.currentTarget, sitBonus);
@@ -379,17 +409,17 @@ export class OptionalSelector {
     const hp = this.actor.system.attributes.hp;
     const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
     const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
-    if ((min < value.min) || !(value.step > 0)) return "";
-    let options = "";
+    if ((min < value.min) || !(value.step > 0)) return {};
+    const options = {};
     for (let i = (value.min || 1); i <= Math.min(min, value.max || max); i += value.step) {
-      options += `<option value="${i}">${game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i})}</option>`;
+      options[i] = game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i});
     }
     return options;
   }
 
   /**
    * When applying a scaling bonus that consumes hit points, get the value from the select,
-   * get the minimum possible value, and calculate how much it should scape up.
+   * get the minimum possible value, and calculate how much it should scale up.
    * If the bonus does not scale, get the minimum value and consume it.
    * @param {PointerEvent} event      The initiating click event.
    */
@@ -433,6 +463,55 @@ export class OptionalSelector {
       }
       const sitBonus = this._scaleOptionalBonus(bonus, 0);
       this._appendToField(target, sitBonus);
+    } else {
+      this._displayConsumptionWarning(bonus.consume.type);
+      return null;
+    }
+  }
+
+  /**
+   * Construct the scaling options for an optional bonus that scales with currency consumed.
+   * The 'value' of the option is the amount of coins to subtract.
+   * @param {Babonus} bonus     The babonus.
+   * @returns {string}          The string of select options.
+   */
+  _constructScalingCurrencyOptions(bonus) {
+    const value = bonus.consume.value;
+    const denom = bonus.consume.subtype;
+    const label = CONFIG.DND5E.currencies[denom].label;
+    const currency = this.actor.system.currency[denom];
+    if ((currency < value.min) || !(value.step > 0)) return {};
+    const options = {};
+    for (let i = (value.min || 1); i <= Math.min(currency, value.max || Infinity); i += value.step) {
+      options[i] = game.i18n.format("BABONUS.ConsumptionTypeCurrencyOption", {value: i, denom: label});
+    }
+    return options;
+  }
+
+  /**
+   * When applying a bonus that consumes a currency, get the value from the select, get the
+   * minimum possible value, and calculate how much it should scale up. If the bonus does not
+   * scale, get the minimum value and consume it.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  async _onApplyCurrencyOption(event) {
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
+    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
+      let value;
+      let scale;
+      if (scales) {
+        value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        scale = Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step);
+      } else {
+        value = Number(bonus.consume.value.min || 1);
+        scale = 0;
+      }
+      const sitBonus = this._scaleOptionalBonus(bonus, scale);
+      const currency = this.actor.system.currency[bonus.consume.subtype];
+      this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
+      this._appendToField(event.currentTarget, sitBonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
