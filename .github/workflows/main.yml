@@ -1,0 +1,29 @@
+name: Release Creation
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      # Create zip file
+      - run: zip -r ./module.zip setup.mjs module.json LICENSE scripts/ lang/ styles/ templates/
+      
+      # Create a release for this specific version.
+      - name: Update Release with Files
+        if: "!github.event.release.prerelease"
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          name: ${{ github.event.release.name }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "./module.json, ./module.zip"
+          tag: ${{ github.event.release.tag_name }}
+          body: ${{ github.event.release.body }}
