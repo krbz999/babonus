@@ -20,7 +20,9 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
 
   /** @override */
   _cast(value) {
-    return super._cast(value.filter(i => i));
+    return super._cast(value.filter(i => {
+      return (i !== null) && (i !== undefined) && (i !== "");
+    }));
   }
 }
 
