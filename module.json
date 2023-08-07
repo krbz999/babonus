@@ -1,7 +1,7 @@
 {
   "id": "babonus",
   "title": "Build-a-Bonus",
-  "version": "11.1.1",
+  "version": "11.1.2",
   "authors": [
     {
       "name": "Zhell",
@@ -60,6 +60,6 @@
   "url": "https://github.com/krbz999/babonus",
   "license": "https://raw.githubusercontent.com/krbz999/babonus/main/LICENSE",
   "manifest": "https://github.com/krbz999/babonus/releases/latest/download/module.json",
-  "download": "https://github.com/krbz999/babonus/releases/download/v11.1.1/module.zip",
+  "download": "https://github.com/krbz999/babonus/releases/download/v11.1.2/module.zip",
   "description": "Make it easier to manage very particular and niche bonuses and auras on actors, items, effects, and templates."
 }
