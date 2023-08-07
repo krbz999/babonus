@@ -145,7 +145,7 @@ class BaseToolsField extends BaseField {
 
   /** @override */
   static get choices() {
-    return this._getEntriesFromConfig("weaponIds");
+    return this._getEntriesFromConfig("toolIds");
   }
 }
 
@@ -154,7 +154,7 @@ class BaseWeaponsField extends BaseField {
 
   /** @override */
   static get choices() {
-    return this._getEntriesFromConfig("toolIds");
+    return this._getEntriesFromConfig("weaponIds");
   }
 }
 
