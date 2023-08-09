@@ -151,7 +151,7 @@ export class RollHooks {
 
   /** When you roll a skill... */
   static preRollSkill(actor, rollConfig, skillId) {
-    const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.3.0
+    const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.4.0
     const bonuses = FilterManager.testCheck(actor, abilityId, {skillId});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
@@ -161,7 +161,7 @@ export class RollHooks {
 
   /** When you roll a tool check... */
   static preRollToolCheck(actor, rollConfig, toolId) {
-    const abilityId = rollConfig.ability || rollConfig.data.defaultAbility; // TODO: fix in 2.3.0
+    const abilityId = rollConfig.ability || rollConfig.data.defaultAbility; // TODO: fix in 2.4.0
     const bonuses = FilterManager.testCheck(actor, abilityId, {toolId});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
