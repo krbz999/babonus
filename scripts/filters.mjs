@@ -771,23 +771,23 @@ export class FilterManager {
   static proficiencyLevels(object, filter, {throwType, abilityId, skillId, toolId}) {
     if (!filter?.length) return true;
 
-    // Case 1: Tool.
-    else if (toolId) return filter.includes(object.system.tools[toolId]?.prof.multiplier);
+    // Case 1: Skill.
+    else if (skillId) return filter.includes(object.system.skills[skillId]?.prof.multiplier || 0);
 
-    // Case 2: Skill.
-    else if (skillId) return filter.includes(object.system.skills[skillId]?.prof.multiplier);
-
-    // Case 3: Ability Check.
+    // Case 2: Ability Check.
     else if (abilityId) return false; // cannot be proficient in standard ability checks.
 
-    // Case 4: Attack Roll.
-    else if (object instanceof Item) return filter.includes(Number(object.system.proficient));
+    // Case 3: Death Saving Throw.
+    else if (throwType === "death") return filter.includes(Number(object.flags.dnd5e?.diamondSoul || false));
 
-    // Case 5: Death Saving Throw.
-    else if (throwType === "death") return filter.includes(Number(object.flags.dnd5e?.diamondSoul));
+    // Case 4: Saving Throw.
+    else if (throwType) return filter.includes(object.system.abilities[throwType]?.saveProf.multiplier || 0);
 
-    // Case 6: Saving Throw.
-    else if (throwType) return filter.includes(object.system.abilities[throwType]?.saveProf.multiplier);
+    // Case 5: Tool.
+    else if (toolId) return filter.includes(object.system.tools[toolId]?.prof.multiplier || 0);
+
+    // Case 6: Weapon, equipment, spell.
+    else if (object instanceof Item) return filter.includes(object.system.proficiencyMultiplier);
 
     // Else somehow return false.
     else return false;
