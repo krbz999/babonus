@@ -61,8 +61,14 @@
           </div>
 
           <nav class="tabs header" data-group="current-bonus-tabs">
-            <a class="item" data-tab="bonuses">{{localize "BABONUS.Bonuses"}}</a>
-            <a class="item" data-tab="filters">{{localize "BABONUS.Filters"}}</a>
+            <a class="item" data-tab="bonuses">
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.BonusesTooltip"></i>
+              {{localize "BABONUS.Bonuses"}}
+            </a>
+            <a class="item" data-tab="filters">
+              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentFiltersTooltip"></i>
+              {{localize "BABONUS.Filters"}}
+            </a>
           </nav>
 
           <div class="content-tabs" data-group="current-bonus-tabs">
