@@ -787,7 +787,7 @@ export class FilterManager {
     else if (toolId) return filter.includes(object.system.tools[toolId]?.prof.multiplier || 0);
 
     // Case 6: Weapon, equipment, spell.
-    else if (object instanceof Item) return filter.includes(object.system.proficiencyMultiplier);
+    else if (object instanceof Item) return filter.includes(object.system.prof.multiplier);
 
     // Else somehow return false.
     else return false;
