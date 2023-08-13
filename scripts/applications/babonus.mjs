@@ -343,7 +343,9 @@ export class BabonusWorkshop extends FormApplication {
    */
   async _renderCreator(event) {
     const type = event.currentTarget.dataset.type;
-    this._currentBabonus = this.constructor._createBabonus({type, name: game.i18n.localize("BABONUS.NewBabonus")}, null, {parent: this.document});
+    this._currentBabonus = this.constructor._createBabonus({
+      type, name: game.i18n.localize("BABONUS.NewBabonus")
+    }, null, {parent: this.document});
     this._addedFilters.clear();
     return super.render(false);
   }
