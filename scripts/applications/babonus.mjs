@@ -133,8 +133,8 @@ export class BabonusWorkshop extends FormApplication {
       const b = data.currentBabonus.toObject().bonuses;
       data.currentBonusBonuses = {};
       data.modifiers = {};
-      for(const [key, val] of Object.entries(b)){
-        if(key === "modifiers") data.modifiers = val;
+      for (const [key, val] of Object.entries(b)) {
+        if (key === "modifiers") data.modifiers = val;
         else data.currentBonusBonuses[key] = val;
       }
     }
@@ -715,7 +715,7 @@ export class BabonusWorkshop extends FormApplication {
     else {
       const nodes = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`);
       const idx = Math.max(...Array.from(nodes).map(node => node.dataset.idx));
-      return field.render(null, idx + 1);
+      return field.render(null, (idx >= 0) ? (idx + 1) : 0);
     }
   }
 
