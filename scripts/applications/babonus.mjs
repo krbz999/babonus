@@ -50,7 +50,12 @@ export class BabonusWorkshop extends FormApplication {
         ".unavailable-filters"
       ],
       dragDrop: [{dragSelector: "[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],
-      resizable: true
+      resizable: true,
+      tabs: [{
+        navSelector: "nav[data-group='current-bonus-tabs']",
+        contentSelector: ".content-tabs[data-group='current-bonus-tabs']",
+        initial: "bonuses"
+      }]
     });
   }
 
@@ -123,6 +128,15 @@ export class BabonusWorkshop extends FormApplication {
         b = `BABONUS.Filters${b.id.capitalize()}`;
         return game.i18n.localize(a).localeCompare(game.i18n.localize(b));
       });
+
+      // Construct data for the bonuses area.
+      const b = data.currentBabonus.toObject().bonuses;
+      data.currentBonusBonuses = {};
+      data.modifiers = {};
+      for(const [key, val] of Object.entries(b)){
+        if(key === "modifiers") data.modifiers = val;
+        else data.currentBonusBonuses[key] = val;
+      }
     }
 
     // Get current bonuses on the document.
@@ -564,7 +578,7 @@ export class BabonusWorkshop extends FormApplication {
    * @param {PointerEvent} event      The initiating click event.
    */
   _onSectionCollapse(event) {
-    event.currentTarget.closest("header").classList.toggle("collapsed");
+    event.currentTarget.closest(".header").classList.toggle("collapsed");
   }
 
   /**

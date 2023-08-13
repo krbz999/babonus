@@ -11,7 +11,7 @@
     <div class="left-side">
 
       <section class="select-type page" {{#if activeBuilder}} style="display: none;" {{/if}}>
-        <header>
+        <header class="header">
           {{localize "BABONUS.SelectType"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
         </header>
@@ -26,7 +26,7 @@
 
         <div class="bonus-config page">
 
-          <header>
+          <header class="header">
             {{localize "BABONUS.RequiredFields"}}
             <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.RequiredFieldsTooltip"></i>
           </header>
@@ -60,29 +60,22 @@
 
           </div>
 
-          <header>
-            {{localize "BABONUS.Bonuses"}}
-            <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.BonusesTooltip"></i>
-          </header>
-          <div class="bonus-inputs">
-            {{#each currentBabonus.bonuses}}
-            <div class="form-group">
-              <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key}}">
-                {{localize (babonusCapitalize "BABONUS.Type" ../currentBabonus.type @key "Label")}}
-              </label>
-              <div class="form-fields">
-                <input type="text" name="bonuses.{{@key}}" value="{{this}}">
+          <nav class="tabs header" data-group="current-bonus-tabs">
+            <a class="item" data-tab="bonuses">{{localize "BABONUS.Bonuses"}}</a>
+            <a class="item" data-tab="filters">{{localize "BABONUS.Filters"}}</a>
+          </nav>
+
+          <div class="content-tabs" data-group="current-bonus-tabs">
+            <div class="tab" data-tab="bonuses">
+              <div class="bonus-inputs">
+                {{> "modules/babonus/templates/builder_components/bonuses-modifiers.hbs"}}
               </div>
             </div>
-            {{/each}}
-          </div>
 
-          <header>
-            {{localize "BABONUS.CurrentFilters"}}
-            <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentFiltersTooltip"></i>
-            <a data-action="section-collapse"><i class="fa-solid fa-chevron-down"></i></a>
-          </header>
-          <div class="bonus-filters">{{{_filters}}}</div>
+            <div class="tab" data-tab="filters">
+              <div class="bonus-filters">{{{_filters}}}</div>
+            </div>
+          </div>
         </div>
 
         <div class="utils">
@@ -107,7 +100,7 @@
     <div class="right-side">
 
       <section class="current-bonuses page" {{#if activeBuilder}} style="display: none;" {{/if}}>
-        <header>
+        <header class="header">
           {{localize "BABONUS.CurrentBonuses"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
         </header>
@@ -115,7 +108,7 @@
 
           {{#each currentBonuses}}
           <div class="bonus {{#if context.collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
-            <div class="header">
+            <div class="bonus-header">
               <a class="label {{#unless bonus.enabled}}disabled{{/unless}}" data-action="current-collapse">
                 <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
               </a>
@@ -181,7 +174,7 @@
 
       <section class="filter-picker page" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
 
-        <header>
+        <header class="header">
           {{localize "BABONUS.AvailableFilters"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.AvailableFiltersTooltip"></i>
           <a data-action="section-collapse"><i class="fa-solid fa-chevron-down"></i></a>
@@ -204,7 +197,7 @@
           {{/each}}
         </div>
 
-        <header class="collapsed">
+        <header class="header collapsed">
           {{localize "BABONUS.UnavailableFilters"}}
           <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.UnavailableFiltersTooltip"></i>
           <a data-action="section-collapse"><i class="fa-solid fa-chevron-down"></i></a>

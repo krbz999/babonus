@@ -420,7 +420,8 @@ class DamageBabonus extends ItemBabonus {
       ...super._defineBonusSchema(),
       bonus: new foundry.data.fields.StringField(),
       criticalBonusDice: new foundry.data.fields.StringField(),
-      criticalBonusDamage: new foundry.data.fields.StringField()
+      criticalBonusDamage: new foundry.data.fields.StringField(),
+      modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)
     };
   }
 

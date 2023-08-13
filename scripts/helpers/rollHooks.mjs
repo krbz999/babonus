@@ -97,6 +97,9 @@ export class RollHooks {
       if (!valid) return acc;
       return `${acc} + ${bonus}`;
     }, rollConfig.criticalBonusDamage ?? "");
+
+    // For non-optional bonuses, modify the parts if there are modifiers in the bab.
+    for (const bab of bonuses) if (!optionals.includes(bab)) RollHooks._addDieModifier(rollConfig.parts, rollConfig.data, bab);
   }
 
   /** When you roll a death saving throw... */
@@ -225,5 +228,22 @@ export class RollHooks {
   static _addTargetData(rollConfig) {
     const target = game.user.targets.first();
     if (target?.actor) rollConfig.data.target = target.actor.getRollData();
+  }
+
+  /**
+   * Add modifiers to the dice rolls of a roll.
+   * @param {string[]} parts      The individual parts of the roll. **will be mutated**
+   * @param {object} data         The roll data.
+   * @param {Babonus} bab         The babonus with possible modifiers.
+   */
+  static _addDieModifier(parts, data, bab) {
+    if (!bab.bonuses.modifiers.hasModifiers) return;
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const roll = new CONFIG.Dice.DamageRoll(part, data);
+      for (const die of roll.dice) bab.bonuses.modifiers.modifyDie(die);
+      parts[i] = Roll.fromTerms(roll.terms).formula;
+      console.warn({oldPart: part, newPart: parts[i]});
+    }
   }
 }
