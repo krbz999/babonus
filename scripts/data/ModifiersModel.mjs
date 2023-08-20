@@ -18,6 +18,9 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       maximum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
         value: new foundry.data.fields.NumberField()
+      }),
+      config: new foundry.data.fields.SchemaField({
+        first: new foundry.data.fields.BooleanField()
       })
     };
   }
