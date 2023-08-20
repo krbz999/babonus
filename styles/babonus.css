@@ -1,3 +1,38 @@
+/* GENERAL FEATURES */
+.babonus .label {
+  flex: 1;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.babonus .sep {
+  color: gray;
+}
+
+.babonus .locked a {
+  color: gray;
+}
+
+.babonus form .form-fields :is(input, select):not([type="checkbox"]) {
+  height: calc(var(--form-field-height));
+}
+
+/* keys dialog buttons */
+.babonus [data-action="keys-dialog"] {
+  min-width: 100px;
+  box-shadow: none;
+}
+
+.babonus [data-action="keys-dialog"]:hover {
+  text-shadow: 0 0 5px var(--color-shadow-primary);
+}
+
+/* selects */
+.babonus form .form-group .form-fields select:not(:only-child) {
+  flex: 0;
+  min-width: fit-content;
+}
+
 /* Babonus Editor Application */
 .babonus.builder.app.window-app {
   min-height: 700px;
@@ -40,6 +75,16 @@
   display: flex;
   flex: 1;
   height: 100%;
+}
+
+.babonus.builder .content-tabs {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.babonus.builder .left-side .tab {
+  overflow: hidden;
 }
 
 .babonus.builder .left-side .page {
@@ -122,13 +167,14 @@
 /* LEFT SIDE - BUILDER - BONUS FIELDS */
 .babonus.builder .left-side .bonus-inputs {}
 
+.babonus.builder .left-side .bonus-inputs .die-modifiers .form-fields {
+  justify-content: flex-start;
+}
+
 /* LEFT SIDE - BUILDER - FILTERS */
 .babonus.builder .left-side .bonus-filters {
   height: 100%;
   overflow-y: auto;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
 }
 
 .babonus.builder .bonus-filters .form-group:first-child {
@@ -227,13 +273,13 @@
   padding: 1em 0;
 }
 
-.babonus.builder .right-side .bonuses .header {
+.babonus.builder .right-side .bonuses .bonus-header {
   display: grid;
   grid-template-columns: 1fr 0fr;
   padding: 0 1em 0 0;
 }
 
-.babonus.builder .right-side .bonuses .header .label > .fa-solid {
+.babonus.builder .right-side .bonuses .bonus-header .label > .fa-solid {
   font-size: 18px;
 }
 
@@ -364,7 +410,7 @@
 }
 
 /* GENERAL */
-.babonus.builder .components header {
+.babonus.builder .components .header {
   height: 30px;
   line-height: 28px;
   font-weight: bold;
@@ -374,7 +420,7 @@
   border-radius: 4px;
 }
 
-.babonus.builder header + :is(.bonus-filters, .available-filters, .unavailable-filters) {
+.babonus.builder .header + :is(.bonus-filters, .available-filters, .unavailable-filters) {
   height: 100%;
   overflow-y: auto;
   display: flex;
@@ -383,59 +429,25 @@
   transition: 300ms;
 }
 
-.babonus.builder header + .available-filters {
+.babonus.builder .header + .available-filters {
   flex: 3;
 }
 
-.babonus.builder header + .unavailable-filters {
+.babonus.builder .header + .unavailable-filters {
   flex: 2;
 }
 
-.babonus.builder header.collapsed + * {
+.babonus.builder .header.collapsed + * {
   flex: 0 !important;
 }
 
-.babonus.builder header [data-action="section-collapse"] {
+.babonus.builder .header [data-action="section-collapse"] {
   float: right;
   margin-right: 1em;
 }
 
-.babonus.builder header.collapsed [data-action="section-collapse"] i::before {
+.babonus.builder .header.collapsed [data-action="section-collapse"] i::before {
   content: "\f077";
-}
-
-.babonus .label {
-  flex: 1;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.babonus .sep {
-  padding: 0 5px;
-}
-
-.babonus .locked a {
-  color: gray;
-}
-
-.babonus form .form-fields :is(input, select):not([type="checkbox"]) {
-  height: calc(var(--form-field-height));
-}
-
-/* keys dialog buttons */
-.babonus [data-action="keys-dialog"] {
-  min-width: 100px;
-  box-shadow: none;
-}
-
-.babonus [data-action="keys-dialog"]:hover {
-  text-shadow: 0 0 5px var(--color-shadow-primary);
-}
-
-/* selects */
-.babonus form .form-group .form-fields select:not(:only-child) {
-  flex: 0;
-  min-width: fit-content;
 }
 
 /* KEY DIALOGS TABLES */

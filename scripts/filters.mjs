@@ -181,7 +181,7 @@ export class FilterManager {
       const filters = Object.entries(bab.filters ?? {});
       for (const [key, val] of filters) {
         if (val === undefined) continue;
-        const valid = this[key](object, val, details);
+        const valid = this[key].call(bab, object, val, details);
         if (!valid) return acc;
       }
       acc.push(bab);
@@ -213,7 +213,7 @@ export class FilterManager {
 
       const data = src.getRollData();
       const update = Object.entries(bonus.bonuses).reduce((acc, [key, val]) => {
-        if (!val) return acc;
+        if (!val || (typeof val !== "string")) return acc;
         acc[key] = Roll.replaceFormulaData(val, data, {missing: 0});
         return acc;
       }, {});
@@ -658,11 +658,11 @@ export class FilterManager {
     if (!script?.length) return true;
     if (game.settings.get(MODULE.ID, SETTINGS.SCRIPT)) return true;
     try {
-      const func = Function("actor", "item", "token", "details", script);
+      const func = Function("actor", "item", "token", "bonus", "details", script);
       const actor = (object.parent instanceof Actor) ? object.parent : (object instanceof Actor) ? object : null;
       const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
       const item = (object instanceof Item) ? object : null;
-      const valid = func.call({}, actor, item, token, details) === true;
+      const valid = func.call(object, actor, item, token, this, details) === true;
       return valid;
     } catch (err) {
       console.error(err);
@@ -787,7 +787,7 @@ export class FilterManager {
     else if (toolId) return filter.includes(object.system.tools[toolId]?.prof.multiplier || 0);
 
     // Case 6: Weapon, equipment, spell.
-    else if (object instanceof Item) return filter.includes(object.system.proficiencyMultiplier);
+    else if (object instanceof Item) return filter.includes(object.system.prof.multiplier);
 
     // Else somehow return false.
     else return false;

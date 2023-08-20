@@ -119,7 +119,6 @@ export class BonusCollector {
     const bonuses = Array.from(this.actorBonuses).concat(this.templateBonuses);
     for (const [token, pixi, bonus, bool] of this.tokenBonuses) if (bool) bonuses.push(bonus);
 
-
     return bonuses;
   }
 
@@ -131,7 +130,7 @@ export class BonusCollector {
 
     // A filter for discarding blocked or suppressed auras, template auras, and auras that do not affect self.
     const validSelfAura = (bab) => {
-      return bab.aura.isAffectingSelf;
+      return !bab.aura.isTemplate && bab.aura.isAffectingSelf;
     };
 
     const actor = this._collectFromDocument(this.actor, [validSelfAura]);
@@ -153,7 +152,8 @@ export class BonusCollector {
       const collection = BabonusWorkshop._getCollection(object);
       for (const bonus of collection) {
         if (this.type !== bonus.type) continue; // discard bonuses of the wrong type.
-        if (!bonus.aura.isActiveTokenAura) continue; // discard blocked, suppressed, and template auras.
+        if (!bonus.aura.isActiveTokenAura) continue; // discard blocked and suppressed auras.
+        if (bonus.aura.isTemplate) continue; // discard template auras.
         if (!this._matchTokenDisposition(token, bonus)) continue; // discard invalid targeting bonuses.
         if (this._generalFilter(bonus)) {
           bonuses.push(this.auraMaker(token.object, bonus));

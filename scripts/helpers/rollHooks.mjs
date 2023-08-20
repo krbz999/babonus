@@ -97,6 +97,11 @@ export class RollHooks {
       if (!valid) return acc;
       return `${acc} + ${bonus}`;
     }, rollConfig.criticalBonusDamage ?? "");
+
+    // For non-optional bonuses, modify the parts if there are modifiers in the bab.
+    for (const bab of bonuses) {
+      if (!optionals.includes(bab)) RollHooks._addDieModifier(rollConfig.parts, rollConfig.data, bab);
+    }
   }
 
   /** When you roll a death saving throw... */
@@ -175,13 +180,20 @@ export class RollHooks {
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
 
-    const denom = bonuses.reduce((acc, bab) => {
+    // Construct an array of parts.
+    const parts = [`1${denomination}`];
+    for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
-      const valid = !!bonus && Roll.validate(bonus);
-      if (!valid) return acc;
-      return `${acc} + ${bonus}`;
-    }, denomination);
-    rollConfig.formula = rollConfig.formula.replace(denomination, denom);
+      if (!!bonus && Roll.validate(bonus)) parts.push(bonus);
+    }
+
+    // Add die modifiers.
+    for (const bonus of bonuses) {
+      RollHooks._addDieModifier(parts, rollConfig.data, bonus);
+    }
+
+    // Construct the replacement formula.
+    rollConfig.formula = `max(0, ${parts.join(" + ")})`;
   }
 
   /** Inject babonus data on created templates if they have an associated item. */
@@ -225,5 +237,24 @@ export class RollHooks {
   static _addTargetData(rollConfig) {
     const target = game.user.targets.first();
     if (target?.actor) rollConfig.data.target = target.actor.getRollData();
+  }
+
+  /**
+   * Add modifiers to the dice rolls of a roll.
+   * @param {string[]} parts      The individual parts of the roll. **will be mutated**
+   * @param {object} data         The roll data.
+   * @param {Babonus} bab         The babonus with possible modifiers.
+   */
+  static _addDieModifier(parts, data, bab) {
+    if (!bab.bonuses.modifiers.hasModifiers) return;
+    const first = bab.bonuses.modifiers.config.first;
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const roll = new CONFIG.Dice.DamageRoll(part, data);
+      for (const die of roll.dice) bab.bonuses.modifiers.modifyDie(die);
+      parts[i] = Roll.fromTerms(roll.terms).formula;
+      // If only the first die should be modified, bail out after the first iteration.
+      if (first && roll.dice.length) return;
+    }
   }
 }
