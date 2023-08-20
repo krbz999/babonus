@@ -181,7 +181,7 @@ export class RollHooks {
     RollHooks._addTargetData(rollConfig);
 
     // Construct an array of parts.
-    const parts = [`1${denomination}`];
+    const parts = [`1${denomination} + @abilities.con.mod`];
     for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
       if (!!bonus && Roll.validate(bonus)) parts.push(bonus);
