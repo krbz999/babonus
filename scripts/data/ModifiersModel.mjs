@@ -1,4 +1,6 @@
+/* Child of Babonus#bonuses that holds all die modifiers. */
 export class ModifiersModel extends foundry.abstract.DataModel {
+  /** @override */
   static defineSchema() {
     return {
       reroll: new foundry.data.fields.SchemaField({

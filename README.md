@@ -35,7 +35,10 @@
 <h2 style="font-weight: bold;">Required Fields</h2>
 <p><strong><em>Name.</em></strong> The human-readable name of the bonus (you can put anything you like here). The ID shown next to it is the unique identifier that the module uses to refer to the bonus, which is also used in several API methods (see below).</p>
 <p><strong><em>Description.</em></strong> A blurb of your choosing describing the bonus. This text is enriched and supports roll data.</p>
-<p><strong><em>Bonuses.</em></strong> Depending on the type you choose, Build-a-Bonus can add on top of the value or roll, or even several kinds at once. For example, for attack rolls, you can add bonuses on top of the roll itself, but also increase the critical range and the fumble range. This can be roll data and scale values, such as <code>@abilities.int.mod</code>, or just integers or dice expressions.</p>
+
+<h2 style="font-weight: bold;">Bonuses and Modifiers</h2>
+<p>Depending on the type you choose, Build-a-Bonus can add on top of the value or roll, or even several kinds at once. For example, for attack rolls, you can add bonuses on top of the roll itself, but also increase the critical range and the fumble range. This can be roll data and scale values, such as <code>@abilities.int.mod</code>, or just integers or dice expressions.</p>
+<p>For damage rolls and hit dice rolls, you can also affect die modifiers. The supported modifiers are minimum and maximum values, rerolling, and explosive dice.</p>
 
 <h2 style="font-weight: bold;">Aura and Template Configuration</h2>
 <p>You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not.</p>
