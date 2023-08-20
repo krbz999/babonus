@@ -213,7 +213,7 @@ export class FilterManager {
 
       const data = src.getRollData();
       const update = Object.entries(bonus.bonuses).reduce((acc, [key, val]) => {
-        if (!val) return acc;
+        if (!val || (typeof val !== "string")) return acc;
         acc[key] = Roll.replaceFormulaData(val, data, {missing: 0});
         return acc;
       }, {});
