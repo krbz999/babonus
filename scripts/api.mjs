@@ -24,7 +24,6 @@ export function createAPI() {
     getMinimumDistanceBetweenTokens,
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
-    getApplicableBonuses,
 
     abstract: {
       DataModels: module.models,
@@ -38,26 +37,6 @@ export function createAPI() {
     }, {})
   };
   window.babonus = game.modules.get(MODULE.ID).api = API;
-}
-
-/**
- * Return all bonuses that applies to a specific roll.
- * @deprecated
- * @param {Document} object                         The actor (for hitdie and throw) or item (for attack, damage, save).
- * @param {string} type                             The type of rolling (attack, damage, test, save, throw, hitdie).
- * @param {object} [options={}]                     Additional context for the inner methods.
- * @param {string} [options.throwType="int"]        The type of saving throw (key of an ability, 'death' or 'concentration').
- * @param {boolean} [options.isConcSave=false]      Whether the saving throw is for maintaining concentration.
- * @param {string} [options.abilityId="int"]        The ability being used for an ability check.
- * @param {string} [options.skillId=undefined]      The id of the skill being used in a skill check.
- * @returns {Babonus[]}                             An array of valid babonuses.
- */
-function getApplicableBonuses(object, type, {throwType = "int", isConcSave = false, abilityId = "int", skillId} = {}) {
-  console.warn(`API#getApplicableBonuses has been deprecated since version 11.1.0. Instead use any of the functions found in API#filters. Support will be removed in version 11.2.0.`);
-  if (type === "hitdie") return FilterManager.hitDieCheck(object);
-  else if (type === "throw") return FilterManager.throwCheck(object, throwType, {throwType, isConcSave});
-  else if (type === "test") return FilterManager.testCheck(object, abilityId, {skillId});
-  else if (["attack", "damage", "save"].includes(type)) return FilterManager.itemCheck(object, type);
 }
 
 /**
@@ -149,9 +128,9 @@ async function deleteBonus(object, id) {
  * @returns {Promise<Document>}     The original after the update.
  */
 async function copyBonus(original, other, id) {
-  const data = getId(original, id).toObject();
-  data.id = foundry.utils.randomID();
-  return other.update({[`flags.babonus.bonuses.${data.id}`]: data});
+  const bonus = getId(original, id);
+  if (!bonus) return null;
+  return BabonusWorkshop._embedBabonus(other, bonus);
 }
 
 /**

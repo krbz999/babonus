@@ -103,7 +103,6 @@
 <li><code>deleteBonus(object, id)</code> removes the bonus with the given id from the document.</li>
 <li><code>moveBonus(original, other, id)</code> copies a bonus with the given id from one document to another, then removes the original bonus.</li>
 <li><code>toggleBonus(object, id, state=null)</code> enables or disables a bonus, or sets it to the given state (true or false).</li>
-<li><code>getApplicableBonuses(object, type, options)</code> returns all bonuses that applies to a specific roll with this document.</li>
 <li><code>findEmbeddedDocumentsWithBonuses(object)</code> returns an object with two arrays containing items and effects on the given document that have a bonus.</li>
 <li><code>findTokensInRangeOfAura(object, id)</code> returns all token documents that are in range of an aura with the given id on the document.</li>
 <li><code>findTokensInRangeOfToken(token, radiusFt)</code> returns an array of token placeables that are within the given range of the given token placeable.</li>
