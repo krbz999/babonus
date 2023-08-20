@@ -1,6 +1,6 @@
 {{#each currentBonusBonuses}}
 <div class="form-group">
-  <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key "Tooltip"}}">
+  <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key " Tooltip"}}">
     {{localize (babonusCapitalize "BABONUS.Type" ../currentBabonus.type @key "Label")}}
   </label>
   <div class="form-fields">
@@ -9,56 +9,61 @@
 </div>
 {{/each}}
 
-{{#if modifiers.reroll}}
-<div class="form-group">
-  <label class="label">{{localize "BABONUS.ModifiersReroll"}}</label>
-  <div class="form-fields">
-    <input type="checkbox" name="bonuses.modifiers.reroll.enabled" {{checked modifiers.reroll.enabled}}>
+{{#if hasModifiers}}
+<fieldset class="die-modifiers">
+  <legend>{{localize "BABONUS.Modifiers"}}</legend>
 
-    <span class="sep">{{localize "BABONUS.ModifiersRerollValue"}}</span>
-    <input type="number" name="bonuses.modifiers.reroll.value" value="{{modifiers.reroll.value}}">
-
-    <span class="sep">{{localize "BABONUS.ModifiersRerollRecursive"}}</span>
-    <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked modifiers.reroll.recursive}}>
+  <div class="form-group">
+    <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">{{localize "BABONUS.ModifiersFirst"}}</label>
+    <div class="form-fields">
+      <input type="checkbox" name="bonuses.modifiers.config.first" {{checked modifiers.config.first}}>
+    </div>
   </div>
-</div>
-{{/if}}
 
-{{#if modifiers.explode}}
-<div class="form-group">
-  <label class="label">{{localize "BABONUS.ModifiersExplode"}}</label>
-  <div class="form-fields">
-    <input type="checkbox" name="bonuses.modifiers.explode.enabled" {{checked modifiers.explode.enabled}}>
+  <div class="form-group">
+    <label class="label">{{localize "BABONUS.ModifiersReroll"}}</label>
+    <div class="form-fields">
+      <input type="checkbox" name="bonuses.modifiers.reroll.enabled" {{checked modifiers.reroll.enabled}}>
 
-    <span class="sep">{{localize "BABONUS.ModifiersExplodeValue"}}</span>
-    <input type="number" name="bonuses.modifiers.explode.value" value="{{modifiers.explode.value}}">
+      <span class="sep">{{localize "BABONUS.ModifiersRerollValue"}}</span>
+      <input type="number" name="bonuses.modifiers.reroll.value" value="{{modifiers.reroll.value}}">
 
-    <span class="sep">{{localize "BABONUS.ModifiersExplodeOnce"}}</span>
-    <input type="checkbox" name="bonuses.modifiers.explode.once" {{checked modifiers.explode.once}}>
+      <span class="sep">{{localize "BABONUS.ModifiersRerollRecursive"}}</span>
+      <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked modifiers.reroll.recursive}}>
+    </div>
   </div>
-</div>
-{{/if}}
 
-{{#if modifiers.minimum}}
-<div class="form-group">
-  <label class="label">{{localize "BABONUS.ModifiersMinimum"}}</label>
-  <div class="form-fields">
-    <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked modifiers.minimum.enabled}}>
+  <div class="form-group">
+    <label class="label">{{localize "BABONUS.ModifiersExplode"}}</label>
+    <div class="form-fields">
+      <input type="checkbox" name="bonuses.modifiers.explode.enabled" {{checked modifiers.explode.enabled}}>
 
-    <span class="sep">{{localize "BABONUS.ModifiersMinimumValue"}}</span>
-    <input type="number" name="bonuses.modifiers.minimum.value" value="{{modifiers.minimum.value}}">
+      <span class="sep">{{localize "BABONUS.ModifiersExplodeValue"}}</span>
+      <input type="number" name="bonuses.modifiers.explode.value" value="{{modifiers.explode.value}}">
+
+      <span class="sep">{{localize "BABONUS.ModifiersExplodeOnce"}}</span>
+      <input type="checkbox" name="bonuses.modifiers.explode.once" {{checked modifiers.explode.once}}>
+    </div>
   </div>
-</div>
-{{/if}}
 
-{{#if modifiers.maximum}}
-<div class="form-group">
-  <label class="label">{{localize "BABONUS.ModifiersMaximum"}}</label>
-  <div class="form-fields">
-    <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked modifiers.maximum.enabled}}>
+  <div class="form-group">
+    <label class="label">{{localize "BABONUS.ModifiersMinimum"}}</label>
+    <div class="form-fields">
+      <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked modifiers.minimum.enabled}}>
 
-    <span class="sep">{{localize "BABONUS.ModifiersMaximumValue"}}</span>
-    <input type="number" name="bonuses.modifiers.maximum.value" value="{{modifiers.maximum.value}}">
+      <span class="sep">{{localize "BABONUS.ModifiersMinimumValue"}}</span>
+      <input type="number" name="bonuses.modifiers.minimum.value" value="{{modifiers.minimum.value}}">
+    </div>
   </div>
-</div>
+
+  <div class="form-group">
+    <label class="label">{{localize "BABONUS.ModifiersMaximum"}}</label>
+    <div class="form-fields">
+      <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked modifiers.maximum.enabled}}>
+
+      <span class="sep">{{localize "BABONUS.ModifiersMaximumValue"}}</span>
+      <input type="number" name="bonuses.modifiers.maximum.value" value="{{modifiers.maximum.value}}">
+    </div>
+  </div>
+</fieldset>
 {{/if}}

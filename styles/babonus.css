@@ -1,3 +1,38 @@
+/* GENERAL FEATURES */
+.babonus .label {
+  flex: 1;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.babonus .sep {
+  color: gray;
+}
+
+.babonus .locked a {
+  color: gray;
+}
+
+.babonus form .form-fields :is(input, select):not([type="checkbox"]) {
+  height: calc(var(--form-field-height));
+}
+
+/* keys dialog buttons */
+.babonus [data-action="keys-dialog"] {
+  min-width: 100px;
+  box-shadow: none;
+}
+
+.babonus [data-action="keys-dialog"]:hover {
+  text-shadow: 0 0 5px var(--color-shadow-primary);
+}
+
+/* selects */
+.babonus form .form-group .form-fields select:not(:only-child) {
+  flex: 0;
+  min-width: fit-content;
+}
+
 /* Babonus Editor Application */
 .babonus.builder.app.window-app {
   min-height: 700px;
@@ -131,6 +166,15 @@
 
 /* LEFT SIDE - BUILDER - BONUS FIELDS */
 .babonus.builder .left-side .bonus-inputs {}
+
+.babonus.builder .left-side .bonus-inputs .die-modifiers .form-fields {
+  justify-content: flex-start;
+}
+
+.babonus.builder .left-side .bonus-inputs .die-modifiers input {
+  text-align: center;
+  max-width: 5em;
+}
 
 /* LEFT SIDE - BUILDER - FILTERS */
 .babonus.builder .left-side .bonus-filters {
@@ -409,36 +453,6 @@
 
 .babonus.builder .header.collapsed [data-action="section-collapse"] i::before {
   content: "\f077";
-}
-
-.babonus .label {
-  flex: 1;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.babonus .locked a {
-  color: gray;
-}
-
-.babonus form .form-fields :is(input, select):not([type="checkbox"]) {
-  height: calc(var(--form-field-height));
-}
-
-/* keys dialog buttons */
-.babonus [data-action="keys-dialog"] {
-  min-width: 100px;
-  box-shadow: none;
-}
-
-.babonus [data-action="keys-dialog"]:hover {
-  text-shadow: 0 0 5px var(--color-shadow-primary);
-}
-
-/* selects */
-.babonus form .form-group .form-fields select:not(:only-child) {
-  flex: 0;
-  min-width: fit-content;
 }
 
 /* KEY DIALOGS TABLES */

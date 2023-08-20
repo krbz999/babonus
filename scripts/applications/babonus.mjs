@@ -137,6 +137,7 @@ export class BabonusWorkshop extends FormApplication {
         if (key === "modifiers") data.modifiers = val;
         else data.currentBonusBonuses[key] = val;
       }
+      data.hasModifiers = !foundry.utils.isEmpty(data.modifiers);
     }
 
     // Get current bonuses on the document.
