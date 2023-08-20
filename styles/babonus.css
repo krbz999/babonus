@@ -171,11 +171,6 @@
   justify-content: flex-start;
 }
 
-.babonus.builder .left-side .bonus-inputs .die-modifiers input {
-  text-align: center;
-  max-width: 5em;
-}
-
 /* LEFT SIDE - BUILDER - FILTERS */
 .babonus.builder .left-side .bonus-filters {
   height: 100%;

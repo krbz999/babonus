@@ -3,26 +3,41 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     return {
       reroll: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.NumberField(),
+        value: new foundry.data.fields.StringField(),
         recursive: new foundry.data.fields.BooleanField()
       }),
       explode: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.NumberField(),
+        value: new foundry.data.fields.StringField(),
         once: new foundry.data.fields.BooleanField()
       }),
       minimum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.NumberField()
+        value: new foundry.data.fields.StringField()
       }),
       maximum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.NumberField()
+        value: new foundry.data.fields.StringField()
       }),
       config: new foundry.data.fields.SchemaField({
         first: new foundry.data.fields.BooleanField()
       })
     };
+  }
+
+  /** @override */
+  _initialize(...args) {
+    super._initialize(...args);
+    this.prepareDerivedData();
+  }
+
+  /** @override */
+  prepareDerivedData() {
+    const rollData = this.parent.getRollData({deterministic: true});
+    for (const m of ["reroll", "explode", "minimum", "maximum"]) {
+      const value = this[m].value;
+      if (value) this[m].value = dnd5e.utils.simplifyBonus(value, rollData);
+    }
   }
 
   /**
@@ -50,7 +65,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   }
 
   /* ----------------------------- */
-  /* Getters                       */
+  /*           Getters             */
   /* ----------------------------- */
 
   /**
