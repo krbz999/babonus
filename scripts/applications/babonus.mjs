@@ -177,7 +177,7 @@ export class BabonusWorkshop extends FormApplication {
       delete previousData.filters;
       foundry.utils.mergeObject(newData, previousData, {overwrite: false});
       const bonus = this.constructor._createBabonus(newData, newData.id, {strict: true});
-      await this.constructor._embedBabonus(this.document, bonus);
+      await this.constructor._embedBabonus(this.document, bonus, true);
       ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", bonus));
     } catch (err) {
       console.warn(err);
@@ -786,13 +786,17 @@ export class BabonusWorkshop extends FormApplication {
 
   /**
    * Embed a created babonus onto the target object.
-   * @param {Document} object         The actor, item, or effect that should have the babonus.
-   * @param {Babonus} bonus           The created babonus.
-   * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+   * @param {Document} object             The actor, item, or effect that should have the babonus.
+   * @param {Babonus} bonus               The created babonus.
+   * @param {boolean} [keepId=false]      Keep the ID or generate a new one?
+   * @returns {Promise<Document>}         The actor, item, or effect that has received the babonus.
    */
-  static async _embedBabonus(object, bonus) {
-    await object.update({[`flags.${MODULE.ID}.bonuses.-=${bonus.id}`]: null}, {render: false, noHook: true});
-    return object.setFlag(MODULE.ID, `bonuses.${bonus.id}`, bonus.toObject());
+  static async _embedBabonus(object, bonus, keepId = false) {
+    const data = bonus.toObject();
+    const id = keepId ? data.id : foundry.utils.randomID();
+    data.id = id;
+    await object.update({[`flags.${MODULE.ID}.bonuses.-=${data.id}`]: null}, {render: false, noHook: true});
+    return object.setFlag(MODULE.ID, `bonuses.${id}`, data);
   }
 
   /**
