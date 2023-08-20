@@ -66,10 +66,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    * @returns {string[]}
    */
   get hasModifiers() {
-    const arr = [];
-    const {r, x, min, max} = this;
-    for (const m of [r, x, min, max]) if (m) arr.push(m);
-    return arr.length > 0;
+    return ["r", "x", "min", "max"].some(m => this[m]);
   }
 
   /**
