@@ -67,8 +67,10 @@ function _handlebarsHelpers() {
 /* Preload all template partials for the builder. */
 async function _preloadPartials() {
   console.log("Build-a-Bonus | Loading template partials.");
-  const {files} = await FilePicker.browse("data", "modules/babonus/templates/builder_components");
-  loadTemplates(files);
+  const path = "modules/babonus/templates/builder_components";
+  const {files} = await FilePicker.browse("data", path);
+  const paths = files.map(f => `${path}/${f.split("/").at(-1)}`);
+  return loadTemplates(paths);
 }
 
 export const moduleHooks = {
