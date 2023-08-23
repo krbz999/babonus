@@ -37,7 +37,7 @@ class InjectHeaderButton {
       icon: MODULE.ICON,
       onclick: () => new BabonusWorkshop(app.document).render(true)
     };
-    if (this.showLabel) button.label = this.label;
+    button.label = this.showLabel ? this.label : '';
     array.unshift(button);
   }
 }
@@ -70,7 +70,7 @@ class InjectHeaderButtonDialog extends InjectHeaderButton {
       icon: MODULE.ICON,
       onclick: () => new AppliedBonusesDialog({bonuses, dialog: app}).render(true)
     };
-    if (this.showLabel) button.label = this.label;
+    button.label = this.showLabel ? this.label : '';
     array.unshift(button);
   }
 }
