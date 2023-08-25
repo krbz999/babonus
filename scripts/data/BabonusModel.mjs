@@ -270,7 +270,8 @@ class Babonus extends foundry.abstract.DataModel {
       optional: new foundry.data.fields.BooleanField(),
       description: new foundry.data.fields.StringField({required: true}),
       consume: new foundry.data.fields.EmbeddedDataField(module.fields.consume),
-      aura: new foundry.data.fields.EmbeddedDataField(module.fields.aura)
+      aura: new foundry.data.fields.EmbeddedDataField(module.fields.aura),
+      flags: new foundry.data.fields.ObjectField()
     };
   }
 
@@ -357,6 +358,54 @@ class Babonus extends foundry.abstract.DataModel {
   /** @override */
   prepareDerivedData() {
     return;
+  }
+
+  /* -------------------------------------------- */
+  /*               Flag Operations                */
+  /* -------------------------------------------- */
+
+  /**
+   * Get the value of a flag on this babonus.
+   * @param {string} scope
+   * @param {string} key
+   * @returns {*}
+   */
+  getFlag(scope, key) {
+    const scopes = this.parent.constructor.database.getFlagScopes();
+    if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
+    return foundry.utils.getProperty(this.flags?.[scope], key);
+  }
+
+  /**
+   * Set a flag on this babonus.
+   * @param {string} scope
+   * @param {string} key
+   * @param {*} value
+   * @returns {Promise<Babonus>}
+   */
+  async setFlag(scope, key, value) {
+    const scopes = this.parent.constructor.database.getFlagScopes();
+    if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
+    await this.parent.update({[`flags.babonus.bonuses.${this.id}.flags.${scope}.${key}`]: value});
+    this.updateSource({[`flags.${scope}.${key}`]: value});
+    return this;
+  }
+
+  /**
+   * Remove a flag on this babonus.
+   * @param {string} scope
+   * @param {string} key
+   * @return {Promise<Babonus>}
+   */
+  async unsetFlag(scope, key) {
+    const scopes = this.parent.constructor.database.getFlagScopes();
+    if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
+    const head = key.split(".");
+    const tail = `-=${head.pop()}`;
+    key = ["flags", scope, ...head, tail].join(".");
+    await this.parent.update({[`flags.babonus.bonuses.${this.id}.${key}`]: null});
+    this.updateSource({[key]: null});
+    return this;
   }
 }
 
