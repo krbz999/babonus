@@ -293,8 +293,6 @@ class Babonus extends foundry.abstract.DataModel {
       statusEffects: new module.filters.statusEffects(),
       healthPercentages: new module.filters.healthPercentages(),
       customScripts: new module.filters.customScripts(),
-      preparationModes: new module.filters.preparationModes(),
-      tokenSizes: new module.filters.tokenSizes(),
       remainingSpellSlots: new module.filters.remainingSpellSlots(),
       actorCreatureTypes: new module.filters.actorCreatureTypes()
     };
@@ -368,17 +366,19 @@ class ItemBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      itemTypes: new module.filters.itemTypes(),
-      attackTypes: new module.filters.attackTypes(),
-      damageTypes: new module.filters.damageTypes(),
       abilities: new module.filters.abilities(),
+      attackTypes: new module.filters.attackTypes(),
+      baseWeapons: new module.filters.baseWeapons(),
+      creatureTypes: new module.filters.creatureTypes(),
+      damageTypes: new module.filters.damageTypes(),
+      itemTypes: new module.filters.itemTypes(),
+      preparationModes: new module.filters.preparationModes(),
       spellComponents: new module.filters.spellComponents(),
       spellLevels: new module.filters.spellLevels(),
       spellSchools: new module.filters.spellSchools(),
-      baseWeapons: new module.filters.baseWeapons(),
-      weaponProperties: new module.filters.weaponProperties(),
       targetEffects: new module.filters.targetEffects(),
-      creatureTypes: new module.filters.creatureTypes()
+      tokenSizes: new module.filters.tokenSizes(),
+      weaponProperties: new module.filters.weaponProperties()
     };
   }
 }
