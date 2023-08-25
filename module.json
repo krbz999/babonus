@@ -53,10 +53,8 @@
       "package-jam": 2022
     },
     "hotReload": {
-      "extensions": [
-        "css"
-      ],
-      "paths": []
+      "extensions": ["css"],
+      "paths": ["styles/babonus.css"]
     }
   },
   "url": "https://github.com/krbz999/babonus",
