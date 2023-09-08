@@ -339,8 +339,8 @@ export class OptionalSelector {
       }
       const scale = scales ? Number(value) - (bonus.consume.value.min || 1) : 0;
       const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
-      if (!this.callHook(bonus, item, config)) return null;
-      this._appendToField(target, config.bonus);
+      const apply = this.callHook(bonus, item, config);
+      this._appendToField(target, config.bonus, apply);
       target.disabled = false;
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
@@ -392,8 +392,8 @@ export class OptionalSelector {
       }
       const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
-      if (!this.callHook(bonus, this.actor, config)) return null;
-      this._appendToField(event.currentTarget, config.bonus);
+      const apply = this.callHook(bonus, this.actor, config);
+      this._appendToField(event.currentTarget, config.bonus, apply);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -441,8 +441,8 @@ export class OptionalSelector {
       }
       const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
       this.actor.applyDamage(value);
-      if (!this.callHook(bonus, this.actor, config)) return null;
-      this._appendToField(event.currentTarget, config.bonus);
+      const apply = this.callHook(bonus, this.actor, config);
+      this._appendToField(event.currentTarget, config.bonus, apply);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -466,8 +466,8 @@ export class OptionalSelector {
         return null;
       }
       const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
-      if (!this.callHook(bonus, effect, config)) return null;
-      this._appendToField(target, config.bonus);
+      const apply = this.callHook(bonus, effect, config);
+      this._appendToField(target, config.bonus, apply);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -516,8 +516,8 @@ export class OptionalSelector {
       const currency = this.actor.system.currency[bonus.consume.subtype];
       const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
       this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
-      if (!this.callHook(bonus, this.actor, config)) return null;
-      this._appendToField(event.currentTarget, config.bonus);
+      const apply = this.callHook(bonus, this.actor, config);
+      this._appendToField(event.currentTarget, config.bonus, apply);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -531,8 +531,8 @@ export class OptionalSelector {
   _onApplyNoConsumeOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
     const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
-    if (!this.callHook(bonus, null, config)) return null;
-    this._appendToField(event.currentTarget, config.bonus);
+    const apply = this.callHook(bonus, null, config);
+    this._appendToField(event.currentTarget, config.bonus, apply);
   }
 
   /**
@@ -554,12 +554,15 @@ export class OptionalSelector {
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
-   * @param {HTMLElement} target      The target of the initiating click event.
-   * @param {string} bonus            The bonus to add.
+   * @param {HTMLElement} target        The target of the initiating click event.
+   * @param {string} bonus              The bonus to add.
+   * @param {boolean} [apply=true]      Whether the bonus should be applied.
    */
-  _appendToField(target, bonus) {
-    if (!this.field.value.trim()) this.field.value = bonus;
-    else this.field.value = `${this.field.value.trim()} + ${bonus}`;
+  _appendToField(target, bonus, apply = true) {
+    if (apply) {
+      if (!this.field.value.trim()) this.field.value = bonus;
+      else this.field.value = `${this.field.value.trim()} + ${bonus}`;
+    }
     target.closest(".optional").classList.toggle("active", true);
     this.dialog.setPosition({height: "auto"});
   }
