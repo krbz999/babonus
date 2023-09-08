@@ -338,8 +338,9 @@ export class OptionalSelector {
         await item.update({[property]: newValue});
       }
       const scale = scales ? Number(value) - (bonus.consume.value.min || 1) : 0;
-      const sitBonus = this._scaleOptionalBonus(bonus, scale);
-      this._appendToField(target, sitBonus);
+      const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
+      if (!this.callHook(bonus, item, config)) return null;
+      this._appendToField(target, config.bonus);
       target.disabled = false;
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
@@ -389,9 +390,10 @@ export class OptionalSelector {
         key = this._getLowestValidSpellSlotProperty(bonus);
         scale = 0;
       }
-      const sitBonus = this._scaleOptionalBonus(bonus, scale);
+      const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
       this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
-      this._appendToField(event.currentTarget, sitBonus);
+      if (!this.callHook(bonus, this.actor, config)) return null;
+      this._appendToField(event.currentTarget, config.bonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -437,9 +439,10 @@ export class OptionalSelector {
         value = Number(bonus.consume.value.min || 1);
         scale = 0;
       }
-      const sitBonus = this._scaleOptionalBonus(bonus, scale);
+      const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
       this.actor.applyDamage(value);
-      this._appendToField(event.currentTarget, sitBonus);
+      if (!this.callHook(bonus, this.actor, config)) return null;
+      this._appendToField(event.currentTarget, config.bonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -456,13 +459,15 @@ export class OptionalSelector {
     const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
     const canSupply = this._canSupply(event);
     if (canSupply) {
-      const confirm = await bonus.effect.deleteDialog();
+      const effect = bonus.effect;
+      const confirm = await effect.deleteDialog();
       if (!confirm) {
         target.disabled = false;
         return null;
       }
-      const sitBonus = this._scaleOptionalBonus(bonus, 0);
-      this._appendToField(target, sitBonus);
+      const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
+      if (!this.callHook(bonus, effect, config)) return null;
+      this._appendToField(target, config.bonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -508,10 +513,11 @@ export class OptionalSelector {
         value = Number(bonus.consume.value.min || 1);
         scale = 0;
       }
-      const sitBonus = this._scaleOptionalBonus(bonus, scale);
       const currency = this.actor.system.currency[bonus.consume.subtype];
+      const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
       this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
-      this._appendToField(event.currentTarget, sitBonus);
+      if (!this.callHook(bonus, this.actor, config)) return null;
+      this._appendToField(event.currentTarget, config.bonus);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
@@ -524,8 +530,9 @@ export class OptionalSelector {
    */
   _onApplyNoConsumeOption(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const sitBonus = this._scaleOptionalBonus(bonus, 0);
-    this._appendToField(event.currentTarget, sitBonus);
+    const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
+    if (!this.callHook(bonus, null, config)) return null;
+    this._appendToField(event.currentTarget, config.bonus);
   }
 
   /**
@@ -597,5 +604,20 @@ export class OptionalSelector {
     }
 
     return data;
+  }
+
+  /**
+   * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.
+   * @param {Babonus} babonus                         The babonus that holds the optional bonus to apply.
+   * @param {Actor|Item} roller                       The actor or item performing a roll or usage.
+   * @param {Actor|Item|ActiveEffect|null} target     The actor or item that was updated or deleted, if any.
+   * @param {object} config
+   * @param {string} config.bonus                     The bonus that will be applied.
+   * @returns {boolean}                               Explicitly return false to cancel the application of the bonus.
+   */
+  callHook(babonus, target, config) {
+    const roller = this.item ?? this.actor;
+    const apply = Hooks.call("babonus.applyOptionalBonus", babonus, roller, target, config);
+    return apply !== false;
   }
 }

@@ -114,5 +114,8 @@
 <li>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</li>
 </ul>
 
+<h1 style="font-weight: bold;">Hooks</h1>
+<p>A single hook, <code>babonus.applyOptionalBonus</code> is called when applying an optional bonus; after updates or deletions are performed, but before the bonus is applied to the roll. It provides the babonus, the rolling item or actor, the item, actor, or effect that was updated or deleted, and an object with the bonus that will be applied. The bonus to be applied can be modified. Explicitly returning <code>false</code> will prevent the bonus from being applied entirely.</p>
+
 <h1>Compatibility</h1>
 <p>You should not expect this module to work with other modules that overhaul or destroy core roll behaviour, particularly WIRE, RSR, and MIDI. These modules are unsupported, and any compatiblity is nothing but a happy accident.</p>
