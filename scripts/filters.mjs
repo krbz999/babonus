@@ -775,7 +775,7 @@ export class FilterManager {
     else if (skillId) return filter.includes(object.system.skills[skillId]?.prof.multiplier || 0);
 
     // Case 2: Ability Check.
-    else if (abilityId && !toolId) return filter.includes(0); // cannot be proficient in standard ability checks.
+    else if (abilityId && !toolId) return filter.includes(object.system.abilities[abilityId]?.checkProf.multiplier || 0);
 
     // Case 3: Death Saving Throw.
     else if (throwType === "death") return filter.includes(Number(object.flags.dnd5e?.diamondSoul || false));
