@@ -113,6 +113,11 @@ class TargetEffectsField extends StatusEffectsField {
   static name = "targetEffects";
 }
 
+class AuraBlockersField extends StatusEffectsField {
+  static name = "auraBlockers";
+  static canExclude = false;
+}
+
 class CreatureTypesField extends BaseField {
   static name = "creatureTypes";
 
@@ -216,6 +221,7 @@ export const fields = {
   throwTypes: ThrowTypesField,
   statusEffects: StatusEffectsField,
   targetEffects: TargetEffectsField,
+  auraBlockers: AuraBlockersField,
   creatureTypes: CreatureTypesField,
   actorCreatureTypes: ActorCreatureTypesField,
   baseArmors: BaseArmorsField,
