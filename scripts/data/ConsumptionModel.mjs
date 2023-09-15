@@ -17,7 +17,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   get OPTIONS() {
     const options = {};
     if (this.canConsumeUses) options.uses = "DND5E.LimitedUses";
-    if (this.canConsumeQuantity) options.quantity = "DND5E.LimitedUses";
+    if (this.canConsumeQuantity) options.quantity = "DND5E.Quantity";
     if (this.canConsumeSlots) options.slots = "BABONUS.ConsumptionTypeSlots";
     if (this.canConsumeEffect) options.effect = "BABONUS.ConsumptionTypeEffect";
     if (this.canConsumeHealth) options.health = "BABONUS.ConsumptionTypeHealth";
