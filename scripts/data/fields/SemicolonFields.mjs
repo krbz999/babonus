@@ -51,7 +51,7 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
 
 class AbilitiesField extends BaseField {
   static name = "abilities";
-  static canExclude = false;
+  static canExclude = true;
 
   /** @override */
   static get choices() {
@@ -66,6 +66,7 @@ class SaveAbilitiesField extends AbilitiesField {
 
 class ThrowTypesField extends AbilitiesField {
   static name = "throwTypes";
+  static canExclude = false;
 
   /** @override */
   static get choices() {

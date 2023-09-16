@@ -75,7 +75,7 @@
 <p><strong><em>Health Percentages.</em></strong> A percentage value and whether the actor must have at least or at most this amount of remaining hit points for the bonus to apply.</p>
 <p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells.</p>
 <p><strong><em>Proficiency Levels.</em></strong> The level of proficiency that the actor must have with the roll made. This is available for ability checks, saving throws, and attack rolls.</p>
-<p><strong><em>Save Ability.</em></strong> Filter the bonus such that it only applies if the DC is set using a specific ability. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.</p>
+<p><strong><em>Save DC Ability.</em></strong> Filter the bonus such that it only applies if the DC is set using a specific ability. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.</p>
 <p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to (any ability score as well as death saving throws). If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
 <p><strong><em>Skills.</em></strong> The type of skill the roll must be for the bonus to apply. For example Athletics, Nature, or Survival.</p>
 <p><strong><em>Spell Components.</em></strong> Filter the bonus to only apply if the item is a spell that has any one (or all) of the given components.</p>
