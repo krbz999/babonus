@@ -38,7 +38,7 @@
 
 <h2 style="font-weight: bold;">Bonuses and Modifiers</h2>
 <p>Depending on the type you choose, Build-a-Bonus can add on top of the value or roll, or even several kinds at once. For example, for attack rolls, you can add bonuses on top of the roll itself, but also increase the critical range and the fumble range. This can be roll data and scale values, such as <code>@abilities.int.mod</code>, or just integers or dice expressions.</p>
-<p>For damage rolls and hit dice rolls, you can also affect die modifiers. The supported modifiers are minimum and maximum values, rerolling, and explosive dice.</p>
+<p>For damage rolls and hit dice rolls, you can also affect die modifiers. The supported modifiers are minimum and maximum values, rerolling, and explosive dice, as well as the quantity of the dice.</p>
 
 <h2 style="font-weight: bold;">Aura and Template Configuration</h2>
 <p>You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not.</p>

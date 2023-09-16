@@ -180,6 +180,8 @@
   "BABONUS.KeysDialogTitle": "Keys: {name}",
   "BABONUS.KeysDialogValue": "Value",
   "BABONUS.Modifiers": "Modifiers",
+  "BABONUS.ModifiersAmount": "Dice Amount",
+  "BABONUS.ModifiersAmountValue": "additional",
   "BABONUS.ModifiersExplode": "Explode",
   "BABONUS.ModifiersExplodeOnce": "Once",
   "BABONUS.ModifiersExplodeValue": "if higher than",
