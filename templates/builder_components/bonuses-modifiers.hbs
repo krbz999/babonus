@@ -1,6 +1,6 @@
 {{#each currentBonusBonuses}}
 <div class="form-group">
-  <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key " Tooltip"}}">
+  <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key 'Tooltip'}}">
     {{localize (babonusCapitalize "BABONUS.Type" ../currentBabonus.type @key "Label")}}
   </label>
   <div class="form-fields">
