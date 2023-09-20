@@ -67,10 +67,17 @@ function _handlebarsHelpers() {
 /* Preload all template partials for the builder. */
 async function _preloadPartials() {
   console.log("Build-a-Bonus | Loading template partials.");
-  const path = "modules/babonus/templates/builder_components";
-  const {files} = await FilePicker.browse("data", path);
-  const paths = files.map(f => `${path}/${f.split("/").at(-1)}`);
-  return loadTemplates(paths);
+  return loadTemplates([
+    "modules/babonus/templates/parts/bonuses-modifiers.hbs",
+    "modules/babonus/templates/parts/checkboxes-select.hbs",
+    "modules/babonus/templates/parts/checkboxes.hbs",
+    "modules/babonus/templates/parts/range-select.hbs",
+    "modules/babonus/templates/parts/select-number-checkbox.hbs",
+    "modules/babonus/templates/parts/text-dash-text.hbs",
+    "modules/babonus/templates/parts/text-keys.hbs",
+    "modules/babonus/templates/parts/text-select-text.hbs",
+    "modules/babonus/templates/parts/textarea.hbs"
+  ]);
 }
 
 export const moduleHooks = {

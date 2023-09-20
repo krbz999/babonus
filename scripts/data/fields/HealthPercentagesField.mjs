@@ -2,7 +2,7 @@ import {FilterMixin} from "../FilterMixin.mjs";
 
 export class HealthPercentagesField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "healthPercentages";
-  static template = "modules/babonus/templates/builder_components/range_select.hbs";
+  static template = "modules/babonus/templates/parts/range-select.hbs";
 
   /** @override */
   _initialize() {

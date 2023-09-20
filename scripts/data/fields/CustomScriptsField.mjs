@@ -2,7 +2,7 @@ import {FilterMixin} from "../FilterMixin.mjs";
 
 export class CustomScriptsField extends FilterMixin(foundry.data.fields.StringField) {
   static name = "customScripts";
-  static template = "modules/babonus/templates/builder_components/textarea.hbs";
+  static template = "modules/babonus/templates/parts/textarea.hbs";
 
   constructor() {
     super({initial: null, nullable: true});

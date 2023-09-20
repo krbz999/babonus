@@ -360,23 +360,26 @@ export class FilterManager {
    */
   static abilities(object, filter, {abilityId, toolId} = {}) {
     if (!filter?.length) return true;
+    const {included, excluded} = FilterManager._splitExlusion(filter);
+    let abi;
 
     // Case 1: Tool Checks.
-    if (toolId) {
-      return filter.includes(abilityId);
-    }
+    if (toolId) abi = abilityId;
 
     // Case 2: Attack/Damage rolls.
     if (object instanceof Item) {
       // if the item has no actionType, it has no ability.
       if (!object.system.actionType) return false;
-      return filter.includes(object.abilityMod);
+      abi = object.abilityMod;
     }
 
     // Case 3: AbilityTest or Skill.
-    if (object instanceof Actor) {
-      return filter.includes(abilityId);
-    }
+    if (object instanceof Actor) abi = abilityId;
+
+    // Test the filters.
+    if (included.length && !included.includes(abi)) return false;
+    if (excluded.length && excluded.includes(abi)) return false;
+    return !!abi;
   }
 
   /**
@@ -457,11 +460,14 @@ export class FilterManager {
   static saveAbilities(item, filter) {
     if (!filter?.length) return true;
     if (!item.hasSave) return false;
+    const {included, excluded} = FilterManager._splitExlusion(filter);
     let abl;
     if (item.system.save.scaling === "spell") {
       abl = item.actor.system.attributes.spellcasting;
     } else abl = item.system.save.scaling;
-    return filter.includes(abl);
+    if (included.length && !included.includes(abl)) return false;
+    if (excluded.length && excluded.includes(abl)) return false;
+    return true;
   }
 
   /**
@@ -775,7 +781,7 @@ export class FilterManager {
     else if (skillId) return filter.includes(object.system.skills[skillId]?.prof.multiplier || 0);
 
     // Case 2: Ability Check.
-    else if (abilityId && !toolId) return filter.includes(0); // cannot be proficient in standard ability checks.
+    else if (abilityId && !toolId) return filter.includes(object.system.abilities[abilityId]?.checkProf.multiplier || 0);
 
     // Case 3: Death Saving Throw.
     else if (throwType === "death") return filter.includes(Number(object.flags.dnd5e?.diamondSoul || false));

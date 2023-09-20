@@ -1,6 +1,6 @@
 {{#each currentBonusBonuses}}
 <div class="form-group">
-  <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key " Tooltip"}}">
+  <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../currentBabonus.type @key 'Tooltip'}}">
     {{localize (babonusCapitalize "BABONUS.Type" ../currentBabonus.type @key "Label")}}
   </label>
   <div class="form-fields">
@@ -17,6 +17,15 @@
     <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">{{localize "BABONUS.ModifiersFirst"}}</label>
     <div class="form-fields">
       <input type="checkbox" name="bonuses.modifiers.config.first" {{checked modifiers.config.first}}>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="label">{{localize "BABONUS.ModifiersAmount"}}</label>
+    <div class="form-fields">
+      <input type="checkbox" name="bonuses.modifiers.amount.enabled" {{checked modifiers.amount.enabled}}>
+      <span class="sep">{{localize "BABONUS.ModifiersAmountValue"}}</span>
+      <input type="text" name="bonuses.modifiers.amount.value" value="{{modifiers.amount.value}}">
     </div>
   </div>
 

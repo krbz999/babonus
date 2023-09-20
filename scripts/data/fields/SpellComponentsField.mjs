@@ -2,7 +2,7 @@ import {FilterMixin} from "../FilterMixin.mjs";
 
 export class SpellComponentsField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "spellComponents";
-  static template = "modules/babonus/templates/builder_components/checkboxes_select.hbs";
+  static template = "modules/babonus/templates/parts/checkboxes-select.hbs";
 
   /** @override */
   _initialize() {

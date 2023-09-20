@@ -2,7 +2,7 @@ import {FilterMixin} from "../FilterMixin.mjs";
 
 export class RemainingSpellSlotsField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "remainingSpellSlots";
-  static template = "modules/babonus/templates/builder_components/text_dash_text.hbs";
+  static template = "modules/babonus/templates/parts/text-dash-text.hbs";
 
   /** @override */
   _initialize() {

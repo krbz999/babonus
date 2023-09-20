@@ -1,7 +1,7 @@
 import {FilterMixin} from "../FilterMixin.mjs";
 
 class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
-  static template = "modules/babonus/templates/builder_components/text_keys.hbs";
+  static template = "modules/babonus/templates/parts/text-keys.hbs";
   static canExclude = true;
 
   constructor() {
@@ -51,7 +51,7 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
 
 class AbilitiesField extends BaseField {
   static name = "abilities";
-  static canExclude = false;
+  static canExclude = true;
 
   /** @override */
   static get choices() {
@@ -66,6 +66,7 @@ class SaveAbilitiesField extends AbilitiesField {
 
 class ThrowTypesField extends AbilitiesField {
   static name = "throwTypes";
+  static canExclude = false;
 
   /** @override */
   static get choices() {
@@ -111,6 +112,11 @@ class StatusEffectsField extends BaseField {
 
 class TargetEffectsField extends StatusEffectsField {
   static name = "targetEffects";
+}
+
+class AuraBlockersField extends StatusEffectsField {
+  static name = "auraBlockers";
+  static canExclude = false;
 }
 
 class CreatureTypesField extends BaseField {
@@ -216,6 +222,7 @@ export const fields = {
   throwTypes: ThrowTypesField,
   statusEffects: StatusEffectsField,
   targetEffects: TargetEffectsField,
+  auraBlockers: AuraBlockersField,
   creatureTypes: CreatureTypesField,
   actorCreatureTypes: ActorCreatureTypesField,
   baseArmors: BaseArmorsField,

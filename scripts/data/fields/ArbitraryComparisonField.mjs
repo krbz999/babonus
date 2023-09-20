@@ -4,7 +4,7 @@ import {FilterMixin} from "../FilterMixin.mjs";
 export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.ArrayField) {
   static name = "arbitraryComparison";
   static repeatable = true;
-  static template = "modules/babonus/templates/builder_components/text_select_text.hbs";
+  static template = "modules/babonus/templates/parts/text-select-text.hbs";
 
   /** @override */
   constructor(options = {}) {

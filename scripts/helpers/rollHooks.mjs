@@ -248,13 +248,19 @@ export class RollHooks {
   static _addDieModifier(parts, data, bab) {
     if (!bab.bonuses.modifiers.hasModifiers) return;
     const first = bab.bonuses.modifiers.config.first;
+    let changed = false;
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       const roll = new CONFIG.Dice.DamageRoll(part, data);
-      for (const die of roll.dice) bab.bonuses.modifiers.modifyDie(die);
+      if (!roll.dice.length) continue;
+
+      for (const die of roll.dice) {
+        if (first && changed) break;
+        bab.bonuses.modifiers.modifyDie(die);
+        changed = true;
+      }
       parts[i] = Roll.fromTerms(roll.terms).formula;
-      // If only the first die should be modified, bail out after the first iteration.
-      if (first && roll.dice.length) return;
+      if (first && changed) return;
     }
   }
 }

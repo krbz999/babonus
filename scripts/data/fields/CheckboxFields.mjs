@@ -1,7 +1,7 @@
 import {FilterMixin} from "../FilterMixin.mjs";
 
 class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
-  static template = "modules/babonus/templates/builder_components/checkboxes.hbs";
+  static template = "modules/babonus/templates/parts/checkboxes.hbs";
 
   /** @override */
   static getData(bonus = null) {

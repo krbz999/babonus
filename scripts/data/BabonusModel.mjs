@@ -270,7 +270,8 @@ class Babonus extends foundry.abstract.DataModel {
       optional: new foundry.data.fields.BooleanField(),
       description: new foundry.data.fields.StringField({required: true}),
       consume: new foundry.data.fields.EmbeddedDataField(module.fields.consume),
-      aura: new foundry.data.fields.EmbeddedDataField(module.fields.aura)
+      aura: new foundry.data.fields.EmbeddedDataField(module.fields.aura),
+      flags: new foundry.data.fields.ObjectField()
     };
   }
 
@@ -293,8 +294,6 @@ class Babonus extends foundry.abstract.DataModel {
       statusEffects: new module.filters.statusEffects(),
       healthPercentages: new module.filters.healthPercentages(),
       customScripts: new module.filters.customScripts(),
-      preparationModes: new module.filters.preparationModes(),
-      tokenSizes: new module.filters.tokenSizes(),
       remainingSpellSlots: new module.filters.remainingSpellSlots(),
       actorCreatureTypes: new module.filters.actorCreatureTypes()
     };
@@ -360,6 +359,54 @@ class Babonus extends foundry.abstract.DataModel {
   prepareDerivedData() {
     return;
   }
+
+  /* -------------------------------------------- */
+  /*               Flag Operations                */
+  /* -------------------------------------------- */
+
+  /**
+   * Get the value of a flag on this babonus.
+   * @param {string} scope
+   * @param {string} key
+   * @returns {*}
+   */
+  getFlag(scope, key) {
+    const scopes = this.parent.constructor.database.getFlagScopes();
+    if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
+    return foundry.utils.getProperty(this.flags?.[scope], key);
+  }
+
+  /**
+   * Set a flag on this babonus.
+   * @param {string} scope
+   * @param {string} key
+   * @param {*} value
+   * @returns {Promise<Babonus>}
+   */
+  async setFlag(scope, key, value) {
+    const scopes = this.parent.constructor.database.getFlagScopes();
+    if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
+    await this.parent.update({[`flags.babonus.bonuses.${this.id}.flags.${scope}.${key}`]: value});
+    this.updateSource({[`flags.${scope}.${key}`]: value});
+    return this;
+  }
+
+  /**
+   * Remove a flag on this babonus.
+   * @param {string} scope
+   * @param {string} key
+   * @return {Promise<Babonus>}
+   */
+  async unsetFlag(scope, key) {
+    const scopes = this.parent.constructor.database.getFlagScopes();
+    if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
+    const head = key.split(".");
+    const tail = `-=${head.pop()}`;
+    key = ["flags", scope, ...head, tail].join(".");
+    await this.parent.update({[`flags.babonus.bonuses.${this.id}.${key}`]: null});
+    this.updateSource({[key]: null});
+    return this;
+  }
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
@@ -368,17 +415,19 @@ class ItemBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      itemTypes: new module.filters.itemTypes(),
-      attackTypes: new module.filters.attackTypes(),
-      damageTypes: new module.filters.damageTypes(),
       abilities: new module.filters.abilities(),
+      attackTypes: new module.filters.attackTypes(),
+      baseWeapons: new module.filters.baseWeapons(),
+      creatureTypes: new module.filters.creatureTypes(),
+      damageTypes: new module.filters.damageTypes(),
+      itemTypes: new module.filters.itemTypes(),
+      preparationModes: new module.filters.preparationModes(),
       spellComponents: new module.filters.spellComponents(),
       spellLevels: new module.filters.spellLevels(),
       spellSchools: new module.filters.spellSchools(),
-      baseWeapons: new module.filters.baseWeapons(),
-      weaponProperties: new module.filters.weaponProperties(),
       targetEffects: new module.filters.targetEffects(),
-      creatureTypes: new module.filters.creatureTypes()
+      tokenSizes: new module.filters.tokenSizes(),
+      weaponProperties: new module.filters.weaponProperties()
     };
   }
 }

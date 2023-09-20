@@ -3,6 +3,10 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
+      amount: new foundry.data.fields.SchemaField({
+        enabled: new foundry.data.fields.BooleanField(),
+        value: new foundry.data.fields.StringField()
+      }),
       reroll: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
         value: new foundry.data.fields.StringField(),
@@ -36,7 +40,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /** @override */
   prepareDerivedData() {
     const rollData = this.parent.getRollData({deterministic: true});
-    for (const m of ["reroll", "explode", "minimum", "maximum"]) {
+    for (const m of ["amount", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
       if (value) this[m].value = dnd5e.utils.simplifyBonus(value, rollData);
     }
@@ -58,8 +62,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   modifyDie(die) {
     const dm = die.modifiers;
-    const {r, x, min, max} = this;
-
+    const {amt, r, x, min, max} = this;
+    if (amt > 0) die.number += amt;
     if (r && !dm.some(m => m.match(this.constructor.REGEX.reroll))) dm.push(r);
     if (x && !dm.some(m => m.match(this.constructor.REGEX.explode))) dm.push(x);
     if (min && !dm.some(m => m.match(this.constructor.REGEX.minimum))) dm.push(min);
@@ -83,7 +87,16 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    * @returns {string[]}
    */
   get hasModifiers() {
-    return ["r", "x", "min", "max"].some(m => this[m]);
+    return ["amt", "r", "x", "min", "max"].some(m => this[m]);
+  }
+
+  /**
+   * The added amount of dice.
+   * @returns {number}
+   */
+  get amt() {
+    if (!this.amount.enabled) return null;
+    return Math.max(0, this.amount.value);
   }
 
   /**

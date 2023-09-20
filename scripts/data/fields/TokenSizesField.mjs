@@ -3,7 +3,7 @@ import {FilterMixin} from "../FilterMixin.mjs";
 // SchemaField that requires a value in all fields.
 export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "tokenSizes";
-  static template = "modules/babonus/templates/builder_components/select_number_checkbox.hbs";
+  static template = "modules/babonus/templates/parts/select-number-checkbox.hbs";
 
   /** @override */
   _initialize() {
