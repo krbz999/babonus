@@ -245,7 +245,7 @@
   "BABONUS.ModifiersExplode": "Explosion",
   "BABONUS.ModifiersExplodeOnce": "Une fois",
   "BABONUS.ModifiersExplodeValue": "si elle est supérieure à",
-  "BABONUS.ModifiersFirst": "Première mort",
+  "BABONUS.ModifiersFirst": "Premier décès seulement ?",
   "BABONUS.ModifiersMaximum": "Maximum",
   "BABONUS.ModifiersMaximumValue": "Valeur maximum",
   "BABONUS.ModifiersMinimum": "Minimum",
@@ -255,5 +255,7 @@
   "BABONUS.ModifiersRerollValue": "si elle est inférieure à",
   "BABONUS.ConsumptionTypeCurrency": "Monnaie",
   "BABONUS.ConsumptionTypeCurrencyUnavailable": "Vous n'avez pas le montant requis pour cette dénomination.",
-  "BABONUS.ModifiersFirstTooltip": "Si cette case est cochée, les modificateurs de dé ne s'appliquent qu'au premier dé."
+  "BABONUS.ModifiersFirstTooltip": "Si cette case est cochée, les modificateurs de dé ne s'appliquent qu'au premier dé de l'expression complète.",
+  "BABONUS.ModifiersAmount": "Montant du dé",
+  "BABONUS.ModifiersAmountValue": "supplémentaires"
 }
