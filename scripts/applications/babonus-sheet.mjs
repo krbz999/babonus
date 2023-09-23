@@ -11,6 +11,7 @@ export class BabonusSheet extends DocumentSheet {
   constructor(babonus, options = {}) {
     super(babonus, options);
     this._filters = new Set(Object.keys(babonus.toObject().filters ?? {}));
+    this.appId = this.id;
   }
 
   /** @override */

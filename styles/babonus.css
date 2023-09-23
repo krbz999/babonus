@@ -340,7 +340,7 @@
 .babonus.sheet form .form-group .form-fields select {
   flex: 0;
 }
-.babonus.sheet form .form-group .form-fields select:only-child {
+.babonus.sheet form .form-group .form-fields:not(:has(.checkboxes, [type=text], [type=number], [type=range])) select {
   flex: 1;
 }
 .babonus.sheet form .form-group .form-fields textarea {
