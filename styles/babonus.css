@@ -2,6 +2,23 @@
 .babonus .locked a {
   color: gray;
 }
+@keyframes rainbow {
+  to { background-position: 0 -200% }
+}
+.babonus .vomit {
+  background: linear-gradient(rgba(255, 0, 0, 1) 0%,
+      rgba(255, 154, 0, 1) 10%,
+      rgba(208, 222, 33, 1) 20%,
+      rgba(79, 220, 74, 1) 30%,
+      rgba(63, 218, 216, 1) 40%,
+      rgba(47, 201, 226, 1) 50%,
+      rgba(28, 127, 238, 1) 60%,
+      rgba(95, 21, 242, 1) 70%,
+      rgba(186, 12, 248, 1) 80%,
+      rgba(251, 7, 217, 1) 90%,
+      rgba(255, 0, 0, 1) 100%) 0 0/100% 200%;
+  animation: rainbow 5000ms linear infinite;
+}
 .babonus .note {
   font-style: italic;
   border-radius: 3px;
@@ -17,7 +34,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  margin: 5px;
+  margin: 0 5px 5px 5px;
   overflow: hidden;
 }
 .babonus.builder h1.otters {
@@ -25,6 +42,7 @@
   font-size: 55px;
   border-bottom: none;
   font-family: "Modesto Condensed";
+  margin-top: 5px;
 }
 .babonus.builder h1.otters [data-action="otter-rainbow"] {
   transform: scaleX(-1);

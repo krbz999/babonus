@@ -239,12 +239,9 @@ export class BabonusWorkshop extends Application {
   _onOtterRainbow(event) {
     this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     event.currentTarget.style.color = this._otterColor;
-    this._onOtterVomit();
-  }
-
-  _onOtterVomit() {
     const count = this._otterVomits++;
-    if (count < 50) return;
+    const content = event.currentTarget.closest(".window-content");
+    if (count >= 50) content.classList.toggle("vomit", true);
   }
 
   /**
