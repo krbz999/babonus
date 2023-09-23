@@ -1,231 +1,63 @@
-<form class="babonus" autocomplete="off">
+<div class="content">
   <h1 class="otters">
     <i class="{{{ICON}}}" data-action="otter-rainbow" style="color: {{otterColor}}"></i>
     {{localize "BABONUS.ModuleTitle"}}
     <i class="{{{ICON}}}" data-action="otter-dance"></i>
   </h1>
 
-  <div class="components">
+  <div class="pages">
 
-    <!-- LEFT SIDE -->
-    <div class="left-side">
-
-      <section class="select-type page" {{#if activeBuilder}} style="display: none;" {{/if}}>
-        <header class="header">
-          {{localize "BABONUS.SelectType"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
-        </header>
-        <div class="types">
-          {{#each createButtons}}
-          <a data-action="pick-type" data-type="{{type}}"><i class="{{icon}}"></i>{{localize label}}</a>
-          {{/each}}
-        </div>
-      </section>
-
-      <section class="inputs" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
-
-        <div class="bonus-config page">
-
-          <header class="header">
-            {{localize "BABONUS.RequiredFields"}}
-            <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.RequiredFieldsTooltip"></i>
-          </header>
-          <div class="bonus-required">
-
-            <div class="babonus-type">
-              <div class="babonus-type-header">
-                {{localize (ifThen isEditing "BABONUS.EditingBonus" "BABONUS.CreatingBonus")}}
-              </div>
-              <i class="{{currentBabonus.icon}}"></i> {{localize (babonusCapitalize "BABONUS.Type" currentBabonus.type)}}
-            </div>
-            <div class="form-group">
-              <label class="label" data-tooltip="BABONUS.IdentifiersTooltip">
-                {{localize "BABONUS.Identifiers"}}
-              </label>
-              <div class="form-fields">
-                <span class="sep">{{localize "BABONUS.Name"}}</span>
-                <input type="text" name="name" placeholder="{{localize 'BABONUS.NamePlaceholder'}}" value="{{currentBabonus.name}}">
-                <span class="sep">{{localize "BABONUS.ID"}}</span>
-                <input type="text" name="id" value="{{currentBabonus.id}}" disabled>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="label" data-tooltip="BABONUS.DescriptionTooltip">{{localize "BABONUS.Description"}}</label>
-              <div class="form-fields">
-                <textarea name="description" placeholder="{{localize 'BABONUS.DescriptionPlaceholder'}}">
-                  {{~currentBabonus.description~}}
-                </textarea>
-              </div>
-            </div>
-
-          </div>
-
-          <nav class="tabs header" data-group="current-bonus-tabs">
-            <a class="item" data-tab="bonuses">
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.BonusesTooltip"></i>
-              {{localize "BABONUS.Bonuses"}}
-            </a>
-            <a class="item" data-tab="filters">
-              <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentFiltersTooltip"></i>
-              {{localize "BABONUS.Filters"}}
-            </a>
-          </nav>
-
-          <div class="content-tabs" data-group="current-bonus-tabs">
-            <div class="tab" data-tab="bonuses">
-              <div class="bonus-inputs">
-                {{> "modules/babonus/templates/parts/bonuses-modifiers.hbs"}}
-              </div>
-            </div>
-
-            <div class="tab" data-tab="filters">
-              <div class="bonus-filters">{{{_filters}}}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="utils">
-          <div class="notification warning" data-action="dismiss-warning">
-            {{{localize "BABONUS.NotificationInvalid"}}}
-          </div>
-          <div class="utils-buttons">
-            <button data-action="save" type="submit">
-              <i class="fa-solid fa-floppy-disk"></i> {{localize "BABONUS.SaveThisBonus"}}
-            </button>
-            <button data-action="cancel" type="button">
-              <i class="fa-solid fa-ban"></i> {{localize "Cancel"}}
-            </button>
-          </div>
-        </div>
-
-      </section>
-
-    </div>
+    <section class="select-type">
+      <header class="header">
+        {{localize "BABONUS.SelectType"}}
+        <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
+      </header>
+      <div class="types">
+        {{#each createButtons}}
+        <a data-action="pick-type" data-type="{{type}}"><i class="{{icon}}"></i>{{localize label}}</a>
+        {{/each}}
+      </div>
+    </section>
 
     <!-- RIGHT SIDE -->
-    <div class="right-side">
+    <section class="current-bonuses">
+      <header class="header">
+        {{localize "BABONUS.CurrentBonuses"}}
+        <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
+      </header>
+      <div class="bonuses">
 
-      <section class="current-bonuses page" {{#if activeBuilder}} style="display: none;" {{/if}}>
-        <header class="header">
-          {{localize "BABONUS.CurrentBonuses"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
-        </header>
-        <div class="bonuses">
-
-          {{#each currentBonuses}}
-          <div class="bonus {{#if context.collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
-            <div class="bonus-header">
-              <a class="label {{#unless bonus.enabled}}disabled{{/unless}}" data-action="current-collapse">
-                <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
-              </a>
-              <div class="details">
-                <div class="functions">
-                  <a data-action="current-toggle" data-tooltip="BABONUS.ConfigurationToggleTooltip">
-                    <i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i>
-                  </a>
-                  <a data-action="current-copy" data-tooltip="BABONUS.ConfigurationCopyTooltip">
-                    <i class="fa-solid fa-copy"></i>
-                  </a>
-                  <a data-action="current-edit" data-tooltip="BABONUS.ConfigurationEditTooltip">
-                    <i class="fa-solid fa-gear"></i>
-                  </a>
-                  <a data-action="current-delete" data-tooltip="BABONUS.ConfigurationDeleteTooltip">
-                    <i class="fa-solid fa-trash"></i>
-                  </a>
-                  <a data-action="current-aura" data-tooltip="BABONUS.ConfigurationAuraTooltip">
-                    <i class="fa-{{ifThen (or bonus.aura.isToken bonus.aura.isTemplate) 'solid' 'regular'}} fa-sun"></i>
-                  </a>
-                  {{#if bonus.canExclude}}
-                  <a data-action="current-exclusive" data-tooltip="BABONUS.ConfigurationExclusiveTooltip">
-                    <i class="fa-{{ifThen bonus.isExclusive 'solid' 'regular'}} fa-chess-pawn"></i>
-                  </a>
-                  {{else}}
-                  <a class="unavailable" data-tooltip="BABONUS.ConfigurationExclusiveTooltipUnavailable">
-                    <i class="fa-regular fa-chess-pawn"></i>
-                  </a>
-                  {{/if}}
-                  {{#if bonus.isOptionable}}
-                  <a data-action="current-optional" data-tooltip="BABONUS.ConfigurationOptionalTooltip">
-                    <i class="fa-{{ifThen bonus.isOptional 'solid' 'regular'}} fa-circle-xmark"></i>
-                  </a>
-                  {{else}}
-                  <a class="unavailable" data-tooltip="BABONUS.ConfigurationOptionalTooltipUnavailable">
-                    <i class="fa-regular fa-circle-xmark"></i>
-                  </a>
-                  {{/if}}
-                  {{#if bonus.consume.canConsume}}
-                  <a data-action="current-consume" data-tooltip="BABONUS.ConfigurationConsumptionTooltip">
-                    <i class="fa-{{ifThen bonus.consume.isConsuming 'solid fa-hand-sparkles' 'regular fa-hand'}}"></i>
-                  </a>
-                  {{else}}
-                  <a class="unavailable" data-tooltip="BABONUS.ConfigurationConsumptionTooltipUnavailable">
-                    <i class="fa-regular fa-hand"></i>
-                  </a>
-                  {{/if}}
-                </div>
-                <a data-action="current-id">{{bonus.id}}</a>
-              </div>
-            </div>
-            <div class="description">
-              <div class="content">
-                {{{context.description}}}
-              </div>
-            </div>
-            <hr class="divider">
-          </div>
-          {{/each}}
-
-        </div>
-      </section>
-
-      <section class="filter-picker page" {{#unless activeBuilder}} style="display: none;" {{/unless}}>
-
-        <header class="header">
-          {{localize "BABONUS.AvailableFilters"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.AvailableFiltersTooltip"></i>
-          <a data-action="section-collapse"><i class="fa-solid fa-chevron-down"></i></a>
-        </header>
-        <div class="available-filters">
-          {{#each filters}}
-          <div class="filter {{#unless available}}hidden{{/unless}}" data-id="{{id}}">
-            <h1 class="filter-header">
-              <a data-action="add-filter">
-                {{localize (babonusCapitalize "BABONUS.Filters" id)}}
-              </a>
-            </h1>
-            <div class="filter-description">
-              {{{localize (babonusCapitalize "BABONUS.Filters" id "Tooltip")}}}
-            </div>
-            <a data-action="add-filter" data-tooltip="BABONUS.AddThisFilter">
-              <i class="fa-solid fa-plus"></i>
+        {{#each currentBonuses}}
+        <div class="bonus {{#if context.collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
+          <div class="bonus-header">
+            <a class="label {{#unless bonus.enabled}}disabled{{/unless}}" data-action="current-collapse">
+              <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
             </a>
-          </div>
-          {{/each}}
-        </div>
-
-        <header class="header collapsed">
-          {{localize "BABONUS.UnavailableFilters"}}
-          <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.UnavailableFiltersTooltip"></i>
-          <a data-action="section-collapse"><i class="fa-solid fa-chevron-down"></i></a>
-        </header>
-        <div class="unavailable-filters">
-          {{#each filters}}
-          <div class="filter {{#unless unavailable}}hidden{{/unless}}" data-id="{{id}}">
-            <h1 class="filter-header">
-              {{localize (babonusCapitalize "BABONUS.Filters" id)}}
-            </h1>
-            <div class="filter-description">
-              {{{localize (babonusCapitalize "BABONUS.Filters" id "Tooltip")}}}
-            </div>
-            <div class="filter-requirements">
-              {{{localize (babonusCapitalize "BABONUS.Filters" id "Requirements")}}}
+            <div class="details">
+              <div class="functions">
+                <a data-action="current-toggle" data-tooltip="BABONUS.ConfigurationToggleTooltip">
+                  <i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i>
+                </a>
+                <a data-action="current-copy" data-tooltip="BABONUS.ConfigurationCopyTooltip">
+                  <i class="fa-solid fa-copy"></i>
+                </a>
+                <a data-action="current-edit" data-tooltip="BABONUS.ConfigurationEditTooltip">
+                  <i class="fa-solid fa-edit"></i>
+                </a>
+                <a data-action="current-delete" data-tooltip="BABONUS.ConfigurationDeleteTooltip">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </div>
+              <a data-action="current-id">{{bonus.id}}</a>
             </div>
           </div>
-          {{/each}}
+          <div class="description">{{{context.description}}}</div>
         </div>
+        {{/each}}
 
-      </section>
+      </div>
+    </section>
 
-    </div>
   </div>
-</form>
+
+</div>

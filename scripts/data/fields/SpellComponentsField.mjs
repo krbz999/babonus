@@ -44,6 +44,6 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
 
   /** @override */
   static storage(bonus) {
-    return !!this.value(bonus).types?.length;
+    return !!this.value(bonus).types?.filter(u => u).length;
   }
 }

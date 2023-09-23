@@ -42,7 +42,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const rollData = this.parent.getRollData({deterministic: true});
     for (const m of ["amount", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
-      if (value) this[m].value = dnd5e.utils.simplifyBonus(value, rollData);
+      const bonus = dnd5e.utils.simplifyBonus(value, rollData);
+      this[m].value = Math.round(Number.isNumeric(bonus) ? bonus : 0);
     }
   }
 
@@ -96,6 +97,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get amt() {
     if (!this.amount.enabled) return null;
+    if (!Number.isNumeric(this.amount.value)) return null;
     return Math.max(0, this.amount.value);
   }
 
@@ -106,7 +108,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   get r() {
     if (!this.reroll.enabled) return null;
     const prefix = this.reroll.recursive ? "rr" : "r";
-    if (!Number.isNumeric(this.reroll.value)) return `${prefix}=1`;
+    if (!Number.isNumeric(this.reroll.value) || !(this.reroll.value > 1)) return `${prefix}=1`;
     return `${prefix}<${this.reroll.value}`;
   }
 
@@ -117,7 +119,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   get x() {
     if (!this.explode.enabled) return null;
     const prefix = this.explode.once ? "xo" : "x";
-    if (!Number.isNumeric(this.explode.value)) return prefix;
+    if (!Number.isNumeric(this.explode.value) || !(this.explode.value > 0)) return prefix;
     return `${prefix}>${this.explode.value}`;
   }
 
@@ -127,7 +129,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get min() {
     if (!this.minimum.enabled) return null;
-    if (!Number.isNumeric(this.minimum.value) || !(this.minimum.value > 0)) return null;
+    if (!Number.isNumeric(this.minimum.value) || !(this.minimum.value > 1)) return null;
     return `min${this.minimum.value}`;
   }
 

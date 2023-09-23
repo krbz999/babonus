@@ -1,7 +1,7 @@
 export class ConsumptionModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
+      enabled: new foundry.data.fields.BooleanField({required: false}),
       type: new foundry.data.fields.StringField({required: true}),
       subtype: new foundry.data.fields.StringField({required: true}),
       scales: new foundry.data.fields.BooleanField({required: false}),

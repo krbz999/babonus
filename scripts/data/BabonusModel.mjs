@@ -1,9 +1,29 @@
+import {BabonusSheet} from "../applications/babonus-sheet.mjs";
 import {module} from "./_module.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
     const expData = foundry.utils.expandObject(data);
     super(expData, options);
+  }
+
+  static get metadata() {
+    return {label: game.i18n.localize("BABONUS.Babonus")};
+  }
+
+  /** @override */
+  get sheet() {
+    if (this._sheet) return this._sheet;
+    return this._sheet = new BabonusSheet(this);
+  }
+
+  /**
+   * @override
+   * Since babs are always local, all users have permission to render them.
+   * Proper permissions are handled elsewhere.
+   */
+  testUserPermission() {
+    return true;
   }
 
   /** @override */
@@ -90,7 +110,7 @@ class Babonus extends foundry.abstract.DataModel {
     // Valid for test:
     const validityB = (this.type === "test") && (this.parent.type === "tool");
 
-    return (validityA || validityB) && !this.aura.isToken && !this.aura.isTemplate;
+    return (validityA || validityB);
   }
 
   /**
@@ -264,6 +284,7 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
+      img: new foundry.data.fields.FilePathField({categories: ["IMAGE"], initial: "icons/svg/dice-target.svg"}),
       type: new foundry.data.fields.StringField({required: true, initial: this.type, choices: [this.type]}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),
       exclusive: new foundry.data.fields.BooleanField(),

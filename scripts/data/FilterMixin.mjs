@@ -12,7 +12,10 @@ export function FilterMixin(Base) {
     static canExclude = false;
 
     /**
-     * Is this filter available.
+     * Is this filter available?
+     * @param {Set<string>} filters     The set of current filters.
+     * @param {Babonus} bonus           The current babonus.
+     * @returns {boolean}
      */
     static isFilterAvailable(filters, bonus) {
       if (this.repeatable) return true;

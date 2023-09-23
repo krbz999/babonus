@@ -3,7 +3,7 @@ import {module} from "./_module.mjs";
 export class AuraModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
+      enabled: new foundry.data.fields.BooleanField({required: false}),
       template: new foundry.data.fields.BooleanField({required: false}),
       range: new foundry.data.fields.StringField({nullable: true, initial: null}),
       self: new foundry.data.fields.BooleanField({required: false, initial: true}),
@@ -73,7 +73,7 @@ export class AuraModel extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get isToken() {
-    return this.enabled && !this.template && this._validRange;
+    return this.enabled && !this.template && this._validRange && !this.bonus.isExclusive;
   }
 
   /**
@@ -84,7 +84,7 @@ export class AuraModel extends foundry.abstract.DataModel {
   get isTemplate() {
     const item = this.bonus.parent;
     if (!(item instanceof Item)) return false;
-    return this.enabled && this.template && item.hasAreaTarget;
+    return this.enabled && this.template && item.hasAreaTarget && !this.bonus.isExclusive;;
   }
 
   /**
