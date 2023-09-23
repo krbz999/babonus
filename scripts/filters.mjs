@@ -799,5 +799,28 @@ export class FilterManager {
     else return false;
   }
 
+  /**
+   * Find out if the item that made the roll was the correct feature type and feature subtype.
+   * @param {Item} item                 The actor or item performing the roll.
+   * @param {object} filter
+   * @param {string} filter.type        The feature type.
+   * @param {string} filter.subtype     The feature subtype.
+   * @returns {boolean}                 Whether the feature is the correct type.
+   */
+  static featureTypes(item, filter) {
+    const config = CONFIG.DND5E.featureTypes;
+    if (!filter.type || !(filter.type in config)) return true;
+    if (item.type !== "feat") return false;
+
+    const {value, subtype} = item.system.type;
+    if (filter.type !== value) return false;
+
+    const subtypes = config[filter.type]?.subtypes ?? {};
+    const hasSubtype = !foundry.utils.isEmpty(subtypes);
+    if (!hasSubtype || !filter.subtype) return true;
+
+    return subtype === filter.subtype;
+  }
+
   //#endregion
 }

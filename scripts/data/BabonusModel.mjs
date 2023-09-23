@@ -441,6 +441,7 @@ class ItemBabonus extends Babonus {
       baseWeapons: new module.filters.baseWeapons(),
       creatureTypes: new module.filters.creatureTypes(),
       damageTypes: new module.filters.damageTypes(),
+      featureTypes: new module.filters.featureTypes(),
       itemTypes: new module.filters.itemTypes(),
       preparationModes: new module.filters.preparationModes(),
       spellComponents: new module.filters.spellComponents(),
