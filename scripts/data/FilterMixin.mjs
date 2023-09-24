@@ -25,13 +25,13 @@ export function FilterMixin(Base) {
 
     /**
      * A class getData method for rendering purposes.
-     * @param {Babonus} bonus     The bonus, in case this is a filter being edited, not added.
+     * @param {Babonus} bonus     The bonus being rendered.
      * @returns {object}          The template data.
      */
-    static getData(bonus = null) {
+    static getData(bonus) {
       return {
         id: this.name,
-        appId: randomID(),
+        appId: foundry.utils.randomID(),
         label: `BABONUS.Filters${this.name.capitalize()}Label`,
         tooltip: `BABONUS.Filters${this.name.capitalize()}Tooltip`
       };
@@ -47,16 +47,16 @@ export function FilterMixin(Base) {
 
     /**
      * Render the filter.
-     * @param {Babonus} bonus         The bonus, in case this is a filter being edited, not added.
+     * @param {Babonus} bonus         The bonus being rendered.
      * @returns {Promise<string>}     The rendered template.
      */
-    static async render(bonus = null) {
+    static async render(bonus) {
       return renderTemplate(this.template, this.getData(bonus));
     }
 
     /**
      * Determine whether this filter data should be saved on the document.
-     * @param {Babonus} bonus     The babonus about to be saved.
+     * @param {Babonus} bonus     The bonus being embedded.
      * @returns {boolean}         Whether to save the filter.
      */
     static storage(bonus) {

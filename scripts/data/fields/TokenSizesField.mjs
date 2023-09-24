@@ -15,9 +15,9 @@ export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField
   }
 
   /** @override */
-  static getData(bonus = null) {
+  static getData(bonus) {
     const data = super.getData();
-    const value = bonus ? this.value(bonus) : {};
+    const value = this.value(bonus);
     data.size = value.size ?? null;
     data.type = value.type ?? null;
     data.self = value.self ?? null;
@@ -25,9 +25,9 @@ export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField
     return data;
   }
 
-    /** @override */
-    static storage(bonus) {
-      const {size, type, self} = this.value(bonus) ?? {};
-      return Number.isNumeric(size) && Number.isNumeric(type);
-    }
+  /** @override */
+  static storage(bonus) {
+    const {size, type, self} = this.value(bonus) ?? {};
+    return Number.isNumeric(size) && Number.isNumeric(type);
+  }
 }

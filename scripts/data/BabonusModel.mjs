@@ -335,8 +335,6 @@ class Babonus extends foundry.abstract.DataModel {
   static _migrateCreatureTypes(source) {
     const types = source.filters.creatureTypes;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    console.warn(`A babonus (${source.name}) is using an outdated format for 'Creature Types'. Editing and saving the bonus with no changes made will resolve this warning.`);
-    console.warn("The old format will be supported until FVTT v11.");
     const c = [];
     for (const t of (types.needed ?? [])) c.push(t);
     for (const u of (types.unfit ?? [])) c.push(`!${u}`);
@@ -350,8 +348,6 @@ class Babonus extends foundry.abstract.DataModel {
   static _migrateWeaponProperties(source) {
     const types = source.filters.weaponProperties;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    console.warn(`A babonus (${source.name}) is using an outdated format for 'Weapon Properties'. Editing and saving the bonus with no changes made will resolve this warning.`);
-    console.warn("The old format will be supported until FVTT v11.");
     const c = [];
     for (const t of (types.needed ?? [])) c.push(t);
     for (const u of (types.unfit ?? [])) c.push(`!${u}`);

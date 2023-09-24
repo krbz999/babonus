@@ -20,14 +20,8 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
     return this.value(bonus).filter(i => i);
   }
 
-  /**
-   * @override
-   * A class getData method for rendering purposes.
-   * @param {Babonus} bonus           The bonus, in case this is a filter being edited, not added.
-   * @param {boolean} [add=false]     Whether to add one more than already exists.
-   * @returns {object}                The template data.
-   */
-  static getData(bonus, add = false) {
+  /** @override */
+  static getData(bonus) {
     const data = super.getData();
     data.options = this.selectOptions;
     data.placeholderOne = "BABONUS.FiltersArbitraryComparisonOne";

@@ -4,7 +4,7 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
   static template = "modules/babonus/templates/parts/checkboxes.hbs";
 
   /** @override */
-  static getData(bonus = null) {
+  static getData(bonus) {
     const data = super.getData();
     const value = bonus ? this.value(bonus) : [];
     data.value = this.choices.map(c => {
@@ -48,7 +48,7 @@ class ItemTypesField extends BaseField {
   }
 
   /** @override */
-  static getData(bonus = null) {
+  static getData(bonus) {
     const data = super.getData(bonus);
     data.value.forEach(v => v.label = v.label.slice(0, 4));
     return data;

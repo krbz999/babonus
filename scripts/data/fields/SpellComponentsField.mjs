@@ -13,8 +13,8 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
   }
 
   /** @override */
-  static getData(bonus = null) {
-    const value = bonus ? this.value(bonus) : {};
+  static getData(bonus) {
+    const value = this.value(bonus);
     const types = value.types ?? [];
     const match = value.match ?? null;
     const data = super.getData();

@@ -26,7 +26,7 @@ export class BabonusWorkshop extends Application {
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      width: 1000,
+      width: 800,
       height: 900,
       template: `modules/${MODULE.ID}/templates/babonus.hbs`,
       classes: [MODULE.ID, "builder"],
