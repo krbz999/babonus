@@ -35,18 +35,10 @@
             </a>
             <div class="details">
               <div class="functions">
-                <a data-action="current-toggle" data-tooltip="BABONUS.ConfigurationToggleTooltip">
-                  <i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i>
-                </a>
-                <a data-action="current-copy" data-tooltip="BABONUS.ConfigurationCopyTooltip">
-                  <i class="fa-solid fa-copy"></i>
-                </a>
-                <a data-action="current-edit" data-tooltip="BABONUS.ConfigurationEditTooltip">
-                  <i class="fa-solid fa-edit"></i>
-                </a>
-                <a data-action="current-delete" data-tooltip="BABONUS.ConfigurationDeleteTooltip">
-                  <i class="fa-solid fa-trash"></i>
-                </a>
+                <a data-action="current-toggle"><i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i></a>
+                <a data-action="current-copy"><i class="fa-solid fa-copy"></i></a>
+                <a data-action="current-edit"><i class="fa-solid fa-edit"></i></a>
+                <a data-action="current-delete"><i class="fa-solid fa-trash"></i></a>
               </div>
               <a data-action="current-id">{{bonus.id}}</a>
             </div>

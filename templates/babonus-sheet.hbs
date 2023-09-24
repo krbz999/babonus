@@ -47,109 +47,88 @@
       <h3 class="form-header">{{localize "BABONUS.Modifiers"}}</h3>
 
       <div class="form-group">
-        <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">{{localize
-          "BABONUS.ModifiersFirst"}}</label>
+        <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">
+          {{localize "BABONUS.ModifiersFirst"}}
+        </label>
         <div class="form-fields">
           <input type="checkbox" name="bonuses.modifiers.config.first" {{checked context.modifiers.config.first}}>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="label">{{localize "BABONUS.ModifiersAmount"}}</label>
+        <label class="label">
+          {{localize "BABONUS.ModifiersAmount"}}
+          {{#if (ne bonus.bonuses.modifiers.amt null)}}(+{{bonus.bonuses.modifiers.amt}}){{/if}}
+        </label>
         <div class="form-fields">
-          <input type="checkbox" name="bonuses.modifiers.amount.enabled" {{checked context.modifiers.amount.enabled}}>
-
-          <span class="sep">{{localize "BABONUS.ModifiersAmountValue"}}</span>
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.amount.enabled" {{checked context.modifiers.amount.enabled}}>
+          </label>
           <input type="text" name="bonuses.modifiers.amount.value" value="{{context.modifiers.amount.value}}" {{disabled context.modifiers.amount.disabled}}>
-
-          <span class="sep">
-            {{#if (ne bonus.bonuses.modifiers.amt null)}}
-            (+{{bonus.bonuses.modifiers.amt}})
-            {{else}}
-            &mdash;
-            {{/if}}
-          </span>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="label">{{localize "BABONUS.ModifiersReroll"}}</label>
+        <label class="label">
+          {{localize "BABONUS.ModifiersReroll"}}
+          {{#if (ne bonus.bonuses.modifiers.r null)}}({{bonus.bonuses.modifiers.r}}){{/if}}
+        </label>
         <div class="form-fields">
-          <input type="checkbox" name="bonuses.modifiers.reroll.enabled" {{checked context.modifiers.reroll.enabled}}>
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.reroll.enabled" {{checked context.modifiers.reroll.enabled}}>
+          </label>
 
-          <span class="sep">{{localize "BABONUS.ModifiersRerollValue"}}</span>
           <input type="text" name="bonuses.modifiers.reroll.value" value="{{context.modifiers.reroll.value}}" {{disabled context.modifiers.reroll.disabled}}>
 
-          <span class="sep">{{localize "BABONUS.ModifiersRerollRecursive"}}</span>
-          <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked context.modifiers.reroll.recursive}} {{disabled context.modifiers.reroll.disabled}}>
-
-          <span class="sep">
-            {{#if (ne bonus.bonuses.modifiers.r null)}}
-            ({{bonus.bonuses.modifiers.r}})
-            {{else}}
-            &mdash;
-            {{/if}}
-          </span>
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked context.modifiers.reroll.recursive}} {{disabled context.modifiers.reroll.disabled}}>
+            {{localize "BABONUS.ModifiersRerollRecursive"}}
+          </label>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="label">{{localize "BABONUS.ModifiersExplode"}}</label>
+        <label class="label">
+          {{localize "BABONUS.ModifiersExplode"}}
+          {{#if (ne bonus.bonuses.modifiers.x null)}}({{bonus.bonuses.modifiers.x}}){{/if}}
+        </label>
         <div class="form-fields">
-          <input type="checkbox" name="bonuses.modifiers.explode.enabled" {{checked context.modifiers.explode.enabled}}>
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.explode.enabled" {{checked context.modifiers.explode.enabled}}>
+          </label>
 
-          <span class="sep">{{localize "BABONUS.ModifiersExplodeValue"}}</span>
-          <input type="text" name="bonuses.modifiers.explode.value" value="{{context.modifiers.explode.value}}"
-            {{disabled context.modifiers.explode.disabled}}>
+          <input type="text" name="bonuses.modifiers.explode.value" value="{{context.modifiers.explode.value}}" {{disabled context.modifiers.explode.disabled}}>
 
-          <span class="sep">{{localize "BABONUS.ModifiersExplodeOnce"}}</span>
-          <input type="checkbox" name="bonuses.modifiers.explode.once" {{checked context.modifiers.explode.once}}
-            {{disabled context.modifiers.explode.disabled}}>
-
-          <span class="sep">
-            {{#if (ne bonus.bonuses.modifiers.x null)}}
-            ({{bonus.bonuses.modifiers.x}})
-            {{else}}
-            &mdash;
-            {{/if}}
-          </span>
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.explode.once" {{checked context.modifiers.explode.once}} {{disabled context.modifiers.explode.disabled}}>
+            {{localize "BABONUS.ModifiersExplodeOnce"}}
+          </label>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="label">{{localize "BABONUS.ModifiersMinimum"}}</label>
+        <label class="label">
+          {{localize "BABONUS.ModifiersMinimum"}}
+          {{#if (ne bonus.bonuses.modifiers.min null)}}({{bonus.bonuses.modifiers.min}}){{/if}}
+        </label>
         <div class="form-fields">
-          <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
-
-          <span class="sep">{{localize "BABONUS.ModifiersMinimumValue"}}</span>
-          <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}"
-            {{disabled context.modifiers.minimum.disabled}}>
-
-          <span class="sep">
-            {{#if (ne bonus.bonuses.modifiers.min null)}}
-            ({{bonus.bonuses.modifiers.min}})
-            {{else}}
-            &mdash;
-            {{/if}}
-          </span>
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
+          </label>
+          <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}" {{disabled context.modifiers.minimum.disabled}}>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="label">{{localize "BABONUS.ModifiersMaximum"}}</label>
+        <label class="label">
+          {{localize "BABONUS.ModifiersMaximum"}}
+          {{#if (ne bonus.bonuses.modifiers.max null)}}({{bonus.bonuses.modifiers.max}}){{/if}}
+        </label>
         <div class="form-fields">
-          <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked context.modifiers.maximum.enabled}}>
-
-          <span class="sep">{{localize "BABONUS.ModifiersMaximumValue"}}</span>
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked context.modifiers.maximum.enabled}}>
+          </label>
           <input type="text" name="bonuses.modifiers.maximum.value" value="{{context.modifiers.maximum.value}}" {{disabled context.modifiers.maximum.disabled}}>
-
-          <span class="sep">
-            {{#if (ne bonus.bonuses.modifiers.max null)}}
-            ({{bonus.bonuses.modifiers.max}})
-            {{else}}
-            &mdash;
-            {{/if}}
-          </span>
         </div>
       </div>
       {{/if}}
@@ -293,7 +272,7 @@
           <input type="text" name="aura.range" value="{{source.aura.range}}"
           placeholder="{{localize 'BABONUS.ConfigurationAuraRangePlaceholder'}}" {{disabled context.aura.disableRange}}>
 
-          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraTemplateTooltip{{#unless context.aura.isItem}}Unavailable{{/unless}}" data-tooltip-direction="UP">
+          <label class="checkbox" {{#unless context.aura.isItem}}data-tooltip="BABONUS.ConfigurationAuraTemplateTooltipUnavailable"{{/unless}} data-tooltip-direction="UP">
             <input type="checkbox" name="aura.template" {{checked bonus.aura.template}} {{disabled context.aura.disableTemplate}}>
             {{localize "BABONUS.ConfigurationAuraTemplate"}}
           </label>
