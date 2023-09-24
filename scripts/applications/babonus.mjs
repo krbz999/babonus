@@ -152,6 +152,16 @@ export class BabonusWorkshop extends Application {
   }
 
   /** @override */
+  _canDragDrop() {
+    return this.isEditable;
+  }
+
+  /** @override */
+  _canDragStart() {
+    return this.isEditable;
+  }
+
+  /** @override */
   _onDragStart(event) {
     const label = event.currentTarget.closest(".bonus");
     let dragData;
