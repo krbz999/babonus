@@ -170,9 +170,4 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     else if ((this.type === "currency") && !(this.value.step > 0)) return false;
     return (this.value.max || Infinity) > this.value.min;
   }
-
-  /* ----------------------------- */
-  /* Bonus Collector methods       */
-  /* ----------------------------- */
-
 }

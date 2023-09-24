@@ -239,8 +239,13 @@
   display: flex;
   align-items: center;
 }
-.babonus.optionals .optional .consumption select {
+.babonus.optionals .optional .consumption .label {
   flex: 1;
+  font-weight: bold;
+  color: #4b4a44;
+}
+.babonus.optionals .optional .consumption select {
+  flex: 2;
 }
 .babonus.optionals .optional.active .consumption > * {
   color: gray;

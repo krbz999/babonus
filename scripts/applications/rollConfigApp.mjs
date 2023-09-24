@@ -576,19 +576,14 @@ export class OptionalSelector {
   _getLowestValidSpellSlotProperty(bonus) {
     const min = bonus.consume.value.min || 1;
     const spells = this.actor.system.spells;
-    const pact = spells.pact.level;
-    let level = Infinity;
+    const pact = spells.pact;
     const max = Object.keys(CONFIG.DND5E.spellLevels).length - 1; // disregard cantrip levels
     for (let i = min; i <= max; i++) {
-      const value = spells[`spell${i}`].value;
-      if ((value > 0) && (i < level)) {
-        level = i;
-        break;
-      }
+      if (pact.value && (pact.level === i)) return "pact";
+      const spell = spells[`spell${i}`] || {};
+      if (spell.value) return `spell${i}`;
     }
-    if (level === Infinity) return false;
-    if ((pact > 0) && (pact <= level)) return "pact";
-    return `spell${level}`;
+    return false;
   }
 
   /**
