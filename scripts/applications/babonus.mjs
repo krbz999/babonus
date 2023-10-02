@@ -158,7 +158,7 @@ export class BabonusWorkshop extends Application {
 
   /** @override */
   _canDragStart() {
-    return this.isEditable;
+    return true;
   }
 
   /** @override */

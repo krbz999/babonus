@@ -12,6 +12,7 @@ export class BabonusSheet extends DocumentSheet {
     super(babonus, options);
     this._filters = new Set(Object.keys(babonus.toObject().filters ?? {}));
     this.appId = this.id;
+    this.owner = babonus.parent;
   }
 
   /** @override */
@@ -41,7 +42,7 @@ export class BabonusSheet extends DocumentSheet {
 
   /** @override */
   get id() {
-    return `babonus-sheet-${this.bonus.uuid.replaceAll(".", "-")}`;
+    return `babonus-sheet-${this.bonus?.uuid.replaceAll(".", "-")}`;
   }
 
   /** @override */
@@ -51,7 +52,7 @@ export class BabonusSheet extends DocumentSheet {
 
   /** @override */
   get isEditable() {
-    return this.bonus.parent.isOwner;
+    return this.owner.isOwner;
   }
 
   /** @override */
@@ -82,7 +83,7 @@ export class BabonusSheet extends DocumentSheet {
       template: this.bonus.template,
       effect: this.bonus.effect,
       token: this.bonus.token,
-      parent: this.bonus.parent,
+      parent: this.owner,
       type: this.bonus.type,
       context: context,
       source: this.bonus.toObject()
@@ -193,8 +194,8 @@ export class BabonusSheet extends DocumentSheet {
     const aura = this.bonus.aura;
     const isExclusive = this.bonus.isExclusive;
     const disableAll = isExclusive || !aura.enabled;
-    const disableRange = disableAll || aura.isTemplate || (aura.template && (this.bonus.parent instanceof Item));
-    const isItem = this.bonus.parent instanceof Item;
+    const disableRange = disableAll || aura.isTemplate || (aura.template && (this.owner instanceof Item));
+    const isItem = this.owner instanceof Item;
     const disableTemplate = disableAll || !isItem;
     const displayedRange = (aura.range > 0) ? aura.range : (aura.range === -1) ? game.i18n.localize("DND5E.Unlimited") : 0;
     const blockers = aura.blockers.join(";");
@@ -251,12 +252,12 @@ export class BabonusSheet extends DocumentSheet {
     const field = module.filters[id];
     if (!field.repeatable) {
       this._filters.delete(id);
-      return this.bonus.parent.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.-=${id}`]: null});
+      return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.-=${id}`]: null});
     } else {
       const arr = this.bonus.filters[id];
       const idx = event.currentTarget.dataset.idx;
       arr.splice(idx, 1);
-      return this.bonus.parent.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.${id}`]: arr});
+      return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.${id}`]: arr});
     }
   }
 
@@ -270,7 +271,7 @@ export class BabonusSheet extends DocumentSheet {
     const field = module.filters[id];
     if (field.repeatable) {
       const arr = this.bonus.filters[id].concat({});
-      return this.bonus.parent.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.${id}`]: arr});
+      return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.${id}`]: arr});
     }
     return this.render();
   }
@@ -285,6 +286,7 @@ export class BabonusSheet extends DocumentSheet {
     const property = event.currentTarget.dataset.property;
     const values = foundry.utils.getProperty(this.bonus, property);
     const bonus = this.bonus;
+    const owner = this.owner;
 
     for (const value of values) {
       const key = value.replaceAll("!", "");
@@ -304,14 +306,14 @@ export class BabonusSheet extends DocumentSheet {
           else if (s.value === "exclude") values.push("!" + s.dataset.value);
         });
         bonus.updateSource({[property]: values});
-        return BabonusWorkshop._embedBabonus(bonus.parent, bonus, true);
+        return BabonusWorkshop._embedBabonus(owner, bonus, true);
       },
     });
   }
 
   /** @override */
-  setPosition(pos={}){
-    if(!pos.height && (this._tabs[0].active !== "filters")) pos.height = "auto";
+  setPosition(pos = {}) {
+    if (!pos.height && (this._tabs[0].active !== "filters")) pos.height = "auto";
     return super.setPosition(pos);
   }
 
@@ -345,21 +347,22 @@ export class BabonusSheet extends DocumentSheet {
       ui.notifications.error(err);
       return this.render()
     }
-    return BabonusWorkshop._embedBabonus(this.bonus.parent, this.bonus, true);
+    return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true);
   }
 
   /** @override */
   render(force = false, options = {}) {
-    this.object = babonus.getCollection(this.bonus.parent).get(this.bonus.id);
+    this.object = babonus.getCollection(this.owner).get(this.bonus.id);
     if (!this.object) return this.close();
     options.editable = options.editable ?? this.bonus.isOwner;
-    this.bonus.parent.apps[this.appId] = this;
+    this.owner.apps[this.appId] = this;
     return FormApplication.prototype.render.call(this, force, options);
   }
 
   /** @override */
   close(...args) {
-    delete this.bonus?.parent.apps[this.appId];
-    return super.close(...args);
+    delete this.owner?.apps[this.appId];
+    if (this.object) return super.close(...args);
+    return FormApplication.prototype.close.call(this, ...args);
   }
 }

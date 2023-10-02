@@ -251,7 +251,7 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * Get the tempalte that has the babonus.
+   * Get the template that has the babonus.
    * @returns {MeasuredTemplateDocument|null}
    */
   get template() {

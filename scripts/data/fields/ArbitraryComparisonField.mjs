@@ -17,7 +17,7 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
 
   /** @override */
   static storage(bonus) {
-    return this.value(bonus).filter(i => i);
+    return this.value(bonus).filter(i => i).length > 0;
   }
 
   /** @override */
