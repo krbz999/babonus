@@ -156,8 +156,6 @@ export class BabonusSheet extends DocumentSheet {
    */
   _prepareConsume() {
     const consume = this.bonus.consume;
-    const isOptional = this.bonus.isOptional;
-    const disableAll = !consume.enabled || !isOptional;
 
     // Construct subtypes.
     const subtypes = {};
@@ -170,19 +168,18 @@ export class BabonusSheet extends DocumentSheet {
 
     return {
       enabled: consume.enabled,
-      disabled: !isOptional,
-      disableAll: disableAll,
       choices: consume.OPTIONS,
-      disableMax: disableAll || (consume.type === "effect") || (!consume.scales),
       isEffect: consume.type === "effect",
       isSlot: isSlot,
-      showStep: ["health", "currency"].includes(consume.type),
-      disableStep: disableAll || !consume.scales,
+      showStep: ["health", "currency"].includes(consume.type) && consume.scales,
+      showFormula: consume.scales,
+      showMax: consume.scales,
       showSubtype: !foundry.utils.isEmpty(subtypes),
       subtypeLabel: `BABONUS.ConsumptionType${consume.type.capitalize()}Subtype`,
       subtypeOptions: subtypes,
       labelMin: isSlot ? "BABONUS.Smallest" : "Minimum",
-      labelMax: isSlot ? "BABONUS.Largest" : "Maximum"
+      labelMax: isSlot ? "BABONUS.Largest" : "Maximum",
+      isInvalid: consume.enabled && !consume.isConsuming
     };
   }
 
@@ -192,26 +189,20 @@ export class BabonusSheet extends DocumentSheet {
    */
   _prepareAura() {
     const aura = this.bonus.aura;
-    const isExclusive = this.bonus.isExclusive;
-    const disableAll = isExclusive || !aura.enabled;
-    const disableRange = disableAll || aura.isTemplate || (aura.template && (this.owner instanceof Item));
     const isItem = this.owner instanceof Item;
-    const disableTemplate = disableAll || !isItem;
-    const displayedRange = (aura.range > 0) ? aura.range : (aura.range === -1) ? game.i18n.localize("DND5E.Unlimited") : 0;
-    const blockers = aura.blockers.join(";");
     const choices = Object.entries(module.fields.aura.OPTIONS).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.ConfigurationAuraDisposition${k.titleCase()}`;
       return acc;
     }, {});
 
     return {
-      disableRange,
-      disableTemplate,
-      displayedRange,
-      choices,
-      blockers,
-      disableAll,
-      isItem
+      showRange: !aura.template,
+      displayedRange: (aura.range > 0) ? aura.range : (aura.range === -1) ? game.i18n.localize("DND5E.Unlimited") : 0,
+      choices: choices,
+      blockers: aura.blockers.join(";"),
+      isItem: isItem,
+      isInvalid: aura.enabled && !(aura.isTemplate || aura.isToken),
+      invalidTemplate: !isItem
     };
   }
 
@@ -237,10 +228,18 @@ export class BabonusSheet extends DocumentSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(n => n.addEventListener("click", this._onDisplayKeysDialog.bind(this)));
-    html[0].querySelectorAll("input[type=text], input[type=number]").forEach(n => n.addEventListener("focus", event => event.currentTarget.select()));
-    html[0].querySelectorAll("[data-action='add-filter']").forEach(n => n.addEventListener("click", this._onClickAddFilter.bind(this)));
-    html[0].querySelectorAll("[data-action='delete-filter']").forEach(n => n.addEventListener("click", this._onClickDeleteFilter.bind(this)));
+    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(n => {
+      n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
+    });
+    html[0].querySelectorAll("input[type=text], input[type=number]").forEach(n => {
+      n.addEventListener("focus", event => event.currentTarget.select());
+    });
+    html[0].querySelectorAll("[data-action='add-filter']").forEach(n => {
+      n.addEventListener("click", this._onClickAddFilter.bind(this));
+    });
+    html[0].querySelectorAll("[data-action='delete-filter']").forEach(n => {
+      n.addEventListener("click", this._onClickDeleteFilter.bind(this));
+    });
   }
 
   /**
@@ -313,7 +312,7 @@ export class BabonusSheet extends DocumentSheet {
 
   /** @override */
   setPosition(pos = {}) {
-    if (!pos.height && (this._tabs[0].active !== "filters")) pos.height = "auto";
+    if (this._tabs[0].active !== "filters") pos.height = "auto";
     return super.setPosition(pos);
   }
 
@@ -329,12 +328,16 @@ export class BabonusSheet extends DocumentSheet {
     idLink.addEventListener("click", event => {
       event.preventDefault();
       game.clipboard.copyPlainText(this.document.id);
-      ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {label, type: "id", id: this.document.id}));
+      ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
+        label, type: "id", id: this.document.id
+      }));
     });
     idLink.addEventListener("contextmenu", event => {
       event.preventDefault();
       game.clipboard.copyPlainText(this.document.uuid);
-      ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {label, type: "uuid", id: this.document.uuid}));
+      ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
+        label, type: "uuid", id: this.document.uuid
+      }));
     });
     title.append(idLink);
   }
