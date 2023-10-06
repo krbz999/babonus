@@ -21,7 +21,7 @@ export class RemainingSpellSlotsField extends FilterMixin(foundry.data.fields.Sc
   }
 
   /** @override */
-  static getData(bonus = null) {
+  static getData(bonus) {
     const data = super.getData();
     const value = bonus ? this.value(bonus) : {};
     data.min = value.min ?? null;
