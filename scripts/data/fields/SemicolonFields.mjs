@@ -25,9 +25,9 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
   }
 
   /** @override */
-  static getData(bonus = null) {
+  static getData(bonus) {
     const data = super.getData();
-    data.value = bonus ? this.value(bonus).join(";") : null;
+    data.value = this.value(bonus).join(";");
     return data;
   }
 

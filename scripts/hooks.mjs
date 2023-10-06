@@ -68,7 +68,6 @@ function _handlebarsHelpers() {
 async function _preloadPartials() {
   console.log("Build-a-Bonus | Loading template partials.");
   return loadTemplates([
-    "modules/babonus/templates/parts/bonuses-modifiers.hbs",
     "modules/babonus/templates/parts/checkboxes-select.hbs",
     "modules/babonus/templates/parts/checkboxes.hbs",
     "modules/babonus/templates/parts/range-select.hbs",

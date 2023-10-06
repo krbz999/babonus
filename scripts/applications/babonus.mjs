@@ -1,36 +1,23 @@
 import {MODULE} from "../constants.mjs";
-import {ConsumptionDialog} from "./consumptionApp.mjs";
-import {AuraConfigurationDialog} from "./auraConfigurationApp.mjs";
-import {BabonusKeysDialog} from "./keysDialog.mjs";
 import {module} from "../data/_module.mjs";
 
-export class BabonusWorkshop extends FormApplication {
-  /**
-   * ----------------------------------------------------
-   *
-   *
-   *                      VARIABLES
-   *
-   *
-   * ----------------------------------------------------
-   */
+export class BabonusWorkshop extends Application {
+  /* ------------------------------- */
+  /*            VARIABLES            */
+  /* ------------------------------- */
 
   //#region
 
   // The right-hand side bonuses that have a collapsed description.
   _collapsedBonuses = new Set();
 
-  // The ids of the filters that have been added.
-  _addedFilters = new Set();
-
   // The color of the left-side otter.
   _otterColor = "black";
-
-  // The babonuses that exist on this document.
-  collection = null;
+  _otterVomits = 0;
 
   constructor(object, options) {
     super(object, options);
+    this.object = object;
     this.isItem = object.documentName === "Item";
     this.isEffect = object.documentName === "ActiveEffect";
     this.isActor = object.documentName === "Actor";
@@ -39,23 +26,13 @@ export class BabonusWorkshop extends FormApplication {
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      closeOnSubmit: false,
-      width: 1000,
+      width: 800,
       height: 900,
       template: `modules/${MODULE.ID}/templates/babonus.hbs`,
       classes: [MODULE.ID, "builder"],
-      scrollY: [
-        ".current-bonuses .bonuses",
-        ".available-filters",
-        ".unavailable-filters"
-      ],
+      scrollY: [".current-bonuses .bonuses"],
       dragDrop: [{dragSelector: "[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],
-      resizable: true,
-      tabs: [{
-        navSelector: "nav[data-group='current-bonus-tabs']",
-        contentSelector: ".content-tabs[data-group='current-bonus-tabs']",
-        initial: "bonuses"
-      }]
+      resizable: true
     });
   }
 
@@ -75,70 +52,24 @@ export class BabonusWorkshop extends FormApplication {
     return `${MODULE.NAME}: ${this.document.name}`;
   }
 
+  get collection() {
+    return this.constructor._getCollection(this.document);
+  }
+
   //#endregion
 
-  /**
-   * ----------------------------------------------------
-   *
-   *
-   *                      OVERRIDES
-   *
-   *
-   * ----------------------------------------------------
-   */
+  /* ------------------------------- */
+  /*           OVERRIDES             */
+  /* ------------------------------- */
 
   //#region
 
   /** @override */
   async getData() {
-    const data = await super.getData();
-
-    // Save the collection of bonuses that exist on this document.
-    this.collection = this.constructor._getCollection(this.document);
-
+    const data = {};
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
     data.isActor = this.isActor;
-    data.activeBuilder = !!this._currentBabonus;
-
-    // Initial values of the filters.
-    data.filters = [];
-
-    if (data.activeBuilder) {
-      // Whether it is edit mode or create mode.
-      data.isEditing = this.collection.has(this._currentBabonus.id);
-      if (data.isEditing) data._filters = this._filters;
-
-      // The current bonus being made or edited.
-      data.currentBabonus = this._currentBabonus;
-      data.addedFilters = this._addedFilters;
-
-      // Construct data for the filter pickers.
-      for (const [id, cls] of Object.entries(module.filters)) {
-        const filterData = {
-          id: id,
-          // whether is should be shown in 'available filters'.
-          available: cls.isFilterAvailable(this._addedFilters, this._currentBabonus)
-        };
-        filterData.unavailable = !(filterData.available || this._addedFilters.has(id));
-        data.filters.push(filterData);
-      }
-      data.filters.sort((a, b) => {
-        a = `BABONUS.Filters${a.id.capitalize()}`;
-        b = `BABONUS.Filters${b.id.capitalize()}`;
-        return game.i18n.localize(a).localeCompare(game.i18n.localize(b));
-      });
-
-      // Construct data for the bonuses area.
-      const b = data.currentBabonus.toObject().bonuses;
-      data.currentBonusBonuses = {};
-      data.modifiers = {};
-      for (const [key, val] of Object.entries(b)) {
-        if (key === "modifiers") data.modifiers = val;
-        else data.currentBonusBonuses[key] = val;
-      }
-      data.hasModifiers = !foundry.utils.isEmpty(data.modifiers);
-    }
 
     // Get current bonuses on the document.
     data.currentBonuses = [];
@@ -158,32 +89,12 @@ export class BabonusWorkshop extends FormApplication {
 
     // New babonus buttons.
     data.createButtons = Object.entries(module.models).map(([type, cls]) => ({
-      type,
-      icon: cls.icon,
-      label: `BABONUS.Type${type.capitalize()}`
+      type, icon: cls.icon, label: `BABONUS.Type${type.capitalize()}`
     }));
+
     data.ICON = MODULE.ICON;
     data.otterColor = this._otterColor;
-
-    delete this._filters;
     return data;
-  }
-
-  /** @override */
-  async _updateObject(event, formData) {
-    try {
-      const newData = foundry.utils.expandObject(formData);
-      const previousData = this._currentBabonus.toObject();
-      delete previousData.filters;
-      foundry.utils.mergeObject(newData, previousData, {overwrite: false});
-      const bonus = this.constructor._createBabonus(newData, newData.id, {strict: true});
-      await this.constructor._embedBabonus(this.document, bonus, true);
-      ui.notifications.info(game.i18n.format("BABONUS.NotificationSave", bonus));
-    } catch (err) {
-      console.warn(err);
-      this._displayWarning();
-      return;
-    }
   }
 
   /** @override */
@@ -217,34 +128,12 @@ export class BabonusWorkshop extends FormApplication {
     }
     super.activateListeners(html);
 
-    html[0].querySelectorAll("[name^=bonuses], [name=name]").forEach(n => {
-      n.addEventListener("focus", e => e.currentTarget.select());
-    });
-
     // Listeners that require ability to edit.
     html[0].querySelectorAll("[data-action]").forEach(n => {
       const action = n.dataset.action;
       switch (action) {
-        case "cancel":
-          n.addEventListener("click", this._onCancelBuilder.bind(this));
-          break;
-        case "keys-dialog":
-          n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
-          break;
         case "pick-type":
-          n.addEventListener("click", this._onPickType.bind(this));
-          break;
-        case "delete-filter":
-          n.addEventListener("click", this._onDeleteFilter.bind(this));
-          break;
-        case "add-filter":
-          n.addEventListener("click", this._onAddFilter.bind(this));
-          break;
-        case "dismiss-warning":
-          n.addEventListener("click", this._onDismissWarning.bind(this));
-          break;
-        case "section-collapse":
-          n.addEventListener("click", this._onSectionCollapse.bind(this));
+          n.addEventListener("click", this._onClickType.bind(this));
           break;
         case "current-toggle":
           n.addEventListener("click", this._onToggleBonus.bind(this));
@@ -253,27 +142,23 @@ export class BabonusWorkshop extends FormApplication {
           n.addEventListener("click", this._onCopyBonus.bind(this));
           break;
         case "current-edit":
-          n.addEventListener("click", this._onEditBonus.bind(this));
+          n.addEventListener("click", this._onClickBonus.bind(this));
           break;
         case "current-delete":
           n.addEventListener("click", this._onDeleteBonus.bind(this));
           break;
-        case "current-aura":
-          n.addEventListener("click", this._onToggleAura.bind(this));
-          n.addEventListener("contextmenu", this._onToggleAura.bind(this));
-          break;
-        case "current-optional":
-          n.addEventListener("click", this._onToggleOptional.bind(this));
-          break;
-        case "current-consume":
-          n.addEventListener("click", this._onToggleConsume.bind(this));
-          n.addEventListener("contextmenu", this._onToggleConsume.bind(this));
-          break;
-        case "current-exclusive":
-          n.addEventListener("click", this._onToggleExclusive.bind(this));
-          break;
       }
     });
+  }
+
+  /** @override */
+  _canDragDrop() {
+    return this.isEditable;
+  }
+
+  /** @override */
+  _canDragStart() {
+    return true;
   }
 
   /** @override */
@@ -312,96 +197,48 @@ export class BabonusWorkshop extends FormApplication {
     return this.constructor._createBabonus(babonusData, null, {parent: this.document});
   }
 
-  //#endregion
-
   /**
-   * ----------------------------------------------------
-   *
-   *
-   *                   RENDERING METHODS
-   *
-   *
-   * ----------------------------------------------------
+   * Handle creating a new bonus.
+   * @param {PointerEvent} event          The initiating click event.
+   * @returns {Promise<BabonusSheet>}     The sheet of the newly created bonus.
    */
-
-  //#region
-
-  /**
-   * Special implementation of rendering, to reset the entire application to a clean state.
-   * @param {PointerEvent} event              The initiating click event.
-   * @returns {Promise<BabonusWorkshop>}      This application.
-   */
-  async _renderClean(event) {
-    this._addedFilters.clear();
-    delete this._currentBabonus;
-    return super.render(false);
-  }
-
-  /**
-   * Special implementation of rendering, for when entering creation mode.
-   * @param {PointerEvent} event              The initiating click event.
-   * @returns {Promise<BabonusWorkshop>}      This application.
-   */
-  async _renderCreator(event) {
+  async _onClickType(event) {
     const type = event.currentTarget.dataset.type;
-    this._currentBabonus = this.constructor._createBabonus({
+    const bonus = this.constructor._createBabonus({
       type, name: game.i18n.localize("BABONUS.NewBabonus")
     }, null, {parent: this.document});
-    this._addedFilters.clear();
-    return super.render(false);
+    await this.constructor._embedBabonus(this.document, bonus, true);
+    return this.collection.get(bonus.id).sheet.render(true);
   }
 
   /**
-   * Special implementation of rendering, for when entering edit mode.
-   * @param {PointerEvent} event              The initiating click event.
-   * @returns {Promise<BabonusWorkshop>}      This application.
+   * Render the sheet of an existing bonus.
+   * @param {PointerEvent} event      The initiating click event.
+   * @returns {BabonusSheet}          The sheet of a babonus.
    */
-  async _renderEditor(event) {
+  _onClickBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    this._currentBabonus = this.collection.get(id);
-    this._addedFilters = new Set(Object.keys(this._currentBabonus.toObject().filters));
-
-    // Create the form groups for each active filter.
-    const DIV = document.createElement("DIV");
-    DIV.innerHTML = "";
-    for (const id of this._addedFilters) {
-      DIV.innerHTML += await module.filters[id].render(this._currentBabonus);
-    }
-    this._filters = DIV.innerHTML;
-
-    return super.render(false);
+    const bonus = this.collection.get(id);
+    return bonus.sheet.render(true);
   }
 
   /** @override */
-  async render(force = false, options = {}) {
-    // To automatically render in a clean state, the reason
-    // for rendering must either be due to an update in the
-    // object's babonus flags, or 'force' must explicitly be set to 'true'.
-    const wasBabUpdate = foundry.utils.hasProperty(options, `data.flags.${MODULE.ID}`);
-    if (!(wasBabUpdate || force)) return;
-    delete this._currentBabonus;
-    this._addedFilters.clear();
+  render(...T) {
     this.document.apps[this.appId] = this;
-    return super.render(force, options);
+    return super.render(...T);
   }
 
   /** @override */
   close(...T) {
-    super.close(...T);
     delete this.document.apps[this.appId];
+    return super.close(...T);
   }
 
   //#endregion
 
-  /**
-   * ----------------------------------------------------
-   *
-   *
-   *                CURRENT BONUSES METHODS
-   *
-   *
-   * ----------------------------------------------------
-   */
+  /* ------------------------------- */
+  /*     CURRENT BONUSES METHODS     */
+  /* ------------------------------- */
 
   //#region
 
@@ -412,6 +249,9 @@ export class BabonusWorkshop extends FormApplication {
   _onOtterRainbow(event) {
     this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     event.currentTarget.style.color = this._otterColor;
+    const count = this._otterVomits++;
+    const content = event.currentTarget.closest(".window-content");
+    if (count >= 50) content.classList.toggle("vomit", true);
   }
 
   /**
@@ -464,62 +304,7 @@ export class BabonusWorkshop extends FormApplication {
       options: {id: `babonus-confirm-delete-${id}`}
     });
     if (!prompt) return false;
-    ui.notifications.info(game.i18n.format("BABONUS.NotificationDelete", {name, id}));
     return this.document.unsetFlag(MODULE.ID, `bonuses.${id}`);
-  }
-
-  /**
-   * Toggle the aura configuration of the babonus on or off, or open the config dialog.
-   * @param {PointerEvent} event                                The initiating click event.
-   * @returns {Promise<Actor|Item|AuraConfigurationDialog>}     The actor, item, or aura config.
-   */
-  async _onToggleAura(event) {
-    const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = this.collection.get(id);
-    const path = `bonuses.${id}.aura.enabled`;
-    // Right-click always shows the application.
-    if (event.type === "contextmenu") return new AuraConfigurationDialog(this.document, {bab, builder: this}).render(true);
-    if (bab.aura.isTemplate || bab.aura.isToken) return this.document.setFlag(MODULE.ID, path, false);
-    else if (event.shiftKey) return this.document.setFlag(MODULE.ID, path, !bab.aura.enabled);
-    return new AuraConfigurationDialog(this.document, {bab, builder: this}).render(true);
-  }
-
-  /**
-   * Toggle the exclusivity property on a babonus.
-   * @param {PointerEvent} event        The initiating click event.
-   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
-   */
-  async _onToggleExclusive(event) {
-    const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.collection.get(id).exclusive;
-    return this.document.setFlag(MODULE.ID, `bonuses.${id}.exclusive`, !state);
-  }
-
-  /**
-   * Toggle the consumption property on a babonus.
-   * @param {PointerEvent} event                          The initiating click event.
-   * @returns {Promise<Actor|Item|ConsumptionDialog>}     The actor, item, or consumption config.
-   */
-  async _onToggleConsume(event) {
-    const id = event.currentTarget.closest(".bonus").dataset.id;
-    const bab = this.collection.get(id);
-    const path = `bonuses.${id}.consume.enabled`;
-    // Right-click always shows the application.
-    if (event.type === "contextmenu") return new ConsumptionDialog(this.document, {bab}).render(true);
-    if (bab.consume.isConsuming) return this.document.setFlag(MODULE.ID, path, false);
-    else if (event.shiftKey) return this.document.setFlag(MODULE.ID, path, !bab.consume.enabled);
-    return new ConsumptionDialog(this.document, {bab}).render(true);
-  }
-
-  /**
-   * Toggle the optional property on a babonus.
-   * @param {PointerEvent} event        The initiating click event.
-   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
-   */
-  async _onToggleOptional(event) {
-    const id = event.currentTarget.closest(".bonus").dataset.id;
-    const state = this.collection.get(id).optional;
-    return this.document.setFlag(MODULE.ID, `bonuses.${id}.optional`, !state);
   }
 
   /**
@@ -548,191 +333,7 @@ export class BabonusWorkshop extends FormApplication {
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
     data.id = foundry.utils.randomID();
     data.enabled = false;
-    ui.notifications.info(game.i18n.format("BABONUS.NotificationCopy", data));
     return this.document.setFlag(MODULE.ID, `bonuses.${data.id}`, data);
-  }
-
-  /**
-   * Edit a babonus by adding it to the builder. This also sets all related stored values.
-   * @param {PointerEvent} event              The initiating click event.
-   * @returns {Promise<BabonusWorkshop>}      This application.
-   */
-  async _onEditBonus(event) {
-    // Render the application specifically in this mode.
-    return this._renderEditor(event);
-  }
-
-  //#endregion
-
-  /**
-   * ----------------------------------------------------
-   *
-   *                 FILTER PICKER AND
-   *                  BUILDER METHODS
-   *
-   *
-   * ----------------------------------------------------
-   */
-
-  //#region
-
-  /**
-   * Collapse a section in the builder.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onSectionCollapse(event) {
-    event.currentTarget.closest(".header").classList.toggle("collapsed");
-  }
-
-  /**
-   * Helper function to display the keys dialog and subsequently place the
-   * selected values in the input fields that its button was placed near.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  async _onDisplayKeysDialog(event) {
-    const formGroup = event.currentTarget.closest(".form-group");
-    const filterId = formGroup.dataset.id;
-
-    const field = module.filters[filterId];
-    const list = field.choices;
-    const canExclude = field.canExclude;
-
-    // The text input.
-    const values = formGroup.querySelector("input[type='text']").value.split(";");
-
-    for (let value of values) {
-      value = value.trim();
-      const key = value.replaceAll("!", "");
-      const val = list.find(e => e.value === key);
-      if (!val) continue;
-      if (value.startsWith("!")) val.exclude = true;
-      else val.include = true;
-    }
-
-    const newValue = await BabonusKeysDialog.prompt({
-      rejectClose: false,
-      options: {filterId, appId: this.appId, values: list, canExclude},
-      callback: function(html) {
-        const selects = Array.from(html[0].querySelectorAll("select"));
-        return selects.reduce((acc, select) => {
-          if (select.value === "include") return `${acc}${select.dataset.value};`;
-          else if (select.value === "exclude") return `${acc}!${select.dataset.value};`;
-          else return acc;
-        }, "");
-      },
-    });
-
-    if (!newValue) return;
-    formGroup.querySelector("input[type='text']").value = newValue;
-  }
-
-  /**
-   * Dismiss the warning about invalid data.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onDismissWarning(event) {
-    event.currentTarget.classList.toggle("active", false);
-  }
-
-  /**
-   * Show the warning about invalid data. This is usually just a missing name for the babonus.
-   */
-  _displayWarning() {
-    this.element[0].querySelector("[data-action='dismiss-warning']").classList.toggle("active", true);
-  }
-
-  /**
-   * Canceling out of the builder.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusWorkshop}       This application.
-   */
-  _onCancelBuilder(event) {
-    return this._renderClean(event);
-  }
-
-  /**
-   * Deleting a filter by clicking the trashcan icon.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onDeleteFilter(event) {
-    event.currentTarget.closest(".form-group").remove();
-    this._updateFilterPicker();
-  }
-
-  /**
-   * When picking a type to create a new babonus, store the type, remove
-   * any stored bab, set the filters, and then toggle the builder on.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  _onPickType(event) {
-    this._renderCreator(event);
-  }
-
-  /**
-   * Convenience method to update the right-side filter picker and the internal set of filters.
-   */
-  _updateFilterPicker() {
-    //  Update the 'addedFilters' set with what is found in the builder currently.
-    this._addedFilters.clear();
-    const added = this.element[0].querySelectorAll(".left-side .bonus-filters [data-id]");
-    added.forEach(a => this._addedFilters.add(a.dataset.id));
-
-    // Update the filter picker by reading the 'addedFilters' set and toggling the hidden states.
-    Object.keys(module.filters).forEach(id => {
-      const available = module.filters[id].isFilterAvailable(this._addedFilters, this._currentBabonus);
-      const [av, unav] = this.element[0].querySelectorAll(`.right-side .filter[data-id="${id}"]`);
-      av.classList.toggle("hidden", !available);
-      unav.classList.toggle("hidden", available || this._addedFilters.has(id));
-    });
-  }
-
-  /**
-   * Handle the click event when adding a new filter to the builder.
-   * @param {PointerEvent} event      The initiating click event.
-   */
-  async _onAddFilter(event) {
-    const id = event.currentTarget.closest(".filter").dataset.id;
-    await this._appendNewFilter(id);
-    this._updateFilterPicker();
-  }
-
-  /**
-   * Append one specific filter to the builder.
-   * @param {string} id     The id of the filter.
-   */
-  async _appendNewFilter(id) {
-    const DIV = document.createElement("DIV");
-    DIV.innerHTML = await this._templateFilter(id);
-    this._appendListenersToFilters(DIV);
-    this.element[0].querySelector(".left-side .bonus-filters").append(...DIV.children);
-  }
-
-  /**
-   * Get the inner html of a filter you want to add.
-   * @param {string} id             The id of the filter.
-   * @returns {Promise<string>}     The template.
-   */
-  async _templateFilter(id) {
-    const field = module.filters[id];
-    if (!field.repeatable) return field.render();
-    else {
-      const nodes = this.element[0].querySelectorAll(`.left-side [data-id="${id}"]`);
-      const idx = Math.max(...Array.from(nodes).map(node => node.dataset.idx));
-      return field.render(null, (idx >= 0) ? (idx + 1) : 0);
-    }
-  }
-
-  /**
-   * Helper function to append listeners to created form-groups (filters).
-   * @param {html} fg     The form-groups created.
-   */
-  _appendListenersToFilters(fg) {
-    fg.querySelectorAll("[data-action='delete-filter']").forEach(n => {
-      n.addEventListener("click", this._onDeleteFilter.bind(this));
-    });
-    fg.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
-      n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
-    });
   }
 
   //#endregion

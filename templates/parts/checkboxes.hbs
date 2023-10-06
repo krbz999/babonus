@@ -1,4 +1,4 @@
-<div class="form-group" data-id="{{id}}">
+<div class="form-group">
   <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
   <div class="form-fields">
     <div class="checkboxes">
@@ -10,7 +10,7 @@
       {{/each}}
     </div>
   </div>
-  <a data-action="delete-filter" data-tooltip="BABONUS.DeleteThisFilter">
+  <a data-action="delete-filter" data-id="{{id}}">
     <i class="fa-solid fa-trash"></i>
   </a>
 </div>

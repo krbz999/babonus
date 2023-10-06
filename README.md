@@ -16,47 +16,36 @@
 </ul>
 <p>The Build-a-Bonus has countless options for how or what to apply and when. Scroll down to the bottom for the full list.</p>
 
-<p style="text-align: center"><img src="https://i.imgur.com/zbp4CQ6.png" style="border: none"></p>
-
 <h1 style="font-weight: bold;">How to Use</h1>
-<p>Open any actor's sheet, any item sheet, or any effect config, then click the otter icon in the header. Choose the type of bonus you want to create, then fill out the name, description, and the bonus. Then start narrowing down when and how the bonus should apply, using the available filters to the right.<p>
-<p>Once the bonus is created, you can configure it further on the main view of the application on the right.</p>
+<p>Open any actor's sheet, any item sheet, or any effect config, then click the otter icon in the header. Choose the type of bonus you want to create, then fill out the name, description, and the bonus. Then start narrowing down when and how the bonus should apply, using the available filters.<p>
 <p>If you need additional hints, hover over any of the labels to get tooltips. Not all filters are available for each type of bonus. Below is an example using the artificer's <em>Alchemical Savant</em> feature.</p>
 
-<p style="text-align: center"><img src="https://i.imgur.com/bWlbqUQ.png" style="border: none"></p>
+<p style="text-align: center"><img src="https://i.imgur.com/x2SzpM1.png" style="border: none"></p>
 
-<p>Once you are done creating the bonus, save it, and your actor should now have their bonus apply when they perform the relevant roll, given that they match the filters of the bonus.</p>
+<h1>The Babonus Sheet</h1>
 
-<h1 style="font-weight: bold;">Bonus Creation and Configuration</h1>
-<p>This is the full array of configurations, filters, and choices you can make in the Build-a-Bonus. For any fields that support roll data (such as bonuses or comparison fields detailed below), you can use the roll data of the target as well as your own; use roll data as you normally would, and for targets simply prefix with <code>@target</code>.</p>
-<p>In addition, when a bonus is 'transferred' either via an effect being copied through a template aura or regular aura, the roll data used will be source's roll data, if any. This means that your paladin player can have their Aura of Protection set up using <code>@abilties.cha.mod</code> and all allies within the aura will receive a bonus equal to the paladin's Charisma modifier, not their own Charisma modifier.</p>
-<p>One thing to keep in mind is that bonuses use the source's roll data, while the filters use the recipient's roll data.</p>
+<h2>Description Tab</h2>
+<p>This tab shows the current properties of the babonus. Note that these might be dependant on what kind of parent the bonus is embedded on.</p>
 
-<h2 style="font-weight: bold;">Required Fields</h2>
-<p><strong><em>Name.</em></strong> The human-readable name of the bonus (you can put anything you like here). The ID shown next to it is the unique identifier that the module uses to refer to the bonus, which is also used in several API methods (see below).</p>
-<p><strong><em>Description.</em></strong> A blurb of your choosing describing the bonus. This text is enriched and supports roll data.</p>
-
-<h2 style="font-weight: bold;">Bonuses and Modifiers</h2>
+<h2>Bonuses Tab</h2>
+<p>This tab allows for configuring the bonus that should be applying, assuming all filters are matched. Some babonus types also support dice modifiers.</p>
 <p>Depending on the type you choose, Build-a-Bonus can add on top of the value or roll, or even several kinds at once. For example, for attack rolls, you can add bonuses on top of the roll itself, but also increase the critical range and the fumble range. This can be roll data and scale values, such as <code>@abilities.int.mod</code>, or just integers or dice expressions.</p>
 <p>For damage rolls and hit dice rolls, you can also affect die modifiers. The supported modifiers are minimum and maximum values, rerolling, and explosive dice, as well as the quantity of the dice.</p>
 
-<h2 style="font-weight: bold;">Aura and Template Configuration</h2>
-<p>You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not.</p>
-<p>The bonus is applied when another token actor makes a relevant roll. The module never makes use of token movement to calculate ranges, so the usage of auras and templates is incredibly lightweight.</p>
-<p>You can configure a list of effect statuses that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). The Keys button in the builder will help you pick out statuses from those that exist on the token HUD. The field itself is not validated; if you are able to give an effect a status of your own choosing, that is respected as well; simply write the status in the field.</p>
+<h2>Configuration and Filters Tabs</h2>
+<p>These tabs are for configuring the filters on the babonus. The full list of filters can be found below.</p>
+<p>For any fields that support roll data (such as bonuses or comparison fields detailed below), you can use the roll data of the target as well as your own; use roll data as you normally would, and for targets simply prefix with <code>@target</code>.</p>
+<p>In addition, when a bonus is 'transferred' either via an effect being copied through a template aura or regular aura, the roll data used will be source's roll data, if any. This means that your paladin player can have their Aura of Protection set up using <code>@abilties.cha.mod</code> and all allies within the aura will receive a bonus equal to the paladin's Charisma modifier, not their own Charisma modifier.</p>
+<p>One thing to keep in mind is that bonuses use the source's roll data, while the filters use the recipient's roll data.</p>
+
+<h2>Advanced Tab</h2>
+<p>This tab allows for toggling the bonus, making it exclusive to its parent item, making it opt-in, or configuring consumption or an aura.</p>
+<p>You can set the bonus to act as an aura within a set range or within a template created by an item, and define if the aura should apply to allied targets, enemy targets, or all within range or within the template, and whether it applies to the owner or not. The bonus is applied when another token actor makes a relevant roll. The module never makes use of token movement to calculate ranges, so the usage of auras and templates is incredibly lightweight.</p>
+<p>You can configure a list of effect statuses that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). The Keys button on the sheet will help you pick out statuses from those that exist on the token HUD. The field itself is not validated; if you are able to give an effect a status of your own choosing, that is respected as well; simply write the status in the field.</p>
 <p>Lastly, you can configure a non-template aura to require direct line of sight from the source token to the rolling token's actor, or to require an unobstructed path of movement.</p>
-
-<h3><strong>Item-Specific Bonuses</strong></h3>
-<p>For any bonus created on an item (spell, feature, weapon, etc.), if that bonus does not produce a valid aura of any kind, you may toggle it in the Build-a-Bonus to only apply to that item in question. This is good for any unique weapons for example that have certain properties that should apply only to themselves.</p>
-
-<p style="text-align: center"><img src="https://i.imgur.com/CgHESmY.png" style="border: none"></p>
-
-<h3 style="font-weight: bold;">Optional Bonuses and Consumption</h3>
 <p>If the bonus additively affects an attack roll, damage roll, saving throw, or ability check (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will apply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making the roll.</p>
-<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, currencies, or the active effect on which it is created. You can configure the minimum required consumption, as well as the maximum if the bonus should scale.</p>
-<p>For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect cannot scale.</p>
+<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, currencies, or the active effect on which it is created. You can configure the minimum required consumption, as well as the maximum if the bonus should scale. For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect cannot scale as there is of course only one effect.</p>
 
-<p style="text-align: center"><img src="https://i.imgur.com/XcEOZU7.png" style="border: none"></p>
 <p style="text-align: center"><img src="https://i.imgur.com/eJsfogz.png" style="border: none"></p>
 
 <h1 style="font-weight: bold;">Available Filters</h1>
@@ -72,6 +61,7 @@
 <p><strong><em>Target Creature Types.</em></strong> Filter the bonus to only apply if you are targeting an enemy belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not targeting any of the excluded creature types.</p>
 <p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be fully synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, <code>token</code>, and <code>bonus</code> are always provided if possible, as well as an object, <code>details</code>, used for the iteration of parsing the validity of the bonuses. For those uncomfortable with having all clients execute these scripts, a setting is available for the module which will completely ignore the scripts and simply immediately return true.</p>
 <p><strong><em>Damage Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has a damage formula with any of the included damage types while having none of the excluded damage types.</p>
+<p><strong><em>Feature Types.</em></strong> Filter the bonus to only apply if the item used to perform the attack or damage roll (or prompt for a saving throw) is a feature-type item of a specific type, and optionally also a specific subtype.</p>
 <p><strong><em>Health Percentages.</em></strong> A percentage value and whether the actor must have at least or at most this amount of remaining hit points for the bonus to apply.</p>
 <p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells.</p>
 <p><strong><em>Proficiency Levels.</em></strong> The level of proficiency that the actor must have with the roll made. This is available for ability checks, saving throws, and attack rolls.</p>
@@ -116,6 +106,3 @@
 
 <h1 style="font-weight: bold;">Hooks</h1>
 <p>A single hook, <code>babonus.applyOptionalBonus</code> is called when applying an optional bonus; after updates or deletions are performed, but before the bonus is applied to the roll. It provides the babonus, the rolling item or actor, the item, actor, or effect that was updated or deleted, and an object with the bonus that will be applied. The bonus to be applied can be modified. Explicitly returning <code>false</code> will prevent the bonus from being applied entirely.</p>
-
-<h1>Compatibility</h1>
-<p>You should not expect this module to work with other modules that overhaul or destroy core roll behaviour, particularly WIRE, RSR, and MIDI. These modules are unsupported, and any compatiblity is nothing but a happy accident.</p>

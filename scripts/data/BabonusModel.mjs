@@ -1,9 +1,29 @@
+import {BabonusSheet} from "../applications/babonus-sheet.mjs";
 import {module} from "./_module.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
     const expData = foundry.utils.expandObject(data);
     super(expData, options);
+  }
+
+  static get metadata() {
+    return {label: game.i18n.localize("BABONUS.Babonus")};
+  }
+
+  /** @override */
+  get sheet() {
+    if (this._sheet) return this._sheet;
+    return this._sheet = new BabonusSheet(this);
+  }
+
+  /**
+   * @override
+   * Since babs are always local, all users have permission to render them.
+   * Proper permissions are handled elsewhere.
+   */
+  testUserPermission() {
+    return true;
   }
 
   /** @override */
@@ -90,7 +110,7 @@ class Babonus extends foundry.abstract.DataModel {
     // Valid for test:
     const validityB = (this.type === "test") && (this.parent.type === "tool");
 
-    return (validityA || validityB) && !this.aura.isToken && !this.aura.isTemplate;
+    return (validityA || validityB);
   }
 
   /**
@@ -231,7 +251,7 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * Get the tempalte that has the babonus.
+   * Get the template that has the babonus.
    * @returns {MeasuredTemplateDocument|null}
    */
   get template() {
@@ -264,6 +284,7 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
+      img: new foundry.data.fields.FilePathField({categories: ["IMAGE"], initial: "icons/svg/dice-target.svg"}),
       type: new foundry.data.fields.StringField({required: true, initial: this.type, choices: [this.type]}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),
       exclusive: new foundry.data.fields.BooleanField(),
@@ -314,8 +335,6 @@ class Babonus extends foundry.abstract.DataModel {
   static _migrateCreatureTypes(source) {
     const types = source.filters.creatureTypes;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    console.warn(`A babonus (${source.name}) is using an outdated format for 'Creature Types'. Editing and saving the bonus with no changes made will resolve this warning.`);
-    console.warn("The old format will be supported until FVTT v11.");
     const c = [];
     for (const t of (types.needed ?? [])) c.push(t);
     for (const u of (types.unfit ?? [])) c.push(`!${u}`);
@@ -329,8 +348,6 @@ class Babonus extends foundry.abstract.DataModel {
   static _migrateWeaponProperties(source) {
     const types = source.filters.weaponProperties;
     if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    console.warn(`A babonus (${source.name}) is using an outdated format for 'Weapon Properties'. Editing and saving the bonus with no changes made will resolve this warning.`);
-    console.warn("The old format will be supported until FVTT v11.");
     const c = [];
     for (const t of (types.needed ?? [])) c.push(t);
     for (const u of (types.unfit ?? [])) c.push(`!${u}`);
@@ -420,6 +437,7 @@ class ItemBabonus extends Babonus {
       baseWeapons: new module.filters.baseWeapons(),
       creatureTypes: new module.filters.creatureTypes(),
       damageTypes: new module.filters.damageTypes(),
+      featureTypes: new module.filters.featureTypes(),
       itemTypes: new module.filters.itemTypes(),
       preparationModes: new module.filters.preparationModes(),
       spellComponents: new module.filters.spellComponents(),

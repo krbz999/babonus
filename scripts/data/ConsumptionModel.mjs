@@ -1,7 +1,7 @@
 export class ConsumptionModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      enabled: new foundry.data.fields.BooleanField({required: false, initial: true}),
+      enabled: new foundry.data.fields.BooleanField({required: false}),
       type: new foundry.data.fields.StringField({required: true}),
       subtype: new foundry.data.fields.StringField({required: true}),
       scales: new foundry.data.fields.BooleanField({required: false}),
@@ -170,9 +170,4 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     else if ((this.type === "currency") && !(this.value.step > 0)) return false;
     return (this.value.max || Infinity) > this.value.min;
   }
-
-  /* ----------------------------- */
-  /* Bonus Collector methods       */
-  /* ----------------------------- */
-
 }

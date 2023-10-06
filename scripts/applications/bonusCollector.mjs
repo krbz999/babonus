@@ -192,9 +192,9 @@ export class BonusCollector {
   /**
    * General collection method that all other collection methods call in some fashion.
    * Gets an array of babonuses from that document.
-   * @param {Document} document         The token, actor, item, effect, or template.
-   * @param {Function[]} filterings     An array of additional functions used to filter.
-   * @returns {Babonus[]}               An array of babonuses of the right type.
+   * @param {Document} document               The token, actor, item, effect, or template.
+   * @param {Function[]} [filterings=[]]      An array of additional functions used to filter.
+   * @returns {Babonus[]}                     An array of babonuses of the right type.
    */
   _collectFromDocument(document, filterings = []) {
     const flags = document.flags.babonus?.bonuses ?? {};
