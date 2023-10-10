@@ -257,5 +257,11 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.Advanced": "Avancé",
+  "BABONUS.AuraConfiguration": "Aura",
+  "BABONUS.Babonus": "Babonus",
+  "BABONUS.BasicBonuses": "Bonus de base",
+  "BABONUS.BasicConfiguration": "Configuration de base",
+  "BABONUS.Configuration": "Configuration"
 }
