@@ -157,25 +157,20 @@ class Babonus extends foundry.abstract.DataModel {
    * - If the babonus is embedded on a template, this returns the item that created it.
    * - If the babonus is embedded on an effect, this returns the actor or item from which the effect originates.
    * - If the babonus is embedded on an item or actor, this simply returns that item or actor.
-   * @returns {Actor|Item}
+   * @type {Actor5e|Item5e|null}
    */
   get origin() {
+    let origin = null;
     if (this.parent instanceof MeasuredTemplateDocument) {
-      const origin = this.parent.flags.dnd5e?.origin ?? "";
-      return fromUuidSync(origin);
+      const retrieved = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
+      if (retrieved instanceof Item) origin = retrieved;
+    } else if (this.parent instanceof ActiveEffect) {
+      const retrieved = fromUuidSync(this.parent.origin ?? "");
+      if ((retrieved instanceof Item) || (retrieved instanceof Actor)) origin = retrieved;
+    } else if ((this.parent instanceof Item) || (this.parent instanceof Actor)) {
+      origin = this.parent;
     }
-
-    else if (this.parent instanceof ActiveEffect) {
-      return fromUuidSync(this.parent.origin ?? "");
-    }
-
-    else if (this.parent instanceof Item) {
-      return this.parent;
-    }
-
-    else if (this.parent instanceof Actor) {
-      return this.parent;
-    }
+    return origin;
   }
 
   /**
