@@ -1,13 +1,19 @@
 {
   "BABONUS.AddThisFilter": "Ajoutez ce filtre à l'atelier.",
+  "BABONUS.Advanced": "Avancé",
+  "BABONUS.AuraConfiguration": "Aura",
   "BABONUS.AvailableFilters": "Filtres disponibles",
   "BABONUS.AvailableFiltersTooltip": "La liste des filtres que vous pouvez appliquer à ce bonus, afin de restreindre davantage les jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
+  "BABONUS.Babonus": "Babonus",
+  "BABONUS.BasicBonuses": "Bonus de base",
+  "BABONUS.BasicConfiguration": "Configuration de base",
   "BABONUS.BonusCopy": "{name} (Copie)",
   "BABONUS.Bonuses": "Bonus",
   "BABONUS.BonusesTooltip": "Les valeurs réelles du bonus et à quelle valeur il doit s'appliquer.",
   "BABONUS.BonusFlat": "Valeur:",
   "BABONUS.BonusFlatTooltip": "Si ce bonus est une valeur fixe au lieu d'un modificateur ajouté ou soustrait du seuil..",
   "BABONUS.CompareToSelf": "Comparer au lanceur:",
+  "BABONUS.Configuration": "Configuration",
   "BABONUS.ConfigurationAuraDispositionAlly": "Cibles alliées",
   "BABONUS.ConfigurationAuraDispositionAny": "Toutes les cibles",
   "BABONUS.ConfigurationAuraDispositionEnemy": "Cibles ennemies",
@@ -257,11 +263,5 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Cible mourante",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les propriétés des données de jet telles que <span style='font-family: monospace;'>@abilities.int.mod</span>, mais pas les jets de dés tels que <span style='font-family: monospace;'>1d4</span>.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
-  "BABONUS.Advanced": "Avancé",
-  "BABONUS.AuraConfiguration": "Aura",
-  "BABONUS.Babonus": "Babonus",
-  "BABONUS.BasicBonuses": "Bonus de base",
-  "BABONUS.BasicConfiguration": "Configuration de base",
-  "BABONUS.Configuration": "Configuration"
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
 }
