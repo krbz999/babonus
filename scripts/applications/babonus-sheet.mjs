@@ -25,7 +25,8 @@ export class BabonusSheet extends DocumentSheet {
       closeOnSubmit: false,
       tabs: [{navSelector: "nav[data-group=main]", contentSelector: "div.document-tabs"}],
       resizable: true,
-      scrollY: ["[data-tab=filters]"]
+      scrollY: ["[data-tab=filters]"],
+      width: 500
     });
   }
 
