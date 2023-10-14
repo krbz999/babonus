@@ -170,7 +170,7 @@ export class BabonusSheet extends DocumentSheet {
     return {
       enabled: consume.enabled,
       choices: consume.OPTIONS,
-      isEffect: consume.type === "effect",
+      cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
       showStep: ["health", "currency"].includes(consume.type) && consume.scales,
       showFormula: consume.scales,

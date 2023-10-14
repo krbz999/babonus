@@ -204,7 +204,7 @@
         </div>
       </div>
 
-      {{#unless context.consume.isEffect}}
+      {{#unless context.consume.cannotScale}}
       {{#if context.consume.showSubtype}}
       <div class="form-group">
         <label class="label">{{localize context.consume.subtypeLabel}}</label>

@@ -22,6 +22,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     if (this.canConsumeEffect) options.effect = "BABONUS.ConsumptionTypeEffect";
     if (this.canConsumeHealth) options.health = "BABONUS.ConsumptionTypeHealth";
     if (this.canConsumeCurrency) options.currency = "BABONUS.ConsumptionTypeCurrency";
+    if (this.canConsumeInspiration) options.inspiration = "BABONUS.ConsumptionTypeInspiration";
     return options;
   }
 
@@ -76,7 +77,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get canConsumeUses() {
-    return (this.bonus.parent instanceof Item) && this.bonus.parent.hasLimitedUses;
+    const item = this.bonus.parent;
+    return (item instanceof Item) && item.hasLimitedUses;
   }
 
   /**
@@ -85,7 +87,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get canConsumeQuantity() {
-    return (this.bonus.parent instanceof Item) && Number.isNumeric(this.bonus.parent.system.quantity);
+    const item = this.bonus.parent;
+    return (item instanceof Item) && Number.isNumeric(item.system.quantity);
   }
 
   /**
@@ -124,6 +127,15 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
+   * Whether 'Inspiration' should be a valid option for consumption.
+   * @type {boolean}
+   */
+  get canConsumeInspiration() {
+    const actor = this.bonus.actor;
+    return (actor instanceof Actor) && (actor.type === "character");
+  }
+
+  /**
    * Whether the consumption data on the babonus creates valid consumption
    * for the optional bonus application when rolling. If it does not, the
    * babonus is ignored there.
@@ -135,6 +147,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * - For spell slots, the minimum required spell slot level must be a positive integer.
    * - For effects, only users who own the effect in question are allowed to delete it.
    * - For health, the minimum required amount of hit points must be a positive integer.
+   * - For currencies, a valid denomination must be set, and the minimum consumed must be a positive integer.
+   * - For inspiration, the roller must be a 'character' type actor, which is validated elsewhere.
    * @returns {boolean}
    */
   get isConsuming() {
@@ -150,10 +164,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     else if (type === "slots") return this.canConsumeSlots && (min > 0);
     else if (type === "effect") return this.canConsumeEffect && isEffectOwner;
     else if (type === "health") return this.canConsumeHealth && (min > 0);
-    else if (type === "currency") {
-      const subtype = this.subtype;
-      return !!subtype && (subtype in CONFIG.DND5E.currencies) && (min > 0);
-    }
+    else if (type === "currency") return (this.subtype in CONFIG.DND5E.currencies) && (min > 0);
+    else if (type === "inspiration") return this.canConsumeInspiration;
   }
 
   /**
@@ -165,7 +177,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    */
   get isScaling() {
     if (!this.scales || !this.isConsuming) return false;
-    if (this.type === "effect") return false;
+    if (["effect", "inspiration"].includes(this.type)) return false;
     else if ((this.type === "health") && !(this.value.step > 0)) return false;
     else if ((this.type === "currency") && !(this.value.step > 0)) return false;
     return (this.value.max || Infinity) > this.value.min;
