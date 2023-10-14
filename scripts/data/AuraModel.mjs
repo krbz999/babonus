@@ -84,7 +84,7 @@ export class AuraModel extends foundry.abstract.DataModel {
   get isTemplate() {
     const item = this.bonus.parent;
     if (!(item instanceof Item)) return false;
-    return this.enabled && this.template && item.hasAreaTarget && !this.bonus.isExclusive;;
+    return this.enabled && this.template && item.hasAreaTarget && !this.bonus.isExclusive;
   }
 
   /**
