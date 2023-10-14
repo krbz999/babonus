@@ -98,9 +98,9 @@ export class RollHooks {
       return `${acc} + ${bonus}`;
     }, rollConfig.criticalBonusDamage ?? "");
 
-    // For non-optional bonuses, modify the parts if there are modifiers in the bab.
+    // Modify the parts if there are modifiers in the bab.
     for (const bab of bonuses) {
-      if (!optionals.includes(bab)) RollHooks._addDieModifier(rollConfig.parts, rollConfig.data, bab);
+      RollHooks._addDieModifier(rollConfig.parts, rollConfig.data, bab);
     }
   }
 
