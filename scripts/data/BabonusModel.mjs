@@ -175,7 +175,8 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the source actor of a babonus, no matter what type of document it is embedded in.
-   * @returns {Actor|null}
+   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
+   * @type {Actor|null}
    */
   get actor() {
     if (this.parent instanceof Actor) {
@@ -204,7 +205,8 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the token corresponding token of the actor that has the bonus, no matter what type of document it is embedded in.
-   * @returns {Token|null}
+   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
+   * @type {Token|null}
    */
   get token() {
     const actor = this.actor;
@@ -215,7 +217,8 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the item that has the babonus, no matter if the babonus lives on a template, effect, or item.
-   * @returns {Item|null}
+   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
+   * @type {Item|null}
    */
   get item() {
     if (this.parent instanceof Item) {
@@ -239,7 +242,8 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the effect that has the babonus.
-   * @returns {ActiveEffect|null}
+   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
+   * @type {ActiveEffect|null}
    */
   get effect() {
     return (this.parent instanceof ActiveEffect) ? this.parent : null;
@@ -247,7 +251,8 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the template that has the babonus.
-   * @returns {MeasuredTemplateDocument|null}
+   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
+   * @type {MeasuredTemplateDocument|null}
    */
   get template() {
     return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
