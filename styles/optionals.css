@@ -1,0 +1,55 @@
+.babonus.optionals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0.5em;
+  border: 1px inset;
+  border-radius: 0.5em;
+  margin-bottom: 1em;
+  max-height: 450px;
+  overflow-y: auto;
+}
+.babonus.optionals .optional {
+  display: grid;
+  gap: 0.5em;
+}
+.babonus.optionals .optional:not(:last-child) {
+  border-bottom: 2px groove;
+  padding-bottom: 0.5em;
+}
+.babonus.optionals .optional button {
+  display: flex;
+  padding: 3px;
+  justify-content: center;
+}
+.babonus.optionals .optional.active button {
+  background: inherit;
+  border: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+.babonus.optionals .optional.active button > i:before {
+  content: "\f00c";
+}
+.babonus.optionals .optional.active .consumption {
+  pointer-events: none;
+}
+.babonus.optionals .optional .bonus-text .name {
+  font-weight: bold;
+  font-style: italic;
+}
+.babonus.optionals .optional .consumption {
+  display: flex;
+  align-items: center;
+}
+.babonus.optionals .optional .consumption .label {
+  flex: 1;
+  font-weight: bold;
+  color: #4b4a44;
+}
+.babonus.optionals .optional .consumption select {
+  flex: 2;
+}
+.babonus.optionals .optional.active .consumption > * {
+  color: gray;
+}

@@ -1,0 +1,190 @@
+.babonus.sheet .striked {
+  text-decoration: line-through;
+}
+.babonus.sheet .notification.info {
+  margin: 0.5em 0;
+  padding: 6px 8px;
+}
+.babonus.sheet {
+  height: auto;
+  min-width: 500px;
+  min-height: 600px;
+}
+.babonus.sheet form {
+  display: flex;
+  flex-direction: column;
+  margin: 5px 0;
+}
+.babonus.sheet .header {
+  display: flex;
+  padding: 0 5px;
+}
+.babonus.sheet .header img {
+  flex: none;
+  width: 60px;
+  height: 60px;
+}
+.babonus.sheet .header input {
+  flex: 1;
+  height: 40px;
+  margin: 10px 5px;
+  font-family: "Modesto Condensed";
+  font-size: 32px;
+}
+.babonus.sheet nav {
+  margin-top: 0.5em;
+  display: flex;
+  justify-content: space-evenly;
+}
+.babonus.sheet nav .item {
+  font-family: "Modesto Condensed";
+  font-size: 22px;
+  flex: none;
+  border-bottom: 3px solid #b5b3a4;
+}
+.babonus.sheet nav .item.active {
+  border-bottom: 3px solid #44191A;
+}
+.babonus.sheet .document-tabs {
+  flex: 1;
+  overflow: hidden;
+}
+.babonus.sheet .document-tabs .tab {
+  padding: 5px;
+  overflow: hidden auto;
+}
+.babonus.sheet .document-tabs .tab.active {
+  height: 100%;
+}
+.babonus.sheet .description {
+  display: flex;
+  height: 100%;
+  gap: 1em;
+}
+.babonus.sheet .description .properties {
+  width: 8.5em;
+  list-style: none;
+  margin: 1em 0;
+  padding: 0 0.5em 0 0;
+  border-right: 2px groove;
+}
+.babonus.sheet .description .properties .header {
+  font-weight: bold;
+  color: #4b4a44;
+  margin: 0;
+}
+.babonus.sheet .description .properties .property {
+  margin: 3px 0;
+  padding: 0 2px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px groove #eeede0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 18px;
+}
+.babonus.sheet .description .editor {
+  flex: 1;
+  margin: 5px 0;
+}
+.babonus.sheet .form-header {
+  font-family: "Modesto Condensed";
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+}
+.babonus.sheet form .form-group .form-fields {
+  flex-wrap: nowrap;
+}
+.babonus.sheet form .form-group .form-fields > * {
+  margin-right: 0;
+}
+.babonus.sheet form .form-group .form-fields input[type="text"],
+.babonus.sheet form .form-group .form-fields input[type="number"],
+.babonus.sheet form .form-group .form-fields select {
+  height: 24px;
+  border: 1px solid #7a7971;
+  background: rgba(0, 0, 0, 0.05);
+}
+.babonus.sheet form .form-group .form-fields select {
+  flex: 0;
+}
+.babonus.sheet form .form-group .form-fields:not(:has(.checkboxes, [type=text], [type=number], [type=range])) select {
+  flex: 1;
+}
+.babonus.sheet form .form-group .form-fields textarea {
+  resize: vertical;
+  min-height: calc(10px + var(--form-field-height));
+  height: var(--form-field-height);
+  overflow-y: hidden;
+}
+.babonus.sheet form .form-group .form-fields .range-value {
+  flex: 0 1 48px;
+}
+.babonus.sheet form .form-group .form-fields .range-value:after {
+  content: "%";
+}
+.babonus.sheet form .form-group .form-fields [data-action="keys-dialog"] {
+  width: 100px;
+  max-width: 100px;
+  height: 26px;
+}
+.babonus.sheet form .form-group .label {
+  flex: 1.5;
+  white-space: nowrap;
+}
+.babonus.sheet .form-fields label.checkbox:only-child {
+  margin-left: auto;
+}
+.babonus.sheet form .form-group .form-fields button:disabled {
+  color: #4b4a44;
+  cursor: default;
+}
+.babonus.sheet form .form-group [data-action="delete-filter"] {
+  flex: none;
+  padding-left: 0.5em;
+}
+.babonus.sheet form .form-group .form-fields .checkboxes {
+  display: flex;
+  overflow-x: auto;
+  flex-flow: wrap;
+  justify-content: space-evenly;
+}
+.babonus.sheet form .form-group .form-fields .checkboxes [type="checkbox"] {
+  display: none !important;
+}
+.babonus.sheet form .form-group .form-fields .checkboxes .check {
+  font-weight: bold;
+  border: 2px groove gray;
+  border-radius: 4px;
+  padding: 0 0.4em;
+  text-transform: uppercase;
+}
+.babonus.sheet form .form-group .form-fields .checkboxes [type="checkbox"]:checked ~ .check {
+  border: 2px groove #ff00006e;
+  box-shadow: 0 0 4px darkred;
+  background-color: #ff000066;
+}
+.babonus.sheet form .form-group .form-fields .checkboxes [type="checkbox"] ~ .check:hover {
+  text-shadow: 0 0 5px var(--color-shadow-primary);
+}
+.babonus.sheet [data-tab="picker"] {
+  overflow: hidden auto;
+}
+.babonus.sheet .filter {
+  padding-bottom: 0.5em;
+}
+.babonus.sheet .filter .filter-header {
+  font-family: 'Modesto Condensed';
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.5em;
+  font-size: 24px;
+  border-bottom: 2px groove rgba(139, 27, 27, 0.733);
+  margin-bottom: 0.25em;
+}
+.babonus.sheet .filter .filter-description {
+  padding: 0 0.5em;
+}
