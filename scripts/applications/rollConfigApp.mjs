@@ -53,6 +53,8 @@ export class OptionalSelector {
           data = this._getDataConsumeEffects(bonus);
         } else if (bonus.consume.type === "currency") {
           data = this._getDataConsumeCurrency(bonus);
+        } else if (bonus.consume.type === "inspiration") {
+          data = this._getDataConsumeInspiration(bonus);
         }
       } else {
         data = this._getDataNoConsume(bonus);
@@ -160,6 +162,20 @@ export class OptionalSelector {
   }
 
   /**
+   * Get the template data for bonuses that consume inspiration.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
+   */
+  _getDataConsumeInspiration(bonus) {
+    const data = {
+      action: "consume-inspiration",
+      tooltip: this._getTooltip(bonus),
+      babonus: bonus
+    };
+    return data;
+  }
+
+  /**
    * Get the template data for bonuses that do not consume.
    * @param {Babonus} bonus     The optional bonus.
    * @returns {object}          The data for the template.
@@ -185,6 +201,7 @@ export class OptionalSelector {
       else if (action.startsWith("consume-health")) n.addEventListener("click", this._onApplyHealthOption.bind(this));
       else if (action.startsWith("consume-effects")) n.addEventListener("click", this._onApplyEffectsOption.bind(this));
       else if (action.startsWith("consume-currency")) n.addEventListener("click", this._onApplyCurrencyOption.bind(this));
+      else if (action.startsWith("consume-inspiration")) n.addEventListener("click", this._onApplyInspirationOption.bind(this));
       else if (action === "consume-none") n.addEventListener("click", this._onApplyNoConsumeOption.bind(this));
     });
   }
@@ -249,6 +266,8 @@ export class OptionalSelector {
       const subtype = bonus.consume.subtype;
       const currency = this.actor.system.currency;
       return (currency[subtype] || 0) >= min;
+    } else if (bonus.consume.type === "inspiration") {
+      return (this.actor.type === "character") && this.actor.system.attributes.inspiration;
     }
   }
 
@@ -278,6 +297,8 @@ export class OptionalSelector {
     } else if (type === "currency") {
       const currency = this.actor.system.currency;
       return (currency[subtype] || 0) >= Number(value);
+    } else if (type === "inspiration") {
+      return (this.actor.type === "character") && this.actor.system.attributes.inspiration;
     }
   }
 
@@ -475,6 +496,26 @@ export class OptionalSelector {
   }
 
   /**
+   * When applying a bonus that consumes inspiration, get its id, apply the bonus, and toggle.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  async _onApplyInspirationOption(event) {
+    const target = event.currentTarget;
+    target.disabled = true;
+    const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
+      this.actor.update({"system.attributes.inspiration": false});
+      const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
+      const apply = this.callHook(bonus, this.actor, config);
+      this._appendToField(target, config.bonus, apply);
+    } else {
+      this._displayConsumptionWarning(bonus.consume.type);
+      return null;
+    }
+  }
+
+  /**
    * Construct the scaling options for an optional bonus that scales with currency consumed.
    * The 'value' of the option is the amount of coins to subtract.
    * @param {Babonus} bonus     The babonus.
@@ -574,8 +615,9 @@ export class OptionalSelector {
    * @returns {string}          The attribute key.
    */
   _getLowestValidSpellSlotProperty(bonus) {
-    const min = bonus.consume.value.min || 1;
     const spells = this.actor.system.spells;
+    if (!spells) return false; // Vehicle actors do not have spell slots.
+    const min = bonus.consume.value.min || 1;
     const pact = spells.pact;
     const max = Object.keys(CONFIG.DND5E.spellLevels).length - 1; // disregard cantrip levels
     for (let i = min; i <= max; i++) {

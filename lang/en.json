@@ -64,6 +64,8 @@
   "BABONUS.ConsumptionTypeHealth": "Hit Points",
   "BABONUS.ConsumptionTypeHealthOption": "{points} hit points",
   "BABONUS.ConsumptionTypeHealthUnavailable": "You do not have enough hit points remaining.",
+  "BABONUS.ConsumptionTypeInspiration": "Inspiration",
+  "BABONUS.ConsumptionTypeInspirationUnavailable": "You do not have inspiration.",
   "BABONUS.ConsumptionTypeQuantityUnavailable": "You do not have the required quantity of the associated item.",
   "BABONUS.ConsumptionTypeSlots": "Spell Slot",
   "BABONUS.ConsumptionTypeSlotsUnavailable": "You do not have any remaining spell slots of that level.",

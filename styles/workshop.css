@@ -1,0 +1,138 @@
+.babonus.builder .locked a {
+  color: gray;
+}
+.babonus.builder {
+  min-height: 700px;
+  min-width: 700px;
+}
+.babonus.builder .content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0 5px 5px 5px;
+  overflow: hidden;
+}
+.babonus.builder h1.otters {
+  text-align: center;
+  font-size: 55px;
+  border-bottom: none;
+  font-family: "Modesto Condensed";
+  margin-top: 5px;
+}
+.babonus.builder h1.otters [data-action="otter-rainbow"] {
+  transform: scaleX(-1);
+  transition: 0.5s;
+}
+.babonus.builder .pages {
+  overflow-y: hidden;
+  flex: 1;
+  display: flex;
+  height: 100%;
+  gap: 10px;
+}
+.babonus.builder .pages .header {
+  height: 30px;
+  line-height: 28px;
+  font-weight: bold;
+  border: 1px solid var(--color-border-light-tertiary);
+  background: rgba(0, 0, 0, 0.1);
+  padding-left: 0.5em;
+  border-radius: 4px;
+}
+.babonus.builder .pages .select-type,
+.babonus.builder .pages .current-bonuses {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  overflow: hidden auto;
+  flex-direction: column;
+}
+.babonus.builder .pages .select-type .types {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 35px;
+  justify-content: space-evenly;
+}
+.babonus.builder .pages .select-type .types a {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  align-items: center;
+}
+.babonus.builder .pages .select-type .types a > i {
+  place-self: center;
+  font-size: 60px;
+}
+.babonus.builder .pages .current-bonuses .bonuses {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 5px 5px 5px 0;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus {
+  border-bottom: 2px groove;
+  padding: 0.5em 0;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header {
+  display: grid;
+  grid-template-columns: 1fr 0fr;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .functions {
+  display: flex;
+  justify-content: space-evenly;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .label {
+  text-align: center;
+  font-size: 25px;
+  font-family: 'Modesto Condensed';
+  margin-bottom: 0.75em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.15em;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .label.disabled {
+  text-decoration: line-through;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .label .fa-solid {
+  font-size: 18px;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header [data-action="current-id"] {
+  color: gray;
+  font-size: 12px;
+  font-family: monospace;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus .description {
+  font-style: italic;
+  border-radius: 5px;
+  padding: 0.5em;
+  background-color: rgba(181, 179, 164, 0.5);
+  user-select: text;
+  max-height: fit-content;
+  overflow: hidden;
+  opacity: 1;
+}
+.babonus.builder .pages .current-bonuses .bonuses .bonus.collapsed .description {
+  display: none;
+}
+@keyframes rainbow {
+  to { background-position: 0 -200% }
+}
+.babonus.builder .vomit {
+  background: linear-gradient(rgba(255, 0, 0, 1) 0%,
+      rgba(255, 154, 0, 1) 10%,
+      rgba(208, 222, 33, 1) 20%,
+      rgba(79, 220, 74, 1) 30%,
+      rgba(63, 218, 216, 1) 40%,
+      rgba(47, 201, 226, 1) 50%,
+      rgba(28, 127, 238, 1) 60%,
+      rgba(95, 21, 242, 1) 70%,
+      rgba(186, 12, 248, 1) 80%,
+      rgba(251, 7, 217, 1) 90%,
+      rgba(255, 0, 0, 1) 100%) 0 0/100% 200%;
+  animation: rainbow 5000ms linear infinite;
+}
