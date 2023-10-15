@@ -23,6 +23,7 @@ jobs:
           files: "module.json"
         env:
           styles: "[\"module.css\"]"
+          flags.hotReload.paths: "[\"module.css\"]"
 
       # Create zip file
       - name: Create ZIP archive
