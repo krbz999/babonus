@@ -287,5 +287,6 @@
   "BABONUS.ConsumptionTypeInspiration": "Inspiration",
   "BABONUS.ConsumptionTypeInspirationUnavailable": "Vous n'avez pas d'inspiration.",
   "BABONUS.FiltersFeatureTypesLabel": "Type d'aptitude",
-  "BABONUS.FiltersFeatureTypes": "Types de caractéristiques"
+  "BABONUS.FiltersFeatureTypes": "Types de caractéristiques",
+  "BABONUS.FiltersFeatureTypesTooltip": "Le type et le sous-type doit être à objet de type-caractéristique. Par exemple, une caractéristique de classe, une caractéristique de ki ou une caractéristique de monstre."
 }
