@@ -424,6 +424,22 @@ class Babonus extends foundry.abstract.DataModel {
     this.updateSource({[key]: null});
     return this;
   }
+
+  /* -------------------------------------------- */
+  /*               Instance Methods               */
+  /* -------------------------------------------- */
+
+  /**
+   * Toggle this bonus.
+   * @returns {Promise<Babonus>}
+   */
+  async toggle() {
+    const path = `flags.babonus.bonuses.${this.id}.enabled`;
+    const state = foundry.utils.getProperty(this.parent, path);
+    await this.parent.update({[path]: !state});
+    this.updateSource({enabled: !state});
+    return this;
+  }
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
