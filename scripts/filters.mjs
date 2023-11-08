@@ -212,6 +212,13 @@ export class FilterManager {
       if (src.id === item?.id) continue;
 
       const data = src.getRollData();
+
+      // If the bonus was retrieved from the template of a spell, modify the roll data.
+      if (bonus.parent instanceof MeasuredTemplateDocument) {
+        const spellLevel = parseInt(bonus.parent.flags.dnd5e?.spellLevel);
+        if (Number.isInteger(spellLevel)) foundry.utils.setProperty(data, "item.level", spellLevel);
+      }
+
       const update = Object.entries(bonus.bonuses).reduce((acc, [key, val]) => {
         if (!val || (typeof val !== "string")) return acc;
         acc[key] = Roll.replaceFormulaData(val, data, {missing: 0});
