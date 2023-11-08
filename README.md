@@ -104,5 +104,11 @@
 <li>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</li>
 </ul>
 
+<h2>Instance Methods</h2>
+<p>Instance methods are functions found directly on an instance of a created bonus.</p>
+<ul>
+<li><code>Babonus#toggle</code> enables or disables the bonus on its actor.</li>
+</ul>
+
 <h1 style="font-weight: bold;">Hooks</h1>
 <p>A single hook, <code>babonus.applyOptionalBonus</code> is called when applying an optional bonus; after updates or deletions are performed, but before the bonus is applied to the roll. It provides the babonus, the rolling item or actor, the item, actor, or effect that was updated or deleted, and an object with the bonus that will be applied. The bonus to be applied can be modified. Explicitly returning <code>false</code> will prevent the bonus from being applied entirely.</p>
