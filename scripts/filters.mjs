@@ -117,7 +117,7 @@ export class FilterManager {
   static hitDieCheck(actor) {
     const bonuses = new BonusCollector({object: actor, type: "hitdie"}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses(bonuses, actor);
+    return this.finalFilterBonuses("hitdie", bonuses, actor);
   }
 
   /**
@@ -131,7 +131,7 @@ export class FilterManager {
   static throwCheck(actor, throwType, {isConcSave}) {
     const bonuses = new BonusCollector({object: actor, type: "throw"}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses(bonuses, actor, {throwType, isConcSave});
+    return this.finalFilterBonuses("throw", bonuses, actor, {throwType, isConcSave});
   }
 
   /**
@@ -146,13 +146,13 @@ export class FilterManager {
   static testCheck(actor, abilityId, {skillId, toolId} = {}) {
     const bonuses = new BonusCollector({object: actor, type: "test"}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses(bonuses, actor, {abilityId, skillId, toolId});
+    return this.finalFilterBonuses("test", bonuses, actor, {abilityId, skillId, toolId});
   }
 
   /**
    * Initiate the collection and filtering of bonuses applying to attack rolls, damage rolls, and save DCs.
    * @param {Item} item                       The item that is being used or is rolling.
-   * @param {string} hookType                 The type of hook (attack, damage, or save).
+   * @param {string} hookType                 The type of hook ('attack', 'damage', or 'save').
    * @param {object} [details={}]             Additional context for the filtering and checks.
    * @param {number} [details.spellLevel]     The level of the spell, if needed.
    * @returns {Babonus[]}                     A filtered array of babonuses to apply.
@@ -160,11 +160,12 @@ export class FilterManager {
   static itemCheck(item, hookType, {spellLevel} = {}) {
     const bonuses = new BonusCollector({object: item, type: hookType}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses(bonuses, item, {spellLevel});
+    return this.finalFilterBonuses(hookType, bonuses, item, {spellLevel});
   }
 
   /**
    * Filters the Collection of bonuses using the filters of Babonus.
+   * @param {string} hookType                   The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
    * @param {Collection<Babonus>} bonuses       The babonuses to filter.
    * @param {Actor|Item} object                 The actor or item used in each filter and for roll data.
    * @param {object} [details={}]               Additional data necessary to pass along.
@@ -176,8 +177,17 @@ export class FilterManager {
    * @param {string} [details.toolId]           The id of the tool type, in case of tool checks.
    * @returns {Babonus[]}                       The filtered Collection.
    */
-  static finalFilterBonuses(bonuses, object, details = {}) {
-    const valids = bonuses.reduce((acc, bab) => {
+  static finalFilterBonuses(hookType, bonuses, object, details = {}) {
+    /**
+     * A hook that is called before the collection of bonuses has been filtered.
+     * @param {Collection<Babonus>} bonuses     The collection of bonuses, before filtering.
+     * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+     * @param {object} [details={}]             Additional data passed along to perform the filtering.
+     * @param {string} hookType                 The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
+     */
+    Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
+
+    bonuses = bonuses.reduce((acc, bab) => {
       const filters = Object.entries(bab.filters ?? {});
       for (const [key, val] of filters) {
         if (val === undefined) continue;
@@ -187,8 +197,18 @@ export class FilterManager {
       acc.push(bab);
       return acc;
     }, []);
-    this._replaceRollDataOfBonuses(valids, object);
-    return valids;
+    this._replaceRollDataOfBonuses(bonuses, object);
+
+    /**
+     * A hook that is called after the collection of bonuses has been filtered.
+     * @param {Babonus[]} bonuses         The array of bonuses, after filtering.
+     * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+     * @param {object} [details={}]       Additional data passed along to perform the filtering.
+     * @param {string} hookType           The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
+     */
+    Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
+
+    return bonuses;
   }
 
   /**

@@ -99,6 +99,7 @@ export class BonusCollector {
   /**
    * Main collection method that calls the below collectors for self, all tokens, and all templates.
    * This method also ensures that overlapping templates from one item do not apply twice.
+   * @returns {Babonus[]}
    */
   _collectBonuses() {
     // Clear the arrays.
