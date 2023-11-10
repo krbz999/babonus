@@ -275,6 +275,30 @@ export class FilterManager {
     }, []) ?? [];
   }
 
+  /**
+   * Utility function to split racial values.
+   * @param {Actor5e} actor     The actor.
+   * @returns {string[]}        The different 'races' to compare against.
+   */
+  static _splitRaces(actor) {
+    let races = [];
+    let type;
+
+    // Find the value/subtype/custom object to read from.
+    if (actor.type === "npc") type = actor.system.details.type;
+    else if (actor.type === "character") type = actor.system.details.race?.system?.type;
+
+    if (type) {
+      races = FilterManager._split(type.subtype);
+      if (type.value === "custom") races.push(...FilterManager._split(type.custom));
+      else races.push(type.value);
+    } else if (actor.type === "character") {
+      races = FilterManager._split(actor.system.details.race);
+    }
+    ui.notifications.warn(`You are: ${races.join(", ")}`);
+    return races;
+  }
+
   //#endregion
 
   /**
@@ -614,14 +638,7 @@ export class FilterManager {
     if (!details) return !included.length;
 
     // All the races the target is a member of.
-    let races = [];
-    if (target.actor.type === "npc") {
-      races = FilterManager._split(details.type.subtype);
-      if (details.type.value === "custom") races.push(...FilterManager._split(details.type.custom));
-      else races.push(details.type.value);
-    } else if (target.actor.type === "character") {
-      races = FilterManager._split(details.race);
-    }
+    const races = FilterManager._splitRaces(target.actor);
 
     if (included.length && !included.some(e => races.includes(e))) return false;
     if (excluded.length && excluded.some(e => races.includes(e))) return false;
@@ -643,14 +660,7 @@ export class FilterManager {
     if (!details) return !included.length;
 
     // All the races the rolling actor is a member of.
-    let races = [];
-    if (actor.type === "npc") {
-      races = FilterManager._split(details.type.subtype);
-      if (details.type.value === "custom") races.push(...FilterManager._split(details.type.custom));
-      else races.push(details.type.value);
-    } else if (actor.type === "character") {
-      races = FilterManager._split(details.race);
-    }
+    const races = FilterManager._splitRaces(actor);
 
     if (included.length && !included.some(e => races.includes(e))) return false;
     if (excluded.length && excluded.some(e => races.includes(e))) return false;
