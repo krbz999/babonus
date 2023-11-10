@@ -30,23 +30,6 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
     data.value = this.value(bonus).join(";");
     return data;
   }
-
-  /**
-   * Get key and names from compendium packs given an object of ids in the CONFIG.
-   * @param {object} key      The key of the object of ids in CONFIG.DND5E.
-   * @returns {object[]}      An array of objects with 'value' and 'label.
-   */
-  static _getEntriesFromConfig(key) {
-    return Object.entries(CONFIG.DND5E[key]).reduce((acc, [value, uuid]) => {
-      let pack = CONFIG.DND5E.sourcePacks.ITEMS;
-      let [scope, collection, id] = uuid.split(".");
-      if (scope && collection) pack = `${scope}.${collection}`;
-      if (!id) id = uuid;
-      const name = game.packs.get(pack)?.index.get(id)?.name;
-      if (name) acc.push({value, label: name});
-      return acc;
-    }, []);
-  }
 }
 
 class AbilitiesField extends BaseField {
@@ -140,8 +123,8 @@ class BaseArmorsField extends BaseField {
 
   /** @override */
   static get choices() {
-    return this._getEntriesFromConfig("armorIds").concat({
-      value: "shield", label: game.i18n.localize("DND5E.EquipmentShield")
+    return Object.keys({...CONFIG.DND5E.armorIds, ...CONFIG.DND5E.shieldIds}).map(key => {
+      return {value: key, label: dnd5e.documents.Trait.keyLabel(key, {trait: "armor"})};
     });
   }
 }
@@ -151,7 +134,9 @@ class BaseToolsField extends BaseField {
 
   /** @override */
   static get choices() {
-    return this._getEntriesFromConfig("toolIds");
+    return Object.keys(CONFIG.DND5E.toolIds).map(key => {
+      return {value: key, label: dnd5e.documents.Trait.keyLabel(key, {trait: "tool"})};
+    });
   }
 }
 
@@ -160,7 +145,9 @@ class BaseWeaponsField extends BaseField {
 
   /** @override */
   static get choices() {
-    return this._getEntriesFromConfig("weaponIds");
+    return Object.keys(CONFIG.DND5E.weaponIds).map(key => {
+      return {value: key, label: dnd5e.documents.Trait.keyLabel(key, {trait: "weapon"})};
+    });
   }
 }
 
