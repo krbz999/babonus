@@ -55,6 +55,8 @@ export class OptionalSelector {
           data = this._getDataConsumeCurrency(bonus);
         } else if (bonus.consume.type === "inspiration") {
           data = this._getDataConsumeInspiration(bonus);
+        } else if (bonus.consume.type === "resource") {
+          data = this._getDataConsumeResource(bonus);
         }
       } else {
         data = this._getDataNoConsume(bonus);
@@ -176,6 +178,24 @@ export class OptionalSelector {
   }
 
   /**
+   * Get the template data for bonuses that consume a resource.
+   * @param {Babonus} bonus     The bonus that is consuming.
+   * @returns {object}          The data for the template.
+   */
+  _getDataConsumeResource(bonus) {
+    const data = {
+      action: "consume-resource",
+      tooltip: this._getTooltip(bonus),
+      babonus: bonus
+    };
+    if (bonus.consume.isScaling) {
+      data.action += "-scale";
+      data.options = this._constructScalingResourceOptions(bonus);
+    }
+    return data;
+  }
+
+  /**
    * Get the template data for bonuses that do not consume.
    * @param {Babonus} bonus     The optional bonus.
    * @returns {object}          The data for the template.
@@ -202,6 +222,7 @@ export class OptionalSelector {
       else if (action.startsWith("consume-effects")) n.addEventListener("click", this._onApplyEffectsOption.bind(this));
       else if (action.startsWith("consume-currency")) n.addEventListener("click", this._onApplyCurrencyOption.bind(this));
       else if (action.startsWith("consume-inspiration")) n.addEventListener("click", this._onApplyInspirationOption.bind(this));
+      else if (action.startsWith("consume-resource")) n.addEventListener("click", this._onApplyResourceOption.bind(this));
       else if (action === "consume-none") n.addEventListener("click", this._onApplyNoConsumeOption.bind(this));
     });
   }
@@ -268,6 +289,13 @@ export class OptionalSelector {
       return (currency[subtype] || 0) >= min;
     } else if (bonus.consume.type === "inspiration") {
       return (this.actor.type === "character") && this.actor.system.attributes.inspiration;
+    } else if (bonus.consume.type === "resource") {
+      // Here we compare for the actor owning the bonus.
+      const actor = bonus.actor;
+      if ((actor.type !== "character") || !actor.isOwner) return false;
+      const subtype = bonus.consume.subtype;
+      const resource = actor.system.resources[subtype];
+      return (resource.value || 0) >= min;
     }
   }
 
@@ -299,6 +327,11 @@ export class OptionalSelector {
       return (currency[subtype] || 0) >= Number(value);
     } else if (type === "inspiration") {
       return (this.actor.type === "character") && this.actor.system.attributes.inspiration;
+    } else if (type === "resource") {
+      const actor = bonus.actor;
+      const subtype = bonus.consume.subtype;
+      const resource = actor.system.resources[subtype];
+      return (resource.value || 0) >= Number(value);
     }
   }
 
@@ -558,6 +591,56 @@ export class OptionalSelector {
       const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
       this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
       const apply = this.callHook(bonus, this.actor, config);
+      this._appendToField(event.currentTarget, config.bonus, apply);
+    } else {
+      this._displayConsumptionWarning(bonus.consume.type);
+      return null;
+    }
+  }
+
+  /**
+   * Construct the scaling options for an optional bonus that scales with resource consumed.
+   * The 'value' of the option is the amount of the resource to subtract.
+   * @param {Babonus} bonus     The babonus.
+   * @returns {string}          The string of select options.
+   */
+  _constructScalingResourceOptions(bonus) {
+    const value = bonus.consume.value;
+    const subtype = bonus.consume.subtype;
+    const res = bonus.actor.system.resources[subtype];
+    if ((res.value < value.min) || !(value.step > 0)) return {};
+    const options = {};
+    for (let i = (value.min || 1); i <= Math.min(res.value, value.max || Infinity); i += value.step) {
+      options[i] = game.i18n.format("BABONUS.ConsumptionTypeResourceOption", {value: i, label: res.label});
+    }
+    return options;
+  }
+
+  /**
+   * When applying a bonus that consumes a resource, get the value from the select, get the
+   * minimum possible value, and calculate how much it should scale up. If the bonus does not
+   * scale, get the minimum value and consume it.
+   * @param {PointerEvent} event      The initiating click event.
+   */
+  async _onApplyResourceOption(event) {
+    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
+    const scales = event.currentTarget.dataset.action.endsWith("-scale");
+    const canSupply = this._canSupply(event);
+    if (canSupply) {
+      let value;
+      let scale;
+      if (scales) {
+        value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
+        scale = Math.floor((Number(value) - (bonus.consume.value.min || 1)) / bonus.consume.value.step);
+      } else {
+        value = Number(bonus.consume.value.min || 1);
+        scale = 0;
+      }
+      const actor = bonus.actor;
+      const resource = actor.system.resources[bonus.consume.subtype];
+      const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
+      actor.update({[`system.resources.${bonus.consume.subtype}.value`]: resource.value - value});
+      const apply = this.callHook(bonus, actor, config);
       this._appendToField(event.currentTarget, config.bonus, apply);
     } else {
       this._displayConsumptionWarning(bonus.consume.type);
