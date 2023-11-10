@@ -282,14 +282,12 @@ export class FilterManager {
    */
   static _splitRaces(actor) {
     let races = [];
-    let type;
 
-    // Find the value/subtype/custom object to read from.
-    if (actor.type === "npc") type = actor.system.details.type;
-    else if (actor.type === "character") {
-      // Characters prefer the race item, then the `details.type` object.
-      type = actor.system.details.race?.system?.type ?? actor.system.details.type;
-    }
+    /**
+     * Find the type object on the actor to read from. We prefer the actor data,
+     * since that is subject to effects and later changes, while the race item is not.
+     */
+    const type = actor.system.details?.type;
 
     if (type) {
       races = FilterManager._split(type.subtype);
