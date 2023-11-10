@@ -286,14 +286,15 @@ export class FilterManager {
 
     // Find the value/subtype/custom object to read from.
     if (actor.type === "npc") type = actor.system.details.type;
-    else if (actor.type === "character") type = actor.system.details.race?.system?.type;
+    else if (actor.type === "character") {
+      // Characters prefer the race item, then the `details.type` object.
+      type = actor.system.details.race?.system?.type ?? actor.system.details.type;
+    }
 
     if (type) {
       races = FilterManager._split(type.subtype);
       if (type.value === "custom") races.push(...FilterManager._split(type.custom));
       else races.push(type.value);
-    } else if (actor.type === "character") {
-      races = FilterManager._split(actor.system.details.race);
     }
     return races;
   }
