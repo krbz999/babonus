@@ -295,7 +295,6 @@ export class FilterManager {
     } else if (actor.type === "character") {
       races = FilterManager._split(actor.system.details.race);
     }
-    ui.notifications.warn(`You are: ${races.join(", ")}`);
     return races;
   }
 
