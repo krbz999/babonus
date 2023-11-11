@@ -96,6 +96,10 @@ import {BonusCollector} from "./applications/bonusCollector.mjs";
  */
 
 export class FilterManager {
+  /**
+   * @typedef {Actor} Actor5e     Actor implementation.
+   * @typedef {Item} Item5e       Item implementation.
+   */
 
   /**
    **********************************************************
@@ -111,8 +115,8 @@ export class FilterManager {
 
   /**
    * Initiate the collection and filtering of bonuses applying to hit die rolls.
-   * @param {Actor} actor     The actor performing the roll.
-   * @returns {Babonus[]}     A filtered array of babonuses to apply.
+   * @param {Actor5e} actor     The actor performing the roll.
+   * @returns {Babonus[]}       A filtered array of babonuses to apply.
    */
   static hitDieCheck(actor) {
     const bonuses = new BonusCollector({object: actor, type: "hitdie"}).returnBonuses();
@@ -122,7 +126,7 @@ export class FilterManager {
 
   /**
    * Initiate the collection and filtering of bonuses applying to saving throws.
-   * @param {Actor} actor                     The actor performing the saving throw.
+   * @param {Actor5e} actor                   The actor performing the saving throw.
    * @param {string} throwType                The type of saving throw being made (possibly 'death').
    * @param {object} details                  Additional context for the filtering and checks.
    * @param {boolean} details.isConcSave      Whether this saving throw is made to maintain concentration.
@@ -136,7 +140,7 @@ export class FilterManager {
 
   /**
    * Initiate the collection and filtering of bonuses applying to ability checks.
-   * @param {Actor} actor                   The actor performing the test.
+   * @param {Actor5e} actor                 The actor performing the test.
    * @param {string} abilityId              The ability used for the test.
    * @param {object} [details={}]           Additional context for the filtering and checks.
    * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
@@ -151,7 +155,7 @@ export class FilterManager {
 
   /**
    * Initiate the collection and filtering of bonuses applying to attack rolls, damage rolls, and save DCs.
-   * @param {Item} item                       The item that is being used or is rolling.
+   * @param {Item5e} item                     The item that is being used or is rolling.
    * @param {string} hookType                 The type of hook ('attack', 'damage', or 'save').
    * @param {object} [details={}]             Additional context for the filtering and checks.
    * @param {number} [details.spellLevel]     The level of the spell, if needed.
@@ -167,7 +171,7 @@ export class FilterManager {
    * Filters the Collection of bonuses using the filters of Babonus.
    * @param {string} hookType                   The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
    * @param {Collection<Babonus>} bonuses       The babonuses to filter.
-   * @param {Actor|Item} object                 The actor or item used in each filter and for roll data.
+   * @param {Actor5e|Item5e} object             The actor or item used in each filter and for roll data.
    * @param {object} [details={}]               Additional data necessary to pass along.
    * @param {string} [details.throwType]        The type of saving thwo being made (possibly 'death').
    * @param {boolean} [details.isConcSave]      Whether a saving throw is made to maintain concentration.
@@ -213,8 +217,8 @@ export class FilterManager {
 
   /**
    * Replace roll data of bonuses that originate from foreign sources, including transferred effects.
-   * @param {Babonus[]} bonuses     An array of babonuses whose bonuses to replace.
-   * @param {Actor|Item} object     An actor or item used to get the correct roll data.
+   * @param {Babonus[]} bonuses         An array of babonuses whose bonuses to replace.
+   * @param {Actor5e|Item5e} object     An actor or item used to get the correct roll data.
    */
   static _replaceRollDataOfBonuses(bonuses, object) {
     const item = (object instanceof Item) ? object : null;
@@ -313,7 +317,7 @@ export class FilterManager {
 
   /**
    * Find out if the item's type is one of the valid ones in the filter.
-   * @param {Item} item           The item being filtered against.
+   * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of item type keys.
    * @returns {boolean}           Whether the item's type was in the filter.
    */
@@ -324,7 +328,7 @@ export class FilterManager {
 
   /**
    * Find out if the item's base weapon type is one of the valid ones in the filter.
-   * @param {Item} item           The item being filtered against.
+   * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of weapon baseItem keys.
    * @returns {boolean}           Whether the item's baseItem was in the filter.
    */
@@ -341,9 +345,9 @@ export class FilterManager {
   /**
    * Find out if the actor is wearing one of the included armor types in the filter and none of the excluded types.
    * Note that this includes shields as well.
-   * @param {Actor|Item} object     The actor or item performing the roll.
-   * @param {string[]} filter       The array of base armor keys.
-   * @returns {boolean}             Whether the rolling actor is wearing appropriate armor.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {string[]} filter           The array of base armor keys.
+   * @returns {boolean}                 Whether the rolling actor is wearing appropriate armor.
    */
   static baseArmors(object, filter) {
     const actor = (object instanceof Item) ? object.actor : object;
@@ -370,7 +374,7 @@ export class FilterManager {
 
   /**
    * Find out if the item has any of the included damage types in its damage parts and none of the excluded types.
-   * @param {Item} item           The item being filtered against.
+   * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of damage types.
    * @returns {boolean}           Whether the item's damage types overlap with the filter.
    */
@@ -385,7 +389,7 @@ export class FilterManager {
 
   /**
    * Find out if the item is a spell and belongs to one of the filter's spell schools.
-   * @param {Item} item           The item being filtered against.
+   * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of spell schools.
    * @returns {boolean}           Whether the item is a spell and is of one of these schools.
    */
@@ -400,7 +404,7 @@ export class FilterManager {
    * by the system itself for items set to 'Default' to look for finesse weapons and spellcasting
    * abilities. Note that this is the ability set at the top level of the item's action, and
    * is NOT the ability used to determine the dc of the saving throw.
-   * @param {Actor|Item} object               The actor or item performing the roll.
+   * @param {Actor5e|Item5e} object           The actor or item performing the roll.
    * @param {string[]} filter                 The array of abilities.
    * @param {object} [details={}]             Additional context for the roll being performed.
    * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll (checks only).
@@ -434,7 +438,7 @@ export class FilterManager {
   /**
    * Find out if the item is a spell and has any, or all, of the required spell components.
    * The item must match either all or at least one, depending on what is set.
-   * @param {Item} item                 The item being filtered against.
+   * @param {Item5e} item               The item being filtered against.
    * @param {object} filter             The filtering object.
    * @param {string[]} filter.types     The array of spell components in the filter.
    * @param {string} filter.match       The type of matching, either ALL or ANY.
@@ -457,7 +461,7 @@ export class FilterManager {
    * the item here is the cloned spell only in the case of save dc bonuses, meaning we need to
    * pass on the correct spell level for attack and damage roll bonuses.
    * TODO: the upcast level cannot be retrieved from template auras.
-   * @param {Item} item                             The item being filtered against.
+   * @param {Item5e} item                           The item being filtered against.
    * @param {string[]} filter                       The array of spell levels in the filter.
    * @param {object} [details={}]                   Additional context for the filtering.
    * @param {number} [details.spellLevel=null]      The level at which the spell was cast.
@@ -471,7 +475,7 @@ export class FilterManager {
 
   /**
    * Find out if the item's action type is set to any of the required attack types.
-   * @param {Item} item           The item being filtered against.
+   * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of attack types.
    * @returns {boolean}           Whether the item has any of the required attack types.
    */
@@ -484,7 +488,7 @@ export class FilterManager {
 
   /**
    * Find out if the item has any of the included weapon properties and none of the excluded properties.
-   * @param {Item} item           The item being filtered against.
+   * @param {Item5e} item         The item being filtered against.
    * @param {string[]} filter     The array of properties you must have one of or none of.
    * @returns {boolean}           Whether the item has any of the included properties and none of the excluded properties.
    */
@@ -502,7 +506,7 @@ export class FilterManager {
    * Find out if the saving throw in the item is set using an ability in the filter.
    * This filter is only available for bonuses applying specifically to saving throw DCs.
    * Special consideration is made for items with save DC set using spellcasting ability.
-   * @param {Item} item            The item being filtered against.
+   * @param {Item5e} item          The item being filtered against.
    * @param {string[]} filter      The ability that is used to set the DC of the item's saving throw.
    * @returns {boolean}            Whether the item's saving throw is set using an ability in the filter.
    */
@@ -524,7 +528,7 @@ export class FilterManager {
    * If 'one' and 'other' do not both evaluate to numbers, string comparison is instead used.
    * For string comparison, inequality operators are taken to mean substrings. The comparisons
    * are done after replacing any roll data.
-   * @param {Item|Actor} object             The item or actor being filtered against.
+   * @param {Actor5e|Item5e} object         The item or actor being filtered against.
    * @param {object[]} filter               An array of objects with 'one', 'other', and 'operator'.
    * @param {string} filter[].one           One value to compare against another.
    * @param {string} filter[].other         One value to compare against another.
@@ -566,9 +570,9 @@ export class FilterManager {
 
   /**
    * Find out if the actor has any of the included effects and none of the excluded effects.
-   * @param {Item|Actor} object     The item or actor being filtered against.
-   * @param {string[]} filter       The array of effect statuses you must have or must not have.
-   * @returns {boolean}             Whether the actor has any included effects and no excluded effects.
+   * @param {Actor5e|Item5e} object     The item or actor being filtered against.
+   * @param {string[]} filter           The array of effect statuses you must have or must not have.
+   * @returns {boolean}                 Whether the actor has any included effects and no excluded effects.
    */
   static statusEffects(object, filter) {
     if (!filter?.length) return true;
@@ -587,9 +591,9 @@ export class FilterManager {
   /**
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
-   * @param {Item|Actor} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter       The array of effect statuses the target must have or must not have.
-   * @returns {boolean}             Whether the target actor has any of the status effects.
+   * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
+   * @param {string[]} filter           The array of effect statuses the target must have or must not have.
+   * @returns {boolean}                 Whether the target actor has any of the status effects.
    */
   static targetEffects(object, filter) {
     if (!filter?.length) return true;
@@ -608,7 +612,7 @@ export class FilterManager {
 
   /**
    * Find out if the bonus should apply to this type of saving throw.
-   * @param {Actor} actor                     The actor making the saving throw.
+   * @param {Actor5e} actor                   The actor making the saving throw.
    * @param {string[]} filter                 The array of saving throw types to check for.
    * @param {object} details                  Additional context to help filter the bonus.
    * @param {string} details.throwType        The id of the ability, can be 'death'.
@@ -624,9 +628,9 @@ export class FilterManager {
   /**
    * Find out if the target is one of the included creature types and none of the excluded types.
    * In the case of no targets, refer to whether any specific creature type was included.
-   * @param {Actor|Item} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter       The array of creature types the target must or must not be.
-   * @returns {boolean}             Whether the target is of a valid creature type.
+   * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
+   * @param {string[]} filter           The array of creature types the target must or must not be.
+   * @returns {boolean}                 Whether the target is of a valid creature type.
    */
   static creatureTypes(object, filter) {
     if (!filter?.length) return true;
@@ -646,9 +650,9 @@ export class FilterManager {
   /**
    * Find out if the rolling actor is one of the included creature etypes and none of the excluded types.
    * In the case of no values, refer to whether any specific creature type was included.
-   * @param {Actor|Item} object     The rolling actor or item.
-   * @param {string[]} filter       The array of creature types the rolling actor must or must not be.
-   * @returns {boolean}             Whether the rolling actor is of a valid creature type.
+   * @param {Actor5e|Item5e} object     The rolling actor or item.
+   * @param {string[]} filter           The array of creature types the rolling actor must or must not be.
+   * @returns {boolean}                 Whether the rolling actor is of a valid creature type.
    */
   static actorCreatureTypes(object, filter) {
     if (!filter?.length) return true;
@@ -667,24 +671,24 @@ export class FilterManager {
 
   /**
    * Find out if the actor has a number of spell slots remaining between the min and max.
-   * @param {Actor|Item} object     The item or actor.
-   * @param {object} filter         The filtering for the bonus.
-   * @param {number} filter.min     The minimum value available required for the bonus to apply.
-   * @param {number} filter.max     The maximum value available required for the bonus to apply.
-   * @returns {boolean}             Whether the number of spell slots remaining falls within the bounds.
+   * @param {Actor5e|Item5e} object     The item or actor.
+   * @param {object} filter             The filtering for the bonus.
+   * @param {number} filter.min         The minimum value available required for the bonus to apply.
+   * @param {number} filter.max         The maximum value available required for the bonus to apply.
+   * @returns {boolean}                 Whether the number of spell slots remaining falls within the bounds.
    */
   static remainingSpellSlots(object, {min, max}) {
+    if (![min, max].some(m => Number.isInteger(m))) return true;
     const caster = object.actor ?? object;
-    const spells = Object.values(caster.system.spells).reduce((acc, val) => {
-      if (!val.value || !val.max) return acc;
-      return acc + val.value;
+    const spells = Object.values(caster.system.spells ?? {}).reduce((acc, val) => {
+      return acc + Math.clamped(val.value, 0, val.max);
     }, 0);
-    return (!!min ? min <= spells : true) && (!!max ? spells <= max : true);
+    return spells.between(min || 0, max || Infinity);
   }
 
   /**
    * Find out if the embedded script returns true.
-   * @param {Actor|Item} object               The item or actor.
+   * @param {Actor5e|Item5e} object           The item or actor.
    * @param {string} script                   The script saved in the filter.
    * @param {object} details                  Additional context to help filter the bonus.
    * @param {boolean} details.isConcSave      Whether this saving throw is made to maintain concentration.
@@ -713,7 +717,7 @@ export class FilterManager {
 
   /**
    * Find out if the spell that is cast is one able to consume a spell slot.
-   * @param {Item} item           The spell being cast, or making an attack or damage roll.
+   * @param {Item5e} item         The spell being cast, or making an attack or damage roll.
    * @param {string[]} filter     The types of preparation modes allowed.
    * @returns {boolean}           Whether the spell matches the preparation mode.
    */
@@ -726,11 +730,11 @@ export class FilterManager {
   /**
    * Find out if the targeted token is at least x-by-x or larger, or at most x-by-x or smaller,
    * while optionally also at most as big or small as the roller's token.
-   * @param {Actor|Item} object       The roller from which to get their token.
-   * @param {object} filter           The filtering for the bonus.
-   * @param {number} filter.size      The minimum/maximum size of the targeted token.
-   * @param {number} filter.type      Whether it is 'at least' (0) or 'at most' (1).
-   * @param {boolean} filter.self     Whether to clamp using the rolling token's size.
+   * @param {Actor5e|Item5e} object     The roller from which to get their token.
+   * @param {object} filter             The filtering for the bonus.
+   * @param {number} filter.size        The minimum/maximum size of the targeted token.
+   * @param {number} filter.type        Whether it is 'at least' (0) or 'at most' (1).
+   * @param {boolean} filter.self       Whether to clamp using the rolling token's size.
    */
   static tokenSizes(object, {size, type, self}) {
     if (!(size > 0)) return true;
@@ -752,7 +756,7 @@ export class FilterManager {
 
   /**
    * Find out if the tool being rolled for a check is one of the correct types.
-   * @param {Actor} actor         The actor performing the roll.
+   * @param {Actor5e} actor       The actor performing the roll.
    * @param {string[]} filter     The types of tool types.
    * @param {string} toolId       The type of tool being rolled.
    * @returns {boolean}           Whether the tool type matches the filter.
@@ -768,7 +772,7 @@ export class FilterManager {
 
   /**
    * Find out if the skill being rolled is one of the correct types.
-   * @param {Actor} actor                 The actor performing the roll.
+   * @param {Actor5e} actor               The actor performing the roll.
    * @param {string[]} filter             The types of skill ids.
    * @param {object} details              Additional properties for the filtering.
    * @param {string} details.skillId      The id of the skill being rolled.
@@ -785,11 +789,11 @@ export class FilterManager {
 
   /**
    * Find out if the health of the actor is at or above/below the threshold.
-   * @param {Actor|Item} object       The actor or item performing the roll.
-   * @param {object} filter           The object used for the filtering.
-   * @param {number} filter.value     The hit point percentage threshold.
-   * @param {number} filter.type      The type of threshold (0 for 'x or lower' and 1 for 'x and higher').
-   * @returns {boolean}               Whether the threshold is obeyed.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {object} filter             The object used for the filtering.
+   * @param {number} filter.value       The hit point percentage threshold.
+   * @param {number} filter.type        The type of threshold (0 for 'x or lower' and 1 for 'x and higher').
+   * @returns {boolean}                 Whether the threshold is obeyed.
    */
   static healthPercentages(object, {value, type}) {
     if (!Number.isNumeric(value) || ![0, 1].includes(type)) return true;
@@ -800,7 +804,7 @@ export class FilterManager {
 
   /**
    * Find out if the roll was proficient, and if at a valid level.
-   * @param {Actor|Item} object             The actor or item performing the roll.
+   * @param {Actor5e|Item5e} object         The actor or item performing the roll.
    * @param {number[]} filter               The levels of valid proficiencies.
    * @param {object} details                Additional properties for the filtering.
    * @param {string} details.throwType      The type of saving throw.
@@ -836,8 +840,8 @@ export class FilterManager {
 
   /**
    * Find out if the item that made the roll was the correct feature type and feature subtype.
-   * @param {Item} item                 The actor or item performing the roll.
-   * @param {object} filter
+   * @param {Item5e} item               The actor or item performing the roll.
+   * @param {object} filter             The filter object.
    * @param {string} filter.type        The feature type.
    * @param {string} filter.subtype     The feature subtype.
    * @returns {boolean}                 Whether the feature is the correct type.
