@@ -122,13 +122,21 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the babonus is unavailable due to its parent item being unequipped or unattuned (if required).
+   * Whether the babonus is unavailable due to its parent item being unequipped, unattuned (if required), or uncrewed.
    * This is different from a babonus that is unavailable due to its parent effect being disabled or unavailable.
    * @returns {boolean}
    */
   get isSuppressed() {
     const item = this.item;
     if (!item) return false;
+
+    const actor = item.actor;
+    if (!actor) return true;
+
+    if (actor.type === "vehicle") {
+      if (!dnd5e.dataModels.item.config[item.type].schema.getField("crewed")) return false;
+      return !item.system.crewed;
+    }
 
     // The item type must be equippable.
     if (!dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) return false;
