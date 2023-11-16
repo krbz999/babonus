@@ -164,6 +164,8 @@ export class BabonusSheet extends DocumentSheet {
       Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
         subtypes[c[0]] = c[1].label;
       });
+    } else if (consume.type === "resource") {
+      ["primary", "secondary", "tertiary"].forEach(p => subtypes[p] = `BABONUS.ConsumptionTypeResource${p.capitalize()}`);
     }
     const isSlot = consume.type === "slots";
 
@@ -172,7 +174,7 @@ export class BabonusSheet extends DocumentSheet {
       choices: consume.OPTIONS,
       cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
-      showStep: ["health", "currency"].includes(consume.type) && consume.scales,
+      showStep: ["health", "currency", "resource"].includes(consume.type) && consume.scales,
       showFormula: consume.scales,
       showMax: consume.scales,
       showSubtype: !foundry.utils.isEmpty(subtypes),

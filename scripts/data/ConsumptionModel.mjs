@@ -23,6 +23,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     if (this.canConsumeHealth) options.health = "BABONUS.ConsumptionTypeHealth";
     if (this.canConsumeCurrency) options.currency = "BABONUS.ConsumptionTypeCurrency";
     if (this.canConsumeInspiration) options.inspiration = "BABONUS.ConsumptionTypeInspiration";
+    if (this.canConsumeResource) options.resource = "BABONUS.ConsumptionTypeResource";
     return options;
   }
 
@@ -136,6 +137,15 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
+   * Whether 'Resource' should be a valid option for consumption.
+   * @type {boolean}
+   */
+  get canConsumeResource() {
+    const actor = this.bonus.actor;
+    return (actor instanceof Actor) && (actor.type === "character");
+  }
+
+  /**
    * Whether the consumption data on the babonus creates valid consumption
    * for the optional bonus application when rolling. If it does not, the
    * babonus is ignored there.
@@ -149,6 +159,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * - For health, the minimum required amount of hit points must be a positive integer.
    * - For currencies, a valid denomination must be set, and the minimum consumed must be a positive integer.
    * - For inspiration, the roller must be a 'character' type actor, which is validated elsewhere.
+   * - For resources, the roller must be a 'character' type actor, which is validated elsewhere.
    * @returns {boolean}
    */
   get isConsuming() {
@@ -166,13 +177,13 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     else if (type === "health") return this.canConsumeHealth && (min > 0);
     else if (type === "currency") return (this.subtype in CONFIG.DND5E.currencies) && (min > 0);
     else if (type === "inspiration") return this.canConsumeInspiration;
+    else if (type === "resource") return this.canConsumeResource;
   }
 
   /**
-   * Whether the bonus is scaling when consuming, which requires that it is consuming,
-   * has 'scales' set to true, and does not consume an effect, which cannot scale. If
-   * the type is 'health', then 'step' must be 1 or greater. Otherwise the 'max', if
-   * set, must be strictly greater than 'min'.
+   * Whether the bonus is scaling when consuming, which requires that it is consuming, has 'scales' set to true, and
+   * does not consume an effect or inspiration, which cannot scale. If the type is 'health', 'currency', or 'resource',
+   * then 'step' must be 1 or greater. Otherwise the 'max', if set, must be strictly greater than 'min'.
    * @returns {boolean}
    */
   get isScaling() {
@@ -180,6 +191,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     if (["effect", "inspiration"].includes(this.type)) return false;
     else if ((this.type === "health") && !(this.value.step > 0)) return false;
     else if ((this.type === "currency") && !(this.value.step > 0)) return false;
+    else if ((this.type === "resource") && !(this.value.step > 0)) return false;
     return (this.value.max || Infinity) > this.value.min;
   }
 }

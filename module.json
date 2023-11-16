@@ -1,7 +1,7 @@
 {
   "id": "babonus",
   "title": "Build-a-Bonus",
-  "version": "11.4.2",
+  "version": "11.5.0",
   "authors": [
     {
       "name": "Zhell",
@@ -32,8 +32,8 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "minimum": "2.3.0",
-          "maximum": "2.3.9"
+          "minimum": "2.4.0",
+          "maximum": "2.4.9"
         }
       }
     ]
@@ -64,6 +64,6 @@
   "url": "https://github.com/krbz999/babonus",
   "license": "https://raw.githubusercontent.com/krbz999/babonus/main/LICENSE",
   "manifest": "https://github.com/krbz999/babonus/releases/latest/download/module.json",
-  "download": "https://github.com/krbz999/babonus/releases/download/v11.4.2/module.zip",
+  "download": "https://github.com/krbz999/babonus/releases/download/v11.5.0/module.zip",
   "description": "Make it easier to manage very particular and niche bonuses and auras on actors, items, effects, and templates."
 }

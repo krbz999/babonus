@@ -44,7 +44,7 @@
 <p>You can configure a list of effect statuses that prevent the aura from affecting targets and the owner (such as if the source of the aura is dead or unconscious). The Keys button on the sheet will help you pick out statuses from those that exist on the token HUD. The field itself is not validated; if you are able to give an effect a status of your own choosing, that is respected as well; simply write the status in the field.</p>
 <p>Lastly, you can configure a non-template aura to require direct line of sight from the source token to the rolling token's actor, or to require an unobstructed path of movement.</p>
 <p>If the bonus additively affects an attack roll, damage roll, saving throw, or ability check (adding a bonus on top), the bonus can be toggled to be optional. Other types of bonuses will apply regardless. The actor will then have the choice when adding the bonus, which is shown in the roll configuration dialog when making the roll.</p>
-<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, currencies, the active effect on which it is created, or even the inspiration granted to the character from the GM. You can configure the minimum required consumption, as well as the maximum if the bonus should scale. For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect or GM inspiration cannot scale.</p>
+<p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, currencies, the active effect on which it is created, or even the inspiration granted to the character from the GM, or any of the actor's resources. You can configure the minimum required consumption, as well as the maximum if the bonus should scale. For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect or GM inspiration cannot scale.</p>
 
 <p style="text-align: center"><img src="https://i.imgur.com/eJsfogz.png" style="border: none"></p>
 
@@ -104,5 +104,33 @@
 <li>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</li>
 </ul>
 
+<h2>Instance Methods</h2>
+<p>Instance methods are functions found directly on an instance of a created bonus.</p>
+<ul>
+<li><code>Babonus#toggle</code> enables or disables the bonus on its actor.</li>
+</ul>
+
 <h1 style="font-weight: bold;">Hooks</h1>
-<p>A single hook, <code>babonus.applyOptionalBonus</code> is called when applying an optional bonus; after updates or deletions are performed, but before the bonus is applied to the roll. It provides the babonus, the rolling item or actor, the item, actor, or effect that was updated or deleted, and an object with the bonus that will be applied. The bonus to be applied can be modified. Explicitly returning <code>false</code> will prevent the bonus from being applied entirely.</p>
+<p>The hook, <code>babonus.applyOptionalBonus</code> is called when applying an optional bonus; after updates or deletions are performed, but before the bonus is applied to the roll. It provides the babonus, the rolling item or actor, the item, actor, or effect that was updated or deleted, and an object with the bonus that will be applied. The bonus to be applied can be modified. Explicitly returning <code>false</code> will prevent the bonus from being applied entirely.</p>
+<p>Two hooks are called during the filtering of the collected bonuses when making a relevant roll.</p>
+<pre><code>/**
+ * A hook that is called before the collection of bonuses has been filtered.
+ * @param {Collection&lt;Babonus&gt;} bonuses     The collection of bonuses, before filtering.
+ * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+ * @param {object} [details={}]             Additional data passed along to perform the filtering.
+ * @param {string} hookType                 The type of hook being executed ('attack',
+ *                                          'damage', 'save', 'throw', 'test', 'hitdie').
+ */
+Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
+</code></pre>
+
+<pre><code>/**
+ * A hook that is called after the collection of bonuses has been filtered.
+ * @param {Babonus[]} bonuses         The array of bonuses, after filtering.
+ * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+ * @param {object} [details={}]       Additional data passed along to perform the filtering.
+ * @param {string} hookType           The type of hook being executed ('attack',
+ *                                    'damage', 'save', 'throw', 'test', 'hitdie').
+ */
+Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
+</code></pre>

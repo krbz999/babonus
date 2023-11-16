@@ -36,6 +36,7 @@ export class RollHooks {
 
   /** When you make an attack roll... */
   static preRollAttack(item, rollConfig) {
+    if (!item) return;
     // get bonuses:
     const spellLevel = rollConfig.data.item.level;
     const bonuses = FilterManager.itemCheck(item, "attack", {spellLevel});
@@ -72,6 +73,7 @@ export class RollHooks {
 
   /** When you make a damage roll... */
   static preRollDamage(item, rollConfig) {
+    if (!item) return;
     // get bonus:
     const spellLevel = rollConfig.data.item.level;
     const bonuses = FilterManager.itemCheck(item, "damage", {spellLevel});
