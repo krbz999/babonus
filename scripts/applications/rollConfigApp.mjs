@@ -234,8 +234,8 @@ export class OptionalSelector {
     if (!data.bonuses.length) return;
     this.form.innerHTML = await renderTemplate(this.template, data);
     this.activateListeners(this.form);
-    const group = this.dialog.element[0].querySelector(".dialog-content > form > .form-group:last-child");
-    group.after(this.form.firstElementChild);
+    const group = this.dialog.element[0].querySelector(".dialog-content > form");
+    group.append(this.form.firstElementChild);
     this.dialog.setPosition({height: "auto"});
   }
 
