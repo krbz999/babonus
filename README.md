@@ -1,3 +1,5 @@
+Interested in following along with development of any of my modules? Join the [Discord server](https://discord.gg/QAG8eWABGT). 
+
 <h1 style="text-align: center; font-size: 60px; border: none; font-weight: bold; font-style: italic;">Build-a-Bonus</h1>
 
 <p style="text-align: center; font-style: italic;">2022 Package Jam winner of the 'Most Polished' category and runner-up for 'Best Package'</p>
