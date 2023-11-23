@@ -288,5 +288,12 @@
   "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Valeur cible de sauvegarde de la mort",
   "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde contre la mort. Ce champ respecte les données des jets, mais pas les jets de dés.",
   "BABONUS.UnavailableFilters": "Filtres non disponibles",
-  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus."
+  "BABONUS.UnavailableFiltersTooltip": "La liste des filtres qui ne sont actuellement pas disponibles pour s'appliquer à ce bonus.",
+  "BABONUS.ConsumptionTypeResource": "Resources",
+  "BABONUS.ConsumptionTypeResourceOption": "[{valeur}] {label} ",
+  "BABONUS.ConsumptionTypeResourcePrimary": "Ressource primaire",
+  "BABONUS.ConsumptionTypeResourceSecondary": "Ressource secondaire",
+  "BABONUS.ConsumptionTypeResourceSubtype": "Type de ressource",
+  "BABONUS.ConsumptionTypeResourceTertiary": "Ressource tertiaire",
+  "BABONUS.ConsumptionTypeResourceUnavailable": "La ressource restante est insuffisante."
 }
