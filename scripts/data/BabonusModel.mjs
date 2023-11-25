@@ -3,8 +3,11 @@ import {module} from "./_module.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
-    const expData = foundry.utils.expandObject(data);
-    super(expData, options);
+    data = foundry.utils.mergeObject({
+      name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
+      img: options.parent?.img ?? "icons/svg/dice-target.svg"
+    }, data);
+    super(data, options);
   }
 
   static get metadata() {
@@ -292,7 +295,7 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
-      img: new foundry.data.fields.FilePathField({categories: ["IMAGE"], initial: "icons/svg/dice-target.svg"}),
+      img: new foundry.data.fields.FilePathField({categories: ["IMAGE"]}),
       type: new foundry.data.fields.StringField({required: true, initial: this.type, choices: [this.type]}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),
       exclusive: new foundry.data.fields.BooleanField(),
