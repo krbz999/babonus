@@ -5,25 +5,25 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     return {
       amount: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField()
+        value: new foundry.data.fields.StringField({required: true})
       }),
       reroll: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField(),
+        value: new foundry.data.fields.StringField({required: true}),
         recursive: new foundry.data.fields.BooleanField()
       }),
       explode: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField(),
+        value: new foundry.data.fields.StringField({required: true}),
         once: new foundry.data.fields.BooleanField()
       }),
       minimum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField()
+        value: new foundry.data.fields.StringField({required: true})
       }),
       maximum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField()
+        value: new foundry.data.fields.StringField({required: true})
       }),
       config: new foundry.data.fields.SchemaField({
         first: new foundry.data.fields.BooleanField()

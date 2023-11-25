@@ -1,11 +1,11 @@
 export class ConsumptionModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      enabled: new foundry.data.fields.BooleanField({required: false}),
+      enabled: new foundry.data.fields.BooleanField(),
       type: new foundry.data.fields.StringField({required: true}),
       subtype: new foundry.data.fields.StringField({required: true}),
-      scales: new foundry.data.fields.BooleanField({required: false}),
-      formula: new foundry.data.fields.StringField({nullable: true, initial: null}),
+      scales: new foundry.data.fields.BooleanField(),
+      formula: new foundry.data.fields.StringField({required: true}),
       value: new foundry.data.fields.SchemaField({
         min: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),
         max: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),

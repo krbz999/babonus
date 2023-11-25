@@ -3,10 +3,10 @@ import {module} from "./_module.mjs";
 export class AuraModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      enabled: new foundry.data.fields.BooleanField({required: false}),
-      template: new foundry.data.fields.BooleanField({required: false}),
-      range: new foundry.data.fields.StringField({nullable: true, initial: null}),
-      self: new foundry.data.fields.BooleanField({required: false, initial: true}),
+      enabled: new foundry.data.fields.BooleanField(),
+      template: new foundry.data.fields.BooleanField(),
+      range: new foundry.data.fields.StringField({required: true}),
+      self: new foundry.data.fields.BooleanField({initial: true}),
       disposition: new foundry.data.fields.NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
       blockers: new module.filters.auraBlockers(),
       require: new foundry.data.fields.SchemaField({
