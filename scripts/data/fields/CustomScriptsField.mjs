@@ -9,8 +9,8 @@ export class CustomScriptsField extends FilterMixin(foundry.data.fields.StringFi
   }
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData();
+  static async getData(bonus) {
+    const data = await super.getData();
     data.value = this.value(bonus);
     return data;
   }

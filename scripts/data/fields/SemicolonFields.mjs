@@ -25,8 +25,8 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
   }
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData();
+  static async getData(bonus) {
+    const data = await super.getData();
     data.value = this.value(bonus).join(";");
     return data;
   }
@@ -37,7 +37,7 @@ class AbilitiesField extends BaseField {
   static canExclude = true;
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const abilities = Object.entries(CONFIG.DND5E.abilities);
     return abilities.map(([value, {label}]) => ({value, label}));
   }
@@ -52,8 +52,8 @@ class ThrowTypesField extends AbilitiesField {
   static canExclude = false;
 
   /** @override */
-  static get choices() {
-    const choices = super.choices;
+  static async choices() {
+    const choices = await super.choices();
 
     choices.push({
       value: "death",
@@ -63,7 +63,7 @@ class ThrowTypesField extends AbilitiesField {
     // CN compatibility.
     if (game.modules.get("concentrationnotifier")?.active) {
       choices.push({
-        value: "concentration",
+        value: CN.STATUS,
         label: game.i18n.localize("DND5E.Concentration")
       });
     }
@@ -76,14 +76,11 @@ class StatusEffectsField extends BaseField {
   static name = "statusEffects";
 
   /** @override */
-  static get choices() {
+  static async choices() {
     let effects = CONFIG.statusEffects;
     if (game.modules.get("concentrationnotifier")?.active) {
       // Using .concat as not to mutate.
-      effects = effects.concat({
-        id: "concentration",
-        icon: "icons/magic/light/orb-lightbulb-gray.webp"
-      });
+      effects = effects.concat({id: CN.STATUS, icon: CN.ICON});
     }
     return effects.reduce((acc, {id, icon}) => {
       if (!id) return acc;
@@ -106,7 +103,7 @@ class CreatureTypesField extends BaseField {
   static name = "creatureTypes";
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const types = Object.entries(CONFIG.DND5E.creatureTypes);
     return types.map(([value, label]) => {
       return {value, label: game.i18n.localize(label)};
@@ -122,10 +119,11 @@ class BaseArmorsField extends BaseField {
   static name = "baseArmors";
 
   /** @override */
-  static get choices() {
-    return Object.keys({...CONFIG.DND5E.armorIds, ...CONFIG.DND5E.shieldIds}).map(key => {
-      return {value: key, label: dnd5e.documents.Trait.keyLabel(key, {trait: "armor"})};
-    });
+  static async choices() {
+    const trait = dnd5e.documents.Trait;
+    const choices = await trait.choices("armor", {chosen: new Set()});
+    const keys = choices.asSet();
+    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`armor:${k}`)}]), []);
   }
 }
 
@@ -133,10 +131,11 @@ class BaseToolsField extends BaseField {
   static name = "baseTools";
 
   /** @override */
-  static get choices() {
-    return Object.keys(CONFIG.DND5E.toolIds).map(key => {
-      return {value: key, label: dnd5e.documents.Trait.keyLabel(key, {trait: "tool"})};
-    });
+  static async choices() {
+    const trait = dnd5e.documents.Trait;
+    const choices = await trait.choices("tool", {chosen: new Set()});
+    const keys = choices.asSet();
+    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`tool:${k}`)}]), []);
   }
 }
 
@@ -144,10 +143,11 @@ class BaseWeaponsField extends BaseField {
   static name = "baseWeapons";
 
   /** @override */
-  static get choices() {
-    return Object.keys(CONFIG.DND5E.weaponIds).map(key => {
-      return {value: key, label: dnd5e.documents.Trait.keyLabel(key, {trait: "weapon"})};
-    });
+  static async choices() {
+    const trait = dnd5e.documents.Trait;
+    const choices = await trait.choices("weapon", {chosen: new Set()});
+    const keys = choices.asSet();
+    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`weapon:${k}`)}]), []);
   }
 }
 
@@ -155,7 +155,7 @@ class DamageTypesField extends BaseField {
   static name = "damageTypes";
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const damages = Object.entries(CONFIG.DND5E.damageTypes);
     const heals = Object.entries(CONFIG.DND5E.healingTypes);
     return [...damages, ...heals].map(([value, label]) => ({value, label}));
@@ -167,7 +167,7 @@ class PreparationModesField extends BaseField {
   static canExclude = false;
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const modes = Object.entries(CONFIG.DND5E.spellPreparationModes);
     return modes.map(([value, label]) => ({value, label}));
   }
@@ -177,9 +177,11 @@ class SkillIdsField extends BaseField {
   static name = "skillIds";
 
   /** @override */
-  static get choices() {
-    const ids = Object.entries(CONFIG.DND5E.skills);
-    return ids.map(([value, {label}]) => ({value, label}));
+  static async choices() {
+    const trait = dnd5e.documents.Trait;
+    const choices = await trait.choices("skills", {chosen: new Set()});
+    const keys = choices.asSet();
+    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`skills:${k}`)}]), []);
   }
 }
 
@@ -187,7 +189,7 @@ class SpellSchoolsField extends BaseField {
   static name = "spellSchools";
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const schools = Object.entries(CONFIG.DND5E.spellSchools);
     return schools.map(([value, label]) => ({value, label}));
   }
@@ -197,7 +199,7 @@ class WeaponPropertiesField extends BaseField {
   static name = "weaponProperties";
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const properties = Object.entries(CONFIG.DND5E.weaponProperties);
     return properties.map(([value, label]) => ({value, label}));
   }

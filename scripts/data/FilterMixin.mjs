@@ -28,7 +28,7 @@ export function FilterMixin(Base) {
      * @param {Babonus} bonus     The bonus being rendered.
      * @returns {object}          The template data.
      */
-    static getData(bonus) {
+    static async getData(bonus) {
       return {
         id: this.name,
         appId: foundry.utils.randomID(),
@@ -51,7 +51,7 @@ export function FilterMixin(Base) {
      * @returns {Promise<string>}     The rendered template.
      */
     static async render(bonus) {
-      return renderTemplate(this.template, this.getData(bonus));
+      return renderTemplate(this.template, await this.getData(bonus));
     }
 
     /**
@@ -65,19 +65,10 @@ export function FilterMixin(Base) {
 
     /**
      * Return an array objects with 'value' and 'label', related to what this field should show.
-     * @returns {object[]}
+     * @returns {Promise<object[]>}
      */
-    static get choices() {
+    static async choices() {
       throw new Error("This must be subclassed!");
-    }
-
-    /**
-     * Helper method for creating an array of choices.
-     * @returns {string[]}      An array of string options.
-     */
-    static get stringOptions() {
-      if (this.canExclude) return this.choices.flatMap(({value}) => [value, `!${value}`]);
-      else return this.choices.map(({value}) => value);
     }
   }
 }

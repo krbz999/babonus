@@ -4,10 +4,11 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
   static template = "modules/babonus/templates/parts/checkboxes.hbs";
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData();
+  static async getData(bonus) {
+    const data = await super.getData();
     const value = bonus ? this.value(bonus) : [];
-    data.value = this.choices.map(c => {
+    const choices = await this.choices();
+    data.value = choices.map(c => {
       return {
         checked: value.includes(c.value),
         value: c.value,
@@ -34,7 +35,7 @@ class ProficiencyLevelsField extends BaseField {
   }
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const levels = Object.entries(CONFIG.DND5E.proficiencyLevels);
     return levels.map(([value, label]) => ({value: Number(value), label}));
   }
@@ -48,14 +49,14 @@ class ItemTypesField extends BaseField {
   }
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData(bonus);
+  static async getData(bonus) {
+    const data = await super.getData(bonus);
     data.value.forEach(v => v.label = v.label.slice(0, 4));
     return data;
   }
 
   /** @override */
-  static get choices() {
+  static async choices() {
     return Object.keys(dnd5e.dataModels.item.config).reduce((acc, type) => {
       if (!dnd5e.dataModels.item.config[type].schema.getField("damage.parts")) return acc;
       acc.push({value: type, label: `TYPES.Item.${type}`});
@@ -72,7 +73,7 @@ class AttackTypesField extends BaseField {
   }
 
   /** @override */
-  static get choices() {
+  static async choices() {
     return ["mwak", "rwak", "msak", "rsak"].map(ak => ({value: ak, label: CONFIG.DND5E.itemActionTypes[ak]}));
   }
 }
@@ -85,7 +86,7 @@ class SpellLevelsField extends BaseField {
   }
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const levels = Object.entries(CONFIG.DND5E.spellLevels);
     return levels.map(([value, label]) => ({value: Number(value), label}));
   }

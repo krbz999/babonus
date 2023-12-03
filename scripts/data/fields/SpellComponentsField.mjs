@@ -13,13 +13,14 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
   }
 
   /** @override */
-  static getData(bonus) {
+  static async getData(bonus) {
     const value = this.value(bonus);
     const types = value.types ?? [];
     const match = value.match ?? null;
-    const data = super.getData();
+    const data = await super.getData();
+    const choices = await this.choices();
 
-    data.types = this.choices.map(c => ({
+    data.types = choices.map(c => ({
       checked: types.includes(c.value),
       value: c.value,
       label: c.abbr,
@@ -34,7 +35,7 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
   }
 
   /** @override */
-  static get choices() {
+  static async choices() {
     const comps = Object.entries(CONFIG.DND5E.spellComponents);
     const tags = Object.entries(CONFIG.DND5E.spellTags);
     return [...comps, ...tags].map(([value, {abbr, label}]) => {

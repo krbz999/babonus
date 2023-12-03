@@ -284,8 +284,10 @@ export class BabonusSheet extends DocumentSheet {
    */
   async _onDisplayKeysDialog(event) {
     const filterId = event.currentTarget.dataset.id;
-    const {choices: list, canExclude} = module.filters[filterId];
+    const filter = module.filters[filterId];
     const property = event.currentTarget.dataset.property;
+    const list = await filter.choices();
+    const canExclude = filter.canExclude;
     const values = foundry.utils.getProperty(this.bonus, property);
     const bonus = this.bonus;
     const owner = this.owner;

@@ -21,8 +21,8 @@ export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.Ar
   }
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData();
+  static async getData(bonus) {
+    const data = await super.getData();
     data.options = this.selectOptions;
     data.placeholderOne = "BABONUS.FiltersArbitraryComparisonOne";
     data.placeholderOther = "BABONUS.FiltersArbitraryComparisonOther";
