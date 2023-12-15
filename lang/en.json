@@ -214,6 +214,8 @@
   "BABONUS.ModifiersReroll": "Reroll",
   "BABONUS.ModifiersRerollRecursive": "Reroll Recursively?",
   "BABONUS.ModifiersRerollValue": "if less than",
+  "BABONUS.ModifiersSize": "Dice Size",
+  "BABONUS.ModifiersSizeValue": "size increase",
   "BABONUS.ModuleTitle": "Build-a-Bonus",
   "BABONUS.NamePlaceholder": "Name…",
   "BABONUS.NewBabonus": "New Babonus",

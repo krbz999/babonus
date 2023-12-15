@@ -70,6 +70,19 @@
 
       <div class="form-group">
         <label class="label">
+          {{localize "BABONUS.ModifiersSize"}}
+          {{#if (ne bonus.bonuses.modifiers.sz null)}}(+{{bonus.bonuses.modifiers.sz}}){{/if}}
+        </label>
+        <div class="form-fields">
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.size.enabled" {{checked context.modifiers.size.enabled}}>
+          </label>
+          <input type="text" name="bonuses.modifiers.size.value" value="{{context.modifiers.size.value}}" {{disabled context.modifiers.size.disabled}}>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">
           {{localize "BABONUS.ModifiersReroll"}}
           {{#if (ne bonus.bonuses.modifiers.r null)}}({{bonus.bonuses.modifiers.r}}){{/if}}
         </label>
