@@ -211,6 +211,7 @@
   "BABONUS.ModifiersMaximumValue": "Maximum value",
   "BABONUS.ModifiersMinimum": "Minimum",
   "BABONUS.ModifiersMinimumValue": "Minimum value",
+  "BABONUS.ModifiersMinimumMaximized": "Maximized",
   "BABONUS.ModifiersReroll": "Reroll",
   "BABONUS.ModifiersRerollRecursive": "Reroll Recursively?",
   "BABONUS.ModifiersRerollValue": "if less than",

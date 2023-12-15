@@ -122,7 +122,11 @@
       <div class="form-group">
         <label class="label">
           {{localize "BABONUS.ModifiersMinimum"}}
-          {{#if (ne bonus.bonuses.modifiers.min null)}}({{bonus.bonuses.modifiers.min}}){{/if}}
+          {{#if bonus.bonuses.modifiers.minimum.enabled}}
+            {{#if (eq bonus.bonuses.modifiers.minimum.value -1)}}({{localize "BABONUS.ModifiersMinimumMaximized"}})
+            {{else if (ne bonus.bonuses.modifiers.min null)}}({{bonus.bonuses.modifiers.min}})
+            {{/if}}
+          {{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">

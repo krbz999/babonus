@@ -73,7 +73,9 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (r && !dm.some(m => m.match(this.constructor.REGEX.reroll))) dm.push(r);
     if (x && !dm.some(m => m.match(this.constructor.REGEX.explode))) dm.push(x);
     if (min && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
-      dm.push(`min${Math.clamped(parseInt(min.replace("min", "")), 0, die.faces)}`);
+      const minimum = this.minimum.value;
+      if (minimum === -1) dm.push(`min${die.faces}`);
+      else dm.push(`min${Math.clamped(minimum, 2, die.faces)}`);
     }
     if (max && !dm.some(m => m.match(this.constructor.REGEX.maximum))) dm.push(max);
   }
@@ -146,7 +148,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get min() {
     if (!this.minimum.enabled) return null;
-    if (!Number.isNumeric(this.minimum.value) || !(this.minimum.value > 1)) return null;
+    const isMax = this.minimum.value === -1;
+    if (!isMax && !(Number.isNumeric(this.minimum.value) && (this.minimum.value > 1))) return null;
     return `min${this.minimum.value}`;
   }
 
