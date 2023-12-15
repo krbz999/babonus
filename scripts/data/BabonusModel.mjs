@@ -14,6 +14,10 @@ class Babonus extends foundry.abstract.DataModel {
     return {label: game.i18n.localize("BABONUS.Babonus")};
   }
 
+  get apps() {
+    return this._apps ??= {};
+  }
+
   /** @override */
   get sheet() {
     if (this._sheet) return this._sheet;

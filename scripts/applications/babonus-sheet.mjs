@@ -22,6 +22,7 @@ export class BabonusSheet extends DocumentSheet {
       template: "modules/babonus/templates/babonus-sheet.hbs",
       sheetConfig: true,
       submitOnChange: true,
+      submitOnClose: true,
       closeOnSubmit: false,
       tabs: [{navSelector: "nav[data-group=main]", contentSelector: "div.document-tabs"}],
       resizable: true,
@@ -361,16 +362,16 @@ export class BabonusSheet extends DocumentSheet {
   /** @override */
   render(force = false, options = {}) {
     this.object = babonus.getCollection(this.owner).get(this.bonus.id);
-    if (!this.object) return this.close();
+    if (!this.object) return this.close({submit: false});
     options.editable = options.editable ?? this.bonus.isOwner;
     this.owner.apps[this.appId] = this;
-    return FormApplication.prototype.render.call(this, force, options);
+    return super.render(force, options);
   }
 
   /** @override */
-  close(...args) {
+  async close(options = {}) {
     delete this.owner?.apps[this.appId];
-    if (this.object) return super.close(...args);
-    return FormApplication.prototype.close.call(this, ...args);
+    if (!this.object) options.submit = false;
+    return super.close(options);
   }
 }
