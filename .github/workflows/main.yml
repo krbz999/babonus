@@ -11,6 +11,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Combine CSS files into a single CSS file
+      - name: Combine CSS files
+        run: |
+          cat styles/*.css > module.css
+
+      # Modify styles in module manifest to point only at the combined CSS file
+      - name: Modify Manifest for combined CSS
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: "module.json"
+        env:
+          styles: "[\"module.css\"]"
+          flags.hotReload.paths: "[\"module.css\"]"
+
       # Get part of the tag after the `v`.
       - name: Extract tag version number
         id: get_version
