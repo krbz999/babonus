@@ -13,8 +13,8 @@ export class FeatureTypesField extends FilterMixin(foundry.data.fields.SchemaFie
   }
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData(bonus);
+  static async getData(bonus) {
+    const data = await super.getData(bonus);
     const value = this.value(bonus);
     data.options = CONFIG.DND5E.featureTypes;
     data.subOptions = CONFIG.DND5E.featureTypes[value.type]?.subtypes ?? {};

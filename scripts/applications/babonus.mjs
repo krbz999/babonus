@@ -204,9 +204,7 @@ export class BabonusWorkshop extends Application {
    */
   async _onClickType(event) {
     const type = event.currentTarget.dataset.type;
-    const bonus = this.constructor._createBabonus({
-      type, name: game.i18n.localize("BABONUS.NewBabonus")
-    }, null, {parent: this.document});
+    const bonus = this.constructor._createBabonus({type: type}, null, {parent: this.document});
     await this.constructor._embedBabonus(this.document, bonus, true);
     return this.collection.get(bonus.id).sheet.render(true);
   }

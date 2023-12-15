@@ -3,12 +3,19 @@ import {module} from "./_module.mjs";
 
 class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
-    const expData = foundry.utils.expandObject(data);
-    super(expData, options);
+    data = foundry.utils.mergeObject({
+      name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
+      img: options.parent?.img ?? "icons/svg/dice-target.svg"
+    }, data);
+    super(data, options);
   }
 
   static get metadata() {
     return {label: game.i18n.localize("BABONUS.Babonus")};
+  }
+
+  get apps() {
+    return this._apps ??= {};
   }
 
   /** @override */
@@ -79,7 +86,7 @@ class Babonus extends foundry.abstract.DataModel {
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
    * TODO: once hit die rolls have a dialog as well, this should be amended.
-   * TODO: once rolls can be "remade" in 2.4.0, optional bonuses should be able to apply to other properties as well.
+   * TODO: once rolls can be "remade" in 2.5.0, optional bonuses should be able to apply to other properties as well.
    * @returns {boolean}
    */
   get isOptionable() {
@@ -292,7 +299,7 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
-      img: new foundry.data.fields.FilePathField({categories: ["IMAGE"], initial: "icons/svg/dice-target.svg"}),
+      img: new foundry.data.fields.FilePathField({categories: ["IMAGE"]}),
       type: new foundry.data.fields.StringField({required: true, initial: this.type, choices: [this.type]}),
       enabled: new foundry.data.fields.BooleanField({initial: true}),
       exclusive: new foundry.data.fields.BooleanField(),
@@ -479,9 +486,9 @@ class AttackBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField(),
-      criticalRange: new foundry.data.fields.StringField(),
-      fumbleRange: new foundry.data.fields.StringField()
+      bonus: new foundry.data.fields.StringField({required: true}),
+      criticalRange: new foundry.data.fields.StringField({required: true}),
+      fumbleRange: new foundry.data.fields.StringField({required: true})
     };
   }
 
@@ -509,9 +516,9 @@ class DamageBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField(),
-      criticalBonusDice: new foundry.data.fields.StringField(),
-      criticalBonusDamage: new foundry.data.fields.StringField(),
+      bonus: new foundry.data.fields.StringField({required: true}),
+      criticalBonusDice: new foundry.data.fields.StringField({required: true}),
+      criticalBonusDamage: new foundry.data.fields.StringField({required: true}),
       modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)
     };
   }
@@ -532,7 +539,7 @@ class SaveBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField()
+      bonus: new foundry.data.fields.StringField({required: true})
     };
   }
 
@@ -560,9 +567,9 @@ class ThrowBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField(),
-      deathSaveTargetValue: new foundry.data.fields.StringField(),
-      deathSaveCritical: new foundry.data.fields.StringField()
+      bonus: new foundry.data.fields.StringField({required: true}),
+      deathSaveTargetValue: new foundry.data.fields.StringField({required: true}),
+      deathSaveCritical: new foundry.data.fields.StringField({required: true})
     };
   }
 
@@ -593,7 +600,7 @@ class TestBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField()
+      bonus: new foundry.data.fields.StringField({required: true})
     };
   }
 
@@ -624,7 +631,7 @@ class HitDieBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField(),
+      bonus: new foundry.data.fields.StringField({required: true}),
       modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)
     };
   }

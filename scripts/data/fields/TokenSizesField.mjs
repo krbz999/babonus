@@ -15,8 +15,8 @@ export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField
   }
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData();
+  static async getData(bonus) {
+    const data = await super.getData();
     const value = this.value(bonus);
     data.size = value.size ?? null;
     data.type = value.type ?? null;

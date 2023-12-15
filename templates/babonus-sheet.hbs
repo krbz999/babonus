@@ -1,7 +1,7 @@
 <form>
 
   <div class="header">
-    <img src="{{ifThen bonus.img bonus.img 'icons/svg/dice-target.svg'}}" data-edit="img">
+    <img src="{{bonus.img}}" data-edit="img">
     <input type="text" name="name" value="{{bonus.name}}" placeholder="{{localize 'BABONUS.NamePlaceholder'}}">
   </div>
 
@@ -70,6 +70,19 @@
 
       <div class="form-group">
         <label class="label">
+          {{localize "BABONUS.ModifiersSize"}}
+          {{#if (ne bonus.bonuses.modifiers.sz null)}}(+{{bonus.bonuses.modifiers.sz}}){{/if}}
+        </label>
+        <div class="form-fields">
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.size.enabled" {{checked context.modifiers.size.enabled}}>
+          </label>
+          <input type="text" name="bonuses.modifiers.size.value" value="{{context.modifiers.size.value}}" {{disabled context.modifiers.size.disabled}}>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">
           {{localize "BABONUS.ModifiersReroll"}}
           {{#if (ne bonus.bonuses.modifiers.r null)}}({{bonus.bonuses.modifiers.r}}){{/if}}
         </label>
@@ -109,7 +122,11 @@
       <div class="form-group">
         <label class="label">
           {{localize "BABONUS.ModifiersMinimum"}}
-          {{#if (ne bonus.bonuses.modifiers.min null)}}({{bonus.bonuses.modifiers.min}}){{/if}}
+          {{#if bonus.bonuses.modifiers.minimum.enabled}}
+            {{#if (eq bonus.bonuses.modifiers.minimum.value -1)}}({{localize "BABONUS.ModifiersMinimumMaximized"}})
+            {{else if (ne bonus.bonuses.modifiers.min null)}}({{bonus.bonuses.modifiers.min}})
+            {{/if}}
+          {{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">

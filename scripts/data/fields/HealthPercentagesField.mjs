@@ -13,8 +13,8 @@ export class HealthPercentagesField extends FilterMixin(foundry.data.fields.Sche
   }
 
   /** @override */
-  static getData(bonus) {
-    const data = super.getData();
+  static async getData(bonus) {
+    const data = await super.getData();
     const {value, type} = this.value(bonus);
     data.options = {0: "BABONUS.OrLess", 1: "BABONUS.OrMore"};
     data.selected = type ?? null;

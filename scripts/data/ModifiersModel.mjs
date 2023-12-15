@@ -5,25 +5,29 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     return {
       amount: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField()
+        value: new foundry.data.fields.StringField({required: true})
+      }),
+      size: new foundry.data.fields.SchemaField({
+        enabled: new foundry.data.fields.BooleanField(),
+        value: new foundry.data.fields.StringField({required: true})
       }),
       reroll: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField(),
+        value: new foundry.data.fields.StringField({required: true}),
         recursive: new foundry.data.fields.BooleanField()
       }),
       explode: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField(),
+        value: new foundry.data.fields.StringField({required: true}),
         once: new foundry.data.fields.BooleanField()
       }),
       minimum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField()
+        value: new foundry.data.fields.StringField({required: true})
       }),
       maximum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField()
+        value: new foundry.data.fields.StringField({required: true})
       }),
       config: new foundry.data.fields.SchemaField({
         first: new foundry.data.fields.BooleanField()
@@ -40,7 +44,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /** @override */
   prepareDerivedData() {
     const rollData = this.parent.getRollData({deterministic: true});
-    for (const m of ["amount", "reroll", "explode", "minimum", "maximum"]) {
+    for (const m of ["amount", "size", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
       const bonus = dnd5e.utils.simplifyBonus(value, rollData);
       this[m].value = Math.round(Number.isNumeric(bonus) ? bonus : 0);
@@ -63,11 +67,16 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   modifyDie(die) {
     const dm = die.modifiers;
-    const {amt, r, x, min, max} = this;
+    const {amt, sz, r, x, min, max} = this;
     if (amt > 0) die.number += amt;
+    if (sz > 0) die.faces += sz;
     if (r && !dm.some(m => m.match(this.constructor.REGEX.reroll))) dm.push(r);
     if (x && !dm.some(m => m.match(this.constructor.REGEX.explode))) dm.push(x);
-    if (min && !dm.some(m => m.match(this.constructor.REGEX.minimum))) dm.push(min);
+    if (min && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
+      const minimum = this.minimum.value;
+      if (minimum === -1) dm.push(`min${die.faces}`);
+      else dm.push(`min${Math.clamped(minimum, 2, die.faces)}`);
+    }
     if (max && !dm.some(m => m.match(this.constructor.REGEX.maximum))) dm.push(max);
   }
 
@@ -88,7 +97,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    * @returns {string[]}
    */
   get hasModifiers() {
-    return ["amt", "r", "x", "min", "max"].some(m => this[m]);
+    return ["amt", "sz", "r", "x", "min", "max"].some(m => this[m]);
   }
 
   /**
@@ -97,8 +106,18 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get amt() {
     if (!this.amount.enabled) return null;
-    if (!Number.isNumeric(this.amount.value)) return null;
+    if (!Number.isInteger(this.amount.value)) return null;
     return Math.max(0, this.amount.value);
+  }
+
+  /**
+   * The increase in die size.
+   * @returns {number}
+   */
+  get sz() {
+    if (!this.size.enabled) return null;
+    if (!Number.isInteger(this.size.value)) return null;
+    return Math.max(0, this.size.value);
   }
 
   /**
@@ -129,7 +148,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get min() {
     if (!this.minimum.enabled) return null;
-    if (!Number.isNumeric(this.minimum.value) || !(this.minimum.value > 1)) return null;
+    const isMax = this.minimum.value === -1;
+    if (!isMax && !(Number.isNumeric(this.minimum.value) && (this.minimum.value > 1))) return null;
     return `min${this.minimum.value}`;
   }
 
