@@ -134,11 +134,15 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {boolean}
    */
   get isSuppressed() {
+    // If this bonus lives on an effect, defer to the effect.
+    const effect = this.effect;
+    if (effect) return !effect.modifiesActor;
+
     const item = this.item;
     if (!item) return false;
 
     const actor = item.actor;
-    if (!actor) return true;
+    if (!actor) return false;
 
     if (actor.type === "vehicle") {
       if (!dnd5e.dataModels.item.config[item.type].schema.getField("crewed")) return false;
@@ -232,7 +236,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the item that has the babonus, no matter if the babonus lives on a template, effect, or item.
-   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
+   * Note that this may not be different from the 'origin' or be dependant on where the bonus currently lives.
    * @type {Item|null}
    */
   get item() {
@@ -257,7 +261,6 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the effect that has the babonus.
-   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
    * @type {ActiveEffect|null}
    */
   get effect() {
@@ -266,7 +269,6 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the template that has the babonus.
-   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
    * @type {MeasuredTemplateDocument|null}
    */
   get template() {
