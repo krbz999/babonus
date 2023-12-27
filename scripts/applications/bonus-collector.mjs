@@ -85,16 +85,11 @@ export class BonusCollector {
     return new foundry.utils.Collection(this.bonuses.map(b => [b.uuid, b]));
   }
 
-  /**
-   * *******************************************************************
-   *
-   *
-   *                          COLLECTION METHODS
-   *
-   *
-   *
-   * *******************************************************************
-   */
+  /*************************************/
+  /*                                   */
+  /*         COLLECTION METHODS        */
+  /*                                   */
+  /*************************************/
 
   /**
    * Main collection method that calls the below collectors for self, all tokens, and all templates.
@@ -235,16 +230,11 @@ export class BonusCollector {
     return true;
   }
 
-  /**
-   * *******************************************************************
-   *
-   *
-   *                           UTILITY FUNCTIONS
-   *
-   *
-   *
-   * *******************************************************************
-   */
+  /*************************************/
+  /*                                   */
+  /*         UTILITY FUNCTIONS         */
+  /*                                   */
+  /*************************************/
 
   /**
    * Get the centers of all grid spaces that overlap with a token document.

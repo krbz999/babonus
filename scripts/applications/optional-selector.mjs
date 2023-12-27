@@ -28,13 +28,11 @@ export class OptionalSelector {
     return `modules/${MODULE.ID}/templates/subapplications/optionalBonuses.hbs`;
   }
 
-  /**
-   **************************************************
-   *
-   *                 GET DATA METHODS
-   *
-   **************************************************
-   */
+  /*************************************/
+  /*                                   */
+  /*            DATA METHODS           */
+  /*                                   */
+  /*************************************/
 
   /** Custom helper method for retrieving all the data for the template. */
   async getData() {
@@ -84,13 +82,11 @@ export class OptionalSelector {
     this.dialog.setPosition({height: "auto"});
   }
 
-  /**
-   * ************************************************
-   *
-   *                 HELPER METHODS
-   *
-   **************************************************
-   */
+  /*************************************/
+  /*                                   */
+  /*          HELPER METHODS           */
+  /*                                   */
+  /*************************************/
 
   /**
    * Get a tooltip for an optional bonus' origin.
