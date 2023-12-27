@@ -40,173 +40,26 @@ export class OptionalSelector {
   async getData() {
     const bonuses = [];
     for (const bonus of this.bonuses) {
-      let data = null;
-      if (bonus.consume.isConsuming) {
+      const isScaling = bonus.consume.isScaling;
+      const isConsuming = bonus.consume.isConsuming;
+
+      const data = {
+        tooltip: this._getTooltip(bonus),
+        babonus: bonus,
+        description: await TextEditor.enrichHTML(bonus.description, {async: true, rollData: bonus.getRollData()})
+      };
+      if (isConsuming) {
         if (!this._canSupplyMinimum(bonus)) continue;
-        if (["uses", "quantity"].includes(bonus.consume.type)) {
-          data = this._getDataConsumeItem(bonus);
-        } else if (bonus.consume.type === "slots") {
-          data = this._getDataConsumeSlots(bonus);
-        } else if (bonus.consume.type === "health") {
-          data = this._getDataConsumeHealth(bonus);
-        } else if (bonus.consume.type === "effect") {
-          data = this._getDataConsumeEffects(bonus);
-        } else if (bonus.consume.type === "currency") {
-          data = this._getDataConsumeCurrency(bonus);
-        } else if (bonus.consume.type === "inspiration") {
-          data = this._getDataConsumeInspiration(bonus);
-        } else if (bonus.consume.type === "resource") {
-          data = this._getDataConsumeResource(bonus);
-        }
+        const type = ["uses", "quantity"].includes(bonus.consume.type) ? "item" : bonus.consume.type;
+        data.action = isScaling ? `consume-${type}-scale` : `consume-${type}`;
+        data.options = isScaling ? this._constructScalingOptions(bonus) : null;
       } else {
-        data = this._getDataNoConsume(bonus);
+        data.action = "consume-none";
       }
-      if (data) bonuses.push({
-        ...data,
-        description: await TextEditor.enrichHTML(bonus.description, {
-          async: true,
-          rollData: bonus.getRollData()
-        })
-      });
+      bonuses.push(data);
     }
 
     return {bonuses};
-  }
-
-  /**
-   * Get the template data for bonuses that consume Limited Uses or Quantity.
-   * @param {Babonus} bonus     The bonus that is consuming.
-   * @returns {object}          The data for the template.
-   */
-  _getDataConsumeItem(bonus) {
-    const data = {
-      action: "consume-item",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus
-    };
-    if (bonus.consume.isScaling) {
-      // Must have at least 1 option available.
-      data.action += "-scale";
-      data.options = this._constructScalingItemOptions(bonus);
-    }
-    return data;
-  }
-
-  /**
-   * Get the template data for bonuses that consume Spell Slots.
-   * @param {Babonus} bonus     The bonus that is consuming.
-   * @returns {object}          The data for the template.
-   */
-  _getDataConsumeSlots(bonus) {
-    const data = {
-      action: "consume-slots",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus
-    };
-    if (bonus.consume.isScaling) {
-      // Must have at least 1 option available.
-      data.action += "-scale";
-      data.options = this._constructScalingSlotsOptions(bonus);
-    }
-    return data;
-  }
-
-  /**
-   * Get the template data for bonuses that consume health.
-   * @param {Babonus} bonus     The bonus that is consuming.
-   * @returns {object}          The data for the template.
-   */
-  _getDataConsumeHealth(bonus) {
-    const data = {
-      action: "consume-health",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus
-    };
-    if (bonus.consume.isScaling) {
-      // Must have at least 1 option available.
-      data.action += "-scale";
-      data.options = this._constructScalingHealthOptions(bonus);
-    }
-    return data;
-  }
-
-  /**
-   * Get the template data for bonuses that consume Effects.
-   * @param {Babonus} bonus     The bonus that is consuming.
-   * @returns {object}          The data for the template.
-   */
-  _getDataConsumeEffects(bonus) {
-    const data = {
-      action: "consume-effects",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus,
-    };
-    return data;
-  }
-
-  /**
-   * Get the template data for bonuses that consume currencies.
-   * @param {Babonus} bonus     The bonus that is consuming.
-   * @returns {object}          The data for the template.
-   */
-  _getDataConsumeCurrency(bonus) {
-    const data = {
-      action: "consume-currency",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus
-    };
-    if (bonus.consume.isScaling) {
-      // Must have at least 1 option available.
-      data.action += "-scale";
-      data.options = this._constructScalingCurrencyOptions(bonus);
-    }
-    return data;
-  }
-
-  /**
-   * Get the template data for bonuses that consume inspiration.
-   * @param {Babonus} bonus     The bonus that is consuming.
-   * @returns {object}          The data for the template.
-   */
-  _getDataConsumeInspiration(bonus) {
-    const data = {
-      action: "consume-inspiration",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus
-    };
-    return data;
-  }
-
-  /**
-   * Get the template data for bonuses that consume a resource.
-   * @param {Babonus} bonus     The bonus that is consuming.
-   * @returns {object}          The data for the template.
-   */
-  _getDataConsumeResource(bonus) {
-    const data = {
-      action: "consume-resource",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus
-    };
-    if (bonus.consume.isScaling) {
-      data.action += "-scale";
-      data.options = this._constructScalingResourceOptions(bonus);
-    }
-    return data;
-  }
-
-  /**
-   * Get the template data for bonuses that do not consume.
-   * @param {Babonus} bonus     The optional bonus.
-   * @returns {object}          The data for the template.
-   */
-  _getDataNoConsume(bonus) {
-    const data = {
-      action: "consume-none",
-      tooltip: this._getTooltip(bonus),
-      babonus: bonus
-    };
-    return data;
   }
 
   /**
@@ -344,25 +197,82 @@ export class OptionalSelector {
   }
 
   /**
-   * Construct the scaling options for an optional bonus that scales with limited uses or item quantity.
-   * The 'value' of the option is the amount to subtract.
-   * @param {Babonus} bonus     The babonus.
+   * Construct options for a scaling bonus.
+   * @param {Babonus} bonus     The bonus.
    * @returns {string}          The string of select options.
    */
-  _constructScalingItemOptions(bonus) {
-    const item = bonus.item;
-    const bounds = {
-      min: bonus.consume.type === "uses" ? item.system.uses.value : item.system.quantity,
-      max: bonus.consume.type === "uses" ? item.system.uses.max : item.system.quantity
-    };
-    if (bounds.min <= 0) return {};
-    const min = bonus.consume.value.min || 1;
-    const max = bonus.consume.value.max || Infinity;
-    return Array.fromRange(bounds.min, 1).reduce((acc, n) => {
-      if (!n.between(min, max)) return acc;
-      acc[n] = `${n}/${bounds.max}`;
-      return acc;
-    }, {});
+  _constructScalingOptions(bonus) {
+    switch (bonus.consume.type) {
+      case "uses":
+      case "quantity": {
+        const item = bonus.item;
+        const bounds = {
+          min: bonus.consume.type === "uses" ? item.system.uses.value : item.system.quantity,
+          max: bonus.consume.type === "uses" ? item.system.uses.max : item.system.quantity
+        };
+        if (bounds.min <= 0) return {};
+        const min = bonus.consume.value.min || 1;
+        const max = bonus.consume.value.max || Infinity;
+        return Array.fromRange(bounds.min, 1).reduce((acc, n) => {
+          if (!n.between(min, max)) return acc;
+          acc[n] = `${n}/${bounds.max}`;
+          return acc;
+        }, {});
+      }
+      case "slots": {
+        // The 'value' of the option is the spell property key, like "spell3" or "pact".
+        return Object.entries(this.actor.system.spells).reduce((acc, [key, val]) => {
+          if (!val.value || !val.max) return acc;
+          const level = (key === "pact") ? val.level : Number(key.at(-1));
+          if (level < (bonus.consume.value.min || 1)) return acc;
+          const label = game.i18n.format(`DND5E.SpellLevel${(key === "pact") ? "Pact" : "Slot"}`, {
+            level: (key === "pact") ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
+            n: `${val.value}/${val.max}`,
+          });
+          acc[key] = label;
+          return acc;
+        }, {});
+      }
+      case "health": {
+        // The 'value' of the option is the amount of hp to subtract.
+        const value = bonus.consume.value;
+        const hp = this.actor.system.attributes.hp;
+        const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
+        const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
+        if ((min < value.min) || !(value.step > 0)) return {};
+        const options = {};
+        for (let i = (value.min || 1); i <= Math.min(min, value.max || max); i += value.step) {
+          options[i] = game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i});
+        }
+        return options;
+      }
+      case "currency": {
+        const value = bonus.consume.value;
+        const subtype = bonus.consume.subtype;
+        const label = CONFIG.DND5E.currencies[subtype].label;
+        const currency = this.actor.system.currency[subtype];
+        if ((currency < value.min) || !(value.step > 0)) return {};
+        const options = {};
+        for (let i = (value.min || 1); i <= Math.min(currency, value.max || Infinity); i += value.step) {
+          options[i] = game.i18n.format("BABONUS.ConsumptionTypeCurrencyOption", {value: i, label: label});
+        }
+        return options;
+      }
+      case "resource": {
+        const value = bonus.consume.value;
+        const subtype = bonus.consume.subtype;
+        const res = bonus.actor.system.resources[subtype];
+        if ((res.value < value.min) || !(value.step > 0)) return {};
+        const options = {};
+        for (let i = (value.min || 1); i <= Math.min(res.value, value.max || Infinity); i += value.step) {
+          options[i] = game.i18n.format("BABONUS.ConsumptionTypeResourceOption", {value: i, label: res.label});
+        }
+        return options;
+      }
+      default: {
+        return null;
+      }
+    }
   }
 
   /**
@@ -403,26 +313,6 @@ export class OptionalSelector {
   }
 
   /**
-   * Construct the scaling options for an optional bonus that scales with spell slots.
-   * The 'value' of the option is the spell property key, like "spell3" or "pact".
-   * @param {Babonus} bonus     The babonus.
-   * @returns {string}          The string of select options.
-   */
-  _constructScalingSlotsOptions(bonus) {
-    return Object.entries(this.actor.system.spells).reduce((acc, [key, val]) => {
-      if (!val.value || !val.max) return acc;
-      const level = (key === "pact") ? val.level : Number(key.at(-1));
-      if (level < (bonus.consume.value.min || 1)) return acc;
-      const label = game.i18n.format(`DND5E.SpellLevel${(key === "pact") ? "Pact" : "Slot"}`, {
-        level: (key === "pact") ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
-        n: `${val.value}/${val.max}`,
-      });
-      acc[key] = label;
-      return acc;
-    }, {});
-  }
-
-  /**
    * When applying a scaling bonus that consumes a spell slot, get the property from the select,
    * and calculate how much it should scale up. The consumed amount is always 1.
    * If the bonus does not scale, get the smallest available spell slot, preferring pact slots if
@@ -452,25 +342,6 @@ export class OptionalSelector {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
     }
-  }
-
-  /**
-   * Construct the scaling options for an optional bonus that scales with health consumed.
-   * The 'value' of the option is the amount of hp to subtract.
-   * @param {Babonus} bonus     The babonus.
-   * @returns {string}          The string of select options.
-   */
-  _constructScalingHealthOptions(bonus) {
-    const value = bonus.consume.value;
-    const hp = this.actor.system.attributes.hp;
-    const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
-    const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
-    if ((min < value.min) || !(value.step > 0)) return {};
-    const options = {};
-    for (let i = (value.min || 1); i <= Math.min(min, value.max || max); i += value.step) {
-      options[i] = game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i});
-    }
-    return options;
   }
 
   /**
@@ -549,25 +420,6 @@ export class OptionalSelector {
   }
 
   /**
-   * Construct the scaling options for an optional bonus that scales with currency consumed.
-   * The 'value' of the option is the amount of coins to subtract.
-   * @param {Babonus} bonus     The babonus.
-   * @returns {string}          The string of select options.
-   */
-  _constructScalingCurrencyOptions(bonus) {
-    const value = bonus.consume.value;
-    const denom = bonus.consume.subtype;
-    const label = CONFIG.DND5E.currencies[denom].label;
-    const currency = this.actor.system.currency[denom];
-    if ((currency < value.min) || !(value.step > 0)) return {};
-    const options = {};
-    for (let i = (value.min || 1); i <= Math.min(currency, value.max || Infinity); i += value.step) {
-      options[i] = game.i18n.format("BABONUS.ConsumptionTypeCurrencyOption", {value: i, denom: label});
-    }
-    return options;
-  }
-
-  /**
    * When applying a bonus that consumes a currency, get the value from the select, get the
    * minimum possible value, and calculate how much it should scale up. If the bonus does not
    * scale, get the minimum value and consume it.
@@ -596,24 +448,6 @@ export class OptionalSelector {
       this._displayConsumptionWarning(bonus.consume.type);
       return null;
     }
-  }
-
-  /**
-   * Construct the scaling options for an optional bonus that scales with resource consumed.
-   * The 'value' of the option is the amount of the resource to subtract.
-   * @param {Babonus} bonus     The babonus.
-   * @returns {string}          The string of select options.
-   */
-  _constructScalingResourceOptions(bonus) {
-    const value = bonus.consume.value;
-    const subtype = bonus.consume.subtype;
-    const res = bonus.actor.system.resources[subtype];
-    if ((res.value < value.min) || !(value.step > 0)) return {};
-    const options = {};
-    for (let i = (value.min || 1); i <= Math.min(res.value, value.max || Infinity); i += value.step) {
-      options[i] = game.i18n.format("BABONUS.ConsumptionTypeResourceOption", {value: i, label: res.label});
-    }
-    return options;
   }
 
   /**
@@ -694,8 +528,8 @@ export class OptionalSelector {
   /**
    * Get the attribute key for the lowest available and valid spell slot.
    * If the lowest level is both a pact and spell slot, prefer pact slot.
-   * @param {Babonus} bonus     The bonus used to determine the minimum spell level required.
-   * @returns {string}          The attribute key.
+   * @param {Babonus} bonus         The bonus used to determine the minimum spell level required.
+   * @returns {string|boolean}      The attribute key, or false if no valid level found.
    */
   _getLowestValidSpellSlotProperty(bonus) {
     const spells = this.actor.system.spells;

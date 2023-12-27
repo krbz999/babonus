@@ -56,7 +56,7 @@
   "BABONUS.ConfigurationOptionalTooltipUnavailable": "A bonus cannot be set to be optional unless it provides an additive bonus on top of an attack roll, damage roll, saving throw, or ability check.",
   "BABONUS.ConsumptionConfiguration": "Consumption",
   "BABONUS.ConsumptionTypeCurrency": "Currency",
-  "BABONUS.ConsumptionTypeCurrencyOption": "{value} {denom}",
+  "BABONUS.ConsumptionTypeCurrencyOption": "{value} {label}",
   "BABONUS.ConsumptionTypeCurrencySubtype": "Denomination",
   "BABONUS.ConsumptionTypeCurrencyUnavailable": "You do not have the required amount of that denomination.",
   "BABONUS.ConsumptionTypeEffect": "Active Effect",
