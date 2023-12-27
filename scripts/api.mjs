@@ -1,4 +1,4 @@
-import {BabonusWorkshop} from "./applications/babonus.mjs";
+import {BabonusWorkshop} from "./applications/babonus-workshop.mjs";
 import {BonusCollector} from "./applications/bonus-collector.mjs";
 import {MODULE} from "./constants.mjs";
 import {module} from "./data/_module.mjs";

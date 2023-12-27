@@ -78,13 +78,29 @@ async function _preloadPartials() {
     "modules/babonus/templates/parts/textarea.hbs"
   ]);
 }
+// General setup.
+Hooks.once("setup", createAPI);
+Hooks.once("setup", _createSettings);
+Hooks.once("setup", _handlebarsHelpers);
+Hooks.once("setup", _preloadPartials);
 
-export const moduleHooks = {
-  buttons: buttons,
-  createSettings: _createSettings,
-  handlebars: _handlebarsHelpers,
-  loadPartials: _preloadPartials,
-  renderDialog: _renderDialog,
-  rolls: RollHooks,
-  setupAPI: createAPI
-};
+// Any application injections.
+Hooks.on("getActiveEffectConfigHeaderButtons", buttons.effect);
+Hooks.on("getActorSheetHeaderButtons", buttons.actor);
+Hooks.on("getDialogHeaderButtons", buttons.dialog);
+Hooks.on("getItemSheetHeaderButtons", buttons.item);
+Hooks.on("renderDialog", _renderDialog);
+
+// Roll hooks. Delay these to let other modules modify behaviour first.
+Hooks.once("ready", function() {
+  Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
+  Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
+  Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
+  Hooks.on("dnd5e.preRollAttack", RollHooks.preRollAttack);
+  Hooks.on("dnd5e.preRollDamage", RollHooks.preRollDamage);
+  Hooks.on("dnd5e.preRollDeathSave", RollHooks.preRollDeathSave);
+  Hooks.on("dnd5e.preRollHitDie", RollHooks.preRollHitDie);
+  Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
+  Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
+  Hooks.on("preCreateMeasuredTemplate", RollHooks.preCreateMeasuredTemplate);
+});

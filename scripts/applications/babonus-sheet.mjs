@@ -1,6 +1,6 @@
 import {MODULE} from "../constants.mjs";
 import {module} from "../data/_module.mjs";
-import {BabonusWorkshop} from "./babonus.mjs";
+import {BabonusWorkshop} from "./babonus-workshop.mjs";
 import {KeysDialog} from "./keys-dialog.mjs";
 
 export class BabonusSheet extends DocumentSheet {

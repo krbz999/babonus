@@ -1,5 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {BabonusWorkshop} from "./babonus.mjs";
+import {BabonusWorkshop} from "./babonus-workshop.mjs";
 import {module} from "../data/_module.mjs";
 
 /**

@@ -1,5 +1,5 @@
 import {AppliedBonusesDialog} from "../applications/applied-bonuses-dialog.mjs";
-import {BabonusWorkshop} from "../applications/babonus.mjs";
+import {BabonusWorkshop} from "../applications/babonus-workshop.mjs";
 import {MODULE, SETTINGS} from "../constants.mjs";
 
 /** Utility class that gets subclassed to inject header buttons on actors, items, and effects. */

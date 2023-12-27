@@ -1,6 +1,6 @@
 import {FilterManager} from "../filter-manager.mjs";
 import {MODULE} from "../constants.mjs";
-import {BabonusWorkshop} from "../applications/babonus.mjs";
+import {BabonusWorkshop} from "../applications/babonus-workshop.mjs";
 
 /** Utility class for the various roll hooks. */
 export class RollHooks {

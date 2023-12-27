@@ -16,21 +16,12 @@ jobs:
         run: |
           cat styles/*.css > module.css
 
-      # Modify styles in module manifest to point only at the combined CSS file
-      - name: Modify Manifest for combined CSS
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: "module.json"
-        env:
-          styles: "[\"module.css\"]"
-          flags.hotReload.paths: "[\"module.css\"]"
-
       # Get part of the tag after the `v`.
       - name: Extract tag version number
         id: get_version
         uses: battila7/get-version-action@v2
 
-      # Remove HotReload and update version and download properties.
+      # Remove HotReload and update version, download, and style properties.
       - name: Modify Manifest to remove HotReload
         uses: microsoft/variable-substitution@v1
         with:
@@ -39,10 +30,11 @@ jobs:
           flags.hotReload: false
           version: ${{steps.get_version.outputs.version-without-v}}
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
+          styles: "[\"module.css\"]"
 
       # Create zip file.
       - name: Create ZIP archive
-        run: zip -r ./module.zip module.json setup.mjs module.css lang/ scripts/ styles/ templates/
+        run: zip -r ./module.zip module.json module.css lang/ scripts/ styles/ templates/
 
       # Create a release for this specific version.
       - name: Update Release with Files
