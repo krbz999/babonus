@@ -28,7 +28,7 @@ export class BabonusWorkshop extends Application {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 800,
       height: 900,
-      template: `modules/${MODULE.ID}/templates/babonus.hbs`,
+      template: `modules/${MODULE.ID}/templates/babonus-workshop.hbs`,
       classes: [MODULE.ID, "builder"],
       scrollY: [".current-bonuses .bonuses"],
       dragDrop: [{dragSelector: "[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],

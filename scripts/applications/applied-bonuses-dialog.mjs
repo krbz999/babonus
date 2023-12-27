@@ -11,7 +11,7 @@ export class AppliedBonusesDialog extends Dialog {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
       height: "auto",
-      template: `modules/${MODULE.ID}/templates/subapplications/appliedBonusesDialog.hbs`,
+      template: `modules/${MODULE.ID}/templates/subapplications/applied-bonuses-dialog.hbs`,
       classes: [MODULE.ID, "overview"]
     });
   }

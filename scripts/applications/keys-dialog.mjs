@@ -15,7 +15,7 @@ export class KeysDialog extends Dialog {
   }
 
   get template() {
-    return "modules/babonus/templates/subapplications/keysDialog.hbs";
+    return `modules/${MODULE.ID}/templates/subapplications/keys-dialog.hbs`;
   }
 
   get title() {
