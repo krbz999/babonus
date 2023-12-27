@@ -248,7 +248,8 @@ export class BabonusSheet extends DocumentSheet {
 
   /**
    * Handle deleting a filter.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {PointerEvent} event                            The initiating click event.
+   * @returns {Promise<Actor5e|Item5e|ActiveEffect5e>}      A promise that resolves to the updated owner of the bonus.
    */
   async _onClickDeleteFilter(event) {
     const id = event.currentTarget.dataset.id;
