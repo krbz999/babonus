@@ -158,19 +158,6 @@ class Babonus extends foundry.abstract.DataModel {
     return item.system.attunement === CONFIG.DND5E.attunementTypes.REQUIRED;
   }
 
-  get isTokenAura() {
-    console.warn(`'Babonus#isTokenAura' has been deprecated and should be accessed in 'Babonus#aura#isToken'.`);
-    return this.aura.isToken;
-  }
-  get isTemplateAura() {
-    console.warn(`'Babonus#isTemplateAura' has been deprecated and should be accessed in 'Babonus#aura#isTemplate'.`);
-    return this.aura.isTemplate;
-  }
-  get isAuraBlocked() {
-    console.warn(`'Babonus#isAuraBlocked' has been deprecated and should be accessed in 'Babonus#aura#isBlocked'.`);
-    return this.aura.isBlocked;
-  }
-
   /**
    * The true source of the babonus.
    * - If the babonus is embedded on a template, this returns the item that created it.
@@ -338,47 +325,7 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  static migrateData(source) {
-    if (!source.filters) source.filters = {};
-    this._migrateCreatureTypes(source);
-    this._migrateWeaponProperties(source);
-    this._migrateExclusive(source);
-  }
-
-  /**
-   * Migrate creature types filter into a single array of strings.
-   * @param {object} source     The initial source data of the babonus.
-   */
-  static _migrateCreatureTypes(source) {
-    const types = source.filters.creatureTypes;
-    if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    const c = [];
-    for (const t of (types.needed ?? [])) c.push(t);
-    for (const u of (types.unfit ?? [])) c.push(`!${u}`);
-    source.filters.creatureTypes = c;
-  }
-
-  /**
-   * Migrate weapon properties filter into a single array of strings.
-   * @param {object} source     The initial source data of the babonus.
-   */
-  static _migrateWeaponProperties(source) {
-    const types = source.filters.weaponProperties;
-    if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    const c = [];
-    for (const t of (types.needed ?? [])) c.push(t);
-    for (const u of (types.unfit ?? [])) c.push(`!${u}`);
-    source.filters.weaponProperties = c;
-  }
-
-  /**
-   * Migrate the 'itemOnly' property to be renamed 'exclusive'.
-   * @param {object} source     The initial source data of the babonus.
-   */
-  static _migrateExclusive(source) {
-    if (source.itemOnly) source.exclusive = true;
-    delete source.itemOnly;
-  }
+  static migrateData(source) {}
 
   /**
    * Get applicable roll data from the origin.
