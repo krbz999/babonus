@@ -197,17 +197,22 @@ export class OptionalSelector {
     switch (bonus.consume.type) {
       case "uses":
       case "quantity": {
+        const isUses = bonus.consume.type === "uses";
         const item = bonus.item;
         const bounds = {
-          min: bonus.consume.type === "uses" ? item.system.uses.value : item.system.quantity,
-          max: bonus.consume.type === "uses" ? item.system.uses.max : item.system.quantity
+          min: isUses ? item.system.uses.value : item.system.quantity,
+          max: isUses ? item.system.uses.max : item.system.quantity
         };
         if (bounds.min <= 0) return {};
         const min = bonus.consume.value.min || 1;
         const max = bonus.consume.value.max || Infinity;
         return Array.fromRange(bounds.min, 1).reduce((acc, n) => {
           if (!n.between(min, max)) return acc;
-          acc[n] = `${n}/${bounds.max}`;
+          acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
+            value: n,
+            label: game.i18n.format(isUses ? "DND5E.Uses" : "DND5E.Quantity"),
+            max: isUses ? `${bounds.min}/${bounds.max}` : bounds.min
+          });
           return acc;
         }, {});
       }
@@ -234,7 +239,11 @@ export class OptionalSelector {
         if ((min < value.min) || !(value.step > 0)) return {};
         const options = {};
         for (let i = (value.min || 1); i <= Math.min(min, value.max || max); i += value.step) {
-          options[i] = game.i18n.format("BABONUS.ConsumptionTypeHealthOption", {points: i});
+          options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
+            value: i,
+            label: game.i18n.localize("DND5E.HitPoints"),
+            max: `${min}/${max}`
+          });
         }
         return options;
       }
@@ -246,7 +255,11 @@ export class OptionalSelector {
         if ((currency < value.min) || !(value.step > 0)) return {};
         const options = {};
         for (let i = (value.min || 1); i <= Math.min(currency, value.max || Infinity); i += value.step) {
-          options[i] = game.i18n.format("BABONUS.ConsumptionTypeCurrencyOption", {value: i, label: label});
+          options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
+            value: i,
+            label: label,
+            max: currency
+          });
         }
         return options;
       }
@@ -257,7 +270,11 @@ export class OptionalSelector {
         if ((res.value < value.min) || !(value.step > 0)) return {};
         const options = {};
         for (let i = (value.min || 1); i <= Math.min(res.value, value.max || Infinity); i += value.step) {
-          options[i] = game.i18n.format("BABONUS.ConsumptionTypeResourceOption", {value: i, label: res.label});
+          options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
+            value: i,
+            label: res.label,
+            max: `${res.value}/${res.max}`
+          });
         }
         return options;
       }
@@ -275,12 +292,12 @@ export class OptionalSelector {
     const target = event.currentTarget;
     target.disabled = true;
     const canSupply = this._canSupply(event);
+    const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
     const type = bonus.consume.type;
-    if (!canSupply) {
+    if (bonus.consume.isConsuming && !canSupply) {
       this._displayConsumptionWarning(type);
       return null;
     }
-    const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
     const scales = target.dataset.action.endsWith("-scale");
     const {actor, item, effect} = bonus;
     const consumeMin = parseInt(bonus.consume.value.min || 1);
