@@ -1,7 +1,7 @@
 import {MODULE} from "../constants.mjs";
 import {module} from "../data/_module.mjs";
 import {BabonusWorkshop} from "./babonus.mjs";
-import {BabonusKeysDialog} from "./keysDialog.mjs";
+import {KeysDialog} from "./keys-dialog.mjs";
 
 export class BabonusSheet extends DocumentSheet {
   /**
@@ -302,7 +302,7 @@ export class BabonusSheet extends DocumentSheet {
       else val.include = true;
     }
 
-    return BabonusKeysDialog.prompt({
+    return KeysDialog.prompt({
       rejectClose: false,
       options: {filterId, appId: this.appId, values: list, canExclude},
       callback: async function(html) {

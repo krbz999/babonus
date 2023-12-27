@@ -1,8 +1,8 @@
 import {BabonusWorkshop} from "./applications/babonus.mjs";
-import {BonusCollector} from "./applications/bonusCollector.mjs";
+import {BonusCollector} from "./applications/bonus-collector.mjs";
 import {MODULE} from "./constants.mjs";
 import {module} from "./data/_module.mjs";
-import {FilterManager} from "./filters.mjs";
+import {FilterManager} from "./filter-manager.mjs";
 
 export function createAPI() {
   const API = {

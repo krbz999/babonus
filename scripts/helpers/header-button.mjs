@@ -1,9 +1,9 @@
-import {AppliedBonusesDialog} from "../applications/appliedBonusesDialog.mjs";
+import {AppliedBonusesDialog} from "../applications/applied-bonuses-dialog.mjs";
 import {BabonusWorkshop} from "../applications/babonus.mjs";
 import {MODULE, SETTINGS} from "../constants.mjs";
 
 /** Utility class that gets subclassed to inject header buttons on actors, items, and effects. */
-class InjectHeaderButton {
+class HeaderButton {
   /** Should the button be available for this user? */
   static get showButton() {
     return game.settings.get(MODULE.ID, SETTINGS.PLAYERS) || game.user.isGM;
@@ -42,26 +42,26 @@ class InjectHeaderButton {
   }
 }
 
-class InjectHeaderButtonActor extends InjectHeaderButton {
+class HeaderButtonActor extends HeaderButton {
   static get invalidTypes() {
     return ["group"];
   }
 }
 
-class InjectHeaderButtonItem extends InjectHeaderButton {
+class HeaderButtonItem extends HeaderButton {
   static get invalidTypes() {
     return ["background", "class", "subclass", "race"];
   }
 }
 
-class InjectHeaderButtonEffect extends InjectHeaderButton {
+class HeaderButtonEffect extends HeaderButton {
   static get invalidTypes() {
     return [];
   }
 }
 
 /** Add a header button to display the source of all applied bonuses. */
-class InjectHeaderButtonDialog extends InjectHeaderButton {
+class HeaderButtonDialog extends HeaderButton {
   static inject(app, array) {
     const bonuses = app.options[MODULE.ID]?.bonuses;
     if (!bonuses?.length) return;
@@ -75,9 +75,9 @@ class InjectHeaderButtonDialog extends InjectHeaderButton {
   }
 }
 
-export const buttons = {
-  actor: InjectHeaderButtonActor.inject.bind(InjectHeaderButtonActor),
-  item: InjectHeaderButtonItem.inject.bind(InjectHeaderButtonItem),
-  effect: InjectHeaderButtonEffect.inject.bind(InjectHeaderButtonEffect),
-  dialog: InjectHeaderButtonDialog.inject.bind(InjectHeaderButtonDialog)
+export default {
+  actor: HeaderButtonActor.inject.bind(HeaderButtonActor),
+  item: HeaderButtonItem.inject.bind(HeaderButtonItem),
+  effect: HeaderButtonEffect.inject.bind(HeaderButtonEffect),
+  dialog: HeaderButtonDialog.inject.bind(HeaderButtonDialog)
 };

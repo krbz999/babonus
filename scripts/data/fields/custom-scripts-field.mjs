@@ -1,4 +1,4 @@
-import {FilterMixin} from "../FilterMixin.mjs";
+import {FilterMixin} from "../filter-mixin.mjs";
 
 export class CustomScriptsField extends FilterMixin(foundry.data.fields.StringField) {
   static name = "customScripts";

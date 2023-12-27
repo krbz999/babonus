@@ -1,4 +1,4 @@
-import {FilterMixin} from "../FilterMixin.mjs";
+import {FilterMixin} from "../filter-mixin.mjs";
 
 // ArrayField that filters invalid comparison fields.
 export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.ArrayField) {

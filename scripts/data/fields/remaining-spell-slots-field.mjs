@@ -1,4 +1,4 @@
-import {FilterMixin} from "../FilterMixin.mjs";
+import {FilterMixin} from "../filter-mixin.mjs";
 
 export class RemainingSpellSlotsField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "remainingSpellSlots";

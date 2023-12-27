@@ -1,7 +1,7 @@
-import {OptionalSelector} from "./applications/rollConfigApp.mjs";
+import {OptionalSelector} from "./applications/optional-selector.mjs";
 import {MODULE, SETTINGS} from "./constants.mjs";
-import {buttons} from "./helpers/headerButtons.mjs";
-import {RollHooks} from "./helpers/rollHooks.mjs";
+import buttons from "./helpers/header-button.mjs";
+import {RollHooks} from "./helpers/roll-hooks.mjs";
 import {createAPI} from "./api.mjs";
 
 /** Render the optional bonus selector on a roll dialog. */

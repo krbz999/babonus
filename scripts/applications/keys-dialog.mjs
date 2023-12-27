@@ -1,6 +1,6 @@
 import {MODULE} from "../constants.mjs";
 
-export class BabonusKeysDialog extends Dialog {
+export class KeysDialog extends Dialog {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: [MODULE.ID, "keys-dialog"],

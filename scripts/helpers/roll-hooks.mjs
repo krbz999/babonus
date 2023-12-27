@@ -1,4 +1,4 @@
-import {FilterManager} from "../filters.mjs";
+import {FilterManager} from "../filter-manager.mjs";
 import {MODULE} from "../constants.mjs";
 import {BabonusWorkshop} from "../applications/babonus.mjs";
 

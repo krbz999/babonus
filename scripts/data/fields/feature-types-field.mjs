@@ -1,4 +1,4 @@
-import {FilterMixin} from "../FilterMixin.mjs";
+import {FilterMixin} from "../filter-mixin.mjs";
 
 export class FeatureTypesField extends FilterMixin(foundry.data.fields.SchemaField) {
   static name = "featureTypes";
