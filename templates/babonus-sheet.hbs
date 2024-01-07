@@ -34,11 +34,9 @@
       <h3 class="form-header">{{localize "BABONUS.BasicBonuses"}}</h3>
       {{#each context.bonuses}}
       <div class="form-group">
-        <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../type @key 'Tooltip'}}">
-          {{localize (babonusCapitalize "BABONUS.Type" ../type @key "Label")}}
-        </label>
+        <label class="label" data-tooltip="{{hint}}">{{localize label}}</label>
         <div class="form-fields">
-          <input type="text" name="bonuses.{{@key}}" value="{{this}}">
+          <input type="text" name="bonuses.{{@key}}" value="{{value}}">
         </div>
       </div>
       {{/each}}
@@ -47,9 +45,7 @@
       <h3 class="form-header">{{localize "BABONUS.Modifiers"}}</h3>
 
       <div class="form-group">
-        <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">
-          {{localize "BABONUS.ModifiersFirst"}}
-        </label>
+        <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">{{localize "BABONUS.ModifiersFirst"}}</label>
         <div class="form-fields">
           <input type="checkbox" name="bonuses.modifiers.config.first" {{checked context.modifiers.config.first}}>
         </div>
@@ -164,12 +160,10 @@
       {{#each context.filterpickers}}
       <div class="filter">
         <a class="filter-header" data-action="add-filter" data-id="{{id}}">
-          {{localize (babonusCapitalize "BABONUS.Filters" id)}} {{#if repeats}}({{repeats}}){{/if}}
+          {{localize label}} {{#if repeats}}({{repeats}}){{/if}}
           <i class="fa-solid fa-plus"></i>
         </a>
-        <div class="filter-description">
-          {{{localize (babonusCapitalize "BABONUS.Filters" id "Tooltip")}}}
-        </div>
+        <div class="filter-description">{{{localize hint}}}</div>
       </div>
       {{/each}}
     </div>

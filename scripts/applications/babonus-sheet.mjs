@@ -64,7 +64,13 @@ export class BabonusSheet extends DocumentSheet {
     context.modifiers = this._prepareModifiers();
     const b = this.bonus.toObject().bonuses;
     for (const [key, val] of Object.entries(b)) {
-      if (key !== "modifiers") context.bonuses[key] = val;
+      if (key !== "modifiers") {
+        context.bonuses[key] = {
+          value: val,
+          hint: `BABONUS.Type${this.bonus.type.capitalize()}${key.capitalize()}Tooltip`,
+          label: `BABONUS.Type${this.bonus.type.capitalize()}${key.capitalize()}Label`
+        };
+      }
     }
     context.hasModifiers = !foundry.utils.isEmpty(context.modifiers);
     context.aura = this._prepareAura();
@@ -102,7 +108,9 @@ export class BabonusSheet extends DocumentSheet {
       const field = module.filters[key];
       if (!this._filters.has(key) || field.repeatable) acc.push({
         id: key,
-        repeats: field.repeatable ? this.bonus.filters[key].length : null
+        repeats: field.repeatable ? this.bonus.filters[key].length : null,
+        label: `BABONUS.Filters${key.capitalize()}`,
+        hint: `BABONUS.Filters${key.capitalize()}Tooltip`
       });
       return acc;
     }, []).sort((a, b) => {

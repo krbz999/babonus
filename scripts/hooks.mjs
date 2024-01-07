@@ -53,17 +53,6 @@ function _createSettings() {
   });
 }
 
-/** Handlebars helpers. */
-function _handlebarsHelpers() {
-  /** Helper to capitalize each value. If more than one is given, also concatenate. */
-  Handlebars.registerHelper("babonusCapitalize", function(...values) {
-    return values.reduce((acc, v) => {
-      if (typeof v === "string") return acc + v.capitalize();
-      return acc;
-    }, "");
-  });
-}
-
 /* Preload all template partials for the builder. */
 async function _preloadPartials() {
   console.log("Build-a-Bonus | Loading template partials.");
@@ -81,7 +70,6 @@ async function _preloadPartials() {
 // General setup.
 Hooks.once("setup", createAPI);
 Hooks.once("setup", _createSettings);
-Hooks.once("setup", _handlebarsHelpers);
 Hooks.once("setup", _preloadPartials);
 
 // Any application injections.
