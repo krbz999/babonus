@@ -36,7 +36,12 @@
       <div class="form-group">
         <label class="label" data-tooltip="{{hint}}">{{localize label}}</label>
         <div class="form-fields">
-          <input type="text" name="bonuses.{{@key}}" value="{{value}}">
+          <input type="text" name="bonuses.{{key}}" value="{{value}}">
+          {{#if isDamage}}
+          <select name="bonuses.damageType">
+            {{selectOptions @root.config.damageTypes selected=selected labelAttr="label" blank="-"}}
+          </select>
+          {{/if}}
         </div>
       </div>
       {{/each}}

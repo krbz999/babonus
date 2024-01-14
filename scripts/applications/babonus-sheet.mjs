@@ -60,18 +60,8 @@ export class BabonusSheet extends DocumentSheet {
   /** @override */
   async getData(options = {}) {
     const context = {};
-    context.bonuses = {};
+    context.bonuses = this._prepareBonuses();
     context.modifiers = this._prepareModifiers();
-    const b = this.bonus.toObject().bonuses;
-    for (const [key, val] of Object.entries(b)) {
-      if (key !== "modifiers") {
-        context.bonuses[key] = {
-          value: val,
-          hint: `BABONUS.Type${this.bonus.type.capitalize()}${key.capitalize()}Tooltip`,
-          label: `BABONUS.Type${this.bonus.type.capitalize()}${key.capitalize()}Label`
-        };
-      }
-    }
     context.hasModifiers = !foundry.utils.isEmpty(context.modifiers);
     context.aura = this._prepareAura();
     context.consume = this._prepareConsume();
@@ -94,8 +84,33 @@ export class BabonusSheet extends DocumentSheet {
       parent: this.owner,
       type: this.bonus.type,
       context: context,
-      source: this.bonus.toObject()
+      source: this.bonus.toObject(),
+      config: CONFIG.DND5E
     };
+  }
+
+  /**
+   * Prepare the bonuses.
+   * @TODO Allow for setting a damage type for the entire 'bonus' field on damage babonus.
+   * @returns {object[]}
+   */
+  _prepareBonuses() {
+    const b = Object.entries(this.bonus.toObject().bonuses);
+    const bonuses = [];
+    const type = this.bonus.type;
+    b.forEach(([k, v]) => {
+      if (k === "modifiers" || k === "damageType") return;
+      const isDamage = false; //(type === "damage") && (k === "bonus");
+      bonuses.push({
+        key: k,
+        value: v,
+        hint: `BABONUS.Type${type.capitalize()}${k.capitalize()}Tooltip`,
+        label: `BABONUS.Type${type.capitalize()}${k.capitalize()}Label`,
+        isDamage: isDamage,
+        selected: this.bonus.bonuses.damageType
+      });
+    });
+    return bonuses;
   }
 
   /**

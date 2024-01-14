@@ -472,6 +472,7 @@ class DamageBabonus extends ItemBabonus {
     return {
       ...super._defineBonusSchema(),
       bonus: new foundry.data.fields.StringField({required: true}),
+      // damageType: new foundry.data.fields.StringField({required: true}),
       criticalBonusDice: new foundry.data.fields.StringField({required: true}),
       criticalBonusDamage: new foundry.data.fields.StringField({required: true}),
       modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)
@@ -486,6 +487,15 @@ class DamageBabonus extends ItemBabonus {
   /** @override */
   static get type() {
     return "damage";
+  }
+
+  /**
+   * Does this bonus have a damage type?
+   * @type {boolean}
+   */
+  get hasDamageType() {
+    const type = this.bonuses.damageType;
+    return type in CONFIG.DND5E.damageTypes;
   }
 }
 
