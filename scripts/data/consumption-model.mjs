@@ -65,8 +65,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the babonus can open the Consumption app in the builder, which
-   * requires that it is Optional and has at least one option in the 'type' available.
+   * Whether the babonus can consume, which requires that it is Optional
+   * and has at least one option in the 'type' available.
    * @type {boolean}
    */
   get canConsume() {
