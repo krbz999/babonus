@@ -4,7 +4,11 @@ import buttons from "./helpers/header-button.mjs";
 import {RollHooks} from "./helpers/roll-hooks.mjs";
 import {createAPI} from "./api.mjs";
 
-/** Render the optional bonus selector on a roll dialog. */
+/**
+ * Render the optional bonus selector on a roll dialog.
+ * @TODO Await system PR that should allow for more data to be passed along, as well as the roll refactor.
+ * @param {Dialog} dialog     The dialog being rendered.
+ */
 async function _renderDialog(dialog) {
   const optionals = dialog.options.babonus?.optionals;
   if (!optionals?.length) return;

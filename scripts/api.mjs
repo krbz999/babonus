@@ -4,6 +4,9 @@ import {MODULE} from "./constants.mjs";
 import {module} from "./data/_module.mjs";
 import {FilterManager} from "./filter-manager.mjs";
 
+/**
+ * Set up the public API.
+ */
 export function createAPI() {
   const API = {
     getId, getIds,
@@ -93,9 +96,9 @@ function getType(object, type) {
 
 /**
  * Return the ids of all templates on the scene if they contain the token document.
- * @param {TokenDocument} tokenDoc      The token document.
- * @param {boolean} [ids=true]          Whether to return ids or template documents.
- * @returns {string[]}                  An array of ids.
+ * @param {TokenDocument5e} tokenDoc      The token document.
+ * @param {boolean} [ids=true]            Whether to return ids or template documents.
+ * @returns {string[]}                    An array of ids.
  */
 function getAllContainingTemplates(tokenDoc, {ids = true} = {}) {
   const centers = getOccupiedGridSpaces(tokenDoc);
@@ -185,9 +188,9 @@ function findEmbeddedDocumentsWithBonuses(object) {
 /**
  * Return all token documents that are in range of an aura.
  * This does not take sight and movement restrictions into account.
- * @param {Document} object       The actor, item, or effect with the babonus.
- * @param {string} id             The id of the babonus.
- * @returns {TokenDocument[]}     An array of token documents.
+ * @param {Document} object         The actor, item, or effect with the babonus.
+ * @param {string} id               The id of the babonus.
+ * @returns {TokenDocument5e[]}     An array of token documents.
  */
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
@@ -205,9 +208,9 @@ function findTokensInRangeOfAura(object, id) {
 /**
  * Return an array of tokens that are within a radius of the source token.
  * Credit to @Freeze#2689 for much artistic aid.
- * @param {Token} source      The source token placeable.
- * @param {number} radius     The radius (usually feet) to extend from the source.
- * @returns {Token[]}         An array of token placeables, excluding the source.
+ * @param {Token5e} source      The source token placeable.
+ * @param {number} radius       The radius (usually feet) to extend from the source.
+ * @returns {Token5e[]}         An array of token placeables, excluding the source.
  */
 function findTokensInRangeOfToken(source, radius) {
   const pixels = radius * canvas.dimensions.distancePixels + source.h / 2;
@@ -223,8 +226,8 @@ function findTokensInRangeOfToken(source, radius) {
 
 /**
  * Return the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
- * @param {Token} tokenA        One token placeable.
- * @param {Token} tokenB        Another token placeable.
+ * @param {Token5e} tokenA      One token placeable.
+ * @param {Token5e} tokenB      Another token placeable.
  * @param {object} options      Options to modify the measurements.
  * @returns {number}            The minimum distance (in units of measurement).
  */
@@ -279,8 +282,8 @@ function sceneTokensByDisposition(scene) {
 
 /**
  * Get the centers of all grid spaces that overlap with a token document.
- * @param {TokenDocument} tokenDoc      The token document on the scene.
- * @returns {object[]}                  An array of xy coordinates.
+ * @param {TokenDocument5e} tokenDoc      The token document on the scene.
+ * @returns {object[]}                    An array of xy coordinates.
  */
 function getOccupiedGridSpaces(tokenDoc) {
   return BonusCollector._collectTokenCenters(tokenDoc);

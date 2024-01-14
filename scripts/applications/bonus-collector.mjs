@@ -367,7 +367,6 @@ export class BonusCollector {
 
   /**
    * Draw auras on the canvas.
-   * @param {array<*>} array     The token, the PIXI graphic, the babonus, and whether the roller is contained within.
    */
   drawAuras() {
     for (const [token, aura, bonus, bool] of this.tokenBonuses) {

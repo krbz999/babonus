@@ -24,6 +24,7 @@ export class OptionalSelector {
     this.field = this.dialog.element[0].querySelector("[name='bonus']");
   }
 
+  /** @override */
   get template() {
     return `modules/${MODULE.ID}/templates/subapplications/optional-selector.hbs`;
   }
@@ -34,7 +35,10 @@ export class OptionalSelector {
   /*                                   */
   /*************************************/
 
-  /** Custom helper method for retrieving all the data for the template. */
+  /**
+   * Custom helper method for retrieving all the data for the template.
+   * @returns {Promise<object>}
+   */
   async getData() {
     const bonuses = [];
     for (const bonus of this.bonuses) {
@@ -70,7 +74,10 @@ export class OptionalSelector {
     });
   }
 
-  /** Custom rendering method */
+  /**
+   * Custom rendering method.
+   * @returns {Promise<void>}
+   */
   async render() {
     this.form = document.createElement("DIV");
     const data = await this.getData();

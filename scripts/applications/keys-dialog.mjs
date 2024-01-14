@@ -1,6 +1,7 @@
 import {MODULE} from "../constants.mjs";
 
 export class KeysDialog extends Dialog {
+  /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: [MODULE.ID, "keys-dialog"],
@@ -10,14 +11,17 @@ export class KeysDialog extends Dialog {
     });
   }
 
+  /** @override */
   get id() {
-    return `${MODULE.ID}KeysDialog-${this.options.filterId}-${this.options.appId}`;
+    return `${MODULE.ID}-keys-dialog-${this.options.filterId}-${this.options.appId}`;
   }
 
+  /** @override */
   get template() {
     return `modules/${MODULE.ID}/templates/subapplications/keys-dialog.hbs`;
   }
 
+  /** @override */
   get title() {
     return game.i18n.format("BABONUS.KeysDialogTitle", {
       name: game.i18n.localize(`BABONUS.Filters${this.options.filterId.capitalize()}`)

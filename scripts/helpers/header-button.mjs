@@ -4,22 +4,34 @@ import {MODULE, SETTINGS} from "../constants.mjs";
 
 /** Utility class that gets subclassed to inject header buttons on actors, items, and effects. */
 class HeaderButton {
-  /** Should the button be available for this user? */
+  /**
+   * Should the button be available for this user?
+   * @type {boolean}
+   */
   static get showButton() {
     return game.settings.get(MODULE.ID, SETTINGS.PLAYERS) || game.user.isGM;
   }
 
-  /** Should the label be shown? */
+  /**
+   * Should the label be shown?
+   * @type {boolean}
+   */
   static get showLabel() {
     return game.settings.get(MODULE.ID, SETTINGS.LABEL);
   }
 
-  /** The invalid document types that should prevent the button from being shown. */
+  /**
+   * The invalid document types that should prevent the button from being shown.
+   * @type {Set<string>}
+   */
   static get invalidTypes() {
     throw new Error("This must be subclassed.");
   }
 
-  /** The button label. */
+  /**
+   * The button label.
+   * @type {string}
+   */
   static get label() {
     return game.i18n.localize("BABONUS.ModuleTitle");
   }
@@ -31,7 +43,7 @@ class HeaderButton {
    */
   static inject(app, array) {
     if (!this.showButton) return;
-    if (this.invalidTypes.includes(app.document.type)) return;
+    if (this.invalidTypes.has(app.document.type)) return;
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
@@ -43,25 +55,29 @@ class HeaderButton {
 }
 
 class HeaderButtonActor extends HeaderButton {
+  /** @override */
   static get invalidTypes() {
-    return ["group"];
+    return new Set(["group"]);
   }
 }
 
 class HeaderButtonItem extends HeaderButton {
+  /** @override */
   static get invalidTypes() {
-    return ["background", "class", "subclass", "race"];
+    return new Set(["background", "class", "subclass", "race"]);
   }
 }
 
 class HeaderButtonEffect extends HeaderButton {
+  /** @override */
   static get invalidTypes() {
-    return [];
+    return new Set();
   }
 }
 
 /** Add a header button to display the source of all applied bonuses. */
 class HeaderButtonDialog extends HeaderButton {
+  /** @override */
   static inject(app, array) {
     const bonuses = app.options[MODULE.ID]?.bonuses;
     if (!bonuses?.length) return;

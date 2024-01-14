@@ -86,15 +86,15 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The babonus this lives on.
-   * @returns {Babonus}
+   * @type {Babonus}
    */
   get bonus() {
     return this.parent.parent;
   }
 
   /**
-   * The applicable modifiers.
-   * @returns {string[]}
+   * Does this bonus have applicable modifiers for dice?
+   * @type {boolean}
    */
   get hasModifiers() {
     return ["amt", "sz", "r", "x", "min", "max"].some(m => this[m]);
@@ -102,7 +102,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The added amount of dice.
-   * @returns {number}
+   * @type {number}
    */
   get amt() {
     if (!this.amount.enabled) return null;
@@ -112,7 +112,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The increase in die size.
-   * @returns {number}
+   * @type {number}
    */
   get sz() {
     if (!this.size.enabled) return null;
@@ -122,7 +122,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The reroll modifier.
-   * @returns {string}
+   * @type {string}
    */
   get r() {
     if (!this.reroll.enabled) return null;
@@ -133,7 +133,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The explosion modifier.
-   * @returns {string}
+   * @type {string}
    */
   get x() {
     if (!this.explode.enabled) return null;
@@ -144,7 +144,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The minimum modifier.
-   * @returns {string}
+   * @type {string}
    */
   get min() {
     if (!this.minimum.enabled) return null;
@@ -155,7 +155,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The maximum modifier.
-   * @returns {string}
+   * @type {string}
    */
   get max() {
     if (!this.maximum.enabled) return null;

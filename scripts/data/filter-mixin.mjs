@@ -1,5 +1,11 @@
 import {module} from "./_module.mjs";
 
+/**
+ * A mixin function for base filter behaviour.
+ * @param {Class} Base      The base class.
+ * @returns {Class}
+ * @mixin
+ */
 export function FilterMixin(Base) {
   return class BaseFilter extends Base {
     // The name of this filter.

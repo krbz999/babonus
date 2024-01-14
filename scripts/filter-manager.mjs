@@ -452,7 +452,6 @@ export class FilterManager {
    * Find out if the item was cast at any of the required spell levels. When a spell is upcast,
    * the item here is the cloned spell only in the case of save dc bonuses, meaning we need to
    * pass on the correct spell level for attack and damage roll bonuses.
-   * TODO: the upcast level cannot be retrieved from template auras.
    * @param {Item5e} item                           The item being filtered against.
    * @param {string[]} filter                       The array of spell levels in the filter.
    * @param {object} [details={}]                   Additional context for the filtering.

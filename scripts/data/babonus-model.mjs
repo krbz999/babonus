@@ -10,26 +10,32 @@ class Babonus extends foundry.abstract.DataModel {
     super(data, options);
   }
 
+  /** @override */
   static get metadata() {
     return {label: game.i18n.localize("BABONUS.Babonus")};
   }
 
+  /**
+   * An object of applications that re-render when this bonus is updated.
+   * @type {object}
+   */
   get apps() {
     return this._apps ??= {};
   }
 
-  /** @override */
+  /**
+   * The sheet of the bonus.
+   * @type {BabonusSheet}
+   */
   get sheet() {
     if (this._sheet) return this._sheet;
     return this._sheet = new BabonusSheet(this);
   }
 
-  /**
-   * @override
-   * Since babs are always local, all users have permission to render them.
-   * Proper permissions are handled elsewhere.
-   */
+  /** @override */
   testUserPermission() {
+    // Since babs are always local, all users have permission to render them.
+    // Proper permissions are handled elsewhere.
     return true;
   }
 
@@ -56,7 +62,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * A formatted uuid of a babonus, an extension of its parent's uuid.
-   * @returns {string}
+   * @type {string}
    */
   get uuid() {
     return `${this.parent.uuid}.Babonus.${this.id}`;
@@ -64,7 +70,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * The FA icon unique to this babonus type. Must be subclassed.
-   * @returns {string}
+   * @type {string}
    */
   static get icon() {
     return null;
@@ -75,7 +81,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the type of a babonus.
-   * @returns {string}
+   * @type {string}
    */
   static get type() {
     return null;
@@ -85,9 +91,9 @@ class Babonus extends foundry.abstract.DataModel {
    * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
-   * TODO: once hit die rolls have a dialog as well, this should be amended.
-   * TODO: once rolls can be "remade" in 2.5.0, optional bonuses should be able to apply to other properties as well.
-   * @returns {boolean}
+   * @TODO once hit die rolls have a dialog as well, this should be amended.
+   * @TODO once rolls can be "remade" in 2.6.0, optional bonuses should be able to apply to other properties as well.
+   * @type {boolean}
    */
   get isOptionable() {
     return ["attack", "damage", "throw", "test"].includes(this.type) && !!this.bonuses.bonus;
@@ -95,7 +101,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Whether a babonus is currently optional, which is only true if it is both able to be optional, and toggled as such.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isOptional() {
     return this.optional && this.isOptionable;
@@ -105,7 +111,7 @@ class Babonus extends foundry.abstract.DataModel {
    * Whether a babonus is valid for being 'item only' in the builder. It must be embedded in an item, must not be an aura or
    * template aura, and must either apply to attack rolls, damage rolls, or save DCs while the parent item can make use of
    * one of those, or it must apply to ability checks while being embedded on a tool-type item.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get canExclude() {
     if (!(this.parent instanceof Item)) return false;
@@ -122,7 +128,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Whether the bonus applies only to its parent item. This is true if it has the property enabled and is valid to do so.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isExclusive() {
     return this.exclusive && this.canExclude;
@@ -131,7 +137,7 @@ class Babonus extends foundry.abstract.DataModel {
   /**
    * Whether the babonus is unavailable due to its parent item being unequipped, unattuned (if required), or uncrewed.
    * This is different from a babonus that is unavailable due to its parent effect being disabled or unavailable.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isSuppressed() {
     // If this bonus lives on an effect, defer to the effect.

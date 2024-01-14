@@ -24,6 +24,7 @@ export class BabonusWorkshop extends Application {
     this.appId = `${this.document.uuid.replaceAll(".", "-")}-babonus-workshop`;
   }
 
+  /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 800,
@@ -36,22 +37,33 @@ export class BabonusWorkshop extends Application {
     });
   }
 
+  /**
+   * A reference to the owner of the bonuses.
+   * @type {Actor5e|Item5e|ActiveEffect5e}
+   */
   get document() {
     return this.object;
   }
 
+  /** @override */
   get id() {
     return `${MODULE.ID}-${this.document.uuid.replaceAll(".", "-")}`;
   }
 
+  /** @override */
   get isEditable() {
     return this.document.sheet.isEditable;
   }
 
+  /** @override */
   get title() {
     return `${MODULE.NAME}: ${this.document.name}`;
   }
 
+  /**
+   * A reference to the collection of bonuses on this document.
+   * @type {Collection<Babonus>}
+   */
   get collection() {
     return this.constructor._getCollection(this.document);
   }

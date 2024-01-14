@@ -7,6 +7,7 @@ export class AppliedBonusesDialog extends Dialog {
     this.dialog = options.dialog;
   }
 
+  /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 400,
@@ -16,10 +17,12 @@ export class AppliedBonusesDialog extends Dialog {
     });
   }
 
+  /** @override */
   get title() {
     return game.i18n.localize("BABONUS.OverviewTitle");
   }
 
+  /** @override */
   get id() {
     return `${this.dialog.id}-bonuses-overview`;
   }
