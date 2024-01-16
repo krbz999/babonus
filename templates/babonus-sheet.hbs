@@ -59,7 +59,7 @@
       <div class="form-group">
         <label class="label">
           {{localize "BABONUS.ModifiersAmount"}}
-          {{#if (ne bonus.bonuses.modifiers.amt null)}}(+{{bonus.bonuses.modifiers.amt}}){{/if}}
+          {{#if bonus.bonuses.modifiers.amt}}({{bonus.bonuses.modifiers.amt}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">

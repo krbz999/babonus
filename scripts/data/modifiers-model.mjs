@@ -46,8 +46,12 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const rollData = this.parent.getRollData({deterministic: true});
     for (const m of ["amount", "size", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
+      if (!value) {
+        this[m].value = null;
+        continue;
+      }
       const bonus = dnd5e.utils.simplifyBonus(value, rollData);
-      this[m].value = Math.round(Number.isNumeric(bonus) ? bonus : 0);
+      this[m].value = Math.round(Number.isNumeric(bonus) ? bonus : null);
     }
   }
 
@@ -67,8 +71,10 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   modifyDie(die) {
     const dm = die.modifiers;
+
+    // Assume these are all strings of integers or null.
     const {amt, sz, r, x, min, max} = this;
-    if (amt > 0) die.number += amt;
+    if (amt) die.number = Math.max(0, die.number + parseInt(amt));
     if (sz > 0) die.faces += sz;
     if (r && !dm.some(m => m.match(this.constructor.REGEX.reroll))) dm.push(r);
     if (x && !dm.some(m => m.match(this.constructor.REGEX.explode))) dm.push(x);
@@ -102,12 +108,12 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The added amount of dice.
-   * @type {number}
+   * @type {string|null}
    */
   get amt() {
     if (!this.amount.enabled) return null;
-    if (!Number.isInteger(this.amount.value)) return null;
-    return Math.max(0, this.amount.value);
+    const am = parseInt(this.amount.value);
+    return isNaN(am) ? null : am.signedString();
   }
 
   /**
@@ -122,7 +128,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The reroll modifier.
-   * @type {string}
+   * @type {string|null}
    */
   get r() {
     if (!this.reroll.enabled) return null;
@@ -133,7 +139,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The explosion modifier.
-   * @type {string}
+   * @type {string|null}
    */
   get x() {
     if (!this.explode.enabled) return null;
@@ -144,7 +150,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The minimum modifier.
-   * @type {string}
+   * @type {string|null}
    */
   get min() {
     if (!this.minimum.enabled) return null;
@@ -155,7 +161,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The maximum modifier.
-   * @type {string}
+   * @type {string|null}
    */
   get max() {
     if (!this.maximum.enabled) return null;
