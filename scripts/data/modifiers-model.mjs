@@ -75,7 +75,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     // Assume these are all strings of integers or null.
     const {amt, sz, r, x, min, max} = this;
     if (amt) die.number = Math.max(0, die.number + parseInt(amt));
-    if (sz > 0) die.faces += sz;
+    if (sz) die.faces = Math.max(0, die.faces + parseInt(sz));
     if (r && !dm.some(m => m.match(this.constructor.REGEX.reroll))) dm.push(r);
     if (x && !dm.some(m => m.match(this.constructor.REGEX.explode))) dm.push(x);
     if (min && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
@@ -118,12 +118,12 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * The increase in die size.
-   * @type {number}
+   * @type {string|null}
    */
   get sz() {
     if (!this.size.enabled) return null;
-    if (!Number.isInteger(this.size.value)) return null;
-    return Math.max(0, this.size.value);
+    const am = parseInt(this.size.value);
+    return isNaN(am) ? null : am.signedString();
   }
 
   /**
