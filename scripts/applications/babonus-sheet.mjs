@@ -239,29 +239,56 @@ export class BabonusSheet extends DocumentSheet {
    */
   _prepareModifiers() {
     const modifiers = this.bonus.toObject().bonuses.modifiers ?? {};
+    const mods = this.bonus.bonuses.modifiers;
     const data = {};
     for (const key in modifiers) {
       const v = modifiers[key];
 
       let label;
       switch (key) {
-        case "amount": label = this.bonus.bonuses.modifiers.amt; break;
-        case "size": label = this.bonus.bonuses.modifiers.sz; break;
-        case "reroll": label = this.bonus.bonuses.modifiers.r; break;
-        case "explode": label = this.bonus.bonuses.modifiers.x; break;
-        case "minimum":
-          const maxxed = this.bonus.bonuses.modifiers.minimum.maximize;
-          if (maxxed) label = "BABONUS.Maximized";
-          else {
-            const v = parseInt(this.bonus.bonuses.modifiers.min);
-            label = !v ? null : (v < 0) ? "BABONUS.Relative" : `min${v}`;
-          }
+        case "amount": {
+          const v = mods.amount.value;
+          label = mods.hasAmount ? v.signedString() : null;
           break;
-        case "maximum":
-          const v = parseInt(this.bonus.bonuses.modifiers.max);
-          label = isNaN(v) ? null : (v < 0) ? "BABONUS.Relative" : `max${v}`;
+        }
+        case "size": {
+          const v = mods.size.value;
+          label = mods.hasSize ? v.signedString() : null;
           break;
-        default: label = this.bonus.bonuses.modifiers[key]; break;
+        }
+        case "reroll": {
+          const prefix = mods.reroll.recursive ? "rr" : "r";
+          const v = mods.reroll.value;
+          if (!mods.hasReroll) label = null;
+          else if (!Number.isNumeric(v) || !(v > 1)) label = `${prefix}=1`;
+          else label = `${prefix}<${v}`;
+          break;
+        }
+        case "explode": {
+          const prefix = mods.explode.once ? "xo" : "x";
+          const v = mods.explode.value;
+          if (!mods.hasExplode) label = null;
+          else if (!Number.isNumeric(v) || !(v > 0)) label = prefix;
+          else label = `${prefix}>${v}`;
+          break;
+        }
+        case "minimum": {
+          const maxxed = mods.minimum.maximize;
+          if (!mods.hasMin) label = null;
+          else if (maxxed) label = "BABONUS.Maximized";
+          else if (mods.minimum.value > 0) label = `min${mods.minimum.value}`;
+          else label = "BABONUS.Relative";
+          break;
+        }
+        case "maximum": {
+          const z = mods.maximum.zero;
+          const v = mods.maximum.value;
+          if (!mods.hasMax) label = null;
+          else if (v < 0) label = "BABONUS.Relative";
+          else label = `max${v === 0 ? (z ? 0 : 1) : v}`;
+          break;
+        }
+        default: label = null; break;
       }
 
       data[key] = {

@@ -73,27 +73,38 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   modifyDie(die) {
     const dm = die.modifiers;
+    const {hasAmount, hasSize, hasReroll, hasExplode, hasMin, hasMax} = this;
 
-    // Assume these are all strings of integers or null.
-    const {amt, sz, r, x, min, max} = this;
-    if (amt) die.number = Math.max(0, die.number + parseInt(amt));
-    if (sz) die.faces = Math.max(0, die.faces + parseInt(sz));
-    if (r && !dm.some(m => m.match(this.constructor.REGEX.reroll))) dm.push(r);
-    if (x && !dm.some(m => m.match(this.constructor.REGEX.explode))) dm.push(x);
-    if (min && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
-      const maximize = this.minimum.maximize;
-      const minimum = parseInt(this.minimum.value);
-      if (maximize) dm.push(`min${die.faces}`);
-      else {
-        const m = (minimum >= 0) ? minimum : Math.max(2, die.faces + minimum);
-        dm.push(`min${m}`);
-      }
+    if (hasAmount) die.number = Math.max(0, die.number + this.amount.value);
+    if (hasSize) die.faces = Math.max(0, die.faces + this.size.value);
+    if (hasReroll && !dm.some(m => m.match(this.constructor.REGEX.reroll))) {
+      const prefix = this.reroll.recursive ? "rr" : "r";
+      let mod;
+      if (!Number.isNumeric(this.reroll.value) || !(this.reroll.value > 1)) mod = `${prefix}=1`;
+      else mod = `${prefix}<${Math.min(this.reroll.value, die.faces)}`;
+      dm.push(mod);
     }
-    if (max && !dm.some(m => m.match(this.constructor.REGEX.maximum))) {
+    if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
+      const v = this.explode.value;
+      const prefix = this.explode.once ? "xo" : "x";
+      let mod;
+      if (!Number.isNumeric(v) || !(v > 0) || (v >= die.faces)) mod = prefix;
+      else mod = `${prefix}>${v}`;
+      dm.push(mod);
+    }
+    if (hasMin && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
+      const f = die.faces;
+      let mod;
+      const min = this.minimum.value;
+      if (this.minimum.maximize) mod = `min${f}`;
+      else mod = `min${(min > 0) ? Math.min(min, f) : Math.max(1, f + min)}`;
+      if (mod !== "min1") dm.push(mod);
+    }
+    if (hasMax && !dm.some(m => m.match(this.constructor.REGEX.maximum))) {
       const zero = this.maximum.zero;
-      const maximum = parseInt(max);
-      const m = (maximum >= 0) ? maximum : Math.max(zero ? 0 : 1, die.faces + maximum);
-      if (m < die.faces) dm.push(`max${m}`);
+      const v = this.maximum.value;
+      const max = (v === 0) ? (zero ? 0 : 1) : (v > 0) ? v : Math.max(zero ? 0 : 1, die.faces + v);
+      if (max < die.faces) dm.push(`max${max}`);
     }
   }
 
@@ -114,70 +125,61 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get hasModifiers() {
-    return ["amt", "sz", "r", "x", "min", "max"].some(m => this[m]);
+    return ["hasAmount", "hasSize", "hasReroll", "hasExplode", "hasMin", "hasMax"].some(m => this[m]);
   }
 
   /**
-   * The added amount of dice.
-   * @type {string|null}
+   * Does this bonus affect the dice amount?
+   * @type {boolean}
    */
-  get amt() {
-    if (!this.amount.enabled) return null;
-    const am = parseInt(this.amount.value);
-    return isNaN(am) ? null : am.signedString();
+  get hasAmount() {
+    if (!this.amount.enabled) return false;
+    return Number.isInteger(this.amount.value);
   }
 
   /**
-   * The increase in die size.
-   * @type {string|null}
+   * Does this bonus affect the die size?
+   * @type {boolean}
    */
-  get sz() {
-    if (!this.size.enabled) return null;
-    const am = parseInt(this.size.value);
-    return isNaN(am) ? null : am.signedString();
+  get hasSize() {
+    if (!this.size.enabled) return false;
+    return Number.isInteger(this.size.value);
   }
 
   /**
-   * The reroll modifier.
-   * @type {string|null}
+   * Does this bonus affect rerolling?
+   * @type {boolean}
    */
-  get r() {
-    if (!this.reroll.enabled) return null;
-    const prefix = this.reroll.recursive ? "rr" : "r";
-    if (!Number.isNumeric(this.reroll.value) || !(this.reroll.value > 1)) return `${prefix}=1`;
-    return `${prefix}<${this.reroll.value}`;
+  get hasReroll() {
+    if (!this.reroll.enabled) return false;
+    return true;
   }
 
   /**
-   * The explosion modifier.
-   * @type {string|null}
+   * Does this bonus affect explosive dice?
+   * @type {boolean}
    */
-  get x() {
-    if (!this.explode.enabled) return null;
-    const prefix = this.explode.once ? "xo" : "x";
-    if (!Number.isNumeric(this.explode.value) || !(this.explode.value > 0)) return prefix;
-    return `${prefix}>${this.explode.value}`;
+  get hasExplode() {
+    if (!this.explode.enabled) return false;
+    return true;
   }
 
   /**
-   * The minimum modifier.
-   * @type {string|null}
+   * Does this bonus affect the minimum cap?
+   * @type {boolean}
    */
-  get min() {
-    if (!this.minimum.enabled) return null;
-    const am = parseInt(this.minimum.value);
-    return !am ? null : am.signedString();
+  get hasMin() {
+    if (!this.minimum.enabled) return false;
+    if (this.minimum.maximize) return true;
+    return Number.isInteger(this.minimum.value) && (this.minimum.value !== 0);
   }
 
   /**
-   * The maximum modifier.
-   * @type {string|null}
+   * Does this bonus affect the maximum cap?
+   * @type {boolean}
    */
-  get max() {
-    if (!this.maximum.enabled) return null;
-    const am = parseInt(this.maximum.value);
-    const zero = this.maximum.zero;
-    const bm = (am === 0) ? (zero ? 0 : 1) : am;
-    return isNaN(am) ? null : bm.signedString();
+  get hasMax() {
+    if (!this.maximum.enabled) return false;
+    return Number.isInteger(this.maximum.value);
   }
 }
