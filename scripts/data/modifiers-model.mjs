@@ -27,7 +27,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       }),
       maximum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true})
+        value: new foundry.data.fields.StringField({required: true}),
+        zero: new foundry.data.fields.BooleanField()
       }),
       config: new foundry.data.fields.SchemaField({
         first: new foundry.data.fields.BooleanField()
@@ -83,7 +84,12 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       if (minimum === -1) dm.push(`min${die.faces}`);
       else dm.push(`min${Math.clamped(minimum, 2, die.faces)}`);
     }
-    if (max && !dm.some(m => m.match(this.constructor.REGEX.maximum))) dm.push(max);
+    if (max && !dm.some(m => m.match(this.constructor.REGEX.maximum))) {
+      const zero = this.maximum.zero;
+      const maximum = parseInt(max);
+      const m = (maximum >= 0) ? maximum : Math.max(zero ? 0 : 1, die.faces + maximum);
+      if (m < die.faces) dm.push(`max${m}`);
+    }
   }
 
   /* ----------------------------- */
@@ -165,7 +171,9 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get max() {
     if (!this.maximum.enabled) return null;
-    if (!Number.isNumeric(this.maximum.value) || !(this.maximum.value > 0)) return null;
-    return `max${this.maximum.value}`;
+    const am = parseInt(this.maximum.value);
+    const zero = this.maximum.zero;
+    const bm = am === 0 ? (zero ? 0 : 1) : am;
+    return isNaN(am) ? null : bm.signedString();
   }
 }

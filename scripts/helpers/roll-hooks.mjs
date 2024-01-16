@@ -77,8 +77,6 @@ export class RollHooks {
     // Don't set crit to below 1, and don't set fumble to below 1 unless allowed.
     if (rollConfig.critical < 1) rollConfig.critical = 1;
     if ((rollConfig.fumble < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) rollConfig.fumble = 1;
-
-    console.warn({crit: rollConfig.critical, fumble: rollConfig.fumble});
   }
 
   /**

@@ -242,11 +242,27 @@ export class BabonusSheet extends DocumentSheet {
     const data = {};
     for (const key in modifiers) {
       const v = modifiers[key];
+
+      let label;
+      switch(key) {
+        case "amount": label = this.bonus.bonuses.modifiers.amt; break;
+        case "size": label = this.bonus.bonuses.modifiers.sz; break;
+        case "reroll": label = this.bonus.bonuses.modifiers.r; break;
+        case "explode": label = this.bonus.bonuses.modifiers.x; break;
+        case "minimum": label = this.bonus.bonuses.modifiers.min; break;
+        case "maximum":
+          const v = parseInt(this.bonus.bonuses.modifiers.max);
+          label = isNaN(v) ? null : (v < 0) ? "BABONUS.Relative" : `max${v}`;
+          break;
+        default: label = this.bonus.bonuses.modifiers[key]; break;
+      }
+
       data[key] = {
+        ...v,
         key: key,
         enabled: v.enabled,
         disabled: !v.enabled,
-        ...v
+        label: label
       };
     }
     return data;
