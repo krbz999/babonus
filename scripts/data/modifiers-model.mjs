@@ -23,7 +23,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       }),
       minimum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true})
+        value: new foundry.data.fields.StringField({required: true}),
+        maximize: new foundry.data.fields.BooleanField()
       }),
       maximum: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
@@ -80,9 +81,13 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (r && !dm.some(m => m.match(this.constructor.REGEX.reroll))) dm.push(r);
     if (x && !dm.some(m => m.match(this.constructor.REGEX.explode))) dm.push(x);
     if (min && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
-      const minimum = this.minimum.value;
-      if (minimum === -1) dm.push(`min${die.faces}`);
-      else dm.push(`min${Math.clamped(minimum, 2, die.faces)}`);
+      const maximize = this.minimum.maximize;
+      const minimum = parseInt(this.minimum.value);
+      if (maximize) dm.push(`min${die.faces}`);
+      else {
+        const m = (minimum >= 0) ? minimum : Math.max(2, die.faces + minimum);
+        dm.push(`min${m}`);
+      }
     }
     if (max && !dm.some(m => m.match(this.constructor.REGEX.maximum))) {
       const zero = this.maximum.zero;
@@ -160,9 +165,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get min() {
     if (!this.minimum.enabled) return null;
-    const isMax = this.minimum.value === -1;
-    if (!isMax && !(Number.isNumeric(this.minimum.value) && (this.minimum.value > 1))) return null;
-    return `min${this.minimum.value}`;
+    const am = parseInt(this.minimum.value);
+    return !am ? null : am.signedString();
   }
 
   /**
@@ -173,7 +177,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (!this.maximum.enabled) return null;
     const am = parseInt(this.maximum.value);
     const zero = this.maximum.zero;
-    const bm = am === 0 ? (zero ? 0 : 1) : am;
+    const bm = (am === 0) ? (zero ? 0 : 1) : am;
     return isNaN(am) ? null : bm.signedString();
   }
 }

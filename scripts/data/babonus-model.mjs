@@ -331,7 +331,14 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  static migrateData(source) {}
+  static migrateData(source) {
+    const minimum = source?.bonuses?.modifiers?.minimum;
+    if (!minimum) return;
+    if (!("maximize" in minimum) && (minimum.value === "-1")) {
+      minimum.value = "";
+      minimum.maximize = true;
+    }
+  }
 
   /**
    * Get applicable roll data from the origin.

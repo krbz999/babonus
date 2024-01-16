@@ -85,7 +85,7 @@
       <div class="form-group">
         <label class="label">
           {{localize "BABONUS.ModifiersReroll"}}
-          {{#if (ne bonus.bonuses.modifiers.r null)}}({{bonus.bonuses.modifiers.r}}){{/if}}
+          {{#if context.modifiers.reroll.label}}({{context.modifiers.reroll.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -104,7 +104,7 @@
       <div class="form-group">
         <label class="label">
           {{localize "BABONUS.ModifiersExplode"}}
-          {{#if (ne bonus.bonuses.modifiers.x null)}}({{bonus.bonuses.modifiers.x}}){{/if}}
+          {{#if context.modifiers.explode.label}}({{context.modifiers.explode.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -123,17 +123,17 @@
       <div class="form-group">
         <label class="label">
           {{localize "BABONUS.ModifiersMinimum"}}
-          {{#if bonus.bonuses.modifiers.minimum.enabled}}
-            {{#if (eq bonus.bonuses.modifiers.minimum.value -1)}}({{localize "BABONUS.ModifiersMinimumMaximized"}})
-            {{else if (ne bonus.bonuses.modifiers.min null)}}({{bonus.bonuses.modifiers.min}})
-            {{/if}}
-          {{/if}}
+          {{#if context.modifiers.minimum.label}}({{localize context.modifiers.minimum.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
           </label>
           <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}" {{disabled context.modifiers.minimum.disabled}}>
+          <label class="checkbox" data-tooltip="BABONUS.ModifiersMinimumMaximizeHint">
+            <input type="checkbox" name="bonuses.modifiers.minimum.maximize" {{checked context.modifiers.minimum.maximize}} {{disabled context.modifiers.minimum.disabled}}>
+            {{localize "BABONUS.ModifiersMinimumMaximize"}}
+          </label>
         </div>
       </div>
 
