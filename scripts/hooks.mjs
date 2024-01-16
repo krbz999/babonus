@@ -55,6 +55,17 @@ function _createSettings() {
     default: false,
     requiresReload: false
   });
+
+  // Allow for modifiers to the fumble range to go below 1?
+  game.settings.register(MODULE.ID, SETTINGS.FUMBLE, {
+    name: "BABONUS.SettingsAllowFumbleNegationName",
+    hint: "BABONUS.SettingsAllowFumbleNegationHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: false
+  });
 }
 
 /* Preload all template partials for the builder. */

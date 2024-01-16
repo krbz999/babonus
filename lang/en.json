@@ -228,6 +228,8 @@
   "BABONUS.OverviewTitle": "Applied Bonuses",
   "BABONUS.SelectType": "Select a Type",
   "BABONUS.SelectTypeTooltip": "Select a type for your new bonus; the kind of roll to which it should apply.",
+  "BABONUS.SettingsAllowFumbleNegationHint": "Allow for modifiers to the fumble range on attack rolls to go below 1?",
+  "BABONUS.SettingsAllowFumbleNegationName": "Allow Fumble Negation",
   "BABONUS.SettingsDisableCustomScriptFilterHint": "Disable the 'Custom Script' filters from having their values read. Instead the filter always immediately returns true. Enable this setting if you prefer other users not executing scripts.",
   "BABONUS.SettingsDisableCustomScriptFilterName": "Disable 'Custom Script' filter.",
   "BABONUS.SettingsDisplayLabelHint": "If checked, the label is displayed in the header of applicable actors, items, and effects.",

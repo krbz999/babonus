@@ -1,5 +1,5 @@
 import {FilterManager} from "../filter-manager.mjs";
-import {MODULE} from "../constants.mjs";
+import {MODULE, SETTINGS} from "../constants.mjs";
 import {BabonusWorkshop} from "../applications/babonus-workshop.mjs";
 
 /** Utility class for the various roll hooks. */
@@ -74,9 +74,11 @@ export class RollHooks {
     rollConfig.critical = (rollConfig.critical ?? 20) - mods.critical;
     rollConfig.fumble = (rollConfig.fumble ?? 1) + mods.fumble;
 
-    // Don't set crit to below 1, and don't set fumble to below 1 unless explicitly -Infinity.
+    // Don't set crit to below 1, and don't set fumble to below 1 unless allowed.
     if (rollConfig.critical < 1) rollConfig.critical = 1;
-    if ((rollConfig.fumble < 1) && (rollConfig.fumble !== -Infinity)) rollConfig.fumble = 1;
+    if ((rollConfig.fumble < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) rollConfig.fumble = 1;
+
+    console.warn({crit: rollConfig.critical, fumble: rollConfig.fumble});
   }
 
   /**
