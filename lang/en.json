@@ -215,7 +215,7 @@
   "BABONUS.ModifiersMinimumMaximizeHint": "Set the minimum of the die's roll to be its number of faces?",
   "BABONUS.ModifiersMinimumValue": "Minimum value",
   "BABONUS.ModifiersReroll": "Reroll",
-  "BABONUS.ModifiersRerollRecursive": "Reroll Recursively?",
+  "BABONUS.ModifiersRerollRecursive": "Recursively?",
   "BABONUS.ModifiersRerollValue": "if less than",
   "BABONUS.ModifiersSize": "Dice Size",
   "BABONUS.ModifiersSizeValue": "size increase",

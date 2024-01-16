@@ -56,7 +56,7 @@
     },
     "hotReload": {
       "extensions": ["css"],
-      "paths": ["styles/babonus.css"]
+      "paths": ["styles/*.css"]
     }
   },
   "url": "https://github.com/krbz999/babonus",
