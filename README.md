@@ -1,4 +1,4 @@
-Interested in following along with development of any of my modules? Join the [Discord server](https://discord.gg/QAG8eWABGT). 
+Interested in following along with development of any of my modules? Join the [Discord server](https://discord.gg/QAG8eWABGT).
 
 <h1 style="text-align: center; font-size: 60px; border: none; font-weight: bold; font-style: italic;">Build-a-Bonus</h1>
 
@@ -104,6 +104,7 @@ Interested in following along with development of any of my modules? Join the [D
 <li><code>getMinimumDistanceBetweenTokens(tokenA, tokenB)</code> returns the minimum distance between two token placeables, evaluating every grid cell that they occupy.</li>
 <li><code>sceneTokensByDisposition(scene)</code> returns an object of four arrays; the tokens on the scene split into four arrays by disposition (friendly, neutral, hostile, and none). If no scene is provided, the currently viewed scene is used.</li>
 <li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
+<li><code>hotbarToggle(uuid)</code> toggles a bonus retrieved via its uuid.</li>
 <li>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</li>
 </ul>
 

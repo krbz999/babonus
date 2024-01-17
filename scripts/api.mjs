@@ -18,6 +18,7 @@ export function createAPI() {
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
     createBabonus, embedBabonus,
+    hotbarToggle: hotbarToggle,
 
     findEmbeddedDocumentsWithBonuses,
     findTokensInRangeOfAura,
@@ -318,4 +319,18 @@ async function embedBabonus(object, bonus) {
   if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
   if (!Object.values(module.models).some(t => bonus instanceof t)) return null;
   return BabonusWorkshop._embedBabonus(object, bonus);
+}
+
+/**
+ * Hotbar method for toggling a bonus via uuid.
+ * @param {string} uuid       Uuid of the bonus to toggle.
+ * @returns {Promise<null|Babonus>}
+ */
+async function hotbarToggle(uuid) {
+  const bonus = await babonusFromUuid(uuid);
+  if (!bonus) {
+    ui.notifications.warn("BABONUS.BonusNotFound", {localize: true});
+    return;
+  }
+  return bonus.toggle();
 }

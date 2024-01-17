@@ -82,10 +82,35 @@ async function _preloadPartials() {
     "modules/babonus/templates/parts/textarea.hbs"
   ]);
 }
+
+/**
+ * On-drop handler for the hotbar.
+ * @param {Hotbar} bar                The hotbar application.
+ * @param {object} dropData           The drop data.
+ * @param {string} dropData.type      The type of the dropped document.
+ * @param {string} dropData.uuid      The uuid of the dropped document.
+ * @param {number} slot               The slot on the hotbar where it was dropped.
+ */
+async function _onHotbarDrop(bar, {type, uuid}, slot) {
+  if (type !== "Babonus") return;
+  const bonus = await babonus.fromUuid(uuid);
+  const data = {
+    img: bonus.img,
+    command: `babonus.hotbarToggle("${uuid}");`,
+    name: `${game.i18n.localize("BABONUS.ToggleBonus")}: ${bonus.name}`,
+    type: CONST.MACRO_TYPES.SCRIPT
+  };
+  const macro = game.macros.find(m => {
+    return Object.entries(data).every(([k, v]) => m[k] === v) && m.isAuthor;
+  }) ?? await Macro.create(data);
+  return game.user.assignHotbarMacro(macro, slot);
+}
+
 // General setup.
 Hooks.once("setup", createAPI);
 Hooks.once("setup", _createSettings);
 Hooks.once("setup", _preloadPartials);
+Hooks.on("hotbarDrop", _onHotbarDrop);
 
 // Any application injections.
 Hooks.on("getActiveEffectConfigHeaderButtons", buttons.effect);
