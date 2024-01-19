@@ -27,8 +27,8 @@ export class BabonusWorkshop extends Application {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      width: 800,
-      height: 900,
+      width: 450,
+      height: 700,
       template: `modules/${MODULE.ID}/templates/babonus-workshop.hbs`,
       classes: [MODULE.ID, "builder"],
       scrollY: [".current-bonuses .bonuses"],
@@ -75,6 +75,16 @@ export class BabonusWorkshop extends Application {
   /* ------------------------------- */
 
   //#region
+
+  /** @override */
+  setPosition(pos={}){
+    const w = parseInt(pos.width);
+    if (w) {
+      const el = this.element[0]?.querySelector(".babonus.builder .pages .select-type");
+      el?.classList.toggle("hidden", w < 510);
+    }
+    return super.setPosition(pos);
+  }
 
   /** @override */
   async getData() {

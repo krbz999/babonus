@@ -2,14 +2,14 @@
   color: gray;
 }
 .babonus.builder {
-  min-height: 700px;
-  min-width: 700px;
+  min-height: 500px;
+  min-width: 450px;
 }
 .babonus.builder .content {
   height: 100%;
   display: flex;
   flex-direction: column;
-  margin: 0 5px 5px 5px;
+  margin: 0;
   overflow: hidden;
 }
 .babonus.builder h1.otters {
@@ -42,36 +42,55 @@
 .babonus.builder .pages .select-type,
 .babonus.builder .pages .current-bonuses {
   display: flex;
-  flex: 1;
   height: 100%;
-  overflow: hidden auto;
   flex-direction: column;
+}
+.babonus.builder .pages .current-bonuses {
+  flex: 1;
+}
+.babonus.builder .pages .select-type.hidden .types {
+  gap: 40px;
+}
+.babonus.builder .pages .select-type.hidden .types a {
+  grid-template-columns: 100%;
+  padding: 0;
+}
+.babonus.builder .pages .select-type.hidden .types a > i {
+  font-size: 40px;
+}
+.babonus.builder .pages .select-type.hidden .types .label {
+  display: none;
 }
 .babonus.builder .pages .select-type .types {
   height: 100%;
-  overflow-y: auto;
+  overflow-y: overlay;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  font-size: 35px;
-  justify-content: space-evenly;
+  font-size: 26px;
+  justify-content: flex-start;
+  padding-top: 20px;
+  gap: 20px;
+  min-width: 120px;
+  transition: gap 200ms;
 }
 .babonus.builder .pages .select-type .types a {
   display: grid;
-  grid-template-columns: 2fr 3fr;
+  grid-template-columns: 50px 3fr;
   align-items: center;
+  padding-left: 10px;
 }
 .babonus.builder .pages .select-type .types a > i {
   place-self: center;
-  font-size: 60px;
+  font-size: 25px;
+  transition: font-size 200ms;
 }
 .babonus.builder .pages .current-bonuses .bonuses {
   height: 100%;
-  overflow-y: auto;
+  overflow-y: overlay;
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 5px 5px 5px 0;
+  padding: 5px;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus {
   border-bottom: 2px groove;
@@ -80,26 +99,28 @@
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header {
   display: grid;
   grid-template-columns: 1fr 0fr;
+  margin-bottom: 10px;
+  gap: 5px;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .functions {
   display: flex;
   justify-content: space-evenly;
+  font-size: 12px;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .label {
   text-align: center;
   font-size: 25px;
   font-family: 'Modesto Condensed';
-  margin-bottom: 0.75em;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.15em;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .label.disabled {
   text-decoration: line-through;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .label .fa-solid {
   font-size: 18px;
+  padding: 4px;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header [data-action="current-id"] {
   color: gray;
