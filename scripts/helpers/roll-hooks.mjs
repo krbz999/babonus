@@ -1,11 +1,15 @@
-import {FilterManager} from "../filters.mjs";
-import {MODULE} from "../constants.mjs";
-import {BabonusWorkshop} from "../applications/babonus.mjs";
+import {FilterManager} from "../filter-manager.mjs";
+import {MODULE, SETTINGS} from "../constants.mjs";
+import {BabonusWorkshop} from "../applications/babonus-workshop.mjs";
 
 /** Utility class for the various roll hooks. */
 export class RollHooks {
 
-  /* When you force a saving throw... */
+  /**
+   * When you force a saving throw...
+   * @param {Item5e} item         The item whose card is being displayed.
+   * @param {object} chatData     The chat data for the display.
+   */
   static preDisplayCard(item, chatData) {
     if (!item.hasSave) return;
 
@@ -34,7 +38,11 @@ export class RollHooks {
     chatData.content = div.innerHTML;
   }
 
-  /** When you make an attack roll... */
+  /**
+   * When you make an attack roll...
+   * @param {Item5e} [item]         The item that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   */
   static preRollAttack(item, rollConfig) {
     if (!item) return;
     // get bonuses:
@@ -66,12 +74,16 @@ export class RollHooks {
     rollConfig.critical = (rollConfig.critical ?? 20) - mods.critical;
     rollConfig.fumble = (rollConfig.fumble ?? 1) + mods.fumble;
 
-    // Don't set crit to below 1, and don't set fumble to below 1 unless explicitly -Infinity.
+    // Don't set crit to below 1, and don't set fumble to below 1 unless allowed.
     if (rollConfig.critical < 1) rollConfig.critical = 1;
-    if ((rollConfig.fumble < 1) && (rollConfig.fumble !== -Infinity)) rollConfig.fumble = 1;
+    if ((rollConfig.fumble < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) rollConfig.fumble = 1;
   }
 
-  /** When you make a damage roll... */
+  /**
+   * When you make a damage roll...
+   * @param {Item5e} [item]         The item that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   */
   static preRollDamage(item, rollConfig) {
     if (!item) return;
     // get bonus:
@@ -106,7 +118,11 @@ export class RollHooks {
     }
   }
 
-  /** When you roll a death saving throw... */
+  /**
+   * When you roll a death saving throw...
+   * @param {Actor5e} actor         The actor that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   */
   static preRollDeathSave(actor, rollConfig) {
     // get bonus:
     const bonuses = FilterManager.throwCheck(actor, "death", {});
@@ -135,7 +151,12 @@ export class RollHooks {
     rollConfig.critical = (rollConfig.critical ?? 20) - death.critical;
   }
 
-  /** When you roll a saving throw... */
+  /**
+   * When you roll a saving throw...
+   * @param {Actor5e} actor         The actor that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   * @param {string} abilityId      The key for the ability being used.
+   */
   static preRollAbilitySave(actor, rollConfig, abilityId) {
     // get bonus:
     const bonuses = FilterManager.throwCheck(actor, abilityId, {isConcSave: rollConfig.isConcSave});
@@ -147,7 +168,12 @@ export class RollHooks {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
-  /** When you roll an ability check... */
+  /**
+   * When you roll an ability check...
+   * @param {Actor5e} actor         The actor that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   * @param {string} abilityId      The key for the ability being used.
+   */
   static preRollAbilityTest(actor, rollConfig, abilityId) {
     const bonuses = FilterManager.testCheck(actor, abilityId);
     if (!bonuses.length) return;
@@ -156,9 +182,15 @@ export class RollHooks {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
-  /** When you roll a skill... */
+  /**
+   * When you roll a skill...
+   * @TODO Find the correct ability used, pending the system's roll refactor.
+   * @param {Actor5e} actor         The actor that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   * @param {string} skillId        The key for the skill being used.
+   */
   static preRollSkill(actor, rollConfig, skillId) {
-    const abilityId = actor.system.skills[skillId].ability; // TODO: fix in 2.4.0
+    const abilityId = actor.system.skills[skillId].ability;
     const bonuses = FilterManager.testCheck(actor, abilityId, {skillId});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
@@ -166,9 +198,15 @@ export class RollHooks {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
-  /** When you roll a tool check... */
+  /**
+   * When you roll a tool check...
+   * @TODO Find the correct ability used, pending the system's roll refactor.
+   * @param {Actor5e} actor         The actor that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   * @param {string} toolId         The key for the tool being used.
+   */
   static preRollToolCheck(actor, rollConfig, toolId) {
-    const abilityId = rollConfig.ability || rollConfig.data.defaultAbility; // TODO: fix in 2.4.0
+    const abilityId = rollConfig.ability || rollConfig.data.defaultAbility;
     const bonuses = FilterManager.testCheck(actor, abilityId, {toolId});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
@@ -176,7 +214,12 @@ export class RollHooks {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
   }
 
-  /** When you roll a hit die... */
+  /**
+   * When you roll a hit die...
+   * @param {Actor5e} actor           The actor that is making the roll.
+   * @param {object} rollConfig       The configuration for the roll.
+   * @param {string} denomination     The denomination of the die, e.g., 'd8'.
+   */
   static preRollHitDie(actor, rollConfig, denomination) {
     const bonuses = FilterManager.hitDieCheck(actor);
     if (!bonuses.length) return;
@@ -198,7 +241,11 @@ export class RollHooks {
     rollConfig.formula = `max(0, ${parts.join(" + ")})`;
   }
 
-  /** Inject babonus data on created templates if they have an associated item. */
+  /**
+   * Inject babonus data on created templates if they have an associated item.
+   * @TODO Make use of new hooks in dnd5e v2.5.
+   * @param {MeasuredTemplateDocument5e} templateDoc      The ability template being created.
+   */
   static preCreateMeasuredTemplate(templateDoc) {
     const item = fromUuidSync(templateDoc.flags.dnd5e?.origin ?? "");
     if (!item?.actor) return;
@@ -216,9 +263,8 @@ export class RollHooks {
 
   /**
    * Gather optional bonuses and put non-optional bonuses into the roll config.
-   * Mutates rollConfig.
    * @param {Babonus[]} bonuses     An array of babonuses to apply.
-   * @param {object} rollConfig     The roll config for this roll.
+   * @param {object} rollConfig     The roll config for this roll. **will be mutated**
    * @returns {string[]}            An array of bonuses to modify a roll.
    */
   static _getParts(bonuses, rollConfig) {
@@ -233,8 +279,7 @@ export class RollHooks {
 
   /**
    * Add the target's roll data to the actor's roll data.
-   * Mutates rollConfig.
-   * @param {object} rollConfig     The roll config for this roll.
+   * @param {object} rollConfig     The roll config for this roll. **will be mutated**
    */
   static _addTargetData(rollConfig) {
     const target = game.user.targets.first();

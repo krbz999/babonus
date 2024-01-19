@@ -1,4 +1,4 @@
-import {FilterMixin} from "../FilterMixin.mjs";
+import {FilterMixin} from "../filter-mixin.mjs";
 
 class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
   static template = "modules/babonus/templates/parts/text-keys.hbs";

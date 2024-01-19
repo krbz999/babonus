@@ -1,4 +1,5 @@
 export class ConsumptionModel extends foundry.abstract.DataModel {
+  /** @override */
   static defineSchema() {
     return {
       enabled: new foundry.data.fields.BooleanField(),
@@ -14,6 +15,10 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     };
   }
 
+  /**
+   * The select options for what this bonus can consume.
+   * @type {object}
+   */
   get OPTIONS() {
     const options = {};
     if (this.canConsumeUses) options.uses = "DND5E.LimitedUses";
@@ -33,14 +38,11 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     this.prepareDerivedData();
   }
 
-  static migrateData(source) {
-    //
-  }
+  /** @override */
+  static migrateData(source) {}
 
   /** @override */
-  prepareDerivedData() {
-    //
-  }
+  prepareDerivedData() {}
 
   /**
    * Get applicable roll data from the origin.
@@ -56,16 +58,16 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
 
   /**
    * The babonus this lives on.
-   * @returns {Babonus}
+   * @type {Babonus}
    */
   get bonus() {
     return this.parent;
   }
 
   /**
-   * Whether the babonus can open the Consumption app in the builder, which
-   * requires that it is Optional and has at least one option in the 'type' available.
-   * @returns {boolean}
+   * Whether the babonus can consume, which requires that it is Optional
+   * and has at least one option in the 'type' available.
+   * @type {boolean}
    */
   get canConsume() {
     if (!this.bonus.isOptional) return false;
@@ -73,9 +75,9 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Limited Uses' should be a valid option in the Consumption app.
+   * Whether 'Limited Uses' should be a valid option for consumption.
    * The babonus must be embedded on an item that has limited uses.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get canConsumeUses() {
     const item = this.bonus.parent;
@@ -83,9 +85,9 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Quantity' should be a valid option in the Consumption app.
+   * Whether 'Quantity' should be a valid option for consumption.
    * The babonus must be embedded on an item that has a quantity.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get canConsumeQuantity() {
     const item = this.bonus.parent;
@@ -93,18 +95,18 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Spell Slots' should be a valid option in the Consumption app. Since this works
+   * Whether 'Spell Slots' should be a valid option for consumption. Since this works
    * fine as an aura, there are no restrictions to apply here, and it always returns true.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get canConsumeSlots() {
     return true;
   }
 
   /**
-   * Whether 'Hit Points' should be a valid option in the Consumption app. Since this works
+   * Whether 'Hit Points' should be a valid option for consumption. Since this works
    * fine as an aura, there are no restrictions to apply here, and it always returns true.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get canConsumeHealth() {
     return true;
@@ -113,15 +115,15 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   /**
    * Whether 'Effect' should be a valid option in the Consumption app.
    * The babonus must be embedded on an effect.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get canConsumeEffect() {
     return this.bonus.parent instanceof ActiveEffect;
   }
 
   /**
-   * Whether 'Currency' should be a valid option in the Consumption app.
-   * @returns {boolean}
+   * Whether 'Currency' should be a valid option for consumption.
+   * @type {boolean}
    */
   get canConsumeCurrency() {
     return true;
@@ -160,7 +162,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * - For currencies, a valid denomination must be set, and the minimum consumed must be a positive integer.
    * - For inspiration, the roller must be a 'character' type actor, which is validated elsewhere.
    * - For resources, the roller must be a 'character' type actor, which is validated elsewhere.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isConsuming() {
     if (!this.enabled || !this.canConsume || !this.type) return false;
@@ -184,7 +186,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * Whether the bonus is scaling when consuming, which requires that it is consuming, has 'scales' set to true, and
    * does not consume an effect or inspiration, which cannot scale. If the type is 'health', 'currency', or 'resource',
    * then 'step' must be 1 or greater. Otherwise the 'max', if set, must be strictly greater than 'min'.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isScaling() {
     if (!this.scales || !this.isConsuming) return false;

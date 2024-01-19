@@ -1,5 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {BabonusWorkshop} from "./babonus.mjs";
+import {BabonusWorkshop} from "./babonus-workshop.mjs";
 import {module} from "../data/_module.mjs";
 
 /**
@@ -85,16 +85,11 @@ export class BonusCollector {
     return new foundry.utils.Collection(this.bonuses.map(b => [b.uuid, b]));
   }
 
-  /**
-   * *******************************************************************
-   *
-   *
-   *                          COLLECTION METHODS
-   *
-   *
-   *
-   * *******************************************************************
-   */
+  /*************************************/
+  /*                                   */
+  /*         COLLECTION METHODS        */
+  /*                                   */
+  /*************************************/
 
   /**
    * Main collection method that calls the below collectors for self, all tokens, and all templates.
@@ -235,16 +230,11 @@ export class BonusCollector {
     return true;
   }
 
-  /**
-   * *******************************************************************
-   *
-   *
-   *                           UTILITY FUNCTIONS
-   *
-   *
-   *
-   * *******************************************************************
-   */
+  /*************************************/
+  /*                                   */
+  /*         UTILITY FUNCTIONS         */
+  /*                                   */
+  /*************************************/
 
   /**
    * Get the centers of all grid spaces that overlap with a token document.
@@ -377,7 +367,6 @@ export class BonusCollector {
 
   /**
    * Draw auras on the canvas.
-   * @param {array<*>} array     The token, the PIXI graphic, the babonus, and whether the roller is contained within.
    */
   drawAuras() {
     for (const [token, aura, bonus, bool] of this.tokenBonuses) {

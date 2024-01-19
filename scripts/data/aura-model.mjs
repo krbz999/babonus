@@ -1,6 +1,7 @@
 import {module} from "./_module.mjs";
 
 export class AuraModel extends foundry.abstract.DataModel {
+  /** @override */
   static defineSchema() {
     return {
       enabled: new foundry.data.fields.BooleanField(),
@@ -16,6 +17,10 @@ export class AuraModel extends foundry.abstract.DataModel {
     };
   }
 
+  /**
+   * The targeting options.
+   * @type {object}
+   */
   static get OPTIONS() {
     return {ALLY: 1, ENEMY: -1, ANY: 2};
   }
@@ -26,6 +31,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     this.prepareDerivedData();
   }
 
+  /** @override */
   static migrateData(source) {
     if (source.isTemplate) source.template = source.isTemplate;
   }
@@ -53,7 +59,7 @@ export class AuraModel extends foundry.abstract.DataModel {
 
   /**
    * The babonus this lives on.
-   * @returns {Babonus}
+   * @type {Babonus}
    */
   get bonus() {
     return this.parent;
@@ -61,7 +67,7 @@ export class AuraModel extends foundry.abstract.DataModel {
 
   /**
    * Get whether this has a range that matters.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get _validRange() {
     return this.range === -1 || this.range > 0;
@@ -70,7 +76,7 @@ export class AuraModel extends foundry.abstract.DataModel {
   /**
    * Whether the babonus is an enabled and valid aura centered on a token. This is true if the property is enabled, the
    * template aura property is not enabled, and the range of the aura is valid.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isToken() {
     return this.enabled && !this.template && this._validRange && !this.bonus.isExclusive;
@@ -79,7 +85,7 @@ export class AuraModel extends foundry.abstract.DataModel {
   /**
    * Whether the babonus is a template aura. This is true if the aura property is enabled, along with the 'template' aura
    * property, and the item on which the babonus is embedded can create a measured template.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isTemplate() {
     const item = this.bonus.parent;
@@ -89,7 +95,7 @@ export class AuraModel extends foundry.abstract.DataModel {
 
   /**
    * Whether the babonus aura is suppressed due to its originating actor having at least one of the blocker conditions.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isBlocked() {
     return new Set(this.blockers).intersects(this.bonus.actor.statuses);
@@ -101,7 +107,7 @@ export class AuraModel extends foundry.abstract.DataModel {
 
   /**
    * Return whether this should be filtered out of token auras due to being blocked from affecting its owner.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isAffectingSelf() {
     if (!this.isToken) return true;
@@ -110,7 +116,7 @@ export class AuraModel extends foundry.abstract.DataModel {
 
   /**
    * Is this a token aura that is not blocked?
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isActiveTokenAura() {
     return this.enabled && !this.template && this._validRange && !this.isBlocked;

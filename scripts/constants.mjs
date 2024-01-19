@@ -7,5 +7,6 @@ export const SETTINGS = {
   AURA: "showAuraRanges",
   LABEL: "headerLabel",
   PLAYERS: "allowPlayers",
-  SCRIPT: "disableCustomScriptFilter"
+  SCRIPT: "disableCustomScriptFilter",
+  FUMBLE: "allowFumbleNegation",
 };

@@ -188,3 +188,7 @@
 .babonus.sheet .filter .filter-description {
   padding: 0 0.5em;
 }
+.babonus.sheet .form-group.modifiers .checkbox:last-child {
+  flex: 0 0 110px;
+  text-align: left;
+}

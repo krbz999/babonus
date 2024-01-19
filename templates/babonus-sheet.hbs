@@ -34,11 +34,14 @@
       <h3 class="form-header">{{localize "BABONUS.BasicBonuses"}}</h3>
       {{#each context.bonuses}}
       <div class="form-group">
-        <label class="label" data-tooltip="BABONUS.Type{{babonusCapitalize ../type @key 'Tooltip'}}">
-          {{localize (babonusCapitalize "BABONUS.Type" ../type @key "Label")}}
-        </label>
+        <label class="label" data-tooltip="{{hint}}">{{localize label}}</label>
         <div class="form-fields">
-          <input type="text" name="bonuses.{{@key}}" value="{{this}}">
+          <input type="text" name="bonuses.{{key}}" value="{{value}}">
+          {{#if isDamage}}
+          <select name="bonuses.damageType">
+            {{selectOptions @root.config.damageTypes selected=selected labelAttr="label" blank="-"}}
+          </select>
+          {{/if}}
         </div>
       </div>
       {{/each}}
@@ -47,18 +50,16 @@
       <h3 class="form-header">{{localize "BABONUS.Modifiers"}}</h3>
 
       <div class="form-group">
-        <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">
-          {{localize "BABONUS.ModifiersFirst"}}
-        </label>
+        <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">{{localize "BABONUS.ModifiersFirst"}}</label>
         <div class="form-fields">
           <input type="checkbox" name="bonuses.modifiers.config.first" {{checked context.modifiers.config.first}}>
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersAmount"}}
-          {{#if (ne bonus.bonuses.modifiers.amt null)}}(+{{bonus.bonuses.modifiers.amt}}){{/if}}
+          {{#if context.modifiers.amount.label}}({{context.modifiers.amount.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -68,10 +69,10 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersSize"}}
-          {{#if (ne bonus.bonuses.modifiers.sz null)}}(+{{bonus.bonuses.modifiers.sz}}){{/if}}
+          {{#if context.modifiers.size.label}}({{context.modifiers.size.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -81,10 +82,10 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersReroll"}}
-          {{#if (ne bonus.bonuses.modifiers.r null)}}({{bonus.bonuses.modifiers.r}}){{/if}}
+          {{#if context.modifiers.reroll.label}}({{context.modifiers.reroll.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -100,10 +101,10 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersExplode"}}
-          {{#if (ne bonus.bonuses.modifiers.x null)}}({{bonus.bonuses.modifiers.x}}){{/if}}
+          {{#if context.modifiers.explode.label}}({{context.modifiers.explode.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -119,33 +120,37 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersMinimum"}}
-          {{#if bonus.bonuses.modifiers.minimum.enabled}}
-            {{#if (eq bonus.bonuses.modifiers.minimum.value -1)}}({{localize "BABONUS.ModifiersMinimumMaximized"}})
-            {{else if (ne bonus.bonuses.modifiers.min null)}}({{bonus.bonuses.modifiers.min}})
-            {{/if}}
-          {{/if}}
+          {{#if context.modifiers.minimum.label}}({{localize context.modifiers.minimum.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
           </label>
           <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}" {{disabled context.modifiers.minimum.disabled}}>
+          <label class="checkbox" data-tooltip="BABONUS.ModifiersMinimumMaximizeHint">
+            <input type="checkbox" name="bonuses.modifiers.minimum.maximize" {{checked context.modifiers.minimum.maximize}} {{disabled context.modifiers.minimum.disabled}}>
+            {{localize "BABONUS.ModifiersMinimumMaximize"}}
+          </label>
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersMaximum"}}
-          {{#if (ne bonus.bonuses.modifiers.max null)}}({{bonus.bonuses.modifiers.max}}){{/if}}
+          {{#if context.modifiers.maximum.label}}({{localize context.modifiers.maximum.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked context.modifiers.maximum.enabled}}>
           </label>
           <input type="text" name="bonuses.modifiers.maximum.value" value="{{context.modifiers.maximum.value}}" {{disabled context.modifiers.maximum.disabled}}>
+          <label class="checkbox" data-tooltip="BABONUS.ModifiersMaximumZeroHint">
+            <input type="checkbox" name="bonuses.modifiers.maximum.zero" {{checked context.modifiers.maximum.zero}} {{disabled context.modifiers.maximum.disabled}}>
+            {{localize "BABONUS.ModifiersMaximumZero"}}
+          </label>
         </div>
       </div>
       {{/if}}
@@ -164,12 +169,10 @@
       {{#each context.filterpickers}}
       <div class="filter">
         <a class="filter-header" data-action="add-filter" data-id="{{id}}">
-          {{localize (babonusCapitalize "BABONUS.Filters" id)}} {{#if repeats}}({{repeats}}){{/if}}
+          {{localize label}} {{#if repeats}}({{repeats}}){{/if}}
           <i class="fa-solid fa-plus"></i>
         </a>
-        <div class="filter-description">
-          {{{localize (babonusCapitalize "BABONUS.Filters" id "Tooltip")}}}
-        </div>
+        <div class="filter-description">{{{localize hint}}}</div>
       </div>
       {{/each}}
     </div>

@@ -1,16 +1,16 @@
-import {AuraModel} from "./AuraModel.mjs";
-import {models} from "./BabonusModel.mjs";
-import {ConsumptionModel} from "./ConsumptionModel.mjs";
-import {ModifiersModel} from "./ModifiersModel.mjs";
-import {ArbitraryComparisonField} from "./fields/ArbitraryComparisonField.mjs";
-import {checkboxFields} from "./fields/CheckboxFields.mjs";
-import {CustomScriptsField} from "./fields/CustomScriptsField.mjs";
-import {FeatureTypesField} from "./fields/FeatureTypesField.mjs";
-import {HealthPercentagesField} from "./fields/HealthPercentagesField.mjs";
-import {RemainingSpellSlotsField} from "./fields/RemainingSpellSlotsField.mjs";
-import {fields} from "./fields/SemicolonFields.mjs";
-import {SpellComponentsField} from "./fields/SpellComponentsField.mjs";
-import {TokenSizesField} from "./fields/TokenSizesField.mjs";
+import {AuraModel} from "./aura-model.mjs";
+import {models} from "./babonus-model.mjs";
+import {ConsumptionModel} from "./consumption-model.mjs";
+import {ModifiersModel} from "./modifiers-model.mjs";
+import {ArbitraryComparisonField} from "./fields/arbitrary-comparison-field.mjs";
+import {checkboxFields} from "./fields/checkbox-fields.mjs";
+import {CustomScriptsField} from "./fields/custom-scripts-field.mjs";
+import {FeatureTypesField} from "./fields/feature-types-field.mjs";
+import {HealthPercentagesField} from "./fields/health-percentages-field.mjs";
+import {RemainingSpellSlotsField} from "./fields/remaining-spell-slots-field.mjs";
+import {fields} from "./fields/semicolon-fields.mjs";
+import {SpellComponentsField} from "./fields/spell-components-field.mjs";
+import {TokenSizesField} from "./fields/token-sizes-field.mjs";
 
 export const module = {
   models: models,

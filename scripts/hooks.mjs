@@ -1,10 +1,14 @@
-import {OptionalSelector} from "./applications/rollConfigApp.mjs";
+import {OptionalSelector} from "./applications/optional-selector.mjs";
 import {MODULE, SETTINGS} from "./constants.mjs";
-import {buttons} from "./helpers/headerButtons.mjs";
-import {RollHooks} from "./helpers/rollHooks.mjs";
+import buttons from "./helpers/header-button.mjs";
+import {RollHooks} from "./helpers/roll-hooks.mjs";
 import {createAPI} from "./api.mjs";
 
-/** Render the optional bonus selector on a roll dialog. */
+/**
+ * Render the optional bonus selector on a roll dialog.
+ * @TODO Await system PR that should allow for more data to be passed along, as well as the roll refactor.
+ * @param {Dialog} dialog     The dialog being rendered.
+ */
 async function _renderDialog(dialog) {
   const optionals = dialog.options.babonus?.optionals;
   if (!optionals?.length) return;
@@ -51,16 +55,16 @@ function _createSettings() {
     default: false,
     requiresReload: false
   });
-}
 
-/** Handlebars helpers. */
-function _handlebarsHelpers() {
-  /** Helper to capitalize each value. If more than one is given, also concatenate. */
-  Handlebars.registerHelper("babonusCapitalize", function(...values) {
-    return values.reduce((acc, v) => {
-      if (typeof v === "string") return acc + v.capitalize();
-      return acc;
-    }, "");
+  // Allow for modifiers to the fumble range to go below 1?
+  game.settings.register(MODULE.ID, SETTINGS.FUMBLE, {
+    name: "BABONUS.SettingsAllowFumbleNegationName",
+    hint: "BABONUS.SettingsAllowFumbleNegationHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: false
   });
 }
 
@@ -79,12 +83,52 @@ async function _preloadPartials() {
   ]);
 }
 
-export const moduleHooks = {
-  buttons: buttons,
-  createSettings: _createSettings,
-  handlebars: _handlebarsHelpers,
-  loadPartials: _preloadPartials,
-  renderDialog: _renderDialog,
-  rolls: RollHooks,
-  setupAPI: createAPI
-};
+/**
+ * On-drop handler for the hotbar.
+ * @param {Hotbar} bar                The hotbar application.
+ * @param {object} dropData           The drop data.
+ * @param {string} dropData.type      The type of the dropped document.
+ * @param {string} dropData.uuid      The uuid of the dropped document.
+ * @param {number} slot               The slot on the hotbar where it was dropped.
+ */
+async function _onHotbarDrop(bar, {type, uuid}, slot) {
+  if (type !== "Babonus") return;
+  const bonus = await babonus.fromUuid(uuid);
+  const data = {
+    img: bonus.img,
+    command: `babonus.hotbarToggle("${uuid}");`,
+    name: `${game.i18n.localize("BABONUS.ToggleBonus")}: ${bonus.name}`,
+    type: CONST.MACRO_TYPES.SCRIPT
+  };
+  const macro = game.macros.find(m => {
+    return Object.entries(data).every(([k, v]) => m[k] === v) && m.isAuthor;
+  }) ?? await Macro.create(data);
+  return game.user.assignHotbarMacro(macro, slot);
+}
+
+// General setup.
+Hooks.once("setup", createAPI);
+Hooks.once("setup", _createSettings);
+Hooks.once("setup", _preloadPartials);
+Hooks.on("hotbarDrop", _onHotbarDrop);
+
+// Any application injections.
+Hooks.on("getActiveEffectConfigHeaderButtons", buttons.effect);
+Hooks.on("getActorSheetHeaderButtons", buttons.actor);
+Hooks.on("getDialogHeaderButtons", buttons.dialog);
+Hooks.on("getItemSheetHeaderButtons", buttons.item);
+Hooks.on("renderDialog", _renderDialog);
+
+// Roll hooks. Delay these to let other modules modify behaviour first.
+Hooks.once("ready", function() {
+  Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
+  Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
+  Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
+  Hooks.on("dnd5e.preRollAttack", RollHooks.preRollAttack);
+  Hooks.on("dnd5e.preRollDamage", RollHooks.preRollDamage);
+  Hooks.on("dnd5e.preRollDeathSave", RollHooks.preRollDeathSave);
+  Hooks.on("dnd5e.preRollHitDie", RollHooks.preRollHitDie);
+  Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
+  Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
+  Hooks.on("preCreateMeasuredTemplate", RollHooks.preCreateMeasuredTemplate);
+});

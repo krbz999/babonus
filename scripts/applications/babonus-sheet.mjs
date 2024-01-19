@@ -1,7 +1,7 @@
 import {MODULE} from "../constants.mjs";
 import {module} from "../data/_module.mjs";
-import {BabonusWorkshop} from "./babonus.mjs";
-import {BabonusKeysDialog} from "./keysDialog.mjs";
+import {BabonusWorkshop} from "./babonus-workshop.mjs";
+import {KeysDialog} from "./keys-dialog.mjs";
 
 export class BabonusSheet extends DocumentSheet {
   /**
@@ -60,12 +60,8 @@ export class BabonusSheet extends DocumentSheet {
   /** @override */
   async getData(options = {}) {
     const context = {};
-    context.bonuses = {};
+    context.bonuses = this._prepareBonuses();
     context.modifiers = this._prepareModifiers();
-    const b = this.bonus.toObject().bonuses;
-    for (const [key, val] of Object.entries(b)) {
-      if (key !== "modifiers") context.bonuses[key] = val;
-    }
     context.hasModifiers = !foundry.utils.isEmpty(context.modifiers);
     context.aura = this._prepareAura();
     context.consume = this._prepareConsume();
@@ -88,8 +84,33 @@ export class BabonusSheet extends DocumentSheet {
       parent: this.owner,
       type: this.bonus.type,
       context: context,
-      source: this.bonus.toObject()
+      source: this.bonus.toObject(),
+      config: CONFIG.DND5E
     };
+  }
+
+  /**
+   * Prepare the bonuses.
+   * @TODO Allow for setting a damage type for the entire 'bonus' field on damage babonus.
+   * @returns {object[]}
+   */
+  _prepareBonuses() {
+    const b = Object.entries(this.bonus.toObject().bonuses);
+    const bonuses = [];
+    const type = this.bonus.type;
+    b.forEach(([k, v]) => {
+      if (k === "modifiers" || k === "damageType") return;
+      const isDamage = false; //(type === "damage") && (k === "bonus");
+      bonuses.push({
+        key: k,
+        value: v,
+        hint: `BABONUS.Type${type.capitalize()}${k.capitalize()}Tooltip`,
+        label: `BABONUS.Type${type.capitalize()}${k.capitalize()}Label`,
+        isDamage: isDamage,
+        selected: this.bonus.bonuses.damageType
+      });
+    });
+    return bonuses;
   }
 
   /**
@@ -102,7 +123,9 @@ export class BabonusSheet extends DocumentSheet {
       const field = module.filters[key];
       if (!this._filters.has(key) || field.repeatable) acc.push({
         id: key,
-        repeats: field.repeatable ? this.bonus.filters[key].length : null
+        repeats: field.repeatable ? this.bonus.filters[key].length : null,
+        label: `BABONUS.Filters${key.capitalize()}`,
+        hint: `BABONUS.Filters${key.capitalize()}Tooltip`
       });
       return acc;
     }, []).sort((a, b) => {
@@ -216,14 +239,64 @@ export class BabonusSheet extends DocumentSheet {
    */
   _prepareModifiers() {
     const modifiers = this.bonus.toObject().bonuses.modifiers ?? {};
+    const mods = this.bonus.bonuses.modifiers;
     const data = {};
     for (const key in modifiers) {
       const v = modifiers[key];
+
+      let label;
+      switch (key) {
+        case "amount": {
+          const v = mods.amount.value;
+          label = mods.hasAmount ? v.signedString() : null;
+          break;
+        }
+        case "size": {
+          const v = mods.size.value;
+          label = mods.hasSize ? v.signedString() : null;
+          break;
+        }
+        case "reroll": {
+          const prefix = mods.reroll.recursive ? "rr" : "r";
+          const v = mods.reroll.value;
+          if (!mods.hasReroll) label = null;
+          else if (!Number.isNumeric(v) || !(v > 1)) label = `${prefix}=1`;
+          else label = `${prefix}<${v}`;
+          break;
+        }
+        case "explode": {
+          const prefix = mods.explode.once ? "xo" : "x";
+          const v = mods.explode.value;
+          if (!mods.hasExplode) label = null;
+          else if (!Number.isNumeric(v) || !(v > 0)) label = prefix;
+          else label = `${prefix}>${v}`;
+          break;
+        }
+        case "minimum": {
+          const maxxed = mods.minimum.maximize;
+          if (!mods.hasMin) label = null;
+          else if (maxxed) label = "BABONUS.Maximized";
+          else if (mods.minimum.value > 0) label = `min${mods.minimum.value}`;
+          else label = "BABONUS.Relative";
+          break;
+        }
+        case "maximum": {
+          const z = mods.maximum.zero;
+          const v = mods.maximum.value;
+          if (!mods.hasMax) label = null;
+          else if (v < 0) label = "BABONUS.Relative";
+          else label = `max${v === 0 ? (z ? 0 : 1) : v}`;
+          break;
+        }
+        default: label = null; break;
+      }
+
       data[key] = {
+        ...v,
         key: key,
         enabled: v.enabled,
         disabled: !v.enabled,
-        ...v
+        label: v.enabled ? label : null
       };
     }
     return data;
@@ -248,7 +321,8 @@ export class BabonusSheet extends DocumentSheet {
 
   /**
    * Handle deleting a filter.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {PointerEvent} event                            The initiating click event.
+   * @returns {Promise<Actor5e|Item5e|ActiveEffect5e>}      A promise that resolves to the updated owner of the bonus.
    */
   async _onClickDeleteFilter(event) {
     const id = event.currentTarget.dataset.id;
@@ -301,7 +375,7 @@ export class BabonusSheet extends DocumentSheet {
       else val.include = true;
     }
 
-    return BabonusKeysDialog.prompt({
+    return KeysDialog.prompt({
       rejectClose: false,
       options: {filterId, appId: this.appId, values: list, canExclude},
       callback: async function(html) {

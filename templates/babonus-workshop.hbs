@@ -14,7 +14,10 @@
       </header>
       <div class="types">
         {{#each createButtons}}
-        <a data-action="pick-type" data-type="{{type}}"><i class="{{icon}}"></i>{{localize label}}</a>
+        <a data-action="pick-type" data-type="{{type}}">
+          <i class="{{icon}}"></i>
+          <span class="label">{{localize label}}</span>
+        </a>
         {{/each}}
       </div>
     </section>

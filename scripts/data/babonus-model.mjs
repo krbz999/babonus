@@ -10,26 +10,32 @@ class Babonus extends foundry.abstract.DataModel {
     super(data, options);
   }
 
+  /** @override */
   static get metadata() {
     return {label: game.i18n.localize("BABONUS.Babonus")};
   }
 
+  /**
+   * An object of applications that re-render when this bonus is updated.
+   * @type {object}
+   */
   get apps() {
     return this._apps ??= {};
   }
 
-  /** @override */
+  /**
+   * The sheet of the bonus.
+   * @type {BabonusSheet}
+   */
   get sheet() {
     if (this._sheet) return this._sheet;
     return this._sheet = new BabonusSheet(this);
   }
 
-  /**
-   * @override
-   * Since babs are always local, all users have permission to render them.
-   * Proper permissions are handled elsewhere.
-   */
+  /** @override */
   testUserPermission() {
+    // Since babs are always local, all users have permission to render them.
+    // Proper permissions are handled elsewhere.
     return true;
   }
 
@@ -56,7 +62,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * A formatted uuid of a babonus, an extension of its parent's uuid.
-   * @returns {string}
+   * @type {string}
    */
   get uuid() {
     return `${this.parent.uuid}.Babonus.${this.id}`;
@@ -64,7 +70,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * The FA icon unique to this babonus type. Must be subclassed.
-   * @returns {string}
+   * @type {string}
    */
   static get icon() {
     return null;
@@ -75,7 +81,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Get the type of a babonus.
-   * @returns {string}
+   * @type {string}
    */
   static get type() {
     return null;
@@ -85,9 +91,9 @@ class Babonus extends foundry.abstract.DataModel {
    * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
-   * TODO: once hit die rolls have a dialog as well, this should be amended.
-   * TODO: once rolls can be "remade" in 2.5.0, optional bonuses should be able to apply to other properties as well.
-   * @returns {boolean}
+   * @TODO once hit die rolls have a dialog as well, this should be amended.
+   * @TODO once rolls can be "remade" in 2.6.0, optional bonuses should be able to apply to other properties as well.
+   * @type {boolean}
    */
   get isOptionable() {
     return ["attack", "damage", "throw", "test"].includes(this.type) && !!this.bonuses.bonus;
@@ -95,7 +101,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Whether a babonus is currently optional, which is only true if it is both able to be optional, and toggled as such.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isOptional() {
     return this.optional && this.isOptionable;
@@ -105,7 +111,7 @@ class Babonus extends foundry.abstract.DataModel {
    * Whether a babonus is valid for being 'item only' in the builder. It must be embedded in an item, must not be an aura or
    * template aura, and must either apply to attack rolls, damage rolls, or save DCs while the parent item can make use of
    * one of those, or it must apply to ability checks while being embedded on a tool-type item.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get canExclude() {
     if (!(this.parent instanceof Item)) return false;
@@ -122,7 +128,7 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Whether the bonus applies only to its parent item. This is true if it has the property enabled and is valid to do so.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isExclusive() {
     return this.exclusive && this.canExclude;
@@ -131,7 +137,7 @@ class Babonus extends foundry.abstract.DataModel {
   /**
    * Whether the babonus is unavailable due to its parent item being unequipped, unattuned (if required), or uncrewed.
    * This is different from a babonus that is unavailable due to its parent effect being disabled or unavailable.
-   * @returns {boolean}
+   * @type {boolean}
    */
   get isSuppressed() {
     // If this bonus lives on an effect, defer to the effect.
@@ -156,19 +162,6 @@ class Babonus extends foundry.abstract.DataModel {
     if (!item.system.equipped) return true;
     // The item requires but is not attuned.
     return item.system.attunement === CONFIG.DND5E.attunementTypes.REQUIRED;
-  }
-
-  get isTokenAura() {
-    console.warn(`'Babonus#isTokenAura' has been deprecated and should be accessed in 'Babonus#aura#isToken'.`);
-    return this.aura.isToken;
-  }
-  get isTemplateAura() {
-    console.warn(`'Babonus#isTemplateAura' has been deprecated and should be accessed in 'Babonus#aura#isTemplate'.`);
-    return this.aura.isTemplate;
-  }
-  get isAuraBlocked() {
-    console.warn(`'Babonus#isAuraBlocked' has been deprecated and should be accessed in 'Babonus#aura#isBlocked'.`);
-    return this.aura.isBlocked;
   }
 
   /**
@@ -339,45 +332,12 @@ class Babonus extends foundry.abstract.DataModel {
 
   /** @override */
   static migrateData(source) {
-    if (!source.filters) source.filters = {};
-    this._migrateCreatureTypes(source);
-    this._migrateWeaponProperties(source);
-    this._migrateExclusive(source);
-  }
-
-  /**
-   * Migrate creature types filter into a single array of strings.
-   * @param {object} source     The initial source data of the babonus.
-   */
-  static _migrateCreatureTypes(source) {
-    const types = source.filters.creatureTypes;
-    if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    const c = [];
-    for (const t of (types.needed ?? [])) c.push(t);
-    for (const u of (types.unfit ?? [])) c.push(`!${u}`);
-    source.filters.creatureTypes = c;
-  }
-
-  /**
-   * Migrate weapon properties filter into a single array of strings.
-   * @param {object} source     The initial source data of the babonus.
-   */
-  static _migrateWeaponProperties(source) {
-    const types = source.filters.weaponProperties;
-    if (!types || (types instanceof Array) || (typeof types === "string")) return;
-    const c = [];
-    for (const t of (types.needed ?? [])) c.push(t);
-    for (const u of (types.unfit ?? [])) c.push(`!${u}`);
-    source.filters.weaponProperties = c;
-  }
-
-  /**
-   * Migrate the 'itemOnly' property to be renamed 'exclusive'.
-   * @param {object} source     The initial source data of the babonus.
-   */
-  static _migrateExclusive(source) {
-    if (source.itemOnly) source.exclusive = true;
-    delete source.itemOnly;
+    const minimum = source?.bonuses?.modifiers?.minimum;
+    if (!minimum) return;
+    if (!("maximize" in minimum) && (minimum.value === "-1")) {
+      minimum.value = "";
+      minimum.maximize = true;
+    }
   }
 
   /**
@@ -519,6 +479,7 @@ class DamageBabonus extends ItemBabonus {
     return {
       ...super._defineBonusSchema(),
       bonus: new foundry.data.fields.StringField({required: true}),
+      // damageType: new foundry.data.fields.StringField({required: true}),
       criticalBonusDice: new foundry.data.fields.StringField({required: true}),
       criticalBonusDamage: new foundry.data.fields.StringField({required: true}),
       modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)
@@ -533,6 +494,15 @@ class DamageBabonus extends ItemBabonus {
   /** @override */
   static get type() {
     return "damage";
+  }
+
+  /**
+   * Does this bonus have a damage type?
+   * @type {boolean}
+   */
+  get hasDamageType() {
+    const type = this.bonuses.damageType;
+    return type in CONFIG.DND5E.damageTypes;
   }
 }
 
