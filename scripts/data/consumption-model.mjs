@@ -75,7 +75,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Limited Uses' should be a valid option in the Consumption app.
+   * Whether 'Limited Uses' should be a valid option for consumption.
    * The babonus must be embedded on an item that has limited uses.
    * @type {boolean}
    */
@@ -85,7 +85,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Quantity' should be a valid option in the Consumption app.
+   * Whether 'Quantity' should be a valid option for consumption.
    * The babonus must be embedded on an item that has a quantity.
    * @type {boolean}
    */
@@ -95,7 +95,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Spell Slots' should be a valid option in the Consumption app. Since this works
+   * Whether 'Spell Slots' should be a valid option for consumption. Since this works
    * fine as an aura, there are no restrictions to apply here, and it always returns true.
    * @type {boolean}
    */
@@ -104,7 +104,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Hit Points' should be a valid option in the Consumption app. Since this works
+   * Whether 'Hit Points' should be a valid option for consumption. Since this works
    * fine as an aura, there are no restrictions to apply here, and it always returns true.
    * @type {boolean}
    */
@@ -122,7 +122,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether 'Currency' should be a valid option in the Consumption app.
+   * Whether 'Currency' should be a valid option for consumption.
    * @type {boolean}
    */
   get canConsumeCurrency() {

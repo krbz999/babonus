@@ -159,6 +159,8 @@ export class OptionalSelector {
     if (!scales) return this._canSupplyMinimum(bonus);
     const type = bonus.consume.type;
     const subtype = bonus.consume.subtype;
+
+    // The value to be consumed.
     const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
 
     if (type === "uses") {
