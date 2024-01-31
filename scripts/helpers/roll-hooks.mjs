@@ -16,7 +16,7 @@ export class RollHooks {
     // Get bonuses:
     const bonuses = FilterManager.itemCheck(item, "save", {spellLevel: item.system.level});
     if (!bonuses.length) return;
-    const rollConfig = {data: item.getRollData()};
+    const rollConfig = {data: item.getRollData({deterministic: true})};
     RollHooks._addTargetData(rollConfig);
     const totalBonus = bonuses.reduce((acc, bab) => {
       return acc + dnd5e.utils.simplifyBonus(bab.bonuses.bonus, rollConfig.data);
@@ -279,11 +279,12 @@ export class RollHooks {
 
   /**
    * Add the target's roll data to the actor's roll data.
-   * @param {object} rollConfig     The roll config for this roll. **will be mutated**
+   * @param {object} rollConfig           The roll config for this roll. **will be mutated**
+   * @param {boolean} [deterministic]     Whether to force flat values for properties that could be a die or flat term.
    */
-  static _addTargetData(rollConfig) {
+  static _addTargetData(rollConfig, deterministic = false) {
     const target = game.user.targets.first();
-    if (target?.actor) rollConfig.data.target = target.actor.getRollData();
+    if (target?.actor) rollConfig.data.target = target.actor.getRollData({deterministic});
   }
 
   /**
