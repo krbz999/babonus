@@ -150,7 +150,10 @@
   display: flex;
   overflow-x: auto;
   flex-flow: wrap;
-  justify-content: space-evenly;
+  justify-content: space-around;
+}
+.babonus.sheet form .form-group .form-fields .checkboxes label {
+  flex: none;
 }
 .babonus.sheet form .form-group .form-fields .checkboxes [type="checkbox"] {
   display: none !important;
