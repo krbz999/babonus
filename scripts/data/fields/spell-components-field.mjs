@@ -7,7 +7,7 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
   /** @override */
   _initialize() {
     return super._initialize({
-      types: new foundry.data.fields.ArrayField(new foundry.data.fields.StringField({blank: false, required: false})),
+      types: new foundry.data.fields.SetField(new foundry.data.fields.StringField({blank: false, required: false})),
       match: new foundry.data.fields.StringField({nullable: true, initial: null, choices: ["ANY", "ALL"]})
     });
   }
@@ -21,7 +21,7 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
     const choices = await this.choices();
 
     data.types = choices.map(c => ({
-      checked: types.includes(c.value),
+      checked: types.has(c.value),
       value: c.value,
       label: c.abbr,
       tooltip: c.label
@@ -36,15 +36,17 @@ export class SpellComponentsField extends FilterMixin(foundry.data.fields.Schema
 
   /** @override */
   static async choices() {
-    const comps = Object.entries(CONFIG.DND5E.spellComponents);
-    const tags = Object.entries(CONFIG.DND5E.spellTags);
-    return [...comps, ...tags].map(([value, {abbr, label}]) => {
-      return {value, label, abbr};
-    }).sort((a, b) => a.label.localeCompare(b.label));
+    const keys = CONFIG.DND5E.validProperties.spell;
+    const labels = CONFIG.DND5E.itemProperties;
+    return keys.reduce((acc, k) => {
+      const {label, abbr} = labels[k] ?? {};
+      if (label) acc.push({value: k, label: label, abbr: abbr || label.slice(0, 1).toUpperCase()});
+      return acc;
+    }, []);
   }
 
   /** @override */
   static storage(bonus) {
-    return !!this.value(bonus).types?.filter(u => u).length;
+    return !!this.value(bonus).types?.filter(u => u).size;
   }
 }

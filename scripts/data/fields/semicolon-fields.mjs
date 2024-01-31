@@ -1,6 +1,6 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
+class BaseField extends FilterMixin(foundry.data.fields.SetField) {
   static template = "modules/babonus/templates/parts/text-keys.hbs";
   static canExclude = true;
 
@@ -27,7 +27,7 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
   /** @override */
   static async getData(bonus) {
     const data = await super.getData();
-    data.value = this.value(bonus).join(";");
+    data.value = Array.from(this.value(bonus)).filterJoin(";");
     return data;
   }
 }
@@ -105,8 +105,8 @@ class CreatureTypesField extends BaseField {
   /** @override */
   static async choices() {
     const types = Object.entries(CONFIG.DND5E.creatureTypes);
-    return types.map(([value, label]) => {
-      return {value, label: game.i18n.localize(label)};
+    return types.map(([k, v]) => {
+      return {value: k, label: v.label};
     }).sort((a, b) => a.label.localeCompare(b.label));
   }
 }
@@ -158,7 +158,7 @@ class DamageTypesField extends BaseField {
   static async choices() {
     const damages = Object.entries(CONFIG.DND5E.damageTypes);
     const heals = Object.entries(CONFIG.DND5E.healingTypes);
-    return [...damages, ...heals].map(([value, label]) => ({value, label}));
+    return [...damages, ...heals].map(([k, v]) => ({value: k, label: v.label}));
   }
 }
 
@@ -200,8 +200,12 @@ class WeaponPropertiesField extends BaseField {
 
   /** @override */
   static async choices() {
-    const properties = Object.entries(CONFIG.DND5E.weaponProperties);
-    return properties.map(([value, label]) => ({value, label}));
+    const keys = CONFIG.DND5E.validProperties.weapon;
+    const labels = CONFIG.DND5E.itemProperties;
+    return keys.reduce((acc, k) => {
+      const label = labels[k]?.label;
+      if (label) acc.push({value: k, label: label});
+    }, []);
   }
 }
 

@@ -66,7 +66,7 @@ export function FilterMixin(Base) {
      * @returns {boolean}         Whether to save the filter.
      */
     static storage(bonus) {
-      return this.value(bonus).length > 0;
+      return this.value(bonus).size > 0;
     }
 
     /**

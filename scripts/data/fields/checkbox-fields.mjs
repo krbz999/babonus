@@ -1,6 +1,6 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
+class BaseField extends FilterMixin(foundry.data.fields.SetField) {
   static template = "modules/babonus/templates/parts/checkboxes.hbs";
 
   /** @override */
@@ -10,7 +10,7 @@ class BaseField extends FilterMixin(foundry.data.fields.ArrayField) {
     const choices = await this.choices();
     data.value = choices.map(c => {
       return {
-        checked: value.includes(c.value),
+        checked: value.has(c.value),
         value: c.value,
         label: c.value,
         tooltip: c.label
@@ -37,7 +37,9 @@ class ProficiencyLevelsField extends BaseField {
   /** @override */
   static async choices() {
     const levels = Object.entries(CONFIG.DND5E.proficiencyLevels);
-    return levels.map(([value, label]) => ({value: Number(value), label}));
+    return levels.map(([value, label]) => {
+      return {value: Number(value), label: label};
+    }).sort((a, b) => a.value - b.value);
   }
 }
 

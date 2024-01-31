@@ -138,7 +138,7 @@ export class FilterManager {
    * Initiate the collection and filtering of bonuses applying to ability checks.
    * @param {Actor5e} actor                 The actor performing the test.
    * @param {string} abilityId              The ability used for the test.
-   * @param {object} [details={}]           Additional context for the filtering and checks.
+   * @param {object} [details]              Additional context for the filtering and checks.
    * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
    * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
    * @returns {Babonus[]}                   A filtered array of babonuses to apply.
@@ -153,7 +153,7 @@ export class FilterManager {
    * Initiate the collection and filtering of bonuses applying to attack rolls, damage rolls, and save DCs.
    * @param {Item5e} item                     The item that is being used or is rolling.
    * @param {string} hookType                 The type of hook ('attack', 'damage', or 'save').
-   * @param {object} [details={}]             Additional context for the filtering and checks.
+   * @param {object} [details]                Additional context for the filtering and checks.
    * @param {number} [details.spellLevel]     The level of the spell, if needed.
    * @returns {Babonus[]}                     A filtered array of babonuses to apply.
    */
@@ -168,7 +168,7 @@ export class FilterManager {
    * @param {string} hookType                   The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
    * @param {Collection<Babonus>} bonuses       The babonuses to filter.
    * @param {Actor5e|Item5e} object             The actor or item used in each filter and for roll data.
-   * @param {object} [details={}]               Additional data necessary to pass along.
+   * @param {object} [details]                  Additional data necessary to pass along.
    * @param {string} [details.throwType]        The type of saving thwo being made (possibly 'death').
    * @param {boolean} [details.isConcSave]      Whether a saving throw is made to maintain concentration.
    * @param {string} [details.abilityId]        The ability used for an ability check.
@@ -203,7 +203,7 @@ export class FilterManager {
      * A hook that is called after the collection of bonuses has been filtered.
      * @param {Babonus[]} bonuses         The array of bonuses, after filtering.
      * @param {Actor5e|Item5e} object     The actor or item performing the roll.
-     * @param {object} [details={}]       Additional data passed along to perform the filtering.
+     * @param {object} [details]          Additional data passed along to perform the filtering.
      * @param {string} hookType           The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
      */
     Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
@@ -249,39 +249,43 @@ export class FilterManager {
   }
 
   /**
-   * Split an array into 'included' and 'exluded'.
-   * @param {string[]} filter     The array of strings, some with '!' prefixed.
-   * @returns {object}            An object with two arrays of strings.
+   * Split a set into 'included' and 'exluded'.
+   * @param {Set<string>} filter      The set of strings, some with '!' prefixed.
+   * @returns {object}                An object with two sets of strings.
    */
   static _splitExlusion(filter) {
+    const rgx = /([!]+)?(.+)/;
     const data = filter.reduce((acc, str) => {
-      if (!str.startsWith("!")) acc.included.push(str);
-      else if (str.startsWith("!")) acc.excluded.push(str.slice(1));
+      const [, bangs, string] = str.match(rgx) ?? [];
+      if (!string) return acc;
+      if (bangs) acc.excluded.add(string);
+      else acc.included.add(string);
       return acc;
-    }, {included: [], excluded: []});
+    }, {included: new Set(), excluded: new Set()});
     return data;
   }
 
   /**
    * Utility function to split a string by '/'.
-   * @param {string} str      The string to split.
-   * @returns {string[]}      The array of strings.
+   * @param {string} str        The string to split.
+   * @returns {Set<string>}     The set of strings.
    */
   static _split(str) {
-    return str?.split("/").reduce((acc, e) => {
+    str ||= "";
+    return str.split("/").reduce((acc, e) => {
       const trim = e.trim().toLowerCase();
-      if (trim.length) acc.push(trim);
+      if (trim.length) acc.add(trim);
       return acc;
-    }, []) ?? [];
+    }, new Set());
   }
 
   /**
    * Utility function to split racial values.
    * @param {Actor5e} actor     The actor.
-   * @returns {string[]}        The different 'races' to compare against.
+   * @returns {Set<string>}     The different 'races' to compare against.
    */
   static _splitRaces(actor) {
-    let races = [];
+    let races = new Set();
 
     /**
      * Find the type object on the actor to read from. We prefer the actor data,
@@ -291,8 +295,8 @@ export class FilterManager {
 
     if (type) {
       races = FilterManager._split(type.subtype);
-      if (type.value === "custom") races.push(...FilterManager._split(type.custom));
-      else races.push(type.value);
+      if (type.value === "custom") FilterManager._split(type.custom).forEach(k => races.add(k));
+      else races.add(type.value);
     }
     return races;
   }
@@ -309,36 +313,35 @@ export class FilterManager {
 
   /**
    * Find out if the item's type is one of the valid ones in the filter.
-   * @param {Item5e} item         The item being filtered against.
-   * @param {string[]} filter     The array of item type keys.
-   * @returns {boolean}           Whether the item's type was in the filter.
+   * @param {Item5e} item             The item being filtered against.
+   * @param {Set<string>} filter      The set of item type keys.
+   * @returns {boolean}               Whether the item's type was in the filter.
    */
   static itemTypes(item, filter) {
-    if (!filter?.length) return true;
-    return filter.includes(item.type);
+    return !filter.size || filter.has(item.type);
   }
 
   /**
    * Find out if the item's base weapon type is one of the valid ones in the filter.
-   * @param {Item5e} item         The item being filtered against.
-   * @param {string[]} filter     The array of weapon baseItem keys.
-   * @returns {boolean}           Whether the item's baseItem was in the filter.
+   * @param {Item5e} item             The item being filtered against.
+   * @param {Set<string>} filter      The set of weapon baseItem keys.
+   * @returns {boolean}               Whether the item's baseItem was in the filter.
    */
   static baseWeapons(item, filter) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
-    if (item.type !== "weapon") return included.length === 0;
-    const type = item.system.baseItem;
-    if (included.length && !included.includes(type)) return false;
-    if (excluded.length && excluded.includes(type)) return false;
+    if (item.type !== "weapon") return !included.size;
+    const type = item.system.type.baseItem;
+    if (included.size && !included.has(type)) return false;
+    if (excluded.size && excluded.has(type)) return false;
     return true;
   }
 
   /**
-   * Find out if the actor is wearing one of the included armor types in the filter and none of the excluded types.
-   * Note that this includes shields as well.
+   * Find out if the actor is wearing one of the included armor types
+   * in the filter and none of the excluded types. Note that this includes shields as well.
    * @param {Actor5e|Item5e} object     The actor or item performing the roll.
-   * @param {string[]} filter           The array of base armor keys.
+   * @param {Set<string>} filter        The set of base armor keys.
    * @returns {boolean}                 Whether the rolling actor is wearing appropriate armor.
    */
   static baseArmors(object, filter) {
@@ -346,49 +349,47 @@ export class FilterManager {
     const {included, excluded} = FilterManager._splitExlusion(filter);
 
     // Vehicles cannot wear base armor.
-    if (actor.type === "vehicle") return !(included.length > 0);
+    if (actor.type === "vehicle") return !(included.size > 0);
 
     // Check for shield(s) first.
     const hasShield = !!actor.system.attributes.ac.equippedShield;
-    if (!hasShield && included.includes("shield")) return false;
-    if (hasShield && excluded.includes("shield")) return false;
+    if (!hasShield && included.has("shield")) return false;
+    if (hasShield && excluded.has("shield")) return false;
 
     const armor = actor.system.attributes.ac.equippedArmor ?? null;
 
     // If no armor worn.
-    if (!armor) return !(included.length > 0);
+    if (!armor) return !(included.size > 0);
 
-    const type = armor.system.baseItem;
-    if (included.filter(i => i !== "shield").length && !included.includes(type)) return false;
-    if (excluded.length && excluded.includes(type)) return false;
+    const type = armor.system.type.baseItem;
+    if (included.filter(i => i !== "shield").size && !included.has(type)) return false;
+    if (excluded.size && excluded.has(type)) return false;
     return true;
   }
 
   /**
    * Find out if the item has any of the included damage types in its damage parts and none of the excluded types.
-   * @param {Item5e} item         The item being filtered against.
-   * @param {string[]} filter     The array of damage types.
-   * @returns {boolean}           Whether the item's damage types overlap with the filter.
+   * @param {Item5e} item             The item being filtered against.
+   * @param {Set<string>} filter      The set of damage types.
+   * @returns {boolean}               Whether the item's damage types overlap with the filter.
    */
   static damageTypes(item, filter) {
-    if (!filter?.length) return true;
-    const types = item.getDerivedDamageLabel().map(i => i.damageType);
+    if (!filter.size) return true;
+    const types = new Set(item.getDerivedDamageLabel().map(i => i.damageType));
     const {included, excluded} = FilterManager._splitExlusion(filter);
-    if (included.length && !types.some(t => included.includes(t))) return false;
-    if (excluded.length && types.some(t => excluded.includes(t))) return false;
+    if (included.size && !types.intersects(included)) return false;
+    if (excluded.size && types.intersects(excluded)) return false;
     return true;
   }
 
   /**
    * Find out if the item is a spell and belongs to one of the filter's spell schools.
-   * @param {Item5e} item         The item being filtered against.
-   * @param {string[]} filter     The array of spell schools.
-   * @returns {boolean}           Whether the item is a spell and is of one of these schools.
+   * @param {Item5e} item             The item being filtered against.
+   * @param {Set<string>} filter      The set of spell schools.
+   * @returns {boolean}               Whether the item is a spell and is of one of these schools.
    */
   static spellSchools(item, filter) {
-    if (!filter?.length) return true;
-    if (item.type !== "spell") return false;
-    return filter.includes(item.system.school);
+    return !filter.size || ((item.type === "spell") && filter.has(item.system.school));
   }
 
   /**
@@ -397,14 +398,14 @@ export class FilterManager {
    * abilities. Note that this is the ability set at the top level of the item's action, and
    * is NOT the ability used to determine the dc of the saving throw.
    * @param {Actor5e|Item5e} object           The actor or item performing the roll.
-   * @param {string[]} filter                 The array of abilities.
-   * @param {object} [details={}]             Additional context for the roll being performed.
+   * @param {Set<string>} filter              The set of abilities.
+   * @param {object} [details]                Additional context for the roll being performed.
    * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll (checks only).
    * @param {string} [details.toolId]         The key for a tool type (tool checks only).
    * @returns {boolean}                       Whether the actor or item is using one of the abilities.
    */
   static abilities(object, filter, {abilityId, toolId} = {}) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
     let abi;
 
@@ -422,74 +423,71 @@ export class FilterManager {
     if (object instanceof Actor) abi = abilityId;
 
     // Test the filters.
-    if (included.length && !included.includes(abi)) return false;
-    if (excluded.length && excluded.includes(abi)) return false;
+    if (included.size && !included.has(abi)) return false;
+    if (excluded.size && excluded.has(abi)) return false;
     return !!abi;
   }
 
   /**
    * Find out if the item is a spell and has any, or all, of the required spell components.
    * The item must match either all or at least one, depending on what is set.
-   * @param {Item5e} item               The item being filtered against.
-   * @param {object} filter             The filtering object.
-   * @param {string[]} filter.types     The array of spell components in the filter.
-   * @param {string} filter.match       The type of matching, either ALL or ANY.
-   * @returns {boolean}                 Whether the item matched correctly with the components.
+   * @param {Item5e} item                   The item being filtered against.
+   * @param {object} filter                 The filtering object.
+   * @param {Set<string>} filter.types      The array of spell components in the filter.
+   * @param {string} filter.match           The type of matching, either ALL or ANY.
+   * @returns {boolean}                     Whether the item matched correctly with the components.
    */
   static spellComponents(item, {types, match}) {
-    if (!types?.length) return true;
+    if (!types.size) return true;
     if (item.type !== "spell") return false;
+    const comps = item.system.properties;
 
-    const comps = item.system.components;
-    // If it must match all, then filter is a (proper) subset of the spell's comps.
-    if (match === "ALL") return types.every(type => comps[type]);
-    // Else ensure it matches at least one comp.
-    else if (match === "ANY") return types.some(type => comps[type]);
-    return false;
+    /**
+     * If it must match all, then `types` is a (proper) subset of the spell's components,
+     * otherwise we ensure that it matches at least one component.
+     */
+    return ((match === "ALL") && types.isSubset(comps)) || ((match === "ANY") && types.intersects(comps));
   }
 
   /**
    * Find out if the item was cast at any of the required spell levels. When a spell is upcast,
    * the item here is the cloned spell only in the case of save dc bonuses, meaning we need to
    * pass on the correct spell level for attack and damage roll bonuses.
-   * @param {Item5e} item                           The item being filtered against.
-   * @param {string[]} filter                       The array of spell levels in the filter.
-   * @param {object} [details={}]                   Additional context for the filtering.
-   * @param {number} [details.spellLevel=null]      The level at which the spell was cast.
-   * @returns {boolean}                             Whether the item is at one of the appropriate levels.
+   * @param {Item5e} item                     The item being filtered against.
+   * @param {Set<number>} filter              The set of spell levels in the filter.
+   * @param {object} [details]                Additional context for the filtering.
+   * @param {number} [details.spellLevel]     The level at which the spell was cast.
+   * @returns {boolean}                       Whether the item is at one of the appropriate levels.
    */
   static spellLevels(item, filter, {spellLevel = null} = {}) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     if (item.type !== "spell") return false;
-    return filter.includes(spellLevel ?? item.system.level);
+    return filter.has(spellLevel ?? item.system.level);
   }
 
   /**
    * Find out if the item's action type is set to any of the required attack types.
-   * @param {Item5e} item         The item being filtered against.
-   * @param {string[]} filter     The array of attack types.
-   * @returns {boolean}           Whether the item has any of the required attack types.
+   * @param {Item5e} item            The item being filtered against.
+   * @param {Set<string>} filter     The array of attack types.
+   * @returns {boolean}              Whether the item has any of the required attack types.
    */
   static attackTypes(item, filter) {
-    if (!filter?.length) return true;
-    const actionType = item.system.actionType;
-    if (!actionType) return false;
-    return filter.includes(actionType);
+    return !filter.size || filter.has(item.system.actionType);
   }
 
   /**
    * Find out if the item has any of the included weapon properties and none of the excluded properties.
-   * @param {Item5e} item         The item being filtered against.
-   * @param {string[]} filter     The array of properties you must have one of or none of.
-   * @returns {boolean}           Whether the item has any of the included properties and none of the excluded properties.
+   * @param {Item5e} item            The item being filtered against.
+   * @param {Set<string>} filter     The set of properties you must have one of or none of.
+   * @returns {boolean}              Whether the item has any of the included properties and none of the excluded properties.
    */
   static weaponProperties(item, filter) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
-    if (item.type !== "weapon") return included.length === 0;
+    if (item.type !== "weapon") return !included.size;
     const props = item.system.properties;
-    if (included.length && !included.some(p => props[p])) return false;
-    if (excluded.length && excluded.some(p => props[p])) return false;
+    if (included.size && !included.intersects(props)) return false;
+    if (excluded.size && excluded.intersects(props)) return false;
     return true;
   }
 
@@ -497,20 +495,20 @@ export class FilterManager {
    * Find out if the saving throw in the item is set using an ability in the filter.
    * This filter is only available for bonuses applying specifically to saving throw DCs.
    * Special consideration is made for items with save DC set using spellcasting ability.
-   * @param {Item5e} item          The item being filtered against.
-   * @param {string[]} filter      The ability that is used to set the DC of the item's saving throw.
-   * @returns {boolean}            Whether the item's saving throw is set using an ability in the filter.
+   * @param {Item5e} item             The item being filtered against.
+   * @param {Set<string>} filter      The ability that is used to set the DC of the item's saving throw.
+   * @returns {boolean}               Whether the item's saving throw is set using an ability in the filter.
    */
   static saveAbilities(item, filter) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     if (!item.hasSave) return false;
     const {included, excluded} = FilterManager._splitExlusion(filter);
     let abl;
     if (item.system.save.scaling === "spell") {
       abl = item.actor.system.attributes.spellcasting;
     } else abl = item.system.save.scaling;
-    if (included.length && !included.includes(abl)) return false;
-    if (excluded.length && excluded.includes(abl)) return false;
+    if (included.size && !included.has(abl)) return false;
+    if (excluded.size && excluded.has(abl)) return false;
     return true;
   }
 
@@ -527,7 +525,7 @@ export class FilterManager {
    * @returns {boolean}                     Whether every comparison were in the correct relationship.
    */
   static arbitraryComparison(object, filter) {
-    if (!filter?.length) return true;
+    if (!filter.length) return true;
 
     const rollData = object.getRollData();
     const target = game.user.targets.first();
@@ -562,20 +560,15 @@ export class FilterManager {
   /**
    * Find out if the actor has any of the included effects and none of the excluded effects.
    * @param {Actor5e|Item5e} object     The item or actor being filtered against.
-   * @param {string[]} filter           The array of effect statuses you must have or must not have.
+   * @param {Set<string>} filter        The set of effect statuses you must have or must not have.
    * @returns {boolean}                 Whether the actor has any included effects and no excluded effects.
    */
   static statusEffects(object, filter) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const actor = object.actor ?? object;
     const {included, excluded} = FilterManager._splitExlusion(filter);
-
-    const hasIncluded = included.some(id => actor.statuses.has(id));
-    if (included.length && !hasIncluded) return false;
-
-    const hasExcluded = excluded.some(id => actor.statuses.has(id));
-    if (excluded.length && hasExcluded) return false;
-
+    if (included.size && !included.intersects(actor.statuses)) return false;
+    if (excluded.size && excluded.intersects(actor.statuses)) return false;
     return true;
   }
 
@@ -583,58 +576,53 @@ export class FilterManager {
    * Find out if the target actor has any of the status conditions required.
    * The bonus will apply if the target actor exists and has at least one.
    * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter           The array of effect statuses the target must have or must not have.
+   * @param {Set<string>} filter        The set of effect statuses the target must have or must not have.
    * @returns {boolean}                 Whether the target actor has any of the status effects.
    */
   static targetEffects(object, filter) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = game.user.targets.first()?.actor;
-    if (!actor) return !included.length;
-
-    const hasIncluded = included.some(id => actor.statuses.has(id));
-    if (included.length && !hasIncluded) return false;
-
-    const hasExcluded = excluded.some(id => actor.statuses.has(id));
-    if (excluded.length && hasExcluded) return false;
-
+    if (!actor) return !included.size;
+    if (included.size && !included.intersects(actor.statuses)) return false;
+    if (excluded.size && excluded.intersects(actor.statuses)) return false;
     return true;
   }
 
   /**
    * Find out if the bonus should apply to this type of saving throw.
    * @param {Actor5e} actor                   The actor making the saving throw.
-   * @param {string[]} filter                 The array of saving throw types to check for.
+   * @param {Set<string>} filter              The set of saving throw types to check for.
    * @param {object} details                  Additional context to help filter the bonus.
    * @param {string} details.throwType        The id of the ability, can be 'death'.
    * @param {boolean} details.isConcSave      Whether the saving throw is a conc save (if CN enabled).
    * @returns {boolean}                       Whether the throw type is in the filter.
    */
   static throwTypes(actor, filter, {throwType, isConcSave}) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     if (!throwType) return false;
-    return filter.includes(throwType) || (filter.includes("concentration") && isConcSave);
+    return filter.has(throwType) || (filter.has("concentration") && isConcSave);
   }
 
   /**
    * Find out if the target is one of the included creature types and none of the excluded types.
    * In the case of no targets, refer to whether any specific creature type was included.
    * @param {Actor5e|Item5e} object     The item or actor. Not relevant in this case.
-   * @param {string[]} filter           The array of creature types the target must or must not be.
+   * @param {Set<string>} filter        The set of creature types the target must or must not be.
    * @returns {boolean}                 Whether the target is of a valid creature type.
    */
   static creatureTypes(object, filter) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const target = game.user.targets.first();
     const {included, excluded} = FilterManager._splitExlusion(filter);
     const details = target?.actor?.system.details;
-    if (!details) return !included.length;
+    if (!details) return !included.size;
 
     // All the races the target is a member of.
     const races = FilterManager._splitRaces(target.actor);
 
-    if (included.length && !included.some(e => races.includes(e))) return false;
-    if (excluded.length && excluded.some(e => races.includes(e))) return false;
+    if (included.size && !included.intersects(races)) return false;
+    if (excluded.size && excluded.intersects(races)) return false;
     return true;
   }
 
@@ -642,21 +630,21 @@ export class FilterManager {
    * Find out if the rolling actor is one of the included creature etypes and none of the excluded types.
    * In the case of no values, refer to whether any specific creature type was included.
    * @param {Actor5e|Item5e} object     The rolling actor or item.
-   * @param {string[]} filter           The array of creature types the rolling actor must or must not be.
+   * @param {Set<string>} filter        The set of creature types the rolling actor must or must not be.
    * @returns {boolean}                 Whether the rolling actor is of a valid creature type.
    */
   static actorCreatureTypes(object, filter) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = object.actor ?? object;
     const details = actor.system.details;
-    if (!details) return !included.length;
+    if (!details) return !included.size;
 
     // All the races the rolling actor is a member of.
     const races = FilterManager._splitRaces(actor);
 
-    if (included.length && !included.some(e => races.includes(e))) return false;
-    if (excluded.length && excluded.some(e => races.includes(e))) return false;
+    if (included.length && !included.intersects(races)) return false;
+    if (excluded.length && excluded.intersects(races)) return false;
     return true;
   }
 
@@ -679,16 +667,16 @@ export class FilterManager {
 
   /**
    * Find out if the embedded script returns true.
-   * @param {Actor5e|Item5e} object           The item or actor.
-   * @param {string} script                   The script saved in the filter.
-   * @param {object} details                  Additional context to help filter the bonus.
-   * @param {boolean} details.isConcSave      Whether this saving throw is made to maintain concentration.
-   * @param {string} details.abilityId        The ability used for an ability check.
-   * @param {string} details.skillId          The id of the skill, in case of skill checks.
-   * @param {string} details.toolId           The id of the tool type, in case of tool checks.
-   * @param {number} details.spellLevel       The level of the spell, if needed.
-   * @param {string} details.throwType        The type of saving thwo being made (possibly 'death').
-   * @returns {boolean}                       True if the script returns true, otherwise false.
+   * @param {Actor5e|Item5e} object             The item or actor.
+   * @param {string} script                     The script saved in the filter.
+   * @param {object} [details]                  Additional context to help filter the bonus.
+   * @param {boolean} [details.isConcSave]      Whether this saving throw is made to maintain concentration.
+   * @param {string} [details.abilityId]        The ability used for an ability check.
+   * @param {string} [details.skillId]          The id of the skill, in case of skill checks.
+   * @param {string} [details.toolId]           The id of the tool type, in case of tool checks.
+   * @param {number} [details.spellLevel]       The level of the spell, if needed.
+   * @param {string} [details.throwType]        The type of saving thwo being made (possibly 'death').
+   * @returns {boolean}                         True if the script returns true, otherwise false.
    */
   static customScripts(object, script, details = {}) {
     if (!script?.length) return true;
@@ -708,14 +696,12 @@ export class FilterManager {
 
   /**
    * Find out if the spell that is cast is one able to consume a spell slot.
-   * @param {Item5e} item         The spell being cast, or making an attack or damage roll.
-   * @param {string[]} filter     The types of preparation modes allowed.
-   * @returns {boolean}           Whether the spell matches the preparation mode.
+   * @param {Item5e} item             The spell being cast, or making an attack or damage roll.
+   * @param {Set<string>} filter      The types of preparation modes allowed.
+   * @returns {boolean}               Whether the spell matches the preparation mode.
    */
   static preparationModes(item, filter) {
-    if (!filter?.length) return true;
-    if (item.type !== "spell") return false;
-    return filter.includes(item.system.preparation.mode);
+    return !filter.size || ((item.type === "spell") && filter.has(item.system.preparation.mode));
   }
 
   /**
@@ -747,34 +733,34 @@ export class FilterManager {
 
   /**
    * Find out if the tool being rolled for a check is one of the correct types.
-   * @param {Actor5e} actor       The actor performing the roll.
-   * @param {string[]} filter     The types of tool types.
-   * @param {string} toolId       The type of tool being rolled.
-   * @returns {boolean}           Whether the tool type matches the filter.
+   * @param {Actor5e} actor           The actor performing the roll.
+   * @param {Set<string>} filter      The types of tool types.
+   * @param {string} toolId           The type of tool being rolled.
+   * @returns {boolean}               Whether the tool type matches the filter.
    */
   static baseTools(actor, filter, {toolId}) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
-    if (!toolId) return included.length === 0;
-    if (included.length && !included.includes(toolId)) return false;
-    if (excluded.length && excluded.includes(toolId)) return false;
+    if (!toolId) return !included.size;
+    if (included.size && !included.has(toolId)) return false;
+    if (excluded.size && excluded.has(toolId)) return false;
     return true;
   }
 
   /**
    * Find out if the skill being rolled is one of the correct types.
    * @param {Actor5e} actor               The actor performing the roll.
-   * @param {string[]} filter             The types of skill ids.
+   * @param {Set<string>} filter          The types of skill ids.
    * @param {object} details              Additional properties for the filtering.
    * @param {string} details.skillId      The id of the skill being rolled.
    * @returns {boolean}                   Whether the skill matches the filter.
    */
   static skillIds(actor, filter, {skillId}) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
-    if (!skillId) return included.length === 0;
-    if (included.length && !included.includes(skillId)) return false;
-    if (excluded.length && excluded.includes(skillId)) return false;
+    if (!skillId) return !included.size;
+    if (included.size && !included.has(skillId)) return false;
+    if (excluded.size && excluded.has(skillId)) return false;
     return true;
   }
 
@@ -795,35 +781,35 @@ export class FilterManager {
 
   /**
    * Find out if the roll was proficient, and if at a valid level.
-   * @param {Actor5e|Item5e} object         The actor or item performing the roll.
-   * @param {number[]} filter               The levels of valid proficiencies.
-   * @param {object} details                Additional properties for the filtering.
-   * @param {string} details.throwType      The type of saving throw.
-   * @param {string} details.abilityId      The type of ability check.
-   * @param {string} details.skillId        The type of skill check.
-   * @param {string} details.toolId         The type of tool check.
-   * @returns {boolean}                     Whether the roll was one of the proficiency levels.
+   * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+   * @param {Set<number>} filter              The levels of valid proficiencies.
+   * @param {object} details                  Additional properties for the filtering.
+   * @param {string} [details.throwType]      The type of saving throw.
+   * @param {string} [details.abilityId]      The type of ability check.
+   * @param {string} [details.skillId]        The type of skill check.
+   * @param {string} [details.toolId]         The type of tool check.
+   * @returns {boolean}                       Whether the roll was one of the proficiency levels.
    */
   static proficiencyLevels(object, filter, {throwType, abilityId, skillId, toolId}) {
-    if (!filter?.length) return true;
+    if (!filter.size) return true;
 
     // Case 1: Skill.
-    else if (skillId) return filter.includes(object.system.skills[skillId]?.prof.multiplier || 0);
+    if (skillId) return filter.has(object.system.skills[skillId]?.prof.multiplier || 0);
 
     // Case 2: Ability Check.
-    else if (abilityId && !toolId) return filter.includes(object.system.abilities[abilityId]?.checkProf.multiplier || 0);
+    else if (abilityId && !toolId) return filter.has(object.system.abilities[abilityId]?.checkProf.multiplier || 0);
 
     // Case 3: Death Saving Throw.
-    else if (throwType === "death") return filter.includes(Number(object.flags.dnd5e?.diamondSoul || false));
+    else if (throwType === "death") return filter.has(Number(object.flags.dnd5e?.diamondSoul || false));
 
     // Case 4: Saving Throw.
-    else if (throwType) return filter.includes(object.system.abilities[throwType]?.saveProf.multiplier || 0);
+    else if (throwType) return filter.has(object.system.abilities[throwType]?.saveProf.multiplier || 0);
 
     // Case 5: Tool.
-    else if (toolId) return filter.includes(object.system.tools[toolId]?.prof.multiplier || 0);
+    else if (toolId) return filter.has(object.system.tools[toolId]?.prof.multiplier || 0);
 
     // Case 6: Weapon, equipment, spell.
-    else if (object instanceof Item) return filter.includes(object.system.prof.multiplier);
+    else if (object instanceof Item) return filter.has(object.system.prof.multiplier);
 
     // Else somehow return false.
     else return false;
@@ -837,19 +823,17 @@ export class FilterManager {
    * @param {string} filter.subtype     The feature subtype.
    * @returns {boolean}                 Whether the feature is the correct type.
    */
-  static featureTypes(item, filter) {
+  static featureTypes(item, {type, subtype}) {
     const config = CONFIG.DND5E.featureTypes;
-    if (!filter.type || !(filter.type in config)) return true;
+    if (!type || !(type in config)) return true;
     if (item.type !== "feat") return false;
+    if (type !== item.system.type.value) return false;
 
-    const {value, subtype} = item.system.type;
-    if (filter.type !== value) return false;
-
-    const subtypes = config[filter.type]?.subtypes ?? {};
+    const subtypes = config[type]?.subtypes ?? {};
     const hasSubtype = !foundry.utils.isEmpty(subtypes);
-    if (!hasSubtype || !filter.subtype) return true;
+    if (!hasSubtype || !subtype) return true;
 
-    return subtype === filter.subtype;
+    return item.system.type.subtype === subtype;
   }
 
   //#endregion

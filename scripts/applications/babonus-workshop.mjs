@@ -407,10 +407,10 @@ export class BabonusWorkshop extends Application {
 
   /**
    * Embed a created babonus onto the target object.
-   * @param {Document} object             The actor, item, or effect that should have the babonus.
-   * @param {Babonus} bonus               The created babonus.
-   * @param {boolean} [keepId=false]      Keep the ID or generate a new one?
-   * @returns {Promise<Document>}         The actor, item, or effect that has received the babonus.
+   * @param {Document} object         The actor, item, or effect that should have the babonus.
+   * @param {Babonus} bonus           The created babonus.
+   * @param {boolean} [keepId]        Keep the ID or generate a new one?
+   * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
    */
   static async _embedBabonus(object, bonus, keepId = false) {
     const data = bonus.toObject();

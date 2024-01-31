@@ -7,8 +7,8 @@ export class FeatureTypesField extends FilterMixin(foundry.data.fields.SchemaFie
   /** @override */
   _initialize() {
     return super._initialize({
-      type: new foundry.data.fields.StringField(),
-      subtype: new foundry.data.fields.StringField()
+      type: new foundry.data.fields.StringField({required: true}),
+      subtype: new foundry.data.fields.StringField({required: true})
     });
   }
 
