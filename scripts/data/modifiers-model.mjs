@@ -14,6 +14,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       reroll: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
         value: new foundry.data.fields.StringField({required: true}),
+        invert: new foundry.data.fields.BooleanField(),
         recursive: new foundry.data.fields.BooleanField()
       }),
       explode: new foundry.data.fields.SchemaField({
@@ -49,7 +50,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     for (const m of ["amount", "size", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
       if (!value) {
-        this[m].value = null;
+        this[m].value = 0;
         continue;
       }
       const bonus = dnd5e.utils.simplifyBonus(value, rollData);
@@ -79,18 +80,27 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (hasSize) die.faces = Math.max(0, die.faces + this.size.value);
     if (hasReroll && !dm.some(m => m.match(this.constructor.REGEX.reroll))) {
       const prefix = this.reroll.recursive ? "rr" : "r";
+      const v = this.reroll.value;
       let mod;
-      if (!Number.isNumeric(this.reroll.value) || !(this.reroll.value > 1)) mod = `${prefix}=1`;
-      else mod = `${prefix}<${Math.min(this.reroll.value, die.faces)}`;
-      dm.push(mod);
+      if (this.reroll.invert) {
+        if (v > 0) mod = (v >= die.faces) ? `${prefix}=${die.faces}` : `${prefix}>${v}`; // reroll if strictly greater than x.
+        else if (v === 0) mod = `${prefix}=${die.faces}`; // reroll if max.
+        else mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}>${die.faces + v}`; // reroll if strictly greater than (size-x).
+      } else {
+        if (v > 0) mod = (v === 1) ? `${prefix}=1` : `${prefix}<${Math.min(die.faces, v)}`; // reroll if strictly less than x.
+        else if (v === 0) mod = `${prefix}=1`; // reroll 1s.
+        else mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}<${die.faces + v}`; // reroll if strictly less than (size-x).
+      }
+      if (die.faces > 1) dm.push(mod);
     }
     if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
+      // TODO: allow for negative values here.
       const v = this.explode.value;
       const prefix = this.explode.once ? "xo" : "x";
       let mod;
       if (!Number.isNumeric(v) || !(v > 0) || (v >= die.faces)) mod = prefix;
       else mod = `${prefix}>${v}`;
-      dm.push(mod);
+      if ((die.faces > 1) || (prefix !== "x")) dm.push(mod);
     }
     if (hasMin && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
       const f = die.faces;
@@ -152,7 +162,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get hasReroll() {
     if (!this.reroll.enabled) return false;
-    return true;
+    return Number.isInteger(this.reroll.value);
   }
 
   /**
@@ -161,7 +171,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get hasExplode() {
     if (!this.explode.enabled) return false;
-    return true;
+    return Number.isInteger(this.explode.value);
   }
 
   /**

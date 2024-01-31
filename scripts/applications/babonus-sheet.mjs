@@ -226,7 +226,7 @@ export class BabonusSheet extends DocumentSheet {
       showRange: !aura.template,
       displayedRange: (aura.range > 0) ? aura.range : (aura.range === -1) ? game.i18n.localize("DND5E.Unlimited") : 0,
       choices: choices,
-      blockers: aura.blockers.join(";"),
+      blockers: Array.from(aura.blockers).filterJoin(";"),
       isItem: isItem,
       isInvalid: aura.enabled && !(aura.isTemplate || aura.isToken),
       invalidTemplate: !isItem
@@ -260,8 +260,15 @@ export class BabonusSheet extends DocumentSheet {
           const prefix = mods.reroll.recursive ? "rr" : "r";
           const v = mods.reroll.value;
           if (!mods.hasReroll) label = null;
-          else if (!Number.isNumeric(v) || !(v > 1)) label = `${prefix}=1`;
-          else label = `${prefix}<${v}`;
+          else if (mods.reroll.invert) {
+            if (v > 0) label = `${prefix}>${v}`;
+            else if (v === 0) label = "BABONUS.Maximum";
+            else label = "BABONUS.Relative";
+          } else {
+            if (v > 0) label = (v === 1) ? `${prefix}=1` : `${prefix}<${v}`;
+            else if (v === 0) label = `${prefix}=1`;
+            else label = "BABONUS.Relative";
+          }
           break;
         }
         case "explode": {
