@@ -30,8 +30,8 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "minimum": "2.4.0",
-          "maximum": "2.4.9"
+          "minimum": "3.0.0",
+          "maximum": "3.0.9"
         }
       }
     ]
