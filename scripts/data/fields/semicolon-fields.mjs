@@ -191,7 +191,7 @@ class SpellSchoolsField extends BaseField {
   /** @override */
   static async choices() {
     const schools = Object.entries(CONFIG.DND5E.spellSchools);
-    return schools.map(([value, label]) => ({value, label}));
+    return schools.map(([k, v]) => ({value: k, label: v.label}));
   }
 }
 
