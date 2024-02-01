@@ -93,7 +93,7 @@ export class RollHooks {
     RollHooks._addTargetData(rollConfig);
 
     // add to parts:
-    const optionals = RollHooks._getParts(bonuses, rollConfig);
+    const optionals = RollHooks._getDamageParts(bonuses, rollConfig, "rollConfigs");
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {
       optionals, actor: item.actor, spellLevel, item, bonuses
     });
@@ -113,8 +113,10 @@ export class RollHooks {
     }, rollConfig.criticalBonusDamage ?? "");
 
     // Modify the parts if there are modifiers in the bab.
-    for (const bab of bonuses) {
-      RollHooks._addDieModifier(rollConfig.parts, rollConfig.data, bab);
+    for(const {parts} of rollConfig.rollConfigs) {
+      for (const bab of bonuses) {
+        RollHooks._addDieModifier(parts, rollConfig.data, bab);
+      }
     }
   }
 
@@ -243,7 +245,7 @@ export class RollHooks {
 
   /**
    * Inject babonus data on created templates if they have an associated item.
-   * @TODO Make use of new hooks in dnd5e v2.5.
+   * @TODO Make use of new hooks in dnd5e v3.0.0.
    * @param {MeasuredTemplateDocument5e} templateDoc      The ability template being created.
    */
   static preCreateMeasuredTemplate(templateDoc) {
@@ -265,7 +267,29 @@ export class RollHooks {
    * Gather optional bonuses and put non-optional bonuses into the roll config.
    * @param {Babonus[]} bonuses     An array of babonuses to apply.
    * @param {object} rollConfig     The roll config for this roll. **will be mutated**
-   * @returns {string[]}            An array of bonuses to modify a roll.
+   * @returns {string[]}            An array of optional bonuses to modify a roll.
+   */
+  static _getDamageParts(bonuses, rollConfig) {
+    const dtypes = CONFIG.DND5E.damageTypes;
+    const part0 = rollConfig.rollConfigs[0];
+    const dtype = part0.type;
+    const optionals = [];
+    for(const bab of bonuses) {
+      const bonus = bab.bonuses.bonus;
+      let type = bab.bonuses.damageType || "";
+      if (!(type in dtypes)) type = dtype;
+      if (bab.isOptional) optionals.push(bab);
+      else if (type === dtype) part0.parts.push(bonus);
+      else rollConfig.rollConfigs.push({parts: [bonus], type: type});
+    }
+    return optionals;
+  }
+
+  /**
+   * Gather optional bonuses and put non-optional bonuses into the roll config.
+   * @param {Babonus[]} bonuses     An array of babonuses to apply.
+   * @param {object} rollConfig     The roll config for this roll. **will be mutated**
+   * @returns {string[]}            An array of optional bonuses to modify a roll.
    */
   static _getParts(bonuses, rollConfig) {
     return bonuses.reduce((acc, bab) => {

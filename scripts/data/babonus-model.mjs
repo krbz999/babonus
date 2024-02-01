@@ -92,7 +92,7 @@ class Babonus extends foundry.abstract.DataModel {
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
    * @TODO once hit die rolls have a dialog as well, this should be amended.
-   * @TODO once rolls can be "remade" in 2.6.0, optional bonuses should be able to apply to other properties as well.
+   * @TODO once rolls can be "remade" in 3.1.0, optional bonuses should be able to apply to other properties as well.
    * @type {boolean}
    */
   get isOptionable() {
@@ -479,7 +479,7 @@ class DamageBabonus extends ItemBabonus {
     return {
       ...super._defineBonusSchema(),
       bonus: new foundry.data.fields.StringField({required: true}),
-      // damageType: new foundry.data.fields.StringField({required: true}),
+      damageType: new foundry.data.fields.StringField({required: true}),
       criticalBonusDice: new foundry.data.fields.StringField({required: true}),
       criticalBonusDamage: new foundry.data.fields.StringField({required: true}),
       modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)

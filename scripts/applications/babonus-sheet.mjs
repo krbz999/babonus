@@ -91,7 +91,6 @@ export class BabonusSheet extends DocumentSheet {
 
   /**
    * Prepare the bonuses.
-   * @TODO Allow for setting a damage type for the entire 'bonus' field on damage babonus.
    * @returns {object[]}
    */
   _prepareBonuses() {
@@ -100,7 +99,7 @@ export class BabonusSheet extends DocumentSheet {
     const type = this.bonus.type;
     b.forEach(([k, v]) => {
       if (k === "modifiers" || k === "damageType") return;
-      const isDamage = false; //(type === "damage") && (k === "bonus");
+      const isDamage = (type === "damage") && (k === "bonus");
       bonuses.push({
         key: k,
         value: v,

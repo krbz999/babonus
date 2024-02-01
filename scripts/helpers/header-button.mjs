@@ -56,6 +56,11 @@ class HeaderButton {
 
 class HeaderButtonActor extends HeaderButton {
   /** @override */
+  static get showLabel() {
+    return true;
+  }
+
+  /** @override */
   static get invalidTypes() {
     return new Set(["group"]);
   }
