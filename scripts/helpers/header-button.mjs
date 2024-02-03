@@ -56,13 +56,21 @@ class HeaderButton {
 
 class HeaderButtonActor extends HeaderButton {
   /** @override */
-  static get showLabel() {
-    return true;
+  static get invalidTypes() {
+    return new Set(["group"]);
   }
 
   /** @override */
-  static get invalidTypes() {
-    return new Set(["group"]);
+  static inject(app, array) {
+    if (app.constructor.name !== "ActorSheet5eCharacter2") return super.inject(app, array);
+    if (!this.showButton || this.invalidTypes.has(app.document.type)) return;
+    const button = {
+      class: MODULE.ID,
+      icon: MODULE.ICON,
+      onclick: () => new BabonusWorkshop(app.document).render(true),
+      label: this.label
+    };
+    array.unshift(button);
   }
 }
 
