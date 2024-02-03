@@ -21,14 +21,14 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    */
   get OPTIONS() {
     const options = {};
-    if (this.canConsumeUses) options.uses = "DND5E.LimitedUses";
-    if (this.canConsumeQuantity) options.quantity = "DND5E.Quantity";
-    if (this.canConsumeSlots) options.slots = "BABONUS.ConsumptionTypeSlots";
-    if (this.canConsumeEffect) options.effect = "BABONUS.ConsumptionTypeEffect";
-    if (this.canConsumeHealth) options.health = "BABONUS.ConsumptionTypeHealth";
-    if (this.canConsumeCurrency) options.currency = "BABONUS.ConsumptionTypeCurrency";
-    if (this.canConsumeInspiration) options.inspiration = "BABONUS.ConsumptionTypeInspiration";
-    if (this.canConsumeResource) options.resource = "BABONUS.ConsumptionTypeResource";
+    options.uses = "DND5E.LimitedUses";
+    options.quantity = "DND5E.Quantity";
+    options.slots = "BABONUS.ConsumptionTypeSlots";
+    options.effect = "BABONUS.ConsumptionTypeEffect";
+    options.health = "BABONUS.ConsumptionTypeHealth";
+    options.currency = "BABONUS.ConsumptionTypeCurrency";
+    options.inspiration = "BABONUS.ConsumptionTypeInspiration";
+    options.resource = "BABONUS.ConsumptionTypeResource";
     return options;
   }
 
@@ -65,89 +65,6 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the babonus can consume, which requires that it is Optional
-   * and has at least one option in the 'type' available.
-   * @type {boolean}
-   */
-  get canConsume() {
-    if (!this.bonus.isOptional) return false;
-    return !foundry.utils.isEmpty(this.OPTIONS);
-  }
-
-  /**
-   * Whether 'Limited Uses' should be a valid option for consumption.
-   * The babonus must be embedded on an item that has limited uses.
-   * @type {boolean}
-   */
-  get canConsumeUses() {
-    const item = this.bonus.parent;
-    return (item instanceof Item) && item.hasLimitedUses;
-  }
-
-  /**
-   * Whether 'Quantity' should be a valid option for consumption.
-   * The babonus must be embedded on an item that has a quantity.
-   * @type {boolean}
-   */
-  get canConsumeQuantity() {
-    const item = this.bonus.parent;
-    return (item instanceof Item) && Number.isNumeric(item.system.quantity);
-  }
-
-  /**
-   * Whether 'Spell Slots' should be a valid option for consumption. Since this works
-   * fine as an aura, there are no restrictions to apply here, and it always returns true.
-   * @type {boolean}
-   */
-  get canConsumeSlots() {
-    return true;
-  }
-
-  /**
-   * Whether 'Hit Points' should be a valid option for consumption. Since this works
-   * fine as an aura, there are no restrictions to apply here, and it always returns true.
-   * @type {boolean}
-   */
-  get canConsumeHealth() {
-    return true;
-  }
-
-  /**
-   * Whether 'Effect' should be a valid option in the Consumption app.
-   * The babonus must be embedded on an effect.
-   * @type {boolean}
-   */
-  get canConsumeEffect() {
-    return this.bonus.parent instanceof ActiveEffect;
-  }
-
-  /**
-   * Whether 'Currency' should be a valid option for consumption.
-   * @type {boolean}
-   */
-  get canConsumeCurrency() {
-    return true;
-  }
-
-  /**
-   * Whether 'Inspiration' should be a valid option for consumption.
-   * @type {boolean}
-   */
-  get canConsumeInspiration() {
-    const actor = this.bonus.actor;
-    return (actor instanceof Actor) && (actor.type === "character");
-  }
-
-  /**
-   * Whether 'Resource' should be a valid option for consumption.
-   * @type {boolean}
-   */
-  get canConsumeResource() {
-    const actor = this.bonus.actor;
-    return (actor instanceof Actor) && (actor.type === "character");
-  }
-
-  /**
    * Whether the consumption data on the babonus creates valid consumption
    * for the optional bonus application when rolling. If it does not, the
    * babonus is ignored there.
@@ -165,21 +82,22 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get isConsuming() {
-    if (!this.enabled || !this.canConsume || !this.type) return false;
+    if (!this.enabled || !this.bonus.isOptional || !this.type) return false;
 
     const type = this.type;
     const min = Number.isNumeric(this.value.min) ? this.value.min : 1;
-    const isItemOwner = (this.bonus.parent instanceof Item) && this.bonus.parent.isOwner;
-    const isEffectOwner = (this.bonus.parent instanceof ActiveEffect) && this.bonus.parent.isOwner;
+    const parent = this.bonus.parent;
+    const isItemOwner = (parent instanceof Item) && parent.isOwner;
+    const actor = this.bonus.actor;
 
-    if (type === "uses") return this.canConsumeUses && isItemOwner && (min > 0);
-    else if (type === "quantity") return this.canConsumeQuantity && isItemOwner && (min > 0);
-    else if (type === "slots") return this.canConsumeSlots && (min > 0);
-    else if (type === "effect") return this.canConsumeEffect && isEffectOwner;
-    else if (type === "health") return this.canConsumeHealth && (min > 0);
+    if (type === "uses") return isItemOwner && parent.hasLimitedUses && (min > 0);
+    else if (type === "quantity") return isItemOwner && Number.isNumeric(parent.system.quantity) && (min > 0);
+    else if (type === "slots") return min > 0;
+    else if (type === "effect") return (parent instanceof ActiveEffect) && parent.isOwner;
+    else if (type === "health") return min > 0;
     else if (type === "currency") return (this.subtype in CONFIG.DND5E.currencies) && (min > 0);
-    else if (type === "inspiration") return this.canConsumeInspiration;
-    else if (type === "resource") return this.canConsumeResource;
+    else if (type === "inspiration") return (actor instanceof Actor) && (actor.type === "character");
+    else if (type === "resource") return (actor instanceof Actor) && (actor.type === "character");
   }
 
   /**

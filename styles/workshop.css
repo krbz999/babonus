@@ -109,7 +109,7 @@
 }
 .babonus.builder .pages .current-bonuses .bonuses {
   height: 100%;
-  overflow-y: overlay;
+  overflow-y: auto;
   display: flex;
   flex: 1;
   flex-direction: column;
