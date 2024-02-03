@@ -1,10 +1,10 @@
 import {MODULE} from "../constants.mjs";
 
-export class KeysDialog extends Dialog {
+export class KeysDialog extends dnd5e.applications.DialogMixin(Dialog) {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: [MODULE.ID, "keys-dialog"],
+      classes: [MODULE.ID, "keys-dialog", "dialog", "dnd5e2"],
       resizable: true,
       height: 600,
       width: 400

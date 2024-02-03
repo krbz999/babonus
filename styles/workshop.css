@@ -4,27 +4,12 @@
 .babonus.builder {
   min-height: 500px;
   min-width: 450px;
-  background:
-    url(../../../systems/dnd5e/ui/texture-gray1.webp) no-repeat top left,
-    url(../../../systems/dnd5e/ui/texture-gray2.webp) no-repeat bottom right,
-    var(--dnd5e-color-parchment);
-  border: 1px solid var(--dnd5e-color-gold);
-}
-.babonus.builder.minimized .header-button {
-  display: none;
 }
 .babonus.builder .window-header {
   border: none;
   align-items: center;
 }
-.babonus.builder .window-header .window-title {
-  color: initial;
-}
-.babonus.builder:not(.minimized) .window-header .window-title {
-  visibility: hidden;
-}
 .babonus.builder .window-content {
-  background: transparent;
   overflow: hidden;
 }
 .babonus.builder h1.otters {

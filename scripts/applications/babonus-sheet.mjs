@@ -3,7 +3,7 @@ import {module} from "../data/_module.mjs";
 import {BabonusWorkshop} from "./babonus-workshop.mjs";
 import {KeysDialog} from "./keys-dialog.mjs";
 
-export class BabonusSheet extends DocumentSheet {
+export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) {
   /**
    * @param {Babonus} babonus         The babonus managed by this sheet.
    * @param {object} [options={}]     Optional configuration parameters for how the sheet behaves.
@@ -18,7 +18,7 @@ export class BabonusSheet extends DocumentSheet {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: [MODULE.ID, "sheet", "dnd5e"],
+      classes: [MODULE.ID, "sheet", "dnd5e2"],
       template: "modules/babonus/templates/babonus-sheet.hbs",
       sheetConfig: true,
       submitOnChange: true,

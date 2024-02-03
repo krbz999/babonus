@@ -18,6 +18,7 @@
 .babonus.sheet .header {
   display: flex;
   padding: 0 5px;
+  flex-direction: row;
 }
 .babonus.sheet .header img {
   flex: none;
@@ -107,6 +108,11 @@
   height: 24px;
   border: 1px solid #7a7971;
   background: rgba(0, 0, 0, 0.05);
+}
+.babonus.sheet form .form-group .form-fields input[type="text"]:disabled,
+.babonus.sheet form .form-group .form-fields input[type="number"]:disabled,
+.babonus.sheet form .form-group .form-fields select:disabled {
+  border-color: lightgray;
 }
 .babonus.sheet form .form-group .form-fields select {
   flex: 0;

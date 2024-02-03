@@ -22,7 +22,8 @@
     "styles/optionals.css",
     "styles/overview.css",
     "styles/sheet.css",
-    "styles/workshop.css"
+    "styles/workshop.css",
+    "styles/shared.css"
   ],
   "relationships": {
     "systems": [

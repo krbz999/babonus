@@ -1,0 +1,30 @@
+.babonus.dnd5e2 {
+  background:
+    url(../../../systems/dnd5e/ui/texture-gray1.webp) no-repeat top left,
+    url(../../../systems/dnd5e/ui/texture-gray2.webp) no-repeat bottom right,
+    var(--dnd5e-color-parchment);
+  border: 1px solid var(--dnd5e-color-gold);
+}
+.babonus.dnd5e2.minimized .header-button,
+.babonus.dnd5e2 .header-button.configure-sheet {
+  display: none;
+}
+.babonus.dnd5e2:not(.minimized) .window-header .window-title {
+  visibility: hidden;
+}
+.babonus.dnd5e2 .window-header .window-title {
+  color: initial;
+}
+.babonus.dnd5e2 .window-header {
+  margin-left: 3px;
+  margin-right: 3px;
+}
+.babonus.dnd5e2 .window-content {
+  background: transparent;
+  overflow: hidden;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+.babonus.dnd5e2 input:disabled {
+  border: gray;
+}
