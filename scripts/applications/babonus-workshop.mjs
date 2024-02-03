@@ -1,7 +1,7 @@
 import {MODULE} from "../constants.mjs";
 import {module} from "../data/_module.mjs";
 
-export class BabonusWorkshop extends Application {
+export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application) {
   /* ------------------------------- */
   /*            VARIABLES            */
   /* ------------------------------- */
@@ -30,7 +30,7 @@ export class BabonusWorkshop extends Application {
       width: 450,
       height: 700,
       template: `modules/${MODULE.ID}/templates/babonus-workshop.hbs`,
-      classes: [MODULE.ID, "builder"],
+      classes: [MODULE.ID, "builder", "dnd5e2"],
       scrollY: [".current-bonuses .bonuses"],
       dragDrop: [{dragSelector: "[data-action='current-collapse']", dropSelector: ".current-bonuses .bonuses"}],
       resizable: true
@@ -92,6 +92,7 @@ export class BabonusWorkshop extends Application {
     data.isItem = this.isItem;
     data.isEffect = this.isEffect;
     data.isActor = this.isActor;
+    data.parentName = this.document.name;
 
     // Get current bonuses on the document.
     data.currentBonuses = [];
@@ -121,8 +122,9 @@ export class BabonusWorkshop extends Application {
 
   /** @override */
   activateListeners(html) {
+    const content = html[0].parentElement;
     // Listeners that are always active.
-    html[0].querySelectorAll("[data-action]").forEach(n => {
+    content.querySelectorAll("[data-action]").forEach(n => {
       const action = n.dataset.action;
       switch (action) {
         case "otter-rainbow":
@@ -142,7 +144,7 @@ export class BabonusWorkshop extends Application {
     });
 
     if (!this.isEditable) {
-      html[0].querySelectorAll(".left-side, .right-side .functions").forEach(n => {
+      content.querySelectorAll(".left-side, .right-side .functions").forEach(n => {
         n.style.pointerEvents = "none";
         n.classList.add("locked");
       });
@@ -151,7 +153,7 @@ export class BabonusWorkshop extends Application {
     super.activateListeners(html);
 
     // Listeners that require ability to edit.
-    html[0].querySelectorAll("[data-action]").forEach(n => {
+    content.querySelectorAll("[data-action]").forEach(n => {
       const action = n.dataset.action;
       switch (action) {
         case "pick-type":

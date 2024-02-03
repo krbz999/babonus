@@ -1,58 +1,58 @@
-<div class="content">
-  <h1 class="otters">
-    <i class="{{{ICON}}}" data-action="otter-rainbow" style="color: {{otterColor}}"></i>
-    {{localize "BABONUS.ModuleTitle"}}
-    <i class="{{{ICON}}}" data-action="otter-dance"></i>
-  </h1>
+<h1 class="otters">
+  <i class="{{{ICON}}}" data-action="otter-rainbow" style="color: {{otterColor}}"></i>
+  <span class="name-stacked">
+    <span class="title">{{localize "BABONUS.ModuleTitle"}}</span>
+    <span class="subtitle">{{parentName}}</span>
+  </span>
+  <i class="{{{ICON}}}" data-action="otter-dance"></i>
+</h1>
 
-  <div class="pages">
+<div class="pages">
 
-    <section class="select-type">
-      <header class="header">
-        {{localize "BABONUS.SelectType"}}
-        <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
-      </header>
-      <div class="types">
-        {{#each createButtons}}
-        <a data-action="pick-type" data-type="{{type}}">
-          <i class="{{icon}}"></i>
-          <span class="label">{{localize label}}</span>
-        </a>
-        {{/each}}
-      </div>
-    </section>
+  <section class="select-type">
+    <header class="header">
+      {{localize "BABONUS.SelectType"}}
+      <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.SelectTypeTooltip"></i>
+    </header>
+    <div class="types">
+      {{#each createButtons}}
+      <a data-action="pick-type" data-type="{{type}}">
+        <i class="{{icon}}"></i>
+        <span class="label">{{localize label}}</span>
+      </a>
+      {{/each}}
+    </div>
+  </section>
 
-    <!-- RIGHT SIDE -->
-    <section class="current-bonuses">
-      <header class="header">
-        {{localize "BABONUS.CurrentBonuses"}}
-        <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
-      </header>
-      <div class="bonuses">
+  <!-- RIGHT SIDE -->
+  <section class="current-bonuses">
+    <header class="header">
+      {{localize "BABONUS.CurrentBonuses"}}
+      <i class="fa-solid fa-circle-question" data-tooltip="BABONUS.CurrentBonusesTooltip"></i>
+    </header>
+    <div class="bonuses">
 
-        {{#each currentBonuses}}
-        <div class="bonus {{#if context.collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
-          <div class="bonus-header">
-            <a class="label {{#unless bonus.enabled}}disabled{{/unless}}" data-action="current-collapse">
-              <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
-            </a>
-            <div class="details">
-              <div class="functions">
-                <a data-action="current-toggle"><i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i></a>
-                <a data-action="current-copy"><i class="fa-solid fa-copy"></i></a>
-                <a data-action="current-edit"><i class="fa-solid fa-edit"></i></a>
-                <a data-action="current-delete"><i class="fa-solid fa-trash"></i></a>
-              </div>
-              <a data-action="current-id">{{bonus.id}}</a>
+      {{#each currentBonuses}}
+      <div class="bonus {{#if context.collapsed}}collapsed{{/if}}" data-id="{{bonus.id}}">
+        <div class="bonus-header">
+          <a class="label {{#unless bonus.enabled}}disabled{{/unless}}" data-action="current-collapse">
+            <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
+          </a>
+          <div class="details">
+            <div class="functions">
+              <a data-action="current-toggle"><i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i></a>
+              <a data-action="current-copy"><i class="fa-solid fa-copy"></i></a>
+              <a data-action="current-edit"><i class="fa-solid fa-edit"></i></a>
+              <a data-action="current-delete"><i class="fa-solid fa-trash"></i></a>
             </div>
+            <a data-action="current-id">{{bonus.id}}</a>
           </div>
-          <div class="description">{{{context.description}}}</div>
         </div>
-        {{/each}}
-
+        <div class="description">{{{context.description}}}</div>
       </div>
-    </section>
+      {{/each}}
 
-  </div>
+    </div>
+  </section>
 
 </div>

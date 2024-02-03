@@ -4,24 +4,49 @@
 .babonus.builder {
   min-height: 500px;
   min-width: 450px;
+  background:
+    url(../../../systems/dnd5e/ui/texture-gray1.webp) no-repeat top left,
+    url(../../../systems/dnd5e/ui/texture-gray2.webp) no-repeat bottom right,
+    var(--dnd5e-color-parchment);
+  border: 1px solid var(--dnd5e-color-gold);
 }
-.babonus.builder .content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
+.babonus.builder.minimized .header-button {
+  display: none;
+}
+.babonus.builder .window-header {
+  border: none;
+  align-items: center;
+}
+.babonus.builder .window-header .window-title {
+  color: initial;
+}
+.babonus.builder:not(.minimized) .window-header .window-title {
+  visibility: hidden;
+}
+.babonus.builder .window-content {
+  background: transparent;
   overflow: hidden;
 }
 .babonus.builder h1.otters {
   text-align: center;
-  font-size: 55px;
-  border-bottom: none;
-  font-family: "Modesto Condensed";
-  margin-top: 5px;
+  font-size: 50px;
+  display: flex;
+  justify-content: center;
+  flex: none;
 }
 .babonus.builder h1.otters [data-action="otter-rainbow"] {
   transform: scaleX(-1);
   transition: 0.5s;
+}
+.babonus.builder .name-stacked .title {
+  font-size: 25px;
+  border-bottom: 2px solid var(--dnd5e-color-gold);
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  margin: 0 0.5em;
+}
+.babonus.builder .name-stacked .subtitle {
+  font-size: 14px;
 }
 .babonus.builder .pages {
   overflow-y: hidden;
@@ -32,25 +57,26 @@
 }
 .babonus.builder .pages .header {
   height: 30px;
-  line-height: 28px;
-  font-weight: bold;
   border: 1px solid var(--color-border-light-tertiary);
   background: rgba(0, 0, 0, 0.1);
   padding-left: 0.5em;
   border-radius: 4px;
+  font-family: var(--dnd5e-font-roboto-slab);
+  font-size: var(--font-size-13);
+  font-weight: bolder;
+  line-height: 30px;
 }
 .babonus.builder .pages .select-type,
 .babonus.builder .pages .current-bonuses {
   display: flex;
   height: 100%;
   flex-direction: column;
+  overflow: hidden;
 }
 .babonus.builder .pages .current-bonuses {
   flex: 1;
 }
-.babonus.builder .pages .select-type.hidden .types {
-  gap: 40px;
-}
+.babonus.builder .pages .select-type.hidden .types {}
 .babonus.builder .pages .select-type.hidden .types a {
   grid-template-columns: 100%;
   padding: 0;
@@ -62,16 +88,13 @@
   display: none;
 }
 .babonus.builder .pages .select-type .types {
-  height: 100%;
-  overflow-y: overlay;
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   font-size: 26px;
-  justify-content: flex-start;
-  padding-top: 20px;
-  gap: 20px;
   min-width: 120px;
-  transition: gap 200ms;
+  flex: 1;
+  max-height: calc(75px * 6);
 }
 .babonus.builder .pages .select-type .types a {
   display: grid;
@@ -91,6 +114,8 @@
   flex: 1;
   flex-direction: column;
   padding: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dnd5e-color-gold) transparent;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus {
   border-bottom: 2px groove;
