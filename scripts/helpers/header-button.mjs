@@ -64,6 +64,7 @@ class HeaderButtonActor extends HeaderButton {
   static inject(app, array) {
     if (app.constructor.name !== "ActorSheet5eCharacter2") return super.inject(app, array);
     if (!this.showButton || this.invalidTypes.has(app.document.type)) return;
+    if (game.settings.get(MODULE.ID, SETTINGS.SHEET_TAB)) return;
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
