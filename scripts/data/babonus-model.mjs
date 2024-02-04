@@ -300,6 +300,7 @@ class Babonus extends foundry.abstract.DataModel {
   static _defineBaseSchema() {
     return {
       id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
+      sort: new foundry.data.fields.IntegerSortField(),
       name: new foundry.data.fields.StringField({required: true, blank: false}),
       img: new foundry.data.fields.FilePathField({categories: ["IMAGE"]}),
       type: new foundry.data.fields.StringField({required: true, initial: this.type, choices: [this.type]}),
@@ -422,6 +423,31 @@ class Babonus extends foundry.abstract.DataModel {
     const state = foundry.utils.getProperty(this.parent, path);
     await this.parent.update({[path]: !state});
     this.updateSource({enabled: !state});
+    return this;
+  }
+
+  /**
+   * Update this bonus, propagating the data to its parent.
+   * @param {object} changes        The update object.
+   * @param {object} [options]      The update options.
+   * @returns {Promise<Babonus>}
+   */
+  async update(changes, options = {}) {
+    const path = `flags.babonus.bonuses.${this.id}`;
+    changes = foundry.utils.expandObject(changes);
+    delete changes.id;
+    await this.parent.update({[path]: changes}, options);
+    this.updateSource(changes, options);
+    return this;
+  }
+
+  /**
+   * Delete this bonus.
+   * @returns {Promise<Babonus>}
+   */
+  async delete() {
+    const update = {[`flags.babonus.bonuses.-=${this.id}`]: null};
+    await this.parent.update(update);
     return this;
   }
 }
