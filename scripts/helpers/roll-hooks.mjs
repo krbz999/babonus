@@ -209,7 +209,7 @@ export class RollHooks {
    */
   static preRollToolCheck(actor, rollConfig, toolId) {
     const abilityId = rollConfig.ability || rollConfig.data.defaultAbility;
-    const bonuses = FilterManager.testCheck(actor, abilityId, {toolId});
+    const bonuses = FilterManager.testCheck(actor, abilityId, {toolId, item: rollConfig.item ?? null});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
     const optionals = RollHooks._getParts(bonuses, rollConfig);

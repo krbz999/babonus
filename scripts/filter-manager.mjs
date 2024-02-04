@@ -136,17 +136,19 @@ export class FilterManager {
 
   /**
    * Initiate the collection and filtering of bonuses applying to ability checks.
-   * @param {Actor5e} actor                 The actor performing the test.
+   * @param {Actor5e} actor                 The actor or item performing the test.
    * @param {string} abilityId              The ability used for the test.
    * @param {object} [details]              Additional context for the filtering and checks.
    * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
    * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
+   * @param {Item5e} [details.item]         The tool being used if rolled from an item instead.
    * @returns {Babonus[]}                   A filtered array of babonuses to apply.
    */
-  static testCheck(actor, abilityId, {skillId, toolId} = {}) {
-    const bonuses = new BonusCollector({object: actor, type: "test"}).returnBonuses();
+  static testCheck(actor, abilityId, {skillId, toolId, item} = {}) {
+    const object = item ?? actor;
+    const bonuses = new BonusCollector({object: object, type: "test"}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses("test", bonuses, actor, {abilityId, skillId, toolId});
+    return this.finalFilterBonuses("test", bonuses, object, {abilityId, skillId, toolId});
   }
 
   /**
@@ -733,12 +735,12 @@ export class FilterManager {
 
   /**
    * Find out if the tool being rolled for a check is one of the correct types.
-   * @param {Actor5e} actor           The actor performing the roll.
-   * @param {Set<string>} filter      The types of tool types.
-   * @param {string} toolId           The type of tool being rolled.
-   * @returns {boolean}               Whether the tool type matches the filter.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {Set<string>} filter        The types of tool types.
+   * @param {string} toolId             The type of tool being rolled.
+   * @returns {boolean}                 Whether the tool type matches the filter.
    */
-  static baseTools(actor, filter, {toolId}) {
+  static baseTools(object, filter, {toolId}) {
     if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
     if (!toolId) return !included.size;
@@ -792,24 +794,26 @@ export class FilterManager {
    */
   static proficiencyLevels(object, filter, {throwType, abilityId, skillId, toolId}) {
     if (!filter.size) return true;
+    const item = object instanceof Item ? object : null;
+    const actor = object instanceof Item ? item.actor : object;
 
     // Case 1: Skill.
-    if (skillId) return filter.has(object.system.skills[skillId]?.prof.multiplier || 0);
+    if (skillId) return filter.has(actor.system.skills[skillId]?.prof.multiplier || 0);
 
     // Case 2: Ability Check.
-    else if (abilityId && !toolId) return filter.has(object.system.abilities[abilityId]?.checkProf.multiplier || 0);
+    else if (abilityId && !toolId) return filter.has(actor.system.abilities[abilityId]?.checkProf.multiplier || 0);
 
     // Case 3: Death Saving Throw.
-    else if (throwType === "death") return filter.has(Number(object.flags.dnd5e?.diamondSoul || false));
+    else if (throwType === "death") return filter.has(Number(actor.flags.dnd5e?.diamondSoul || false));
 
     // Case 4: Saving Throw.
-    else if (throwType) return filter.has(object.system.abilities[throwType]?.saveProf.multiplier || 0);
+    else if (throwType) return filter.has(actor.system.abilities[throwType]?.saveProf.multiplier || 0);
 
-    // Case 5: Tool.
-    else if (toolId) return filter.has(object.system.tools[toolId]?.prof.multiplier || 0);
+    // Case 5: Weapon, equipment, spell, tool item.
+    else if (item) return filter.has(item.system.prof.multiplier);
 
-    // Case 6: Weapon, equipment, spell.
-    else if (object instanceof Item) return filter.has(object.system.prof.multiplier);
+    // Case 6: Tool check without an item.
+    else if (toolId) return filter.has(actor.system.tools[toolId]?.prof.multiplier || 0);
 
     // Else somehow return false.
     else return false;
@@ -817,11 +821,11 @@ export class FilterManager {
 
   /**
    * Find out if the item that made the roll was the correct feature type and feature subtype.
-   * @param {Item5e} item               The actor or item performing the roll.
-   * @param {object} filter             The filter object.
-   * @param {string} filter.type        The feature type.
-   * @param {string} filter.subtype     The feature subtype.
-   * @returns {boolean}                 Whether the feature is the correct type.
+   * @param {Item5e} item                 The actor or item performing the roll.
+   * @param {object} filter               The filter object.
+   * @param {string} [filter.type]        The feature type.
+   * @param {string} [filter.subtype]     The feature subtype.
+   * @returns {boolean}                   Whether the feature is the correct type.
    */
   static featureTypes(item, {type, subtype}) {
     const config = CONFIG.DND5E.featureTypes;
