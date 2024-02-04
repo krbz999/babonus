@@ -221,11 +221,10 @@ export class BonusCollector {
     if (!bonus.enabled) return false;
     if (bonus.isSuppressed) return false; // if the origin item (if there is one) is unequipped/unattuned.
 
-    // Stuff that applies only if the bonus is on an item.
-    if (bonus.parent instanceof Item) {
-      // Apply this bonus only to the triggering item if set up to do so.
-      if (bonus.isExclusive && (this.item?.uuid !== bonus.parent.uuid)) return false;
-    }
+    // Filter for exclusivity.
+    if (!bonus.isExclusive) return true;
+    if (bonus.parent instanceof Item) return this.item?.uuid === bonus.parent.uuid;
+    else if (bonus.parent instanceof ActiveEffect) return this.item?.uuid === bonus.parent.parent.uuid;
 
     return true;
   }
