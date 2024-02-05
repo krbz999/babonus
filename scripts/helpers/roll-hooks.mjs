@@ -28,13 +28,14 @@ export class RollHooks {
     const saveButtons = div.querySelectorAll("button[data-action='save']");
 
     const dc = Math.max(1, item.system.save.dc + totalBonus) || "";
-    const actionSave = game.i18n.localize("DND5E.ActionSave");
     for (const button of saveButtons) {
-      button.innerText = `${actionSave} ${game.i18n.format("DND5E.SaveDC", {
-        dc, ability: CONFIG.DND5E.abilities[button.dataset.ability]?.label ?? ""
+      button.dataset.dc = dc;
+      button.innerHTML = `<i class="fa-solid fa-shield-heart"></i> ${game.i18n.format("DND5E.SavingThrowDC", {
+        dc: dc,
+        ability: CONFIG.DND5E.abilities[button.dataset.ability]?.label ?? ""
       })}`;
     }
-    chatData.flags[MODULE.ID] = {saveDC: dc};
+    foundry.utils.setProperty(chatData, `flags.${MODULE.ID}.saveDC`, dc);
     chatData.content = div.innerHTML;
   }
 
