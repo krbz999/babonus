@@ -8,8 +8,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
       scales: new foundry.data.fields.BooleanField(),
       formula: new foundry.data.fields.StringField({required: true}),
       value: new foundry.data.fields.SchemaField({
-        min: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),
-        max: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1}),
+        min: new foundry.data.fields.StringField({required: true}),
+        max: new foundry.data.fields.StringField({required: true}),
         step: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1})
       })
     };
@@ -42,7 +42,16 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   static migrateData(source) {}
 
   /** @override */
-  prepareDerivedData() {}
+  prepareDerivedData() {
+    const rollData = this.getRollData();
+    this.value.min = this.value.min ? dnd5e.utils.simplifyBonus(this.value.min, rollData) : null;
+    this.value.max = this.value.max ? dnd5e.utils.simplifyBonus(this.value.max, rollData) : null;
+    if ((this.value.min > this.value.max) && (this.value.max !== null)) {
+      const m = this.value.min;
+      this.value.min = this.value.max;
+      this.value.max = m;
+    }
+  }
 
   /**
    * Get applicable roll data from the origin.

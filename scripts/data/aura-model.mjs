@@ -40,7 +40,7 @@ export class AuraModel extends foundry.abstract.DataModel {
   prepareDerivedData() {
     // Prepare aura range.
     if (this.range) {
-      const range = dnd5e.utils.simplifyBonus(this.range, this.getRollData({deterministic: true}));
+      const range = dnd5e.utils.simplifyBonus(this.range, this.getRollData());
       this.range = range;
     }
   }

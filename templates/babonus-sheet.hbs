@@ -237,17 +237,20 @@
       {{/if}}
 
       <div class="form-group">
-        {{#if context.consume.isSlot}}
-        <label class="label">{{localize "BABONUS.ConfigurationConsumptionConsumedSlots"}}</label>
-        {{else}}
-        <label class="label">{{localize "BABONUS.ConfigurationConsumptionConsumedValues"}}</label>
-        {{/if}}
+        <label class="label">
+          {{#if context.consume.isSlot}}
+          {{localize "BABONUS.ConfigurationConsumptionConsumedSlots"}}
+          {{else}}
+          {{localize "BABONUS.ConfigurationConsumptionConsumedValues"}}
+          {{/if}}
+          {{{context.consume.consumeRange}}}
+        </label>
         <div class="form-fields">
-          <input type="number" name="consume.value.min" value="{{bonus.consume.value.min}}"
+          <input type="text" name="consume.value.min" value="{{context.consume.source.value.min}}"
           placeholder="{{localize context.consume.labelMin}}">
           {{#if context.consume.showMax}}
           <span class="sep dash">&mdash;</span>
-          <input type="number" name="consume.value.max" value="{{bonus.consume.value.max}}"
+          <input type="text" name="consume.value.max" value="{{context.consume.source.value.max}}"
           placeholder="{{localize context.consume.labelMax}}">
           {{/if}}
           <label class="checkbox">

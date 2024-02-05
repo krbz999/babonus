@@ -180,6 +180,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    */
   _prepareConsume() {
     const consume = this.bonus.consume;
+    const v = consume.value;
 
     // Construct subtypes.
     const subtypes = {};
@@ -205,7 +206,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       subtypeOptions: subtypes,
       labelMin: isSlot ? "BABONUS.Smallest" : "Minimum",
       labelMax: isSlot ? "BABONUS.Largest" : "Maximum",
-      isInvalid: consume.enabled && !consume.isConsuming
+      isInvalid: consume.enabled && !consume.isConsuming,
+      source: consume.toObject(),
+      consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null
     };
   }
 
