@@ -185,7 +185,12 @@ class Babonus extends foundry.abstract.DataModel {
       if (retrieved instanceof Item) origin = retrieved;
     } else if (this.parent instanceof ActiveEffect) {
       const retrieved = fromUuidSync(this.parent.origin ?? "");
-      if ((retrieved instanceof Item) || (retrieved instanceof Actor)) origin = retrieved;
+      if (retrieved instanceof Actor) origin = retrieved;
+      else if (retrieved instanceof Item) {
+        // We may have somehow retrieved an item from a compendium.
+        if (!retrieved.isEmbedded) origin = this.parent;
+        else origin = retrieved;
+      }
     } else if ((this.parent instanceof Item) || (this.parent instanceof Actor)) {
       origin = this.parent;
     }
