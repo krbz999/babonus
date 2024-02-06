@@ -190,6 +190,8 @@ class Babonus extends foundry.abstract.DataModel {
         // We may have somehow retrieved an item from a compendium.
         if (!retrieved.isEmbedded) origin = this.parent;
         else origin = retrieved;
+      } else if (retrieved instanceof ActiveEffect) {
+        origin = retrieved.parent;
       }
     } else if ((this.parent instanceof Item) || (this.parent instanceof Actor)) {
       origin = this.parent;
