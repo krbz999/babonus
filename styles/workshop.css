@@ -12,27 +12,6 @@
 .babonus.builder .window-content {
   overflow: hidden;
 }
-.babonus.builder h1.otters {
-  text-align: center;
-  font-size: 50px;
-  display: flex;
-  justify-content: center;
-  flex: none;
-}
-.babonus.builder h1.otters [data-action="otter-rainbow"] {
-  transform: scaleX(-1);
-  transition: 0.5s;
-}
-.babonus.builder .name-stacked .title {
-  font-size: 25px;
-  border-bottom: 2px solid var(--dnd5e-color-gold);
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  margin: 0 0.5em;
-}
-.babonus.builder .name-stacked .subtitle {
-  font-size: 14px;
-}
 .babonus.builder .pages {
   overflow-y: hidden;
   flex: 1;

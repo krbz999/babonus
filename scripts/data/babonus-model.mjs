@@ -80,6 +80,14 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
+   * The default image to use for this babonus type. Must be subclassed.
+   * @type {string}
+   */
+  static get defaultImg() {
+    return null;
+  }
+
+  /**
    * Get the type of a babonus.
    * @type {string}
    */
@@ -511,6 +519,11 @@ class AttackBabonus extends ItemBabonus {
   static get type() {
     return "attack";
   }
+
+  /** @override */
+  static get defaultImg() {
+    return "systems/dnd5e/icons/svg/trait-weapon-proficiencies.svg";
+  }
 }
 
 class DamageBabonus extends ItemBabonus {
@@ -534,6 +547,11 @@ class DamageBabonus extends ItemBabonus {
   /** @override */
   static get type() {
     return "damage";
+  }
+
+  /** @override */
+  static get defaultImg() {
+    return "systems/dnd5e/icons/svg/properties/magical.svg";
   }
 
   /**
@@ -572,6 +590,11 @@ class SaveBabonus extends ItemBabonus {
   static get type() {
     return "save";
   }
+
+  /** @override */
+  static get defaultImg() {
+    return "systems/dnd5e/icons/svg/trait-damage-resistances.svg";
+  }
 }
 
 class ThrowBabonus extends Babonus {
@@ -605,6 +628,11 @@ class ThrowBabonus extends Babonus {
   static get type() {
     return "throw";
   }
+
+  /** @override */
+  static get defaultImg() {
+    return "systems/dnd5e/icons/svg/trait-saves.svg";
+  }
 }
 
 class TestBabonus extends Babonus {
@@ -636,6 +664,11 @@ class TestBabonus extends Babonus {
   static get type() {
     return "test";
   }
+
+  /** @override */
+  static get defaultImg() {
+    return "systems/dnd5e/icons/svg/trait-skills.svg";
+  }
 }
 
 class HitDieBabonus extends Babonus {
@@ -656,6 +689,11 @@ class HitDieBabonus extends Babonus {
   /** @override */
   static get type() {
     return "hitdie";
+  }
+
+  /** @override */
+  static get defaultImg() {
+    return "systems/dnd5e/icons/svg/hit-points.svg";
   }
 }
 

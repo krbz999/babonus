@@ -28,3 +28,32 @@
 .babonus.dnd5e2 input:disabled {
   border: gray;
 }
+
+.babonus h1.otters {
+  text-align: center;
+  font-size: 50px;
+  display: flex;
+  justify-content: center;
+  flex: none;
+}
+.babonus h1.otters .mirror {
+  transform: scaleX(-1);
+  transition: 0.5s;
+}
+.babonus h1.otters .name-stacked .title {
+  font-size: 25px;
+  border-bottom: 2px solid var(--dnd5e-color-gold);
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  margin: 0 0.5em;
+}
+.babonus h1.otters .name-stacked .subtitle {
+  font-size: 14px;
+}
+
+.dnd5e2.sheet.actor.character form:is(.tab-babonus) .create-child {
+  display: block;
+}
+.dnd5e2.create-document.babonus ol img {
+  filter: invert(0);
+}

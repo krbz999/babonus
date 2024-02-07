@@ -1,7 +1,15 @@
 <div class="tab babonus {{isActive}}" data-group="primary" data-tab="babonus">
+  <h1 class="otters">
+    <i class="{{{ICON}}} mirror" data-action="otter-rainbow"></i>
+    <span class="name-stacked">
+      <span class="title">{{localize "BABONUS.ModuleTitle"}}</span>
+      <span class="subtitle">{{parentName}}</span>
+    </span>
+    <i class="{{{ICON}}}" data-action="otter-dance"></i>
+  </h1>
+
   <dnd5e-inventory v2>
     <item-list-controls for="babonus" label="{{localize 'BABONUS.SearchBonuses'}}" sort="toggle" group group-label="Group by Type" collection="babonus"></item-list-controls>
-
 
     <section class="items-list babonus-list" data-item-list="babonus">
 
@@ -41,7 +49,6 @@
       {{/each}}
 
     </section>
-
 
   </dnd5e-inventory v2>
 </div>
