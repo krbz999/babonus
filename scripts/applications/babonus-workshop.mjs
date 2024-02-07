@@ -187,10 +187,12 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /** @override */
   _onDragStart(event) {
-    const label = event.currentTarget.closest(".bonus");
+    const label = event.currentTarget.closest(".bonus, [data-item-id]");
     let dragData;
-    if (label.dataset.id) {
-      const bab = this.collection.get(label.dataset.id);
+    const id = label.dataset.id ?? label.dataset.itemId;
+    if (id) {
+      const collection = this.collection ?? BabonusWorkshop._getCollection(this.document);
+      const bab = collection.get(id);
       dragData = bab.toDragData();
     }
     if (!dragData) return;
@@ -202,9 +204,9 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     const data = TextEditor.getDragEventData(event);
     const doc = this.document;
     if (!this.isEditable) return null;
-    const bab = await this._fromDropData(data);
+    const bab = await BabonusWorkshop._fromDropData.call(this, data);
     if (!bab) return null;
-    return this.constructor._embedBabonus(doc, bab);
+    return BabonusWorkshop._embedBabonus(doc, bab);
   }
 
   /**
@@ -212,13 +214,14 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * @param {object} data             An object of babonus data or a uuid.
    * @returns {Promise<Babonus>}      The created babonus.
    */
-  async _fromDropData(data) {
+  static async _fromDropData(data) {
     if (!data.uuid || (data.type !== "Babonus")) return null;
-    const bonus = await this.constructor._fromUuid(data.uuid);
+    // Intentionally using the class here.
+    const bonus = await BabonusWorkshop._fromUuid(data.uuid);
     if (!bonus) return null;
     const babonusData = bonus.toObject();
     if (bonus.parent === this.document) return null;
-    return this.constructor._createBabonus(babonusData, null, {parent: this.document});
+    return BabonusWorkshop._createBabonus(babonusData, null, {parent: this.document});
   }
 
   /**
