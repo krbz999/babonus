@@ -277,6 +277,7 @@ export class RollHooks {
     const optionals = [];
     for(const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
+      if (!bonus) continue;
       let type = bab.bonuses.damageType || "";
       if (!(type in dtypes)) type = dtype;
       if (bab.isOptional) optionals.push(bab);
