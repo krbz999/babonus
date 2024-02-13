@@ -115,6 +115,11 @@ export class CharacterSheetTab {
     cls.TABS.push({
       tab: MODULE.ID, label: MODULE.NAME, icon: MODULE.ICON
     });
+    /*cls.FILTER_COLLECTIONS.babonus = function(c, f) {
+      console.warn({c,f})
+      return Array.from(babonus.getCollection(this.document));
+    };
+    return;*/
     const fn = cls.prototype._filterChildren;
     class sheet extends cls {
       /** @override */
