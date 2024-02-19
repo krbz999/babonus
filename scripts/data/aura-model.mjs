@@ -98,7 +98,11 @@ export class AuraModel extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get isBlocked() {
-    return new Set(this.blockers).intersects(this.bonus.actor.statuses);
+    const actor = this.bonus.actor;
+    const blockers = new Set(this.blockers);
+    const ci = actor.system.traits?.ci?.value ?? new Set();
+    for (const c of ci) blockers.delete(c);
+    return blockers.intersects(actor.statuses);
   }
 
   /* ----------------------------- */

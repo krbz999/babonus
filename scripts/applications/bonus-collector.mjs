@@ -223,10 +223,8 @@ export class BonusCollector {
 
     // Filter for exclusivity.
     if (!bonus.isExclusive) return true;
-    if (bonus.parent instanceof Item) return this.item?.uuid === bonus.parent.uuid;
-    else if (bonus.parent instanceof ActiveEffect) return this.item?.uuid === bonus.parent.parent.uuid;
-
-    return true;
+    const item = bonus.item;
+    return item ? (this.item?.uuid === item.uuid) : true;
   }
 
   /*************************************/

@@ -15,23 +15,6 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     };
   }
 
-  /**
-   * The select options for what this bonus can consume.
-   * @type {object}
-   */
-  get OPTIONS() {
-    const options = {};
-    options.uses = "DND5E.LimitedUses";
-    options.quantity = "DND5E.Quantity";
-    options.slots = "BABONUS.ConsumptionTypeSlots";
-    options.effect = "BABONUS.ConsumptionTypeEffect";
-    options.health = "BABONUS.ConsumptionTypeHealth";
-    options.currency = "BABONUS.ConsumptionTypeCurrency";
-    options.inspiration = "BABONUS.ConsumptionTypeInspiration";
-    options.resource = "BABONUS.ConsumptionTypeResource";
-    return options;
-  }
-
   /** @override */
   _initialize(...args) {
     super._initialize(...args);

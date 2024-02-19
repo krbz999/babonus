@@ -133,7 +133,7 @@ class Babonus extends foundry.abstract.DataModel {
 
     // Valid for attack/damage/save:
     const model = dnd5e.dataModels.item.config[item.type];
-    const validityA = ["attack", "damage", "save"].includes(this.type) && model.schema.getField("damage.parts");
+    const validityA = ["attack", "damage", "save"].includes(this.type) && !!model.schema.getField("damage.parts");
 
     // Valid for test:
     const validityB = (this.type === "test") && (item.type === "tool");
@@ -155,9 +155,11 @@ class Babonus extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get isSuppressed() {
-    // If this bonus lives on an effect, defer to the effect.
+    // If this bonus lives on an effect or template, defer to those.
     const effect = this.effect;
     if (effect) return !effect.modifiesActor;
+    const template = this.template;
+    if (template) return template.hidden;
 
     const item = this.item;
     if (!item) return false;
@@ -180,110 +182,103 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * The true source of the babonus.
+   * The true source of the babonus intended for the retrieval of roll data.
    * - If the babonus is embedded on a template, this returns the item that created it.
-   * - If the babonus is embedded on an effect, this returns the actor or item from which the effect originates.
    * - If the babonus is embedded on an item or actor, this simply returns that item or actor.
+   * - If the babonus is embedded on an effect, this returns the actor or item from which the effect originates.
    * @type {Actor5e|Item5e|null}
    */
   get origin() {
-    let origin = null;
     if (this.parent instanceof MeasuredTemplateDocument) {
       const retrieved = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
-      if (retrieved instanceof Item) origin = retrieved;
-    } else if (this.parent instanceof ActiveEffect) {
-      const retrieved = fromUuidSync(this.parent.origin ?? "");
-      if (retrieved instanceof Actor) origin = retrieved;
-      else if (retrieved instanceof Item) {
-        // We may have somehow retrieved an item from a compendium.
-        if (!retrieved.isEmbedded) origin = this.parent;
-        else origin = retrieved;
-      } else if (retrieved instanceof ActiveEffect) {
-        origin = retrieved.parent;
-      }
-    } else if ((this.parent instanceof Item) || (this.parent instanceof Actor)) {
-      origin = this.parent;
+      return (retrieved instanceof Item) ? retrieved : null;
     }
-    return origin;
+
+    if (this.parent instanceof Item) return this.parent;
+
+    if (this.parent instanceof Actor) return this.parent;
+
+    if (this.parent instanceof ActiveEffect) {
+      let origin;
+      try {
+        origin = fromUuidSync(this.parent.origin);
+        if (!origin) return null;
+      } catch (err) {
+        console.warn(err);
+        return null;
+      }
+
+      if (origin instanceof Item) return origin;
+      if (origin instanceof Actor) return origin;
+      if (origin instanceof ActiveEffect) return origin.parent;
+      return null;
+    }
+
+    return null;
   }
 
   /**
-   * Get the source actor of a babonus, no matter what type of document it is embedded in.
-   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
-   * @type {Actor|null}
+   * The actor that this bonus is currently directly or indirectly embedded on, if any.
+   * @type {Actor5e|null}
    */
   get actor() {
-    if (this.parent instanceof Actor) {
-      return this.parent;
+    if (this.parent instanceof Actor) return this.parent;
+
+    if (this.parent instanceof Item) return this.parent.parent ?? null;
+
+    if (this.parent instanceof ActiveEffect) {
+      if (this.parent.parent instanceof Actor) return this.parent.parent;
+      if (this.parent.parent instanceof Item) return this.parent.parent.parent ?? null;
     }
 
-    else if (this.parent instanceof ActiveEffect) {
-      if (this.parent.parent instanceof Actor) {
-        // Case 1: Effect on actor.
-        return this.parent.parent;
-      } else if (this.parent.parent instanceof Item) {
-        // Case 2: Effect on item on actor.
-        return this.parent.parent.actor;
-      }
-    }
-
-    else if (this.parent instanceof Item) {
-      return this.parent.actor;
-    }
-
-    else if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e.origin);
-      return item?.actor ?? null;
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
+      return (item instanceof Item) ? (item.parent ?? null) : null;
     }
   }
 
   /**
-   * Get the token corresponding token of the actor that has the bonus, no matter what type of document it is embedded in.
+   * Get the corresponding token of the actor that has the bonus, no matter what type of document it is embedded in.
    * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
-   * @type {Token|null}
+   * @type {Token5e|null}
    */
   get token() {
     const actor = this.actor;
     if (!actor) return null;
-
-    return actor.token?.object ?? actor.getActiveTokens()[0] ?? null;
+    const token = actor.isToken ? actor.token?.object : actor.getActiveTokens()[0];
+    return token ? token : null;
   }
 
   /**
-   * Get the item that has the babonus, no matter if the babonus lives on a template, effect, or item.
-   * Note that this may not be different from the 'origin' or be dependant on where the bonus currently lives.
-   * @type {Item|null}
+   * The item that this bonus is currently directly or indirectly embedded on, if any.
+   * @type {Item5e|null}
    */
   get item() {
-    if (this.parent instanceof Item) {
-      return this.parent;
-    }
+    if (this.parent instanceof Actor) return null;
 
-    else if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e.origin);
-      return item ?? null;
-    }
+    if (this.parent instanceof Item) return this.parent;
 
-    else if (this.parent instanceof ActiveEffect) {
-      const item = fromUuidSync(this.parent.origin ?? "");
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
       return (item instanceof Item) ? item : null;
     }
 
-    else if (this.parent instanceof Actor) {
-      return null;
+    if (this.parent instanceof ActiveEffect) {
+      const item = fromUuidSync(this.parent.origin ?? "");
+      return (item instanceof Item) ? item : null;
     }
   }
 
   /**
-   * Get the effect that has the babonus.
-   * @type {ActiveEffect|null}
+   * The effect that this bonus is currently directly embedded on, if any.
+   * @type {ActiveEffect5e|null}
    */
   get effect() {
     return (this.parent instanceof ActiveEffect) ? this.parent : null;
   }
 
   /**
-   * Get the template that has the babonus.
+   * The template that this bonus is currently directly embedded on, if any.
    * @type {MeasuredTemplateDocument|null}
    */
   get template() {

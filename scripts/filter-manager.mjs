@@ -569,6 +569,11 @@ export class FilterManager {
     if (!filter.size) return true;
     const actor = object.actor ?? object;
     const {included, excluded} = FilterManager._splitExlusion(filter);
+
+    // Discard any conditions the actor is immune to.
+    const ci = actor.system.traits?.ci?.value ?? new Set();
+    for (const k of ci) {included.delete(k); excluded.delete(k);}
+
     if (included.size && !included.intersects(actor.statuses)) return false;
     if (excluded.size && excluded.intersects(actor.statuses)) return false;
     return true;
@@ -586,6 +591,11 @@ export class FilterManager {
     const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = game.user.targets.first()?.actor;
     if (!actor) return !included.size;
+
+    // Discard any conditions the actor is immune to.
+    const ci = actor.system.traits?.ci?.value ?? new Set();
+    for (const k of ci) {included.delete(k); excluded.delete(k);}
+
     if (included.size && !included.intersects(actor.statuses)) return false;
     if (excluded.size && excluded.intersects(actor.statuses)) return false;
     return true;

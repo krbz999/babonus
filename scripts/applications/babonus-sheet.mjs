@@ -195,7 +195,16 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
     return {
       enabled: consume.enabled,
-      choices: consume.OPTIONS,
+      choices: {
+        currency: "BABONUS.ConsumptionTypeCurrency",
+        effect: "BABONUS.ConsumptionTypeEffect",
+        health: "BABONUS.ConsumptionTypeHealth",
+        inspiration: "BABONUS.ConsumptionTypeInspiration",
+        quantity: "DND5E.Quantity",
+        slots: "BABONUS.ConsumptionTypeSlots",
+        uses: "DND5E.LimitedUses",
+        resource: "BABONUS.ConsumptionTypeResource"
+      },
       cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
       showStep: ["health", "currency", "resource"].includes(consume.type) && consume.scales,

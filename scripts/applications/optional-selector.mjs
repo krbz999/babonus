@@ -223,15 +223,15 @@ export class OptionalSelector {
       }
       case "slots": {
         // The 'value' of the option is the spell property key, like "spell3" or "pact".
-        return Object.entries(this.actor.system.spells).reduce((acc, [key, val]) => {
-          if (!val.value || !val.max) return acc;
-          const level = (key === "pact") ? val.level : Number(key.at(-1));
+        return Object.entries(this.actor.system.spells).reduce((acc, [k, v]) => {
+          if (!v.value || !v.max) return acc;
+          const level = ("level" in v) ? v.level : parseInt(k.replace("spell", ""));
           if (level < (bonus.consume.value.min || 1)) return acc;
-          const label = game.i18n.format(`DND5E.SpellLevel${(key === "pact") ? "Pact" : "Slot"}`, {
-            level: (key === "pact") ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
-            n: `${val.value}/${val.max}`,
+          const label = game.i18n.format(`DND5E.SpellLevel${("level" in v) ? k.capitalize() : "Slot"}`, {
+            level: ("level" in v) ? v.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
+            n: `${v.value}/${v.max}`,
           });
-          acc[key] = label;
+          acc[k] = label;
           return acc;
         }, {});
       }
@@ -335,7 +335,8 @@ export class OptionalSelector {
         let scale;
         if (scales) {
           key = scaleValue;
-          const level = (key === "pact") ? this.actor.system.spells.pact.level : parseInt(key.replace("spell", ""));
+          const s = this.actor.system.spells[s];
+          const level = ("level" in s) ? s.level : parseInt(key.replace("spell", ""));
           scale = Math.min(level - consumeMin, consumeMax - 1);
         } else {
           key = this._getLowestValidSpellSlotProperty(bonus);
@@ -458,8 +459,8 @@ export class OptionalSelector {
   }
 
   /**
-   * Get the attribute key for the lowest available and valid spell slot.
-   * If the lowest level is both a pact and spell slot, prefer pact slot.
+   * Get the attribute key for the lowest available and valid spell slot. If the lowest level
+   * is both a spell slot and a different kind of slot, prefer the alternative.
    * @param {Babonus} bonus         The bonus used to determine the minimum spell level required.
    * @returns {string|boolean}      The attribute key, or false if no valid level found.
    */
@@ -467,14 +468,29 @@ export class OptionalSelector {
     const spells = this.actor.system.spells;
     if (!spells) return false; // Vehicle actors do not have spell slots.
     const min = bonus.consume.value.min || 1;
-    const pact = spells.pact;
-    const max = Object.keys(CONFIG.DND5E.spellLevels).length - 1; // disregard cantrip levels
-    for (let i = min; i <= max; i++) {
-      if (pact.value && (pact.level === i)) return "pact";
-      const spell = spells[`spell${i}`] || {};
-      if (spell.value) return `spell${i}`;
-    }
-    return false;
+
+    const pairs = Object.entries(spells).reduce((acc, [k, v]) => {
+      if (!v.value || !v.max) return acc;
+      const level = ("level" in v) ? v.level : parseInt(k.replace("spell", ""));
+      if (!level || (level < min)) return acc;
+      acc.push([k, level]);
+      return acc;
+    }, []);
+
+    const minData = pairs.reduce((acc, [k, level]) => {
+      if (level > acc.level) return acc;
+      if (level < acc.level) acc = {level: level};
+      acc.keys ??= new Set();
+      acc.keys.add(k);
+      return acc;
+    }, {level: Infinity, keys: new Set()});
+
+    if (!Number.isInteger(minData.level)) return false;
+
+    if (minData.keys.size === 1) return minData.keys.first();
+
+    for (const k of minData.keys) if (k.startsWith("spell")) minData.keys.delete(k);
+    return minData.keys.first();
   }
 
   /**
@@ -488,7 +504,7 @@ export class OptionalSelector {
     const src = bonus.origin ?? this.item ?? this.actor;
     const data = src.getRollData();
 
-    if (bonus.parent.uuid === this.item?.uuid) {
+    if (bonus.item.uuid === this.item?.uuid) {
       foundry.utils.setProperty(data, "item.level", this.level);
     }
 
@@ -497,12 +513,12 @@ export class OptionalSelector {
 
   /**
    * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.
-   * @param {Babonus} babonus                         The babonus that holds the optional bonus to apply.
-   * @param {Actor|Item} roller                       The actor or item performing a roll or usage.
-   * @param {Actor|Item|ActiveEffect|null} target     The actor or item that was updated or deleted, if any.
+   * @param {Babonus} babonus                               The babonus that holds the optional bonus to apply.
+   * @param {Actor5e|Item5e} roller                         The actor or item performing a roll or usage.
+   * @param {Actor5e|Item5e|ActiveEffect5e|null} target     The actor or item that was updated or deleted, if any.
    * @param {object} config
-   * @param {string} config.bonus                     The bonus that will be applied.
-   * @returns {boolean}                               Explicitly return false to cancel the application of the bonus.
+   * @param {string} config.bonus                           The bonus that will be applied.
+   * @returns {boolean}                                     Explicitly return false to cancel the application of the bonus.
    */
   callHook(babonus, target, config) {
     const roller = this.item ?? this.actor;
