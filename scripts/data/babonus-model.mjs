@@ -46,16 +46,6 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    if (!source) return data;
-    for (const id in data.filters) {
-      if (!module.filters[id].storage(this)) delete data.filters[id];
-    }
-    return data;
-  }
-
-  /** @override */
   toDragData() {
     return {type: "Babonus", uuid: this.uuid};
   }

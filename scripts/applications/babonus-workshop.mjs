@@ -412,13 +412,18 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Embed a created babonus onto the target object.
-   * @param {Document} object         The actor, item, or effect that should have the babonus.
-   * @param {Babonus} bonus           The created babonus.
-   * @param {boolean} [keepId]        Keep the ID or generate a new one?
-   * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+   * @param {Document} object           The actor, item, or effect that should have the babonus.
+   * @param {Babonus} bonus             The created babonus.
+   * @param {boolean} [keepId]          Keep the ID or generate a new one?
+   * @param {Set<string>} [filters]     A set of strings denoting keys to not delete from the bonus object.
+   * @returns {Promise<Document>}       The actor, item, or effect that has received the babonus.
    */
-  static async _embedBabonus(object, bonus, keepId = false) {
+  static async _embedBabonus(object, bonus, keepId = false, filters) {
     const data = bonus.toObject();
+    filters ??= new Set();
+    for (const id of Object.keys(data.filters)) {
+      if (!filters.has(id) && !module.filters[id].storage(bonus)) delete data.filters[id];
+    }
     const id = keepId ? data.id : foundry.utils.randomID();
     data.id = id;
     await object.update({[`flags.${MODULE.ID}.bonuses.-=${data.id}`]: null}, {render: false, noHook: true});

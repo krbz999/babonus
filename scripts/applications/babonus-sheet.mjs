@@ -5,14 +5,16 @@ import {KeysDialog} from "./keys-dialog.mjs";
 
 export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) {
   /**
-   * @param {Babonus} babonus         The babonus managed by this sheet.
+   * @param {Babonus} bonus           The babonus managed by this sheet.
    * @param {object} [options={}]     Optional configuration parameters for how the sheet behaves.
    */
-  constructor(babonus, options = {}) {
-    super(babonus, options);
-    this._filters = new Set(Object.keys(babonus.toObject().filters ?? {}));
+  constructor(bonus, options = {}) {
+    super(bonus, options);
+
+    const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => module.filters[id].storage(bonus));
+    this._filters = ids;
     this.appId = this.id;
-    this.owner = babonus.parent;
+    this.owner = bonus.parent;
   }
 
   /** @override */
@@ -448,7 +450,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       ui.notifications.error(err);
       return this.render()
     }
-    return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true);
+    return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true, this._filters);
   }
 
   /** @override */

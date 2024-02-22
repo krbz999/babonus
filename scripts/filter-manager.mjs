@@ -216,7 +216,7 @@ export class FilterManager {
   /**
    * Replace roll data of bonuses that originate from foreign sources, including transferred effects.
    * @param {Babonus[]} bonuses         An array of babonuses whose bonuses to replace.
-   * @param {Actor5e|Item5e} object     An actor or item used to get the correct roll data.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
    */
   static _replaceRollDataOfBonuses(bonuses, object) {
     const item = (object instanceof Item) ? object : null;

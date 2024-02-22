@@ -9,7 +9,6 @@ import {FeatureTypesField} from "./fields/feature-types-field.mjs";
 import {HealthPercentagesField} from "./fields/health-percentages-field.mjs";
 import {RemainingSpellSlotsField} from "./fields/remaining-spell-slots-field.mjs";
 import {fields} from "./fields/semicolon-fields.mjs";
-import {SpellComponentsField} from "./fields/spell-components-field.mjs";
 import {TokenSizesField} from "./fields/token-sizes-field.mjs";
 
 export const module = {
@@ -24,7 +23,6 @@ export const module = {
     customScripts: CustomScriptsField,
     healthPercentages: HealthPercentagesField,
     remainingSpellSlots: RemainingSpellSlotsField,
-    spellComponents: SpellComponentsField,
     tokenSizes: TokenSizesField,
     featureTypes: FeatureTypesField,
     ...fields,
