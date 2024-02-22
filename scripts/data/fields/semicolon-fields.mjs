@@ -205,6 +205,7 @@ class WeaponPropertiesField extends BaseField {
     return keys.reduce((acc, k) => {
       const label = labels[k]?.label;
       if (label) acc.push({value: k, label: label});
+      return acc;
     }, []);
   }
 }
