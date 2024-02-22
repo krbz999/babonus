@@ -231,7 +231,7 @@ export class FilterManager {
       if (src === actor) continue;
 
       // Don't bother with different roll data if the origin is the item being rolled.
-      if (src.id === item?.id) continue;
+      if (src.uuid === item?.uuid) continue;
 
       const data = src.getRollData();
 
