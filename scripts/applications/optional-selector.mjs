@@ -327,7 +327,7 @@ export class OptionalSelector {
         const scale = scales ? (parseInt(value) - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         const apply = this.callHook(bonus, item, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "slots": {
@@ -345,7 +345,7 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "health": {
@@ -361,7 +361,7 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.applyDamage(value);
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "effect": {
@@ -372,14 +372,14 @@ export class OptionalSelector {
         }
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, effect, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "inspiration": {
         await this.actor.update({"system.attributes.inspiration": false});
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "currency": {
@@ -396,7 +396,7 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "resource": {
@@ -413,14 +413,14 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await actor.update({[`system.resources.${bonus.consume.subtype}.value`]: resource.value - value});
         const apply = this.callHook(bonus, actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       default: {
         // Optional bonus that does not consume.
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, null, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
     }
@@ -445,12 +445,20 @@ export class OptionalSelector {
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
+   * @param {Babonus} bab               The Babonus.
    * @param {HTMLElement} target        The target of the initiating click event.
    * @param {string} bonus              The bonus to add.
    * @param {boolean} [apply=true]      Whether the bonus should be applied.
    */
-  _appendToField(target, bonus, apply = true) {
+  _appendToField(bab, target, bonus, apply = true) {
     if (apply) {
+      if (bab.hasDamageType) {
+        const roll = new Roll(bonus);
+        for(const term of roll.terms) if ("flavor" in term.options) {
+          if (!term.options.flavor) term.options.flavor = bab.bonuses.damageType;
+        }
+        bonus = roll.formula;
+      }
       if (!this.field.value.trim()) this.field.value = bonus;
       else this.field.value = `${this.field.value.trim()} + ${bonus}`;
     }
