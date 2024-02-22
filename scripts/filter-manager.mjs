@@ -350,22 +350,17 @@ export class FilterManager {
     const actor = (object instanceof Item) ? object.actor : object;
     const {included, excluded} = FilterManager._splitExlusion(filter);
 
-    // Vehicles cannot wear base armor.
-    if (actor.type === "vehicle") return !(included.size > 0);
-
-    // Check for shield(s) first.
-    const hasShield = !!actor.system.attributes.ac.equippedShield;
-    if (!hasShield && included.has("shield")) return false;
-    if (hasShield && excluded.has("shield")) return false;
-
-    const armor = actor.system.attributes.ac.equippedArmor ?? null;
+    const shield = actor.system.attributes?.ac?.equippedShield ?? null;
+    const armor = actor.system.attributes?.ac?.equippedArmor ?? null;
+    const types = new Set();
+    if (shield?.system.type?.baseItem) types.add(shield.system.type.baseItem);
+    if (armor?.system.type?.baseItem) types.add(armor.system.type.baseItem);
 
     // If no armor worn.
-    if (!armor) return !(included.size > 0);
+    if (!types.size) return !(included.size > 0);
 
-    const type = armor.system.type.baseItem;
-    if (included.filter(i => i !== "shield").size && !included.has(type)) return false;
-    if (excluded.size && excluded.has(type)) return false;
+    if (included.size && !included.intersects(types)) return false;
+    if (excluded.size && excluded.intersects(types)) return false;
     return true;
   }
 
