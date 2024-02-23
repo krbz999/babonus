@@ -1,6 +1,101 @@
 import {BabonusSheet} from "../applications/babonus-sheet.mjs";
 import {module} from "./_module.mjs";
 
+/**
+ * Configuration for how a bonus consumes a property.
+ *
+ * @typedef {object} ConsumptionModel
+ * @property {boolean} enabled        Whether the bonus consumes a property.
+ * @property {boolean} scales         Whether the bonus scales with its consumed property.
+ * @property {string} type            The type of the consumed property.
+ * @property {object} value
+ * @property {string} value.min       The minimum amount the bonus consumes.
+ * @property {string} value.max       The maximum amount the bonus consumes.
+ * @property {number} value.step      The interval size between the min and max.
+ * @property {string} formula         The formula used to scale up the bonus.
+ */
+
+/**
+ * Configuration for the aura properties of a bonus.
+ *
+ * @typedef {object} AuraModel
+ * @property {boolean} enabled            Whether the bonus is an aura.
+ * @property {boolean} template           Whether the bonus is an aura on a template.
+ * @property {string} range               The range of the aura.
+ * @property {boolean} self               Whether the aura can also affect its owner.
+ * @property {number} disposition         The type of actors, by token disposition, to affect with the aura.
+ * @property {Set<string>} blockers       Statuses that disable this aura when its owner is affected.
+ * @property {object} require
+ * @property {boolean} require.move       Whether the aura requires a direct, unobstructed path of movement.
+ * @property {boolean} require.sight      Whether the aura requires a direct line of sight.
+ */
+
+/**
+ * Configuration for the changes a bonus provides.
+ *
+ * @typedef {object} BonusConfiguration
+ * @property {string} bonus                     Bonus to the roll that is added on top.
+ * @property {string} criticalBonusDice         Amount of dice to increase the damage by on critical hits.
+ * @property {string} criticalBonusDamage       Bonus to a damage roll that is added on top only on critical hits.
+ * @property {string} deathSaveTargetValue      Modification to the target value a death saving throw must meet
+ *                                              to be considered a success.
+ * @property {string} deathSaveCritical         Modification to the threshold at which a death saving throw is
+ *                                              considered a critical success.
+ * @property {string} criticalRange             Modification to the threshold at which an attack roll is considered
+ *                                              a critical hit.
+ * @property {string} fumbleRange               Modification to the threshold at which an attack roll is considered
+ *                                              an automatic failure.
+ * @property {ModifiersModel} modifiers
+ */
+
+/**
+ * Configuration for dice modifier bonuses.
+ *
+ * @typedef {object} ModifiersModel
+ * @property {object} config                Additional configurations.
+ * @property {boolean} config.first         Whether modifiers affect only the first die encountered.
+ * @property {object} amount
+ * @property {boolean} amount.enabled       Whether this modifier is enabled.
+ * @property {string} amount.value          The amount to upscale a die's number by.
+ * @property {object} size
+ * @property {boolean} size.enabled         Whether this modifier is enabled.
+ * @property {string} size.value            The amount to upscale a die's faces by.
+ * @property {object} reroll
+ * @property {boolean} reroll.enabled       Whether this modifier is enabled.
+ * @property {string} reroll.value          The threshold for rerolling a die.
+ * @property {boolean} reroll.invert        Whether the threshold is inverted.
+ * @property {boolean} reroll.recursive     Whether to reroll recursively.
+ * @property {object} explode
+ * @property {boolean} explode.enabled      Whether this modifier is enabled.
+ * @property {string} explode.value         The threshold for exploding a die.
+ * @property {boolean} explode.once         Whether a die can explode at most once.
+ * @property {object} minimum
+ * @property {boolean} minimum.enabled      Whether this modifier is enabled.
+ * @property {string} minimum.value         The minimum value a die can roll.
+ * @property {boolean} minimum.maximize     Whether to simply maximize dice.
+ * @property {object} maximum
+ * @property {boolean} maximum.enabled      Whether this modifier is enabled.
+ * @property {string} maximum.value         The maximum value a die can roll.
+ * @property {boolean} maximum.zero         Whether the maximum can be zero, else at least 1.
+ */
+
+/**
+ * Data model of a generic Babonus. This includes all properties; depending on the type, some will not exist.
+ *
+ * @property {string} name                    The name of the bonus.
+ * @property {string} id                      The id of the bonus.
+ * @property {string} type                    The type of the bonus.
+ * @property {boolean} enabled                Whether the bonus is currently active.
+ * @property {string} description             The description of the bonus.
+ * @property {boolean} optional               Whether the additive bonus is opted into in the roll config.
+ * @property {boolean} exclusive              Whether the bonus is applying only to its parent item,
+ *                                            or its parent effect's parent item.
+ * @property {object} filters                 Schema of valid filter types.
+ * @property {ConsumptionModel} consume
+ * @property {AuraModel} aura
+ * @property {BonusConfiguration} bonuses
+ *
+ */
 class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
     data = foundry.utils.mergeObject({
