@@ -69,7 +69,7 @@ export class CharacterSheetTab {
       });
     });
     div.firstElementChild.addEventListener("drop", BabonusWorkshop.prototype._onDrop.bind(sheet));
-    div.querySelectorAll("[data-item-id]").forEach(n => {
+    div.querySelectorAll("[data-item-id][draggable]").forEach(n => {
       n.addEventListener("dragstart", BabonusWorkshop.prototype._onDragStart.bind(sheet));
     });
     div.querySelector("[data-action='otter-dance']").addEventListener("click", BabonusWorkshop.prototype._onOtterDance);
