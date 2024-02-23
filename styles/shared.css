@@ -57,3 +57,17 @@
 .dnd5e2.create-document.babonus ol img {
   filter: invert(0);
 }
+
+.dnd5e2 .items-section .items-header .bonus-source,
+.dnd5e2 .items-section .item .bonus-source {
+  width: 150px;
+  border: none;
+}
+.dnd5e2 .items-section .item .bonus-source.item-detail {
+  color: var(--color-text-dark-5);
+}
+.dnd5e2 .items-section .item .bonus-source.item-detail.empty::after {
+  content: "-";
+  color: var(--color-text-light-6);
+  font-weight: normal;
+}
