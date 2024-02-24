@@ -4,29 +4,39 @@
     url(../../../systems/dnd5e/ui/texture2.webp) no-repeat bottom center / auto 704px,
     var(--dnd5e-color-parchment);
   border: 1px solid var(--dnd5e-color-gold);
-}
-.babonus.dnd5e2.minimized .header-button,
-.babonus.dnd5e2 .header-button.configure-sheet {
-  display: none;
-}
-.babonus.dnd5e2:not(.minimized) .window-header .window-title {
-  visibility: hidden;
-}
-.babonus.dnd5e2 .window-header .window-title {
-  color: initial;
-}
-.babonus.dnd5e2 .window-header {
-  margin-left: 3px;
-  margin-right: 3px;
-}
-.babonus.dnd5e2 .window-content {
-  background: transparent;
-  overflow: hidden;
-  margin-left: 3px;
-  margin-right: 3px;
-}
-.babonus.dnd5e2 input:disabled {
-  border: gray;
+
+  &.minimized .header-button,
+  .header-button.configure-sheet {
+    display: none;
+  }
+
+  &:not(.minimized) .window-header .window-title {
+    visibility: hidden;
+  }
+
+  .window-header {
+    margin-left: 3px;
+    margin-right: 3px;
+
+    .window-title {
+      color: initial;
+    }
+  }
+
+  .window-content {
+    background: transparent;
+    overflow: hidden;
+    margin-left: 3px;
+    margin-right: 3px;
+  }
+
+  & input:disabled {
+    border: gray;
+  }
+
+  &.create-document ol img {
+    filter: invert(0);
+  }
 }
 
 .babonus h1.otters {
@@ -35,39 +45,48 @@
   display: flex;
   justify-content: center;
   flex: none;
-}
-.babonus h1.otters .mirror {
-  transform: scaleX(-1);
-  transition: 0.5s;
-}
-.babonus h1.otters .name-stacked .title {
-  font-size: 25px;
-  border-bottom: 2px solid var(--dnd5e-color-gold);
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  margin: 0 0.5em;
-}
-.babonus h1.otters .name-stacked .subtitle {
-  font-size: 14px;
+
+  .mirror {
+    transform: scaleX(-1);
+    transition: 0.5s;
+  }
+
+  .name-stacked {
+    .title {
+      font-size: 25px;
+      border-bottom: 2px solid var(--dnd5e-color-gold);
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+      margin: 0 0.5em;
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+  }
 }
 
-.dnd5e2.sheet.actor.character form:is(.tab-babonus) .create-child {
-  display: block;
-}
-.dnd5e2.create-document.babonus ol img {
-  filter: invert(0);
-}
+.dnd5e2.sheet.actor.character {
+  & form:is(.tab-babonus) .create-child {
+    display: block;
+  }
 
-.dnd5e2 .items-section .items-header .bonus-source,
-.dnd5e2 .items-section .item .bonus-source {
-  width: 150px;
-  border: none;
-}
-.dnd5e2 .items-section .item .bonus-source.item-detail {
-  color: var(--color-text-dark-5);
-}
-.dnd5e2 .items-section .item .bonus-source.item-detail.empty::after {
-  content: "-";
-  color: var(--color-text-light-6);
-  font-weight: normal;
+  .tab.babonus {
+    .items-section {
+      .bonus-source {
+        width: 150px;
+        border: none;
+
+        &.item-detail {
+          color: var(--color-text-dark-5);
+
+          &.empty::after {
+            content: "-";
+            color: var(--color-text-light-6);
+            font-weight: normal;
+          }
+        }
+      }
+    }
+  }
 }
