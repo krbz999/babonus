@@ -1,7 +1,7 @@
 .babonus.dnd5e2 {
   background:
-    url(../../../systems/dnd5e/ui/texture-gray1.webp) no-repeat top left,
-    url(../../../systems/dnd5e/ui/texture-gray2.webp) no-repeat bottom right,
+    url(../../../systems/dnd5e/ui/texture1.webp) no-repeat top center / auto 770px,
+    url(../../../systems/dnd5e/ui/texture2.webp) no-repeat bottom center / auto 704px,
     var(--dnd5e-color-parchment);
   border: 1px solid var(--dnd5e-color-gold);
 }
