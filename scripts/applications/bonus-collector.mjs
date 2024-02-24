@@ -235,12 +235,12 @@ export class BonusCollector {
 
   /**
    * Get the centers of all grid spaces that overlap with a token document.
-   * @param {TokenDocument} tokenDoc      The token document on the scene.
-   * @returns {object[]}                  An array of xy coordinates.
+   * @param {TokenDocument5e} tokenDoc      The token document on the scene.
+   * @returns {object[]}                    An array of xy coordinates.
    */
   static _collectTokenCenters(tokenDoc) {
-    const object = tokenDoc.document ? tokenDoc : tokenDoc.object;
-    const {width, height, x, y} = object.document;
+    const object = tokenDoc.object;
+    const {width, height, x, y} = tokenDoc;
     const grid = canvas.scene.grid.size;
     const halfGrid = grid / 2;
 
