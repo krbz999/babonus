@@ -329,7 +329,7 @@ export class BonusCollector {
     const color = 0xFFFFFF;
 
     const mods = {};
-    ["move", "sight", "sound"].forEach(k => {
+    CONST.WALL_RESTRICTION_TYPES.forEach(k => {
       if (bonus.aura.require[k]) {
         mods[k] = CONFIG.Canvas.polygonBackends[k].create(token.center, {
           type: k,
