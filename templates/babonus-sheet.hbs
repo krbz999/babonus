@@ -85,7 +85,7 @@
       <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersReroll"}}
-          {{#if context.modifiers.reroll.label}}({{context.modifiers.reroll.label}}){{/if}}
+          {{#if context.modifiers.reroll.label}}({{localize context.modifiers.reroll.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -93,6 +93,11 @@
           </label>
 
           <input type="text" name="bonuses.modifiers.reroll.value" value="{{context.modifiers.reroll.value}}" {{disabled context.modifiers.reroll.disabled}}>
+
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.reroll.invert" {{checked context.modifiers.reroll.invert}} {{disabled context.modifiers.reroll.disabled}}>
+            {{localize "BABONUS.ModifiersRerollInvert"}}
+          </label>
 
           <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked context.modifiers.reroll.recursive}} {{disabled context.modifiers.reroll.disabled}}>
@@ -104,7 +109,7 @@
       <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersExplode"}}
-          {{#if context.modifiers.explode.label}}({{context.modifiers.explode.label}}){{/if}}
+          {{#if context.modifiers.explode.label}}({{localize context.modifiers.explode.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
