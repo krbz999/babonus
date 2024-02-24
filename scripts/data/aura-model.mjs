@@ -11,8 +11,9 @@ export class AuraModel extends foundry.abstract.DataModel {
       disposition: new foundry.data.fields.NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
       blockers: new module.filters.auraBlockers(),
       require: new foundry.data.fields.SchemaField({
+        move: new foundry.data.fields.BooleanField(),
         sight: new foundry.data.fields.BooleanField(),
-        move: new foundry.data.fields.BooleanField()
+        sound: new foundry.data.fields.BooleanField()
       })
     };
   }

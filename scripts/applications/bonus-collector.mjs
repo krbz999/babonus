@@ -328,33 +328,33 @@ export class BonusCollector {
     const alpha = 0.08;
     const color = 0xFFFFFF;
 
-    let m, s;
-    if (bonus.aura.require.move) {
-      m = CONFIG.Canvas.polygonBackends.move.create(token.center, {
-        type: "move", hasLimitedRadius, radius
-      });
-    }
-    if (bonus.aura.require.sight) {
-      s = CONFIG.Canvas.polygonBackends.sight.create(token.center, {
-        type: "sight", hasLimitedRadius, radius, useThreshold: true
-      });
-    }
+    const mods = {};
+    ["move", "sight", "sound"].forEach(k => {
+      if (bonus.aura.require[k]) {
+        mods[k] = CONFIG.Canvas.polygonBackends[k].create(token.center, {
+          type: k,
+          hasLimitedRadius: hasLimitedRadius,
+          radius: radius,
+          useThreshold: k !== "move"
+        });
+      }
+    });
 
-    // Case 1: No constraints.
-    if (!m && !s) {
+    const cnt = Object.keys(mods).length;
+    if (!cnt) {
+      // Case 1: No constraints.
       if (!hasLimitedRadius) return [token, null, bonus, true];
       const center = token.center;
       shape.beginFill(color, alpha).drawCircle(center.x, center.y, radius).endFill();
-    }
-
-    // Case 2: Both constraints.
-    else if (m && s) {
-      shape.beginFill(color, alpha).drawPolygon(m.intersectPolygon(s)).endFill();
-    }
-
-    // Case 3: Single constraint.
-    else if (m || s) {
-      shape.beginFill(color, alpha).drawShape(m ?? s).endFill();
+    } else if (cnt > 1) {
+      // Case 2: Both constraints.
+      const [start, ...polygons] = Object.values(mods).filter(k => k !== null);
+      const polygon = polygons.reduce((acc, p) => acc.intersectPolygon(p), start);
+      shape.beginFill(color, alpha).drawPolygon(polygon).endFill();
+    } else if (cnt === 1) {
+      // Case 3: Single constraint.
+      const polygon = Object.values(mods).find(p => p !== null);
+      shape.beginFill(color, alpha).drawShape(polygon).endFill();
     }
 
     shape.pivot.set(token.x, token.y);
