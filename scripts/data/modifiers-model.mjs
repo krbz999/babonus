@@ -94,13 +94,21 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       if (die.faces > 1) dm.push(mod);
     }
     if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
-      // TODO: allow for negative values here.
       const v = this.explode.value;
       const prefix = this.explode.once ? "xo" : "x";
+      let valid = (die.faces > 1) || (prefix === "xo");
       let mod;
-      if (!Number.isNumeric(v) || !(v > 0) || (v >= die.faces)) mod = prefix;
-      else mod = `${prefix}>${v}`;
-      if ((die.faces > 1) || (prefix !== "x")) dm.push(mod);
+      if (v === 0) {
+        mod = prefix;
+      } else if (v > 0) {
+        mod = (die.faces === v) ? prefix : `${prefix}>=${v}`;
+        valid = valid || (v > 1);
+      } else if (v < 0) {
+        const m = die.faces + v;
+        valid = valid || (m > 1);
+        mod = `${prefix}>=${m}`;
+      }
+      if (valid) dm.push(mod);
     }
     if (hasMin && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
       const f = die.faces;

@@ -288,8 +288,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
           const prefix = mods.explode.once ? "xo" : "x";
           const v = mods.explode.value;
           if (!mods.hasExplode) label = null;
-          else if (!Number.isNumeric(v) || !(v > 0)) label = prefix;
-          else label = `${prefix}>${v}`;
+          if (v === 0) label = prefix;
+          else if (v > 0) label = `${prefix}>=${v}`;
+          else label = "BABONUS.Relative";
           break;
         }
         case "minimum": {
