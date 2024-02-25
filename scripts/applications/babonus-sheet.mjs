@@ -6,8 +6,8 @@ import {KeysDialog} from "./keys-dialog.mjs";
 
 export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) {
   /**
-   * @param {Babonus} bonus           The babonus managed by this sheet.
-   * @param {object} [options={}]     Optional configuration parameters for how the sheet behaves.
+   * @param {Babonus} bonus        The babonus managed by this sheet.
+   * @param {object} [options]     Optional configuration parameters for how the sheet behaves.
    */
   constructor(bonus, options = {}) {
     super(bonus, options);
@@ -349,7 +349,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Handle deleting a filter.
-   * @param {PointerEvent} event                            The initiating click event.
+   * @param {Event} event                                   The initiating click event.
    * @returns {Promise<Actor5e|Item5e|ActiveEffect5e>}      A promise that resolves to the updated owner of the bonus.
    */
   async _onClickDeleteFilter(event) {
@@ -368,7 +368,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Handle adding a filter.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onClickAddFilter(event) {
     const id = event.currentTarget.dataset.id;
@@ -383,7 +383,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Helper function to display the keys dialog and update the corresponding filter value.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   async _onDisplayKeysDialog(event) {
     const filterId = event.currentTarget.dataset.id;

@@ -154,8 +154,8 @@ export class OptionalSelector {
   /**
    * Return whether you can consume the selected/minimum requirement to add a bonus
    * when attempting to add the bonus and consume the property or document.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {boolean}               Whether the requirement is met.
+   * @param {Event} event     The initiating click event.
+   * @returns {boolean}       Whether the requirement is met.
    */
   _canSupply(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -295,7 +295,7 @@ export class OptionalSelector {
 
   /**
    * Apply an optional bonus. Depending on the bonus, consume a document or property and scale the applied value.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   async _onApplyOption(event) {
     const target = event.currentTarget;
@@ -449,10 +449,10 @@ export class OptionalSelector {
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
-   * @param {Babonus} bab               The Babonus.
-   * @param {HTMLElement} target        The target of the initiating click event.
-   * @param {string} bonus              The bonus to add.
-   * @param {boolean} [apply=true]      Whether the bonus should be applied.
+   * @param {Babonus} bab             The Babonus.
+   * @param {HTMLElement} target      The target of the initiating click event.
+   * @param {string} bonus            The bonus to add.
+   * @param {boolean} [apply]         Whether the bonus should be applied.
    */
   _appendToField(bab, target, bonus, apply = true) {
     if (apply) {
@@ -531,12 +531,12 @@ export class OptionalSelector {
 
   /**
    * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.
-   * @param {Babonus} babonus                               The babonus that holds the optional bonus to apply.
-   * @param {Actor5e|Item5e} roller                         The actor or item performing a roll or usage.
-   * @param {Actor5e|Item5e|ActiveEffect5e|null} target     The actor or item that was updated or deleted, if any.
+   * @param {Babonus} babonus                             The babonus that holds the optional bonus to apply.
+   * @param {Actor5e|Item5e} roller                       The actor or item performing a roll or usage.
+   * @param {Actor5e|Item5e|ActiveEffect5e} [target]      The actor or item that was updated or deleted, if any.
    * @param {object} config
-   * @param {string} config.bonus                           The bonus that will be applied.
-   * @returns {boolean}                                     Explicitly return false to cancel the application of the bonus.
+   * @param {string} config.bonus                         The bonus that will be applied.
+   * @returns {boolean}                                   Explicitly return false to cancel the application of the bonus.
    */
   callHook(babonus, target, config) {
     const roller = this.item ?? this.actor;

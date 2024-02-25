@@ -226,7 +226,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Handle creating a new bonus.
-   * @param {PointerEvent} event          The initiating click event.
+   * @param {Event} event                 The initiating click event.
    * @returns {Promise<BabonusSheet>}     The sheet of the newly created bonus.
    */
   async _onClickType(event) {
@@ -238,8 +238,8 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Render the sheet of an existing bonus.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {BabonusSheet}          The sheet of a babonus.
+   * @param {Event} event         The initiating click event.
+   * @returns {BabonusSheet}      The sheet of a babonus.
    */
   _onClickBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -269,7 +269,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Otter Rainbow.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onOtterRainbow(event) {
     this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
@@ -281,7 +281,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Otter Dance.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onOtterDance(event) {
     const spin = [{transform: 'rotate(0)'}, {transform: 'rotate(360deg)'}];
@@ -291,7 +291,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Collapse or expand a babonus and its description.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onCollapseBonus(event) {
     const bonus = event.currentTarget.closest(".bonus");
@@ -304,7 +304,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Handle copying the id or uuid of a babonus.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   async _onClickId(event) {
     const bonus = this.collection.get(event.currentTarget.closest(".bonus").dataset.id);
@@ -317,8 +317,8 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
-   * @param {PointerEvent} event        The initiating click event.
-   * @returns {Promise<Actor|Item>}     The actor or item having its babonus deleted.
+   * @param {Event} event                   The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus deleted.
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -334,8 +334,8 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Toggle the enabled property on a babonus.
-   * @param {PointerEvent} event        The initiating click event.
-   * @returns {Promise<Actor|Item>}     The actor or item having its babonus toggled.
+   * @param {Event} event                   The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -349,8 +349,8 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Copy a babonus on the actor or item.
-   * @param {PointerEvent} event        The initiating click event.
-   * @returns {Promise<Actor|Item>}     The actor or item having its babonus copied.
+   * @param {Event} event                   The initiating click event.
+   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus copied.
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
@@ -377,7 +377,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Gather a collection of babonuses from a document.
-   * @param {Document} object           An actor, item, effect, or template.
+   * @param {Document5e} object         An actor, item, effect, or template.
    * @returns {Collection<Babonus>}     A collection of babonuses.
    */
   static _getCollection(object) {
@@ -397,10 +397,10 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Create a Babonus with the given id (or a new one if none is provided).
-   * @param {object} data             An object of babonus data.
-   * @param {string} id               Optionally an id to assign the babonus.
-   * @param {object} [options={}]     Additional options that modify the babonus creation.
-   * @returns {Babonus}               The created babonus.
+   * @param {object} data          An object of babonus data.
+   * @param {string} id            Optionally an id to assign the babonus.
+   * @param {object} [options]     Additional options that modify the babonus creation.
+   * @returns {Babonus}            The created babonus.
    */
   static _createBabonus(data, id, options = {}) {
     // if no id explicitly provided, make a new one.
@@ -412,11 +412,11 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Embed a created babonus onto the target object.
-   * @param {Document} object           The actor, item, or effect that should have the babonus.
+   * @param {Document5e} object         The actor, item, or effect that should have the babonus.
    * @param {Babonus} bonus             The created babonus.
    * @param {boolean} [keepId]          Keep the ID or generate a new one?
    * @param {Set<string>} [filters]     A set of strings denoting keys to not delete from the bonus object.
-   * @returns {Promise<Document>}       The actor, item, or effect that has received the babonus.
+   * @returns {Promise<Document5e>}     The actor, item, or effect that has received the babonus.
    */
   static async _embedBabonus(object, bonus, keepId = false, filters) {
     const data = bonus.toObject();

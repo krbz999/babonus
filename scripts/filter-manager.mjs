@@ -278,7 +278,7 @@ export class FilterManager {
    */
   static damageTypes(item, filter) {
     if (!filter.size) return true;
-    const types = new Set(item.getDerivedDamageLabel().map(i => i.damageType));
+    const types = new Set(item.system.damage.parts.map(p => p[1]));
     const {included, excluded} = FilterManager._splitExlusion(filter);
     if (included.size && !types.intersects(included)) return false;
     if (excluded.size && types.intersects(excluded)) return false;
@@ -688,7 +688,7 @@ export class FilterManager {
   static healthPercentages(object, {value, type}) {
     if (!Number.isNumeric(value) || ![0, 1].includes(type)) return true;
     const actor = object.actor ?? object;
-    const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
+    const hp = actor.system.attributes.hp.pct; // this takes tempmax into account, but not temphp.
     return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
   }
 

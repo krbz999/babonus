@@ -137,8 +137,8 @@ export class BonusCollector {
 
   /**
    * Get all bonuses that originate from another token on the scene.
-   * @param {TokenDocument} token                         The token.
-   * @returns {array<Token, PIXI, Babonus, boolean>}      An array from `this.auraMaker`.
+   * @param {TokenDocument5e} token                   The token.
+   * @returns {[Token5e, PIXI, Babonus, boolean]}     An array from the aura maker.
    */
   _collectFromToken(token) {
     // array of arrays: token / pixi graphic / babonus / 'contained?'
@@ -188,9 +188,9 @@ export class BonusCollector {
   /**
    * General collection method that all other collection methods call in some fashion.
    * Gets an array of babonuses from that document.
-   * @param {Document} document               The token, actor, item, effect, or template.
-   * @param {Function[]} [filterings=[]]      An array of additional functions used to filter.
-   * @returns {Babonus[]}                     An array of babonuses of the right type.
+   * @param {Document5e} document          The token, actor, item, effect, or template.
+   * @param {function[]} [filterings]      An array of additional functions used to filter.
+   * @returns {Babonus[]}                  An array of babonuses of the right type.
    */
   _collectFromDocument(document, filterings = []) {
     const flags = document.flags.babonus?.bonuses ?? {};
@@ -270,9 +270,9 @@ export class BonusCollector {
 
   /**
    * Get whether an aura can target the rolling actor's token depending on its targeting.
-   * @param {TokenDocument} token     The token on whom the aura was found.
-   * @param {Babonus} bonus           The babonus with the aura.
-   * @returns {boolean}               Whether the bonus can apply.
+   * @param {TokenDocument5e} token     The token on whom the aura was found.
+   * @param {Babonus} bonus             The babonus with the aura.
+   * @returns {boolean}                 Whether the bonus can apply.
    */
   _matchTokenDisposition(token, bonus) {
     const tisp = token.disposition;
@@ -317,9 +317,10 @@ export class BonusCollector {
   /**
    * Create a PIXI aura without drawing it, and return whether the roller is within it.
    * @credit to @freeze2689
-   * @param {Token} token       A token placeable with an aura.
-   * @param {Babonus} bonus     The bonus with an aura.
-   * @returns {array<*>}        The token, the PIXI graphic, the babonus, and whether the roller is contained within.
+   * @param {Token5e} token                           A token placeable with an aura.
+   * @param {Babonus} bonus                           The bonus with an aura.
+   * @returns {[Token5e, PIXI, Babonus, boolean]}     The token, the PIXI graphic, the babonus,
+   *                                                  and whether the roller is contained within.
    */
   auraMaker(token, bonus) {
     const shape = new PIXI.Graphics();
