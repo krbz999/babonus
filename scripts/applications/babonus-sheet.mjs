@@ -1,5 +1,6 @@
 import {MODULE} from "../constants.mjs";
 import {module} from "../data/_module.mjs";
+import {RollHooks} from "../helpers/roll-hooks.mjs";
 import {BabonusWorkshop} from "./babonus-workshop.mjs";
 import {KeysDialog} from "./keys-dialog.mjs";
 
@@ -61,14 +62,16 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /** @override */
   async getData(options = {}) {
+    const rollData = this.bonus.getRollData();
+
     const context = {};
     context.bonuses = this._prepareBonuses();
-    context.modifiers = this._prepareModifiers();
+    context.modifiers = this._prepareModifiers(rollData);
     context.hasModifiers = !foundry.utils.isEmpty(context.modifiers);
     context.aura = this._prepareAura();
     context.consume = this._prepareConsume();
     context.description = await TextEditor.enrichHTML(this.bonus.description, {
-      rollData: this.bonus.getRollData(), async: true
+      rollData: rollData, async: true
     });
     context.labels = this._prepareLabels();
     context.filters = await this._prepareFilters();
@@ -248,14 +251,18 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Prepare bonuses modifiers for rendering.
+   * @param {object} rollData     The roll data of the bonus,
    * @returns {object}
    */
-  _prepareModifiers() {
+  _prepareModifiers(rollData) {
     const modifiers = this.bonus.toObject().bonuses.modifiers ?? {};
     const mods = this.bonus.bonuses.modifiers;
     const data = {};
-    for (const key in modifiers) {
-      const v = modifiers[key];
+    const parts = ["2d10", "1d4"];
+    RollHooks._addDieModifier(parts, rollData, this.bonus);
+    data.example = parts.join(" + ");
+
+    for (const [key, v] of Object.entries(modifiers)) {
 
       let label;
       switch (key) {

@@ -96,17 +96,18 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
       const v = this.explode.value;
       const prefix = this.explode.once ? "xo" : "x";
-      let valid = (die.faces > 1) || (prefix === "xo");
+      let valid;
       let mod;
       if (v === 0) {
         mod = prefix;
+        valid = (die.faces > 1) || (prefix === "xo");
       } else if (v > 0) {
         mod = (die.faces === v) ? prefix : `${prefix}>=${v}`;
-        valid = valid || (v > 1);
+        valid = (v <= die.faces) && (((v === 1) && (prefix === "xo")) || (v > 1));
       } else if (v < 0) {
-        const m = die.faces + v;
-        valid = valid || (m > 1);
+        const m = Math.max(1, die.faces + v);
         mod = `${prefix}>=${m}`;
+        valid = m > 1 || (prefix == "xo");
       }
       if (valid) dm.push(mod);
     }

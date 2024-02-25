@@ -135,7 +135,7 @@
             <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
           </label>
           <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}" {{disabled context.modifiers.minimum.disabled}}>
-          <label class="checkbox" data-tooltip="BABONUS.ModifiersMinimumMaximizeHint">
+          <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.minimum.maximize" {{checked context.modifiers.minimum.maximize}} {{disabled context.modifiers.minimum.disabled}}>
             {{localize "BABONUS.ModifiersMinimumMaximize"}}
           </label>
@@ -152,11 +152,16 @@
             <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked context.modifiers.maximum.enabled}}>
           </label>
           <input type="text" name="bonuses.modifiers.maximum.value" value="{{context.modifiers.maximum.value}}" {{disabled context.modifiers.maximum.disabled}}>
-          <label class="checkbox" data-tooltip="BABONUS.ModifiersMaximumZeroHint">
+          <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.maximum.zero" {{checked context.modifiers.maximum.zero}} {{disabled context.modifiers.maximum.disabled}}>
             {{localize "BABONUS.ModifiersMaximumZero"}}
           </label>
         </div>
+      </div>
+
+      <div class="form-group modifiers example">
+        <label class="label">{{localize "BABONUS.Example"}}:</label>
+        <div class="form-fields formula">{{context.modifiers.example}}</div>
       </div>
       {{/if}}
 

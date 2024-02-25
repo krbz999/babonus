@@ -130,6 +130,19 @@
             text-align: left;
           }
         }
+
+        &.example {
+          .label {
+            padding-left: 1rem;
+          }
+
+          .formula {
+            font-family: monospace;
+            font-weight: bold;
+            font-size: var(--font-size-14);
+            padding-right: 1rem;
+          }
+        }
       }
     }
   }
