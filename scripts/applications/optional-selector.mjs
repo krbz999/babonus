@@ -1,9 +1,13 @@
 import {MODULE} from "../constants.mjs";
+import {RollHooks} from "../helpers/roll-hooks.mjs";
 
 export class OptionalSelector {
   constructor(options) {
-    // The bonuses.
+    // The optional bonuses.
     this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));
+
+    // All bonuses.
+    this.allBonuses = new foundry.utils.Collection(options.bonuses.map(o => [o.uuid, o]));
 
     // The actor doing the roll.
     this.actor = options.actor;
@@ -298,7 +302,7 @@ export class OptionalSelector {
     target.disabled = true;
     const canSupply = this._canSupply(event);
     const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
-    const type = bonus.consume.type;
+    const type = target.dataset.action === "consume-none" ? null : bonus.consume.type;
     if (bonus.consume.isConsuming && !canSupply) {
       this._displayConsumptionWarning(type);
       return null;
@@ -454,13 +458,19 @@ export class OptionalSelector {
     if (apply) {
       if (bab.hasDamageType) {
         const roll = new Roll(bonus);
-        for(const term of roll.terms) if ("flavor" in term.options) {
+        for (const term of roll.terms) if ("flavor" in term.options) {
           if (!term.options.flavor) term.options.flavor = bab.bonuses.damageType;
         }
         bonus = roll.formula;
       }
-      if (!this.field.value.trim()) this.field.value = bonus;
-      else this.field.value = `${this.field.value.trim()} + ${bonus}`;
+
+      const parts = [bonus];
+      for (const b of this.allBonuses) {
+        if (!b._halted) RollHooks._addDieModifier(parts, {}, b, true);
+      }
+
+      if (!this.field.value.trim()) this.field.value = parts[0];
+      else this.field.value = `${this.field.value.trim()} + ${parts[0]}`;
     }
     target.closest(".optional").classList.toggle("active", true);
     this.dialog.setPosition({height: "auto"});

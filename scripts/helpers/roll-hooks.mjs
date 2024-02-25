@@ -114,9 +114,11 @@ export class RollHooks {
     }, rollConfig.criticalBonusDamage ?? "");
 
     // Modify the parts if there are modifiers in the bab.
-    for(const {parts} of rollConfig.rollConfigs) {
-      for (const bab of bonuses) {
-        RollHooks._addDieModifier(parts, rollConfig.data, bab);
+    for (const bab of bonuses) {
+      for (const {parts} of rollConfig.rollConfigs) {
+        if (bab._halted) break;
+        const halted = RollHooks._addDieModifier(parts, rollConfig.data, bab);
+        if (halted) bab._halted = true;
       }
     }
   }
@@ -275,7 +277,7 @@ export class RollHooks {
     const part0 = rollConfig.rollConfigs[0];
     const dtype = part0.type;
     const optionals = [];
-    for(const bab of bonuses) {
+    for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
       if (!bonus) continue;
       let type = bab.bonuses.damageType || "";
@@ -315,13 +317,15 @@ export class RollHooks {
 
   /**
    * Add modifiers to the dice rolls of a roll.
-   * @param {string[]} parts      The individual parts of the roll. **will be mutated**
-   * @param {object} data         The roll data.
-   * @param {Babonus} bab         The babonus with possible modifiers.
+   * @param {string[]} parts            The individual parts of the roll. **will be mutated**
+   * @param {object} data               The roll data.
+   * @param {Babonus} bab               The babonus with possible modifiers.
+   * @param {boolean} [ignoreFirst]     Whether to ignore the 'first' property.
+   * @returns {boolean|void}            Returns `true` if the iteration was halted at the first die.
    */
-  static _addDieModifier(parts, data, bab) {
+  static _addDieModifier(parts, data, bab, ignoreFirst = false) {
     if (!bab.bonuses.modifiers.hasModifiers) return;
-    const first = bab.bonuses.modifiers.config.first;
+    const first = !ignoreFirst && bab.bonuses.modifiers.config.first;
     let changed = false;
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -334,7 +338,7 @@ export class RollHooks {
         changed = true;
       }
       parts[i] = Roll.fromTerms(roll.terms).formula;
-      if (first && changed) return;
+      if (first && changed) return true;
     }
   }
 }
