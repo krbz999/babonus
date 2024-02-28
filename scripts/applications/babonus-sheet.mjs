@@ -454,7 +454,8 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   /** @override */
   async _updateObject(event, formData) {
     try {
-      this.bonus.updateSource(formData);
+      const obj = this.bonus.updateSource(formData);
+      if (foundry.utils.isEmpty(obj)) return this.render();
     } catch (err) {
       ui.notifications.error(err);
       return this.render()
