@@ -255,7 +255,8 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    * @returns {object}
    */
   _prepareModifiers(rollData) {
-    const modifiers = this.bonus.toObject().bonuses.modifiers ?? {};
+    const modifiers = this.bonus.toObject().bonuses.modifiers;
+    if (!modifiers) return;
     const mods = this.bonus.bonuses.modifiers;
     const data = {};
     const parts = ["2d10", "1d4"];

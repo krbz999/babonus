@@ -300,10 +300,9 @@ export class OptionalSelector {
   async _onApplyOption(event) {
     const target = event.currentTarget;
     target.disabled = true;
-    const canSupply = this._canSupply(event);
     const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
-    const type = target.dataset.action === "consume-none" ? null : bonus.consume.type;
-    if (bonus.consume.isConsuming && !canSupply) {
+    const type = (target.dataset.action === "consume-none") ? null : bonus.consume.type;
+    if (bonus.consume.isConsuming && !this._canSupply(event)) {
       this._displayConsumptionWarning(type);
       return null;
     }

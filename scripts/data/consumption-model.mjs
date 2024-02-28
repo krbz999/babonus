@@ -69,8 +69,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    * - For effects, only users who own the effect in question are allowed to delete it.
    * - For health, the minimum required amount of hit points must be a positive integer.
    * - For currencies, a valid denomination must be set, and the minimum consumed must be a positive integer.
-   * - For inspiration, the roller must be a 'character' type actor, which is validated elsewhere.
-   * - For resources, the roller must be a 'character' type actor, which is validated elsewhere.
+   * - For inspiration, the roller must be a 'character' type actor.
+   * - For resources, the roller must be a 'character' type actor, and the subtype must be valid.
    * @type {boolean}
    */
   get isConsuming() {
@@ -81,6 +81,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     const parent = this.bonus.parent;
     const isItemOwner = (parent instanceof Item) && parent.isOwner;
     const actor = this.bonus.actor;
+    const isCharacter = (actor instanceof Actor) && (actor.type === "character");
 
     if (type === "uses") return isItemOwner && parent.hasLimitedUses && (min > 0);
     else if (type === "quantity") return isItemOwner && Number.isNumeric(parent.system.quantity) && (min > 0);
@@ -88,8 +89,10 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     else if (type === "effect") return (parent instanceof ActiveEffect) && parent.isOwner;
     else if (type === "health") return min > 0;
     else if (type === "currency") return (this.subtype in CONFIG.DND5E.currencies) && (min > 0);
-    else if (type === "inspiration") return (actor instanceof Actor) && (actor.type === "character");
-    else if (type === "resource") return (actor instanceof Actor) && (actor.type === "character");
+    else if (type === "inspiration") return isCharacter;
+    else if (type === "resource") {
+      return isCharacter && (["primary", "secondary", "tertiary"].includes(this.subtype)) && (min > 0);
+    }
   }
 
   /**
