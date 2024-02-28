@@ -466,7 +466,7 @@ export class OptionalSelector {
 
       const parts = [bonus];
       for (const b of this.allBonuses) {
-        if (!b._halted) RollHooks._addDieModifier(parts, {}, b, true);
+        if (!b._halted) b.bonuses.modifiers.modifyParts(parts, {}, {ignoreFirst: true});
       }
 
       if (!this.field.value.trim()) this.field.value = parts[0];

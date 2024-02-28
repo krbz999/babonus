@@ -117,7 +117,7 @@ export class RollHooks {
     for (const bab of bonuses) {
       for (const {parts} of rollConfig.rollConfigs) {
         if (bab._halted) break;
-        const halted = RollHooks._addDieModifier(parts, rollConfig.data, bab);
+        const halted = bab.bonuses.modifiers.modifyParts(parts, rollConfig.data);
         if (halted) bab._halted = true;
       }
     }
@@ -239,7 +239,7 @@ export class RollHooks {
 
     // Add die modifiers.
     for (const bonus of bonuses) {
-      RollHooks._addDieModifier(parts, rollConfig.data, bonus);
+      bonus.bonuses.modifiers.modifyParts(parts, rollConfig.data);
     }
 
     // Construct the replacement formula.
@@ -313,32 +313,5 @@ export class RollHooks {
   static _addTargetData(rollConfig, deterministic = false) {
     const target = game.user.targets.first();
     if (target?.actor) rollConfig.data.target = target.actor.getRollData({deterministic});
-  }
-
-  /**
-   * Add modifiers to the dice rolls of a roll.
-   * @param {string[]} parts            The individual parts of the roll. **will be mutated**
-   * @param {object} data               The roll data.
-   * @param {Babonus} bab               The babonus with possible modifiers.
-   * @param {boolean} [ignoreFirst]     Whether to ignore the 'first' property.
-   * @returns {boolean|void}            Returns `true` if the iteration was halted at the first die.
-   */
-  static _addDieModifier(parts, data, bab, ignoreFirst = false) {
-    if (!bab.bonuses.modifiers.hasModifiers) return;
-    const first = !ignoreFirst && bab.bonuses.modifiers.config.first;
-    let changed = false;
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      const roll = new CONFIG.Dice.DamageRoll(part, data);
-      if (!roll.dice.length) continue;
-
-      for (const die of roll.dice) {
-        if (first && changed) break;
-        bab.bonuses.modifiers.modifyDie(die);
-        changed = true;
-      }
-      parts[i] = Roll.fromTerms(roll.terms).formula;
-      if (first && changed) return true;
-    }
   }
 }

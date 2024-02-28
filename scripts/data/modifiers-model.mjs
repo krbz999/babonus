@@ -127,6 +127,32 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     }
   }
 
+  /**
+   * Append applicable modifiers to a roll part.
+   * @param {string[]} parts                    The roll part. **will be mutated**
+   * @param {object} [rollData]                 Roll data for roll construction.
+   * @param {object} [options]
+   * @param {boolean} [options.ignoreFirst]     Whether to ignore the 'first' property'.
+   * @returns {boolean}                         Whether all but the first die were skipped.
+   */
+  modifyParts(parts, rollData = {}, options = {}) {
+    if (!this.hasModifiers) return;
+    const first = !options.ignoreFirst && this.config.first;
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const roll = new CONFIG.Dice.DamageRoll(part, rollData);
+      if (!roll.dice.length) continue;
+
+      for (const die of roll.dice) {
+        this.modifyDie(die);
+        if (first) break;
+      }
+      parts[i] = Roll.fromTerms(roll.terms).formula;
+      if (first) return true;
+    }
+    return false;
+  }
+
   /* ----------------------------- */
   /*           Getters             */
   /* ----------------------------- */

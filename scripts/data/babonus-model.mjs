@@ -97,6 +97,12 @@ import {module} from "./_module.mjs";
  *
  */
 class Babonus extends foundry.abstract.DataModel {
+  /**
+   * Variable to track whether this bonus has modified dice and was halted at the first die.
+   * @type {boolean}
+   */
+  _halted = false;
+
   constructor(data, options = {}) {
     data = foundry.utils.mergeObject({
       name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),

@@ -259,7 +259,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const mods = this.bonus.bonuses.modifiers;
     const data = {};
     const parts = ["2d10", "1d4"];
-    RollHooks._addDieModifier(parts, rollData, this.bonus);
+    mods.modifyParts(parts, rollData);
     data.example = parts.join(" + ");
 
     for (const [key, v] of Object.entries(modifiers)) {
@@ -431,7 +431,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const idLink = document.createElement("A");
     idLink.classList.add("document-id-link");
     idLink.dataset.tooltip = `${label}: ${this.document.id}`;
-    idLink.dataset.tooltipDirection = "UP";
+    idLink.dataset.tooltipDirection = "DOWN";
     idLink.innerHTML = '<i class="fa-solid fa-passport"></i>';
     idLink.addEventListener("click", event => {
       event.preventDefault();
@@ -447,7 +447,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
         label, type: "uuid", id: this.document.uuid
       }));
     });
-    title.append(idLink);
+    html[0].querySelector(".header-button.close").before(idLink);
   }
 
   /** @override */
