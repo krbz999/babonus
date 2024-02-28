@@ -1,6 +1,5 @@
 import {MODULE} from "../constants.mjs";
 import {module} from "../data/_module.mjs";
-import {RollHooks} from "../helpers/roll-hooks.mjs";
 import {BabonusWorkshop} from "./babonus-workshop.mjs";
 import {KeysDialog} from "./keys-dialog.mjs";
 
@@ -103,14 +102,13 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const bonuses = [];
     const type = this.bonus.type;
     b.forEach(([k, v]) => {
-      if (k === "modifiers" || k === "damageType") return;
-      const isDamage = (type === "damage") && (k === "bonus");
+      if ((k === "modifiers") || (k === "damageType")) return;
       bonuses.push({
         key: k,
         value: v,
         hint: `BABONUS.Type${type.capitalize()}${k.capitalize()}Tooltip`,
         label: `BABONUS.Type${type.capitalize()}${k.capitalize()}Label`,
-        isDamage: isDamage,
+        isDamage: (type === "damage") && (k === "bonus"),
         selected: this.bonus.bonuses.damageType
       });
     });
@@ -387,13 +385,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    * @param {Event} event     The initiating click event.
    */
   async _onDisplayKeysDialog(event) {
+    const bonus = this.bonus;
     const filterId = event.currentTarget.dataset.id;
     const filter = module.filters[filterId];
     const property = event.currentTarget.dataset.property;
     const list = await filter.choices();
-    const canExclude = filter.canExclude;
-    const values = foundry.utils.getProperty(this.bonus, property);
-    const bonus = this.bonus;
+    const values = foundry.utils.getProperty(bonus, property);
     const owner = this.owner;
 
     for (const value of values) {
@@ -406,7 +403,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
     return KeysDialog.prompt({
       rejectClose: false,
-      options: {filterId, appId: this.appId, values: list, canExclude},
+      options: {
+        filterId: filterId,
+        appId: this.appId,
+        values: list,
+        canExclude: filter.canExclude
+      },
       callback: async function(html) {
         const values = [];
         html[0].querySelectorAll("select").forEach(s => {
@@ -427,7 +429,6 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /** @override */
   _createDocumentIdLink(html) {
-    const title = html[0].querySelector(".window-title");
     const label = game.i18n.localize(this.document.constructor.metadata.label);
     const idLink = document.createElement("A");
     idLink.classList.add("document-id-link");

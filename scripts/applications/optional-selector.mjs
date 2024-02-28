@@ -1,5 +1,4 @@
 import {MODULE} from "../constants.mjs";
-import {RollHooks} from "../helpers/roll-hooks.mjs";
 
 export class OptionalSelector {
   constructor(options) {
