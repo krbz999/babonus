@@ -13,39 +13,57 @@ import {module} from "../data/_module.mjs";
  * - effects being unavailable
  */
 export class BonusCollector {
-  // The type of bonuses being collected.
+  /**
+   * The type of bonuses being collected.
+   * @type {string}
+   */
   type = null;
-  babonusClass = null;
+
+  /**
+   * Collected bonuses.
+   * @type {Babonus[]}
+   */
   bonuses = [];
 
-  // The item performing the roll, if any.
+  /**
+   * The item performing the roll, if any.
+   * @type {Item5e|null}
+   */
   item = null;
 
-  // The actor performing the roll or owning the item performing the roll.
+  /**
+   * The actor performing the roll or owning the item performing the roll.
+   * @type {Actor5e}
+   */
   actor = null;
 
   /**
-   * The token document of the actor performing the roll, and any related
-   * properties, such as its disposition and the grid spaces that it occupies.
+   * The token object of the actor performing the roll, if any.
+   * @type {Token5e|null}
    */
   token = null;
-  tokenObject = null;
-  disposition = null;
-  elevation = null;
-  tokenCenters = null;
 
-  templates = [];
+  /**
+   * Center points of all occupied grid spaces of the token placeable.
+   * @type {object[]}
+   */
+  tokenCenters = [];
+
+  /**
+   * Token documents on the same scene which are valid, not a group, and not the same token.
+   * @type {TokenDocument5e[]}
+   */
   tokens = [];
 
-  /** The collected bonuses. */
-  actorBonuses = [];
-  tokenBonuses = [];
-  templateBonuses = [];
+  /**
+   * Reference to auras that are to be drawn later.
+   * @type {[Token5e, Q, Babonus, boolean]}
+   */
+  _auras = [];
 
   constructor(data) {
-    // Set up type and class.
+    // Set up type.
     this.type = data.type;
-    this.babonusClass = module.models[this.type];
 
     // Set up item and actor.
     if (data.object instanceof Item) {
@@ -58,18 +76,7 @@ export class BonusCollector {
     // Set up canvas elements.
     this.token = this.actor.token?.object ?? this.actor.getActiveTokens()[0];
     if (this.token) {
-      this.tokenDocument = this.token.document;
-      this.disposition = this.tokenDocument.disposition;
-      this.elevation = this.tokenDocument.elevation;
-      this.tokenCenters = this.constructor._collectTokenCenters(this.tokenDocument);
-
-      // Find all templates and all other tokens.
-      this.templates = canvas.scene.templates;
-      this.tokens = canvas.scene.tokens.filter(t => {
-        if (!t.actor) return false;
-        if (t.actor.type === "group") return false;
-        return t !== this.token.document;
-      });
+      this.tokenCenters = this.constructor._collectTokenCenters(this.token.document);
     }
 
     this.bonuses = this._collectBonuses();
@@ -97,25 +104,37 @@ export class BonusCollector {
    * @returns {Babonus[]}
    */
   _collectBonuses() {
-    // Clear the arrays.
-    this.actorBonuses = [];
-    this.tokenBonuses = [];
-    this.templateBonuses = [];
+    const bonuses = {
+      actor: this._collectFromSelf(),
+      token: [],
+      template: []
+    };
 
-    this.actorBonuses = this._collectFromSelf();
-    for (const token of this.tokens) if (!token.hidden) this.tokenBonuses.push(...this._collectFromToken(token));
+    // Token and template auras.
+    if (this.token) {
+      for(const token of this.token.scene.tokens) {
+        if (token.actor && (token.actor.type !== "group") && (token !== this.token.document) && !token.hidden) {
+          bonuses.token.push(...this._collectFromToken(token));
+        }
+      }
 
-    // Special consideration for templates; allow overlapping without stacking the same bonus.
-    const _templateBonuses = [];
-    for (const template of this.templates) {
-      _templateBonuses.push(...this._collectFromTemplate(template));
+      // Special consideration for templates; allow overlapping without stacking the same bonus.
+      const map = new Map();
+      for (const template of this.token.scene.templates) {
+        const boni = this._collectFromTemplate(template);
+        for(const b of boni) map.set(`${b.item.uuid}.Babonus.${b.id}`, b);
+      }
+      bonuses.template.push(...map.values());
     }
-    this.templateBonuses.push(...new foundry.utils.Collection(_templateBonuses.map(b => [`${b.item.uuid}.Babonus.${b.id}`, b])));
 
-    const bonuses = Array.from(this.actorBonuses).concat(this.templateBonuses);
-    for (const [token, pixi, bonus, bool] of this.tokenBonuses) if (bool) bonuses.push(bonus);
+    const tokenBonuses = bonuses.token.reduce((acc, [t, p, bonus, bool]) => {
+      if (bool) acc.push(bonus);
+      return acc;
+    }, []);
+    // Save a reference to the auras for drawing them later.
+    this._auras = bonuses.token;
 
-    return bonuses;
+    return bonuses.actor.concat(tokenBonuses).concat(bonuses.template);
   }
 
   /**
@@ -198,7 +217,7 @@ export class BonusCollector {
       if (this.type !== data.type) return acc;
       if (!foundry.data.validators.isValidId(id)) return acc;
       try {
-        const bab = new this.babonusClass(data, {parent: document});
+        const bab = new module.models[this.type](data, {parent: document});
         if (!this._generalFilter(bab)) return acc;
         for (const func of filterings) {
           if (!func(bab)) return acc;
@@ -305,11 +324,11 @@ export class BonusCollector {
       return true;
     } else if (bisp === aura.ALLY) {
       // If the bonus targets allies, the roller and the source must match.
-      return tisp === this.disposition;
+      return tisp === this.token.disposition;
     } else if (bisp === aura.ENEMY) {
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
       const modes = CONST.TOKEN_DISPOSITIONS;
-      const set = new Set([tisp, this.disposition]);
+      const set = new Set([tisp, this.token.disposition]);
       return set.has(modes.FRIENDLY) && set.has(modes.HOSTILE);
     }
   }
@@ -348,7 +367,7 @@ export class BonusCollector {
       const center = token.center;
       shape.beginFill(color, alpha).drawCircle(center.x, center.y, radius).endFill();
     } else if (cnt > 1) {
-      // Case 2: Both constraints.
+      // Case 2: Multiple constraints.
       const [start, ...polygons] = Object.values(mods).filter(k => k !== null);
       const polygon = polygons.reduce((acc, p) => acc.intersectPolygon(p), start);
       shape.beginFill(color, alpha).drawPolygon(polygon).endFill();
@@ -367,7 +386,7 @@ export class BonusCollector {
    * Draw auras on the canvas.
    */
   drawAuras() {
-    for (const [token, aura, bonus, bool] of this.tokenBonuses) {
+    for (const [token, aura, bonus, bool] of this._auras) {
       if (!(bonus.aura.range > 0)) continue;
       aura.tint = bool ? 0x00FF00 : 0xFF0000;
       aura.id = foundry.utils.randomID();
