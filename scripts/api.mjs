@@ -195,12 +195,9 @@ function findEmbeddedDocumentsWithBonuses(object) {
  */
 function findTokensInRangeOfAura(object, id) {
   const bonus = getId(object, id);
-  if (!bonus.aura.isToken) return null;
-  let actor;
-  if (object instanceof Actor) actor = object;
-  else if (object instanceof Item) actor = object.actor;
-  else if (object instanceof ActiveEffect) actor = object.parent;
-  const token = actor.token?.object ?? actor.getActiveTokens()[0];
+  if (!bonus.aura.isToken) return [];
+  const token = bonus.token;
+  if (!token) return [];
   const range = bonus.aura.range;
   if (range === -1) return canvas.scene.tokens.filter(t !== token.document);
   return findTokensInRangeOfToken(token, range).map(t => t.document);

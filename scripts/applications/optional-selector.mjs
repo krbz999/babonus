@@ -2,8 +2,11 @@ import {MODULE} from "../constants.mjs";
 
 export class OptionalSelector {
   constructor(options) {
-    // The bonuses.
+    // The optional bonuses.
     this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));
+
+    // All bonuses.
+    this.allBonuses = new foundry.utils.Collection(options.bonuses.map(o => [o.uuid, o]));
 
     // The actor doing the roll.
     this.actor = options.actor;
@@ -150,8 +153,8 @@ export class OptionalSelector {
   /**
    * Return whether you can consume the selected/minimum requirement to add a bonus
    * when attempting to add the bonus and consume the property or document.
-   * @param {PointerEvent} event      The initiating click event.
-   * @returns {boolean}               Whether the requirement is met.
+   * @param {Event} event     The initiating click event.
+   * @returns {boolean}       Whether the requirement is met.
    */
   _canSupply(event) {
     const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
@@ -223,15 +226,15 @@ export class OptionalSelector {
       }
       case "slots": {
         // The 'value' of the option is the spell property key, like "spell3" or "pact".
-        return Object.entries(this.actor.system.spells).reduce((acc, [key, val]) => {
-          if (!val.value || !val.max) return acc;
-          const level = (key === "pact") ? val.level : Number(key.at(-1));
+        return Object.entries(this.actor.system.spells).reduce((acc, [k, v]) => {
+          if (!v.value || !v.max) return acc;
+          const level = ("level" in v) ? v.level : parseInt(k.replace("spell", ""));
           if (level < (bonus.consume.value.min || 1)) return acc;
-          const label = game.i18n.format(`DND5E.SpellLevel${(key === "pact") ? "Pact" : "Slot"}`, {
-            level: (key === "pact") ? val.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
-            n: `${val.value}/${val.max}`,
+          const label = game.i18n.format(`DND5E.SpellLevel${("level" in v) ? k.capitalize() : "Slot"}`, {
+            level: ("level" in v) ? v.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
+            n: `${v.value}/${v.max}`,
           });
-          acc[key] = label;
+          acc[k] = label;
           return acc;
         }, {});
       }
@@ -291,15 +294,14 @@ export class OptionalSelector {
 
   /**
    * Apply an optional bonus. Depending on the bonus, consume a document or property and scale the applied value.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   async _onApplyOption(event) {
     const target = event.currentTarget;
     target.disabled = true;
-    const canSupply = this._canSupply(event);
     const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
-    const type = bonus.consume.type;
-    if (bonus.consume.isConsuming && !canSupply) {
+    const type = (target.dataset.action === "consume-none") ? null : bonus.consume.type;
+    if (bonus.consume.isConsuming && !this._canSupply(event)) {
       this._displayConsumptionWarning(type);
       return null;
     }
@@ -327,7 +329,7 @@ export class OptionalSelector {
         const scale = scales ? (parseInt(value) - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         const apply = this.callHook(bonus, item, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "slots": {
@@ -335,7 +337,8 @@ export class OptionalSelector {
         let scale;
         if (scales) {
           key = scaleValue;
-          const level = (key === "pact") ? this.actor.system.spells.pact.level : parseInt(key.replace("spell", ""));
+          const s = this.actor.system.spells[s];
+          const level = ("level" in s) ? s.level : parseInt(key.replace("spell", ""));
           scale = Math.min(level - consumeMin, consumeMax - 1);
         } else {
           key = this._getLowestValidSpellSlotProperty(bonus);
@@ -344,7 +347,7 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "health": {
@@ -360,7 +363,7 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.applyDamage(value);
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "effect": {
@@ -371,14 +374,14 @@ export class OptionalSelector {
         }
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, effect, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "inspiration": {
         await this.actor.update({"system.attributes.inspiration": false});
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "currency": {
@@ -395,7 +398,7 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       case "resource": {
@@ -412,14 +415,14 @@ export class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await actor.update({[`system.resources.${bonus.consume.subtype}.value`]: resource.value - value});
         const apply = this.callHook(bonus, actor, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
       default: {
         // Optional bonus that does not consume.
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, null, config);
-        this._appendToField(target, config.bonus, apply);
+        this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
     }
@@ -444,22 +447,36 @@ export class OptionalSelector {
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
-   * @param {HTMLElement} target        The target of the initiating click event.
-   * @param {string} bonus              The bonus to add.
-   * @param {boolean} [apply=true]      Whether the bonus should be applied.
+   * @param {Babonus} bab             The Babonus.
+   * @param {HTMLElement} target      The target of the initiating click event.
+   * @param {string} bonus            The bonus to add.
+   * @param {boolean} [apply]         Whether the bonus should be applied.
    */
-  _appendToField(target, bonus, apply = true) {
+  _appendToField(bab, target, bonus, apply = true) {
     if (apply) {
-      if (!this.field.value.trim()) this.field.value = bonus;
-      else this.field.value = `${this.field.value.trim()} + ${bonus}`;
+      if (bab.hasDamageType) {
+        const roll = new Roll(bonus);
+        for (const term of roll.terms) if ("flavor" in term.options) {
+          if (!term.options.flavor) term.options.flavor = bab.bonuses.damageType;
+        }
+        bonus = roll.formula;
+      }
+
+      const parts = [bonus];
+      for (const b of this.allBonuses) {
+        if (!b._halted) b.bonuses.modifiers.modifyParts(parts, {}, {ignoreFirst: true});
+      }
+
+      if (!this.field.value.trim()) this.field.value = parts[0];
+      else this.field.value = `${this.field.value.trim()} + ${parts[0]}`;
     }
     target.closest(".optional").classList.toggle("active", true);
     this.dialog.setPosition({height: "auto"});
   }
 
   /**
-   * Get the attribute key for the lowest available and valid spell slot.
-   * If the lowest level is both a pact and spell slot, prefer pact slot.
+   * Get the attribute key for the lowest available and valid spell slot. If the lowest level
+   * is both a spell slot and a different kind of slot, prefer the alternative.
    * @param {Babonus} bonus         The bonus used to determine the minimum spell level required.
    * @returns {string|boolean}      The attribute key, or false if no valid level found.
    */
@@ -467,14 +484,29 @@ export class OptionalSelector {
     const spells = this.actor.system.spells;
     if (!spells) return false; // Vehicle actors do not have spell slots.
     const min = bonus.consume.value.min || 1;
-    const pact = spells.pact;
-    const max = Object.keys(CONFIG.DND5E.spellLevels).length - 1; // disregard cantrip levels
-    for (let i = min; i <= max; i++) {
-      if (pact.value && (pact.level === i)) return "pact";
-      const spell = spells[`spell${i}`] || {};
-      if (spell.value) return `spell${i}`;
-    }
-    return false;
+
+    const pairs = Object.entries(spells).reduce((acc, [k, v]) => {
+      if (!v.value || !v.max) return acc;
+      const level = ("level" in v) ? v.level : parseInt(k.replace("spell", ""));
+      if (!level || (level < min)) return acc;
+      acc.push([k, level]);
+      return acc;
+    }, []);
+
+    const minData = pairs.reduce((acc, [k, level]) => {
+      if (level > acc.level) return acc;
+      if (level < acc.level) acc = {level: level};
+      acc.keys ??= new Set();
+      acc.keys.add(k);
+      return acc;
+    }, {level: Infinity, keys: new Set()});
+
+    if (!Number.isInteger(minData.level)) return false;
+
+    if (minData.keys.size === 1) return minData.keys.first();
+
+    for (const k of minData.keys) if (k.startsWith("spell")) minData.keys.delete(k);
+    return minData.keys.first();
   }
 
   /**
@@ -488,7 +520,7 @@ export class OptionalSelector {
     const src = bonus.origin ?? this.item ?? this.actor;
     const data = src.getRollData();
 
-    if (bonus.parent.uuid === this.item?.uuid) {
+    if (bonus.item.uuid === this.item?.uuid) {
       foundry.utils.setProperty(data, "item.level", this.level);
     }
 
@@ -497,12 +529,12 @@ export class OptionalSelector {
 
   /**
    * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.
-   * @param {Babonus} babonus                         The babonus that holds the optional bonus to apply.
-   * @param {Actor|Item} roller                       The actor or item performing a roll or usage.
-   * @param {Actor|Item|ActiveEffect|null} target     The actor or item that was updated or deleted, if any.
+   * @param {Babonus} babonus                             The babonus that holds the optional bonus to apply.
+   * @param {Actor5e|Item5e} roller                       The actor or item performing a roll or usage.
+   * @param {Actor5e|Item5e|ActiveEffect5e} [target]      The actor or item that was updated or deleted, if any.
    * @param {object} config
-   * @param {string} config.bonus                     The bonus that will be applied.
-   * @returns {boolean}                               Explicitly return false to cancel the application of the bonus.
+   * @param {string} config.bonus                         The bonus that will be applied.
+   * @returns {boolean}                                   Explicitly return false to cancel the application of the bonus.
    */
   callHook(babonus, target, config) {
     const roller = this.item ?? this.actor;

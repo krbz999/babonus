@@ -9,22 +9,38 @@ export class CharacterSheetTab {
    */
   static async _onRenderCharacterSheet2(sheet, [html]) {
     const template = "modules/babonus/templates/subapplications/character-sheet-tab.hbs";
-    const rollData = sheet.document.getRollData();
-    const bonuses = await babonus.getCollection(sheet.actor).reduce(async (acc, bonus) => {
-      acc = await acc;
-      const section = acc[bonus.type] ?? {};
-      section.label ??= "BABONUS.Type" + bonus.type.capitalize();
+
+    const bonuses = {};
+
+    async function _prepareBonus(bonus, rollData) {
+      const section = bonuses[bonus.type] ??= {};
+      section.label ??= `BABONUS.Type${bonus.type.capitalize()}`;
       section.key ??= bonus.type;
       section.bonuses ??= [];
       section.bonuses.push({
         bonus: bonus,
         labels: bonus.sheet._prepareLabels().slice(1).filterJoin(" &bull; "),
-        tooltip: await TextEditor.enrichHTML(bonus.description, {rollData})
+        tooltip: await TextEditor.enrichHTML(bonus.description, {rollData}),
+        isEmbedded: bonus.parent.isEmbedded,
+        parentName: bonus.parent.name
       });
-      acc[bonus.type] ??= section;
-      return acc;
-    }, {});
+    }
+
+    const data = sheet.actor.getRollData();
+    for(const bonus of babonus.getCollection(sheet.actor)) await _prepareBonus(bonus, data);
+    for(const item of sheet.actor.items) {
+      const data = item.getRollData();
+      for(const bonus of babonus.getCollection(item)) await _prepareBonus(bonus, data);
+      for(const effect of item.effects) for(const bonus of babonus.getCollection(effect)) {
+        await _prepareBonus(bonus, data);
+      }
+    }
+    for(const effect of sheet.actor.effects) {
+      for(const bonus of babonus.getCollection(effect)) await _prepareBonus(bonus, data);
+    }
+
     bonuses.all = {label: "BABONUS.Bonuses", key: "all", bonuses: []};
+
     const div = document.createElement("DIV");
     const isActive = sheet._tabs[0].active === MODULE.ID ? "active" : "";
     const isEdit = sheet.constructor.MODES.EDIT === sheet._mode;
@@ -39,18 +55,30 @@ export class CharacterSheetTab {
     });
 
     div.querySelectorAll("[data-action]").forEach(n => {
-      const id = n.closest("[data-item-id]")?.dataset.itemId;
-      const bonus = babonus.getId(sheet.document, id);
-      switch (n.dataset.action) {
-        case "toggle": n.addEventListener("click", (event) => bonus.toggle()); break;
-        case "edit": n.addEventListener("click", (event) => bonus.sheet.render(true)); break;
-        case "delete": n.addEventListener("click", (event) => bonus.delete()); break;
-        case "otter-dance": n.addEventListener("click", BabonusWorkshop.prototype._onOtterDance); break;
-      }
+      n.addEventListener("click", async (event) => {
+        const action = event.currentTarget.dataset.action;
+        const uuid = event.currentTarget.closest("[data-item-uuid]")?.dataset.itemUuid;
+        if (!uuid) return;
+        const bonus = await babonus.fromUuid(uuid);
+        switch (action) {
+          case "toggle": return bonus.toggle();
+          case "edit": return bonus.sheet.render(true);
+          case "delete": return bonus.delete();
+          default: return;
+        }
+      });
     });
     div.firstElementChild.addEventListener("drop", BabonusWorkshop.prototype._onDrop.bind(sheet));
-    div.querySelectorAll("[data-item-id]").forEach(n => {
+    div.querySelectorAll("[data-item-id][draggable]").forEach(n => {
       n.addEventListener("dragstart", BabonusWorkshop.prototype._onDragStart.bind(sheet));
+    });
+    div.querySelector("[data-action='otter-dance']").addEventListener("click", BabonusWorkshop.prototype._onOtterDance);
+    div.querySelectorAll("[data-action='bonus-source']").forEach(n => {
+      n.addEventListener("click", async (event) => {
+        const uuid = event.currentTarget.dataset.uuid;
+        const item = await fromUuid(uuid);
+        return item.sheet.render(true);
+      });
     });
 
     html.querySelector(".tab-body").appendChild(div.firstElementChild);
@@ -125,7 +153,13 @@ export class CharacterSheetTab {
       /** @override */
       _filterChildren(collection, filters) {
         if (collection !== "babonus") return fn.call(this, collection, filters);
-        return Array.from(babonus.getCollection(this.document));
+
+        const embedded = babonus.findEmbeddedDocumentsWithBonuses(this.document);
+
+        const actor = babonus.getCollection(this.document).contents;
+        const items = embedded.items.flatMap(item => babonus.getCollection(item).contents);
+        const effects = embedded.effects.flatMap(effect => babonus.getCollection(effect).contents);
+        return actor.concat(items).concat(effects);
       }
     };
     cls.prototype._filterChildren = sheet.prototype._filterChildren;

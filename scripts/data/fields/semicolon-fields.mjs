@@ -77,16 +77,10 @@ class StatusEffectsField extends BaseField {
 
   /** @override */
   static async choices() {
-    let effects = CONFIG.statusEffects;
-    if (game.modules.get("concentrationnotifier")?.active) {
-      // Using .concat as not to mutate.
-      effects = effects.concat({id: CN.STATUS, icon: CN.ICON});
-    }
-    return effects.reduce((acc, {id, icon}) => {
-      if (!id) return acc;
-      acc.push({value: id, label: id, icon});
+    return CONFIG.statusEffects.reduce((acc, {id, icon, name}) => {
+      if (id && icon && name) acc.push({value: id, label: name, icon: icon});
       return acc;
-    }, []).sort((a, b) => a.value.localeCompare(b.value));
+    }, []);
   }
 }
 
@@ -205,6 +199,7 @@ class WeaponPropertiesField extends BaseField {
     return keys.reduce((acc, k) => {
       const label = labels[k]?.label;
       if (label) acc.push({value: k, label: label});
+      return acc;
     }, []);
   }
 }

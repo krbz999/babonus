@@ -1,100 +1,6 @@
 import {MODULE, SETTINGS} from "./constants.mjs";
 import {BonusCollector} from "./applications/bonus-collector.mjs";
 
-/**
- * An example bonus, as it would be stored on an actor, effect, item, or template.
- * Includes all fields.
- *
-  flags.babonus.bonuses: {
-    <id>: {
-      enabled: true,                                        // Whether this bonus is turned on.
-      name: "Special Fire Spell Bonus",                     // The name of the bonus.
-      id: "hgienfid783h",                                   // Regular 16 character id.
-      description: "This is...",                            // Description of the bonus.
-      type: "attack",                                       // Or "damage", "save", "throw", "hitdie".
-      exclusive: false,                                     // whether this bonus only applies to the item on which it is created (attack/damage/save only).
-      optional: false,                                      // whether this bonus is toggleable in the roll config.
-      consume: {
-        enabled: true,                                      // Whether the bonus consumes uses/quantity off its item or slots off its actor.
-        scales: true,                                       // Whether the consumption scales between the min and max values given.
-        type: "uses",                                       // Whether the consumption is limited "uses", "quantity", "slots", "health", or "effect".
-        value: {min: 5, max: 15, step: 5},                  // The minimum and maximum number consumed when applying the bonus.
-        formula: "1d8"                                      // A formula with which the bonus scales, default being the bonus formula itself.
-      },
-      aura: {
-        enabled: true,                                      // Whether this should be an aura.
-        template: true,                                     // Whether this should be a template aura, not a regular aura.
-        range: "60",                                        // The range of the aura (in ft), not relevant if template. Use -1 for infinite.
-        self: false,                                        // Whether the aura affects the owner, too.
-        disposition: 1                                      // What token actors within range to affect.
-        blockers: ["dead", "unconscious"]                   // Array of statuses that stop auras from being transferred.
-        require: {                                          // Obstructions that might block an aura.
-          sight: true,                                      // Whether the aura requires that the receiver can see the source.
-          move: true                                        // Whether the aura requires an unobstructed path from the source to the receiver.
-        }
-      },
-      bonuses: {
-        bonus: "1d4 + @abilities.int.mod",                  // All types, but 'save' only takes numbers, not dice.
-        criticalBonusDice: "5",                             // A value (can be roll data) that adds more dice on a crit, 'damage' only.
-        criticalBonusDamage: "4d6 + 2"                      // Any die roll, 'damage' only.
-        deathSaveTargetValue: "12",                         // A value (can be roll data) that lowers the target value of death saves, 'throw' only.
-        deathSaveCritical: "5",                             // A value (can be roll data) that lowers the crit range of death saves, 'throw' only.
-        criticalRange: "1",                                 // A value (can be roll data) that lowers the crit range, 'attack' only.
-        fumbleRange: "3"                                    // A value (can be roll data) that raises the fumble range, 'attack' only.
-      },
-      filters: {
-        // UNIVERSAL:
-        arbitraryComparison: [{                             // An array of objects comparing two values.
-          one: "@item.uses.value",                          // The left-side value.
-          other: "@abilities.int.mod",                      // The right-side value.
-          operator: "EQ"                                    // The method of comparison.
-        }],
-        healthPercentages: {value: 50, type: 0},            // A percentage value and whether it must be 'and lower' or 'and higher'.
-        statusEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects against.
-        targetEffects: ["blind", "dead", "!prone"],         // Array of statuses to match effects on the target against.
-        creatureTypes: ["undead", "!humanoid"],             // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
-        actorCreatureTypes: ["undead", "!humanoid"],        // Array of CONFIG.DND5E.creatureTypes. This is not strict, to allow for subtype/custom.
-        customScripts: "return true;",                      // A custom script that returns true or false.
-        remainingSpellSlots: {min: 3, max: null},           // A min and max number of spell slots remaining the actor must have.
-        preparationModes: ["pact", "always"],               // The type of preparation mode the spell must be one of.
-        tokenSizes: {size: 2, type: 0, self: true},         // The size of the targeted token, whether it must be smaller than/greater than, and whether to clamp with self.
-
-        // ATTACK, DAMAGE:
-        attackTypes: ["mwak", "rwak", "msak", "rsak"],      // The type of attack.
-
-        // ATTACK, DAMAGE, SAVE:
-        damageTypes: ["fire", "cold", "!bludgeoning"],      // The type of damage or healing the item must have.
-        itemTypes: ["spell", "weapon"],                     // The item types to which it applies; also "feat", "equipment", "consumable".
-
-        // ATTACK, DAMAGE, THROW, TEST:
-        abilities: ["int"],                                 // The ability the actor/item must be using.
-
-        // ATTACK, TEST, THROW:
-        proficiencyLevels: [0, 1, 2, 0.5],                  // The valid proficiency levels.
-
-        // SAVE:
-        saveAbilities: ["int", "cha", "con"],               // The ability that sets the save DC.
-
-        // THROW:
-        throwTypes: ["con", "death", "concentration"],      // The type of saving throw to which it applies.
-
-        // TEST:
-        baseTools: ["herb", "alchemist"],                   // The type of tool being used for the tool check.
-        skillIds: ["ath", "acr"],                           // The type of skill being rolled.
-
-        // SPELL:
-        spellComponents: {types: ["vocal"], match: "ALL"},  // Spell components it must have; at least one, or match "ANY".
-        spellLevels: [0, 1, 2, 3],                          // The level the spell must be.
-        spellSchools: ["evo", "con"],                       // The school the spell must be.
-
-        // WEAPON
-        baseWeapons: ["dagger", "lance", "shortsword"],     // The weapon the item must be.
-        weaponProperties: ["fin", "!two"],                  // The weapon properties the item must have one of, and have none of.
-      }
-    }
-  }
- */
-
 export class FilterManager {
   /**
    * @typedef {Actor} Actor5e     Actor implementation.
@@ -216,7 +122,7 @@ export class FilterManager {
   /**
    * Replace roll data of bonuses that originate from foreign sources, including transferred effects.
    * @param {Babonus[]} bonuses         An array of babonuses whose bonuses to replace.
-   * @param {Actor5e|Item5e} object     An actor or item used to get the correct roll data.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
    */
   static _replaceRollDataOfBonuses(bonuses, object) {
     const item = (object instanceof Item) ? object : null;
@@ -231,7 +137,7 @@ export class FilterManager {
       if (src === actor) continue;
 
       // Don't bother with different roll data if the origin is the item being rolled.
-      if (src.id === item?.id) continue;
+      if (src.uuid === item?.uuid) continue;
 
       const data = src.getRollData();
 
@@ -350,22 +256,17 @@ export class FilterManager {
     const actor = (object instanceof Item) ? object.actor : object;
     const {included, excluded} = FilterManager._splitExlusion(filter);
 
-    // Vehicles cannot wear base armor.
-    if (actor.type === "vehicle") return !(included.size > 0);
-
-    // Check for shield(s) first.
-    const hasShield = !!actor.system.attributes.ac.equippedShield;
-    if (!hasShield && included.has("shield")) return false;
-    if (hasShield && excluded.has("shield")) return false;
-
-    const armor = actor.system.attributes.ac.equippedArmor ?? null;
+    const shield = actor.system.attributes?.ac?.equippedShield ?? null;
+    const armor = actor.system.attributes?.ac?.equippedArmor ?? null;
+    const types = new Set();
+    if (shield?.system.type?.baseItem) types.add(shield.system.type.baseItem);
+    if (armor?.system.type?.baseItem) types.add(armor.system.type.baseItem);
 
     // If no armor worn.
-    if (!armor) return !(included.size > 0);
+    if (!types.size) return !(included.size > 0);
 
-    const type = armor.system.type.baseItem;
-    if (included.filter(i => i !== "shield").size && !included.has(type)) return false;
-    if (excluded.size && excluded.has(type)) return false;
+    if (included.size && !included.intersects(types)) return false;
+    if (excluded.size && excluded.intersects(types)) return false;
     return true;
   }
 
@@ -377,7 +278,7 @@ export class FilterManager {
    */
   static damageTypes(item, filter) {
     if (!filter.size) return true;
-    const types = new Set(item.getDerivedDamageLabel().map(i => i.damageType));
+    const types = new Set(item.system.damage.parts.map(p => p[1]));
     const {included, excluded} = FilterManager._splitExlusion(filter);
     if (included.size && !types.intersects(included)) return false;
     if (excluded.size && types.intersects(excluded)) return false;
@@ -569,6 +470,11 @@ export class FilterManager {
     if (!filter.size) return true;
     const actor = object.actor ?? object;
     const {included, excluded} = FilterManager._splitExlusion(filter);
+
+    // Discard any conditions the actor is immune to.
+    const ci = actor.system.traits?.ci?.value ?? new Set();
+    for (const k of ci) {included.delete(k); excluded.delete(k);}
+
     if (included.size && !included.intersects(actor.statuses)) return false;
     if (excluded.size && excluded.intersects(actor.statuses)) return false;
     return true;
@@ -586,6 +492,11 @@ export class FilterManager {
     const {included, excluded} = FilterManager._splitExlusion(filter);
     const actor = game.user.targets.first()?.actor;
     if (!actor) return !included.size;
+
+    // Discard any conditions the actor is immune to.
+    const ci = actor.system.traits?.ci?.value ?? new Set();
+    for (const k of ci) {included.delete(k); excluded.delete(k);}
+
     if (included.size && !included.intersects(actor.statuses)) return false;
     if (excluded.size && excluded.intersects(actor.statuses)) return false;
     return true;
@@ -777,7 +688,7 @@ export class FilterManager {
   static healthPercentages(object, {value, type}) {
     if (!Number.isNumeric(value) || ![0, 1].includes(type)) return true;
     const actor = object.actor ?? object;
-    const hp = Math.floor(actor.system.attributes.hp.value / actor.system.attributes.hp.max * 100);
+    const hp = actor.system.attributes.hp.pct; // this takes tempmax into account, but not temphp.
     return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
   }
 

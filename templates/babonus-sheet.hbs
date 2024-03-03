@@ -85,7 +85,7 @@
       <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersReroll"}}
-          {{#if context.modifiers.reroll.label}}({{context.modifiers.reroll.label}}){{/if}}
+          {{#if context.modifiers.reroll.label}}({{localize context.modifiers.reroll.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -93,6 +93,11 @@
           </label>
 
           <input type="text" name="bonuses.modifiers.reroll.value" value="{{context.modifiers.reroll.value}}" {{disabled context.modifiers.reroll.disabled}}>
+
+          <label class="checkbox">
+            <input type="checkbox" name="bonuses.modifiers.reroll.invert" {{checked context.modifiers.reroll.invert}} {{disabled context.modifiers.reroll.disabled}}>
+            {{localize "BABONUS.ModifiersRerollInvert"}}
+          </label>
 
           <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked context.modifiers.reroll.recursive}} {{disabled context.modifiers.reroll.disabled}}>
@@ -104,7 +109,7 @@
       <div class="form-group modifiers">
         <label class="label">
           {{localize "BABONUS.ModifiersExplode"}}
-          {{#if context.modifiers.explode.label}}({{context.modifiers.explode.label}}){{/if}}
+          {{#if context.modifiers.explode.label}}({{localize context.modifiers.explode.label}}){{/if}}
         </label>
         <div class="form-fields">
           <label class="checkbox">
@@ -130,7 +135,7 @@
             <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
           </label>
           <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}" {{disabled context.modifiers.minimum.disabled}}>
-          <label class="checkbox" data-tooltip="BABONUS.ModifiersMinimumMaximizeHint">
+          <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.minimum.maximize" {{checked context.modifiers.minimum.maximize}} {{disabled context.modifiers.minimum.disabled}}>
             {{localize "BABONUS.ModifiersMinimumMaximize"}}
           </label>
@@ -147,11 +152,16 @@
             <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked context.modifiers.maximum.enabled}}>
           </label>
           <input type="text" name="bonuses.modifiers.maximum.value" value="{{context.modifiers.maximum.value}}" {{disabled context.modifiers.maximum.disabled}}>
-          <label class="checkbox" data-tooltip="BABONUS.ModifiersMaximumZeroHint">
+          <label class="checkbox">
             <input type="checkbox" name="bonuses.modifiers.maximum.zero" {{checked context.modifiers.maximum.zero}} {{disabled context.modifiers.maximum.disabled}}>
             {{localize "BABONUS.ModifiersMaximumZero"}}
           </label>
         </div>
+      </div>
+
+      <div class="form-group modifiers example">
+        <label class="label">{{localize "BABONUS.Example"}}:</label>
+        <div class="form-fields formula">{{context.modifiers.example}}</div>
       </div>
       {{/if}}
 
@@ -350,13 +360,21 @@
           {{localize "BABONUS.ConfigurationAuraRequire"}}
         </label>
         <div class="form-fields">
+          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireMoveTooltip">
+            <input type="checkbox" name="aura.require.move" {{checked bonus.aura.require.move}}>
+            {{localize "BABONUS.ConfigurationAuraRequireMove"}}
+          </label>
+          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireLightTooltip">
+            <input type="checkbox" name="aura.require.light" {{checked bonus.aura.require.light}}>
+            {{localize "BABONUS.ConfigurationAuraRequireLight"}}
+          </label>
           <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireSightTooltip">
             <input type="checkbox" name="aura.require.sight" {{checked bonus.aura.require.sight}}>
             {{localize "BABONUS.ConfigurationAuraRequireSight"}}
           </label>
-          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireMoveTooltip">
-            <input type="checkbox" name="aura.require.move" {{checked bonus.aura.require.move}}>
-            {{localize "BABONUS.ConfigurationAuraRequireMove"}}
+          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireSoundTooltip">
+            <input type="checkbox" name="aura.require.sound" {{checked bonus.aura.require.sound}}>
+            {{localize "BABONUS.ConfigurationAuraRequireSound"}}
           </label>
         </div>
       </div>

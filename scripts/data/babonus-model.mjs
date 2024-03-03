@@ -1,7 +1,108 @@
 import {BabonusSheet} from "../applications/babonus-sheet.mjs";
 import {module} from "./_module.mjs";
 
+/**
+ * Configuration for how a bonus consumes a property.
+ *
+ * @typedef {object} ConsumptionModel
+ * @property {boolean} enabled        Whether the bonus consumes a property.
+ * @property {boolean} scales         Whether the bonus scales with its consumed property.
+ * @property {string} type            The type of the consumed property.
+ * @property {object} value
+ * @property {string} value.min       The minimum amount the bonus consumes.
+ * @property {string} value.max       The maximum amount the bonus consumes.
+ * @property {number} value.step      The interval size between the min and max.
+ * @property {string} formula         The formula used to scale up the bonus.
+ */
+
+/**
+ * Configuration for the aura properties of a bonus.
+ *
+ * @typedef {object} AuraModel
+ * @property {boolean} enabled            Whether the bonus is an aura.
+ * @property {boolean} template           Whether the bonus is an aura on a template.
+ * @property {string} range               The range of the aura.
+ * @property {boolean} self               Whether the aura can also affect its owner.
+ * @property {number} disposition         The type of actors, by token disposition, to affect with the aura.
+ * @property {Set<string>} blockers       Statuses that disable this aura when its owner is affected.
+ * @property {object} require
+ * @property {boolean} require.move       Whether the aura requires a direct, unobstructed path of movement.
+ * @property {boolean} require.sight      Whether the aura requires a direct line of sight.
+ */
+
+/**
+ * Configuration for the changes a bonus provides.
+ *
+ * @typedef {object} BonusConfiguration
+ * @property {string} bonus                     Bonus to the roll that is added on top.
+ * @property {string} criticalBonusDice         Amount of dice to increase the damage by on critical hits.
+ * @property {string} criticalBonusDamage       Bonus to a damage roll that is added on top only on critical hits.
+ * @property {string} deathSaveTargetValue      Modification to the target value a death saving throw must meet
+ *                                              to be considered a success.
+ * @property {string} deathSaveCritical         Modification to the threshold at which a death saving throw is
+ *                                              considered a critical success.
+ * @property {string} criticalRange             Modification to the threshold at which an attack roll is considered
+ *                                              a critical hit.
+ * @property {string} fumbleRange               Modification to the threshold at which an attack roll is considered
+ *                                              an automatic failure.
+ * @property {ModifiersModel} modifiers
+ */
+
+/**
+ * Configuration for dice modifier bonuses.
+ *
+ * @typedef {object} ModifiersModel
+ * @property {object} config                Additional configurations.
+ * @property {boolean} config.first         Whether modifiers affect only the first die encountered.
+ * @property {object} amount
+ * @property {boolean} amount.enabled       Whether this modifier is enabled.
+ * @property {string} amount.value          The amount to upscale a die's number by.
+ * @property {object} size
+ * @property {boolean} size.enabled         Whether this modifier is enabled.
+ * @property {string} size.value            The amount to upscale a die's faces by.
+ * @property {object} reroll
+ * @property {boolean} reroll.enabled       Whether this modifier is enabled.
+ * @property {string} reroll.value          The threshold for rerolling a die.
+ * @property {boolean} reroll.invert        Whether the threshold is inverted.
+ * @property {boolean} reroll.recursive     Whether to reroll recursively.
+ * @property {object} explode
+ * @property {boolean} explode.enabled      Whether this modifier is enabled.
+ * @property {string} explode.value         The threshold for exploding a die.
+ * @property {boolean} explode.once         Whether a die can explode at most once.
+ * @property {object} minimum
+ * @property {boolean} minimum.enabled      Whether this modifier is enabled.
+ * @property {string} minimum.value         The minimum value a die can roll.
+ * @property {boolean} minimum.maximize     Whether to simply maximize dice.
+ * @property {object} maximum
+ * @property {boolean} maximum.enabled      Whether this modifier is enabled.
+ * @property {string} maximum.value         The maximum value a die can roll.
+ * @property {boolean} maximum.zero         Whether the maximum can be zero, else at least 1.
+ */
+
+/**
+ * Data model of a generic Babonus. This includes all properties; depending on the type, some will not exist.
+ *
+ * @property {string} name                    The name of the bonus.
+ * @property {string} id                      The id of the bonus.
+ * @property {string} type                    The type of the bonus.
+ * @property {boolean} enabled                Whether the bonus is currently active.
+ * @property {string} description             The description of the bonus.
+ * @property {boolean} optional               Whether the additive bonus is opted into in the roll config.
+ * @property {boolean} exclusive              Whether the bonus is applying only to its parent item,
+ *                                            or its parent effect's parent item.
+ * @property {object} filters                 Schema of valid filter types.
+ * @property {ConsumptionModel} consume
+ * @property {AuraModel} aura
+ * @property {BonusConfiguration} bonuses
+ *
+ */
 class Babonus extends foundry.abstract.DataModel {
+  /**
+   * Variable to track whether this bonus has modified dice and was halted at the first die.
+   * @type {boolean}
+   */
+  _halted = false;
+
   constructor(data, options = {}) {
     data = foundry.utils.mergeObject({
       name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
@@ -43,16 +144,6 @@ class Babonus extends foundry.abstract.DataModel {
   _initialize(...args) {
     super._initialize(...args);
     this.prepareDerivedData();
-  }
-
-  /** @override */
-  toObject(source = true) {
-    const data = super.toObject(source);
-    if (!source) return data;
-    for (const id in data.filters) {
-      if (!module.filters[id].storage(this)) delete data.filters[id];
-    }
-    return data;
   }
 
   /** @override */
@@ -133,7 +224,7 @@ class Babonus extends foundry.abstract.DataModel {
 
     // Valid for attack/damage/save:
     const model = dnd5e.dataModels.item.config[item.type];
-    const validityA = ["attack", "damage", "save"].includes(this.type) && model.schema.getField("damage.parts");
+    const validityA = ["attack", "damage", "save"].includes(this.type) && !!model.schema.getField("damage.parts");
 
     // Valid for test:
     const validityB = (this.type === "test") && (item.type === "tool");
@@ -155,9 +246,11 @@ class Babonus extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get isSuppressed() {
-    // If this bonus lives on an effect, defer to the effect.
+    // If this bonus lives on an effect or template, defer to those.
     const effect = this.effect;
     if (effect) return !effect.modifiesActor;
+    const template = this.template;
+    if (template) return template.hidden;
 
     const item = this.item;
     if (!item) return false;
@@ -180,110 +273,103 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * The true source of the babonus.
+   * The true source of the babonus intended for the retrieval of roll data.
    * - If the babonus is embedded on a template, this returns the item that created it.
-   * - If the babonus is embedded on an effect, this returns the actor or item from which the effect originates.
    * - If the babonus is embedded on an item or actor, this simply returns that item or actor.
+   * - If the babonus is embedded on an effect, this returns the actor or item from which the effect originates.
    * @type {Actor5e|Item5e|null}
    */
   get origin() {
-    let origin = null;
     if (this.parent instanceof MeasuredTemplateDocument) {
       const retrieved = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
-      if (retrieved instanceof Item) origin = retrieved;
-    } else if (this.parent instanceof ActiveEffect) {
-      const retrieved = fromUuidSync(this.parent.origin ?? "");
-      if (retrieved instanceof Actor) origin = retrieved;
-      else if (retrieved instanceof Item) {
-        // We may have somehow retrieved an item from a compendium.
-        if (!retrieved.isEmbedded) origin = this.parent;
-        else origin = retrieved;
-      } else if (retrieved instanceof ActiveEffect) {
-        origin = retrieved.parent;
-      }
-    } else if ((this.parent instanceof Item) || (this.parent instanceof Actor)) {
-      origin = this.parent;
+      return (retrieved instanceof Item) ? retrieved : null;
     }
-    return origin;
+
+    if (this.parent instanceof Item) return this.parent;
+
+    if (this.parent instanceof Actor) return this.parent;
+
+    if (this.parent instanceof ActiveEffect) {
+      let origin;
+      try {
+        origin = fromUuidSync(this.parent.origin);
+        if (!origin) return null;
+      } catch (err) {
+        console.warn(err);
+        return null;
+      }
+
+      if (origin instanceof Item) return origin;
+      if (origin instanceof Actor) return origin;
+      if (origin instanceof ActiveEffect) return origin.parent;
+      return null;
+    }
+
+    return null;
   }
 
   /**
-   * Get the source actor of a babonus, no matter what type of document it is embedded in.
-   * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
-   * @type {Actor|null}
+   * The actor that this bonus is currently directly or indirectly embedded on, if any.
+   * @type {Actor5e|null}
    */
   get actor() {
-    if (this.parent instanceof Actor) {
-      return this.parent;
+    if (this.parent instanceof Actor) return this.parent;
+
+    if (this.parent instanceof Item) return this.parent.parent ?? null;
+
+    if (this.parent instanceof ActiveEffect) {
+      if (this.parent.parent instanceof Actor) return this.parent.parent;
+      if (this.parent.parent instanceof Item) return this.parent.parent.parent ?? null;
     }
 
-    else if (this.parent instanceof ActiveEffect) {
-      if (this.parent.parent instanceof Actor) {
-        // Case 1: Effect on actor.
-        return this.parent.parent;
-      } else if (this.parent.parent instanceof Item) {
-        // Case 2: Effect on item on actor.
-        return this.parent.parent.actor;
-      }
-    }
-
-    else if (this.parent instanceof Item) {
-      return this.parent.actor;
-    }
-
-    else if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e.origin);
-      return item?.actor ?? null;
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
+      return (item instanceof Item) ? (item.parent ?? null) : null;
     }
   }
 
   /**
-   * Get the token corresponding token of the actor that has the bonus, no matter what type of document it is embedded in.
+   * Get the corresponding token of the actor that has the bonus, no matter what type of document it is embedded in.
    * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
-   * @type {Token|null}
+   * @type {Token5e|null}
    */
   get token() {
     const actor = this.actor;
     if (!actor) return null;
-
-    return actor.token?.object ?? actor.getActiveTokens()[0] ?? null;
+    const token = actor.isToken ? actor.token?.object : actor.getActiveTokens()[0];
+    return token ? token : null;
   }
 
   /**
-   * Get the item that has the babonus, no matter if the babonus lives on a template, effect, or item.
-   * Note that this may not be different from the 'origin' or be dependant on where the bonus currently lives.
-   * @type {Item|null}
+   * The item that this bonus is currently directly or indirectly embedded on, if any.
+   * @type {Item5e|null}
    */
   get item() {
-    if (this.parent instanceof Item) {
-      return this.parent;
-    }
+    if (this.parent instanceof Actor) return null;
 
-    else if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e.origin);
-      return item ?? null;
-    }
+    if (this.parent instanceof Item) return this.parent;
 
-    else if (this.parent instanceof ActiveEffect) {
-      const item = fromUuidSync(this.parent.origin ?? "");
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
       return (item instanceof Item) ? item : null;
     }
 
-    else if (this.parent instanceof Actor) {
-      return null;
+    if (this.parent instanceof ActiveEffect) {
+      const item = fromUuidSync(this.parent.origin ?? "");
+      return (item instanceof Item) ? item : null;
     }
   }
 
   /**
-   * Get the effect that has the babonus.
-   * @type {ActiveEffect|null}
+   * The effect that this bonus is currently directly embedded on, if any.
+   * @type {ActiveEffect5e|null}
    */
   get effect() {
     return (this.parent instanceof ActiveEffect) ? this.parent : null;
   }
 
   /**
-   * Get the template that has the babonus.
+   * The template that this bonus is currently directly embedded on, if any.
    * @type {MeasuredTemplateDocument|null}
    */
   get template() {

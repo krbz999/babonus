@@ -1,48 +1,58 @@
 .babonus.keys-dialog {
   min-width: 300px;
   min-height: 400px;
-}
-.babonus.keys-dialog .dialog-content {
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 0 3px;
-}
-.babonus.keys-dialog .dialog-buttons {
-  flex: 0;
-}
-.babonus.keys-dialog table {
-  height: 100%;
-}
-.babonus.keys-dialog tbody {
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-.babonus.keys-dialog tr {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-}
-.babonus.keys-dialog table td {
-  display: flex;
-  align-items: center;
-}
-.babonus.keys-dialog td img {
-  height: 25px;
-  border: none;
-}
-.babonus.keys-dialog td > * {
-  flex: 1;
-}
-.babonus.keys-dialog td:first-child > * {
-  padding-left: 1em;
-  justify-content: left;
-  flex-direction: row;
-  display: flex;
-  gap: 0.5em;
-  align-items: center;
-}
-.babonus.keys-dialog td:not(:first-child) {
-  text-align: center;
+
+  .dialog-content {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0 3px;
+
+    & table {
+      height: 100%;
+
+      & tbody {
+        height: 100%;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      & tr {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+
+        & td {
+          display: flex;
+          align-items: center;
+
+          & > * {
+            flex: 1;
+          }
+
+          & img {
+            height: 25px;
+            border: none;
+          }
+
+          &:first-child > * {
+            padding-left: 1em;
+            justify-content: left;
+            flex-direction: row;
+            display: flex;
+            gap: 0.5em;
+            align-items: center;
+          }
+
+          &:not(:first-child) {
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-buttons {
+    flex: 0;
+  }
 }

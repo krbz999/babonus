@@ -40,7 +40,7 @@ export class AppliedBonusesDialog extends Dialog {
 
   /**
    * When clicking a uuid tag, copy it.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   async _onClickUuid(event) {
     await game.clipboard.copyPlainText(event.currentTarget.dataset.uuid);

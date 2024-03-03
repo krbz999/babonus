@@ -94,13 +94,22 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       if (die.faces > 1) dm.push(mod);
     }
     if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
-      // TODO: allow for negative values here.
       const v = this.explode.value;
       const prefix = this.explode.once ? "xo" : "x";
+      let valid;
       let mod;
-      if (!Number.isNumeric(v) || !(v > 0) || (v >= die.faces)) mod = prefix;
-      else mod = `${prefix}>${v}`;
-      if ((die.faces > 1) || (prefix !== "x")) dm.push(mod);
+      if (v === 0) {
+        mod = prefix;
+        valid = (die.faces > 1) || (prefix === "xo");
+      } else if (v > 0) {
+        mod = (die.faces === v) ? prefix : `${prefix}>=${v}`;
+        valid = (v <= die.faces) && (((v === 1) && (prefix === "xo")) || (v > 1));
+      } else if (v < 0) {
+        const m = Math.max(1, die.faces + v);
+        mod = `${prefix}>=${m}`;
+        valid = m > 1 || (prefix == "xo");
+      }
+      if (valid) dm.push(mod);
     }
     if (hasMin && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
       const f = die.faces;
@@ -116,6 +125,32 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       const max = (v === 0) ? (zero ? 0 : 1) : (v > 0) ? v : Math.max(zero ? 0 : 1, die.faces + v);
       if (max < die.faces) dm.push(`max${max}`);
     }
+  }
+
+  /**
+   * Append applicable modifiers to a roll part.
+   * @param {string[]} parts                    The roll part. **will be mutated**
+   * @param {object} [rollData]                 Roll data for roll construction.
+   * @param {object} [options]
+   * @param {boolean} [options.ignoreFirst]     Whether to ignore the 'first' property'.
+   * @returns {boolean}                         Whether all but the first die were skipped.
+   */
+  modifyParts(parts, rollData = {}, options = {}) {
+    if (!this.hasModifiers) return;
+    const first = !options.ignoreFirst && this.config.first;
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const roll = new CONFIG.Dice.DamageRoll(part, rollData);
+      if (!roll.dice.length) continue;
+
+      for (const die of roll.dice) {
+        this.modifyDie(die);
+        if (first) break;
+      }
+      parts[i] = Roll.fromTerms(roll.terms).formula;
+      if (first) return true;
+    }
+    return false;
   }
 
   /* ----------------------------- */

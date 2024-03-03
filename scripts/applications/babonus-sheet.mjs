@@ -5,14 +5,16 @@ import {KeysDialog} from "./keys-dialog.mjs";
 
 export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) {
   /**
-   * @param {Babonus} babonus         The babonus managed by this sheet.
-   * @param {object} [options={}]     Optional configuration parameters for how the sheet behaves.
+   * @param {Babonus} bonus        The babonus managed by this sheet.
+   * @param {object} [options]     Optional configuration parameters for how the sheet behaves.
    */
-  constructor(babonus, options = {}) {
-    super(babonus, options);
-    this._filters = new Set(Object.keys(babonus.toObject().filters ?? {}));
+  constructor(bonus, options = {}) {
+    super(bonus, options);
+
+    const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => module.filters[id].storage(bonus));
+    this._filters = ids;
     this.appId = this.id;
-    this.owner = babonus.parent;
+    this.owner = bonus.parent;
   }
 
   /** @override */
@@ -59,14 +61,16 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /** @override */
   async getData(options = {}) {
+    const rollData = this.bonus.getRollData();
+
     const context = {};
     context.bonuses = this._prepareBonuses();
-    context.modifiers = this._prepareModifiers();
+    context.modifiers = this._prepareModifiers(rollData);
     context.hasModifiers = !foundry.utils.isEmpty(context.modifiers);
     context.aura = this._prepareAura();
     context.consume = this._prepareConsume();
     context.description = await TextEditor.enrichHTML(this.bonus.description, {
-      rollData: this.bonus.getRollData(), async: true
+      rollData: rollData, async: true
     });
     context.labels = this._prepareLabels();
     context.filters = await this._prepareFilters();
@@ -98,14 +102,13 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const bonuses = [];
     const type = this.bonus.type;
     b.forEach(([k, v]) => {
-      if (k === "modifiers" || k === "damageType") return;
-      const isDamage = (type === "damage") && (k === "bonus");
+      if ((k === "modifiers") || (k === "damageType")) return;
       bonuses.push({
         key: k,
         value: v,
         hint: `BABONUS.Type${type.capitalize()}${k.capitalize()}Tooltip`,
         label: `BABONUS.Type${type.capitalize()}${k.capitalize()}Label`,
-        isDamage: isDamage,
+        isDamage: (type === "damage") && (k === "bonus"),
         selected: this.bonus.bonuses.damageType
       });
     });
@@ -195,7 +198,16 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
     return {
       enabled: consume.enabled,
-      choices: consume.OPTIONS,
+      choices: {
+        currency: "BABONUS.ConsumptionTypeCurrency",
+        effect: "BABONUS.ConsumptionTypeEffect",
+        health: "BABONUS.ConsumptionTypeHealth",
+        inspiration: "BABONUS.ConsumptionTypeInspiration",
+        quantity: "DND5E.Quantity",
+        slots: "BABONUS.ConsumptionTypeSlots",
+        uses: "DND5E.LimitedUses",
+        resource: "BABONUS.ConsumptionTypeResource"
+      },
       cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
       showStep: ["health", "currency", "resource"].includes(consume.type) && consume.scales,
@@ -237,14 +249,19 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Prepare bonuses modifiers for rendering.
+   * @param {object} rollData     The roll data of the bonus,
    * @returns {object}
    */
-  _prepareModifiers() {
-    const modifiers = this.bonus.toObject().bonuses.modifiers ?? {};
+  _prepareModifiers(rollData) {
+    const modifiers = this.bonus.toObject().bonuses.modifiers;
+    if (!modifiers) return;
     const mods = this.bonus.bonuses.modifiers;
     const data = {};
-    for (const key in modifiers) {
-      const v = modifiers[key];
+    const parts = ["2d10", "1d4"];
+    mods.modifyParts(parts, rollData);
+    data.example = parts.join(" + ");
+
+    for (const [key, v] of Object.entries(modifiers)) {
 
       let label;
       switch (key) {
@@ -277,8 +294,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
           const prefix = mods.explode.once ? "xo" : "x";
           const v = mods.explode.value;
           if (!mods.hasExplode) label = null;
-          else if (!Number.isNumeric(v) || !(v > 0)) label = prefix;
-          else label = `${prefix}>${v}`;
+          if (v === 0) label = prefix;
+          else if (v > 0) label = `${prefix}>=${v}`;
+          else label = "BABONUS.Relative";
           break;
         }
         case "minimum": {
@@ -330,7 +348,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Handle deleting a filter.
-   * @param {PointerEvent} event                            The initiating click event.
+   * @param {Event} event                                   The initiating click event.
    * @returns {Promise<Actor5e|Item5e|ActiveEffect5e>}      A promise that resolves to the updated owner of the bonus.
    */
   async _onClickDeleteFilter(event) {
@@ -349,7 +367,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Handle adding a filter.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onClickAddFilter(event) {
     const id = event.currentTarget.dataset.id;
@@ -364,16 +382,15 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Helper function to display the keys dialog and update the corresponding filter value.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   async _onDisplayKeysDialog(event) {
+    const bonus = this.bonus;
     const filterId = event.currentTarget.dataset.id;
     const filter = module.filters[filterId];
     const property = event.currentTarget.dataset.property;
     const list = await filter.choices();
-    const canExclude = filter.canExclude;
-    const values = foundry.utils.getProperty(this.bonus, property);
-    const bonus = this.bonus;
+    const values = foundry.utils.getProperty(bonus, property);
     const owner = this.owner;
 
     for (const value of values) {
@@ -386,7 +403,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
     return KeysDialog.prompt({
       rejectClose: false,
-      options: {filterId, appId: this.appId, values: list, canExclude},
+      options: {
+        filterId: filterId,
+        appId: this.appId,
+        values: list,
+        canExclude: filter.canExclude
+      },
       callback: async function(html) {
         const values = [];
         html[0].querySelectorAll("select").forEach(s => {
@@ -407,12 +429,11 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /** @override */
   _createDocumentIdLink(html) {
-    const title = html[0].querySelector(".window-title");
     const label = game.i18n.localize(this.document.constructor.metadata.label);
     const idLink = document.createElement("A");
     idLink.classList.add("document-id-link");
     idLink.dataset.tooltip = `${label}: ${this.document.id}`;
-    idLink.dataset.tooltipDirection = "UP";
+    idLink.dataset.tooltipDirection = "DOWN";
     idLink.innerHTML = '<i class="fa-solid fa-passport"></i>';
     idLink.addEventListener("click", event => {
       event.preventDefault();
@@ -428,18 +449,19 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
         label, type: "uuid", id: this.document.uuid
       }));
     });
-    title.append(idLink);
+    html[0].querySelector(".header-button.close").before(idLink);
   }
 
   /** @override */
   async _updateObject(event, formData) {
     try {
-      this.bonus.updateSource(formData);
+      const obj = this.bonus.updateSource(formData);
+      if (foundry.utils.isEmpty(obj)) return this.render();
     } catch (err) {
       ui.notifications.error(err);
       return this.render()
     }
-    return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true);
+    return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true, this._filters);
   }
 
   /** @override */

@@ -10,10 +10,10 @@ export class AuraModel extends foundry.abstract.DataModel {
       self: new foundry.data.fields.BooleanField({initial: true}),
       disposition: new foundry.data.fields.NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
       blockers: new module.filters.auraBlockers(),
-      require: new foundry.data.fields.SchemaField({
-        sight: new foundry.data.fields.BooleanField(),
-        move: new foundry.data.fields.BooleanField()
-      })
+      require: new foundry.data.fields.SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
+        acc[k] = new foundry.data.fields.BooleanField()
+        return acc;
+      }, {}))
     };
   }
 
@@ -70,7 +70,7 @@ export class AuraModel extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get _validRange() {
-    return this.range === -1 || this.range > 0;
+    return (this.range === -1) || (this.range > 0);
   }
 
   /**
@@ -98,7 +98,11 @@ export class AuraModel extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get isBlocked() {
-    return new Set(this.blockers).intersects(this.bonus.actor.statuses);
+    const actor = this.bonus.actor;
+    const blockers = new Set(this.blockers);
+    const ci = actor.system.traits?.ci?.value ?? new Set();
+    for (const c of ci) blockers.delete(c);
+    return blockers.intersects(actor.statuses);
   }
 
   /* ----------------------------- */

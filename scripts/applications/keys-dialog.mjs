@@ -56,7 +56,7 @@ export class KeysDialog extends dnd5e.applications.DialogMixin(Dialog) {
 
   /**
    * Cycle all selects in a column between the valid options.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onCycleAll(event) {
     const table = event.currentTarget.closest(".babonus.keys-dialog table");
@@ -67,7 +67,7 @@ export class KeysDialog extends dnd5e.applications.DialogMixin(Dialog) {
 
   /**
    * Custom implementation for label-to-checkbox linking.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onCycleRight(event) {
     const select = event.currentTarget.closest("tr").querySelector("select");
@@ -77,7 +77,7 @@ export class KeysDialog extends dnd5e.applications.DialogMixin(Dialog) {
 
   /**
    * Cycle backwards in the select options.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {Event} event     The initiating click event.
    */
   _onCycleLeft(event) {
     const select = event.currentTarget.closest("tr").querySelector("select");
