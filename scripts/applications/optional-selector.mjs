@@ -487,7 +487,7 @@ export class OptionalSelector {
 
     const pairs = Object.entries(spells).reduce((acc, [k, v]) => {
       if (!v.value || !v.max || !v.level || (v.level < min)) return acc;
-      acc.push([k, level]);
+      acc.push([k, v.level]);
       return acc;
     }, []);
 
