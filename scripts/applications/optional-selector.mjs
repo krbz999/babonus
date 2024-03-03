@@ -337,7 +337,7 @@ export class OptionalSelector {
         let scale;
         if (scales) {
           key = scaleValue;
-          const s = this.actor.system.spells[s];
+          const s = this.actor.system.spells[key];
           const level = ("level" in s) ? s.level : parseInt(key.replace("spell", ""));
           scale = Math.min(level - consumeMin, consumeMax - 1);
         } else {
@@ -520,7 +520,7 @@ export class OptionalSelector {
     const src = bonus.origin ?? this.item ?? this.actor;
     const data = src.getRollData();
 
-    if (bonus.item.uuid === this.item?.uuid) {
+    if (bonus.item && (bonus.item.uuid === this.item?.uuid)) {
       foundry.utils.setProperty(data, "item.level", this.level);
     }
 
