@@ -228,10 +228,11 @@ export class OptionalSelector {
         // The 'value' of the option is the spell property key, like "spell3" or "pact".
         return Object.entries(this.actor.system.spells).reduce((acc, [k, v]) => {
           if (!v.value || !v.max) return acc;
-          const level = ("level" in v) ? v.level : parseInt(k.replace("spell", ""));
+          const level = v.level || 0;
           if (level < (bonus.consume.value.min || 1)) return acc;
-          const label = game.i18n.format(`DND5E.SpellLevel${("level" in v) ? k.capitalize() : "Slot"}`, {
-            level: ("level" in v) ? v.level : game.i18n.localize(`DND5E.SpellLevel${level}`),
+          const isLeveled = /spell[0-9]+/.test(k);
+          const label = game.i18n.format(`DND5E.SpellLevel${isLeveled ? "Slot" : k.capitalize()}`, {
+            level: isLeveled ? game.i18n.localize(`DND5E.SpellLevel${level}`) : v.level,
             n: `${v.value}/${v.max}`,
           });
           acc[k] = label;
@@ -338,8 +339,7 @@ export class OptionalSelector {
         if (scales) {
           key = scaleValue;
           const s = this.actor.system.spells[key];
-          const level = ("level" in s) ? s.level : parseInt(key.replace("spell", ""));
-          scale = Math.min(level - consumeMin, consumeMax - 1);
+          scale = Math.min(s.level - consumeMin, consumeMax - 1);
         } else {
           key = this._getLowestValidSpellSlotProperty(bonus);
           scale = 0;
@@ -486,9 +486,7 @@ export class OptionalSelector {
     const min = bonus.consume.value.min || 1;
 
     const pairs = Object.entries(spells).reduce((acc, [k, v]) => {
-      if (!v.value || !v.max) return acc;
-      const level = ("level" in v) ? v.level : parseInt(k.replace("spell", ""));
-      if (!level || (level < min)) return acc;
+      if (!v.value || !v.max || !v.level || (v.level < min)) return acc;
       acc.push([k, level]);
       return acc;
     }, []);
