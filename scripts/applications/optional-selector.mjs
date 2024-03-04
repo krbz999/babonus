@@ -226,18 +226,17 @@ export class OptionalSelector {
       }
       case "slots": {
         // The 'value' of the option is the spell property key, like "spell3" or "pact".
-        return Object.entries(this.actor.system.spells).reduce((acc, [k, v]) => {
-          if (!v.value || !v.max) return acc;
-          const level = v.level || 0;
-          if (level < (bonus.consume.value.min || 1)) return acc;
+        const entries = Object.entries(this.actor.system.spells).reduce((acc, [k, v]) => {
+          if (!v.value || !v.max || !v.level || (v.level < (bonus.consume.value.min || 1))) return acc;
           const isLeveled = /spell[0-9]+/.test(k);
           const label = game.i18n.format(`DND5E.SpellLevel${isLeveled ? "Slot" : k.capitalize()}`, {
-            level: isLeveled ? game.i18n.localize(`DND5E.SpellLevel${level}`) : v.level,
+            level: isLeveled ? game.i18n.localize(`DND5E.SpellLevel${v.level}`) : v.level,
             n: `${v.value}/${v.max}`,
           });
           acc[k] = label;
           return acc;
         }, {});
+        return dnd5e.utils.sortObjectEntries(entries);
       }
       case "health": {
         // The 'value' of the option is the amount of hp to subtract.
