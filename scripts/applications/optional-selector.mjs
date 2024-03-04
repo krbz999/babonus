@@ -429,16 +429,17 @@ export class OptionalSelector {
 
   /**
    * Return an upscaled bonus given a base and a number to multiply with. If 'scale' is 0, the default bonus is returned
-   * and no scaling is performed. Evaluating roll data properties is necessary here, otherwise scaling will not work. But
-   * it is not needed for bonuses that do not scale, since their roll data (if necessary) has already been replaced.
+   * and no scaling is performed. Evaluating roll data properties is necessary here, otherwise scaling will not work. It is
+   * also needed for bonuses that do not scale, since they may be affected by dice modifiers.
    * @param {Babonus} bonus     The babonus.
    * @param {number} scale      The number to upscale by multiplicatively.
    * @returns {string}          The upscaled bonus, simplified, and with the base attached.
    */
   _scaleOptionalBonus(bonus, scale) {
-    if (!scale) return bonus.bonuses.bonus;
+    const bonusFormula = scale ? (bonus.consume.formula || bonus.bonuses.bonus) : bonus.bonuses.bonus;
     const data = this._getRollData(bonus);
-    const roll = new CONFIG.Dice.DamageRoll(bonus.consume.formula || bonus.bonuses.bonus, data);
+    const roll = new CONFIG.Dice.DamageRoll(bonusFormula, data);
+    if (!scale) return roll.formula;
     const formula = roll.alter(scale, 0, {multiplyNumeric: true}).formula;
     const base = Roll.replaceFormulaData(bonus.bonuses.bonus, data);
     return dnd5e.dice.simplifyRollFormula(`${base} + ${formula}`, {preserveFlavor: true});
@@ -453,8 +454,13 @@ export class OptionalSelector {
    */
   _appendToField(bab, target, bonus, apply = true) {
     if (apply) {
+      const rollData = this._getRollData(bab);
+
       if (bab.hasDamageType) {
-        const roll = new Roll(bonus);
+        // Need 'DamageRoll' in case of dice with no '.number', and need
+        // to replace roll data to be able to properly append the damage type.
+        // TODO: replace this in 3.1.
+        const roll = new CONFIG.Dice.DamageRoll(bonus, rollData);
         for (const term of roll.terms) if ("flavor" in term.options) {
           if (!term.options.flavor) term.options.flavor = bab.bonuses.damageType;
         }
@@ -464,7 +470,7 @@ export class OptionalSelector {
       const parts = [bonus];
       for (const b of this.allBonuses) {
         const modifiers = b.bonuses.modifiers;
-        if (modifiers && !b._halted) modifiers.modifyParts(parts, {}, {ignoreFirst: true});
+        if (modifiers && !b._halted) modifiers.modifyParts(parts, rollData, {ignoreFirst: true});
       }
 
       if (!this.field.value.trim()) this.field.value = parts[0];
