@@ -247,23 +247,24 @@ export class RollHooks {
   }
 
   /**
-   * Inject babonus data on created templates if they have an associated item.
-   * @TODO Make use of new hooks in dnd5e v3.0.0.
-   * @param {MeasuredTemplateDocument5e} templateDoc      The ability template being created.
+   * Inject babonus data on templates created by items.
+   * @param {Item5e} item             The item that creates the template.
+   * @param {object} templateData     The template data to create the template.
    */
-  static preCreateMeasuredTemplate(templateDoc) {
-    const item = fromUuidSync(templateDoc.flags.dnd5e?.origin ?? "");
-    if (!item?.actor) return;
+  static preCreateItemTemplate(item, templateData) {
+    if (!item?.isEmbedded) return;
     const tokenDocument = item.actor.token ?? item.actor.getActiveTokens(false, true)[0];
     const disp = tokenDocument?.disposition ?? item.actor.prototypeToken.disposition;
 
     const bonusData = BabonusWorkshop._getCollection(item).reduce((acc, bab) => {
-      if (bab.aura.isTemplate) acc[`flags.${MODULE.ID}.bonuses.${bab.id}`] = bab.toObject();
+      if (bab.aura.isTemplate) acc[bab.id] = bab.toObject();
       return acc;
     }, {});
     if (foundry.utils.isEmpty(bonusData)) return;
-    bonusData["flags.babonus.templateDisposition"] = disp;
-    templateDoc.updateSource(bonusData);
+    foundry.utils.setProperty(templateData, `flags.${MODULE.ID}`, {
+      bonuses: bonusData,
+      templateDisposition: disp
+    });
   }
 
   /**

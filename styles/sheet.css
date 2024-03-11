@@ -265,3 +265,7 @@
     }
   }
 }
+
+.dnd5e-theme-dark .babonus.sheet {
+  --color-text-dark-primary: #191813;
+}

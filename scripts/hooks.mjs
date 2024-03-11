@@ -142,5 +142,5 @@ Hooks.once("ready", function() {
   Hooks.on("dnd5e.preRollHitDie", RollHooks.preRollHitDie);
   Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
-  Hooks.on("preCreateMeasuredTemplate", RollHooks.preCreateMeasuredTemplate);
+  Hooks.on("dnd5e.preCreateItemTemplate", RollHooks.preCreateItemTemplate);
 });

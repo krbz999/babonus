@@ -466,8 +466,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /** @override */
   render(force = false, options = {}) {
-    this.object = babonus.getCollection(this.owner).get(this.bonus.id);
-    if (!this.object) return this.close({submit: false});
+    const object = babonus.getCollection(this.owner).get(this.bonus.id);
+    if (!object) return this.close({submit: false});
+    this.object = object;
     options.editable = options.editable ?? this.bonus.isOwner;
     this.owner.apps[this.appId] = this;
     return super.render(force, options);
