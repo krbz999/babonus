@@ -1,3 +1,7 @@
+.dnd5e-theme-dark .babonus.dnd5e2 {
+  --dnd5e-background-card: var(--dnd5e-color-card);
+}
+
 .babonus.dnd5e2 {
   background:
     url(../../../systems/dnd5e/ui/texture1.webp) no-repeat top center / auto 770px,
@@ -66,8 +70,12 @@
   }
 }
 
+.dnd5e-theme-dark .dnd5e2.sheet.actor.character h1.otters {
+  color: var(--dnd5e-color-gold);
+}
+
 .dnd5e2.sheet.actor.character {
-  & form:is(.tab-babonus) .create-child {
+  & form.tab-babonus .create-child {
     display: block;
   }
 

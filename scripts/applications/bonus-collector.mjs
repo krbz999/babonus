@@ -324,11 +324,11 @@ export class BonusCollector {
       return true;
     } else if (bisp === aura.ALLY) {
       // If the bonus targets allies, the roller and the source must match.
-      return tisp === this.token.disposition;
+      return tisp === this.token.document.disposition;
     } else if (bisp === aura.ENEMY) {
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
       const modes = CONST.TOKEN_DISPOSITIONS;
-      const set = new Set([tisp, this.token.disposition]);
+      const set = new Set([tisp, this.token.document.disposition]);
       return set.has(modes.FRIENDLY) && set.has(modes.HOSTILE);
     }
   }
