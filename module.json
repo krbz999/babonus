@@ -32,7 +32,7 @@
         "type": "system",
         "compatibility": {
           "minimum": "3.0.0",
-          "maximum": "3.1.9"
+          "maximum": "3.0.9"
         }
       }
     ]
