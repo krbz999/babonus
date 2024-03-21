@@ -37,8 +37,8 @@ import {module} from "./_module.mjs";
  * @property {string} bonus                     Bonus to the roll that is added on top.
  * @property {string} criticalBonusDice         Amount of dice to increase the damage by on critical hits.
  * @property {string} criticalBonusDamage       Bonus to a damage roll that is added on top only on critical hits.
- * @property {string} deathSaveTargetValue      Modification to the target value a death saving throw must meet
- *                                              to be considered a success.
+ * @property {string} targetValue               Modification to the target value a saving throw must meet to be
+ *                                              considered a success.
  * @property {string} deathSaveCritical         Modification to the threshold at which a death saving throw is
  *                                              considered a critical success.
  * @property {string} criticalRange             Modification to the threshold at which an attack roll is considered
@@ -441,12 +441,30 @@ class Babonus extends foundry.abstract.DataModel {
 
   /** @override */
   static migrateData(source) {
+    this.migrateMinimum(source);
+    this.migrateDeathSaveTargetValue(source);
+  }
+
+  /**
+   * Migrate the old version of maximizing dice.
+   * @param {object} source     Candidate source data.
+   */
+  static migrateMinimum(source) {
     const minimum = source?.bonuses?.modifiers?.minimum;
     if (!minimum) return;
     if (!("maximize" in minimum) && (minimum.value === "-1")) {
       minimum.value = "";
       minimum.maximize = true;
     }
+  }
+
+  /**
+   * Migrate 'deathSaveTargetValue' to 'targetValue'.
+   * @param {object} source     Candidate source data.
+   */
+  static migrateDeathSaveTargetValue(source) {
+    const tv = source?.bonuses.deathSaveTargetValue;
+    if (tv) foundry.utils.setProperty(source, "bonuses.targetValue", tv);
   }
 
   /**
@@ -689,7 +707,7 @@ class ThrowBabonus extends Babonus {
     return {
       ...super._defineBonusSchema(),
       bonus: new foundry.data.fields.StringField({required: true}),
-      deathSaveTargetValue: new foundry.data.fields.StringField({required: true}),
+      targetValue: new foundry.data.fields.StringField({required: true}),
       deathSaveCritical: new foundry.data.fields.StringField({required: true})
     };
   }

@@ -28,16 +28,17 @@ export class FilterManager {
 
   /**
    * Initiate the collection and filtering of bonuses applying to saving throws.
-   * @param {Actor5e} actor                   The actor performing the saving throw.
-   * @param {string} throwType                The type of saving throw being made (possibly 'death').
-   * @param {object} details                  Additional context for the filtering and checks.
-   * @param {boolean} details.isConcSave      Whether this saving throw is made to maintain concentration.
-   * @returns {Babonus[]}                     A filtered array of babonuses to apply.
+   * @param {Actor5e} actor                         The actor performing the saving throw.
+   * @param {object} details                        Additional context for the filtering and checks.
+   * @param {string} [details.ability]              The ability used for the saving throw.
+   * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
+   * @param {boolean} [details.isDeath]             Is this a death saving throw?
+   * @returns {Babonus[]}                           A filtered array of babonuses to apply.
    */
-  static throwCheck(actor, throwType, {isConcSave}) {
+  static throwCheck(actor, {ability, isConcentration, isDeath}) {
     const bonuses = new BonusCollector({object: actor, type: "throw"}).returnBonuses();
     if (!bonuses.size) return [];
-    return this.finalFilterBonuses("throw", bonuses, actor, {throwType, isConcSave});
+    return this.finalFilterBonuses("throw", bonuses, actor, {ability, isConcentration, isDeath});
   }
 
   /**
@@ -73,17 +74,18 @@ export class FilterManager {
 
   /**
    * Filters the Collection of bonuses using the filters of Babonus.
-   * @param {string} hookType                   The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
-   * @param {Collection<Babonus>} bonuses       The babonuses to filter.
-   * @param {Actor5e|Item5e} object             The actor or item used in each filter and for roll data.
-   * @param {object} [details]                  Additional data necessary to pass along.
-   * @param {string} [details.throwType]        The type of saving thwo being made (possibly 'death').
-   * @param {boolean} [details.isConcSave]      Whether a saving throw is made to maintain concentration.
-   * @param {string} [details.abilityId]        The ability used for an ability check.
-   * @param {string} [details.skillId]          The id of the skill, in case of skill checks.
-   * @param {number} [details.spellLevel]       The level of the spell, if needed.
-   * @param {string} [details.toolId]           The id of the tool type, in case of tool checks.
-   * @returns {Babonus[]}                       The filtered Collection.
+   * @param {string} hookType                        The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
+   * @param {Collection<Babonus>} bonuses            The babonuses to filter.
+   * @param {Actor5e|Item5e} object                  The actor or item used in each filter and for roll data.
+   * @param {object} [details]                       Additional data necessary to pass along.
+   * @param {string} [details.ability]               The ability used for the saving throw.
+   * @param {boolean} [details.isConcentration]      Is this a concentration saving throw?
+   * @param {boolean} [detail.isDeath]               Is this a death saving throw?
+   * @param {string} [details.abilityId]             The ability used for an ability check.
+   * @param {string} [details.skillId]               The id of the skill, in case of skill checks.
+   * @param {number} [details.spellLevel]            The level of the spell, if needed.
+   * @param {string} [details.toolId]                The id of the tool type, in case of tool checks.
+   * @returns {Babonus[]}                            The filtered Collection.
    */
   static finalFilterBonuses(hookType, bonuses, object, details = {}) {
     /**
@@ -504,17 +506,19 @@ export class FilterManager {
 
   /**
    * Find out if the bonus should apply to this type of saving throw.
-   * @param {Actor5e} actor                   The actor making the saving throw.
-   * @param {Set<string>} filter              The set of saving throw types to check for.
-   * @param {object} details                  Additional context to help filter the bonus.
-   * @param {string} details.throwType        The id of the ability, can be 'death'.
-   * @param {boolean} details.isConcSave      Whether the saving throw is a conc save (if CN enabled).
-   * @returns {boolean}                       Whether the throw type is in the filter.
+   * @param {Actor5e} actor                         The actor making the saving throw.
+   * @param {Set<string>} filter                    The set of saving throw types to check for.
+   * @param {object} details                        Additional context to help filter the bonus.
+   * @param {string} [details.ability]              The ability used for the saving throw.
+   * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
+   * @param {boolean} [details.isDeath]             Is this a death saving throw?
+   * @returns {boolean}                             Whether the throw type is in the filter.
    */
-  static throwTypes(actor, filter, {throwType, isConcSave}) {
+  static throwTypes(actor, filter, {ability, isConcentration, isDeath}) {
     if (!filter.size) return true;
-    if (!throwType) return false;
-    return filter.has(throwType) || (filter.has("concentration") && isConcSave);
+    return (!!ability && filter.has(ability))
+      || (filter.has("concentration") && isConcentration)
+      || (filter.has("death") && isDeath);
   }
 
   /**
@@ -580,16 +584,17 @@ export class FilterManager {
 
   /**
    * Find out if the embedded script returns true.
-   * @param {Actor5e|Item5e} object             The item or actor.
-   * @param {string} script                     The script saved in the filter.
-   * @param {object} [details]                  Additional context to help filter the bonus.
-   * @param {boolean} [details.isConcSave]      Whether this saving throw is made to maintain concentration.
-   * @param {string} [details.abilityId]        The ability used for an ability check.
-   * @param {string} [details.skillId]          The id of the skill, in case of skill checks.
-   * @param {string} [details.toolId]           The id of the tool type, in case of tool checks.
-   * @param {number} [details.spellLevel]       The level of the spell, if needed.
-   * @param {string} [details.throwType]        The type of saving thwo being made (possibly 'death').
-   * @returns {boolean}                         True if the script returns true, otherwise false.
+   * @param {Actor5e|Item5e} object                 The item or actor.
+   * @param {string} script                         The script saved in the filter.
+   * @param {object} [details]                      Additional context to help filter the bonus.
+   * @param {string} [details.ability]              The ability used for the saving throw.
+   * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
+   * @param {boolean} [details.isDeath]             Is this a death saving throw?
+   * @param {string} [details.abilityId]            The ability used for an ability check.
+   * @param {string} [details.skillId]              The id of the skill, in case of skill checks.
+   * @param {string} [details.toolId]               The id of the tool type, in case of tool checks.
+   * @param {number} [details.spellLevel]           The level of the spell, if needed.
+   * @returns {boolean}                             True if the script returns true, otherwise false.
    */
   static customScripts(object, script, details = {}) {
     if (!script?.length) return true;
@@ -697,34 +702,47 @@ export class FilterManager {
    * @param {Actor5e|Item5e} object           The actor or item performing the roll.
    * @param {Set<number>} filter              The levels of valid proficiencies.
    * @param {object} details                  Additional properties for the filtering.
-   * @param {string} [details.throwType]      The type of saving throw.
+   * @param {string} [details.ability]        The type of saving throw.
+   * @param {boolean} [details.isDeath]       Is this a death saving throw?
    * @param {string} [details.abilityId]      The type of ability check.
    * @param {string} [details.skillId]        The type of skill check.
    * @param {string} [details.toolId]         The type of tool check.
    * @returns {boolean}                       Whether the roll was one of the proficiency levels.
    */
-  static proficiencyLevels(object, filter, {throwType, abilityId, skillId, toolId}) {
+  static proficiencyLevels(object, filter, details) {
     if (!filter.size) return true;
     const item = object instanceof Item ? object : null;
     const actor = object instanceof Item ? item.actor : object;
 
     // Case 1: Skill.
-    if (skillId) return filter.has(actor.system.skills[skillId]?.prof.multiplier || 0);
+    if (details.skillId) {
+      return filter.has(actor.system.skills[details.skillId]?.prof.multiplier || 0);
+    }
 
     // Case 2: Ability Check.
-    else if (abilityId && !toolId) return filter.has(actor.system.abilities[abilityId]?.checkProf.multiplier || 0);
+    else if (details.abilityId && !details.toolId) {
+      return filter.has(actor.system.abilities[details.abilityId]?.checkProf.multiplier || 0);
+    }
 
     // Case 3: Death Saving Throw.
-    else if (throwType === "death") return filter.has(Number(actor.flags.dnd5e?.diamondSoul || false));
+    else if (details.isDeath) {
+      return filter.has(Number(actor.flags.dnd5e?.diamondSoul || false));
+    }
 
     // Case 4: Saving Throw.
-    else if (throwType) return filter.has(actor.system.abilities[throwType]?.saveProf.multiplier || 0);
+    else if (details.ability) {
+      return filter.has(actor.system.abilities[details.ability]?.saveProf.multiplier || 0);
+    }
 
     // Case 5: Weapon, equipment, spell, tool item.
-    else if (item) return filter.has(item.system.prof.multiplier);
+    else if (item) {
+      return filter.has(item.system.prof.multiplier);
+    }
 
     // Case 6: Tool check without an item.
-    else if (toolId) return filter.has(actor.system.tools[toolId]?.prof.multiplier || 0);
+    else if (details.toolId) {
+      return filter.has(actor.system.tools[details.toolId]?.prof.multiplier || 0);
+    }
 
     // Else somehow return false.
     else return false;
