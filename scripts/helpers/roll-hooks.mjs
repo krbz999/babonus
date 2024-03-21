@@ -124,18 +124,22 @@ export class RollHooks {
   }
 
   /**
-   * When you roll a death saving throw...
-   * @param {Actor5e} actor         The actor that is making the roll.
-   * @param {object} rollConfig     The configuration for the roll.
+   * When you roll a saving throw...
+   * @param {Actor5e} actor                         The actor that is making the roll.
+   * @param {object} rollConfig                     The configuration for the roll.
+   * @param {object} [options]                      Properties of the saving throw.
+   * @param {string} [options.ability]              The ability used for the saving throw.
+   * @param {boolean} [options.isConcentration]     Is this a concentration saving throw?
+   * @param {boolean} [options.isDeath]             Is this a death saving throw?
    */
-  static preRollDeathSave(actor, rollConfig) {
+  static preRollSave(actor, rollConfig, {ability, isDeath, isConcentration} = {}) {
     // get bonus:
-    const bonuses = FilterManager.throwCheck(actor, "death", {});
+    const bonuses = FilterManager.throwCheck(actor, {ability, isDeath, isConcentration});
     if (!bonuses.length) return;
     RollHooks._addTargetData(rollConfig);
 
     // Gather up all bonuses.
-    const death = {targetValue: 0, critical: 0};
+    const accum = {targetValue: 0, critical: 0};
     const optionals = [];
     for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
@@ -144,33 +148,45 @@ export class RollHooks {
         if (bab.isOptional) optionals.push(bab);
         else rollConfig.parts.push(bonus);
       }
-      death.targetValue += dnd5e.utils.simplifyBonus(bab.bonuses.deathSaveTargetValue, rollConfig.data);
-      death.critical += dnd5e.utils.simplifyBonus(bab.bonuses.deathSaveCritical, rollConfig.data);
+      accum.targetValue += dnd5e.utils.simplifyBonus(bab.bonuses.targetValue, rollConfig.data);
+      accum.critical += dnd5e.utils.simplifyBonus(bab.bonuses.deathSaveCritical, rollConfig.data);
     }
 
     // Add parts.
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
 
-    // Add modifiers to raise/lower the target value and crtical threshold.
-    rollConfig.targetValue = (rollConfig.targetValue ?? 10) - death.targetValue;
-    rollConfig.critical = (rollConfig.critical ?? 20) - death.critical;
+    // Add modifiers to raise/lower the target value and critical threshold.
+    if (Number.isNumeric(rollConfig.targetValue)) {
+      rollConfig.targetValue = Number(rollConfig.targetValue) - accum.targetValue;
+    }
+    if (isDeath) rollConfig.critical = (rollConfig.critical ?? 20) - accum.critical;
   }
 
   /**
-   * When you roll a saving throw...
+   * When you roll an ability or concentration saving throw...
    * @param {Actor5e} actor         The actor that is making the roll.
    * @param {object} rollConfig     The configuration for the roll.
    * @param {string} abilityId      The key for the ability being used.
    */
   static preRollAbilitySave(actor, rollConfig, abilityId) {
-    // get bonus:
-    const bonuses = FilterManager.throwCheck(actor, abilityId, {isConcSave: rollConfig.isConcSave});
-    if (!bonuses.length) return;
-    RollHooks._addTargetData(rollConfig);
+    return RollHooks.preRollSave(actor, rollConfig, {
+      ability: abilityId,
+      isConcentration: rollConfig.isConcentration ?? false,
+      isDeath: false
+    });
+  }
 
-    // add to parts:
-    const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
+  /**
+   * When you roll a death saving throw...
+   * @param {Actor5e} actor         The actor that is making the roll.
+   * @param {object} rollConfig     The configuration for the roll.
+   */
+  static preRollDeathSave(actor, rollConfig) {
+    return RollHooks.preRollSave(actor, rollConfig, {
+      ability: rollConfig.ability,
+      isConcentration: false,
+      isDeath: true
+    });
   }
 
   /**

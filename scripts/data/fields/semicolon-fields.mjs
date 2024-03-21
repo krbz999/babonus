@@ -58,15 +58,10 @@ class ThrowTypesField extends AbilitiesField {
     choices.push({
       value: "death",
       label: game.i18n.localize("DND5E.DeathSave")
+    }, {
+      value: "concentration",
+      label: game.i18n.localize("DND5E.Concentration")
     });
-
-    // CN compatibility.
-    if (game.modules.get("concentrationnotifier")?.active) {
-      choices.push({
-        value: CN.STATUS,
-        label: game.i18n.localize("DND5E.Concentration")
-      });
-    }
 
     return choices;
   }

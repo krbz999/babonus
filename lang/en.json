@@ -286,6 +286,6 @@
   "BABONUS.TypeThrowBonusTooltip": "Additional parts to add on top of the saving throw roll.",
   "BABONUS.TypeThrowDeathSaveCriticalLabel": "Death Save Critical Limit",
   "BABONUS.TypeThrowDeathSaveCriticalTooltip": "An integer to subtract from the threshold that decides when a Death Saving Throw results in restoring consciousness and 1 hit point. This field respects roll data, but not dice rolls.",
-  "BABONUS.TypeThrowDeathSaveTargetValueLabel": "Death Save Target Value",
-  "BABONUS.TypeThrowDeathSaveTargetValueTooltip": "An integer to subtract from the minimum requirement to pass a death saving throw. This field respects roll data, but not dice rolls."
+  "BABONUS.TypeThrowTargetValueLabel": "Target Value",
+  "BABONUS.TypeThrowTargetValueTooltip": "An integer to subtract from the minimum requirement to pass a saving throw. This field respects roll data, but not dice rolls."
 }
