@@ -1,5 +1,9 @@
 .dnd5e-theme-dark .babonus.dnd5e2 {
   --dnd5e-background-card: var(--dnd5e-color-card);
+
+  & form select option {
+    background: inherit;
+  }
 }
 
 .babonus.dnd5e2 {
