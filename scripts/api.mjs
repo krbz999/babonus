@@ -28,6 +28,11 @@ export function createAPI() {
     getMinimumDistanceBetweenTokens,
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
+    createRestrictedCircle,
+    createRestrictedRect,
+    findTokensCircle,
+    findTokensRect,
+    createRect,
 
     abstract: {
       DataModels: module.models,
@@ -208,18 +213,13 @@ function findTokensInRangeOfAura(object, id) {
  * Credit to @Freeze#2689 for much artistic aid.
  * @param {Token5e} source      The source token placeable.
  * @param {number} radius       The radius (usually feet) to extend from the source.
+ * @param {string} [type]       The type of shape to use for locating ('circle' or 'rect').
  * @returns {Token5e[]}         An array of token placeables, excluding the source.
  */
-function findTokensInRangeOfToken(source, radius) {
-  const pixels = radius * canvas.dimensions.distancePixels + source.h / 2;
-  const center = source.center;
-  const captureArea = new PIXI.Circle(center.x, center.y, pixels);
-  return canvas.tokens.placeables.filter(t => {
-    if (t === source) return false;
-
-    const centers = getOccupiedGridSpaces(t.document);
-    return centers.some(c => captureArea.contains(c.x, c.y));
-  });
+function findTokensInRangeOfToken(source, radius, type = "circle") {
+  if (type === "circle") return findTokensCircle(source, radius);
+  else if (type === "rect") return findTokensRect(source, radius);
+  else return [];
 }
 
 /**
@@ -330,4 +330,116 @@ async function hotbarToggle(uuid) {
     return;
   }
   return bonus.toggle();
+}
+
+/**
+ * Create pixi circle with some size and restrictions, centered on a token.
+ * @param {Token5e} token             The center.
+ * @param {number} size               The range in feet.
+ * @param {object} [restrictions]     Wall restrictions.
+ * @returns {ClockwiseSweepPolygon}
+ */
+function createRestrictedCircle(token, size, restrictions = {}) {
+  const hasLimitedRadius = size > 0;
+  let radius;
+  if (hasLimitedRadius) {
+    const cd = canvas.dimensions;
+    radius = size * cd.distancePixels + token.document.width * cd.size / 2;
+  }
+
+  restrictions = CONST.WALL_RESTRICTION_TYPES.filter(type => restrictions[type]);
+  let sweep = ClockwiseSweepPolygon.create(token.center, {
+    radius: radius,
+    hasLimitedRadius: hasLimitedRadius
+  });
+
+  for (const type of restrictions) {
+    sweep = sweep.applyConstraint(ClockwiseSweepPolygon.create(token.center, {
+      radius: radius,
+      type: type,
+      hasLimitedRadius: hasLimitedRadius,
+      useThreshold: type !== "move"
+    }));
+  }
+  return sweep;
+}
+
+/**
+ * Create pixi rectangle with some size and restrictions, centered on a token.
+ * @param {Token5e} token             The center.
+ * @param {number} size               The range in feet.
+ * @param {object} [restrictions]     Wall restrictions.
+ * @returns {ClockwiseSweepPolygon}
+ */
+function createRestrictedRect(token, size, restrictions = {}) {
+  const rectangles = (size > 0) ? [createRect(token, size)] : [];
+
+  restrictions = CONST.WALL_RESTRICTION_TYPES.filter(type => restrictions[type]);
+  let sweep = ClockwiseSweepPolygon.create(token.center, {
+    boundaryShapes: rectangles
+  });
+
+  for (const type of restrictions) {
+    sweep = sweep.applyConstraint(ClockwiseSweepPolygon.create(token.center, {
+      type: type,
+      boundaryShapes: rectangles,
+      useThreshold: type !== "move"
+    }));
+  }
+  return sweep;
+}
+
+/**
+ * Find tokens within a given circular distance from another token.
+ * @param {Token5e} token             The token that is in the center of the circle.
+ * @param {number} size               The radius of the circle, in feet.
+ * @param {object} [restrictions]     Valid wall restrictions within the area.
+ * @returns {Token5e[]}
+ */
+function findTokensCircle(token, size, restrictions = {}) {
+  const sweep = createRestrictedCircle(token, size, restrictions);
+  const rect = createRect(token, size);
+  const tokens = canvas.tokens.quadtree.getObjects(rect, {
+    collisionTest: ({t}) => {
+      if (t.id === token.id) return false;
+      const centers = BonusCollector._collectTokenCenters(t.document);
+      return centers.some(c => sweep.contains(c.x, c.y));
+    }
+  });
+  return Array.from(tokens);
+}
+
+/**
+ * Find tokens within a given rectangular distance from another token.
+ * @param {Token5e} token             The token that is in the center of the rectangle.
+ * @param {number} size               The 'radius' of the rectangle, in feet.
+ * @param {object} [restrictions]     Valid wall restrictions within the area.
+ * @returns {Token5e[]}
+ */
+function findTokensRect(token, size, restrictions = {}) {
+  const sweep = createRestrictedRect(token, size, restrictions);
+  const rect = createRect(token, size);
+  const tokens = canvas.tokens.quadtree.getObjects(rect, {
+    collisionTest: ({t}) => {
+      if (t.id === token.id) return false;
+      const centers = BonusCollector._collectTokenCenters(t.document);
+      return centers.some(c => sweep.contains(c.x, c.y));
+    }
+  });
+  return Array.from(tokens);
+}
+
+/**
+ * Create a rectangle of a given size centered on a token.
+ * @param {Token5e} token     The token that is in the center of the rectangle.
+ * @param {number} size       The 'radius' of the rectangle, in feet.
+ * @returns {PIXI}
+ */
+function createRect(token, size) {
+  const spaces = size / canvas.dimensions.distance;
+  const {x, y, width} = token.document;
+  const x0 = x - spaces * canvas.grid.size;
+  const y0 = y - spaces * canvas.grid.size;
+  const dist = (width + 2 * spaces) * canvas.grid.size;
+  return new PIXI.Rectangle(x0, y0, dist, dist);
 }
