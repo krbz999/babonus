@@ -712,7 +712,7 @@ export class FilterManager {
   static proficiencyLevels(object, filter, details) {
     if (!filter.size) return true;
     const item = object instanceof Item ? object : null;
-    const actor = object instanceof Item ? item.actor : object;
+    const actor = object instanceof Item ? object.actor : object;
 
     // Case 1: Skill.
     if (details.skillId) {
@@ -750,7 +750,7 @@ export class FilterManager {
 
   /**
    * Find out if the item that made the roll was the correct feature type and feature subtype.
-   * @param {Item5e} item                 The actor or item performing the roll.
+   * @param {Item5e} item                 The item performing the roll.
    * @param {object} filter               The filter object.
    * @param {string} [filter.type]        The feature type.
    * @param {string} [filter.subtype]     The feature subtype.
@@ -767,6 +767,19 @@ export class FilterManager {
     if (!hasSubtype || !subtype) return true;
 
     return item.system.type.subtype === subtype;
+  }
+
+  /**
+   * Find out if the actor is one of the correct creature sizes.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {Set<string>} filter        The set of valid creature sizes.
+   * @returns {boolean}                 Whether the actor is a correct creature size.
+   */
+  static actorCreatureSizes(object, filter) {
+    if (!filter.size) return true;
+    const actor = (object instanceof Item) ? object.actor : object;
+    const size = actor.system.traits?.size;
+    return !!size && filter.has(size);
   }
 
   //#endregion
