@@ -464,7 +464,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @param {object} source     Candidate source data.
    */
   static migrateDeathSaveTargetValue(source) {
-    const tv = source?.bonuses.deathSaveTargetValue;
+    const tv = source?.bonuses?.deathSaveTargetValue;
     if (tv) foundry.utils.setProperty(source, "bonuses.targetValue", tv);
   }
 
