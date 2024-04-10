@@ -77,9 +77,10 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Spell Schools.</em></strong> Filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.</p>
 <p><strong><em>Target Conditions.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by any of the included status conditions while having none of the excluded status conditions.</p>
 <p><strong><em>Token Sizes.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a token of a certain size or greater (or smaller), and optionally clamped using the roller's token's size.</p>
-<p><strong><em>Creature Sizes.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a creature of a certain size, like medium, huge, or gargantuan.</p>
+<p><strong><em>Creature Sizes.</em></strong> Filter the bonus to only apply if the actor performing the roll is a certain size, like medium, huge, or gargantuan.</p>
 <p><strong><em>Tool Types.</em></strong> The type of tool the item must be for the bonus to apply. For example Herbalism Kit, Thieves' Tools, or Cobbler's Tools.</p>
 <p><strong><em>Weapon Properties.</em></strong> Filter the bonus to only apply if the item is a weapon that has at least one of the included weapon properties while having none of the excluded properties.</p>
+<p><strong><em>Spoken Languages.</em></strong> Filter the bonus to only apply if the actor performing the roll is able to speak a certain language.</p>
 
 <h1 style="font-weight: bold;">API</h1>
 <p>An API can be accessed at <code>game.modules.get("babonus").api</code> or through the global namespace <code>babonus</code>. The parameter <code>object</code> below refers to an Actor, ActiveEffect, Item, or MeasuredTemplateDocument. The methods are currently:</p>
