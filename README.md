@@ -118,7 +118,9 @@ Interested in following along with development of any of my modules? Join the [D
 <h2>Instance Methods</h2>
 <p>Instance methods are functions found directly on an instance of a created bonus.</p>
 <ul>
-<li><code>Babonus#toggle</code> enables or disables the bonus on its actor.</li>
+<li><code>Babonus#toggle</code> enables or disables the bonus on its parent.</li>
+<li><code>Babonus#update</code> updates the bonus itself with the given new properties.</li>
+<li><code>Babonus#delete</code> removes the bonus off of its parent.</li>
 </ul>
 
 <h1 style="font-weight: bold;">Hooks</h1>
