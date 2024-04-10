@@ -105,6 +105,11 @@ Interested in following along with development of any of my modules? Join the [D
 <li><code>getMinimumDistanceBetweenTokens(tokenA, tokenB)</code> returns the minimum distance between two token placeables, evaluating every grid cell that they occupy.</li>
 <li><code>sceneTokensByDisposition(scene)</code> returns an object of four arrays; the tokens on the scene split into four arrays by disposition (friendly, neutral, hostile, and none). If no scene is provided, the currently viewed scene is used.</li>
 <li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
+<li><code>speaksLanguage(actor, trait)</code> returns whether an actor speaks a specific language (must use the internal key of language or language category).</li>
+<li><code>hasWeaponProficiency(actor, trait)</code> returns whether an actor has a specific weapon proficiency (must use the internal key of the weapon or category).</li>
+<li><code>hasArmorProficiency(actor, trait)</code> returns whether an actor has a specific armor or shield proficiency (must use the internal key of the armor or category).</lI>
+<li><code>hasToolProficiency(actor, trait)</code> returns whether an actor has a specific tool proficiency (must use the internal key of the tool or category).</li>
+<li><code>proficiencyTree(key, category)</code> returns a path through nested proficiencies to find a specific proficiency in a category.</li>
 <li><code>hotbarToggle(uuid)</code> toggles a bonus retrieved via its uuid.</li>
 <li>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</li>
 </ul>

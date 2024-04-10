@@ -401,12 +401,32 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       else val.include = true;
     }
 
+    const types = {
+      baseWeapons: CONFIG.DND5E.weaponTypes,
+      baseArmors: CONFIG.DND5E.armorTypes,
+      baseTools: CONFIG.DND5E.toolTypes
+    }[filterId] ?? null;
+
+    const categories = [];
+    if (types) {
+      for(const [k, v] of Object.entries(types)) {
+        const val = values.find(v => v.replaceAll("!", "") === k);
+        categories.push({
+          isCategory: true,
+          exclude: val ? val.startsWith("!") : false,
+          include: val ? !val.startsWith("!") : false,
+          value: k,
+          label: v
+        });
+      }
+    }
+
     return KeysDialog.prompt({
       rejectClose: false,
       options: {
         filterId: filterId,
         appId: this.appId,
-        values: list,
+        values: categories.length ? categories.concat(list) : list,
         canExclude: filter.canExclude
       },
       callback: async function(html) {

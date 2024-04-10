@@ -199,6 +199,34 @@ class WeaponPropertiesField extends BaseField {
   }
 }
 
+class ActorLanguagesField extends BaseField {
+  static name = "actorLanguages";
+
+  /** @override */
+  static async choices() {
+    const trait = dnd5e.documents.Trait;
+    const choices = await trait.choices("languages", {chosen: new Set()});
+
+    const langs = new Set();
+    const cats = new Set();
+
+    const construct = (c) => {
+      for (const [key, choice] of Object.entries(c)) {
+        if (choice.children) {
+          cats.add(key);
+          construct(choice.children);
+        } else langs.add(key);
+      }
+    };
+
+    construct(choices);
+
+    const toLabel = (k, isCat = true) => ({value: k, label: trait.keyLabel(`languages:${k}`), isCategory: isCat});
+
+    return Array.from(cats.map(k => toLabel(k, true))).concat(Array.from(langs.map(k => toLabel(k, false))));
+  }
+}
+
 export const fields = {
   abilities: AbilitiesField,
   saveAbilities: SaveAbilitiesField,
@@ -215,5 +243,6 @@ export const fields = {
   preparationModes: PreparationModesField,
   skillIds: SkillIdsField,
   spellSchools: SpellSchoolsField,
-  weaponProperties: WeaponPropertiesField
+  weaponProperties: WeaponPropertiesField,
+  actorLanguages: ActorLanguagesField
 };

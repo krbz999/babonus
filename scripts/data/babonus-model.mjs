@@ -436,7 +436,8 @@ class Babonus extends foundry.abstract.DataModel {
       customScripts: new module.filters.customScripts(),
       remainingSpellSlots: new module.filters.remainingSpellSlots(),
       actorCreatureTypes: new module.filters.actorCreatureTypes(),
-      actorCreatureSizes: new module.filters.actorCreatureSizes()
+      actorCreatureSizes: new module.filters.actorCreatureSizes(),
+      actorLanguages: new module.filters.actorLanguages()
     };
   }
 

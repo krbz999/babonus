@@ -117,6 +117,14 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
   return game.user.assignHotbarMacro(macro, slot);
 }
 
+async function setupTree() {
+  const trees = {};
+  for (const k of ["languages", "weapon", "armor", "tool"]) {
+    trees[k] = await dnd5e.documents.Trait.choices(k);
+  }
+  return trees;
+}
+
 // General setup.
 Hooks.once("init", _createSettings);
 Hooks.once("setup", createAPI);
@@ -132,7 +140,7 @@ Hooks.on("getItemSheetHeaderButtons", buttons.item);
 Hooks.on("renderDialog", _renderDialog);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
-Hooks.once("ready", function() {
+Hooks.once("ready", async function() {
   Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
   Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
@@ -143,4 +151,6 @@ Hooks.once("ready", function() {
   Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
   Hooks.on("dnd5e.preCreateItemTemplate", RollHooks.preCreateItemTemplate);
+
+  babonus.trees = await setupTree();
 });

@@ -33,6 +33,11 @@ export function createAPI() {
     findTokensCircle,
     findTokensRect,
     createRect,
+    speaksLanguage: speaksLanguage,
+    hasWeaponProficiency: hasWeaponProficiency,
+    hasArmorProficiency: hasArmorProficiency,
+    hasToolProficiency: hasToolProficiency,
+    proficiencyTree: proficiencyTree,
 
     abstract: {
       DataModels: module.models,
@@ -442,4 +447,87 @@ function createRect(token, size) {
   const y0 = y - spaces * canvas.grid.size;
   const dist = (width + 2 * spaces) * canvas.grid.size;
   return new PIXI.Rectangle(x0, y0, dist, dist);
+}
+
+/**
+ * Does this actor speak a given language?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The language to test.
+ * @returns {boolean}
+ */
+function speaksLanguage(actor, trait) {
+  return _hasTrait(actor, trait, "languages");
+}
+
+/**
+ * Does this actor have a given weapon proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasWeaponProficiency(actor, trait) {
+  return _hasTrait(actor, trait, "weapon");
+}
+
+/**
+ * Does this actor have a given armor proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasArmorProficiency(actor, trait) {
+  return _hasTrait(actor, trait, "armor");
+}
+
+/**
+ * Does this actor have a given tool proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasToolProficiency(actor, trait) {
+  return _hasTrait(actor, trait, "tool");
+}
+
+function _hasTrait(actor, trait, category) {
+  const path = CONFIG.DND5E.traits[category].actorKeyPath ?? `system.traits.${category}`;
+  const set = foundry.utils.getProperty(actor, path)?.value ?? new Set();
+  if (set.has(trait)) return true;
+  return set.some(v => {
+    const [k, obj] = babonus.trees[category].find(v) ?? [];
+    return (k === trait) || (obj.children && obj.children.find(trait));
+  });
+}
+
+/**
+ * Retrieve a path through nested proficiencies to find a specific proficiency in a category.
+ * E.g., 'smith' and 'tool' will return ['art', 'smith'], and 'aquan' and 'languages' will
+ * return ['exotic', 'primordial', 'aquan'].
+ * @param {string} key          The specific proficiency (can be a category), e.g., "smith" or "primordial".
+ * @param {string} category     The trait category, e.g., "tool", "weapon", "armor", "languages".
+ * @returns {string[]}
+ */
+function proficiencyTree(key, category) {
+  const root = babonus.trees[category];
+  const path = [];
+
+  const find = (node) => {
+    for (const [k, v] of Object.entries(node)) {
+      if ((k === key)) {
+        path.unshift(k);
+        return true;
+      } else if (v.children) {
+        const result = find(v.children);
+        if (result) {
+          path.unshift(k);
+          return true;
+        }
+      }
+    }
+    path.shift();
+    return false;
+  };
+
+  find(root);
+  return path;
 }
