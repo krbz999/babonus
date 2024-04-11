@@ -1,14 +1,25 @@
 /* Child of Babonus#bonuses that holds all die modifiers. */
 export class ModifiersModel extends foundry.abstract.DataModel {
+  /**
+   * The modifier modes for amount and size.
+   * @type {number}
+   */
+  static MODIFIER_MODES = {
+    ADD: 0,
+    MULTIPLY: 1
+  };
+
   /** @override */
   static defineSchema() {
     return {
       amount: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
+        mode: new foundry.data.fields.NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
         value: new foundry.data.fields.StringField({required: true})
       }),
       size: new foundry.data.fields.SchemaField({
         enabled: new foundry.data.fields.BooleanField(),
+        mode: new foundry.data.fields.NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
         value: new foundry.data.fields.StringField({required: true})
       }),
       reroll: new foundry.data.fields.SchemaField({
@@ -76,8 +87,16 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const dm = die.modifiers;
     const {hasAmount, hasSize, hasReroll, hasExplode, hasMin, hasMax} = this;
 
-    if (hasAmount) die.number = Math.max(0, die.number + this.amount.value);
-    if (hasSize) die.faces = Math.max(0, die.faces + this.size.value);
+    if (hasAmount) {
+      const isMult = this.amount.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+      if (isMult) die.number = Math.max(0, die.number * this.amount.value);
+      else die.number = Math.max(0, die.number + this.amount.value);
+    }
+    if (hasSize) {
+      const isMult = this.size.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+      if (isMult) die.faces = Math.max(0, die.faces * this.size.value);
+      else die.faces = Math.max(0, die.faces + this.size.value);
+    }
     if (hasReroll && !dm.some(m => m.match(this.constructor.REGEX.reroll))) {
       const prefix = this.reroll.recursive ? "rr" : "r";
       const v = this.reroll.value;

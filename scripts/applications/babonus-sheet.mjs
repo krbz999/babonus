@@ -75,6 +75,10 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     context.labels = this._prepareLabels();
     context.filters = await this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
+    context.modifierOptions = Object.entries(module.fields.modifiers.MODIFIER_MODES).reduce((acc, [k, v]) => {
+      acc[v] = `BABONUS.ModifiersMode${k.titleCase()}`;
+      return acc;
+    }, {});
 
     return {
       bonus: this.bonus,
@@ -260,6 +264,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const parts = ["2d10", "1d4"];
     mods.modifyParts(parts, rollData);
     data.example = parts.join(" + ");
+    const modes = module.fields.modifiers.MODIFIER_MODES;
 
     for (const [key, v] of Object.entries(modifiers)) {
 
@@ -267,12 +272,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       switch (key) {
         case "amount": {
           const v = mods.amount.value;
-          label = mods.hasAmount ? v.signedString() : null;
+          label = mods.hasAmount ? (mods.amount.mode === modes.MULTIPLY ? `&times;${v}` : v.signedString()) : null;
           break;
         }
         case "size": {
           const v = mods.size.value;
-          label = mods.hasSize ? v.signedString() : null;
+          label = mods.hasSize ? (mods.size.mode === modes.MULTIPLY ? `&times;${v}` : v.signedString()) : null;
           break;
         }
         case "reroll": {
@@ -409,7 +414,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
     const categories = [];
     if (types) {
-      for(const [k, v] of Object.entries(types)) {
+      for (const [k, v] of Object.entries(types)) {
         const val = values.find(v => v.replaceAll("!", "") === k);
         categories.push({
           isCategory: true,

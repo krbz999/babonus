@@ -124,7 +124,7 @@
       }
 
       &.modifiers {
-        .checkbox {
+        .checkbox, select {
           &:last-child {
             flex: 0 0 110px;
             text-align: left;
