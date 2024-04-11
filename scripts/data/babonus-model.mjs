@@ -661,12 +661,12 @@ class DamageBabonus extends ItemBabonus {
   }
 
   /**
-   * Does this bonus have a damage type?
+   * Does this bonus have a damage or healing type?
    * @type {boolean}
    */
   get hasDamageType() {
     const type = this.bonuses.damageType;
-    return type in CONFIG.DND5E.damageTypes;
+    return (type in CONFIG.DND5E.damageTypes) || (type in CONFIG.DND5E.healingTypes);
   }
 }
 

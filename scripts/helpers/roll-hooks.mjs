@@ -290,15 +290,13 @@ export class RollHooks {
    * @returns {string[]}            An array of optional bonuses to modify a roll.
    */
   static _getDamageParts(bonuses, rollConfig) {
-    const dtypes = CONFIG.DND5E.damageTypes;
     const part0 = rollConfig.rollConfigs[0];
     const dtype = part0.type;
     const optionals = [];
     for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
       if (!bonus) continue;
-      let type = bab.bonuses.damageType || "";
-      if (!(type in dtypes)) type = dtype;
+      const type = bab.hasDamageType ? bab.bonuses.damageType : dtype;
       if (bab.isOptional) optionals.push(bab);
       else if (type === dtype) part0.parts.push(bonus);
       else rollConfig.rollConfigs.push({parts: [bonus], type: type});
