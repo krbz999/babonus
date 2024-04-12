@@ -9,7 +9,7 @@
     </thead>
     <tbody>
       {{#each values}}
-      <tr>
+      <tr {{#if isCategory}} class="category" {{/if}}>
         <td><a data-action="cycle">{{#if icon}}<img src="{{icon}}">{{/if}}{{label}}</a></td>
         <td>
           <a data-action="cycle-left"><i class="fa-solid fa-arrow-left"></i></a>

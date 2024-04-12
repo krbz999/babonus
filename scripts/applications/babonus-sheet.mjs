@@ -75,6 +75,10 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     context.labels = this._prepareLabels();
     context.filters = await this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
+    context.modifierOptions = Object.entries(module.fields.modifiers.MODIFIER_MODES).reduce((acc, [k, v]) => {
+      acc[v] = `BABONUS.ModifiersMode${k.titleCase()}`;
+      return acc;
+    }, {});
 
     return {
       bonus: this.bonus,
@@ -147,7 +151,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       a = game.i18n.localize(`BABONUS.Filters${a.capitalize()}`);
       b = game.i18n.localize(`BABONUS.Filters${b.capitalize()}`);
       return a.localeCompare(b);
-    })
+    });
     for (const key of keys) {
       const filter = module.filters[key];
       if (filter) div.innerHTML += await filter.render(this.bonus);
@@ -260,6 +264,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const parts = ["2d10", "1d4"];
     mods.modifyParts(parts, rollData);
     data.example = parts.join(" + ");
+    const modes = module.fields.modifiers.MODIFIER_MODES;
 
     for (const [key, v] of Object.entries(modifiers)) {
 
@@ -267,12 +272,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       switch (key) {
         case "amount": {
           const v = mods.amount.value;
-          label = mods.hasAmount ? v.signedString() : null;
+          label = mods.hasAmount ? (mods.amount.mode === modes.MULTIPLY ? `&times;${v}` : v.signedString()) : null;
           break;
         }
         case "size": {
           const v = mods.size.value;
-          label = mods.hasSize ? v.signedString() : null;
+          label = mods.hasSize ? (mods.size.mode === modes.MULTIPLY ? `&times;${v}` : v.signedString()) : null;
           break;
         }
         case "reroll": {
@@ -401,12 +406,32 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       else val.include = true;
     }
 
+    const types = {
+      baseWeapons: CONFIG.DND5E.weaponTypes,
+      baseArmors: CONFIG.DND5E.armorTypes,
+      baseTools: CONFIG.DND5E.toolTypes
+    }[filterId] ?? null;
+
+    const categories = [];
+    if (types) {
+      for (const [k, v] of Object.entries(types)) {
+        const val = values.find(v => v.replaceAll("!", "") === k);
+        categories.push({
+          isCategory: true,
+          exclude: val ? val.startsWith("!") : false,
+          include: val ? !val.startsWith("!") : false,
+          value: k,
+          label: v
+        });
+      }
+    }
+
     return KeysDialog.prompt({
       rejectClose: false,
       options: {
         filterId: filterId,
         appId: this.appId,
-        values: list,
+        values: categories.length ? categories.concat(list) : list,
         canExclude: filter.canExclude
       },
       callback: async function(html) {
@@ -417,7 +442,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
         });
         bonus.updateSource({[property]: values});
         return BabonusWorkshop._embedBabonus(owner, bonus, true);
-      },
+      }
     });
   }
 
@@ -434,7 +459,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     idLink.classList.add("document-id-link");
     idLink.dataset.tooltip = `${label}: ${this.document.id}`;
     idLink.dataset.tooltipDirection = "DOWN";
-    idLink.innerHTML = '<i class="fa-solid fa-passport"></i>';
+    idLink.innerHTML = "<i class=\"fa-solid fa-passport\"></i>";
     idLink.addEventListener("click", event => {
       event.preventDefault();
       game.clipboard.copyPlainText(this.document.id);
@@ -459,7 +484,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       if (foundry.utils.isEmpty(obj)) return this.render();
     } catch (err) {
       ui.notifications.error(err);
-      return this.render()
+      return this.render();
     }
     return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true, this._filters);
   }

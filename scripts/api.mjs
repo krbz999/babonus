@@ -28,6 +28,16 @@ export function createAPI() {
     getMinimumDistanceBetweenTokens,
     sceneTokensByDisposition,
     getOccupiedGridSpaces,
+    createRestrictedCircle,
+    createRestrictedRect,
+    findTokensCircle,
+    findTokensRect,
+    createRect,
+    speaksLanguage: speaksLanguage,
+    hasWeaponProficiency: hasWeaponProficiency,
+    hasArmorProficiency: hasArmorProficiency,
+    hasToolProficiency: hasToolProficiency,
+    proficiencyTree: proficiencyTree,
 
     abstract: {
       DataModels: module.models,
@@ -98,7 +108,8 @@ function getType(object, type) {
 /**
  * Return the ids of all templates on the scene if they contain the token document.
  * @param {TokenDocument5e} tokenDoc      The token document.
- * @param {boolean} [ids=true]            Whether to return ids or template documents.
+ * @param {object} [options]              Search options.
+ * @param {boolean} [options.ids]         Whether to return ids or template documents.
  * @returns {string[]}                    An array of ids.
  */
 function getAllContainingTemplates(tokenDoc, {ids = true} = {}) {
@@ -152,10 +163,10 @@ async function moveBonus(original, other, id) {
 
 /**
  * Toggle a babonus on a document
- * @param {Document} object           A measured template, active effect, actor, or item.
- * @param {string} id                 The id of the babonus to toggle.
- * @param {boolean} [state=null]      A specific toggle state to set a babonus to (true or false).
- * @returns {Promise<Document>}       The document after the update.
+ * @param {Document} object         A measured template, active effect, actor, or item.
+ * @param {string} id               The id of the babonus to toggle.
+ * @param {boolean} [state]         A specific toggle state to set a babonus to.
+ * @returns {Promise<Document>}     The document after the update.
  */
 async function toggleBonus(object, id, state = null) {
   const bonus = getId(object, id);
@@ -208,26 +219,21 @@ function findTokensInRangeOfAura(object, id) {
  * Credit to @Freeze#2689 for much artistic aid.
  * @param {Token5e} source      The source token placeable.
  * @param {number} radius       The radius (usually feet) to extend from the source.
+ * @param {string} [type]       The type of shape to use for locating ('circle' or 'rect').
  * @returns {Token5e[]}         An array of token placeables, excluding the source.
  */
-function findTokensInRangeOfToken(source, radius) {
-  const pixels = radius * canvas.dimensions.distancePixels + source.h / 2;
-  const center = source.center;
-  const captureArea = new PIXI.Circle(center.x, center.y, pixels);
-  return canvas.tokens.placeables.filter(t => {
-    if (t === source) return false;
-
-    const centers = getOccupiedGridSpaces(t.document);
-    return centers.some(c => captureArea.contains(c.x, c.y));
-  });
+function findTokensInRangeOfToken(source, radius, type = "circle") {
+  if (type === "circle") return findTokensCircle(source, radius);
+  else if (type === "rect") return findTokensRect(source, radius);
+  else return [];
 }
 
 /**
  * Return the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
- * @param {Token5e} tokenA      One token placeable.
- * @param {Token5e} tokenB      Another token placeable.
- * @param {object} options      Options to modify the measurements.
- * @returns {number}            The minimum distance (in units of measurement).
+ * @param {Token5e} tokenA        One token placeable.
+ * @param {Token5e} tokenB        Another token placeable.
+ * @param {object} [options]      Options to modify the measurements.
+ * @returns {number}              The minimum distance (in units of measurement).
  */
 function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
   const spacesA = getOccupiedGridSpaces(tokenA.document);
@@ -252,9 +258,9 @@ function openBabonusWorkshop(object) {
 
 /**
  * Create a babonus in memory with the given data.
- * @param {object} data                 An object of babonus data.
- * @param {Document} [parent=null]      The document to act as parent of the babonus.
- * @returns {Babonus}                   The created babonus.
+ * @param {object} data           An object of babonus data.
+ * @param {Document} [parent]     The document to act as parent of the babonus.
+ * @returns {Babonus}             The created babonus.
  */
 function createBabonus(data, parent = null) {
   if (!(data.type in module.models)) throw new Error("INVALID BABONUS TYPE.");
@@ -330,4 +336,199 @@ async function hotbarToggle(uuid) {
     return;
   }
   return bonus.toggle();
+}
+
+/**
+ * Create pixi circle with some size and restrictions, centered on a token.
+ * @param {Token5e} token             The center.
+ * @param {number} size               The range in feet.
+ * @param {object} [restrictions]     Wall restrictions.
+ * @returns {ClockwiseSweepPolygon}
+ */
+function createRestrictedCircle(token, size, restrictions = {}) {
+  const hasLimitedRadius = size > 0;
+  let radius;
+  if (hasLimitedRadius) {
+    const cd = canvas.dimensions;
+    radius = size * cd.distancePixels + token.document.width * cd.size / 2;
+  }
+
+  restrictions = CONST.WALL_RESTRICTION_TYPES.filter(type => restrictions[type]);
+  let sweep = ClockwiseSweepPolygon.create(token.center, {
+    radius: radius,
+    hasLimitedRadius: hasLimitedRadius
+  });
+
+  for (const type of restrictions) {
+    sweep = sweep.applyConstraint(ClockwiseSweepPolygon.create(token.center, {
+      radius: radius,
+      type: type,
+      hasLimitedRadius: hasLimitedRadius,
+      useThreshold: type !== "move"
+    }));
+  }
+  return sweep;
+}
+
+/**
+ * Create pixi rectangle with some size and restrictions, centered on a token.
+ * @param {Token5e} token             The center.
+ * @param {number} size               The range in feet.
+ * @param {object} [restrictions]     Wall restrictions.
+ * @returns {ClockwiseSweepPolygon}
+ */
+function createRestrictedRect(token, size, restrictions = {}) {
+  const rectangles = (size > 0) ? [createRect(token, size)] : [];
+
+  restrictions = CONST.WALL_RESTRICTION_TYPES.filter(type => restrictions[type]);
+  let sweep = ClockwiseSweepPolygon.create(token.center, {
+    boundaryShapes: rectangles
+  });
+
+  for (const type of restrictions) {
+    sweep = sweep.applyConstraint(ClockwiseSweepPolygon.create(token.center, {
+      type: type,
+      boundaryShapes: rectangles,
+      useThreshold: type !== "move"
+    }));
+  }
+  return sweep;
+}
+
+/**
+ * Find tokens within a given circular distance from another token.
+ * @param {Token5e} token             The token that is in the center of the circle.
+ * @param {number} size               The radius of the circle, in feet.
+ * @param {object} [restrictions]     Valid wall restrictions within the area.
+ * @returns {Token5e[]}
+ */
+function findTokensCircle(token, size, restrictions = {}) {
+  const sweep = createRestrictedCircle(token, size, restrictions);
+  const rect = createRect(token, size);
+  const tokens = canvas.tokens.quadtree.getObjects(rect, {
+    collisionTest: ({t}) => {
+      if (t.id === token.id) return false;
+      const centers = BonusCollector._collectTokenCenters(t.document);
+      return centers.some(c => sweep.contains(c.x, c.y));
+    }
+  });
+  return Array.from(tokens);
+}
+
+/**
+ * Find tokens within a given rectangular distance from another token.
+ * @param {Token5e} token             The token that is in the center of the rectangle.
+ * @param {number} size               The 'radius' of the rectangle, in feet.
+ * @param {object} [restrictions]     Valid wall restrictions within the area.
+ * @returns {Token5e[]}
+ */
+function findTokensRect(token, size, restrictions = {}) {
+  const sweep = createRestrictedRect(token, size, restrictions);
+  const rect = createRect(token, size);
+  const tokens = canvas.tokens.quadtree.getObjects(rect, {
+    collisionTest: ({t}) => {
+      if (t.id === token.id) return false;
+      const centers = BonusCollector._collectTokenCenters(t.document);
+      return centers.some(c => sweep.contains(c.x, c.y));
+    }
+  });
+  return Array.from(tokens);
+}
+
+/**
+ * Create a rectangle of a given size centered on a token.
+ * @param {Token5e} token     The token that is in the center of the rectangle.
+ * @param {number} size       The 'radius' of the rectangle, in feet.
+ * @returns {PIXI}
+ */
+function createRect(token, size) {
+  const spaces = size / canvas.dimensions.distance;
+  const {x, y, width} = token.document;
+  const x0 = x - spaces * canvas.grid.size;
+  const y0 = y - spaces * canvas.grid.size;
+  const dist = (width + 2 * spaces) * canvas.grid.size;
+  return new PIXI.Rectangle(x0, y0, dist, dist);
+}
+
+/**
+ * Does this actor speak a given language?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The language to test.
+ * @returns {boolean}
+ */
+function speaksLanguage(actor, trait) {
+  return _hasTrait(actor, trait, "languages");
+}
+
+/**
+ * Does this actor have a given weapon proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasWeaponProficiency(actor, trait) {
+  return _hasTrait(actor, trait, "weapon");
+}
+
+/**
+ * Does this actor have a given armor proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasArmorProficiency(actor, trait) {
+  return _hasTrait(actor, trait, "armor");
+}
+
+/**
+ * Does this actor have a given tool proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasToolProficiency(actor, trait) {
+  return _hasTrait(actor, trait, "tool");
+}
+
+function _hasTrait(actor, trait, category) {
+  const path = CONFIG.DND5E.traits[category].actorKeyPath ?? `system.traits.${category}`;
+  const set = foundry.utils.getProperty(actor, path)?.value ?? new Set();
+  if (set.has(trait)) return true;
+  return set.some(v => {
+    const [k, obj] = babonus.trees[category].find(v) ?? [];
+    return (k === trait) || (obj.children && obj.children.find(trait));
+  });
+}
+
+/**
+ * Retrieve a path through nested proficiencies to find a specific proficiency in a category.
+ * E.g., 'smith' and 'tool' will return ['art', 'smith'], and 'aquan' and 'languages' will
+ * return ['exotic', 'primordial', 'aquan'].
+ * @param {string} key          The specific proficiency (can be a category), e.g., "smith" or "primordial".
+ * @param {string} category     The trait category, e.g., "tool", "weapon", "armor", "languages".
+ * @returns {string[]}
+ */
+function proficiencyTree(key, category) {
+  const root = babonus.trees[category];
+  const path = [];
+
+  const find = (node) => {
+    for (const [k, v] of Object.entries(node)) {
+      if ((k === key)) {
+        path.unshift(k);
+        return true;
+      } else if (v.children) {
+        const result = find(v.children);
+        if (result) {
+          path.unshift(k);
+          return true;
+        }
+      }
+    }
+    path.shift();
+    return false;
+  };
+
+  find(root);
+  return path;
 }

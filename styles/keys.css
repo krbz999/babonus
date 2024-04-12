@@ -22,6 +22,10 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
 
+        &.category {
+          font-weight: bold;
+        }
+
         & td {
           display: flex;
           align-items: center;

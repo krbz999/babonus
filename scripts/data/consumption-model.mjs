@@ -93,6 +93,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     else if (type === "resource") {
       return isCharacter && (["primary", "secondary", "tertiary"].includes(this.subtype)) && (min > 0);
     }
+
+    return false;
   }
 
   /**

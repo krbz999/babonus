@@ -1,0 +1,17 @@
+{
+  "name": "babonus",
+  "version": "1.0.0",
+  "description": "Build-a-Bonus",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krbz999/babonus.git"
+  },
+  "keywords": ["fvtt", "module"],
+  "author": "Zhell",
+  "bugs": {"url": "https://github.com/krbz999/babonus"},
+  "homepage": "https://github.com/krbz999/babonus",
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}

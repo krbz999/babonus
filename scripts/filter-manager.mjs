@@ -154,7 +154,11 @@ export class FilterManager {
         acc[key] = Roll.replaceFormulaData(val, data, {missing: 0});
         return acc;
       }, {});
-      try {bonus.updateSource({bonuses: update})} catch (err) {}
+      try {
+        bonus.updateSource({bonuses: update});
+      } catch (err) {
+        console.warn("Babonus | Issue updating bonus data:", err);
+      }
     }
   }
 
@@ -241,9 +245,10 @@ export class FilterManager {
     if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
     if (item.type !== "weapon") return !included.size;
-    const type = item.system.type.baseItem;
-    if (included.size && !included.has(type)) return false;
-    if (excluded.size && excluded.has(type)) return false;
+
+    const types = new Set([item.system.type.value, item.system.type.baseItem]);
+    if (included.size && !included.intersects(types)) return false;
+    if (excluded.size && excluded.intersects(types)) return false;
     return true;
   }
 
@@ -261,8 +266,8 @@ export class FilterManager {
     const shield = actor.system.attributes?.ac?.equippedShield ?? null;
     const armor = actor.system.attributes?.ac?.equippedArmor ?? null;
     const types = new Set();
-    if (shield?.system.type?.baseItem) types.add(shield.system.type.baseItem);
-    if (armor?.system.type?.baseItem) types.add(armor.system.type.baseItem);
+    if (shield) types.add(shield.system.type.baseItem).add(shield.system.type.value);
+    if (armor) types.add(armor.system.type.baseItem).add(armor.system.type.value);
 
     // If no armor worn.
     if (!types.size) return !(included.size > 0);
@@ -660,8 +665,10 @@ export class FilterManager {
     if (!filter.size) return true;
     const {included, excluded} = FilterManager._splitExlusion(filter);
     if (!toolId) return !included.size;
-    if (included.size && !included.has(toolId)) return false;
-    if (excluded.size && excluded.has(toolId)) return false;
+
+    const types = new Set(babonus.proficiencyTree(toolId, "tool"));
+    if (included.size && !included.intersects(types)) return false;
+    if (excluded.size && excluded.intersects(types)) return false;
     return true;
   }
 
@@ -712,7 +719,7 @@ export class FilterManager {
   static proficiencyLevels(object, filter, details) {
     if (!filter.size) return true;
     const item = object instanceof Item ? object : null;
-    const actor = object instanceof Item ? item.actor : object;
+    const actor = object instanceof Item ? object.actor : object;
 
     // Case 1: Skill.
     if (details.skillId) {
@@ -750,7 +757,7 @@ export class FilterManager {
 
   /**
    * Find out if the item that made the roll was the correct feature type and feature subtype.
-   * @param {Item5e} item                 The actor or item performing the roll.
+   * @param {Item5e} item                 The item performing the roll.
    * @param {object} filter               The filter object.
    * @param {string} [filter.type]        The feature type.
    * @param {string} [filter.subtype]     The feature subtype.
@@ -767,6 +774,46 @@ export class FilterManager {
     if (!hasSubtype || !subtype) return true;
 
     return item.system.type.subtype === subtype;
+  }
+
+  /**
+   * Find out if the actor is one of the correct creature sizes.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {Set<string>} filter        The set of valid creature sizes.
+   * @returns {boolean}                 Whether the actor is a correct creature size.
+   */
+  static actorCreatureSizes(object, filter) {
+    if (!filter.size) return true;
+    const actor = (object instanceof Item) ? object.actor : object;
+    const size = actor.system.traits?.size;
+    return !!size && filter.has(size);
+  }
+
+  /**
+   * Find out if the actor speaks one of the included languages while not any of the excluded languages.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {Set<string>} filter        The set of languages the actor must speak or not speak.
+   * @returns {boolean}
+   */
+  static actorLanguages(object, filter) {
+    if (!filter.size) return true;
+    const actor = (object instanceof Item) ? object.actor : object;
+    const {included, excluded} = FilterManager._splitExlusion(filter);
+
+    const values = actor.system.traits?.languages?.value;
+    if (!values) return false;
+
+    const speaksAny = included.some(lang => babonus.speaksLanguage(actor, lang));
+    if (included.size && !speaksAny) return false;
+
+    if (!excluded.size) return true;
+
+    // If e.g. "standard" is excluded, the actor must not be able to speak "dwarvish".
+    for (const k of values) {
+      const nodes = new Set(babonus.proficiencyTree(k, "languages"));
+      if (nodes.intersects(excluded)) return false;
+    }
+    return true;
   }
 
   //#endregion

@@ -27,16 +27,16 @@ export class CharacterSheetTab {
     }
 
     const data = sheet.actor.getRollData();
-    for(const bonus of babonus.getCollection(sheet.actor)) await _prepareBonus(bonus, data);
-    for(const item of sheet.actor.items) {
+    for (const bonus of babonus.getCollection(sheet.actor)) await _prepareBonus(bonus, data);
+    for (const item of sheet.actor.items) {
       const data = item.getRollData();
-      for(const bonus of babonus.getCollection(item)) await _prepareBonus(bonus, data);
-      for(const effect of item.effects) for(const bonus of babonus.getCollection(effect)) {
+      for (const bonus of babonus.getCollection(item)) await _prepareBonus(bonus, data);
+      for (const effect of item.effects) for (const bonus of babonus.getCollection(effect)) {
         await _prepareBonus(bonus, data);
       }
     }
-    for(const effect of sheet.actor.effects) {
-      for(const bonus of babonus.getCollection(effect)) await _prepareBonus(bonus, data);
+    for (const effect of sheet.actor.effects) {
+      for (const bonus of babonus.getCollection(effect)) await _prepareBonus(bonus, data);
     }
 
     bonuses.all = {label: "BABONUS.Bonuses", key: "all", bonuses: []};
@@ -161,7 +161,7 @@ export class CharacterSheetTab {
         const effects = embedded.effects.flatMap(effect => babonus.getCollection(effect).contents);
         return actor.concat(items).concat(effects);
       }
-    };
+    }
     cls.prototype._filterChildren = sheet.prototype._filterChildren;
   }
 

@@ -326,6 +326,8 @@ class Babonus extends foundry.abstract.DataModel {
       const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
       return (item instanceof Item) ? (item.parent ?? null) : null;
     }
+
+    return null;
   }
 
   /**
@@ -358,6 +360,8 @@ class Babonus extends foundry.abstract.DataModel {
       const item = fromUuidSync(this.parent.origin ?? "");
       return (item instanceof Item) ? item : null;
     }
+
+    return null;
   }
 
   /**
@@ -435,7 +439,9 @@ class Babonus extends foundry.abstract.DataModel {
       healthPercentages: new module.filters.healthPercentages(),
       customScripts: new module.filters.customScripts(),
       remainingSpellSlots: new module.filters.remainingSpellSlots(),
-      actorCreatureTypes: new module.filters.actorCreatureTypes()
+      actorCreatureTypes: new module.filters.actorCreatureTypes(),
+      actorCreatureSizes: new module.filters.actorCreatureSizes(),
+      actorLanguages: new module.filters.actorLanguages()
     };
   }
 
@@ -463,7 +469,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @param {object} source     Candidate source data.
    */
   static migrateDeathSaveTargetValue(source) {
-    const tv = source?.bonuses.deathSaveTargetValue;
+    const tv = source?.bonuses?.deathSaveTargetValue;
     if (tv) foundry.utils.setProperty(source, "bonuses.targetValue", tv);
   }
 
@@ -659,12 +665,12 @@ class DamageBabonus extends ItemBabonus {
   }
 
   /**
-   * Does this bonus have a damage type?
+   * Does this bonus have a damage or healing type?
    * @type {boolean}
    */
   get hasDamageType() {
     const type = this.bonuses.damageType;
-    return type in CONFIG.DND5E.damageTypes;
+    return (type in CONFIG.DND5E.damageTypes) || (type in CONFIG.DND5E.healingTypes);
   }
 }
 

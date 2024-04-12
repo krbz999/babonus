@@ -145,11 +145,36 @@ class SpellComponentsField extends FilterMixin(foundry.data.fields.SchemaField) 
   }
 }
 
+class ActorCreatureSizesField extends BaseField {
+  /** @override */
+  static name = "actorCreatureSizes";
+
+  constructor() {
+    super(new foundry.data.fields.StringField());
+  }
+
+  /** @override */
+  static async getData(bonus) {
+    const data = await super.getData(bonus);
+    data.value.forEach(v => {
+      v.label = CONFIG.DND5E.actorSizes[v.value].abbreviation;
+    });
+    return data;
+  }
+
+  /** @override */
+  static async choices() {
+    return Object.entries(CONFIG.DND5E.actorSizes).map(([k, v]) => {
+      return {value: k, label: v.label};
+    });
+  }
+}
 
 export const checkboxFields = {
   proficiencyLevels: ProficiencyLevelsField,
   itemTypes: ItemTypesField,
   attackTypes: AttackTypesField,
   spellLevels: SpellLevelsField,
-  spellComponents: SpellComponentsField
+  spellComponents: SpellComponentsField,
+  actorCreatureSizes: ActorCreatureSizesField
 };

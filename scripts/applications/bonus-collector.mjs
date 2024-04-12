@@ -112,7 +112,7 @@ export class BonusCollector {
 
     // Token and template auras.
     if (this.token) {
-      for(const token of this.token.scene.tokens) {
+      for (const token of this.token.scene.tokens) {
         if (token.actor && (token.actor.type !== "group") && (token !== this.token.document) && !token.hidden) {
           bonuses.token.push(...this._collectFromToken(token));
         }
@@ -122,7 +122,7 @@ export class BonusCollector {
       const map = new Map();
       for (const template of this.token.scene.templates) {
         const boni = this._collectFromTemplate(template);
-        for(const b of boni) map.set(`${b.item.uuid}.Babonus.${b.id}`, b);
+        for (const b of boni) map.set(`${b.item.uuid}.Babonus.${b.id}`, b);
       }
       bonuses.template.push(...map.values());
     }
@@ -174,7 +174,7 @@ export class BonusCollector {
           bonuses.push(this.auraMaker(token.object, bonus));
         }
       }
-    }
+    };
 
     checker(token.actor);
     for (const item of token.actor.items) checker(item);
@@ -342,43 +342,14 @@ export class BonusCollector {
    *                                                  and whether the roller is contained within.
    */
   auraMaker(token, bonus) {
+    const cnt = Object.values(bonus.aura.require).filter(x => x);
+    if (!cnt && !(bonus.aura.range > 0)) return [token, null, bonus, true];
+
+    const circle = babonus.createRestrictedCircle(token, bonus.aura.range, bonus.aura.require);
     const shape = new PIXI.Graphics();
-    const hasLimitedRadius = bonus.aura.range > 0;
-    const radius = hasLimitedRadius ? bonus.aura.range * canvas.dimensions.distancePixels + token.h / 2 : undefined;
-    const alpha = 0.08;
-    const color = 0xFFFFFF;
-
-    const mods = {};
-    CONST.WALL_RESTRICTION_TYPES.forEach(k => {
-      if (bonus.aura.require[k]) {
-        mods[k] = CONFIG.Canvas.polygonBackends[k].create(token.center, {
-          type: k,
-          hasLimitedRadius: hasLimitedRadius,
-          radius: radius,
-          useThreshold: k !== "move"
-        });
-      }
-    });
-
-    const cnt = Object.keys(mods).length;
-    if (!cnt) {
-      // Case 1: No constraints.
-      if (!hasLimitedRadius) return [token, null, bonus, true];
-      const center = token.center;
-      shape.beginFill(color, alpha).drawCircle(center.x, center.y, radius).endFill();
-    } else if (cnt > 1) {
-      // Case 2: Multiple constraints.
-      const [start, ...polygons] = Object.values(mods).filter(k => k !== null);
-      const polygon = polygons.reduce((acc, p) => acc.intersectPolygon(p), start);
-      shape.beginFill(color, alpha).drawPolygon(polygon).endFill();
-    } else if (cnt === 1) {
-      // Case 3: Single constraint.
-      const polygon = Object.values(mods).find(p => p !== null);
-      shape.beginFill(color, alpha).drawShape(polygon).endFill();
-    }
-
+    shape.beginFill(0xFFFFFF, 0.08).drawPolygon(circle).endFill();
     shape.pivot.set(token.x, token.y);
-    const contains = this.tokenCenters.some(p => shape.containsPoint(p));
+    const contains = this.tokenCenters.some(p => circle.contains(p.x, p.y));
     return [token, shape, bonus, contains];
   }
 

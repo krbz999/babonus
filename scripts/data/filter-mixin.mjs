@@ -76,5 +76,5 @@ export function FilterMixin(Base) {
     static async choices() {
       throw new Error("This must be subclassed!");
     }
-  }
+  };
 }

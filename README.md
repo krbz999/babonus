@@ -54,14 +54,17 @@ Interested in following along with development of any of my modules? Join the [D
 <h1 style="font-weight: bold;">Available Filters</h1>
 <p>These are the available filters that narrow down if the bonus should apply when making a roll.</p>
 <p><strong><em>Abilities.</em></strong> The ability score used for the roll. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity.</p>
-<p><strong><em>Actor Conditions.</em></strong> Filter the bonus to only apply if the actor is affected by any of the included status conditions while having none of the excluded status conditions. This uses the statuses stored in status conditions, as detailed above.</p>
 <p><strong><em>Arbitrary Comparisons.</em></strong> An array of arbitrary comparisons you can use for anything that is not covered in the Build-a-Bonus natively. This supports numbers, roll data, and strings. If you enter strings, you can use the inequalities to match substrings. It will otherwise attempt to determine numeric values after replacing roll data with the roll data of the item and actor performing the roll. For example, you can have a bonus apply only when the actor is below full health with <code>@attributes.hp.value <= @attributes.hp.max</code>. Unlike other filters, you can add this filter to the builder multiple times.</p>
 <p><strong><em>Attack Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has an attack roll of that specific kind.</p>
 <p><strong><em>Available Spell Slots.</em></strong> Filter the bonus to apply only if the actor performing the roll has more than the set minimum amount of spell slots available and/or less than the set maximum amount of spell slots available. Not both fields are required.</p>
 <p><strong><em>Base Armors.</em></strong> Filter the bonus to only apply if the actor is wearing a specific type of armor or a shield.</p>
+<p><strong><em>Base Tools.</em></strong> The type of tool the item must be for the bonus to apply. For example Herbalism Kit, Thieves' Tools, or Cobbler's Tools.</p>
 <p><strong><em>Base Weapons.</em></strong> Filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'.</p>
-<p><strong><em>Actor Creature Types.</em></strong> Filter the bonus to only apply if you are belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not belonging to any of the excluded creature types.</p>
-<p><strong><em>Target Creature Types.</em></strong> Filter the bonus to only apply if you are targeting an enemy belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not targeting any of the excluded creature types.</p>
+<p><strong><em>Conditions (Target).</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by any of the included status conditions while having none of the excluded status conditions.</p>
+<p><strong><em>Conditions.</em></strong> Filter the bonus to only apply if the actor is affected by any of the included status conditions while having none of the excluded status conditions. This uses the statuses stored in status conditions, as detailed above.</p>
+<p><strong><em>Creature Sizes.</em></strong> Filter the bonus to only apply if the actor performing the roll is a certain size, like medium, huge, or gargantuan.</p>
+<p><strong><em>Creature Types (Target).</em></strong> Filter the bonus to only apply if you are targeting an enemy belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not targeting any of the excluded creature types.</p>
+<p><strong><em>Creature Types.</em></strong> Filter the bonus to only apply if you are belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not belonging to any of the excluded creature types.</p>
 <p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be fully synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, <code>token</code>, and <code>bonus</code> are always provided if possible, as well as an object, <code>details</code>, used for the iteration of parsing the validity of the bonuses. For those uncomfortable with having all clients execute these scripts, a setting is available for the module which will completely ignore the scripts and simply immediately return true.</p>
 <p><strong><em>Damage Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has a damage formula with any of the included damage types while having none of the excluded damage types.</p>
 <p><strong><em>Feature Types.</em></strong> Filter the bonus to only apply if the item used to perform the attack or damage roll (or prompt for a saving throw) is a feature-type item of a specific type, and optionally also a specific subtype.</p>
@@ -75,66 +78,373 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Spell Levels.</em></strong> Filter the bonus to only apply if the item is a spell and is or was cast at one of the given levels.</p>
 <p><strong><em>Spell Preparation Modes.</em></strong> Filter the bonus to only apply if the item is a spell and is set as one of a selected few preparation modes such as 'pact magic' or 'innate'.</p>
 <p><strong><em>Spell Schools.</em></strong> Filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.</p>
-<p><strong><em>Target Conditions.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by any of the included status conditions while having none of the excluded status conditions.</p>
-<p><strong><em>Token Sizes.</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a token of a certain size or greater (or smaller), and optionally clamped using the roller's token's size.</p>
-<p><strong><em>Tool Types.</em></strong> The type of tool the item must be for the bonus to apply. For example Herbalism Kit, Thieves' Tools, or Cobbler's Tools.</p>
+<p><strong><em>Spoken Languages.</em></strong> Filter the bonus to only apply if the actor performing the roll is able to speak a certain language.</p>
+<p><strong><em>Token Sizes (Target).</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a token of a certain size or greater (or smaller), and optionally clamped using the roller's token's size.</p>
 <p><strong><em>Weapon Properties.</em></strong> Filter the bonus to only apply if the item is a weapon that has at least one of the included weapon properties while having none of the excluded properties.</p>
 
 <h1 style="font-weight: bold;">API</h1>
 <p>An API can be accessed at <code>game.modules.get("babonus").api</code> or through the global namespace <code>babonus</code>. The parameter <code>object</code> below refers to an Actor, ActiveEffect, Item, or MeasuredTemplateDocument. The methods are currently:</p>
-<ul>
-<li><code>getId(object, id)</code> returns the bonus with the given id on the given document.</li>
-<li><code>getIds(object)</code> returns the ids of all bonuses on the document.</li>
-<li><code>getName(object, name)</code> returns the bonus with the given name on the given document. Returns the first one found if multiple have the same name.</li>
-<li><code>getNames(object)</code> returns the names of all bonuses on the document.</li>
-<li><code>getType(object, type)</code> returns all bonuses on the object of the given type (e.g. "attack", "damage", "save", "throw", "test", "hitdie").</li>
-<li><code>getCollection(object)</code> returns a Collection of bonuses on the object.</li>
-<li><code>fromUuid(uuid)</code> returns a bonus on a given document. The uuid is the uuid of the parent document appended with <code>.Babonus.< id ></code>.</li>
-<li><code>createBabonus(data)</code> returns a new Babonus document created with the provided data. This does not create the bonus on the document, only in memory.</li>
-<li><code>embedBabonus(object, bonus)</code> embeds the data of the given babonus into the given actor, item, or effect.</li>
-<li><code>copyBonus(original, other, id)</code> copies a bonus with the given id from one document to another. Note that a bonus can also be dragged and dropped via the ui.</li>
-<li><code>deleteBonus(object, id)</code> removes the bonus with the given id from the document.</li>
-<li><code>moveBonus(original, other, id)</code> copies a bonus with the given id from one document to another, then removes the original bonus.</li>
-<li><code>toggleBonus(object, id, state=null)</code> enables or disables a bonus, or sets it to the given state (true or false).</li>
-<li><code>findEmbeddedDocumentsWithBonuses(object)</code> returns an object with two arrays containing items and effects on the given document that have a bonus.</li>
-<li><code>findTokensInRangeOfAura(object, id)</code> returns all token documents that are in range of an aura with the given id on the document.</li>
-<li><code>findTokensInRangeOfToken(token, radiusFt)</code> returns an array of token placeables that are within the given range of the given token placeable.</li>
-<li><code>openBabonusWorkshop(object)</code> opens the Build-a-Bonus workshop for the given document.</li>
-<li><code>getAllContainingTemplates(tokenDoc)</code> returns the ids of all templates on the scene that overlap with the token document.</li>
-<li><code>getMinimumDistanceBetweenTokens(tokenA, tokenB)</code> returns the minimum distance between two token placeables, evaluating every grid cell that they occupy.</li>
-<li><code>sceneTokensByDisposition(scene)</code> returns an object of four arrays; the tokens on the scene split into four arrays by disposition (friendly, neutral, hostile, and none). If no scene is provided, the currently viewed scene is used.</li>
-<li><code>getOccupiedGridSpaces(tokenDoc)</code> returns all grid spaces that a token occupies on its scene.</li>
-<li><code>hotbarToggle(uuid)</code> toggles a bonus retrieved via its uuid.</li>
-<li>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</li>
-</ul>
+
+```js
+/**
+ * Return a babonus that has the given id.
+ * @param {Document} object     The document that has the babonus.
+ * @param {string} id           The id of the babonus.
+ * @returns {Babonus}           The found babonus.
+ */
+function getId(object, id)
+```
+
+```js
+/**
+ * Return the ids of all bonuses on the document.
+ * @param {Document} object     The document that has the babonuses.
+ * @returns {string[]}          An array of ids.
+ */
+function getIds(object)
+```
+
+```js
+/**
+ * Return a babonus that has the given name. If more are found, returns the first found.
+ * @param {Document} object     The document that has the babonus.
+ * @param {string} name         The name of the babonus.
+ * @returns {Babonus}           The found babonus.
+ */
+function getName(object, name)
+```
+
+```js
+/**
+ * Return the names of all bonuses on the document.
+ * @param {Document} object     The document that has the babonuses.
+ * @returns {string[]}          An array of names.
+ */
+function getNames(object)
+```
+
+```js
+/**
+ * Return an array of the bonuses of a given type on the document.
+ * @param {Document} object     The document that has the babonuses.
+ * @param {string} type         The type of babonuses to find.
+ * @returns {Babonus[]}         An array of babonuses.
+ */
+function getType(object, type)
+```
+
+```js
+/**
+ * Return the collection of bonuses on the document.
+ * @param {Document} object           An actor, item, effect, or template.
+ * @returns {Collection<Babonus>}     A collection of babonuses.
+ */
+function getCollection(object)
+```
+
+```js
+/**
+ * Return a babonus using its uuid.
+ * @param {string} uuid             The babonus uuid.
+ * @returns {Promise<Babonus>}      The found babonus.
+ */
+async function fromUuid(uuid)
+```
+
+```js
+/**
+ * Create a babonus in memory with the given data.
+ * @param {object} data           An object of babonus data.
+ * @param {Document} [parent]     The document to act as parent of the babonus.
+ * @returns {Babonus}             The created babonus.
+ */
+function createBabonus(data, parent = null)
+```
+
+```js
+/**
+ * Embed a created babonus onto the target object.
+ * @param {Document} object         The actor, item, or effect that should have the babonus.
+ * @param {Babonus} bonus           The created babonus.
+ * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+ */
+async function embedBabonus(object, bonus)
+```
+
+```js
+/**
+ * Copy a babonus from a document to another.
+ * @param {Document} original       A measured template, active effect, actor, or item to copy from.
+ * @param {Document} other          A measured template, active effect, actor, or item to copy to.
+ * @param {string} id               The id of the babonus to copy.
+ * @returns {Promise<Document>}     The original after the update.
+ */
+async function copyBonus(original, other, id)
+```
+
+```js
+/**
+ * Delete a babonus from a document.
+ * @param {Document} object         A measured template, active effect, actor, or item to delete from.
+ * @param {string} id               The id of the babonus to remove.
+ * @returns {Promise<Document>}     The updated document.
+ */
+async function deleteBonus(object, id)
+```
+
+```js
+/**
+ * Move a babonus from a document to another.
+ * @param {Document} original       A measured template, active effect, actor, or item to move from.
+ * @param {Document} other          A measured template, active effect, actor, or item to move to.
+ * @param {string} id               The id of the babonus to move.
+ * @returns {Promise<Document>}     The other document after the update.
+ */
+async function moveBonus(original, other, id)
+```
+
+```js
+/**
+ * Toggle a babonus on a document
+ * @param {Document} object         A measured template, active effect, actor, or item.
+ * @param {string} id               The id of the babonus to toggle.
+ * @param {boolean} [state]         A specific toggle state to set a babonus to.
+ * @returns {Promise<Document>}     The document after the update.
+ */
+async function toggleBonus(object, id, state = null)
+```
+
+```js
+/**
+ * Return an object of arrays of items and effects on the given document
+ * that have one or more babonuses embedded in them.
+ * @param {Document} object     An actor or item with embedded documents.
+ * @returns {object}            An object with an array of effects and array of items.
+ */
+function findEmbeddedDocumentsWithBonuses(object)
+```
+
+```js
+/**
+ * Return all token documents that are in range of an aura.
+ * This does not take sight and movement restrictions into account.
+ * @param {Document} object         The actor, item, or effect with the babonus.
+ * @param {string} id               The id of the babonus.
+ * @returns {TokenDocument5e[]}     An array of token documents.
+ */
+function findTokensInRangeOfAura(object, id)
+```
+
+```js
+/**
+ * Return an array of tokens that are within a radius of the source token.
+ * Credit to @Freeze#2689 for much artistic aid.
+ * @param {Token5e} source      The source token placeable.
+ * @param {number} radius       The radius (usually feet) to extend from the source.
+ * @param {string} [type]       The type of shape to use for locating ('circle' or 'rect').
+ * @returns {Token5e[]}         An array of token placeables, excluding the source.
+ */
+function findTokensInRangeOfToken(source, radius, type = "circle")
+```
+
+```js
+/**
+ * Render the build-a-bonus application for a document.
+ * @param {Document} object       An actor, item, or effect.
+ * @returns {BabonusWorkshop}     The rendered workshop.
+ */
+function openBabonusWorkshop(object)
+```
+
+```js
+/**
+ * Return the ids of all templates on the scene if they contain the token document.
+ * @param {TokenDocument5e} tokenDoc      The token document.
+ * @param {object} [options]              Search options.
+ * @param {boolean} [options.ids]         Whether to return ids or template documents.
+ * @returns {string[]}                    An array of ids.
+ */
+function getAllContainingTemplates(tokenDoc, {ids = true} = {})
+```
+
+```js
+/**
+ * Return the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
+ * @param {Token5e} tokenA        One token placeable.
+ * @param {Token5e} tokenB        Another token placeable.
+ * @param {object} [options]      Options to modify the measurements.
+ * @returns {number}              The minimum distance (in units of measurement).
+ */
+function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {})
+```
+
+```js
+/**
+ * Return the scene's token documents in four arrays split by disposition.
+ * @param {Scene} scene     A scene that contains tokens.
+ * @returns {object}        An object of the four arrays.
+ */
+function sceneTokensByDisposition(scene)
+```
+
+```js
+/**
+ * Get the centers of all grid spaces that overlap with a token document.
+ * @param {TokenDocument5e} tokenDoc      The token document on the scene.
+ * @returns {object[]}                    An array of xy coordinates.
+ */
+function getOccupiedGridSpaces(tokenDoc)
+```
+
+```js
+/**
+ * Does this actor speak a given language?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The language to test.
+ * @returns {boolean}
+ */
+function speaksLanguage(actor, trait)
+```
+
+```js
+/**
+ * Does this actor have a given weapon proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasWeaponProficiency(actor, trait)
+```
+
+```js
+/**
+ * Does this actor have a given armor proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasArmorProficiency(actor, trait)
+```
+
+```js
+/**
+ * Does this actor have a given tool proficiency?
+ * @param {Actor5e} actor     The actor to test.
+ * @param {string} trait      The trait to test.
+ * @returns {boolean}
+ */
+function hasToolProficiency(actor, trait)
+```
+
+```js
+/**
+ * Retrieve a path through nested proficiencies to find a specific proficiency in a category.
+ * E.g., 'smith' and 'tool' will return ['art', 'smith'], and 'aquan' and 'languages' will
+ * return ['exotic', 'primordial', 'aquan'].
+ * @param {string} key          The specific proficiency (can be a category), e.g., "smith" or "primordial".
+ * @param {string} category     The trait category, e.g., "tool", "weapon", "armor", "languages".
+ * @returns {string[]}
+ */
+function proficiencyTree(key, category)
+```
+
+```js
+/**
+ * Hotbar method for toggling a bonus via uuid.
+ * @param {string} uuid       Uuid of the bonus to toggle.
+ * @returns {Promise<null|Babonus>}
+ */
+async function hotbarToggle(uuid)
+```
+
+```js
+/**
+ * Create pixi circle with some size and restrictions, centered on a token.
+ * @param {Token5e} token             The center.
+ * @param {number} size               The range in feet.
+ * @param {object} [restrictions]     Wall restrictions.
+ * @returns {ClockwiseSweepPolygon}
+ */
+function createRestrictedCircle(token, size, restrictions = {})
+```
+
+```js
+/**
+ * Create pixi rectangle with some size and restrictions, centered on a token.
+ * @param {Token5e} token             The center.
+ * @param {number} size               The range in feet.
+ * @param {object} [restrictions]     Wall restrictions.
+ * @returns {ClockwiseSweepPolygon}
+ */
+function createRestrictedRect(token, size, restrictions = {})
+```
+
+```js
+/**
+ * Find tokens within a given circular distance from another token.
+ * @param {Token5e} token             The token that is in the center of the circle.
+ * @param {number} size               The radius of the circle, in feet.
+ * @param {object} [restrictions]     Valid wall restrictions within the area.
+ * @returns {Token5e[]}
+ */
+function findTokensCircle(token, size, restrictions = {})
+```
+
+```js
+/**
+ * Find tokens within a given rectangular distance from another token.
+ * @param {Token5e} token             The token that is in the center of the rectangle.
+ * @param {number} size               The 'radius' of the rectangle, in feet.
+ * @param {object} [restrictions]     Valid wall restrictions within the area.
+ * @returns {Token5e[]}
+ */
+function findTokensRect(token, size, restrictions = {})
+```
+
+```js
+/**
+ * Create a rectangle of a given size centered on a token.
+ * @param {Token5e} token     The token that is in the center of the rectangle.
+ * @param {number} size       The 'radius' of the rectangle, in feet.
+ * @returns {PIXI}
+ */
+function createRect(token, size)
+```
+
+<p>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</p>
 
 <h2>Instance Methods</h2>
 <p>Instance methods are functions found directly on an instance of a created bonus.</p>
 <ul>
-<li><code>Babonus#toggle</code> enables or disables the bonus on its actor.</li>
+<li><code>Babonus#toggle</code> enables or disables the bonus on its parent.</li>
+<li><code>Babonus#update</code> updates the bonus itself with the given new properties.</li>
+<li><code>Babonus#delete</code> removes the bonus off of its parent.</li>
 </ul>
 
 <h1 style="font-weight: bold;">Hooks</h1>
 <p>The hook, <code>babonus.applyOptionalBonus</code> is called when applying an optional bonus; after updates or deletions are performed, but before the bonus is applied to the roll. It provides the babonus, the rolling item or actor, the item, actor, or effect that was updated or deleted, and an object with the bonus that will be applied. The bonus to be applied can be modified. Explicitly returning <code>false</code> will prevent the bonus from being applied entirely.</p>
 <p>Two hooks are called during the filtering of the collected bonuses when making a relevant roll.</p>
-<pre><code>/**
+
+```js
+/**
  * A hook that is called before the collection of bonuses has been filtered.
- * @param {Collection&lt;Babonus&gt;} bonuses     The collection of bonuses, before filtering.
+ * @param {Collection<Babonus>} bonuses     The collection of bonuses, before filtering.
  * @param {Actor5e|Item5e} object           The actor or item performing the roll.
- * @param {object} [details={}]             Additional data passed along to perform the filtering.
+ * @param {object} [details]                Additional data passed along to perform the filtering.
  * @param {string} hookType                 The type of hook being executed ('attack',
  *                                          'damage', 'save', 'throw', 'test', 'hitdie').
  */
 Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
-</code></pre>
+```
 
-<pre><code>/**
+```js
+/**
  * A hook that is called after the collection of bonuses has been filtered.
  * @param {Babonus[]} bonuses         The array of bonuses, after filtering.
  * @param {Actor5e|Item5e} object     The actor or item performing the roll.
- * @param {object} [details={}]       Additional data passed along to perform the filtering.
+ * @param {object} [details]          Additional data passed along to perform the filtering.
  * @param {string} hookType           The type of hook being executed ('attack',
  *                                    'damage', 'save', 'throw', 'test', 'hitdie').
  */
 Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
-</code></pre>
+````
