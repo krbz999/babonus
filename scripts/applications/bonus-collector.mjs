@@ -112,7 +112,7 @@ export class BonusCollector {
 
     // Token and template auras.
     if (this.token) {
-      for(const token of this.token.scene.tokens) {
+      for (const token of this.token.scene.tokens) {
         if (token.actor && (token.actor.type !== "group") && (token !== this.token.document) && !token.hidden) {
           bonuses.token.push(...this._collectFromToken(token));
         }
@@ -122,7 +122,7 @@ export class BonusCollector {
       const map = new Map();
       for (const template of this.token.scene.templates) {
         const boni = this._collectFromTemplate(template);
-        for(const b of boni) map.set(`${b.item.uuid}.Babonus.${b.id}`, b);
+        for (const b of boni) map.set(`${b.item.uuid}.Babonus.${b.id}`, b);
       }
       bonuses.template.push(...map.values());
     }
@@ -174,7 +174,7 @@ export class BonusCollector {
           bonuses.push(this.auraMaker(token.object, bonus));
         }
       }
-    }
+    };
 
     checker(token.actor);
     for (const item of token.actor.items) checker(item);

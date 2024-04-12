@@ -117,6 +117,10 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
   return game.user.assignHotbarMacro(macro, slot);
 }
 
+/**
+ * Setup the global 'trees' for proficiency searching.
+ * @returns {Promise<object>}     The object of proficiency or trait trees.
+ */
 async function setupTree() {
   const trees = {};
   for (const k of ["languages", "weapon", "armor", "tool"]) {

@@ -170,7 +170,6 @@ class ActorCreatureSizesField extends BaseField {
   }
 }
 
-
 export const checkboxFields = {
   proficiencyLevels: ProficiencyLevelsField,
   itemTypes: ItemTypesField,

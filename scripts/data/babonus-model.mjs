@@ -326,6 +326,8 @@ class Babonus extends foundry.abstract.DataModel {
       const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
       return (item instanceof Item) ? (item.parent ?? null) : null;
     }
+
+    return null;
   }
 
   /**
@@ -358,6 +360,8 @@ class Babonus extends foundry.abstract.DataModel {
       const item = fromUuidSync(this.parent.origin ?? "");
       return (item instanceof Item) ? item : null;
     }
+
+    return null;
   }
 
   /**

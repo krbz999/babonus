@@ -154,7 +154,11 @@ export class FilterManager {
         acc[key] = Roll.replaceFormulaData(val, data, {missing: 0});
         return acc;
       }, {});
-      try {bonus.updateSource({bonuses: update})} catch (err) {}
+      try {
+        bonus.updateSource({bonuses: update});
+      } catch (err) {
+        console.warn("Babonus | Issue updating bonus data:", err);
+      }
     }
   }
 

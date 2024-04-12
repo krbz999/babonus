@@ -11,7 +11,7 @@ export class AuraModel extends foundry.abstract.DataModel {
       disposition: new foundry.data.fields.NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
       blockers: new module.filters.auraBlockers(),
       require: new foundry.data.fields.SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
-        acc[k] = new foundry.data.fields.BooleanField()
+        acc[k] = new foundry.data.fields.BooleanField();
         return acc;
       }, {}))
     };

@@ -77,7 +77,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
   //#region
 
   /** @override */
-  setPosition(pos={}){
+  setPosition(pos = {}) {
     const w = parseInt(pos.width);
     if (w) {
       const el = this.element[0]?.querySelector(".babonus.builder .pages .select-type");
@@ -284,7 +284,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * @param {Event} event     The initiating click event.
    */
   _onOtterDance(event) {
-    const spin = [{transform: 'rotate(0)'}, {transform: 'rotate(360deg)'}];
+    const spin = [{transform: "rotate(0)"}, {transform: "rotate(360deg)"}];
     const time = {duration: 1000, iterations: 1};
     if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
   }

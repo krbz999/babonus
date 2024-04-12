@@ -151,7 +151,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       a = game.i18n.localize(`BABONUS.Filters${a.capitalize()}`);
       b = game.i18n.localize(`BABONUS.Filters${b.capitalize()}`);
       return a.localeCompare(b);
-    })
+    });
     for (const key of keys) {
       const filter = module.filters[key];
       if (filter) div.innerHTML += await filter.render(this.bonus);
@@ -442,7 +442,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
         });
         bonus.updateSource({[property]: values});
         return BabonusWorkshop._embedBabonus(owner, bonus, true);
-      },
+      }
     });
   }
 
@@ -459,7 +459,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     idLink.classList.add("document-id-link");
     idLink.dataset.tooltip = `${label}: ${this.document.id}`;
     idLink.dataset.tooltipDirection = "DOWN";
-    idLink.innerHTML = '<i class="fa-solid fa-passport"></i>';
+    idLink.innerHTML = "<i class=\"fa-solid fa-passport\"></i>";
     idLink.addEventListener("click", event => {
       event.preventDefault();
       game.clipboard.copyPlainText(this.document.id);
@@ -484,7 +484,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       if (foundry.utils.isEmpty(obj)) return this.render();
     } catch (err) {
       ui.notifications.error(err);
-      return this.render()
+      return this.render();
     }
     return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true, this._filters);
   }

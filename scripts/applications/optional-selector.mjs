@@ -231,7 +231,7 @@ export class OptionalSelector {
           const isLeveled = /spell[0-9]+/.test(k);
           const label = game.i18n.format(`DND5E.SpellLevel${isLeveled ? "Slot" : k.capitalize()}`, {
             level: isLeveled ? game.i18n.localize(`DND5E.SpellLevel${v.level}`) : v.level,
-            n: `${v.value}/${v.max}`,
+            n: `${v.value}/${v.max}`
           });
           acc[k] = label;
           return acc;
@@ -457,7 +457,6 @@ export class OptionalSelector {
       const rollData = this._getRollData(bab);
 
       // TODO: replace this in 3.2 with new form submission method.
-
       if (bab.hasDamageType) {
         // Need 'DamageRoll' in case of dice with no '.number', and need
         // to replace roll data to be able to properly append the damage type.
