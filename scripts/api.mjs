@@ -108,7 +108,8 @@ function getType(object, type) {
 /**
  * Return the ids of all templates on the scene if they contain the token document.
  * @param {TokenDocument5e} tokenDoc      The token document.
- * @param {boolean} [ids=true]            Whether to return ids or template documents.
+ * @param {object} [options]              Search options.
+ * @param {boolean} [options.ids]         Whether to return ids or template documents.
  * @returns {string[]}                    An array of ids.
  */
 function getAllContainingTemplates(tokenDoc, {ids = true} = {}) {
@@ -162,10 +163,10 @@ async function moveBonus(original, other, id) {
 
 /**
  * Toggle a babonus on a document
- * @param {Document} object           A measured template, active effect, actor, or item.
- * @param {string} id                 The id of the babonus to toggle.
- * @param {boolean} [state=null]      A specific toggle state to set a babonus to (true or false).
- * @returns {Promise<Document>}       The document after the update.
+ * @param {Document} object         A measured template, active effect, actor, or item.
+ * @param {string} id               The id of the babonus to toggle.
+ * @param {boolean} [state]         A specific toggle state to set a babonus to.
+ * @returns {Promise<Document>}     The document after the update.
  */
 async function toggleBonus(object, id, state = null) {
   const bonus = getId(object, id);
@@ -229,10 +230,10 @@ function findTokensInRangeOfToken(source, radius, type = "circle") {
 
 /**
  * Return the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
- * @param {Token5e} tokenA      One token placeable.
- * @param {Token5e} tokenB      Another token placeable.
- * @param {object} options      Options to modify the measurements.
- * @returns {number}            The minimum distance (in units of measurement).
+ * @param {Token5e} tokenA        One token placeable.
+ * @param {Token5e} tokenB        Another token placeable.
+ * @param {object} [options]      Options to modify the measurements.
+ * @returns {number}              The minimum distance (in units of measurement).
  */
 function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
   const spacesA = getOccupiedGridSpaces(tokenA.document);
@@ -257,9 +258,9 @@ function openBabonusWorkshop(object) {
 
 /**
  * Create a babonus in memory with the given data.
- * @param {object} data                 An object of babonus data.
- * @param {Document} [parent=null]      The document to act as parent of the babonus.
- * @returns {Babonus}                   The created babonus.
+ * @param {object} data           An object of babonus data.
+ * @param {Document} [parent]     The document to act as parent of the babonus.
+ * @returns {Babonus}             The created babonus.
  */
 function createBabonus(data, parent = null) {
   if (!(data.type in module.models)) throw new Error("INVALID BABONUS TYPE.");
