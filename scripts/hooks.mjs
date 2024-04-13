@@ -123,7 +123,7 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
  */
 async function setupTree() {
   const trees = {};
-  for (const k of ["languages", "weapon", "armor", "tool"]) {
+  for (const k of [game.i18n.localize("DND5E.Languages"), game.i18n.localize("TYPES.ITEM.TypeWeapon"), game.i18n.localize("DND5E.Armor"), game.i18n.localize("TYPES.ITEM.TypeTool")]) {
     trees[k] = await dnd5e.documents.Trait.choices(k);
   }
   return trees;
