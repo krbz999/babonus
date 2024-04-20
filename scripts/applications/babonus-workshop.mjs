@@ -101,7 +101,9 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
         bonus: bonus,
         context: {
           collapsed: this._collapsedBonuses.has(bonus.id),
-          description: await TextEditor.enrichHTML(bonus.description, {async: true, rollData: bonus.getRollData()}),
+          description: await TextEditor.enrichHTML(bonus.description, {
+            async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
+          }),
           icon: bonus.icon,
           typeTooltip: `BABONUS.Type${bonus.type.capitalize()}`
         }
