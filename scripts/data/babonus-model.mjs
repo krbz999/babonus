@@ -357,7 +357,13 @@ class Babonus extends foundry.abstract.DataModel {
     }
 
     if (this.parent instanceof ActiveEffect) {
-      const item = fromUuidSync(this.parent.origin ?? "");
+      let item;
+      try {
+        item = fromUuidSync(this.parent.origin ?? "");
+      } catch (err) {
+        console.warn(err);
+        return null;
+      }
       return (item instanceof Item) ? item : null;
     }
 
