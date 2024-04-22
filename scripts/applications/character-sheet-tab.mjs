@@ -20,7 +20,9 @@ export class CharacterSheetTab {
       section.bonuses.push({
         bonus: bonus,
         labels: bonus.sheet._prepareLabels().slice(1).filterJoin(" &bull; "),
-        tooltip: await TextEditor.enrichHTML(bonus.description, {rollData}),
+        tooltip: await TextEditor.enrichHTML(bonus.description, {
+          async: true, rollData: rollData, relativeTo: bonus.origin
+        }),
         isEmbedded: bonus.parent.isEmbedded,
         parentName: bonus.parent.name
       });

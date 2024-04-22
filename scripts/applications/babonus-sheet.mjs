@@ -70,7 +70,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     context.aura = this._prepareAura();
     context.consume = this._prepareConsume();
     context.description = await TextEditor.enrichHTML(this.bonus.description, {
-      rollData: rollData, async: true
+      rollData: rollData, async: true, relativeTo: this.bonus.origin
     });
     context.labels = this._prepareLabels();
     context.filters = await this._prepareFilters();

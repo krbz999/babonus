@@ -51,7 +51,9 @@ export class OptionalSelector {
       const data = {
         tooltip: this._getTooltip(bonus),
         babonus: bonus,
-        description: await TextEditor.enrichHTML(bonus.description, {async: true, rollData: bonus.getRollData()})
+        description: await TextEditor.enrichHTML(bonus.description, {
+          async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
+        })
       };
       if (isConsuming) {
         if (!this._canSupplyMinimum(bonus)) continue;
