@@ -1,0 +1,46 @@
+{
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 125,
+    "editor.rulers": [
+      {
+        "column": 125,
+        "color": "#ff00ff9a"
+      }
+    ]
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "javascript.format.semicolons": "insert",
+  "css.format.spaceAroundSelectorSeparator": true,
+  "css.lint.duplicateProperties": "warning",
+  "css.lint.zeroUnits": "warning",
+  "editor.tabSize": 2,
+  "editor.formatOnSave": false,
+  "editor.formatOnSaveMode": "modifications",
+  "files.trimTrailingWhitespace": true,
+  "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+  "javascript.validate.enable": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.autoClosingTags": false,
+  "typescript.check.npmIsInstalled": false,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.format.enable": false,
+  "typescript.format.insertSpaceAfterCommaDelimiter": false,
+  "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+  "typescript.format.insertSpaceAfterKeywordsInControlFlowStatements": false,
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+  "typescript.suggest.enabled": false,
+  "typescript.surveys.enabled": false,
+  "typescript.validate.enable": false,
+  "html.format.wrapLineLength": 125,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.validate": ["javascript"]
+}

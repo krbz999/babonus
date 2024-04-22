@@ -1,3 +1,5 @@
+const {SchemaField, BooleanField, NumberField, StringField} = foundry.data.fields;
+
 /* Child of Babonus#bonuses that holds all die modifiers. */
 export class ModifiersModel extends foundry.abstract.DataModel {
   /**
@@ -12,39 +14,41 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      amount: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        mode: new foundry.data.fields.NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new foundry.data.fields.StringField({required: true})
+      amount: new SchemaField({
+        enabled: new BooleanField(),
+        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
+        value: new StringField({required: true})
       }),
-      size: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        mode: new foundry.data.fields.NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new foundry.data.fields.StringField({required: true})
+      size: new SchemaField({
+        enabled: new BooleanField(),
+        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
+        value: new StringField({required: true})
       }),
-      reroll: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        invert: new foundry.data.fields.BooleanField(),
-        recursive: new foundry.data.fields.BooleanField()
+      reroll: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        invert: new BooleanField(),
+        recursive: new BooleanField(),
+        limit: new StringField({required: true})
       }),
-      explode: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        once: new foundry.data.fields.BooleanField()
+      explode: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        once: new BooleanField(),
+        limit: new StringField({required: true})
       }),
-      minimum: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        maximize: new foundry.data.fields.BooleanField()
+      minimum: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        maximize: new BooleanField()
       }),
-      maximum: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        zero: new foundry.data.fields.BooleanField()
+      maximum: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        zero: new BooleanField()
       }),
-      config: new foundry.data.fields.SchemaField({
-        first: new foundry.data.fields.BooleanField()
+      config: new SchemaField({
+        first: new BooleanField()
       })
     };
   }
@@ -60,12 +64,20 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const rollData = this.parent.getRollData({deterministic: true});
     for (const m of ["amount", "size", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
-      if (!value) {
-        this[m].value = 0;
-        continue;
+      if (!value) this[m].value = 0;
+      else {
+        const bonus = dnd5e.utils.simplifyBonus(value, rollData);
+        this[m].value = Number.isNumeric(bonus) ? Math.round(bonus) : null;
       }
-      const bonus = dnd5e.utils.simplifyBonus(value, rollData);
-      this[m].value = Math.round(Number.isNumeric(bonus) ? bonus : null);
+
+      if (!("limit" in this[m])) continue;
+
+      const limit = this[m].limit;
+      if (!limit) this[m].limit = null;
+      else {
+        const bonus = Math.round(dnd5e.utils.simplifyBonus(limit, rollData));
+        this[m].limit = (Number.isNumeric(bonus) && (bonus > 0)) ? bonus : null;
+      }
     }
   }
 
@@ -98,23 +110,39 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       else die.faces = Math.max(0, die.faces + this.size.value);
     }
     if (hasReroll && !dm.some(m => m.match(this.constructor.REGEX.reroll))) {
-      const prefix = this.reroll.recursive ? "rr" : "r";
+      const l = this.reroll.limit;
+      const prefix = this.reroll.recursive ? (l ? `rr${l}` : "rr") : "r";
       const v = this.reroll.value;
       let mod;
       if (this.reroll.invert) {
-        if (v > 0) mod = (v >= die.faces) ? `${prefix}=${die.faces}` : `${prefix}>${v}`; // reroll if strictly greater than x.
-        else if (v === 0) mod = `${prefix}=${die.faces}`; // reroll if max.
-        else mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}>${die.faces + v}`; // reroll if strictly greater than (size-x).
+        if (v > 0) {
+          // reroll if strictly greater than x.
+          mod = (v >= die.faces) ? `${prefix}=${die.faces}` : `${prefix}>${v}`;
+        } else if (v === 0) {
+          // reroll if max.
+          mod = `${prefix}=${die.faces}`;
+        } else {
+          // reroll if strictly greater than (size-x).
+          mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}>${die.faces + v}`;
+        }
       } else {
-        if (v > 0) mod = (v === 1) ? `${prefix}=1` : `${prefix}<${Math.min(die.faces, v)}`; // reroll if strictly less than x.
-        else if (v === 0) mod = `${prefix}=1`; // reroll 1s.
-        else mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}<${die.faces + v}`; // reroll if strictly less than (size-x).
+        if (v > 0) {
+          // reroll if strictly less than x.
+          mod = (v === 1) ? `${prefix}=1` : `${prefix}<${Math.min(die.faces, v)}`;
+        } else if (v === 0) {
+          // reroll 1s.
+          mod = `${prefix}=1`;
+        } else {
+          // reroll if strictly less than (size-x).
+          mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}<${die.faces + v}`;
+        }
       }
       if (die.faces > 1) dm.push(mod);
     }
     if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
       const v = this.explode.value;
-      const prefix = this.explode.once ? "xo" : "x";
+      const l = this.explode.limit;
+      const prefix = (this.explode.once || (l === 1)) ? "xo" : (l ? `x${l}` : "x");
       let valid;
       let mod;
       if (v === 0) {
@@ -126,9 +154,9 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       } else if (v < 0) {
         const m = Math.max(1, die.faces + v);
         mod = `${prefix}>=${m}`;
-        valid = m > 1 || (prefix == "xo");
+        valid = (m > 1) || (prefix == "xo");
       }
-      if (valid) dm.push(mod);
+      if (valid || l) dm.push(mod);
     }
     if (hasMin && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
       const f = die.faces;
