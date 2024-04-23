@@ -25,7 +25,7 @@
         <ol class="item-list unlist">
           {{#each bonuses}}
           <li class="item" data-item-uuid="{{bonus.uuid}}" data-item-id="{{bonus.id}}" data-entry-id="{{bonus.id}}" data-parent-id="{{bonus.parent.id}}" data-item-name="{{bonus.name}}" data-item-sort="{{bonus.sort}}" data-grouped="{{bonus.type}}" data-ungrouped="all" {{#unless isEmbedded}}draggable="true"{{/unless}}>
-            <div class="item-name item-action item-tooltip rollable" role="button" aria-label="{{bonus.name}}" data-tooltip="{{tooltip}}" data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip" data-tooltip-direction="LEFT">
+            <div class="item-name item-action item-tooltip rollable" role="button" aria-label="{{bonus.name}}" data-tooltip="{{tooltip}}" data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip" data-tooltip-direction="LEFT" data-action="edit">
               <img class="item-image gold-icon" src="{{bonus.img}}" alt="{{bonus.name}}">
               <div class="name name-stacked">
                 <span class="title">{{bonus.name}}</span>

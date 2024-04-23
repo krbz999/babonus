@@ -100,6 +100,7 @@ export class CharacterSheetTab {
 
   /**
    * Populate the context menu options.
+   * @param {HTMLElement} element     The targeted element.
    */
   static _onOpenContextMenu(element) {
     const parts = element.dataset.itemUuid.split(".");
@@ -107,16 +108,6 @@ export class CharacterSheetTab {
     parts.pop();
     const bonus = babonus.getId(fromUuidSync(parts.join(".")), id);
     ui.context.menuItems = [{
-      name: "BABONUS.ContextMenu.Enable",
-      icon: "<i class='fa-solid fa-toggle-on'></i>",
-      condition: () => !bonus.enabled,
-      callback: () => bonus.toggle()
-    }, {
-      name: "BABONUS.ContextMenu.Disable",
-      icon: "<i class='fa-solid fa-toggle-off'></i>",
-      condition: () => bonus.enabled,
-      callback: () => bonus.toggle()
-    }, {
       name: "BABONUS.ContextMenu.Edit",
       icon: "<i class='fa-solid fa-edit'></i>",
       callback: () => bonus.sheet.render(true)
@@ -134,6 +125,18 @@ export class CharacterSheetTab {
       name: "BABONUS.ContextMenu.Delete",
       icon: "<i class='fa-solid fa-trash'></i>",
       callback: () => bonus.deleteDialog()
+    }, {
+      name: "BABONUS.ContextMenu.Enable",
+      icon: "<i class='fa-solid fa-toggle-on'></i>",
+      condition: () => !bonus.enabled,
+      callback: () => bonus.toggle(),
+      group: "instance"
+    }, {
+      name: "BABONUS.ContextMenu.Disable",
+      icon: "<i class='fa-solid fa-toggle-off'></i>",
+      condition: () => bonus.enabled,
+      callback: () => bonus.toggle(),
+      group: "instance"
     }];
   }
 

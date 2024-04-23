@@ -143,13 +143,14 @@ export class ModifiersModel extends foundry.abstract.DataModel {
       const v = this.explode.value;
       const l = this.explode.limit;
       const prefix = (this.explode.once || (l === 1)) ? "xo" : (l ? `x${l}` : "x");
+      const _prefix = () => /x\d+/.test(prefix) ? `${prefix}=${die.faces}` : prefix;
       let valid;
       let mod;
       if (v === 0) {
-        mod = prefix;
+        mod = _prefix();
         valid = (die.faces > 1) || (prefix === "xo");
       } else if (v > 0) {
-        mod = (die.faces === v) ? prefix : `${prefix}>=${v}`;
+        mod = (v >= die.faces) ? _prefix() : `${prefix}>=${v}`;
         valid = (v <= die.faces) && (((v === 1) && (prefix === "xo")) || (v > 1));
       } else if (v < 0) {
         const m = Math.max(1, die.faces + v);
