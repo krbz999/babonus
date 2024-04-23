@@ -177,7 +177,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * Append applicable modifiers to a roll part.
-   * @param {string[]} parts                    The roll part. **will be mutated**
+   * @param {string[]|number[]} parts           The roll part. **will be mutated**
    * @param {object} [rollData]                 Roll data for roll construction.
    * @param {object} [options]
    * @param {boolean} [options.ignoreFirst]     Whether to ignore the 'first' property'.
@@ -187,7 +187,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (!this.hasModifiers) return;
     const first = !options.ignoreFirst && this.config.first;
     for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+      const part = String(parts[i]);
       const roll = new CONFIG.Dice.DamageRoll(part, rollData);
       if (!roll.dice.length) continue;
 
