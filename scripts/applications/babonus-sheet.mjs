@@ -279,16 +279,17 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(n => {
+    html = html[0];
+    html.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
       n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
     });
-    html[0].querySelectorAll("input[type=text], input[type=number]").forEach(n => {
+    html.querySelectorAll("input[type=text], input[type=number]").forEach(n => {
       n.addEventListener("focus", event => event.currentTarget.select());
     });
-    html[0].querySelectorAll("[data-action='add-filter']").forEach(n => {
+    html.querySelectorAll("[data-action='add-filter']").forEach(n => {
       n.addEventListener("click", this._onClickAddFilter.bind(this));
     });
-    html[0].querySelectorAll("[data-action='delete-filter']").forEach(n => {
+    html.querySelectorAll("[data-action='delete-filter']").forEach(n => {
       n.addEventListener("click", this._onClickDeleteFilter.bind(this));
     });
   }
@@ -450,7 +451,11 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   /** @override */
   async _render(...args) {
     const result = await super._render(...args);
-    this.setPosition({height: "auto"});
+    try {
+      this.setPosition({height: "auto"});
+    } catch (err) {
+      //
+    }
     return result;
   }
 }

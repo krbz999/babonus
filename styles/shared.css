@@ -99,6 +99,16 @@
           }
         }
       }
+
+      [data-action=contextMenu] {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-end: 0;
+        width: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 }

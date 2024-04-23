@@ -65,10 +65,12 @@ import {module} from "./_module.mjs";
  * @property {string} reroll.value          The threshold for rerolling a die.
  * @property {boolean} reroll.invert        Whether the threshold is inverted.
  * @property {boolean} reroll.recursive     Whether to reroll recursively.
+ * @property {string} reroll.limit          The maximum number of times a die can reroll.
  * @property {object} explode
  * @property {boolean} explode.enabled      Whether this modifier is enabled.
  * @property {string} explode.value         The threshold for exploding a die.
  * @property {boolean} explode.once         Whether a die can explode at most once.
+ * @property {string} explode.limit         The maximum number of times a die can explode.
  * @property {object} minimum
  * @property {boolean} minimum.enabled      Whether this modifier is enabled.
  * @property {string} minimum.value         The minimum value a die can roll.
@@ -489,9 +491,7 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  prepareDerivedData() {
-    return;
-  }
+  prepareDerivedData() {}
 
   /* -------------------------------------------- */
   /*               Flag Operations                */
@@ -580,6 +580,21 @@ class Babonus extends foundry.abstract.DataModel {
     const update = {[`flags.babonus.bonuses.-=${this.id}`]: null};
     await this.parent.update(update);
     return this;
+  }
+
+  /**
+   * Present a Dialog form to confirm deletion of this bonus.
+   * @param {object} [options]    Positioning and sizing options for the resulting dialog.
+   * @returns {Promise}           A Promise which resolves to the deleted bonus.
+   */
+  async deleteDialog(options = {}) {
+    const type = game.i18n.localize(this.constructor.metadata.label);
+    return Dialog.confirm({
+      title: `Build-a-Bonus: ${this.name}`,
+      content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
+      yes: this.delete.bind(this),
+      options: options
+    });
   }
 }
 

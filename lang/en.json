@@ -79,6 +79,13 @@
   "BABONUS.ConsumptionTypeSlots": "Spell Slot",
   "BABONUS.ConsumptionTypeSlotsUnavailable": "You do not have any remaining spell slots of that level.",
   "BABONUS.ConsumptionTypeUsesUnavailable": "You do not have the required number of charges on the item.",
+  "BABONUS.ContextMenu": {
+    "Edit": "Edit",
+    "Duplicate": "Duplicate",
+    "Delete": "Delete",
+    "Enable": "Enable",
+    "Disable": "Disable"
+  },
   "BABONUS.Create": "Create New Bonus",
   "BABONUS.CurrentBonuses": "Current Bonuses",
   "BABONUS.CurrentBonusesTooltip": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",

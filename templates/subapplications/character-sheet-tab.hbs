@@ -25,7 +25,7 @@
         <ol class="item-list unlist">
           {{#each bonuses}}
           <li class="item" data-item-uuid="{{bonus.uuid}}" data-item-id="{{bonus.id}}" data-entry-id="{{bonus.id}}" data-parent-id="{{bonus.parent.id}}" data-item-name="{{bonus.name}}" data-item-sort="{{bonus.sort}}" data-grouped="{{bonus.type}}" data-ungrouped="all" {{#unless isEmbedded}}draggable="true"{{/unless}}>
-            <div class="item-name item-action item-tooltip rollable" role="button" data-action="edit" aria-label="{{bonus.name}}" data-tooltip="{{tooltip}}" data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip" data-tooltip-direction="LEFT">
+            <div class="item-name item-action item-tooltip rollable" role="button" aria-label="{{bonus.name}}" data-tooltip="{{tooltip}}" data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip" data-tooltip-direction="LEFT">
               <img class="item-image gold-icon" src="{{bonus.img}}" alt="{{bonus.name}}">
               <div class="name name-stacked">
                 <span class="title">{{bonus.name}}</span>
@@ -38,14 +38,21 @@
               {{/if}}
             </div>
             <div class="item-detail item-controls">
-              <a class="item-control" data-action="toggle">
-                <i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i>
-              </a>
               {{#if @root.isEdit}}
-              <a class="item-control" data-action="delete">
+              <a class="item-control active" data-action="edit">
+                <i class="fa-solid fa-edit"></i>
+              </a>
+              <a class="item-control active" data-action="delete">
                 <i class="fa-solid fa-trash"></i>
               </a>
+              {{else}}
+              <a class="item-control {{#if bonus.enabled}}active{{/if}}" data-action="toggle">
+                <i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i>
+              </a>
               {{/if}}
+              <a class="item-control active" data-action="contextMenu">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </a>
             </div>
           </li>
           {{/each}}
