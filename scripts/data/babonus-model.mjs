@@ -250,7 +250,11 @@ class Babonus extends foundry.abstract.DataModel {
   get isSuppressed() {
     // If this bonus lives on an effect or template, defer to those.
     const effect = this.effect;
-    if (effect) return !effect.modifiesActor;
+    if (effect) {
+      const isEnchantment = effect.flags.dnd5e?.type === "enchantment";
+      if (!isEnchantment) return !effect.modifiesActor;
+      else return !effect.active;
+    }
     const template = this.template;
     if (template) return template.hidden;
 

@@ -148,10 +148,17 @@ export class BonusCollector {
       return !bab.aura.isTemplate && bab.aura.isAffectingSelf;
     };
 
+    const enchantments = [];
+    if (this.item && foundry.utils.isNewerVersion(game.system.version, "3.2")) {
+      for (const effect of this.item.allApplicableEffects()) {
+        if (effect.active) enchantments.push(...this._collectFromDocument(effect, [validSelfAura]));
+      }
+    }
+
     const actor = this._collectFromDocument(this.actor, [validSelfAura]);
     const items = this.actor.items.reduce((acc, item) => acc.concat(this._collectFromDocument(item, [validSelfAura])), []);
     const effects = this.actor.appliedEffects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validSelfAura])), []);
-    return [...actor, ...items, ...effects];
+    return [...enchantments, ...actor, ...items, ...effects];
   }
 
   /**
@@ -263,7 +270,7 @@ export class BonusCollector {
     const grid = canvas.scene.grid.size;
     const halfGrid = grid / 2;
 
-    if (width <= 1 && height <= 1) return [object.center];
+    if ((width <= 1) && (height <= 1)) return [object.center];
 
     const centers = [];
     for (let a = 0; a < width; a++) {
