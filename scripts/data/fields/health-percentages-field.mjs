@@ -1,14 +1,16 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-export class HealthPercentagesField extends FilterMixin(foundry.data.fields.SchemaField) {
+const {SchemaField, NumberField} = foundry.data.fields;
+
+export class HealthPercentagesField extends FilterMixin(SchemaField) {
   static name = "healthPercentages";
   static template = "modules/babonus/templates/parts/range-select.hbs";
 
   /** @override */
   _initialize() {
     return super._initialize({
-      value: new foundry.data.fields.NumberField({min: 0, max: 100, step: 1, integer: true}),
-      type: new foundry.data.fields.NumberField({nullable: true, choices: [0, 1]})
+      value: new NumberField({min: 0, max: 100, step: 1, integer: true}),
+      type: new NumberField({nullable: true, choices: [0, 1]})
     });
   }
 

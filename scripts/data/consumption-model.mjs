@@ -1,16 +1,18 @@
+const {BooleanField, StringField, SchemaField, NumberField} = foundry.data.fields;
+
 export class ConsumptionModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      enabled: new foundry.data.fields.BooleanField(),
-      type: new foundry.data.fields.StringField({required: true}),
-      subtype: new foundry.data.fields.StringField({required: true}),
-      scales: new foundry.data.fields.BooleanField(),
-      formula: new foundry.data.fields.StringField({required: true}),
-      value: new foundry.data.fields.SchemaField({
-        min: new foundry.data.fields.StringField({required: true}),
-        max: new foundry.data.fields.StringField({required: true}),
-        step: new foundry.data.fields.NumberField({integer: true, min: 1, step: 1})
+      enabled: new BooleanField(),
+      type: new StringField({required: true}),
+      subtype: new StringField({required: true}),
+      scales: new BooleanField(),
+      formula: new StringField({required: true}),
+      value: new SchemaField({
+        min: new StringField({required: true}),
+        max: new StringField({required: true}),
+        step: new NumberField({integer: true, min: 1, step: 1})
       })
     };
   }

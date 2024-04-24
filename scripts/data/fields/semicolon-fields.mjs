@@ -1,11 +1,13 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-class BaseField extends FilterMixin(foundry.data.fields.SetField) {
+const {SetField, StringField} = foundry.data.fields;
+
+class BaseField extends FilterMixin(SetField) {
   static template = "modules/babonus/templates/parts/text-keys.hbs";
   static canExclude = true;
 
   constructor() {
-    super(new foundry.data.fields.StringField());
+    super(new StringField());
   }
 
   /** @override */
