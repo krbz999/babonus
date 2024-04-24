@@ -277,4 +277,5 @@
 
 .dnd5e-theme-dark .babonus.sheet {
   --color-text-dark-primary: #191813;
+  &.dnd5e2 .window-resizable-handle { color: var(--dnd5e-color-black); }
 }

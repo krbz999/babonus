@@ -81,6 +81,10 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     }
   }
 
+  /* ----------------------------- */
+  /*       Dice Modifications      */
+  /* ----------------------------- */
+
   /**
    * Regex to determine whether a die already has a modifier.
    */
@@ -93,86 +97,126 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * Append applicable modifiers to a die.
-   * @param {DieTerm} die
+   * @param {DieTerm} die           The die term that will be mutated.
+   * @param {object} [options]      Options object meant to specifically bypass certain modifications.
    */
-  modifyDie(die) {
-    const dm = die.modifiers;
-    const {hasAmount, hasSize, hasReroll, hasExplode, hasMin, hasMax} = this;
+  modifyDie(die, options = {}) {
+    if (options.amount !== false) this._modifyAmount(die);
+    if (options.size !== false) this._modifySize(die);
+    if (options.reroll !== false) this._modifyReroll(die);
+    if (options.explode !== false) this._modifyExplode(die);
+    if (options.minimum !== false) this._modifyMin(die);
+    if (options.maximum !== false) this._modifyMax(die);
+  }
 
-    if (hasAmount) {
-      const isMult = this.amount.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
-      if (isMult) die.number = Math.max(0, die.number * this.amount.value);
-      else die.number = Math.max(0, die.number + this.amount.value);
-    }
-    if (hasSize) {
-      const isMult = this.size.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
-      if (isMult) die.faces = Math.max(0, die.faces * this.size.value);
-      else die.faces = Math.max(0, die.faces + this.size.value);
-    }
-    if (hasReroll && !dm.some(m => m.match(this.constructor.REGEX.reroll))) {
-      const l = this.reroll.limit;
-      const prefix = this.reroll.recursive ? (l ? `rr${l}` : "rr") : "r";
-      const v = this.reroll.value;
-      let mod;
-      if (this.reroll.invert) {
-        if (v > 0) {
-          // reroll if strictly greater than x.
-          mod = (v >= die.faces) ? `${prefix}=${die.faces}` : `${prefix}>${v}`;
-        } else if (v === 0) {
-          // reroll if max.
-          mod = `${prefix}=${die.faces}`;
-        } else {
-          // reroll if strictly greater than (size-x).
-          mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}>${die.faces + v}`;
-        }
+  /**
+   * Append applicable amount modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyAmount(die) {
+    if (!this.hasAmount) return;
+    const isMult = this.amount.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+    if (isMult) die.number = Math.max(0, die.number * this.amount.value);
+    else die.number = Math.max(0, die.number + this.amount.value);
+  }
+
+  /**
+   * Append applicable size modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifySize(die) {
+    if (!this.hasSize) return;
+    const isMult = this.size.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+    if (isMult) die.faces = Math.max(0, die.faces * this.size.value);
+    else die.faces = Math.max(0, die.faces + this.size.value);
+  }
+
+  /**
+   * Append applicable reroll modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyReroll(die) {
+    if (!this.hasReroll || die.modifiers.some(m => m.match(this.constructor.REGEX.reroll))) return;
+    const l = this.reroll.limit;
+    const prefix = this.reroll.recursive ? (l ? `rr${l}` : "rr") : "r";
+    const v = this.reroll.value;
+    let mod;
+    if (this.reroll.invert) {
+      if (v > 0) {
+        // reroll if strictly greater than x.
+        mod = (v >= die.faces) ? `${prefix}=${die.faces}` : `${prefix}>${v}`;
+      } else if (v === 0) {
+        // reroll if max.
+        mod = `${prefix}=${die.faces}`;
       } else {
-        if (v > 0) {
-          // reroll if strictly less than x.
-          mod = (v === 1) ? `${prefix}=1` : `${prefix}<${Math.min(die.faces, v)}`;
-        } else if (v === 0) {
-          // reroll 1s.
-          mod = `${prefix}=1`;
-        } else {
-          // reroll if strictly less than (size-x).
-          mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}<${die.faces + v}`;
-        }
+        // reroll if strictly greater than (size-x).
+        mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}>${die.faces + v}`;
       }
-      if (die.faces > 1) dm.push(mod);
-    }
-    if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
-      const v = this.explode.value;
-      const l = this.explode.limit;
-      const prefix = (this.explode.once || (l === 1)) ? "xo" : (l ? `x${l}` : "x");
-      const _prefix = () => /x\d+/.test(prefix) ? `${prefix}=${die.faces}` : prefix;
-      let valid;
-      let mod;
-      if (v === 0) {
-        mod = _prefix();
-        valid = (die.faces > 1) || (prefix === "xo");
-      } else if (v > 0) {
-        mod = (v >= die.faces) ? _prefix() : `${prefix}>=${v}`;
-        valid = (v <= die.faces) && (((v === 1) && (prefix === "xo")) || (v > 1));
-      } else if (v < 0) {
-        const m = Math.max(1, die.faces + v);
-        mod = `${prefix}>=${m}`;
-        valid = (m > 1) || (prefix == "xo");
+    } else {
+      if (v > 0) {
+        // reroll if strictly less than x.
+        mod = (v === 1) ? `${prefix}=1` : `${prefix}<${Math.min(die.faces, v)}`;
+      } else if (v === 0) {
+        // reroll 1s.
+        mod = `${prefix}=1`;
+      } else {
+        // reroll if strictly less than (size-x).
+        mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}<${die.faces + v}`;
       }
-      if (valid || l) dm.push(mod);
     }
-    if (hasMin && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
-      const f = die.faces;
-      let mod;
-      const min = this.minimum.value;
-      if (this.minimum.maximize) mod = `min${f}`;
-      else mod = `min${(min > 0) ? Math.min(min, f) : Math.max(1, f + min)}`;
-      if (mod !== "min1") dm.push(mod);
+    if (die.faces > 1) die.modifiers.push(mod);
+  }
+
+  /**
+   * Append applicable explode modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyExplode(die) {
+    if (!this.hasExplode || die.modifiers.some(m => m.match(this.constructor.REGEX.explode))) return;
+    const v = this.explode.value;
+    const l = this.explode.limit;
+    const prefix = (this.explode.once || (l === 1)) ? "xo" : (l ? `x${l}` : "x");
+    const _prefix = () => /x\d+/.test(prefix) ? `${prefix}=${die.faces}` : prefix;
+    let valid;
+    let mod;
+    if (v === 0) {
+      mod = _prefix();
+      valid = (die.faces > 1) || (prefix === "xo");
+    } else if (v > 0) {
+      mod = (v >= die.faces) ? _prefix() : `${prefix}>=${v}`;
+      valid = (v <= die.faces) && (((v === 1) && (prefix === "xo")) || (v > 1));
+    } else if (v < 0) {
+      const m = Math.max(1, die.faces + v);
+      mod = `${prefix}>=${m}`;
+      valid = (m > 1) || (prefix == "xo");
     }
-    if (hasMax && !dm.some(m => m.match(this.constructor.REGEX.maximum))) {
-      const zero = this.maximum.zero;
-      const v = this.maximum.value;
-      const max = (v === 0) ? (zero ? 0 : 1) : (v > 0) ? v : Math.max(zero ? 0 : 1, die.faces + v);
-      if (max < die.faces) dm.push(`max${max}`);
-    }
+    if (valid || l) die.modifiers.push(mod);
+  }
+
+  /**
+   * Append applicable minimum modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyMin(die) {
+    if (!this.hasMin || die.modifiers.some(m => m.match(this.constructor.REGEX.minimum))) return;
+    const f = die.faces;
+    let mod;
+    const min = this.minimum.value;
+    if (this.minimum.maximize) mod = `min${f}`;
+    else mod = `min${(min > 0) ? Math.min(min, f) : Math.max(1, f + min)}`;
+    if (mod !== "min1") die.modifiers.push(mod);
+  }
+
+  /**
+   * Append applicable maximum modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyMax(die) {
+    if (!this.hasMax || die.modifiers.some(m => m.match(this.constructor.REGEX.maximum))) return;
+    const zero = this.maximum.zero;
+    const v = this.maximum.value;
+    const max = (v === 0) ? (zero ? 0 : 1) : (v > 0) ? v : Math.max(zero ? 0 : 1, die.faces + v);
+    if (max < die.faces) die.modifiers.push(`max${max}`);
   }
 
   /**
