@@ -160,7 +160,7 @@ class PreparationModesField extends BaseField {
   /** @override */
   static async choices() {
     const modes = Object.entries(CONFIG.DND5E.spellPreparationModes);
-    return modes.map(([value, label]) => ({value, label}));
+    return modes.map(([value, {label}]) => ({value, label}));
   }
 }
 
