@@ -6,12 +6,12 @@ export class HealthPercentagesField extends FilterMixin(SchemaField) {
   static name = "healthPercentages";
   static template = "modules/babonus/templates/parts/range-select.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
+  constructor(fields = {}, options = {}) {
+    super({
       value: new NumberField({min: 0, max: 100, step: 1, integer: true}),
-      type: new NumberField({nullable: true, choices: [0, 1]})
-    });
+      type: new NumberField({nullable: true, choices: [0, 1]}),
+      ...fields
+    }, options);
   }
 
   /** @override */

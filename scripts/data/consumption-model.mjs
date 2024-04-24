@@ -59,9 +59,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the consumption data on the babonus creates valid consumption
-   * for the optional bonus application when rolling. If it does not, the
-   * babonus is ignored there.
+   * Whether the consumption data on the babonus creates valid consumption for the optional bonus application
+   * when rolling. If it does not, the babonus is ignored there.
    *
    * - For limited uses, only users who own the item in question are allowed to
    *   edit it by subtracting uses, and the minimum required value must be a positive integer.

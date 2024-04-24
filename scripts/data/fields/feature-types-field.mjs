@@ -6,12 +6,12 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
   static name = "featureTypes";
   static template = "modules/babonus/templates/parts/double-select.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
+  constructor(fields = {}, options = {}) {
+    super({
       type: new StringField({required: true}),
-      subtype: new StringField({required: true})
-    });
+      subtype: new StringField({required: true}),
+      ...fields
+    }, options);
   }
 
   /** @override */

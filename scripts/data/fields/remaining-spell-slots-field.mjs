@@ -6,12 +6,12 @@ export class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
   static name = "remainingSpellSlots";
   static template = "modules/babonus/templates/parts/text-dash-text.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
+  constructor(fields = {}, options = {}) {
+    super({
       min: new NumberField({min: 0, step: 1, integer: true}),
-      max: new NumberField({min: 0, step: 1, integer: true})
-    });
+      max: new NumberField({min: 0, step: 1, integer: true}),
+      ...fields
+    }, options);
   }
 
   /** @override */

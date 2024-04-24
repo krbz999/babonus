@@ -100,12 +100,12 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
   static name = "spellComponents";
   static template = "modules/babonus/templates/parts/checkboxes-select.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
+  constructor(fields = {}, options = {}) {
+    super({
       types: new BaseField(new StringField()),
-      match: new StringField({nullable: true, initial: null, choices: ["ANY", "ALL"]})
-    });
+      match: new StringField({nullable: true, initial: null, choices: ["ANY", "ALL"]}),
+      ...fields
+    }, options);
   }
 
   /** @override */

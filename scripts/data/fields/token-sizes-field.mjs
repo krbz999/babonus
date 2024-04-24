@@ -7,13 +7,13 @@ export class TokenSizesField extends FilterMixin(SchemaField) {
   static name = "tokenSizes";
   static template = "modules/babonus/templates/parts/select-number-checkbox.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
+  constructor(fields = {}, options = {}) {
+    super({
       size: new NumberField({min: 0.5, step: 0.5}),
       type: new NumberField({choices: [0, 1], initial: 0}),
-      self: new BooleanField()
-    });
+      self: new BooleanField(),
+      ...fields
+    }, options);
   }
 
   /** @override */
