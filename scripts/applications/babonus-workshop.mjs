@@ -218,8 +218,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   static async _fromDropData(data) {
     if (!data.uuid || (data.type !== "Babonus")) return null;
-    // Intentionally using the class here.
-    const bonus = await BabonusWorkshop._fromUuid(data.uuid);
+    const bonus = await babonus.fromUuid(data.uuid);
     if (!bonus) return null;
     const babonusData = bonus.toObject();
     if (bonus.parent === this.document) return null;
@@ -430,25 +429,6 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     data.id = id;
     await object.update({[`flags.${MODULE.ID}.bonuses.-=${data.id}`]: null}, {render: false, noHook: true});
     return object.setFlag(MODULE.ID, `bonuses.${id}`, data);
-  }
-
-  /**
-   * Return a babonus using its uuid.
-   * @param {string} uuid             The babonus uuid.
-   * @returns {Promise<Babonus>}      The found babonus.
-   */
-  static async _fromUuid(uuid) {
-    try {
-      const parts = uuid.split(".");
-      const id = parts.pop();
-      parts.pop();
-      const parentUuid = parts.join(".");
-      const parent = await fromUuid(parentUuid);
-      return this._getCollection(parent).get(id);
-    } catch (err) {
-      console.warn(err);
-      return null;
-    }
   }
 
   //#endregion

@@ -14,6 +14,7 @@ export function createAPI() {
     getType,
     getCollection,
     fromUuid: babonusFromUuid,
+    fromUuidSync: babonusFromUuidSync,
 
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
@@ -294,12 +295,46 @@ function getOccupiedGridSpaces(tokenDoc) {
 }
 
 /**
+ * Internal helper method for fromUuid and fromUuidSync.
+ * @param {string} uuid     Babonus uuid.
+ * @returns {{parentUuid: string, id: string}}
+ */
+const _getParentUuidAndId = (uuid) => {
+  const parts = uuid.split(".");
+  const id = parts.pop();
+  parts.pop();
+  const parentUuid = parts.join(".");
+  return {parentUuid, id};
+};
+
+/**
  * Return a babonus using its uuid.
- * @param {string} uuid             The babonus uuid.
- * @returns {Promise<Babonus>}      The found babonus.
+ * @param {string} uuid                 The babonus uuid.
+ * @returns {Promise<Babonus|null>}     The found babonus.
  */
 async function babonusFromUuid(uuid) {
-  return BabonusWorkshop._fromUuid(uuid);
+  try {
+    const ids = _getParentUuidAndId(uuid);
+    const parent = await fromUuid(ids.parentUuid);
+    return getId(parent, ids.id);
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Return a babonus using its uuid synchronously.
+ * @param {string} uuid         The babonus uuid.
+ * @returns {Babonus|null}      The found babonus.
+ */
+function babonusFromUuidSync(uuid) {
+  try {
+    const ids = _getParentUuidAndId(uuid);
+    const parent = fromUuidSync(ids.parentUuid);
+    return getId(parent, ids.id);
+  } catch (err) {
+    return null;
+  }
 }
 
 /**

@@ -103,10 +103,7 @@ export class CharacterSheetTab {
    * @param {HTMLElement} element     The targeted element.
    */
   static _onOpenContextMenu(element) {
-    const parts = element.dataset.itemUuid.split(".");
-    const id = parts.pop();
-    parts.pop();
-    const bonus = babonus.getId(fromUuidSync(parts.join(".")), id);
+    const bonus = babonus.fromUuidSync(element.dataset.itemUuid);
     ui.context.menuItems = [{
       name: "BABONUS.ContextMenu.Edit",
       icon: "<i class='fa-solid fa-edit'></i>",
