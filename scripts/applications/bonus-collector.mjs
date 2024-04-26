@@ -171,7 +171,7 @@ export class BonusCollector {
     const bonuses = [];
 
     const checker = (object) => {
-      const collection = BabonusWorkshop._getCollection(object);
+      const collection = babonus.getCollection(object);
       for (const bonus of collection) {
         if (this.type !== bonus.type) continue; // discard bonuses of the wrong type.
         if (!bonus.aura.isActiveTokenAura) continue; // discard blocked and suppressed auras.

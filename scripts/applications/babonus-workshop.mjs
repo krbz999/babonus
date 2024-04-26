@@ -65,7 +65,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * @type {Collection<Babonus>}
    */
   get collection() {
-    return this.constructor._getCollection(this.document);
+    return babonus.getCollection(this.document);
   }
 
   //#endregion
@@ -193,7 +193,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     let dragData;
     const id = label.dataset.id ?? label.dataset.itemId;
     if (id) {
-      const collection = this.collection ?? BabonusWorkshop._getCollection(this.document);
+      const collection = this.collection ?? babonus.getCollection(this.document);
       const bab = collection.get(id);
       dragData = bab.toDragData();
     }
@@ -222,7 +222,8 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     if (!bonus) return null;
     const babonusData = bonus.toObject();
     if (bonus.parent === this.document) return null;
-    return BabonusWorkshop._createBabonus(babonusData, null, {parent: this.document});
+    babonusData.id = foundry.utils.randomID();
+    return new module.models[data.type](data, {parent: this.document});
   }
 
   /**
@@ -232,7 +233,10 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   async _onClickType(event) {
     const type = event.currentTarget.dataset.type;
-    const bonus = this.constructor._createBabonus({type: type}, null, {parent: this.document});
+    const bonus = new module.models[type]({
+      type: type,
+      id: foundry.utils.randomID()
+    }, {parent: this.document});
     await this.constructor._embedBabonus(this.document, bonus, true);
     return this.collection.get(bonus.id).sheet.render(true);
   }
@@ -375,41 +379,6 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
 
   //#region
-
-  /**
-   * Gather a collection of babonuses from a document.
-   * @param {Document5e} object         An actor, item, effect, or template.
-   * @returns {Collection<Babonus>}     A collection of babonuses.
-   */
-  static _getCollection(object) {
-    const bonuses = Object.entries(object.flags[MODULE.ID]?.bonuses ?? {});
-    const contents = bonuses.reduce((acc, [id, data]) => {
-      if (!foundry.data.validators.isValidId(id)) return acc;
-      try {
-        const bonus = this._createBabonus(data, id, {parent: object});
-        acc.push([id, bonus]);
-      } catch (err) {
-        console.warn(err);
-      }
-      return acc;
-    }, []);
-    return new foundry.utils.Collection(contents);
-  }
-
-  /**
-   * Create a Babonus with the given id (or a new one if none is provided).
-   * @param {object} data          An object of babonus data.
-   * @param {string} id            Optionally an id to assign the babonus.
-   * @param {object} [options]     Additional options that modify the babonus creation.
-   * @returns {Babonus}            The created babonus.
-   */
-  static _createBabonus(data, id, options = {}) {
-    // if no id explicitly provided, make a new one.
-    data.id = id ?? foundry.utils.randomID();
-
-    const bonus = new module.models[data.type](data, options);
-    return bonus;
-  }
 
   /**
    * Embed a created babonus onto the target object.
