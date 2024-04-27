@@ -256,9 +256,15 @@ class Babonus extends foundry.abstract.DataModel {
     // If this bonus lives on an effect or template, defer to those.
     const effect = this.effect;
     if (effect) {
+      if (effect.disabled) return true;
       const isEnchantment = effect.flags.dnd5e?.type === "enchantment";
       if (!isEnchantment) return !effect.modifiesActor;
-      else return !effect.active;
+      if (!effect.active) return true;
+      if (effect.parent instanceof Item) {
+        const isEnchantable = dnd5e.dataModels.item.EnchantmentData.enchantableTypes.has(effect.parent.type);
+        return isEnchantable ? false : !effect.modifiesActor;
+      }
+      return false;
     }
     const template = this.template;
     if (template) return template.hidden;
@@ -270,12 +276,11 @@ class Babonus extends foundry.abstract.DataModel {
     if (!actor) return false;
 
     if (actor.type === "vehicle") {
-      if (!dnd5e.dataModels.item.config[item.type].schema.getField("crewed")) return false;
-      return !item.system.crewed;
+      return ("crewed" in item.system) && !item.system.crewed;
     }
 
     // The item type must be equippable.
-    if (!dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) return false;
+    if (!("equipped" in item.system)) return false;
 
     // The item is not equipped.
     if (!item.system.equipped) return true;
@@ -395,16 +400,6 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get template() {
     return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
-  }
-
-  /**
-   * Get the default values nested within the schema.
-   * @param {string} prefix     The prefix leading to the object of initial values.
-   * @returns {object}          An object of values.
-   */
-  getDefaults(prefix) {
-    const field = this.schema.getField(prefix);
-    return field.getInitialValue();
   }
 
   /** @override */
