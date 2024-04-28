@@ -1,15 +1,17 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-export class FeatureTypesField extends FilterMixin(foundry.data.fields.SchemaField) {
+const {SchemaField, StringField} = foundry.data.fields;
+
+export class FeatureTypesField extends FilterMixin(SchemaField) {
   static name = "featureTypes";
   static template = "modules/babonus/templates/parts/double-select.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
-      type: new foundry.data.fields.StringField({required: true}),
-      subtype: new foundry.data.fields.StringField({required: true})
-    });
+  constructor(fields = {}, options = {}) {
+    super({
+      type: new StringField({required: true}),
+      subtype: new StringField({required: true}),
+      ...fields
+    }, options);
   }
 
   /** @override */

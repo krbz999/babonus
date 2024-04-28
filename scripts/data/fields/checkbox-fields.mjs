@@ -1,6 +1,8 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-class BaseField extends FilterMixin(foundry.data.fields.SetField) {
+const {SetField, NumberField, StringField, SchemaField} = foundry.data.fields;
+
+class BaseField extends FilterMixin(SetField) {
   static template = "modules/babonus/templates/parts/checkboxes.hbs";
 
   /** @override */
@@ -31,7 +33,7 @@ class ProficiencyLevelsField extends BaseField {
   static name = "proficiencyLevels";
 
   constructor() {
-    super(new foundry.data.fields.NumberField());
+    super(new NumberField());
   }
 
   /** @override */
@@ -47,7 +49,7 @@ class ItemTypesField extends BaseField {
   static name = "itemTypes";
 
   constructor() {
-    super(new foundry.data.fields.StringField());
+    super(new StringField());
   }
 
   /** @override */
@@ -71,7 +73,7 @@ class AttackTypesField extends BaseField {
   static name = "attackTypes";
 
   constructor() {
-    super(new foundry.data.fields.StringField());
+    super(new StringField());
   }
 
   /** @override */
@@ -84,7 +86,7 @@ class SpellLevelsField extends BaseField {
   static name = "spellLevels";
 
   constructor() {
-    super(new foundry.data.fields.NumberField());
+    super(new NumberField());
   }
 
   /** @override */
@@ -94,16 +96,16 @@ class SpellLevelsField extends BaseField {
   }
 }
 
-class SpellComponentsField extends FilterMixin(foundry.data.fields.SchemaField) {
+class SpellComponentsField extends FilterMixin(SchemaField) {
   static name = "spellComponents";
   static template = "modules/babonus/templates/parts/checkboxes-select.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
-      types: new BaseField(new foundry.data.fields.StringField()),
-      match: new foundry.data.fields.StringField({nullable: true, initial: null, choices: ["ANY", "ALL"]})
-    });
+  constructor(fields = {}, options = {}) {
+    super({
+      types: new BaseField(new StringField()),
+      match: new StringField({nullable: true, initial: null, choices: ["ANY", "ALL"]}),
+      ...fields
+    }, options);
   }
 
   /** @override */
@@ -150,7 +152,7 @@ class ActorCreatureSizesField extends BaseField {
   static name = "actorCreatureSizes";
 
   constructor() {
-    super(new foundry.data.fields.StringField());
+    super(new StringField());
   }
 
   /** @override */

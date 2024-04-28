@@ -1,6 +1,11 @@
 import {BabonusSheet} from "../applications/babonus-sheet.mjs";
 import {module} from "./_module.mjs";
 
+const {
+  DocumentIdField, IntegerSortField, StringField, FilePathField,
+  BooleanField, EmbeddedDataField, ObjectField, SchemaField
+} = foundry.data.fields;
+
 /**
  * Configuration for how a bonus consumes a property.
  *
@@ -65,10 +70,12 @@ import {module} from "./_module.mjs";
  * @property {string} reroll.value          The threshold for rerolling a die.
  * @property {boolean} reroll.invert        Whether the threshold is inverted.
  * @property {boolean} reroll.recursive     Whether to reroll recursively.
+ * @property {string} reroll.limit          The maximum number of times a die can reroll.
  * @property {object} explode
  * @property {boolean} explode.enabled      Whether this modifier is enabled.
  * @property {string} explode.value         The threshold for exploding a die.
  * @property {boolean} explode.once         Whether a die can explode at most once.
+ * @property {string} explode.limit         The maximum number of times a die can explode.
  * @property {object} minimum
  * @property {boolean} minimum.enabled      Whether this modifier is enabled.
  * @property {string} minimum.value         The minimum value a die can roll.
@@ -191,7 +198,7 @@ class Babonus extends foundry.abstract.DataModel {
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
    * @TODO once hit die rolls have a dialog as well, this should be amended.
-   * @TODO once rolls can be "remade" in 3.1.0, optional bonuses should be able to apply to other properties as well.
+   * @TODO once rolls can be "remade" in 3.2.0, optional bonuses should be able to apply to other properties as well.
    * @type {boolean}
    */
   get isOptionable() {
@@ -248,7 +255,17 @@ class Babonus extends foundry.abstract.DataModel {
   get isSuppressed() {
     // If this bonus lives on an effect or template, defer to those.
     const effect = this.effect;
-    if (effect) return !effect.modifiesActor;
+    if (effect) {
+      if (effect.disabled) return true;
+      const isEnchantment = effect.flags.dnd5e?.type === "enchantment";
+      if (!isEnchantment) return !effect.modifiesActor;
+      if (!effect.active) return true;
+      if (effect.parent instanceof Item) {
+        const isEnchantable = dnd5e.dataModels.item.EnchantmentData.enchantableTypes.has(effect.parent.type);
+        return isEnchantable ? false : !effect.modifiesActor;
+      }
+      return false;
+    }
     const template = this.template;
     if (template) return template.hidden;
 
@@ -259,12 +276,11 @@ class Babonus extends foundry.abstract.DataModel {
     if (!actor) return false;
 
     if (actor.type === "vehicle") {
-      if (!dnd5e.dataModels.item.config[item.type].schema.getField("crewed")) return false;
-      return !item.system.crewed;
+      return ("crewed" in item.system) && !item.system.crewed;
     }
 
     // The item type must be equippable.
-    if (!dnd5e.dataModels.item.config[item.type].schema.getField("equipped")) return false;
+    if (!("equipped" in item.system)) return false;
 
     // The item is not equipped.
     if (!item.system.equipped) return true;
@@ -386,21 +402,11 @@ class Babonus extends foundry.abstract.DataModel {
     return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
   }
 
-  /**
-   * Get the default values nested within the schema.
-   * @param {string} prefix     The prefix leading to the object of initial values.
-   * @returns {object}          An object of values.
-   */
-  getDefaults(prefix) {
-    const field = this.schema.getField(prefix);
-    return field.getInitialValue();
-  }
-
   /** @override */
   static defineSchema() {
     const base = this._defineBaseSchema();
-    base.bonuses = new foundry.data.fields.SchemaField(this._defineBonusSchema());
-    base.filters = new foundry.data.fields.SchemaField(this._defineFilterSchema());
+    base.bonuses = new SchemaField(this._defineBonusSchema());
+    base.filters = new SchemaField(this._defineFilterSchema());
     return base;
   }
 
@@ -410,18 +416,18 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineBaseSchema() {
     return {
-      id: new foundry.data.fields.DocumentIdField({initial: () => foundry.utils.randomID()}),
-      sort: new foundry.data.fields.IntegerSortField(),
-      name: new foundry.data.fields.StringField({required: true, blank: false}),
-      img: new foundry.data.fields.FilePathField({categories: ["IMAGE"]}),
-      type: new foundry.data.fields.StringField({required: true, initial: this.type, choices: [this.type]}),
-      enabled: new foundry.data.fields.BooleanField({initial: true}),
-      exclusive: new foundry.data.fields.BooleanField(),
-      optional: new foundry.data.fields.BooleanField(),
-      description: new foundry.data.fields.StringField({required: true}),
-      consume: new foundry.data.fields.EmbeddedDataField(module.fields.consume),
-      aura: new foundry.data.fields.EmbeddedDataField(module.fields.aura),
-      flags: new foundry.data.fields.ObjectField()
+      id: new DocumentIdField({initial: () => foundry.utils.randomID()}),
+      sort: new IntegerSortField(),
+      name: new StringField({required: true, blank: false}),
+      img: new FilePathField({categories: ["IMAGE"]}),
+      type: new StringField({required: true, initial: this.type, choices: [this.type]}),
+      enabled: new BooleanField({initial: true}),
+      exclusive: new BooleanField(),
+      optional: new BooleanField(),
+      description: new StringField({required: true}),
+      consume: new EmbeddedDataField(module.fields.consume),
+      aura: new EmbeddedDataField(module.fields.aura),
+      flags: new ObjectField()
     };
   }
 
@@ -489,9 +495,7 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  prepareDerivedData() {
-    return;
-  }
+  prepareDerivedData() {}
 
   /* -------------------------------------------- */
   /*               Flag Operations                */
@@ -581,6 +585,21 @@ class Babonus extends foundry.abstract.DataModel {
     await this.parent.update(update);
     return this;
   }
+
+  /**
+   * Present a Dialog form to confirm deletion of this bonus.
+   * @param {object} [options]    Positioning and sizing options for the resulting dialog.
+   * @returns {Promise}           A Promise which resolves to the deleted bonus.
+   */
+  async deleteDialog(options = {}) {
+    const type = game.i18n.localize(this.constructor.metadata.label);
+    return Dialog.confirm({
+      title: `Build-a-Bonus: ${this.name}`,
+      content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
+      yes: this.delete.bind(this),
+      options: options
+    });
+  }
 }
 
 // a bonus attached to an item; attack rolls, damage rolls, save dc.
@@ -612,9 +631,9 @@ class AttackBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField({required: true}),
-      criticalRange: new foundry.data.fields.StringField({required: true}),
-      fumbleRange: new foundry.data.fields.StringField({required: true})
+      bonus: new StringField({required: true}),
+      criticalRange: new StringField({required: true}),
+      fumbleRange: new StringField({required: true})
     };
   }
 
@@ -647,11 +666,11 @@ class DamageBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField({required: true}),
-      damageType: new foundry.data.fields.StringField({required: true}),
-      criticalBonusDice: new foundry.data.fields.StringField({required: true}),
-      criticalBonusDamage: new foundry.data.fields.StringField({required: true}),
-      modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)
+      bonus: new StringField({required: true}),
+      damageType: new StringField({required: true}),
+      criticalBonusDice: new StringField({required: true}),
+      criticalBonusDamage: new StringField({required: true}),
+      modifiers: new EmbeddedDataField(module.fields.modifiers)
     };
   }
 
@@ -685,7 +704,7 @@ class SaveBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField({required: true})
+      bonus: new StringField({required: true})
     };
   }
 
@@ -718,9 +737,9 @@ class ThrowBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField({required: true}),
-      targetValue: new foundry.data.fields.StringField({required: true}),
-      deathSaveCritical: new foundry.data.fields.StringField({required: true})
+      bonus: new StringField({required: true}),
+      targetValue: new StringField({required: true}),
+      deathSaveCritical: new StringField({required: true})
     };
   }
 
@@ -756,7 +775,7 @@ class TestBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField({required: true})
+      bonus: new StringField({required: true})
     };
   }
 
@@ -792,8 +811,8 @@ class HitDieBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new foundry.data.fields.StringField({required: true}),
-      modifiers: new foundry.data.fields.EmbeddedDataField(module.fields.modifiers)
+      bonus: new StringField({required: true}),
+      modifiers: new EmbeddedDataField(module.fields.modifiers)
     };
   }
 

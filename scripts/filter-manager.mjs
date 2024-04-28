@@ -452,14 +452,14 @@ export class FilterManager {
         // try comparing numbers.
         const nLeft = Roll.safeEval(left);
         const nRight = Roll.safeEval(right);
-        if (operator === "EQ" && !(nLeft === nRight)) return false;
-        else if (operator === "LT" && !(nLeft < nRight)) return false;
-        else if (operator === "GT" && !(nLeft > nRight)) return false;
-        else if (operator === "LE" && !(nLeft <= nRight)) return false;
-        else if (operator === "GE" && !(nLeft >= nRight)) return false;
+        if ((operator === "EQ") && !(nLeft === nRight)) return false;
+        else if ((operator === "LT") && !(nLeft < nRight)) return false;
+        else if ((operator === "GT") && !(nLeft > nRight)) return false;
+        else if ((operator === "LE") && !(nLeft <= nRight)) return false;
+        else if ((operator === "GE") && !(nLeft >= nRight)) return false;
       } catch {
         // try comparing strings.
-        if (operator === "EQ" && !(left == right)) return false;
+        if ((operator === "EQ") && !(left == right)) return false;
         else if (["LT", "LE"].includes(operator) && !(right.includes(left))) return false;
         else if (["GT", "GE"].includes(operator) && !(left.includes(right))) return false;
       }

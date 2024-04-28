@@ -29,7 +29,8 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       tabs: [{navSelector: "nav[data-group=main]", contentSelector: "div.document-tabs"}],
       resizable: true,
       scrollY: ["[data-tab=filters]"],
-      width: 500
+      width: 500,
+      height: null
     });
   }
 
@@ -264,71 +265,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const parts = ["2d10", "1d4"];
     mods.modifyParts(parts, rollData);
     data.example = parts.join(" + ");
-    const modes = module.fields.modifiers.MODIFIER_MODES;
-
     for (const [key, v] of Object.entries(modifiers)) {
-
-      let label;
-      switch (key) {
-        case "amount": {
-          const v = mods.amount.value;
-          label = mods.hasAmount ? (mods.amount.mode === modes.MULTIPLY ? `&times;${v}` : v.signedString()) : null;
-          break;
-        }
-        case "size": {
-          const v = mods.size.value;
-          label = mods.hasSize ? (mods.size.mode === modes.MULTIPLY ? `&times;${v}` : v.signedString()) : null;
-          break;
-        }
-        case "reroll": {
-          const prefix = mods.reroll.recursive ? "rr" : "r";
-          const v = mods.reroll.value;
-          if (!mods.hasReroll) label = null;
-          else if (mods.reroll.invert) {
-            if (v > 0) label = `${prefix}>${v}`;
-            else if (v === 0) label = "BABONUS.Maximum";
-            else label = "BABONUS.Relative";
-          } else {
-            if (v > 0) label = (v === 1) ? `${prefix}=1` : `${prefix}<${v}`;
-            else if (v === 0) label = `${prefix}=1`;
-            else label = "BABONUS.Relative";
-          }
-          break;
-        }
-        case "explode": {
-          const prefix = mods.explode.once ? "xo" : "x";
-          const v = mods.explode.value;
-          if (!mods.hasExplode) label = null;
-          if (v === 0) label = prefix;
-          else if (v > 0) label = `${prefix}>=${v}`;
-          else label = "BABONUS.Relative";
-          break;
-        }
-        case "minimum": {
-          const maxxed = mods.minimum.maximize;
-          if (!mods.hasMin) label = null;
-          else if (maxxed) label = "BABONUS.Maximized";
-          else if (mods.minimum.value > 0) label = `min${mods.minimum.value}`;
-          else label = "BABONUS.Relative";
-          break;
-        }
-        case "maximum": {
-          const z = mods.maximum.zero;
-          const v = mods.maximum.value;
-          if (!mods.hasMax) label = null;
-          else if (v < 0) label = "BABONUS.Relative";
-          else label = `max${v === 0 ? (z ? 0 : 1) : v}`;
-          break;
-        }
-        default: label = null; break;
-      }
-
       data[key] = {
         ...v,
         key: key,
         enabled: v.enabled,
-        disabled: !v.enabled,
-        label: v.enabled ? label : null
+        disabled: !v.enabled
       };
     }
     return data;
@@ -337,16 +279,17 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html[0].querySelectorAll("[data-action='keys-dialog']").forEach(n => {
+    html = html[0];
+    html.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
       n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
     });
-    html[0].querySelectorAll("input[type=text], input[type=number]").forEach(n => {
+    html.querySelectorAll("input[type=text], input[type=number]").forEach(n => {
       n.addEventListener("focus", event => event.currentTarget.select());
     });
-    html[0].querySelectorAll("[data-action='add-filter']").forEach(n => {
+    html.querySelectorAll("[data-action='add-filter']").forEach(n => {
       n.addEventListener("click", this._onClickAddFilter.bind(this));
     });
-    html[0].querySelectorAll("[data-action='delete-filter']").forEach(n => {
+    html.querySelectorAll("[data-action='delete-filter']").forEach(n => {
       n.addEventListener("click", this._onClickDeleteFilter.bind(this));
     });
   }
@@ -447,12 +390,6 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   }
 
   /** @override */
-  setPosition(pos = {}) {
-    if (this._tabs[0].active !== "filters") pos.height = "auto";
-    return super.setPosition(pos);
-  }
-
-  /** @override */
   _createDocumentIdLink(html) {
     const label = game.i18n.localize(this.document.constructor.metadata.label);
     const idLink = document.createElement("A");
@@ -504,5 +441,21 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     delete this.owner?.apps[this.appId];
     if (!this.object) options.submit = false;
     return super.close(options);
+  }
+
+  /** @override */
+  _onChangeTab(event, tabs, active) {
+    this.setPosition({height: "auto"});
+  }
+
+  /** @override */
+  async _render(...args) {
+    const result = await super._render(...args);
+    try {
+      this.setPosition({height: "auto"});
+    } catch (err) {
+      //
+    }
+    return result;
   }
 }

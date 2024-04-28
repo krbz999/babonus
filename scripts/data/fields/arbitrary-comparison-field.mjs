@@ -1,17 +1,19 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
+const {SchemaField, StringField, ArrayField} = foundry.data.fields;
+
 // ArrayField that filters invalid comparison fields.
-export class ArbitraryComparisonField extends FilterMixin(foundry.data.fields.ArrayField) {
+export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
   static name = "arbitraryComparison";
   static repeatable = true;
   static template = "modules/babonus/templates/parts/text-select-text.hbs";
 
   /** @override */
   constructor(options = {}) {
-    super(new foundry.data.fields.SchemaField({
-      one: new foundry.data.fields.StringField({blank: false}),
-      other: new foundry.data.fields.StringField({blank: false}),
-      operator: new foundry.data.fields.StringField({choices: ArbitraryComparisonField.selectOptions})
+    super(new SchemaField({
+      one: new StringField({blank: false}),
+      other: new StringField({blank: false}),
+      operator: new StringField({choices: ArbitraryComparisonField.selectOptions})
     }), options);
   }
 

@@ -1,17 +1,19 @@
 import {module} from "./_module.mjs";
 
+const {BooleanField, StringField, NumberField, SchemaField} = foundry.data.fields;
+
 export class AuraModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      enabled: new foundry.data.fields.BooleanField(),
-      template: new foundry.data.fields.BooleanField(),
-      range: new foundry.data.fields.StringField({required: true}),
-      self: new foundry.data.fields.BooleanField({initial: true}),
-      disposition: new foundry.data.fields.NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
+      enabled: new BooleanField(),
+      template: new BooleanField(),
+      range: new StringField({required: true}),
+      self: new BooleanField({initial: true}),
+      disposition: new NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
       blockers: new module.filters.auraBlockers(),
-      require: new foundry.data.fields.SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
-        acc[k] = new foundry.data.fields.BooleanField();
+      require: new SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
+        acc[k] = new BooleanField();
         return acc;
       }, {}))
     };

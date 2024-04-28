@@ -1,6 +1,8 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-export class CustomScriptsField extends FilterMixin(foundry.data.fields.StringField) {
+const {StringField} = foundry.data.fields;
+
+export class CustomScriptsField extends FilterMixin(StringField) {
   static name = "customScripts";
   static template = "modules/babonus/templates/parts/textarea.hbs";
 
