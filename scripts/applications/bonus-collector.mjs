@@ -342,10 +342,10 @@ export class BonusCollector {
   /**
    * Create a PIXI aura without drawing it, and return whether the roller is within it.
    * @credit to @freeze2689
-   * @param {Token5e} token                           A token placeable with an aura.
-   * @param {Babonus} bonus                           The bonus with an aura.
-   * @returns {[Token5e, PIXI, Babonus, boolean]}     The token, the PIXI graphic, the babonus,
-   *                                                  and whether the roller is contained within.
+   * @param {Token5e} token                                 A token placeable with an aura.
+   * @param {Babonus} bonus                                 The bonus with an aura.
+   * @returns {[Token5e, PIXI|null, Babonus, boolean]}      The token, the PIXI graphic, the babonus,
+   *                                                        and whether the roller is contained within.
    */
   auraMaker(token, bonus) {
     const cnt = Object.values(bonus.aura.require).filter(x => x);
@@ -353,8 +353,8 @@ export class BonusCollector {
 
     const circle = babonus.createRestrictedCircle(token, bonus.aura.range, bonus.aura.require);
     const shape = new PIXI.Graphics();
-    shape.beginFill(0xFFFFFF, 0.08).drawPolygon(circle).endFill();
-    shape.pivot.set(token.x, token.y);
+    shape.lineStyle({width: 3, color: 0xFFFFFF, alpha: 0.75});
+    shape.beginFill(0xFFFFFF, 0.03).drawPolygon(circle).endFill();
     const contains = this.tokenCenters.some(p => circle.contains(p.x, p.y));
     return [token, shape, bonus, contains];
   }
@@ -363,12 +363,33 @@ export class BonusCollector {
    * Draw auras on the canvas.
    */
   drawAuras() {
+    canvas.grid.babonusAuras ??= {};
     for (const [token, aura, bonus, bool] of this._auras) {
-      if (!(bonus.aura.range > 0)) continue;
+      if (!(bonus.aura.range > 0) || !token.visible || !token.renderable) continue;
+      const id = foundry.utils.randomID();
+      const container = canvas.grid.babonusAuras[id] = new PIXI.Container();
       aura.tint = bool ? 0x00FF00 : 0xFF0000;
-      aura.id = foundry.utils.randomID();
-      token.addChild(aura);
-      setTimeout(() => token.removeChild(aura), 5000);
+      container.addChild(aura);
+      canvas.grid.addChild(container);
+      this._fadeInAura(aura, id);
     }
+  }
+
+  /**
+   * Fade in an aura.
+   * @param {PIXI.Graphics} aura
+   * @param {string} id     Randomly generated id of an aura.
+   */
+  async _fadeInAura(aura, id) {
+    await CanvasAnimation.animate(
+      [{attribute: "alpha", parent: aura, to: 1, from: 0}],
+      {name: id, duration: 1000, easing: (x) => x * x}
+    );
+    await CanvasAnimation.animate(
+      [{attribute: "alpha", parent: aura, to: 0, from: 1}],
+      {name: id, duration: 4000, easing: (x) => x * x}
+    );
+    canvas.grid.babonusAuras?.[id]?.destroy();
+    delete canvas.grid.babonusAuras?.[id];
   }
 }
