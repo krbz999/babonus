@@ -1,17 +1,19 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
+const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
+
 // SchemaField that requires a value in all fields.
-export class TokenSizesField extends FilterMixin(foundry.data.fields.SchemaField) {
+export class TokenSizesField extends FilterMixin(SchemaField) {
   static name = "tokenSizes";
   static template = "modules/babonus/templates/parts/select-number-checkbox.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
-      size: new foundry.data.fields.NumberField({min: 0.5, step: 0.5}),
-      type: new foundry.data.fields.NumberField({choices: [0, 1], initial: 0}),
-      self: new foundry.data.fields.BooleanField()
-    });
+  constructor(fields = {}, options = {}) {
+    super({
+      size: new NumberField({min: 0.5, step: 0.5}),
+      type: new NumberField({choices: [0, 1], initial: 0}),
+      self: new BooleanField(),
+      ...fields
+    }, options);
   }
 
   /** @override */

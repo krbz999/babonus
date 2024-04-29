@@ -272,7 +272,7 @@ export class RollHooks {
     const tokenDocument = item.actor.token ?? item.actor.getActiveTokens(false, true)[0];
     const disp = tokenDocument?.disposition ?? item.actor.prototypeToken.disposition;
 
-    const bonusData = BabonusWorkshop._getCollection(item).reduce((acc, bab) => {
+    const bonusData = babonus.getCollection(item).reduce((acc, bab) => {
       if (bab.aura.isTemplate) acc[bab.id] = bab.toObject();
       return acc;
     }, {});

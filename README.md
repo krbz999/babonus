@@ -145,10 +145,19 @@ function getCollection(object)
 ```js
 /**
  * Return a babonus using its uuid.
- * @param {string} uuid             The babonus uuid.
- * @returns {Promise<Babonus>}      The found babonus.
+ * @param {string} uuid                 The babonus uuid.
+ * @returns {Promise<Babonus|null>}     The found babonus.
  */
 async function fromUuid(uuid)
+```
+
+```js
+/**
+ * Return a babonus using its uuid.
+ * @param {string} uuid         The babonus uuid.
+ * @returns {Babonus|null}      The found babonus.
+ */
+function fromUuidSync(uuid)
 ```
 
 ```js

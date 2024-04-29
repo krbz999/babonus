@@ -1,7 +1,8 @@
 .babonus.sheet {
   height: auto;
   min-width: 500px;
-  min-height: 600px;
+  min-height: 500px;
+  max-height: 95%;
 
   .striked {
     text-decoration: line-through;
@@ -124,10 +125,18 @@
       }
 
       &.modifiers {
-        .checkbox, select {
-          &:last-child {
+        .checkbox {
+          text-align: left;
+          &.long {
             flex: 0 0 110px;
-            text-align: left;
+          }
+        }
+
+        .form-fields.reroll, .form-fields.explode {
+          flex-wrap: wrap;
+
+          [name$=".limit"] {
+            flex: 0 0 100%;
           }
         }
 
@@ -268,4 +277,5 @@
 
 .dnd5e-theme-dark .babonus.sheet {
   --color-text-dark-primary: #191813;
+  &.dnd5e2 .window-resizable-handle { color: var(--dnd5e-color-black); }
 }

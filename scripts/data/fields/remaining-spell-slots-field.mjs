@@ -1,20 +1,22 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-export class RemainingSpellSlotsField extends FilterMixin(foundry.data.fields.SchemaField) {
+const {SchemaField, NumberField} = foundry.data.fields;
+
+export class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
   static name = "remainingSpellSlots";
   static template = "modules/babonus/templates/parts/text-dash-text.hbs";
 
-  /** @override */
-  _initialize() {
-    return super._initialize({
-      min: new foundry.data.fields.NumberField({min: 0, step: 1, integer: true}),
-      max: new foundry.data.fields.NumberField({min: 0, step: 1, integer: true})
-    });
+  constructor(fields = {}, options = {}) {
+    super({
+      min: new NumberField({min: 0, step: 1, integer: true}),
+      max: new NumberField({min: 0, step: 1, integer: true}),
+      ...fields
+    }, options);
   }
 
   /** @override */
   _validateType(data, options = {}) {
-    if ((data.min !== null && data.max !== null) && (data.min > data.max)) {
+    if (((data.min !== null) && (data.max !== null)) && (data.min > data.max)) {
       throw new foundry.data.validation.DataModelValidationError("min cannot be higher than max");
     }
     return super._validateType(data, options);

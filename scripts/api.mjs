@@ -14,6 +14,7 @@ export function createAPI() {
     getType,
     getCollection,
     fromUuid: babonusFromUuid,
+    fromUuidSync: babonusFromUuidSync,
 
     deleteBonus, copyBonus,
     toggleBonus, moveBonus,
@@ -60,7 +61,7 @@ export function createAPI() {
  * @returns {Babonus}           The found babonus.
  */
 function getName(object, name) {
-  return BabonusWorkshop._getCollection(object).getName(name);
+  return getCollection(object).getName(name);
 }
 
 /**
@@ -70,7 +71,7 @@ function getName(object, name) {
  */
 function getNames(object) {
   const set = new Set();
-  BabonusWorkshop._getCollection(object).forEach(bonus => set.add(bonus.name));
+  getCollection(object).forEach(bonus => set.add(bonus.name));
   return Array.from(set);
 }
 
@@ -81,7 +82,7 @@ function getNames(object) {
  * @returns {Babonus}           The found babonus.
  */
 function getId(object, id) {
-  return BabonusWorkshop._getCollection(object).get(id);
+  return getCollection(object).get(id);
 }
 
 /**
@@ -91,7 +92,7 @@ function getId(object, id) {
  */
 function getIds(object) {
   const set = new Set();
-  BabonusWorkshop._getCollection(object).forEach(bonus => set.add(bonus.id));
+  getCollection(object).forEach(bonus => set.add(bonus.id));
   return Array.from(set);
 }
 
@@ -102,7 +103,7 @@ function getIds(object) {
  * @returns {Babonus[]}         An array of babonuses.
  */
 function getType(object, type) {
-  return BabonusWorkshop._getCollection(object).filter(b => b.type === type);
+  return getCollection(object).filter(b => b.type === type);
 }
 
 /**
@@ -186,12 +187,12 @@ function findEmbeddedDocumentsWithBonuses(object) {
 
   if (object instanceof Actor) {
     items = object.items.filter(item => {
-      return BabonusWorkshop._getCollection(item).size > 0;
+      return getCollection(item).size > 0;
     });
   }
   if ((object instanceof Actor) || (object instanceof Item)) {
     effects = object.effects.filter(effect => {
-      return BabonusWorkshop._getCollection(effect).size > 0;
+      return getCollection(effect).size > 0;
     });
   }
   return {effects, items};
@@ -264,7 +265,8 @@ function openBabonusWorkshop(object) {
  */
 function createBabonus(data, parent = null) {
   if (!(data.type in module.models)) throw new Error("INVALID BABONUS TYPE.");
-  return BabonusWorkshop._createBabonus(data, undefined, {parent});
+  data.id = foundry.utils.randomID();
+  return new module.models[data.type](data, {parent});
 }
 
 /**
@@ -294,12 +296,46 @@ function getOccupiedGridSpaces(tokenDoc) {
 }
 
 /**
+ * Internal helper method for fromUuid and fromUuidSync.
+ * @param {string} uuid     Babonus uuid.
+ * @returns {{parentUuid: string, id: string}}
+ */
+const _getParentUuidAndId = (uuid) => {
+  const parts = uuid.split(".");
+  const id = parts.pop();
+  parts.pop();
+  const parentUuid = parts.join(".");
+  return {parentUuid, id};
+};
+
+/**
  * Return a babonus using its uuid.
- * @param {string} uuid             The babonus uuid.
- * @returns {Promise<Babonus>}      The found babonus.
+ * @param {string} uuid                 The babonus uuid.
+ * @returns {Promise<Babonus|null>}     The found babonus.
  */
 async function babonusFromUuid(uuid) {
-  return BabonusWorkshop._fromUuid(uuid);
+  try {
+    const ids = _getParentUuidAndId(uuid);
+    const parent = await fromUuid(ids.parentUuid);
+    return getId(parent, ids.id);
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Return a babonus using its uuid synchronously.
+ * @param {string} uuid         The babonus uuid.
+ * @returns {Babonus|null}      The found babonus.
+ */
+function babonusFromUuidSync(uuid) {
+  try {
+    const ids = _getParentUuidAndId(uuid);
+    const parent = fromUuidSync(ids.parentUuid);
+    return getId(parent, ids.id);
+  } catch (err) {
+    return null;
+  }
 }
 
 /**
@@ -308,7 +344,19 @@ async function babonusFromUuid(uuid) {
  * @returns {Collection<Babonus>}     A collection of babonuses.
  */
 function getCollection(object) {
-  return BabonusWorkshop._getCollection(object);
+  const bonuses = Object.entries(object.flags[MODULE.ID]?.bonuses ?? {});
+  const contents = bonuses.reduce((acc, [id, data]) => {
+    if (!foundry.data.validators.isValidId(id)) return acc;
+    try {
+      data.id = id;
+      const bonus = new module.models[data.type](data, {parent: object});
+      acc.push([id, bonus]);
+    } catch (err) {
+      console.warn(err);
+    }
+    return acc;
+  }, []);
+  return new foundry.utils.Collection(contents);
 }
 
 /**

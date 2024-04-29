@@ -1,3 +1,5 @@
+const {SchemaField, BooleanField, NumberField, StringField} = foundry.data.fields;
+
 /* Child of Babonus#bonuses that holds all die modifiers. */
 export class ModifiersModel extends foundry.abstract.DataModel {
   /**
@@ -12,39 +14,41 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      amount: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        mode: new foundry.data.fields.NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new foundry.data.fields.StringField({required: true})
+      amount: new SchemaField({
+        enabled: new BooleanField(),
+        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
+        value: new StringField({required: true})
       }),
-      size: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        mode: new foundry.data.fields.NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new foundry.data.fields.StringField({required: true})
+      size: new SchemaField({
+        enabled: new BooleanField(),
+        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
+        value: new StringField({required: true})
       }),
-      reroll: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        invert: new foundry.data.fields.BooleanField(),
-        recursive: new foundry.data.fields.BooleanField()
+      reroll: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        invert: new BooleanField(),
+        recursive: new BooleanField(),
+        limit: new StringField({required: true})
       }),
-      explode: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        once: new foundry.data.fields.BooleanField()
+      explode: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        once: new BooleanField(),
+        limit: new StringField({required: true})
       }),
-      minimum: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        maximize: new foundry.data.fields.BooleanField()
+      minimum: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        maximize: new BooleanField()
       }),
-      maximum: new foundry.data.fields.SchemaField({
-        enabled: new foundry.data.fields.BooleanField(),
-        value: new foundry.data.fields.StringField({required: true}),
-        zero: new foundry.data.fields.BooleanField()
+      maximum: new SchemaField({
+        enabled: new BooleanField(),
+        value: new StringField({required: true}),
+        zero: new BooleanField()
       }),
-      config: new foundry.data.fields.SchemaField({
-        first: new foundry.data.fields.BooleanField()
+      config: new SchemaField({
+        first: new BooleanField()
       })
     };
   }
@@ -60,14 +64,26 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const rollData = this.parent.getRollData({deterministic: true});
     for (const m of ["amount", "size", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
-      if (!value) {
-        this[m].value = 0;
-        continue;
+      if (!value) this[m].value = 0;
+      else {
+        const bonus = dnd5e.utils.simplifyBonus(value, rollData);
+        this[m].value = Number.isNumeric(bonus) ? Math.round(bonus) : null;
       }
-      const bonus = dnd5e.utils.simplifyBonus(value, rollData);
-      this[m].value = Math.round(Number.isNumeric(bonus) ? bonus : null);
+
+      if (!("limit" in this[m])) continue;
+
+      const limit = this[m].limit;
+      if (!limit) this[m].limit = null;
+      else {
+        const bonus = Math.round(dnd5e.utils.simplifyBonus(limit, rollData));
+        this[m].limit = (Number.isNumeric(bonus) && (bonus > 0)) ? bonus : null;
+      }
     }
   }
+
+  /* ----------------------------- */
+  /*       Dice Modifications      */
+  /* ----------------------------- */
 
   /**
    * Regex to determine whether a die already has a modifier.
@@ -81,74 +97,131 @@ export class ModifiersModel extends foundry.abstract.DataModel {
 
   /**
    * Append applicable modifiers to a die.
-   * @param {DieTerm} die
+   * @param {DieTerm} die           The die term that will be mutated.
+   * @param {object} [options]      Options object meant to specifically bypass certain modifications.
    */
-  modifyDie(die) {
-    const dm = die.modifiers;
-    const {hasAmount, hasSize, hasReroll, hasExplode, hasMin, hasMax} = this;
+  modifyDie(die, options = {}) {
+    if (options.amount !== false) this._modifyAmount(die);
+    if (options.size !== false) this._modifySize(die);
+    if (options.reroll !== false) this._modifyReroll(die);
+    if (options.explode !== false) this._modifyExplode(die);
+    if (options.minimum !== false) this._modifyMin(die);
+    if (options.maximum !== false) this._modifyMax(die);
+  }
 
-    if (hasAmount) {
-      const isMult = this.amount.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
-      if (isMult) die.number = Math.max(0, die.number * this.amount.value);
-      else die.number = Math.max(0, die.number + this.amount.value);
-    }
-    if (hasSize) {
-      const isMult = this.size.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
-      if (isMult) die.faces = Math.max(0, die.faces * this.size.value);
-      else die.faces = Math.max(0, die.faces + this.size.value);
-    }
-    if (hasReroll && !dm.some(m => m.match(this.constructor.REGEX.reroll))) {
-      const prefix = this.reroll.recursive ? "rr" : "r";
-      const v = this.reroll.value;
-      let mod;
-      if (this.reroll.invert) {
-        if (v > 0) mod = (v >= die.faces) ? `${prefix}=${die.faces}` : `${prefix}>${v}`; // reroll if strictly greater than x.
-        else if (v === 0) mod = `${prefix}=${die.faces}`; // reroll if max.
-        else mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}>${die.faces + v}`; // reroll if strictly greater than (size-x).
+  /**
+   * Append applicable amount modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyAmount(die) {
+    if (!this.hasAmount) return;
+    const isMult = this.amount.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+    if (isMult) die.number = Math.max(0, die.number * this.amount.value);
+    else die.number = Math.max(0, die.number + this.amount.value);
+  }
+
+  /**
+   * Append applicable size modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifySize(die) {
+    if (!this.hasSize) return;
+    const isMult = this.size.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+    if (isMult) die.faces = Math.max(0, die.faces * this.size.value);
+    else die.faces = Math.max(0, die.faces + this.size.value);
+  }
+
+  /**
+   * Append applicable reroll modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyReroll(die) {
+    if (!this.hasReroll || die.modifiers.some(m => m.match(this.constructor.REGEX.reroll))) return;
+    const l = this.reroll.limit;
+    const prefix = this.reroll.recursive ? (l ? `rr${l}` : "rr") : "r";
+    const v = this.reroll.value;
+    let mod;
+    if (this.reroll.invert) {
+      if (v > 0) {
+        // reroll if strictly greater than x.
+        mod = (v >= die.faces) ? `${prefix}=${die.faces}` : `${prefix}>${v}`;
+      } else if (v === 0) {
+        // reroll if max.
+        mod = `${prefix}=${die.faces}`;
       } else {
-        if (v > 0) mod = (v === 1) ? `${prefix}=1` : `${prefix}<${Math.min(die.faces, v)}`; // reroll if strictly less than x.
-        else if (v === 0) mod = `${prefix}=1`; // reroll 1s.
-        else mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}<${die.faces + v}`; // reroll if strictly less than (size-x).
+        // reroll if strictly greater than (size-x).
+        mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}>${die.faces + v}`;
       }
-      if (die.faces > 1) dm.push(mod);
-    }
-    if (hasExplode && !dm.some(m => m.match(this.constructor.REGEX.explode))) {
-      const v = this.explode.value;
-      const prefix = this.explode.once ? "xo" : "x";
-      let valid;
-      let mod;
-      if (v === 0) {
-        mod = prefix;
-        valid = (die.faces > 1) || (prefix === "xo");
-      } else if (v > 0) {
-        mod = (die.faces === v) ? prefix : `${prefix}>=${v}`;
-        valid = (v <= die.faces) && (((v === 1) && (prefix === "xo")) || (v > 1));
-      } else if (v < 0) {
-        const m = Math.max(1, die.faces + v);
-        mod = `${prefix}>=${m}`;
-        valid = m > 1 || (prefix == "xo");
+    } else {
+      if (v > 0) {
+        // reroll if strictly less than x.
+        mod = (v === 1) ? `${prefix}=1` : `${prefix}<${Math.min(die.faces, v)}`;
+      } else if (v === 0) {
+        // reroll 1s.
+        mod = `${prefix}=1`;
+      } else {
+        // reroll if strictly less than (size-x).
+        mod = (die.faces + v <= 1) ? `${prefix}=1` : `${prefix}<${die.faces + v}`;
       }
-      if (valid) dm.push(mod);
     }
-    if (hasMin && !dm.some(m => m.match(this.constructor.REGEX.minimum))) {
-      const f = die.faces;
-      let mod;
-      const min = this.minimum.value;
-      if (this.minimum.maximize) mod = `min${f}`;
-      else mod = `min${(min > 0) ? Math.min(min, f) : Math.max(1, f + min)}`;
-      if (mod !== "min1") dm.push(mod);
+    if (die.faces > 1) die.modifiers.push(mod);
+  }
+
+  /**
+   * Append applicable explode modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyExplode(die) {
+    if (!this.hasExplode || die.modifiers.some(m => m.match(this.constructor.REGEX.explode))) return;
+    const v = this.explode.value;
+    const l = this.explode.limit;
+    const prefix = (this.explode.once || (l === 1)) ? "xo" : (l ? `x${l}` : "x");
+    const _prefix = () => /x\d+/.test(prefix) ? `${prefix}=${die.faces}` : prefix;
+    let valid;
+    let mod;
+    if (v === 0) {
+      mod = _prefix();
+      valid = (die.faces > 1) || (prefix === "xo");
+    } else if (v > 0) {
+      mod = (v >= die.faces) ? _prefix() : `${prefix}>=${v}`;
+      valid = (v <= die.faces) && (((v === 1) && (prefix === "xo")) || (v > 1));
+    } else if (v < 0) {
+      const m = Math.max(1, die.faces + v);
+      mod = `${prefix}>=${m}`;
+      valid = (m > 1) || (prefix == "xo");
     }
-    if (hasMax && !dm.some(m => m.match(this.constructor.REGEX.maximum))) {
-      const zero = this.maximum.zero;
-      const v = this.maximum.value;
-      const max = (v === 0) ? (zero ? 0 : 1) : (v > 0) ? v : Math.max(zero ? 0 : 1, die.faces + v);
-      if (max < die.faces) dm.push(`max${max}`);
-    }
+    if (valid || l) die.modifiers.push(mod);
+  }
+
+  /**
+   * Append applicable minimum modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyMin(die) {
+    if (!this.hasMin || die.modifiers.some(m => m.match(this.constructor.REGEX.minimum))) return;
+    const f = die.faces;
+    let mod;
+    const min = this.minimum.value;
+    if (this.minimum.maximize) mod = `min${f}`;
+    else mod = `min${(min > 0) ? Math.min(min, f) : Math.max(1, f + min)}`;
+    if (mod !== "min1") die.modifiers.push(mod);
+  }
+
+  /**
+   * Append applicable maximum modifiers to a die.
+   * @param {DieTerm} die     The die term that will be mutated.
+   */
+  _modifyMax(die) {
+    if (!this.hasMax || die.modifiers.some(m => m.match(this.constructor.REGEX.maximum))) return;
+    const zero = this.maximum.zero;
+    const v = this.maximum.value;
+    const max = (v === 0) ? (zero ? 0 : 1) : (v > 0) ? v : Math.max(zero ? 0 : 1, die.faces + v);
+    if (max < die.faces) die.modifiers.push(`max${max}`);
   }
 
   /**
    * Append applicable modifiers to a roll part.
-   * @param {string[]} parts                    The roll part. **will be mutated**
+   * @param {string[]|number[]} parts           The roll part. **will be mutated**
    * @param {object} [rollData]                 Roll data for roll construction.
    * @param {object} [options]
    * @param {boolean} [options.ignoreFirst]     Whether to ignore the 'first' property'.
@@ -158,7 +231,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (!this.hasModifiers) return;
     const first = !options.ignoreFirst && this.config.first;
     for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+      const part = String(parts[i]);
       const roll = new CONFIG.Dice.DamageRoll(part, rollData);
       if (!roll.dice.length) continue;
 

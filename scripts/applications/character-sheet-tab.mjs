@@ -58,14 +58,21 @@ export class CharacterSheetTab {
 
     div.querySelectorAll("[data-action]").forEach(n => {
       n.addEventListener("click", async (event) => {
-        const action = event.currentTarget.dataset.action;
-        const uuid = event.currentTarget.closest("[data-item-uuid]")?.dataset.itemUuid;
+        const {clientX, clientY} = event;
+        const target = event.currentTarget;
+        const action = target.dataset.action;
+        const uuid = target.closest("[data-item-uuid]")?.dataset.itemUuid;
         if (!uuid) return;
-        const bonus = await babonus.fromUuid(uuid);
         switch (action) {
-          case "toggle": return bonus.toggle();
-          case "edit": return bonus.sheet.render(true);
-          case "delete": return bonus.delete();
+          case "toggle": return (await babonus.fromUuid(uuid)).toggle();
+          case "edit": return (await babonus.fromUuid(uuid)).sheet.render(true);
+          case "delete": return (await babonus.fromUuid(uuid)).delete();
+          case "contextMenu":
+            event.preventDefault();
+            event.stopPropagation();
+            return target.dispatchEvent(new PointerEvent("contextmenu", {
+              view: window, bubbles: true, cancelable: true, clientX, clientY
+            }));
           default: return;
         }
       });
@@ -85,6 +92,49 @@ export class CharacterSheetTab {
 
     html.querySelector(".tab-body").appendChild(div.firstElementChild);
     html.querySelector("button.create-child").addEventListener("click", CharacterSheetTab._createChildBonus.bind(sheet));
+
+    new dnd5e.applications.ContextMenu5e(html, ".item[data-item-uuid]", [], {
+      onOpen: (...args) => CharacterSheetTab._onOpenContextMenu(...args)
+    });
+  }
+
+  /**
+   * Populate the context menu options.
+   * @param {HTMLElement} element     The targeted element.
+   */
+  static _onOpenContextMenu(element) {
+    const bonus = babonus.fromUuidSync(element.dataset.itemUuid);
+    ui.context.menuItems = [{
+      name: "BABONUS.ContextMenu.Edit",
+      icon: "<i class='fa-solid fa-edit'></i>",
+      callback: () => bonus.sheet.render(true)
+    }, {
+      name: "BABONUS.ContextMenu.Duplicate",
+      icon: "<i class='fa-solid fa-copy'></i>",
+      callback: () => {
+        const data = bonus.toObject();
+        data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
+        data.id = foundry.utils.randomID();
+        data.enabled = false;
+        bonus.parent.setFlag(MODULE.ID, `bonuses.${data.id}`, data);
+      }
+    }, {
+      name: "BABONUS.ContextMenu.Delete",
+      icon: "<i class='fa-solid fa-trash'></i>",
+      callback: () => bonus.deleteDialog()
+    }, {
+      name: "BABONUS.ContextMenu.Enable",
+      icon: "<i class='fa-solid fa-toggle-on'></i>",
+      condition: () => !bonus.enabled,
+      callback: () => bonus.toggle(),
+      group: "instance"
+    }, {
+      name: "BABONUS.ContextMenu.Disable",
+      icon: "<i class='fa-solid fa-toggle-off'></i>",
+      condition: () => bonus.enabled,
+      callback: () => bonus.toggle(),
+      group: "instance"
+    }];
   }
 
   /**

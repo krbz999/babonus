@@ -1,11 +1,13 @@
 import {FilterMixin} from "../filter-mixin.mjs";
 
-class BaseField extends FilterMixin(foundry.data.fields.SetField) {
+const {SetField, StringField} = foundry.data.fields;
+
+class BaseField extends FilterMixin(SetField) {
   static template = "modules/babonus/templates/parts/text-keys.hbs";
   static canExclude = true;
 
   constructor() {
-    super(new foundry.data.fields.StringField());
+    super(new StringField());
   }
 
   /** @override */
@@ -158,7 +160,7 @@ class PreparationModesField extends BaseField {
   /** @override */
   static async choices() {
     const modes = Object.entries(CONFIG.DND5E.spellPreparationModes);
-    return modes.map(([value, label]) => ({value, label}));
+    return modes.map(([value, {label}]) => ({value, label}));
   }
 }
 
