@@ -213,16 +213,15 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Turn drop data into a babonus.
-   * @param {object} data             An object of babonus data or a uuid.
-   * @returns {Promise<Babonus>}      The created babonus.
+   * @param {object} data                 An object of babonus data or a uuid.
+   * @returns {Promise<Babonus|null>}     The created babonus.
    */
   static async _fromDropData(data) {
     if (!data.uuid || (data.type !== "Babonus")) return null;
     const bonus = await babonus.fromUuid(data.uuid);
-    if (!bonus) return null;
-    const babonusData = bonus.toObject();
-    if (bonus.parent === this.document) return null;
-    babonusData.id = foundry.utils.randomID();
+    if (!bonus || (bonus.parent === this.document)) return null;
+    data = bonus.toObject();
+    data.id = foundry.utils.randomID();
     return new module.models[data.type](data, {parent: this.document});
   }
 
