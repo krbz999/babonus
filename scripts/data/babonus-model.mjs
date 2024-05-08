@@ -103,7 +103,7 @@ const {
  * @property {BonusConfiguration} bonuses
  *
  */
-class Babonus extends foundry.abstract.DataModel {
+export class Babonus extends foundry.abstract.DataModel {
   /**
    * Variable to track whether this bonus has modified dice and was halted at the first die.
    * @type {boolean}

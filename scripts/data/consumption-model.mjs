@@ -1,3 +1,6 @@
+import {MODULE} from "../constants.mjs";
+import {Babonus} from "./babonus-model.mjs";
+
 const {BooleanField, StringField, SchemaField, NumberField} = foundry.data.fields;
 
 export class ConsumptionModel extends foundry.abstract.DataModel {
@@ -59,57 +62,123 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the consumption data on the babonus creates valid consumption for the optional bonus application
-   * when rolling. If it does not, the babonus is ignored there.
-   *
-   * - For limited uses, only users who own the item in question are allowed to
-   *   edit it by subtracting uses, and the minimum required value must be a positive integer.
-   * - For quantity, only users who own the item in question are allowed to edit
-   *   it by subtracting quantities, and the minimum required value must be a positive integer.
-   * - For spell slots, the minimum required spell slot level must be a positive integer.
-   * - For effects, only users who own the effect in question are allowed to delete it.
-   * - For health, the minimum required amount of hit points must be a positive integer.
-   * - For currencies, a valid denomination must be set, and the minimum consumed must be a positive integer.
-   * - For inspiration, the roller must be a 'character' type actor.
-   * - For resources, the roller must be a 'character' type actor, and the subtype must be valid.
+   * Whether the set up in consumption can be used to create something that consumes.
+   * This looks only at the consumption data and not at anything else about the babonus.
    * @type {boolean}
    */
-  get isConsuming() {
-    if (!this.enabled || !this.bonus.isOptional || !this.type) return false;
+  get isValidConsumption() {
+    const {type, value} = this;
+    if (!MODULE.CONSUMPTION_TYPES.has(type)) return false;
+    const invalidScale = this.scales && ((this.value.max ?? Infinity) < this.value.min);
 
-    const type = this.type;
-    const min = Number.isNumeric(this.value.min) ? this.value.min : 1;
-    const parent = this.bonus.parent;
-    const isItemOwner = (parent instanceof Item) && parent.isOwner;
-    const actor = this.bonus.actor;
-    const isCharacter = (actor instanceof Actor) && (actor.type === "character");
-
-    if (type === "uses") return isItemOwner && parent.hasLimitedUses && (min > 0);
-    else if (type === "quantity") return isItemOwner && Number.isNumeric(parent.system.quantity) && (min > 0);
-    else if (type === "slots") return min > 0;
-    else if (type === "effect") return (parent instanceof ActiveEffect) && parent.isOwner;
-    else if (type === "health") return min > 0;
-    else if (type === "currency") return (this.subtype in CONFIG.DND5E.currencies) && (min > 0);
-    else if (type === "inspiration") return isCharacter;
-    else if (type === "resource") {
-      return isCharacter && (["primary", "secondary", "tertiary"].includes(this.subtype)) && (min > 0);
+    switch (type) {
+      case "uses": {
+        // The bonus must be on an item that you own, and with limited uses.
+        const item = this.bonus.parent;
+        if (!(item instanceof Item)) return false;
+        let hasUses = item.hasLimitedUses;
+        if (item.type === "feat") {
+          hasUses = hasUses && (!!item.system.uses.per) && (item.system.uses.max > 0);
+        }
+        return !invalidScale && hasUses && (value.min > 0);
+      }
+      case "quantity": {
+        const item = this.bonus.parent;
+        if (!(item instanceof Item)) return false;
+        if (this.scales && (this.value.max < this.value.min)) return false;
+        const hasQuantity = "quantity" in item.system;
+        return !invalidScale && hasQuantity && (value.min > 0);
+      }
+      case "slots": {
+        if (this.scales && (this.value.max < this.value.min)) return false;
+        return !invalidScale && (value.min > 0);
+      }
+      case "effect": {
+        return this.bonus.parent instanceof ActiveEffect;
+      }
+      case "health": {
+        if (this.scales && (this.value.max < this.value.min)) return false;
+        return !invalidScale && (value.min > 0);
+      }
+      case "currency": {
+        if (this.scales && (this.value.max < this.value.min)) return false;
+        const subtypes = new Set(Object.keys(CONFIG.DND5E.currencies));
+        return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
+      }
+      case "inspiration": {
+        return true;
+      }
+      case "hitdice": {
+        if (this.scales && (this.value.max < this.value.min)) return false;
+        const subtypes = new Set(["smallest", "largest"].concat(CONFIG.DND5E.hitDieTypes));
+        return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
+      }
+      case "resource": {
+        if (this.scales && (this.value.max < this.value.min)) return false;
+        const subtypes = new Set(["primary", "secondary", "tertiary"]);
+        return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
+      }
+      default: return false;
     }
-
-    return false;
   }
 
   /**
-   * Whether the bonus is scaling when consuming, which requires that it is consuming, has 'scales' set to true, and
-   * does not consume an effect or inspiration, which cannot scale. If the type is 'health', 'currency', or 'resource',
-   * then 'step' must be 1 or greater. Otherwise the 'max', if set, must be strictly greater than 'min'.
-   * @type {boolean}
+   * Is the actor or user able to make the change when performing the consumption?
+   * This checks for permission issues only as well as properties being existing on the actor.
+   * It does not check for correct setup of the consumption data on the bonus.
+   * This can be used to determine whether a bonus should appear in the Optional Selector, but
+   * NOT due to lack of resources.
+   * @param {Actor5e} actor     The actor performing the roll.
+   * @returns {boolean}
    */
-  get isScaling() {
-    if (!this.scales || !this.isConsuming) return false;
-    if (["effect", "inspiration"].includes(this.type)) return false;
-    else if ((this.type === "health") && !(this.value.step > 0)) return false;
-    else if ((this.type === "currency") && !(this.value.step > 0)) return false;
-    else if ((this.type === "resource") && !(this.value.step > 0)) return false;
-    return (this.value.max || Infinity) > this.value.min;
+  canActorConsume(actor) {
+    if (!this.isValidConsumption) return false;
+
+    switch (this.type) {
+      case "uses":
+      case "quantity":
+      case "effect": return this.bonus.parent.isOwner;
+      case "slots": return !!actor.system.spells && actor.isOwner;
+      case "health": return !!actor.system.attributes?.hp && actor.isOwner;
+      case "currency": return !!actor.system.currency && actor.isOwner;
+      case "inspiration":
+      case "hitdice":
+      case "resource": return (actor.type === "character") && actor.isOwner;
+      default: return false;
+    }
+  }
+
+  /**
+   * Whether there are enough remaining of the target to be consumed.
+   * @param {Actor5e|Item5e|ActiveEffect5e} document      The target of consumption.
+   * @param {number} [min]                                A different minimum value to test against.
+   * @returns {boolean}
+   */
+  canBeConsumed(document, min) {
+    if (!this.isValidConsumption) return false;
+
+    min ??= this.value.min;
+
+    switch (this.type) {
+      case "uses": return document.system.uses.value >= min;
+      case "quantity": return document.system.quantity >= min;
+      case "effect": return document.parent.effects.has(document.id);
+      case "slots": return Object.values(document.system.spells).some(({value, max, level}) => {
+        return value && max && level && (level >= min);
+      });
+      case "health": {
+        const hp = document.system.attributes.hp;
+        return (hp.value + hp.temp) >= min;
+      }
+      case "currency": return document.system.currency[this.subtype] >= min;
+      case "inspiration": return document.system.attributes.inspiration;
+      case "hitdice": {
+        const hd = document.system.attributes.hd;
+        const value = ["smallest", "largest"].includes(this.subtype) ? hd.value : hd.bySize[this.subtype] ?? 0;
+        return value >= min;
+      }
+      case "resource": return document.system.resources[this.subtype].value >= min;
+      default: return false;
+    }
   }
 }

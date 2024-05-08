@@ -175,7 +175,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     if (!this.bonus.enabled) labels.push(game.i18n.localize("BABONUS.LabelsDisabled"));
     if (this.bonus.isExclusive) labels.push(game.i18n.localize("BABONUS.LabelsExclusive"));
     if (this.bonus.isOptional) labels.push(game.i18n.localize("BABONUS.LabelsOptional"));
-    if (this.bonus.consume.isConsuming) labels.push(game.i18n.localize("BABONUS.LabelsConsuming"));
+    if (this.bonus.consume.isValidConsumption) labels.push(game.i18n.localize("BABONUS.LabelsConsuming"));
     if (this.bonus.aura.isToken) labels.push(game.i18n.localize("BABONUS.LabelsTokenAura"));
     if (this.bonus.aura.isTemplate) labels.push(game.i18n.localize("BABONUS.LabelsTemplateAura"));
 
@@ -198,20 +198,25 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       });
     } else if (consume.type === "resource") {
       ["primary", "secondary", "tertiary"].forEach(p => subtypes[p] = `BABONUS.ConsumptionTypeResource${p.capitalize()}`);
+    } else if (consume.type === "hitdice") {
+      subtypes.smallest = "DND5E.ConsumeHitDiceSmallest";
+      subtypes.largest = "DND5E.ConsumeHitDiceLargest";
+      for (const d of CONFIG.DND5E.hitDieTypes) subtypes[d] = d;
     }
     const isSlot = consume.type === "slots";
 
     return {
       enabled: consume.enabled,
       choices: {
-        currency: "BABONUS.ConsumptionTypeCurrency",
+        currency: "DND5E.Currency",
         effect: "BABONUS.ConsumptionTypeEffect",
-        health: "BABONUS.ConsumptionTypeHealth",
-        inspiration: "BABONUS.ConsumptionTypeInspiration",
+        health: "DND5E.HitPoints",
+        hitdice: "DND5E.HitDice",
+        inspiration: "DND5E.Inspiration",
         quantity: "DND5E.Quantity",
+        resource: "BABONUS.ConsumptionTypeResource",
         slots: "BABONUS.ConsumptionTypeSlots",
-        uses: "DND5E.LimitedUses",
-        resource: "BABONUS.ConsumptionTypeResource"
+        uses: "DND5E.LimitedUses"
       },
       cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
@@ -223,7 +228,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       subtypeOptions: subtypes,
       labelMin: isSlot ? "BABONUS.Smallest" : "Minimum",
       labelMax: isSlot ? "BABONUS.Largest" : "Maximum",
-      isInvalid: consume.enabled && !consume.isConsuming,
+      isInvalid: consume.enabled && !consume.isValidConsumption,
       source: consume.toObject(),
       consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null
     };
