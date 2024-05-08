@@ -290,16 +290,26 @@ export class RollHooks {
    * @returns {string[]}            An array of optional bonuses to modify a roll.
    */
   static _getDamageParts(bonuses, rollConfig) {
-    const part0 = rollConfig.rollConfigs[0];
-    const dtype = part0.type;
     const optionals = [];
     for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
       if (!bonus) continue;
-      const type = bab.hasDamageType ? bab.bonuses.damageType : dtype;
-      if (bab.isOptional) optionals.push(bab);
-      else if (type === dtype) part0.parts.push(bonus);
-      else rollConfig.rollConfigs.push({parts: [bonus], type: type});
+
+      if (bab.isOptional) {
+        optionals.push(bab);
+        continue;
+      }
+
+      let existing;
+      if (bab.hasDamageType) existing = rollConfig.rollConfigs.find(config => config.type === bab.bonuses.damageType);
+      else existing = rollConfig.rollConfigs[0];
+
+      if (existing) existing.parts.push(bonus);
+      else rollConfig.rollConfigs.push({
+        parts: [bonus],
+        type: bab.bonuses.damageType,
+        properties: [...rollConfig.rollConfigs[0].properties ?? []]
+      });
     }
     return optionals;
   }
