@@ -108,7 +108,7 @@ export class OptionalSelector {
     if (["effect", "inspiration"].includes(bonus.consume.type)) return false;
 
     // Requires step.
-    if (["health", "currency", "resource"].includes(bonus.consume.type)) return bonus.consume.value.step > 0;
+    if (["health", "currency"].includes(bonus.consume.type)) return bonus.consume.value.step > 0;
 
     // The rest scale easily.
     return true;
@@ -268,21 +268,6 @@ export class OptionalSelector {
           return acc;
         }, {});
       }
-      case "resource": {
-        const value = bonus.consume.value;
-        const subtype = bonus.consume.subtype;
-        const res = bonus.actor.system.resources[subtype];
-        if ((res.value < value.min) || !(value.step > 0)) return {};
-        const options = {};
-        for (let i = (value.min || 1); i <= Math.min(res.value, value.max || Infinity); i += value.step) {
-          options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
-            value: i,
-            label: res.label,
-            max: `${res.value}/${res.max}`
-          });
-        }
-        return options;
-      }
       default: {
         return null;
       }
@@ -403,30 +388,13 @@ export class OptionalSelector {
         this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
-      case "resource": {
-        let value;
-        let scale;
-        if (scales) {
-          value = scaleValue;
-          scale = Math.floor((parseInt(value) - consumeMin) / bonus.consume.value.step);
-        } else {
-          value = consumeMin;
-          scale = 0;
-        }
-        const resource = actor.system.resources[bonus.consume.subtype];
-        const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
-        await actor.update({[`system.resources.${bonus.consume.subtype}.value`]: resource.value - value});
-        const apply = this.callHook(bonus, actor, config);
-        this._appendToField(bonus, target, config.bonus, apply);
-        break;
-      }
       case "hitdice": {
         const t = bonus.consume.subtype;
         const denom = !["smallest", "largest"].includes(t) ? t : false;
-        let resource = Object.values(this.actor.classes).filter(cls => !denom || (cls.system.hitDice === denom));
+        let classes = Object.values(this.actor.classes).filter(cls => !denom || (cls.system.hitDice === denom));
 
         if (["smallest", "largest"].includes(t)) {
-          resource = resource.sort((lhs, rhs) => {
+          classes = classes.sort((lhs, rhs) => {
             let sort = lhs.system.hitDice.localeCompare(rhs.system.hitDice, "en", {numeric: true});
             if (t === "largest") sort *= -1;
             return sort;
@@ -436,7 +404,7 @@ export class OptionalSelector {
         const updates = [];
         let toConsume = scales ? scaleValue : consumeMin;
         const value = toConsume;
-        for (const cls of resource) {
+        for (const cls of classes) {
           const available = ((toConsume > 0) ? cls.system.levels : 0) - cls.system.hitDiceUsed;
           const delta = (toConsume > 0) ? Math.min(toConsume, available) : Math.max(toConsume, available);
           if (delta !== 0) {

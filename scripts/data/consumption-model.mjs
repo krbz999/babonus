@@ -113,11 +113,6 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
         const subtypes = new Set(["smallest", "largest"].concat(CONFIG.DND5E.hitDieTypes));
         return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
       }
-      case "resource": {
-        if (this.scales && (this.value.max < this.value.min)) return false;
-        const subtypes = new Set(["primary", "secondary", "tertiary"]);
-        return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
-      }
       default: return false;
     }
   }
@@ -142,8 +137,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
       case "health": return !!actor.system.attributes?.hp && actor.isOwner;
       case "currency": return !!actor.system.currency && actor.isOwner;
       case "inspiration":
-      case "hitdice":
-      case "resource": return (actor.type === "character") && actor.isOwner;
+      case "hitdice": return (actor.type === "character") && actor.isOwner;
       default: return false;
     }
   }
@@ -177,7 +171,6 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
         const value = ["smallest", "largest"].includes(this.subtype) ? hd.value : hd.bySize[this.subtype] ?? 0;
         return value >= min;
       }
-      case "resource": return document.system.resources[this.subtype].value >= min;
       default: return false;
     }
   }

@@ -10,8 +10,7 @@ export const MODULE = {
     "health",
     "currency",
     "inspiration",
-    "hitdice",
-    "resource"
+    "hitdice"
   ])
 };
 export const SETTINGS = {

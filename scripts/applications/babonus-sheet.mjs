@@ -196,8 +196,6 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
         subtypes[c[0]] = c[1].label;
       });
-    } else if (consume.type === "resource") {
-      ["primary", "secondary", "tertiary"].forEach(p => subtypes[p] = `BABONUS.ConsumptionTypeResource${p.capitalize()}`);
     } else if (consume.type === "hitdice") {
       subtypes.smallest = "DND5E.ConsumeHitDiceSmallest";
       subtypes.largest = "DND5E.ConsumeHitDiceLargest";
@@ -214,13 +212,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
         hitdice: "DND5E.HitDice",
         inspiration: "DND5E.Inspiration",
         quantity: "DND5E.Quantity",
-        resource: "BABONUS.ConsumptionTypeResource",
         slots: "BABONUS.ConsumptionTypeSlots",
         uses: "DND5E.LimitedUses"
       },
       cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
-      showStep: ["health", "currency", "resource"].includes(consume.type) && consume.scales,
+      showStep: ["health", "currency"].includes(consume.type) && consume.scales,
       showFormula: consume.scales,
       showMax: consume.scales,
       showSubtype: !foundry.utils.isEmpty(subtypes),
