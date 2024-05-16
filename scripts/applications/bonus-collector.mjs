@@ -1,5 +1,4 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {module} from "../data/_module.mjs";
 
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
@@ -223,7 +222,7 @@ export class BonusCollector {
       if (this.type !== data.type) return acc;
       if (!foundry.data.validators.isValidId(id)) return acc;
       try {
-        const bab = new module.models[this.type](data, {parent: document});
+        const bab = new babonus.abstract.DataModels[this.type](data, {parent: document});
         if (!this._generalFilter(bab)) return acc;
         for (const func of filterings) {
           if (!func(bab)) return acc;
@@ -324,7 +323,7 @@ export class BonusCollector {
    * @returns {boolean}     Whether the targeting applies.
    */
   _matchDisposition(tisp, bisp) {
-    const aura = module.fields.aura.OPTIONS;
+    const aura = babonus.abstract.DataFields.models.AuraModel.OPTIONS;
     if (bisp === aura.ANY) {
       // If the bonus targets everyone, immediately return true.
       return true;

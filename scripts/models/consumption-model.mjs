@@ -1,5 +1,4 @@
 import {MODULE} from "../constants.mjs";
-import {Babonus} from "./babonus-model.mjs";
 
 const {BooleanField, StringField, SchemaField, NumberField} = foundry.data.fields;
 

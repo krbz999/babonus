@@ -1,8 +1,8 @@
-import {BabonusWorkshop} from "./applications/babonus-workshop.mjs";
-import {BonusCollector} from "./applications/bonus-collector.mjs";
 import {MODULE} from "./constants.mjs";
-import {module} from "./data/_module.mjs";
-import {FilterManager} from "./filter-manager.mjs";
+import {default as applications} from "./applications/_module.mjs";
+import {default as filters} from "./filters/_module.mjs";
+import {default as models} from "./models/babonus-model.mjs";
+import {default as fields} from "./models/_module.mjs";
 
 /**
  * Set up the public API.
@@ -41,13 +41,17 @@ export function createAPI() {
     proficiencyTree: proficiencyTree,
 
     abstract: {
-      DataModels: module.models,
-      DataFields: module.filters,
-      TYPES: Object.keys(module.models)
+      DataModels: models,
+      DataFields: {
+        filters: filters,
+        models: fields
+      },
+      TYPES: Object.keys(models),
+      applications: applications
     },
 
-    filters: Object.keys(module.filters).reduce((acc, key) => {
-      acc[key] = FilterManager[key];
+    filters: Object.keys(filters).reduce((acc, key) => {
+      acc[key] = applications.FilterManager[key];
       return acc;
     }, {})
   };
@@ -146,7 +150,7 @@ async function deleteBonus(object, id) {
 async function copyBonus(original, other, id) {
   const bonus = getId(original, id);
   if (!bonus) return null;
-  return BabonusWorkshop._embedBabonus(other, bonus);
+  return applications.BabonusWorkshop._embedBabonus(other, bonus);
 }
 
 /**
@@ -172,7 +176,7 @@ async function moveBonus(original, other, id) {
 async function toggleBonus(object, id, state = null) {
   const bonus = getId(object, id);
   if (!bonus) return null;
-  return BabonusWorkshop._onToggleBonus(bonus, state);
+  return applications.BabonusWorkshop._onToggleBonus(bonus, state);
 }
 
 /**
@@ -254,7 +258,7 @@ function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {}) {
 function openBabonusWorkshop(object) {
   const validDocumentType = ["Actor", "Item", "ActiveEffect"].includes(object.documentName);
   if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
-  return new BabonusWorkshop(object).render(true);
+  return new applications.BabonusWorkshop(object).render(true);
 }
 
 /**
@@ -264,9 +268,9 @@ function openBabonusWorkshop(object) {
  * @returns {Babonus}             The created babonus.
  */
 function createBabonus(data, parent = null) {
-  if (!(data.type in module.models)) throw new Error("INVALID BABONUS TYPE.");
+  if (!(data.type in models)) throw new Error("INVALID BABONUS TYPE.");
   data.id = foundry.utils.randomID();
-  return new module.models[data.type](data, {parent});
+  return new models[data.type](data, {parent});
 }
 
 /**
@@ -292,7 +296,7 @@ function sceneTokensByDisposition(scene) {
  * @returns {object[]}                    An array of xy coordinates.
  */
 function getOccupiedGridSpaces(tokenDoc) {
-  return BonusCollector._collectTokenCenters(tokenDoc);
+  return applications.BonusCollector._collectTokenCenters(tokenDoc);
 }
 
 /**
@@ -349,7 +353,7 @@ function getCollection(object) {
     if (!foundry.data.validators.isValidId(id)) return acc;
     try {
       data.id = id;
-      const bonus = new module.models[data.type](data, {parent: object});
+      const bonus = new models[data.type](data, {parent: object});
       acc.push([id, bonus]);
     } catch (err) {
       console.warn(err);
@@ -368,8 +372,8 @@ function getCollection(object) {
 async function embedBabonus(object, bonus) {
   const validDocumentType = ["Actor", "Item", "ActiveEffect"].includes(object.documentName);
   if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
-  if (!Object.values(module.models).some(t => bonus instanceof t)) return null;
-  return BabonusWorkshop._embedBabonus(object, bonus);
+  if (!Object.values(models).some(t => bonus instanceof t)) return null;
+  return applications.BabonusWorkshop._embedBabonus(object, bonus);
 }
 
 /**
@@ -456,7 +460,7 @@ function findTokensCircle(token, size, restrictions = {}) {
   const tokens = canvas.tokens.quadtree.getObjects(rect, {
     collisionTest: ({t}) => {
       if (t.id === token.id) return false;
-      const centers = BonusCollector._collectTokenCenters(t.document);
+      const centers = applications.BonusCollector._collectTokenCenters(t.document);
       return centers.some(c => sweep.contains(c.x, c.y));
     }
   });
@@ -476,7 +480,7 @@ function findTokensRect(token, size, restrictions = {}) {
   const tokens = canvas.tokens.quadtree.getObjects(rect, {
     collisionTest: ({t}) => {
       if (t.id === token.id) return false;
-      const centers = BonusCollector._collectTokenCenters(t.document);
+      const centers = applications.BonusCollector._collectTokenCenters(t.document);
       return centers.some(c => sweep.contains(c.x, c.y));
     }
   });

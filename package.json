@@ -2,16 +2,24 @@
   "name": "babonus",
   "version": "1.0.0",
   "description": "Build-a-Bonus",
-  "scripts": {},
+  "scripts": {
+    "build": "rollup -c rollup.config.mjs"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/krbz999/babonus.git"
   },
-  "keywords": ["fvtt", "module"],
+  "keywords": [
+    "fvtt",
+    "module"
+  ],
   "author": "Zhell",
-  "bugs": {"url": "https://github.com/krbz999/babonus"},
+  "bugs": {
+    "url": "https://github.com/krbz999/babonus"
+  },
   "homepage": "https://github.com/krbz999/babonus",
   "devDependencies": {
-    "eslint": "^8.57.0"
+    "eslint": "^8.57.0",
+    "rollup": "^4.17.2"
   }
 }

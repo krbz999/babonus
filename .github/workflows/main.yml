@@ -31,10 +31,27 @@ jobs:
           version: ${{steps.get_version.outputs.version-without-v}}
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
           styles: "[\"module.css\"]"
+          esmodules: "[\"module.mjs\"]"
+
+      # Set up Node
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.10.0'
+          cache: 'npm'
+
+      # `npm ci` is recommended:
+      # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+      - name: Install Dependencies
+        run: npm ci
+
+      # Run build scripts
+      - name: Build All
+        run: npm run build
 
       # Create zip file.
       - name: Create ZIP archive
-        run: zip -r ./module.zip module.json module.css lang/ scripts/ styles/ templates/
+        run: zip -r ./module.zip module.json module.mjs module.css lang/ templates/
 
       # Create a release for this specific version.
       - name: Update Release with Files

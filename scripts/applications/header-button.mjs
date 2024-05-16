@@ -1,5 +1,3 @@
-import {AppliedBonusesDialog} from "../applications/applied-bonuses-dialog.mjs";
-import {BabonusWorkshop} from "../applications/babonus-workshop.mjs";
 import {MODULE, SETTINGS} from "../constants.mjs";
 
 /** Utility class that gets subclassed to inject header buttons on actors, items, and effects. */
@@ -47,7 +45,7 @@ class HeaderButton {
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
-      onclick: () => new BabonusWorkshop(app.document).render(true)
+      onclick: () => new babonus.abstract.applications.BabonusWorkshop(app.document).render(true)
     };
     if (this.showLabel) button.label = this.label;
     array.unshift(button);
@@ -68,7 +66,7 @@ class HeaderButtonActor extends HeaderButton {
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
-      onclick: () => new BabonusWorkshop(app.document).render(true),
+      onclick: () => new babonus.abstract.applications.BabonusWorkshop(app.document).render(true),
       label: this.label
     };
     array.unshift(button);
@@ -98,7 +96,7 @@ class HeaderButtonDialog extends HeaderButton {
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
-      onclick: () => new AppliedBonusesDialog({bonuses, dialog: app}).render(true)
+      onclick: () => new babonus.abstract.applications.AppliedBonusesDialog({bonuses, dialog: app}).render(true)
     };
     if (this.showLabel) button.label = this.label;
     array.unshift(button);
@@ -106,8 +104,8 @@ class HeaderButtonDialog extends HeaderButton {
 }
 
 export default {
-  actor: HeaderButtonActor.inject.bind(HeaderButtonActor),
-  item: HeaderButtonItem.inject.bind(HeaderButtonItem),
-  effect: HeaderButtonEffect.inject.bind(HeaderButtonEffect),
-  dialog: HeaderButtonDialog.inject.bind(HeaderButtonDialog)
+  HeaderButtonActor,
+  HeaderButtonItem,
+  HeaderButtonEffect,
+  HeaderButtonDialog
 };

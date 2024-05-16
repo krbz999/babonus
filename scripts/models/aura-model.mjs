@@ -1,5 +1,3 @@
-import {module} from "./_module.mjs";
-
 const {BooleanField, StringField, NumberField, SchemaField} = foundry.data.fields;
 
 export class AuraModel extends foundry.abstract.DataModel {
@@ -11,7 +9,7 @@ export class AuraModel extends foundry.abstract.DataModel {
       range: new StringField({required: true}),
       self: new BooleanField({initial: true}),
       disposition: new NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
-      blockers: new module.filters.auraBlockers(),
+      blockers: new babonus.abstract.DataFields.filters.auraBlockers(),
       require: new SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
         acc[k] = new BooleanField();
         return acc;

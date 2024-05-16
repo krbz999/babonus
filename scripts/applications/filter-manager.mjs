@@ -1,5 +1,4 @@
-import {MODULE, SETTINGS} from "./constants.mjs";
-import {BonusCollector} from "./applications/bonus-collector.mjs";
+import {MODULE, SETTINGS} from "../constants.mjs";
 
 export class FilterManager {
   /**
@@ -21,7 +20,7 @@ export class FilterManager {
    * @returns {Babonus[]}       A filtered array of babonuses to apply.
    */
   static hitDieCheck(actor) {
-    const bonuses = new BonusCollector({object: actor, type: "hitdie"}).returnBonuses();
+    const bonuses = new babonus.abstract.applications.BonusCollector({object: actor, type: "hitdie"}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses("hitdie", bonuses, actor);
   }
@@ -36,7 +35,7 @@ export class FilterManager {
    * @returns {Babonus[]}                           A filtered array of babonuses to apply.
    */
   static throwCheck(actor, {ability, isConcentration, isDeath}) {
-    const bonuses = new BonusCollector({object: actor, type: "throw"}).returnBonuses();
+    const bonuses = new babonus.abstract.applications.BonusCollector({object: actor, type: "throw"}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses("throw", bonuses, actor, {ability, isConcentration, isDeath});
   }
@@ -53,7 +52,7 @@ export class FilterManager {
    */
   static testCheck(actor, abilityId, {skillId, toolId, item} = {}) {
     const object = item ?? actor;
-    const bonuses = new BonusCollector({object: object, type: "test"}).returnBonuses();
+    const bonuses = new babonus.abstract.applications.BonusCollector({object: object, type: "test"}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses("test", bonuses, object, {abilityId, skillId, toolId});
   }
@@ -67,7 +66,7 @@ export class FilterManager {
    * @returns {Babonus[]}                     A filtered array of babonuses to apply.
    */
   static itemCheck(item, hookType, {spellLevel} = {}) {
-    const bonuses = new BonusCollector({object: item, type: hookType}).returnBonuses();
+    const bonuses = new babonus.abstract.applications.BonusCollector({object: item, type: hookType}).returnBonuses();
     if (!bonuses.size) return [];
     return this.finalFilterBonuses(hookType, bonuses, item, {spellLevel});
   }

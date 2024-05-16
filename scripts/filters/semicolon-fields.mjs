@@ -1,4 +1,4 @@
-import {FilterMixin} from "../filter-mixin.mjs";
+import {FilterMixin} from "./filter-mixin.mjs";
 
 const {SetField, StringField} = foundry.data.fields;
 
@@ -229,22 +229,22 @@ class ActorLanguagesField extends BaseField {
   }
 }
 
-export const fields = {
-  abilities: AbilitiesField,
-  saveAbilities: SaveAbilitiesField,
-  throwTypes: ThrowTypesField,
-  statusEffects: StatusEffectsField,
-  targetEffects: TargetEffectsField,
-  auraBlockers: AuraBlockersField,
-  creatureTypes: CreatureTypesField,
-  actorCreatureTypes: ActorCreatureTypesField,
-  baseArmors: BaseArmorsField,
-  baseTools: BaseToolsField,
-  baseWeapons: BaseWeaponsField,
-  damageTypes: DamageTypesField,
-  preparationModes: PreparationModesField,
-  skillIds: SkillIdsField,
-  spellSchools: SpellSchoolsField,
-  weaponProperties: WeaponPropertiesField,
-  actorLanguages: ActorLanguagesField
+export default {
+  AbilitiesField,
+  SaveAbilitiesField,
+  ThrowTypesField,
+  StatusEffectsField,
+  TargetEffectsField,
+  AuraBlockersField,
+  CreatureTypesField,
+  ActorCreatureTypesField,
+  BaseArmorsField,
+  BaseToolsField,
+  BaseWeaponsField,
+  DamageTypesField,
+  PreparationModesField,
+  SkillIdsField,
+  SpellSchoolsField,
+  WeaponPropertiesField,
+  ActorLanguagesField
 };
