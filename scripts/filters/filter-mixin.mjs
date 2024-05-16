@@ -1,5 +1,3 @@
-import {module} from "./_module.mjs";
-
 /**
  * A mixin function for base filter behaviour.
  * @param {Class} Base      The base class.
@@ -26,7 +24,7 @@ export function FilterMixin(Base) {
     static isFilterAvailable(filters, bonus) {
       if (this.repeatable) return true;
       if (filters.has(this.name)) return false;
-      return !!module.models[bonus.type].schema.getField(`filters.${this.name}`);
+      return !!babonus.abstract.DataModels[bonus.type].schema.getField(`filters.${this.name}`);
     }
 
     /**

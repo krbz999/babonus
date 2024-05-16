@@ -1,5 +1,4 @@
 import {MODULE} from "../constants.mjs";
-import {module} from "../data/_module.mjs";
 
 export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application) {
   /* ------------------------------- */
@@ -113,7 +112,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     data.currentBonuses.sort((a, b) => a.bonus.name.localeCompare(b.bonus.name));
 
     // New babonus buttons.
-    data.createButtons = Object.entries(module.models).map(([type, cls]) => ({
+    data.createButtons = Object.entries(babonus.abstract.DataModels).map(([type, cls]) => ({
       type, icon: cls.icon, label: `BABONUS.Type${type.capitalize()}`
     }));
 
@@ -222,7 +221,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     if (!bonus || (bonus.parent === this.document)) return null;
     data = bonus.toObject();
     data.id = foundry.utils.randomID();
-    return new module.models[data.type](data, {parent: this.document});
+    return new babonus.abstract.DataModels[data.type](data, {parent: this.document});
   }
 
   /**
@@ -232,7 +231,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   async _onClickType(event) {
     const type = event.currentTarget.dataset.type;
-    const bonus = new module.models[type]({
+    const bonus = new babonus.abstract.DataModels[type]({
       type: type,
       id: foundry.utils.randomID()
     }, {parent: this.document});
@@ -391,7 +390,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     const data = bonus.toObject();
     filters ??= new Set();
     for (const id of Object.keys(data.filters)) {
-      if (!filters.has(id) && !module.filters[id].storage(bonus)) delete data.filters[id];
+      if (!filters.has(id) && !babonus.abstract.DataFields.filters[id].storage(bonus)) delete data.filters[id];
     }
     const id = keepId ? data.id : foundry.utils.randomID();
     data.id = id;

@@ -1,5 +1,4 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {BabonusWorkshop} from "./babonus-workshop.mjs";
 
 export class CharacterSheetTab {
   /**
@@ -77,11 +76,12 @@ export class CharacterSheetTab {
         }
       });
     });
-    div.firstElementChild.addEventListener("drop", BabonusWorkshop.prototype._onDrop.bind(sheet));
+    const workshop = babonus.abstract.applications.BabonusWorkshop;
+    div.firstElementChild.addEventListener("drop", workshop.prototype._onDrop.bind(sheet));
     div.querySelectorAll("[data-item-id][draggable]").forEach(n => {
-      n.addEventListener("dragstart", BabonusWorkshop.prototype._onDragStart.bind(sheet));
+      n.addEventListener("dragstart", workshop.prototype._onDragStart.bind(sheet));
     });
-    div.querySelector("[data-action='otter-dance']").addEventListener("click", BabonusWorkshop.prototype._onOtterDance);
+    div.querySelector("[data-action='otter-dance']").addEventListener("click", workshop.prototype._onOtterDance);
     div.querySelectorAll("[data-action='bonus-source']").forEach(n => {
       n.addEventListener("click", async (event) => {
         const uuid = event.currentTarget.dataset.uuid;

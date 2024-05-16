@@ -2,28 +2,51 @@ import {MODULE} from "../constants.mjs";
 
 export class OptionalSelector {
   constructor(options) {
-    // The optional bonuses.
+    /**
+     * The optional bonuses.
+     * @type {Collection<Babonus>}
+     */
     this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));
 
-    // All bonuses.
+    /**
+     * All bonuses.
+     * @type {Collection<Babonus>}
+     */
     this.allBonuses = new foundry.utils.Collection(options.bonuses.map(o => [o.uuid, o]));
 
-    // The actor doing the roll.
+    /**
+     * The actor performing the roll.
+     * @type {Actor5e}
+     */
     this.actor = options.actor;
 
-    // The item being rolled.
+    /**
+     * The item being rolled.
+     * @type {Item5e}
+     */
     this.item = options.item;
 
-    // The spell level of any item being rolled.
+    /**
+     * The spell level of any item being rolled.
+     * @type {number}
+     */
     this.level = options.spellLevel;
 
-    // Placeholder variable for the appended content.
+    /**
+     * Placeholder variable for the appended content.
+     */
     this.form = null;
 
-    // The dialog being appended to.
+    /**
+     * The dialog being appended to.
+     * @type {Dialog}
+     */
     this.dialog = options.dialog;
 
-    // The situational bonus field to append bonuses to.
+    /**
+     * The situtional bonus field to append bonuses to.
+     * @type {HTMLElement}
+     */
     this.field = this.dialog.element[0].querySelector("[name='bonus']");
   }
 
@@ -45,8 +68,12 @@ export class OptionalSelector {
   async getData() {
     const bonuses = [];
     for (const bonus of this.bonuses) {
-      const isScaling = bonus.consume.isScaling;
-      const isConsuming = bonus.consume.isConsuming;
+
+      // For bonuses that consume, skip them if they are invalid.
+      if (bonus.consume.enabled) {
+        const valid = this.testMinimumConsumption(bonus);
+        if (!valid) continue;
+      }
 
       const data = {
         tooltip: this._getTooltip(bonus),
@@ -55,11 +82,11 @@ export class OptionalSelector {
           async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
         })
       };
-      if (isConsuming) {
-        if (!this._canSupplyMinimum(bonus)) continue;
+      if (bonus.consume.enabled) {
         const type = ["uses", "quantity"].includes(bonus.consume.type) ? "item" : bonus.consume.type;
-        data.action = isScaling ? `consume-${type}-scale` : `consume-${type}`;
-        data.options = isScaling ? this._constructScalingOptions(bonus) : null;
+        data.scales = this.doesBonusScale(bonus);
+        data.action = data.scales ? `consume-${type}-scale` : `consume-${type}`;
+        data.options = data.scales ? this._constructScalingOptions(bonus) : null;
       } else {
         data.action = "consume-none";
       }
@@ -67,6 +94,24 @@ export class OptionalSelector {
     }
 
     return {bonuses};
+  }
+
+  /**
+   * Does the bonus scale?
+   * @param {Babonus} bonus
+   * @returns {boolean}
+   */
+  doesBonusScale(bonus) {
+    if (!bonus.consume.scales || !bonus.consume.isValidConsumption) return false;
+
+    // Cannot scale.
+    if (["effect", "inspiration"].includes(bonus.consume.type)) return false;
+
+    // Requires step.
+    if (["health", "currency"].includes(bonus.consume.type)) return bonus.consume.value.step > 0;
+
+    // The rest scale easily.
+    return true;
   }
 
   /**
@@ -114,80 +159,6 @@ export class OptionalSelector {
       name = `${bonus.parent.name} (${game.i18n.localize(`DOCUMENT.${docName}`)})`;
     }
     return game.i18n.format("BABONUS.OriginName", {name});
-  }
-
-  /**
-   * Return whether you can consume the minimum requirement to add a bonus.
-   * @param {Babonus} bonus     The babonus involved.
-   * @returns {boolean}         Whether you have the minimum requirements.
-   */
-  _canSupplyMinimum(bonus) {
-    const min = bonus.consume.value.min || 1;
-
-    if (bonus.consume.type === "uses") {
-      return bonus.item.system.uses.value >= min;
-    } else if (bonus.consume.type === "quantity") {
-      return bonus.item.system.quantity >= min;
-    } else if (bonus.consume.type === "slots") {
-      return !!this._getLowestValidSpellSlotProperty(bonus);
-    } else if (bonus.consume.type === "effect") {
-      const effect = bonus.effect;
-      return effect.collection.has(effect.id);
-    } else if (bonus.consume.type === "health") {
-      const hp = this.actor.system.attributes.hp;
-      return (hp.value + (hp.temp || 0)) >= min;
-    } else if (bonus.consume.type === "currency") {
-      const subtype = bonus.consume.subtype;
-      const currency = this.actor.system.currency;
-      return (currency[subtype] || 0) >= min;
-    } else if (bonus.consume.type === "inspiration") {
-      return (this.actor.type === "character") && this.actor.system.attributes.inspiration;
-    } else if (bonus.consume.type === "resource") {
-      // Here we compare for the actor owning the bonus.
-      const actor = bonus.actor;
-      if ((actor.type !== "character") || !actor.isOwner) return false;
-      const subtype = bonus.consume.subtype;
-      const resource = actor.system.resources[subtype];
-      return (resource.value || 0) >= min;
-    }
-  }
-
-  /**
-   * Return whether you can consume the selected/minimum requirement to add a bonus
-   * when attempting to add the bonus and consume the property or document.
-   * @param {Event} event     The initiating click event.
-   * @returns {boolean}       Whether the requirement is met.
-   */
-  _canSupply(event) {
-    const bonus = this.bonuses.get(event.currentTarget.closest(".optional").dataset.bonusUuid);
-    const scales = event.currentTarget.dataset.action.endsWith("-scale");
-    if (!scales) return this._canSupplyMinimum(bonus);
-    const type = bonus.consume.type;
-    const subtype = bonus.consume.subtype;
-
-    // The value to be consumed.
-    const value = event.currentTarget.closest(".optional").querySelector(".consumption select").value;
-
-    if (type === "uses") {
-      return bonus.item.system.uses.value >= Number(value);
-    } else if (type === "quantity") {
-      return bonus.item.system.quantity >= Number(value);
-    } else if (type === "slots") {
-      return this.actor.system.spells[value].value > 0;
-    } else if (type === "health") {
-      const hp = this.actor.system.attributes.hp;
-      return (hp.value + (hp.temp || 0)) >= Number(value);
-    } else if (type === "currency") {
-      const currency = this.actor.system.currency;
-      return (currency[subtype] || 0) >= Number(value);
-    } else if (type === "inspiration") {
-      return (this.actor.type === "character") && this.actor.system.attributes.inspiration;
-    } else if (type === "resource") {
-      const actor = bonus.actor;
-      const subtype = bonus.consume.subtype;
-      const resource = actor.system.resources[subtype];
-      return (resource.value || 0) >= Number(value);
-    }
   }
 
   /**
@@ -273,25 +244,44 @@ export class OptionalSelector {
         }
         return options;
       }
-      case "resource": {
+      case "hitdice": {
         const value = bonus.consume.value;
         const subtype = bonus.consume.subtype;
-        const res = bonus.actor.system.resources[subtype];
-        if ((res.value < value.min) || !(value.step > 0)) return {};
-        const options = {};
-        for (let i = (value.min || 1); i <= Math.min(res.value, value.max || Infinity); i += value.step) {
-          options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
-            value: i,
-            label: res.label,
-            max: `${res.value}/${res.max}`
-          });
+        const hd = this.actor.system.attributes.hd;
+        if (["largest", "smallest"].includes(subtype)) {
+          return Array.fromRange(Math.min(value.max || Infinity, hd.value) + 1 - value.min, value.min).reduce((acc, n) => {
+            acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
+              value: n,
+              label: game.i18n.localize(`DND5E.ConsumeHitDice${subtype.capitalize()}`),
+              max: `${hd.value}/${hd.max}`
+            });
+            return acc;
+          }, {});
         }
-        return options;
+        const max = Math.min(hd.bySize[subtype], value.max ?? Infinity);
+        return Array.fromRange(max - value.min + 1, value.min).reduce((acc, n) => {
+          acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
+            value: n,
+            label: `${game.i18n.localize("DND5E.HitDice")} (${subtype})`,
+            max: hd.bySize[subtype]
+          });
+          return acc;
+        }, {});
       }
       default: {
         return null;
       }
     }
+  }
+
+  /**
+   * Is consumption valid and allowed?
+   * @param {Babonus} bonus
+   * @returns {boolean}
+   */
+  testMinimumConsumption(bonus) {
+    const target = ["uses", "quantity", "effect"].includes(bonus.consume.type) ? bonus.parent : this.actor;
+    return bonus.consume.canActorConsume(this.actor) && bonus.consume.canBeConsumed(target);
   }
 
   /**
@@ -303,10 +293,6 @@ export class OptionalSelector {
     target.disabled = true;
     const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
     const type = (target.dataset.action === "consume-none") ? null : bonus.consume.type;
-    if (bonus.consume.isConsuming && !this._canSupply(event)) {
-      this._displayConsumptionWarning(type);
-      return null;
-    }
     const scales = target.dataset.action.endsWith("-scale");
     const {actor, item, effect} = bonus;
     const consumeMin = parseInt(bonus.consume.value.min || 1);
@@ -402,20 +388,37 @@ export class OptionalSelector {
         this._appendToField(bonus, target, config.bonus, apply);
         break;
       }
-      case "resource": {
-        let value;
-        let scale;
-        if (scales) {
-          value = scaleValue;
-          scale = Math.floor((parseInt(value) - consumeMin) / bonus.consume.value.step);
-        } else {
-          value = consumeMin;
-          scale = 0;
+      case "hitdice": {
+        const t = bonus.consume.subtype;
+        const denom = !["smallest", "largest"].includes(t) ? t : false;
+        let classes = Object.values(this.actor.classes).filter(cls => !denom || (cls.system.hitDice === denom));
+
+        if (["smallest", "largest"].includes(t)) {
+          classes = classes.sort((lhs, rhs) => {
+            let sort = lhs.system.hitDice.localeCompare(rhs.system.hitDice, "en", {numeric: true});
+            if (t === "largest") sort *= -1;
+            return sort;
+          });
         }
-        const resource = actor.system.resources[bonus.consume.subtype];
+
+        const updates = [];
+        let toConsume = scales ? scaleValue : consumeMin;
+        const value = toConsume;
+        for (const cls of classes) {
+          const available = ((toConsume > 0) ? cls.system.levels : 0) - cls.system.hitDiceUsed;
+          const delta = (toConsume > 0) ? Math.min(toConsume, available) : Math.max(toConsume, available);
+          if (delta !== 0) {
+            updates.push({_id: cls.id, "system.hitDiceUsed": cls.system.hitDiceUsed + delta});
+            toConsume -= delta;
+            if (toConsume === 0) break;
+          }
+        }
+
+        await this.actor.updateEmbeddedDocuments("Item", updates);
+
+        const scale = scales ? (parseInt(value) - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
-        await actor.update({[`system.resources.${bonus.consume.subtype}.value`]: resource.value - value});
-        const apply = this.callHook(bonus, actor, config);
+        const apply = this.callHook(bonus, this.actor, config);
         this._appendToField(bonus, target, config.bonus, apply);
         break;
       }

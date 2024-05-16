@@ -1,7 +1,4 @@
 import {MODULE} from "../constants.mjs";
-import {module} from "../data/_module.mjs";
-import {BabonusWorkshop} from "./babonus-workshop.mjs";
-import {KeysDialog} from "./keys-dialog.mjs";
 
 export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) {
   /**
@@ -11,7 +8,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   constructor(bonus, options = {}) {
     super(bonus, options);
 
-    const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => module.filters[id].storage(bonus));
+    const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => {
+      return babonus.abstract.DataFields.filters[id].storage(bonus);
+    });
     this._filters = ids;
     this.appId = this.id;
     this.owner = bonus.parent;
@@ -76,7 +75,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     context.labels = this._prepareLabels();
     context.filters = await this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
-    context.modifierOptions = Object.entries(module.fields.modifiers.MODIFIER_MODES).reduce((acc, [k, v]) => {
+
+    const modes = babonus.abstract.DataFields.models.ModifiersModel.MODIFIER_MODES;
+    context.modifierOptions = Object.entries(modes).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.ModifiersMode${k.titleCase()}`;
       return acc;
     }, {});
@@ -127,10 +128,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   _prepareFilterPicker() {
     const keys = Object.keys(this.bonus.filters);
     return keys.reduce((acc, key) => {
-      const field = module.filters[key];
-      if (!this._filters.has(key) || field.repeatable) acc.push({
+      if (!this._filters.has(key) || babonus.abstract.DataFields.filters[key].repeatable) acc.push({
         id: key,
-        repeats: field.repeatable ? this.bonus.filters[key].length : null,
+        repeats: babonus.abstract.DataFields.filters[key].repeatable ? this.bonus.filters[key].length : null,
         label: `BABONUS.Filters${key.capitalize()}`,
         hint: `BABONUS.Filters${key.capitalize()}Tooltip`
       });
@@ -154,7 +154,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       return a.localeCompare(b);
     });
     for (const key of keys) {
-      const filter = module.filters[key];
+      const filter = babonus.abstract.DataFields.filters[key];
       if (filter) div.innerHTML += await filter.render(this.bonus);
     }
     return div.innerHTML;
@@ -169,13 +169,15 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
     labels.push(game.i18n.localize(`BABONUS.Type${this.bonus.type.capitalize()}`));
 
-    const filters = Object.keys(this.bonus.filters).filter(key => module.filters[key].storage(this.bonus)).length;
-    labels.push(game.i18n.format("BABONUS.LabelsFilters", {n: filters}));
+    const filterLabels = Object.keys(this.bonus.filters).filter(key => {
+      return babonus.abstract.DataFields.filters[key].storage(this.bonus);
+    }).length;
+    labels.push(game.i18n.format("BABONUS.LabelsFilters", {n: filterLabels}));
 
     if (!this.bonus.enabled) labels.push(game.i18n.localize("BABONUS.LabelsDisabled"));
     if (this.bonus.isExclusive) labels.push(game.i18n.localize("BABONUS.LabelsExclusive"));
     if (this.bonus.isOptional) labels.push(game.i18n.localize("BABONUS.LabelsOptional"));
-    if (this.bonus.consume.isConsuming) labels.push(game.i18n.localize("BABONUS.LabelsConsuming"));
+    if (this.bonus.consume.isValidConsumption) labels.push(game.i18n.localize("BABONUS.LabelsConsuming"));
     if (this.bonus.aura.isToken) labels.push(game.i18n.localize("BABONUS.LabelsTokenAura"));
     if (this.bonus.aura.isTemplate) labels.push(game.i18n.localize("BABONUS.LabelsTemplateAura"));
 
@@ -196,26 +198,28 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
         subtypes[c[0]] = c[1].label;
       });
-    } else if (consume.type === "resource") {
-      ["primary", "secondary", "tertiary"].forEach(p => subtypes[p] = `BABONUS.ConsumptionTypeResource${p.capitalize()}`);
+    } else if (consume.type === "hitdice") {
+      subtypes.smallest = "DND5E.ConsumeHitDiceSmallest";
+      subtypes.largest = "DND5E.ConsumeHitDiceLargest";
+      for (const d of CONFIG.DND5E.hitDieTypes) subtypes[d] = d;
     }
     const isSlot = consume.type === "slots";
 
     return {
       enabled: consume.enabled,
       choices: {
-        currency: "BABONUS.ConsumptionTypeCurrency",
+        currency: "DND5E.Currency",
         effect: "BABONUS.ConsumptionTypeEffect",
-        health: "BABONUS.ConsumptionTypeHealth",
-        inspiration: "BABONUS.ConsumptionTypeInspiration",
+        health: "DND5E.HitPoints",
+        hitdice: "DND5E.HitDice",
+        inspiration: "DND5E.Inspiration",
         quantity: "DND5E.Quantity",
         slots: "BABONUS.ConsumptionTypeSlots",
-        uses: "DND5E.LimitedUses",
-        resource: "BABONUS.ConsumptionTypeResource"
+        uses: "DND5E.LimitedUses"
       },
       cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
-      showStep: ["health", "currency", "resource"].includes(consume.type) && consume.scales,
+      showStep: ["health", "currency"].includes(consume.type) && consume.scales,
       showFormula: consume.scales,
       showMax: consume.scales,
       showSubtype: !foundry.utils.isEmpty(subtypes),
@@ -223,7 +227,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       subtypeOptions: subtypes,
       labelMin: isSlot ? "BABONUS.Smallest" : "Minimum",
       labelMax: isSlot ? "BABONUS.Largest" : "Maximum",
-      isInvalid: consume.enabled && !consume.isConsuming,
+      isInvalid: consume.enabled && !consume.isValidConsumption,
       source: consume.toObject(),
       consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null
     };
@@ -236,7 +240,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   _prepareAura() {
     const aura = this.bonus.aura;
     const isItem = this.owner instanceof Item;
-    const choices = Object.entries(module.fields.aura.OPTIONS).reduce((acc, [k, v]) => {
+    const choices = Object.entries(babonus.abstract.DataFields.models.AuraModel.OPTIONS).reduce((acc, [k, v]) => {
       acc[v] = `BABONUS.ConfigurationAuraDisposition${k.titleCase()}`;
       return acc;
     }, {});
@@ -301,8 +305,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    */
   async _onClickDeleteFilter(event) {
     const id = event.currentTarget.dataset.id;
-    const field = module.filters[id];
-    if (!field.repeatable) {
+    if (!babonus.abstract.DataFields.filters[id].repeatable) {
       this._filters.delete(id);
       return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.-=${id}`]: null});
     } else {
@@ -320,8 +323,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   _onClickAddFilter(event) {
     const id = event.currentTarget.dataset.id;
     this._filters.add(id);
-    const field = module.filters[id];
-    if (field.repeatable) {
+    if (babonus.abstract.DataFields.filters[id].repeatable) {
       const arr = this.bonus.filters[id].concat({});
       return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.${id}`]: arr});
     }
@@ -335,7 +337,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   async _onDisplayKeysDialog(event) {
     const bonus = this.bonus;
     const filterId = event.currentTarget.dataset.id;
-    const filter = module.filters[filterId];
+    const filter = babonus.abstract.DataFields.filters[filterId];
     const property = event.currentTarget.dataset.property;
     const list = await filter.choices();
     const values = foundry.utils.getProperty(bonus, property);
@@ -369,7 +371,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       }
     }
 
-    return KeysDialog.prompt({
+    return babonus.abstract.applications.KeysDialog.prompt({
       rejectClose: false,
       options: {
         filterId: filterId,
@@ -384,7 +386,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
           else if (s.value === "exclude") values.push("!" + s.dataset.value);
         });
         bonus.updateSource({[property]: values});
-        return BabonusWorkshop._embedBabonus(owner, bonus, true);
+        return babonus.abstract.applications.BabonusWorkshop._embedBabonus(owner, bonus, true);
       }
     });
   }
@@ -423,7 +425,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       ui.notifications.error(err);
       return this.render();
     }
-    return BabonusWorkshop._embedBabonus(this.owner, this.bonus, true, this._filters);
+    return babonus.abstract.applications.BabonusWorkshop._embedBabonus(this.owner, this.bonus, true, this._filters);
   }
 
   /** @override */

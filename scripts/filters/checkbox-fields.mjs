@@ -1,4 +1,4 @@
-import {FilterMixin} from "../filter-mixin.mjs";
+import {FilterMixin} from "./filter-mixin.mjs";
 
 const {SetField, NumberField, StringField, SchemaField} = foundry.data.fields;
 
@@ -172,11 +172,11 @@ class ActorCreatureSizesField extends BaseField {
   }
 }
 
-export const checkboxFields = {
-  proficiencyLevels: ProficiencyLevelsField,
-  itemTypes: ItemTypesField,
-  attackTypes: AttackTypesField,
-  spellLevels: SpellLevelsField,
-  spellComponents: SpellComponentsField,
-  actorCreatureSizes: ActorCreatureSizesField
+export default {
+  ProficiencyLevelsField,
+  ItemTypesField,
+  AttackTypesField,
+  SpellLevelsField,
+  SpellComponentsField,
+  ActorCreatureSizesField
 };
