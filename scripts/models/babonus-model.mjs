@@ -245,23 +245,17 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /**
-   * Whether the babonus is unavailable due to its parent item being unequipped, unattuned (if required), or uncrewed.
-   * This is different from a babonus that is unavailable due to its parent effect being disabled or unavailable.
+   * Whether the babonus is unavailable due to its parent item being unequipped,
+   * unattuned (if required), uncrewed, or its parent effect being inactive or suppressed.
    * @type {boolean}
    */
   get isSuppressed() {
     // If this bonus lives on an effect or template, defer to those.
     const effect = this.effect;
     if (effect) {
-      if (effect.disabled) return true;
-      const isEnchantment = effect.flags.dnd5e?.type === "enchantment";
-      if (!isEnchantment) return !effect.modifiesActor;
       if (!effect.active) return true;
-      if (effect.parent instanceof Item) {
-        const isEnchantable = dnd5e.dataModels.item.EnchantmentData.enchantableTypes.has(effect.parent.type);
-        return isEnchantable ? false : !effect.modifiesActor;
-      }
-      return false;
+      if (effect.isAppliedEnchantment) return false;
+      return !effect.modifiesActor;
     }
     const template = this.template;
     if (template) return template.hidden;
@@ -272,17 +266,12 @@ class Babonus extends foundry.abstract.DataModel {
     const actor = item.actor;
     if (!actor) return false;
 
+    // Special case for vehicle equipment since the system does not suppress 'effects' from these.
     if (actor.type === "vehicle") {
       return ("crewed" in item.system) && !item.system.crewed;
     }
 
-    // The item type must be equippable.
-    if (!("equipped" in item.system)) return false;
-
-    // The item is not equipped.
-    if (!item.system.equipped) return true;
-    // The item requires but is not attuned.
-    return item.system.attunement === CONFIG.DND5E.attunementTypes.REQUIRED;
+    return item.areEffectsSuppressed;
   }
 
   /**
