@@ -16,7 +16,7 @@
     </header>
     <div class="types">
       {{#each createButtons}}
-      <a data-action="pick-type" data-type="{{type}}">
+      <a data-action="pick-type" data-type="{{type}}" data-tooltip="{{label}}">
         <i class="{{icon}}"></i>
         <span class="label">{{localize label}}</span>
       </a>
