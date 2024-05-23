@@ -1,5 +1,3 @@
-import {MODULE, SETTINGS} from "../constants.mjs";
-
 /**
  * A helper class that collects and then hangs onto the bonuses for one particular
  * roll. The bonuses are filtered here only with regards to:
@@ -55,9 +53,9 @@ export class BonusCollector {
 
   /**
    * Reference to auras that are to be drawn later.
-   * @type {[Token5e, Q, Babonus, boolean]}
+   * @type {Set<TokenAura>}
    */
-  _auras = [];
+  auras = new Set();
 
   constructor(data) {
     // Set up type.
@@ -86,7 +84,6 @@ export class BonusCollector {
    * @returns {Collection<Babonus>}     The collection of bonuses.
    */
   returnBonuses() {
-    if (game.settings.get(MODULE.ID, SETTINGS.AURA)) this.drawAuras();
     return new foundry.utils.Collection(this.bonuses.map(b => [b.uuid, b]));
   }
 
@@ -110,9 +107,12 @@ export class BonusCollector {
 
     // Token and template auras.
     if (this.token) {
+      const _uuids = new Set();
       for (const token of this.token.scene.tokens) {
         if (token.actor && (token.actor.type !== "group") && (token !== this.token.document) && !token.hidden) {
+          if (_uuids.has(token.actor.uuid)) continue;
           bonuses.token.push(...this._collectFromToken(token));
+          _uuids.add(token.actor.uuid);
         }
       }
 
@@ -125,14 +125,14 @@ export class BonusCollector {
       bonuses.template.push(...map.values());
     }
 
-    const tokenBonuses = bonuses.token.reduce((acc, [t, p, bonus, bool]) => {
-      if (bool) acc.push(bonus);
-      return acc;
-    }, []);
-    // Save a reference to the auras for drawing them later.
-    this._auras = bonuses.token;
+    return bonuses.actor.concat(bonuses.token).concat(bonuses.template);
+  }
 
-    return bonuses.actor.concat(tokenBonuses).concat(bonuses.template);
+  /**
+   * Destroy all auras that were created and drawn during this collection.
+   */
+  destroyAuras() {
+    for (const aura of this.auras) aura.destroy({fadeOut: true});
   }
 
   /**
@@ -161,11 +161,10 @@ export class BonusCollector {
 
   /**
    * Get all bonuses that originate from another token on the scene.
-   * @param {TokenDocument5e} token                   The token.
-   * @returns {[Token5e, PIXI, Babonus, boolean]}     An array from the aura maker.
+   * @param {TokenDocument5e} token     The token.
+   * @returns {Babonus[]}               The array of aura bonuses that apply.
    */
   _collectFromToken(token) {
-    // array of arrays: token / pixi graphic / babonus / 'contained?'
     const bonuses = [];
 
     const checker = (object) => {
@@ -175,9 +174,13 @@ export class BonusCollector {
         if (!bonus.aura.isActiveTokenAura) continue; // discard blocked and suppressed auras.
         if (bonus.aura.isTemplate) continue; // discard template auras.
         if (!this._matchTokenDisposition(token, bonus)) continue; // discard invalid targeting bonuses.
-        if (this._generalFilter(bonus)) {
-          bonuses.push(this.auraMaker(token.object, bonus));
-        }
+        if (!this._generalFilter(bonus)) continue;
+
+        const aura = new babonus.abstract.applications.TokenAura(token, bonus);
+        aura.initialize(this.token);
+
+        if (aura.isApplying) bonuses.push(bonus);
+        this.auras.add(aura);
       }
     };
 
@@ -337,58 +340,16 @@ export class BonusCollector {
       return set.has(modes.FRIENDLY) && set.has(modes.HOSTILE);
     }
   }
-
-  /**
-   * Create a PIXI aura without drawing it, and return whether the roller is within it.
-   * @credit to @freeze2689
-   * @param {Token5e} token                                 A token placeable with an aura.
-   * @param {Babonus} bonus                                 The bonus with an aura.
-   * @returns {[Token5e, PIXI|null, Babonus, boolean]}      The token, the PIXI graphic, the babonus,
-   *                                                        and whether the roller is contained within.
-   */
-  auraMaker(token, bonus) {
-    const cnt = Object.values(bonus.aura.require).filter(x => x);
-    if (!cnt && !(bonus.aura.range > 0)) return [token, null, bonus, true];
-
-    const circle = babonus.createRestrictedCircle(token, bonus.aura.range, bonus.aura.require);
-    const shape = new PIXI.Graphics();
-    shape.lineStyle({width: 3, color: 0xFFFFFF, alpha: 0.75});
-    shape.beginFill(0xFFFFFF, 0.03).drawPolygon(circle).endFill();
-    const contains = this.tokenCenters.some(p => circle.contains(p.x, p.y));
-    return [token, shape, bonus, contains];
-  }
-
-  /**
-   * Draw auras on the canvas.
-   */
-  drawAuras() {
-    canvas.grid.babonusAuras ??= {};
-    for (const [token, aura, bonus, bool] of this._auras) {
-      if (!(bonus.aura.range > 0) || !token.visible || !token.renderable) continue;
-      const id = foundry.utils.randomID();
-      const container = canvas.grid.babonusAuras[id] = new PIXI.Container();
-      aura.tint = bool ? 0x00FF00 : 0xFF0000;
-      container.addChild(aura);
-      canvas.grid.addChild(container);
-      this._fadeInAura(aura, id);
-    }
-  }
-
-  /**
-   * Fade in an aura.
-   * @param {PIXI.Graphics} aura
-   * @param {string} id     Randomly generated id of an aura.
-   */
-  async _fadeInAura(aura, id) {
-    await CanvasAnimation.animate(
-      [{attribute: "alpha", parent: aura, to: 1, from: 0}],
-      {name: id, duration: 1000, easing: (x) => x * x}
-    );
-    await CanvasAnimation.animate(
-      [{attribute: "alpha", parent: aura, to: 0, from: 1}],
-      {name: id, duration: 4000, easing: (x) => x * x}
-    );
-    canvas.grid.babonusAuras?.[id]?.destroy();
-    delete canvas.grid.babonusAuras?.[id];
-  }
 }
+
+Hooks.on("refreshToken", function(token) {
+  for (const aura of Object.values(babonus._currentAuras ?? {})) {
+    if ((aura.target === token) || (aura.token === token.document)) aura.refresh();
+  }
+});
+
+Hooks.on("deleteToken", function(tokenDoc) {
+  for (const aura of Object.values(babonus._currentAuras ?? {})) {
+    if (aura.token === tokenDoc) a.destroy({fadeOut: false});
+  }
+});

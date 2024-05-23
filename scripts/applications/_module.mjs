@@ -8,6 +8,7 @@ import headerButton from "./header-button.mjs";
 import {KeysDialog} from "./keys-dialog.mjs";
 import {OptionalSelector} from "./optional-selector.mjs";
 import {RollHooks} from "./roll-hooks.mjs";
+import TokenAura from "./token-aura.mjs";
 
 export default {
   AppliedBonusesDialog,
@@ -19,5 +20,6 @@ export default {
   OptionalSelector,
   FilterManager,
   ...headerButton,
-  RollHooks
+  RollHooks,
+  TokenAura
 };
