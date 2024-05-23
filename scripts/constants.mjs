@@ -19,5 +19,6 @@ export const SETTINGS = {
   PLAYERS: "allowPlayers",
   SCRIPT: "disableCustomScriptFilter",
   FUMBLE: "allowFumbleNegation",
-  SHEET_TAB: "showSheetTab"
+  SHEET_TAB: "showSheetTab",
+  RADIUS: "padAuraRadius"
 };

@@ -14,6 +14,7 @@ export default class TokenAura {
     this.#token = token;
     this.#bonus = bonus;
     this.showAuras = game.settings.get(MODULE.ID, SETTINGS.AURA);
+    this.padRadius = !canvas.grid.isGridless || game.settings.get(MODULE.ID, SETTINGS.RADIUS);
 
     babonus._currentAuras ??= {};
     const old = babonus._currentAuras[bonus.uuid];
@@ -31,6 +32,18 @@ export default class TokenAura {
   }
   set showAuras(bool) {
     this.#showAuras = bool;
+  }
+
+  /**
+   * Do auras pad the radius due to token sizes?
+   * @type {boolean}
+   */
+  #padRadius = true;
+  get padRadius() {
+    return this.#padRadius;
+  }
+  set padRadius(bool) {
+    this.#padRadius = bool;
   }
 
   /**
@@ -169,9 +182,10 @@ export default class TokenAura {
   create() {
     if (!this.isDrawable) return null;
 
-    const {width, height} = this.token;
+    let radius = this.radius;
+    if (this.padRadius) radius += canvas.grid.distance * Math.max(this.token.width, this.token.height) * 0.5;
+
     const center = this.token.object.center;
-    const radius = this.radius + canvas.grid.distance * Math.max(width, height) * 0.5;
     const points = canvas.grid.getCircle(center, radius);
 
     let sweep = new PIXI.Polygon(points);

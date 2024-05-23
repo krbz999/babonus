@@ -55,6 +55,16 @@ function _createSettings() {
     requiresReload: false
   });
 
+  game.settings.register(MODULE.ID, SETTINGS.RADIUS, {
+    name: "BABONUS.SettingsPadAuraRadius",
+    hint: "BABONUS.SettingsPadAuraRadiusHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    requiresReload: false
+  });
+
   // Allow for modifiers to the fumble range to go below 1?
   game.settings.register(MODULE.ID, SETTINGS.FUMBLE, {
     name: "BABONUS.SettingsAllowFumbleNegationName",

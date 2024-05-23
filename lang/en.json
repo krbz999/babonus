@@ -257,6 +257,8 @@
   "BABONUS.SettingsDisableCustomScriptFilterName": "Disable 'Custom Script' filter.",
   "BABONUS.SettingsDisplayLabelHint": "If checked, the label is displayed in the header of applicable actors, items, and effects.",
   "BABONUS.SettingsDisplayLabelName": "Display Label",
+  "BABONUS.SettingsPadAuraRadius": "Pad Aura Radius",
+  "BABONUS.SettingsPadAuraRadiusHint": "On gridless scenes, extend the radius of auras due to token size?",
   "BABONUS.SettingsShowAuraRangesHint": "Create a visual indicator for the ranges of babonus auras. This does not apply to template auras or auras with unlimited ranges. If the roller is within an aura, it is marked green, otherwise red.",
   "BABONUS.SettingsShowAuraRangesName": "Show Aura Ranges",
   "BABONUS.SettingsShowBuilderForPlayersHint": "If disabled, the icon to enter the builder will not be available in the header for players.",
