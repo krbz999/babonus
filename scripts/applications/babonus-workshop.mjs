@@ -311,43 +311,31 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   async _onClickId(event) {
     const bonus = this.collection.get(event.currentTarget.closest(".bonus").dataset.id);
-    const id = (event.type === "contextmenu") ? bonus.uuid : bonus.id;
+    const id = (event.type === "contextmenu") ? bonus.id : bonus.uuid;
     await game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
-      id, label: "Babonus", type: (event.type === "contextmenu") ? "uuid" : "id"
+      id, label: "Babonus", type: (event.type === "contextmenu") ? "id" : "uuid"
     }));
   }
 
   /**
-   * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
-   * @param {Event} event                   The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus deleted.
+   * Delete a babonus on the builder when hitting its trashcan icon.
+   * @param {Event} event     The initiating click event.
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const name = this.collection.get(id).name;
-    const prompt = await Dialog.confirm({
-      title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", {name}),
-      content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", {name}),
-      options: {id: `babonus-confirm-delete-${id}`}
-    });
-    if (!prompt) return false;
-    return this.document.unsetFlag(MODULE.ID, `bonuses.${id}`);
+    const bonus = this.collection.get(id);
+    bonus.deleteDialog();
   }
 
   /**
    * Toggle the enabled property on a babonus.
-   * @param {Event} event                   The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {Event} event     The initiating click event.
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bonus = this.collection.get(id);
-    return this.constructor._onToggleBonus(bonus);
-  }
-  static async _onToggleBonus(bonus, state = null) {
-    const value = (state === null) ? !bonus.enabled : !!state;
-    return bonus.parent.update({[`flags.babonus.bonuses.${bonus.id}.enabled`]: value});
+    bonus.toggle();
   }
 
   /**

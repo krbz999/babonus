@@ -546,13 +546,15 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Toggle this bonus.
+   * @param {boolean} [state]     A specific state to set the bonus to.
    * @returns {Promise<Babonus>}
    */
-  async toggle() {
+  async toggle(state = null) {
     const path = `flags.babonus.bonuses.${this.id}.enabled`;
-    const state = foundry.utils.getProperty(this.parent, path);
-    await this.parent.update({[path]: !state});
-    this.updateSource({enabled: !state});
+    const c = foundry.utils.getProperty(this.parent, path);
+    state = [true, false].includes(state) ? state : !c;
+    await this.parent.update({[path]: state});
+    this.updateSource({enabled: state});
     return this;
   }
 
@@ -583,16 +585,27 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Present a Dialog form to confirm deletion of this bonus.
-   * @param {object} [options]    Positioning and sizing options for the resulting dialog.
+   * @param {object} [options]      Options tl configure to the dleteion
    * @returns {Promise}           A Promise which resolves to the deleted bonus.
    */
   async deleteDialog(options = {}) {
     const type = game.i18n.localize(this.constructor.metadata.label);
-    return Dialog.confirm({
-      title: `Build-a-Bonus: ${this.name}`,
-      content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
-      yes: this.delete.bind(this),
-      options: options
+    return foundry.applications.api.DialogV2.confirm({
+      window: {
+        title: `Build-a-Bonus: ${this.name}`,
+        icon: "fa-solid fa-otter"
+      },
+      content: `<p>${game.i18n.localize("AreYouSure")}</p><p>${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
+      yes: {
+        callback: () => this.delete(),
+        default: true
+      },
+      no: {
+        default: false
+      },
+      rejectClose: false,
+      modal: true,
+      ...options
     });
   }
 }

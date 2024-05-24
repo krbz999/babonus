@@ -176,7 +176,8 @@ async function moveBonus(original, other, id) {
 async function toggleBonus(object, id, state = null) {
   const bonus = getId(object, id);
   if (!bonus) return null;
-  return applications.BabonusWorkshop._onToggleBonus(bonus, state);
+  await bonus.toggle(state);
+  return object;
 }
 
 /**
