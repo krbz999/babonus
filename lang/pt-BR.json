@@ -65,6 +65,8 @@
   "BABONUS.ConsumptionTypeEffect": "Efeito Ativo",
   "BABONUS.ConsumptionTypeEffectUnavailable": "O efeito associado não existe mais.",
   "BABONUS.ConsumptionTypeHealthUnavailable": "Você não tem pontos de vida suficientes.",
+  "BABONUS.ConsumptionTypeHitdiceSubtype": "Tamanho do Dado de Vida",
+  "BABONUS.ConsumptionTypeHitdiceUnavailable": "Você não tem dados de vida suficientes restantes.",
   "BABONUS.ConsumptionTypeInspirationUnavailable": "Você não tem Inspiração.",
   "BABONUS.ConsumptionTypeQuantityUnavailable": "Você não tem a quantidade necessária do item associado.",
   "BABONUS.ConsumptionTypeSlots": "Espaço de Magia",
