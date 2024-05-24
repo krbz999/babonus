@@ -247,6 +247,7 @@
   "BABONUS.OverviewImmediateParent": "Immediate Parent",
   "BABONUS.OverviewName": "Name",
   "BABONUS.OverviewTitle": "Applied Bonuses",
+  "BABONUS.RegionConfigHint": "Open the builder for bonuses on this scene region. These will apply to any token contained within the region.",
   "BABONUS.Relative": "Relative",
   "BABONUS.SearchBonuses": "Search Bonuses",
   "BABONUS.SelectType": "Select a Type",

@@ -102,11 +102,14 @@ export class BonusCollector {
     const bonuses = {
       actor: this._collectFromSelf(),
       token: [],
-      template: []
+      template: [],
+      regions: []
     };
 
     // Token and template auras.
     if (this.token) {
+
+      // Collect token auras.
       const _uuids = new Set();
       for (const token of this.token.scene.tokens) {
         if (token.actor && (token.actor.type !== "group") && (token !== this.token.document) && !token.hidden) {
@@ -123,9 +126,15 @@ export class BonusCollector {
         for (const b of boni) map.set(`${b.item.uuid}.Babonus.${b.id}`, b);
       }
       bonuses.template.push(...map.values());
+
+      // Collection from scene regions.
+      for (const region of this.token.document.regions) {
+        const collected = this._collectFromRegion(region);
+        bonuses.regions.push(...collected);
+      }
     }
 
-    return bonuses.actor.concat(bonuses.token).concat(bonuses.template);
+    return bonuses.actor.concat(bonuses.token).concat(bonuses.template).concat(bonuses.regions);
   }
 
   /**
@@ -213,6 +222,15 @@ export class BonusCollector {
   }
 
   /**
+   * Collect bonuses from a scene region the token is standing in.
+   * @param {RegionDocument} region     The region.
+   * @returns {Babonus[]}               The array of bonuses.
+   */
+  _collectFromRegion(region) {
+    return this._collectFromDocument(region, []);
+  }
+
+  /**
    * General collection method that all other collection methods call in some fashion.
    * Gets an array of babonuses from that document.
    * @param {Document5e} document          The token, actor, item, effect, or template.
@@ -246,7 +264,7 @@ export class BonusCollector {
    */
   _generalFilter(bonus) {
     if (!bonus.enabled) return false;
-    if (bonus.isSuppressed) return false; // if the origin item (if there is one) is unequipped/unattuned.
+    if (bonus.isSuppressed) return false;
 
     // Filter for exclusivity.
     if (!bonus.isExclusive) return true;

@@ -39,15 +39,13 @@
           <input type="text" name="bonuses.{{key}}" value="{{value}}">
           {{#if isDamage}}
           <select name="bonuses.damageType">
-            {{#select selected}}
             <option value="">{{localize "DND5E.None"}}</option>
             <optgroup label="{{localize 'DND5E.Damage'}}">
-              {{selectOptions @root.config.damageTypes labelAttr="label"}}
+              {{selectOptions @root.config.damageTypes labelAttr="label" selected=selected}}
             </optgroup>
             <optgroup label="{{localize 'DND5E.Healing'}}">
-              {{selectOptions @root.config.healingTypes labelAttr="label"}}
+              {{selectOptions @root.config.healingTypes labelAttr="label" selected=selected}}
             </optgroup>
-            {{/select}}
           </select>
           {{/if}}
         </div>
@@ -299,7 +297,7 @@
       <!-- Aura Configuration -->
       <h3 class="form-header">
         {{localize "BABONUS.AuraConfiguration"}}
-        <input type="checkbox" name="aura.enabled" {{checked bonus.aura.enabled}}>
+        <input type="checkbox" name="aura.enabled" {{checked bonus.aura.enabled}} {{disabled context.aura.disabled}}>
       </h3>
 
       {{#if bonus.aura.enabled}}

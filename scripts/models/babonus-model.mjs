@@ -195,7 +195,7 @@ class Babonus extends foundry.abstract.DataModel {
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
    * @TODO once hit die rolls have a dialog as well, this should be amended.
-   * @TODO once rolls can be "remade" in 3.2.0, optional bonuses should be able to apply to other properties as well.
+   * @TODO once rolls can be "remade" in 3.3.0, optional bonuses should be able to apply to other properties as well.
    * @type {boolean}
    */
   get isOptionable() {
@@ -250,7 +250,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get isSuppressed() {
-    // If this bonus lives on an effect or template, defer to those.
+    // If this bonus lives on an effect, template, or region, defer to those.
     const effect = this.effect;
     if (effect) {
       if (!effect.active) return true;
@@ -259,6 +259,7 @@ class Babonus extends foundry.abstract.DataModel {
     }
     const template = this.template;
     if (template) return template.hidden;
+    if (this.region) return false; // a region cannot be disabled.
 
     const item = this.item;
     if (!item) return false;
@@ -386,6 +387,14 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get template() {
     return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
+  }
+
+  /**
+   * The scene region that this bonus is currently embedded on, if any.
+   * @type {SceneRegion|null}
+   */
+  get region() {
+    return (this.parent instanceof RegionDocument) ? this.parent : null;
   }
 
   /** @override */

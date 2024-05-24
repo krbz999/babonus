@@ -150,6 +150,7 @@ Hooks.on("getActorSheetHeaderButtons", (...T) => buttons.HeaderButtonActor.injec
 Hooks.on("getDialogHeaderButtons", (...T) => buttons.HeaderButtonDialog.inject(...T));
 Hooks.on("getItemSheetHeaderButtons", (...T) => buttons.HeaderButtonItem.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
+Hooks.on("renderRegionConfig", buttons.injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
 Hooks.once("ready", async function() {

@@ -252,7 +252,8 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       blockers: Array.from(aura.blockers).filterJoin(";"),
       isItem: isItem,
       isInvalid: aura.enabled && !(aura.isTemplate || aura.isToken),
-      invalidTemplate: !isItem
+      invalidTemplate: !isItem,
+      disabled: !!this.document.region // regions cannot be auras.
     };
   }
 

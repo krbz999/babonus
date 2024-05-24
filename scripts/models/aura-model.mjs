@@ -43,6 +43,9 @@ export class AuraModel extends foundry.abstract.DataModel {
       const range = dnd5e.utils.simplifyBonus(this.range, this.getRollData());
       this.range = range;
     }
+
+    // Scene regions cannot be auras.
+    if (this.bonus.region) this.enabled = false;
   }
 
   /**
