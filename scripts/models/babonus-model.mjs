@@ -1,6 +1,6 @@
 const {
   DocumentIdField, IntegerSortField, StringField, FilePathField,
-  BooleanField, EmbeddedDataField, ObjectField, SchemaField
+  BooleanField, EmbeddedDataField, ObjectField, SchemaField, HTMLField
 } = foundry.data.fields;
 
 /**
@@ -419,7 +419,7 @@ class Babonus extends foundry.abstract.DataModel {
       enabled: new BooleanField({initial: true}),
       exclusive: new BooleanField(),
       optional: new BooleanField(),
-      description: new StringField({required: true}),
+      description: new HTMLField(),
       consume: new EmbeddedDataField(babonus.abstract.DataFields.models.ConsumptionModel),
       aura: new EmbeddedDataField(babonus.abstract.DataFields.models.AuraModel),
       flags: new ObjectField()
