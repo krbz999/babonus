@@ -121,7 +121,7 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
   };
   const macro = game.macros.find(m => {
     return Object.entries(data).every(([k, v]) => m[k] === v) && m.isAuthor;
-  }) ?? await Macro.create(data);
+  }) ?? await Macro.implementation.create(data);
   return game.user.assignHotbarMacro(macro, slot);
 }
 

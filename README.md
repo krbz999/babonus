@@ -223,7 +223,21 @@ async function hotbarToggle(uuid)
 </ul>
 
 <h1 style="font-weight: bold;">Hooks</h1>
-<p>The hook, <code>babonus.applyOptionalBonus</code> is called when applying an optional bonus; after updates or deletions are performed, but before the bonus is applied to the roll. It provides the babonus, the rolling item or actor, the item, actor, or effect that was updated or deleted, and an object with the bonus that will be applied. The bonus to be applied can be modified. Explicitly returning <code>false</code> will prevent the bonus from being applied entirely.</p>
+
+<p>The below hook is called during appliction of an optional bonus.</p>
+
+```js
+/**
+ * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.
+ * @param {Babonus} babonus                             The babonus that holds the optional bonus to apply.
+ * @param {Actor5e|Item5e} roller                       The actor or item performing a roll or usage.
+ * @param {Actor5e|Item5e|ActiveEffect5e} [target]      The actor or item that was updated or deleted, if any.
+ * @param {object} config
+ * @param {string} config.bonus                         The bonus that will be applied.
+ * @returns {boolean}                                   Explicitly return false to cancel the application of the bonus.
+ */
+```
+
 <p>Two hooks are called during the filtering of the collected bonuses when making a relevant roll.</p>
 
 ```js
@@ -241,11 +255,11 @@ Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
 ```js
 /**
  * A hook that is called after the collection of bonuses has been filtered.
- * @param {Babonus[]} bonuses         The array of bonuses, after filtering.
- * @param {Actor5e|Item5e} object     The actor or item performing the roll.
- * @param {object} [details]          Additional data passed along to perform the filtering.
- * @param {string} hookType           The type of hook being executed ('attack',
- *                                    'damage', 'save', 'throw', 'test', 'hitdie').
+ * @param {Collection<Babonus>} bonuses     The array of bonuses, after filtering.
+ * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+ * @param {object} [details]                Additional data passed along to perform the filtering.
+ * @param {string} hookType                 The type of hook being executed ('attack',
+ *                                          'damage', 'save', 'throw', 'test', 'hitdie').
  */
 Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
 ````

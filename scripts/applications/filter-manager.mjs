@@ -76,7 +76,7 @@ export class FilterManager {
   /**
    * Filters the Collection of bonuses using the filters of Babonus.
    * @param {string} hookType                        The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
-   * @param {Collection<Babonus>} bonuses            The babonuses to filter.
+   * @param {Collection<Babonus>} bonuses            The babonuses to filter. **will be mutated**
    * @param {Actor5e|Item5e} object                  The actor or item used in each filter and for roll data.
    * @param {object} [details]                       Additional data necessary to pass along.
    * @param {string} [details.ability]               The ability used for the saving throw.
@@ -98,24 +98,29 @@ export class FilterManager {
      */
     Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
 
-    bonuses = bonuses.reduce((acc, bab) => {
-      const filters = Object.entries(bab.filters ?? {});
-      for (const [key, val] of filters) {
-        if (val === undefined) continue;
-        const valid = this[key].call(bab, object, val, details);
-        if (!valid) return acc;
+    const filter = (bab) => {
+      for (const [k, v] of Object.entries(bab.filters ?? {})) {
+        if (v === undefined) continue;
+        if (!FilterManager[k].call(bab, object, v, details)) {
+          return false;
+        }
       }
-      acc.push(bab);
-      return acc;
-    }, []);
+      return true;
+    };
+
+    for (const [key, bab] of bonuses.entries()) {
+      if (!filter(bab)) bonuses.delete(key);
+    }
+
     this._replaceRollDataOfBonuses(bonuses, object);
 
     /**
      * A hook that is called after the collection of bonuses has been filtered.
-     * @param {Babonus[]} bonuses         The array of bonuses, after filtering.
-     * @param {Actor5e|Item5e} object     The actor or item performing the roll.
-     * @param {object} [details]          Additional data passed along to perform the filtering.
-     * @param {string} hookType           The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
+     * @param {Collection<Babonus>} bonuses     The array of bonuses, after filtering.
+     * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+     * @param {object} [details]                Additional data passed along to perform the filtering.
+     * @param {string} hookType                 The type of hook being executed ('attack', 'damage',
+     *                                          'save', 'throw', 'test', 'hitdie').
      */
     Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
 
@@ -124,8 +129,8 @@ export class FilterManager {
 
   /**
    * Replace roll data of bonuses that originate from foreign sources, including transferred effects.
-   * @param {Babonus[]} bonuses         An array of babonuses whose bonuses to replace.
-   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {Collection<Babonus>} bonuses     A collection of babonuses whose bonuses to replace.
+   * @param {Actor5e|Item5e} object           The actor or item performing the roll.
    */
   static _replaceRollDataOfBonuses(bonuses, object) {
     const item = (object instanceof Item) ? object : null;
