@@ -125,16 +125,13 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
   return game.user.assignHotbarMacro(macro, slot);
 }
 
-/**
- * Setup the global 'trees' for proficiency searching.
- * @returns {Promise<object>}     The object of proficiency or trait trees.
- */
+/** Setup the global 'trees' for proficiency searching. */
 async function setupTree() {
   const trees = {};
   for (const k of ["languages", "weapon", "armor", "tool"]) {
     trees[k] = await dnd5e.documents.Trait.choices(k);
   }
-  return trees;
+  babonus.trees = trees;
 }
 
 // General setup.
@@ -153,7 +150,7 @@ Hooks.on("renderDialog", _renderDialog);
 Hooks.on("renderRegionConfig", buttons.injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
-Hooks.once("ready", async function() {
+Hooks.once("ready", function() {
   Hooks.on("dnd5e.preDisplayCard", applications.RollHooks.preDisplayCard);
   Hooks.on("dnd5e.preRollAbilitySave", applications.RollHooks.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", applications.RollHooks.preRollAbilityTest);
@@ -164,6 +161,5 @@ Hooks.once("ready", async function() {
   Hooks.on("dnd5e.preRollSkill", applications.RollHooks.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", applications.RollHooks.preRollToolCheck);
   Hooks.on("dnd5e.preCreateItemTemplate", applications.RollHooks.preCreateItemTemplate);
-
-  babonus.trees = await setupTree();
+  setupTree();
 });
