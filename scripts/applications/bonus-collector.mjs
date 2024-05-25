@@ -72,7 +72,7 @@ export class BonusCollector {
     // Set up canvas elements.
     this.token = this.actor.token?.object ?? this.actor.getActiveTokens()[0];
     if (this.token) {
-      this.tokenCenters = this.constructor._collectTokenCenters(this.token.document);
+      this.tokenCenters = this.constructor._collectTokenCenters(this.token);
     }
 
     this.bonuses = this._collectBonuses();
@@ -280,27 +280,26 @@ export class BonusCollector {
 
   /**
    * Get the centers of all grid spaces that overlap with a token document.
-   * @param {TokenDocument5e} tokenDoc      The token document on the scene.
-   * @returns {object[]}                    An array of xy coordinates.
+   * @param {Token5e} token     The token document on the scene.
+   * @returns {object[]}        An array of xy coordinates.
    */
-  static _collectTokenCenters(tokenDoc) {
-    const object = tokenDoc.object;
-    const {width, height, x, y} = tokenDoc;
-    const grid = canvas.scene.grid.size;
-    const halfGrid = grid / 2;
-
-    if ((width <= 1) && (height <= 1)) return [object.center];
-
-    const centers = [];
-    for (let a = 0; a < width; a++) {
-      for (let b = 0; b < height; b++) {
-        centers.push({
-          x: x + a * grid + halfGrid,
-          y: y + b * grid + halfGrid
-        });
+  static _collectTokenCenters(token) {
+    const points = [];
+    const shape = token.shape;
+    const [i, j, i1, j1] = canvas.grid.getOffsetRange(token.bounds);
+    const delta = (canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) ? canvas.dimensions.size : 1;
+    const offset = (canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) ? canvas.dimensions.size / 2 : 0;
+    for (let x = i; x < i1; x += delta) {
+      for (let y = j; y < j1; y += delta) {
+        const point = canvas.grid.getCenterPoint({i: x + offset, j: y + offset});
+        const p = {
+          x: point.x - token.document.x,
+          y: point.y - token.document.y
+        };
+        if (shape.contains(p.x, p.y)) points.push(point);
       }
     }
-    return centers;
+    return points;
   }
 
   /**
