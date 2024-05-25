@@ -87,54 +87,6 @@ Interested in following along with development of any of my modules? Join the [D
 
 ```js
 /**
- * Return a babonus that has the given id.
- * @param {Document} object     The document that has the babonus.
- * @param {string} id           The id of the babonus.
- * @returns {Babonus}           The found babonus.
- */
-function getId(object, id)
-```
-
-```js
-/**
- * Return the ids of all bonuses on the document.
- * @param {Document} object     The document that has the babonuses.
- * @returns {string[]}          An array of ids.
- */
-function getIds(object)
-```
-
-```js
-/**
- * Return a babonus that has the given name. If more are found, returns the first found.
- * @param {Document} object     The document that has the babonus.
- * @param {string} name         The name of the babonus.
- * @returns {Babonus}           The found babonus.
- */
-function getName(object, name)
-```
-
-```js
-/**
- * Return the names of all bonuses on the document.
- * @param {Document} object     The document that has the babonuses.
- * @returns {string[]}          An array of names.
- */
-function getNames(object)
-```
-
-```js
-/**
- * Return an array of the bonuses of a given type on the document.
- * @param {Document} object     The document that has the babonuses.
- * @param {string} type         The type of babonuses to find.
- * @returns {Babonus[]}         An array of babonuses.
- */
-function getType(object, type)
-```
-
-```js
-/**
  * Return the collection of bonuses on the document.
  * @param {Document} object           An actor, item, effect, or template.
  * @returns {Collection<Babonus>}     A collection of babonuses.
@@ -182,49 +134,6 @@ async function embedBabonus(object, bonus)
 
 ```js
 /**
- * Copy a babonus from a document to another.
- * @param {Document} original       A measured template, active effect, actor, or item to copy from.
- * @param {Document} other          A measured template, active effect, actor, or item to copy to.
- * @param {string} id               The id of the babonus to copy.
- * @returns {Promise<Document>}     The original after the update.
- */
-async function copyBonus(original, other, id)
-```
-
-```js
-/**
- * Delete a babonus from a document.
- * @param {Document} object         A measured template, active effect, actor, or item to delete from.
- * @param {string} id               The id of the babonus to remove.
- * @returns {Promise<Document>}     The updated document.
- */
-async function deleteBonus(object, id)
-```
-
-```js
-/**
- * Move a babonus from a document to another.
- * @param {Document} original       A measured template, active effect, actor, or item to move from.
- * @param {Document} other          A measured template, active effect, actor, or item to move to.
- * @param {string} id               The id of the babonus to move.
- * @returns {Promise<Document>}     The other document after the update.
- */
-async function moveBonus(original, other, id)
-```
-
-```js
-/**
- * Toggle a babonus on a document
- * @param {Document} object         A measured template, active effect, actor, or item.
- * @param {string} id               The id of the babonus to toggle.
- * @param {boolean} [state]         A specific toggle state to set a babonus to.
- * @returns {Promise<Document>}     The document after the update.
- */
-async function toggleBonus(object, id, state = null)
-```
-
-```js
-/**
  * Return an object of arrays of items and effects on the given document
  * that have one or more babonuses embedded in them.
  * @param {Document} object     An actor or item with embedded documents.
@@ -235,74 +144,11 @@ function findEmbeddedDocumentsWithBonuses(object)
 
 ```js
 /**
- * Return all token documents that are in range of an aura.
- * This does not take sight and movement restrictions into account.
- * @param {Document} object         The actor, item, or effect with the babonus.
- * @param {string} id               The id of the babonus.
- * @returns {TokenDocument5e[]}     An array of token documents.
- */
-function findTokensInRangeOfAura(object, id)
-```
-
-```js
-/**
- * Return an array of tokens that are within a radius of the source token.
- * Credit to @Freeze#2689 for much artistic aid.
- * @param {Token5e} source      The source token placeable.
- * @param {number} radius       The radius (usually feet) to extend from the source.
- * @param {string} [type]       The type of shape to use for locating ('circle' or 'rect').
- * @returns {Token5e[]}         An array of token placeables, excluding the source.
- */
-function findTokensInRangeOfToken(source, radius, type = "circle")
-```
-
-```js
-/**
  * Render the build-a-bonus application for a document.
  * @param {Document} object       An actor, item, or effect.
  * @returns {BabonusWorkshop}     The rendered workshop.
  */
 function openBabonusWorkshop(object)
-```
-
-```js
-/**
- * Return the ids of all templates on the scene if they contain the token document.
- * @param {TokenDocument5e} tokenDoc      The token document.
- * @param {object} [options]              Search options.
- * @param {boolean} [options.ids]         Whether to return ids or template documents.
- * @returns {string[]}                    An array of ids.
- */
-function getAllContainingTemplates(tokenDoc, {ids = true} = {})
-```
-
-```js
-/**
- * Return the minimum distance between two tokens, evaluating height and all grid spaces they occupy.
- * @param {Token5e} tokenA        One token placeable.
- * @param {Token5e} tokenB        Another token placeable.
- * @param {object} [options]      Options to modify the measurements.
- * @returns {number}              The minimum distance (in units of measurement).
- */
-function getMinimumDistanceBetweenTokens(tokenA, tokenB, options = {})
-```
-
-```js
-/**
- * Return the scene's token documents in four arrays split by disposition.
- * @param {Scene} scene     A scene that contains tokens.
- * @returns {object}        An object of the four arrays.
- */
-function sceneTokensByDisposition(scene)
-```
-
-```js
-/**
- * Get the centers of all grid spaces that overlap with a token document.
- * @param {TokenDocument5e} tokenDoc      The token document on the scene.
- * @returns {object[]}                    An array of xy coordinates.
- */
-function getOccupiedGridSpaces(tokenDoc)
 ```
 
 ```js
@@ -364,60 +210,6 @@ function proficiencyTree(key, category)
  * @returns {Promise<null|Babonus>}
  */
 async function hotbarToggle(uuid)
-```
-
-```js
-/**
- * Create pixi circle with some size and restrictions, centered on a token.
- * @param {Token5e} token             The center.
- * @param {number} size               The range in feet.
- * @param {object} [restrictions]     Wall restrictions.
- * @returns {ClockwiseSweepPolygon}
- */
-function createRestrictedCircle(token, size, restrictions = {})
-```
-
-```js
-/**
- * Create pixi rectangle with some size and restrictions, centered on a token.
- * @param {Token5e} token             The center.
- * @param {number} size               The range in feet.
- * @param {object} [restrictions]     Wall restrictions.
- * @returns {ClockwiseSweepPolygon}
- */
-function createRestrictedRect(token, size, restrictions = {})
-```
-
-```js
-/**
- * Find tokens within a given circular distance from another token.
- * @param {Token5e} token             The token that is in the center of the circle.
- * @param {number} size               The radius of the circle, in feet.
- * @param {object} [restrictions]     Valid wall restrictions within the area.
- * @returns {Token5e[]}
- */
-function findTokensCircle(token, size, restrictions = {})
-```
-
-```js
-/**
- * Find tokens within a given rectangular distance from another token.
- * @param {Token5e} token             The token that is in the center of the rectangle.
- * @param {number} size               The 'radius' of the rectangle, in feet.
- * @param {object} [restrictions]     Valid wall restrictions within the area.
- * @returns {Token5e[]}
- */
-function findTokensRect(token, size, restrictions = {})
-```
-
-```js
-/**
- * Create a rectangle of a given size centered on a token.
- * @param {Token5e} token     The token that is in the center of the rectangle.
- * @param {number} size       The 'radius' of the rectangle, in feet.
- * @returns {PIXI}
- */
-function createRect(token, size)
 ```
 
 <p>Within the API's <code>filters</code> object, you can find all the filtering functions used by the module internally. They are too numerous to list here.</p>

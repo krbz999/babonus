@@ -402,14 +402,14 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     idLink.innerHTML = "<i class=\"fa-solid fa-passport\"></i>";
     idLink.addEventListener("click", event => {
       event.preventDefault();
-      game.clipboard.copyPlainText(this.document.id);
+      game.clipboard.copyPlainText(this.document.uuid);
       ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
         label, type: "uuid", id: this.document.uuid
       }));
     });
     idLink.addEventListener("contextmenu", event => {
       event.preventDefault();
-      game.clipboard.copyPlainText(this.document.uuid);
+      game.clipboard.copyPlainText(this.document.id);
       ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
         label, type: "id", id: this.document.id
       }));
