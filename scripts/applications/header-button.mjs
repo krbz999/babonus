@@ -1,4 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
+import {AppliedBonusesDialog} from "./applied-bonuses-dialog.mjs";
 
 /** Utility class that gets subclassed to inject header buttons on actors, items, and effects. */
 class HeaderButton {
@@ -91,12 +92,12 @@ class HeaderButtonEffect extends HeaderButton {
 class HeaderButtonDialog extends HeaderButton {
   /** @override */
   static inject(app, array) {
-    const bonuses = app.options[MODULE.ID]?.bonuses;
-    if (!bonuses?.length) return;
+    const id = app.options[MODULE.ID]?.registry;
+    if (!id) return;
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
-      onclick: () => new babonus.abstract.applications.AppliedBonusesDialog({bonuses, dialog: app}).render(true)
+      onclick: () => new AppliedBonusesDialog({id, dialog: app}).render(true)
     };
     if (this.showLabel) button.label = this.label;
     array.unshift(button);

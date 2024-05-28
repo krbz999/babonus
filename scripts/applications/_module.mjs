@@ -1,4 +1,3 @@
-import {AppliedBonusesDialog} from "./applied-bonuses-dialog.mjs";
 import {BabonusSheet} from "./babonus-sheet.mjs";
 import {BabonusWorkshop} from "./babonus-workshop.mjs";
 import {BonusCollector} from "./bonus-collector.mjs";
@@ -10,7 +9,6 @@ import {RollHooks} from "./roll-hooks.mjs";
 import TokenAura from "./token-aura.mjs";
 
 export default {
-  AppliedBonusesDialog,
   BabonusSheet,
   BabonusWorkshop,
   BonusCollector,
