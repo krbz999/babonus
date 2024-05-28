@@ -68,4 +68,16 @@
     border-bottom: 2px groove;
     padding-bottom: 0.5em;
   }
+
+  .description {
+    &::before {
+      content: var(--bonus-name);
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    > * {
+      display: inline;
+    }
+  }
 }
