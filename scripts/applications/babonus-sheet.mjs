@@ -27,7 +27,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       closeOnSubmit: false,
       tabs: [{navSelector: "nav[data-group=main]", contentSelector: "div.document-tabs"}],
       resizable: true,
-      scrollY: ["[data-tab=filters]"],
+      scrollY: [".document-tabs [data-tab=filters]"],
       width: 500,
       height: null
     });
@@ -449,16 +449,5 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   /** @override */
   _onChangeTab(event, tabs, active) {
     this.setPosition({height: "auto"});
-  }
-
-  /** @override */
-  async _render(...args) {
-    const result = await super._render(...args);
-    try {
-      this.setPosition({height: "auto"});
-    } catch (err) {
-      //
-    }
-    return result;
   }
 }
