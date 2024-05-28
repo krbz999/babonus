@@ -26,7 +26,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      width: 450,
+      width: 510,
       height: 700,
       template: `modules/${MODULE.ID}/templates/babonus-workshop.hbs`,
       classes: [MODULE.ID, "builder", "dnd5e2"],
