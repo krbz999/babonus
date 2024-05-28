@@ -210,6 +210,12 @@
             <input type="checkbox" name="optional" {{checked bonus.optional}}>
             {{localize "BABONUS.ConfigurationOptional"}}
           </label>
+          {{#if bonus.canRemind}}
+          <label class="checkbox" data-tooltip-direction="UP" data-tooltip="BABONUS.ConfigurationReminderTooltip">
+            <input type="checkbox" name="reminder" {{checked bonus.reminder}}>
+            {{localize "BABONUS.ConfigurationReminder"}}
+          </label>
+          {{/if}}
         </div>
       </div>
 

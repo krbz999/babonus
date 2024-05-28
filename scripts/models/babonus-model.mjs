@@ -92,6 +92,7 @@ const {
  * @property {boolean} enabled                Whether the bonus is currently active.
  * @property {string} description             The description of the bonus.
  * @property {boolean} optional               Whether the additive bonus is opted into in the roll config.
+ * @property {boolean} reminder               Is this optional bonus just a reminder?
  * @property {boolean} exclusive              Whether the bonus is applying only to its parent item,
  *                                            or its parent effect's parent item.
  * @property {object} filters                 Schema of valid filter types.
@@ -208,6 +209,35 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get isOptional() {
     return this.optional && this.isOptionable;
+  }
+
+  /**
+   * Can this bonus act as a reminder?
+   * @type {boolean}
+   */
+  get canRemind() {
+    const valid = ["attack", "damage", "throw", "test"].includes(this.type) && !this.hasBonuses;
+    return valid && this.optional && !this.bonuses.modifiers?.hasModifiers;
+  }
+
+  /**
+   * Is this bonus a reminder, and not an actual 'bonus'?
+   * @type {boolean}
+   */
+  get isReminder() {
+    return this.reminder && this.canRemind;
+  }
+
+  /**
+   * Is this providing a bonus to any properties, or dice modifiers?
+   * @type {boolean}
+   */
+  get hasBonuses() {
+    for (const [k, v] of Object.entries(this.bonuses)) {
+      if (k === "modifiers") continue;
+      if (v) return true;
+    }
+    return !!this.bonuses.modifiers?.hasModifiers;
   }
 
   /**
@@ -419,6 +449,7 @@ class Babonus extends foundry.abstract.DataModel {
       enabled: new BooleanField({initial: true}),
       exclusive: new BooleanField(),
       optional: new BooleanField(),
+      reminder: new BooleanField(),
       description: new HTMLField(),
       consume: new EmbeddedDataField(babonus.abstract.DataFields.models.ConsumptionModel),
       aura: new EmbeddedDataField(babonus.abstract.DataFields.models.AuraModel),

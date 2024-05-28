@@ -55,6 +55,8 @@
   "BABONUS.ConfigurationOptional": "Optional",
   "BABONUS.ConfigurationOptionalTooltip": "Toggle whether this bonus should be opted into when rolling.",
   "BABONUS.ConfigurationOptionalTooltipUnavailable": "A bonus cannot be set to be optional unless it provides an additive bonus on top of an attack roll, damage roll, saving throw, or ability check.",
+  "BABONUS.ConfigurationReminder": "Reminder",
+  "BABONUS.ConfigurationReminderTooltip": "Toggle whether this bonus simply serves as a reminder.",
   "BABONUS.ConsumptionConfiguration": "Consumption",
   "BABONUS.ConsumptionOption": "({value}) of {max} {label}",
   "BABONUS.ConsumptionTypeCurrencySubtype": "Denomination",

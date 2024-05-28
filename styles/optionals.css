@@ -63,4 +63,9 @@
       }
     }
   }
+
+  .reminders:not(:last-child) {
+    border-bottom: 2px groove;
+    padding-bottom: 0.5em;
+  }
 }

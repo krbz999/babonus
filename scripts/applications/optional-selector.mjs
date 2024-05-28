@@ -21,6 +21,15 @@ export class OptionalSelector {
     this.allBonuses = new foundry.utils.Collection(registered.bonuses.map(o => [o.uuid, o]));
 
     /**
+     * The bonuses that just serve as reminders
+     * @type {Collection<Babonus>}
+     */
+    this.reminders = new foundry.utils.Collection(registered.bonuses.reduce((acc, bonus) => {
+      if (bonus.isReminder) acc.push([bonus.uuid, bonus]);
+      return acc;
+    }, []));
+
+    /**
      * The actor performing the roll.
      * @type {Actor5e}
      */
@@ -101,7 +110,18 @@ export class OptionalSelector {
       bonuses.push(data);
     }
 
-    return {bonuses};
+    const reminders = [];
+    for (const reminder of this.reminders) {
+      reminders.push({
+        uuid: reminder.uuid,
+        name: reminder.name,
+        description: await TextEditor.enrichHTML(reminder.description, {
+          async: true, rollData: reminder.getRollData(), relativeTo: reminder.origin
+        })
+      });
+    }
+
+    return {bonuses, reminders};
   }
 
   /**
@@ -139,7 +159,7 @@ export class OptionalSelector {
   async render() {
     this.form = document.createElement("DIV");
     const data = await this.getData();
-    if (!data.bonuses.length) return;
+    if (!data.bonuses.length && !data.reminders.length) return;
     this.form.innerHTML = await renderTemplate(this.template, data);
     this.activateListeners(this.form);
     const group = this.dialog.element[0].querySelector(".dialog-content > form");
