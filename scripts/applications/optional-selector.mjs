@@ -1,36 +1,42 @@
 import {MODULE} from "../constants.mjs";
+import {registry} from "./roll-hooks.mjs";
 
 export class OptionalSelector {
-  constructor(options) {
+  /**
+   * @constructor
+   * @param {string} id     Id for the registry.
+   */
+  constructor(id) {
+    const registered = registry.get(id);
     /**
      * The optional bonuses.
      * @type {Collection<Babonus>}
      */
-    this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));
+    this.bonuses = new foundry.utils.Collection(registered.optionals.map(o => [o.uuid, o]));
 
     /**
      * All bonuses.
      * @type {Collection<Babonus>}
      */
-    this.allBonuses = new foundry.utils.Collection(options.bonuses.map(o => [o.uuid, o]));
+    this.allBonuses = new foundry.utils.Collection(registered.bonuses.map(o => [o.uuid, o]));
 
     /**
      * The actor performing the roll.
      * @type {Actor5e}
      */
-    this.actor = options.actor;
+    this.actor = registered.actor;
 
     /**
      * The item being rolled.
      * @type {Item5e}
      */
-    this.item = options.item;
+    this.item = registered.item;
 
     /**
      * The spell level of any item being rolled.
      * @type {number}
      */
-    this.level = options.spellLevel;
+    this.level = registered.spellLevel;
 
     /**
      * Placeholder variable for the appended content.
@@ -41,18 +47,20 @@ export class OptionalSelector {
      * The dialog being appended to.
      * @type {Dialog}
      */
-    this.dialog = options.dialog;
-
-    /**
-     * The situtional bonus field to append bonuses to.
-     * @type {HTMLElement}
-     */
-    this.field = this.dialog.element[0].querySelector("[name='bonus']");
+    this.dialog = registered.dialog;
   }
 
   /** @override */
   get template() {
     return `modules/${MODULE.ID}/templates/subapplications/optional-selector.hbs`;
+  }
+
+  /**
+   * The situational bonus field to append bonuses to.
+   * @type {HTMLElement}
+   */
+  get field() {
+    return this.dialog.element[0].querySelector("[name=bonus]");
   }
 
   /*************************************/

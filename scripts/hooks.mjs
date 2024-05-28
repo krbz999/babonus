@@ -2,6 +2,8 @@ import {MODULE, SETTINGS} from "./constants.mjs";
 import {default as buttons} from "./applications/header-button.mjs";
 import {createAPI} from "./api.mjs";
 import {default as applications} from "./applications/_module.mjs";
+import {registry} from "./applications/roll-hooks.mjs";
+import {OptionalSelector} from "./applications/optional-selector.mjs";
 
 /**
  * Render the optional bonus selector on a roll dialog.
@@ -9,10 +11,11 @@ import {default as applications} from "./applications/_module.mjs";
  * @param {Dialog} dialog     The dialog being rendered.
  */
 async function _renderDialog(dialog) {
-  const optionals = dialog.options.babonus?.optionals;
-  if (!optionals?.length) return;
-  dialog.options.babonus.dialog = dialog;
-  new applications.OptionalSelector(dialog.options.babonus).render();
+  const m = dialog.options.babonus;
+  if (!m) return;
+  const r = registry.get(m.registry);
+  r.dialog = dialog;
+  new OptionalSelector(m.registry).render();
 }
 
 /* Settings. */

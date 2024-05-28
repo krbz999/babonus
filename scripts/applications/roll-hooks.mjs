@@ -1,5 +1,14 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
 
+class RollRegister extends Map {
+  register(bonuses) {
+    const id = foundry.utils.randomID();
+    this.set(id, bonuses);
+    return id;
+  }
+}
+export const registry = new RollRegister();
+
 /** Utility class for the various roll hooks. */
 export class RollHooks {
 
@@ -13,7 +22,9 @@ export class RollHooks {
 
     // Get bonuses:
     const bonuses = babonus.abstract.applications.FilterManager.itemCheck(item, "save", {spellLevel: item.system.level});
-    if (!bonuses.length) return;
+    if (!bonuses.size) return;
+    const id = registry.register(bonuses);
+
     const rollConfig = {data: item.getRollData({deterministic: true})};
     RollHooks._addTargetData(rollConfig);
     const totalBonus = bonuses.reduce((acc, bab) => {
@@ -47,7 +58,7 @@ export class RollHooks {
     // get bonuses:
     const spellLevel = rollConfig.data.item.level;
     const bonuses = babonus.abstract.applications.FilterManager.itemCheck(item, "attack", {spellLevel});
-    if (!bonuses.length) return;
+    if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
     // Gather up all bonuses.
@@ -64,10 +75,16 @@ export class RollHooks {
       mods.fumble += dnd5e.utils.simplifyBonus(bab.bonuses.fumbleRange, rollConfig.data);
     }
 
-    // Add parts.
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {
-      optionals, actor: item.actor, spellLevel, item, bonuses
+    const id = registry.register({
+      optionals: optionals,
+      actor: item.actor,
+      spellLevel: spellLevel,
+      item: item,
+      bonuses: bonuses
     });
+
+    // Add parts.
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
 
     // Add modifiers to raise/lower the criticial and fumble.
     rollConfig.critical = (rollConfig.critical ?? 20) - mods.critical;
@@ -88,14 +105,19 @@ export class RollHooks {
     // get bonus:
     const spellLevel = rollConfig.data.item.level;
     const bonuses = babonus.abstract.applications.FilterManager.itemCheck(item, "damage", {spellLevel});
-    if (!bonuses.length) return;
+    if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
-    // add to parts:
-    const optionals = RollHooks._getDamageParts(bonuses, rollConfig, "rollConfigs");
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {
-      optionals, actor: item.actor, spellLevel, item, bonuses
+    const id = registry.register({
+      optionals: RollHooks._getDamageParts(bonuses, rollConfig, "rollConfigs"),
+      actor: item.actor,
+      spellLevel: spellLevel,
+      item: item,
+      bonuses: bonuses
     });
+
+    // add to parts:
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
 
     // add to crit bonus dice:
     rollConfig.criticalBonusDice = bonuses.reduce((acc, bab) => {
@@ -133,7 +155,7 @@ export class RollHooks {
   static preRollSave(actor, rollConfig, {ability, isDeath, isConcentration} = {}) {
     // get bonus:
     const bonuses = babonus.abstract.applications.FilterManager.throwCheck(actor, {ability, isDeath, isConcentration});
-    if (!bonuses.length) return;
+    if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
     // Gather up all bonuses.
@@ -150,8 +172,14 @@ export class RollHooks {
       accum.critical += dnd5e.utils.simplifyBonus(bab.bonuses.deathSaveCritical, rollConfig.data);
     }
 
+    const id = registry.register({
+      optionals: optionals,
+      actor: actor,
+      bonuses: bonuses
+    });
+
     // Add parts.
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
 
     // Add modifiers to raise/lower the target value and critical threshold.
     if (Number.isNumeric(rollConfig.targetValue)) {
@@ -195,10 +223,16 @@ export class RollHooks {
    */
   static preRollAbilityTest(actor, rollConfig, abilityId) {
     const bonuses = babonus.abstract.applications.FilterManager.testCheck(actor, abilityId);
-    if (!bonuses.length) return;
+    if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
-    const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
+
+    const id = registry.register({
+      optionals: RollHooks._getParts(bonuses, rollConfig),
+      actor: actor,
+      bonuses: bonuses
+    });
+
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
 
   /**
@@ -211,10 +245,16 @@ export class RollHooks {
   static preRollSkill(actor, rollConfig, skillId) {
     const abilityId = actor.system.skills[skillId].ability;
     const bonuses = babonus.abstract.applications.FilterManager.testCheck(actor, abilityId, {skillId});
-    if (!bonuses.length) return;
+    if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
-    const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
+
+    const id = registry.register({
+      optionals: RollHooks._getParts(bonuses, rollConfig),
+      actor: actor,
+      bonuses: bonuses
+    });
+
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
 
   /**
@@ -226,11 +266,20 @@ export class RollHooks {
    */
   static preRollToolCheck(actor, rollConfig, toolId) {
     const abilityId = rollConfig.ability || rollConfig.data.defaultAbility;
-    const bonuses = babonus.abstract.applications.FilterManager.testCheck(actor, abilityId, {toolId, item: rollConfig.item ?? null});
-    if (!bonuses.length) return;
+    const bonuses = babonus.abstract.applications.FilterManager.testCheck(actor, abilityId, {
+      toolId,
+      item: rollConfig.item ?? null
+    });
+    if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
-    const optionals = RollHooks._getParts(bonuses, rollConfig);
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}`, {optionals, actor, bonuses});
+
+    const id = registry.register({
+      optionals: RollHooks._getParts(bonuses, rollConfig),
+      actor: actor,
+      bonuses: bonuses
+    });
+
+    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
 
   /**
@@ -241,7 +290,7 @@ export class RollHooks {
    */
   static preRollHitDie(actor, rollConfig, denomination) {
     const bonuses = babonus.abstract.applications.FilterManager.hitDieCheck(actor);
-    if (!bonuses.length) return;
+    if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
     // Construct an array of parts.
