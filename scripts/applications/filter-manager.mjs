@@ -14,6 +14,12 @@ export class FilterManager {
 
   //#region
 
+  /**
+   * @param {Actor5e|Item5e} object     Actor or item performing the roll.
+   * @param {string} type               The type of roll.
+   * @param {object} [details]          Details for filtering.
+   * @returns {Collection<Babonus>}     The filtered Collection.
+   */
   static check(object, type, details = {}) {
     const collector = new babonus.abstract.applications.BonusCollector({
       object: object,
@@ -27,8 +33,8 @@ export class FilterManager {
 
   /**
    * Initiate the collection and filtering of bonuses applying to hit die rolls.
-   * @param {Actor5e} actor     The actor performing the roll.
-   * @returns {Babonus[]}       A filtered array of babonuses to apply.
+   * @param {Actor5e} actor             The actor performing the roll.
+   * @returns {Collection<Babonus>}     The filtered Collection.
    */
   static hitDieCheck(actor) {
     return this.check(actor, "hitdie");
@@ -41,7 +47,7 @@ export class FilterManager {
    * @param {string} [details.ability]              The ability used for the saving throw.
    * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
    * @param {boolean} [details.isDeath]             Is this a death saving throw?
-   * @returns {Babonus[]}                           A filtered array of babonuses to apply.
+   * @returns {Collection<Babonus>}                 The filtered Collection.
    */
   static throwCheck(actor, {ability, isConcentration, isDeath}) {
     return this.check(actor, "throw", {ability, isConcentration, isDeath});
@@ -55,7 +61,7 @@ export class FilterManager {
    * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
    * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
    * @param {Item5e} [details.item]         The tool being used if rolled from an item instead.
-   * @returns {Babonus[]}                   A filtered array of babonuses to apply.
+   * @returns {Collection<Babonus>}         The filtered Collection.
    */
   static testCheck(actor, abilityId, {skillId, toolId, item} = {}) {
     return this.check(item ?? actor, "test", {abilityId, skillId, toolId});
@@ -67,7 +73,7 @@ export class FilterManager {
    * @param {string} hookType                 The type of hook ('attack', 'damage', or 'save').
    * @param {object} [details]                Additional context for the filtering and checks.
    * @param {number} [details.spellLevel]     The level of the spell, if needed.
-   * @returns {Babonus[]}                     A filtered array of babonuses to apply.
+   * @returns {Collection<Babonus>}           The filtered Collection.
    */
   static itemCheck(item, hookType, {spellLevel} = {}) {
     return this.check(item, hookType, {spellLevel});
@@ -86,7 +92,7 @@ export class FilterManager {
    * @param {string} [details.skillId]               The id of the skill, in case of skill checks.
    * @param {number} [details.spellLevel]            The level of the spell, if needed.
    * @param {string} [details.toolId]                The id of the tool type, in case of tool checks.
-   * @returns {Babonus[]}                            The filtered Collection.
+   * @returns {Collection<Babonus>}                  The filtered Collection.
    */
   static finalFilterBonuses(hookType, bonuses, object, details = {}) {
     /**
