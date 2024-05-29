@@ -74,8 +74,8 @@ class StatusEffectsField extends BaseField {
 
   /** @override */
   static async choices() {
-    return CONFIG.statusEffects.reduce((acc, {id, icon, name}) => {
-      if (id && icon && name) acc.push({value: id, label: name, icon: icon});
+    return CONFIG.statusEffects.reduce((acc, {id, img, name}) => {
+      if (id && img && name) acc.push({value: id, label: name, icon: img});
       return acc;
     }, []);
   }

@@ -1,62 +1,50 @@
 .babonus.keys-dialog {
-  min-width: 300px;
-  min-height: 400px;
+  min-width: 400px;
 
   .dialog-content {
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    padding: 0 3px;
 
-    & table {
-      height: 100%;
+    .table {
+      margin: 0;
+      border-radius: 0;
 
-      & tbody {
-        height: 100%;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
+      & header {
+        display: grid;
+        grid-template-columns: 2fr 3fr;
+
+        .value, .state {
+          flex: 1;
+          border: none;
+          font-size: 20px;
+          margin: 10px auto;
+          text-align: center;
+        }
       }
 
-      & tr {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
+      .body {
+        max-height: 400px;
+        overflow: hidden auto;
 
-        &.category {
-          font-weight: bold;
-        }
+        .category { font-weight: bold; }
 
-        & td {
-          display: flex;
-          align-items: center;
+        .row {
+          display: grid;
+          grid-template-columns: 2fr 3fr;
 
-          & > * {
-            flex: 1;
-          }
+          .value, .select {
+            padding: 0;
+            line-height: 2em;
 
-          & img {
-            height: 25px;
-            border: none;
-          }
+            & img { height: 1.5em; border: none; }
 
-          &:first-child > * {
-            padding-left: 1em;
-            justify-content: left;
-            flex-direction: row;
-            display: flex;
-            gap: 0.5em;
-            align-items: center;
-          }
-
-          &:not(:first-child) {
-            text-align: center;
+            &.select {
+              display: flex;
+              align-items: center;
+              gap: 1em;
+              margin: 0 1em;
+            }
           }
         }
       }
     }
-  }
-
-  .dialog-buttons {
-    flex: 0;
   }
 }

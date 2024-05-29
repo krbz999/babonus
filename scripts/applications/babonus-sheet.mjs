@@ -373,22 +373,22 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     }
 
     return babonus.abstract.applications.KeysDialog.prompt({
-      rejectClose: false,
-      options: {
-        filterId: filterId,
-        appId: this.appId,
-        values: categories.length ? categories.concat(list) : list,
-        canExclude: filter.canExclude
+      ok: {
+        label: "BABONUS.KeysDialogApplySelection",
+        icon: "fa-solid fa-check",
+        callback: async function(event, button, html) {
+          const values = [];
+          html.querySelectorAll(".table .select select").forEach(s => {
+            if (s.value === "include") values.push(s.dataset.value);
+            else if (s.value === "exclude") values.push("!" + s.dataset.value);
+          });
+          bonus.updateSource({[property]: values});
+          return babonus.abstract.applications.BabonusWorkshop._embedBabonus(owner, bonus, true);
+        }
       },
-      callback: async function(html) {
-        const values = [];
-        html[0].querySelectorAll("select").forEach(s => {
-          if (s.value === "include") values.push(s.dataset.value);
-          else if (s.value === "exclude") values.push("!" + s.dataset.value);
-        });
-        bonus.updateSource({[property]: values});
-        return babonus.abstract.applications.BabonusWorkshop._embedBabonus(owner, bonus, true);
-      }
+      filterId: filterId,
+      values: categories.length ? categories.concat(list) : list,
+      canExclude: filter.canExclude
     });
   }
 
