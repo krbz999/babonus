@@ -82,6 +82,27 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       return acc;
     }, {});
 
+    // Root fields.
+    context.root = {
+      enabled: {
+        field: this.bonus.schema.getField("enabled"),
+        value: this.bonus.enabled
+      },
+      exclusive: {
+        field: this.bonus.schema.getField("exclusive"),
+        value: this.bonus.exclusive
+      },
+      optional: {
+        field: this.bonus.schema.getField("optional"),
+        value: this.bonus.optional
+      },
+      reminder: {
+        field: this.bonus.schema.getField("reminder"),
+        value: this.bonus.reminder,
+        disabled: !this.bonus.canRemind
+      }
+    };
+
     return {
       bonus: this.bonus,
       editable: this.isEditable,
@@ -199,15 +220,16 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    * @returns {object}
    */
   _prepareConsume() {
-    const consume = this.bonus.consume;
-    const v = consume.value;
-
+    const v = this.bonus.consume.value;
     const isSlot = this.bonus.consume.type === "slots";
     const schema = this.bonus.schema;
     const scales = this.bonus.consume.scales;
 
     const context = {
-      enabled: this.bonus.consume.enabled,
+      enabled: {
+        field: schema.getField("consume.enabled"),
+        value: this.bonus.consume.enabled
+      },
       source: this.bonus.consume.toObject(),
       consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null,
       type: {

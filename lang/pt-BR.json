@@ -37,18 +37,8 @@
   "ConfigurationAuraValidTargetsTooltip": "Quais alvos devem ser afetados por esta aura, em relação à disposição do token de origem.",
   "ConfigurationConsumptionConsume": "Consumir:",
   "ConfigurationConsumptionInvalid": "Este bônus não pode consumir nenhum valor no momento.",
-  "ConfigurationConsumptionTooltip": "Configure se e como o bônus consome uma propriedade.",
-  "ConfigurationConsumptionTooltipUnavailable": "Um bônus não pode ser definido para consumo, a menos que seja opcional.",
   "ConfigurationCopyTooltip": "Crie uma duplicata deste bônus",
   "ConfigurationEditTooltip": "Edite este bônus",
-  "ConfigurationEnabled": "Habilitado",
-  "ConfigurationEnabledTooltip": "Ative ou desative este bônus. Um bônus desativado será completamente ignorado",
-  "ConfigurationExclusive": "Exclusivo",
-  "ConfigurationExclusiveTooltip": "Alterne se este bônus se aplica apenas ao item em que foi criado.",
-  "ConfigurationExclusiveTooltipUnavailable": "Um bônus não pode ser definido para ser aplicado apenas a um item específico, a menos que seja criado nesse item e aplicado a ataques, danos, CDs de salvaguarda ou testes de ferramentas.",
-  "ConfigurationOptional": "Opcional",
-  "ConfigurationOptionalTooltip": "Alterne se este bônus deve ser ativado ao rolar.",
-  "ConfigurationOptionalTooltipUnavailable": "Um bônus não pode ser definido como opcional, a menos que forneça um bônus aditivo além de uma jogada de ataque, jogada de dano, salvaguarda ou teste de atributo.",
   "ConsumptionConfiguration": "Consumo",
   "ConsumptionOption": "({value}) de {max} {label}",
   "ConsumptionTypeCurrencySubtype": "Denominação",
@@ -78,6 +68,9 @@
   "Example": "Exemplo",
   "Fields": {
     "Consume": {
+      "Enabled": {
+        "Hint": "Configure se e como o bônus consome uma propriedade. Um bônus não pode ser definido para consumo, a menos que seja opcional."
+      },
       "Formula": {
         "Label": "Fórmula de Escala"
       },
@@ -94,6 +87,18 @@
       "ValueStep": {
         "Label": "Etapa"
       }
+    },
+    "Enabled": {
+      "Hint": "Ative ou desative este bônus. Um bônus desativado será completamente ignorado",
+      "Label": "Habilitado"
+    },
+    "Exclusive": {
+      "Hint": "Alterne se este bônus se aplica apenas ao item em que foi criado. Um bônus não pode ser definido para ser aplicado apenas a um item específico, a menos que seja criado nesse item e aplicado a ataques, danos, CDs de salvaguarda ou testes de ferramentas.",
+      "Label": "Exclusivo"
+    },
+    "Optional": {
+      "Hint": "Alterne se este bônus deve ser ativado ao rolar. Um bônus não pode ser definido como opcional, a menos que forneça um bônus aditivo além de uma jogada de ataque, jogada de dano, salvaguarda ou teste de atributo.",
+      "Label": "Opcional"
     }
   },
   "Filters": "Filtros",

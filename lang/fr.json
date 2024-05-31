@@ -37,18 +37,8 @@
   "ConfigurationAuraValidTargetsTooltip": "Quelles cibles doivent être affectées par cette aura, en fonction de la disposition du jeton d'origine.",
   "ConfigurationConsumptionConsume": "Consommer:",
   "ConfigurationConsumptionInvalid": "Ce bonus ne peut actuellement consommer aucune valeur.",
-  "ConfigurationConsumptionTooltip": "Configurer si et comment le bonus consomme une propriété.",
-  "ConfigurationConsumptionTooltipUnavailable": "Un bonus ne peut être mis en \"consommation\" que si il est facultatif.",
   "ConfigurationCopyTooltip": "Créez un duplicata de ce bonus",
   "ConfigurationEditTooltip": "Modifiez ce bonus",
-  "ConfigurationEnabled": "Activé",
-  "ConfigurationEnabledTooltip": "Activez ou désactivez ce bonus. Un bonus qui est désactivé sera complètement ignoré, même s'il s'agit d'une aura.",
-  "ConfigurationExclusive": "Exclusif",
-  "ConfigurationExclusiveTooltip": "Permet d'indiquer si ce bonus s'applique uniquement à l'objet sur lequel il est créé.",
-  "ConfigurationExclusiveTooltipUnavailable": "Un bonus ne peut pas s'appliquer à un seul objet spécifique, à moins d'être créé sur cet objet, et de s'appliquer aux tests d'attaque, de dégâts, de sauvegarde ou d'outil.",
-  "ConfigurationOptional": "Optionnel",
-  "ConfigurationOptionalTooltip": "Permet d'indiquer si ce bonus doit être pris en compte lors du jet.",
-  "ConfigurationOptionalTooltipUnavailable": "Un bonus ne peut être défini comme optionnel que s'il apporte un bonus supplémentaire à un jet d'attaque, un jet de dégâts, un jet de sauvegarde ou un jet de caractéristique.",
   "ConsumptionConfiguration": "Consommation",
   "ConsumptionOption": "({value}) de {max} {label}",
   "ConsumptionTypeCurrencySubtype": "Dénomination",
@@ -69,6 +59,9 @@
   "Example": "Exemple",
   "Fields": {
     "Consume": {
+      "Enabled": {
+        "Hint": "Configurer si et comment le bonus consomme une propriété. Un bonus ne peut être mis en \"consommation\" que si il est facultatif."
+      },
       "Formula": {
         "Label": "Formule d'évolution"
       },
@@ -85,6 +78,18 @@
       "ValueStep": {
         "Label": "Étape"
       }
+    },
+    "Enabled": {
+      "Hint": "Activez ou désactivez ce bonus. Un bonus qui est désactivé sera complètement ignoré, même s'il s'agit d'une aura.",
+      "Label": "Activé"
+    },
+    "Exclusive": {
+      "Hint": "Permet d'indiquer si ce bonus s'applique uniquement à l'objet sur lequel il est créé. Un bonus ne peut pas s'appliquer à un seul objet spécifique, à moins d'être créé sur cet objet, et de s'appliquer aux tests d'attaque, de dégâts, de sauvegarde ou d'outil.",
+      "Label": "Exclusif"
+    },
+    "Optional": {
+      "Hint": "Permet d'indiquer si ce bonus doit être pris en compte lors du jet. Un bonus ne peut être défini comme optionnel que s'il apporte un bonus supplémentaire à un jet d'attaque, un jet de dégâts, un jet de sauvegarde ou un jet de caractéristique.",
+      "Label": "Optionnel"
     }
   },
   "Filters": "Filtres",

@@ -446,10 +446,23 @@ class Babonus extends foundry.abstract.DataModel {
       name: new StringField({required: true, blank: false}),
       img: new FilePathField({categories: ["IMAGE"]}),
       type: new StringField({required: true, initial: this.type, choices: [this.type]}),
-      enabled: new BooleanField({initial: true}),
-      exclusive: new BooleanField(),
-      optional: new BooleanField(),
-      reminder: new BooleanField(),
+      enabled: new BooleanField({
+        initial: true,
+        label: "BABONUS.Fields.Enabled.Label",
+        hint: "BABONUS.Fields.Enabled.Hint"
+      }),
+      exclusive: new BooleanField({
+        label: "BABONUS.Fields.Exclusive.Label",
+        hint: "BABONUS.Fields.Exclusive.Hint"
+      }),
+      optional: new BooleanField({
+        label: "BABONUS.Fields.Optional.Label",
+        hint: "BABONUS.Fields.Optional.Hint"
+      }),
+      reminder: new BooleanField({
+        label: "BABONUS.Fields.Reminder.Label",
+        hint: "BABONUS.Fields.Reminder.Hint"
+      }),
       description: new HTMLField(),
       consume: new EmbeddedDataField(babonus.abstract.DataFields.models.ConsumptionModel),
       aura: new EmbeddedDataField(babonus.abstract.DataFields.models.AuraModel),

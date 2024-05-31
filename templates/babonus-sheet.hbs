@@ -180,81 +180,60 @@
     <!-- Config Tab -->
     <div class="tab" data-tab="advanced">
 
-      <h3 class="form-header">{{localize "BABONUS.BasicConfiguration"}}</h3>
-      <div class="form-group">
-        <label class="label">{{localize "BABONUS.Toggles"}}</label>
-        <div class="form-fields">
-          <label class="checkbox" data-tooltip="BABONUS.ConfigurationEnabledTooltip" data-tooltip-direction="UP">
-            <input type="checkbox" name="enabled" {{checked bonus.enabled}}>
-            {{localize "BABONUS.ConfigurationEnabled"}}
+      <fieldset>
+        <legend>{{localize "BABONUS.Toggles"}}</legend>
+        {{formGroup context.root.enabled.field value=context.root.enabled.value localize=true}}
+        {{formGroup context.root.exclusive.field value=context.root.exclusive.value localize=true}}
+        {{formGroup context.root.optional.field value=context.root.optional.value localize=true}}
+        {{formGroup context.root.reminder.field value=context.root.reminder.value localize=true disabled=context.root.reminder.disabled}}
+      </fieldset>
+
+      <fieldset>
+        <legend>{{localize "BABONUS.ConsumptionConfiguration"}}</legend>
+        {{formGroup context.consume.enabled.field value=context.consume.enabled.value localize=true}}
+
+        {{#if bonus.consume.enabled}}
+
+        {{formGroup context.consume.type.field value=bonus.consume.type localize=true sort=true blank="-"}}
+
+        {{#unless context.consume.scale.unavailable}}
+
+        {{#if context.consume.subtype.show}}
+        {{formGroup context.consume.subtype.field value=bonus.consume.subtype localize=true sort=false blank="-" choices=context.consume.subtype.choices label=context.consume.subtype.label}}
+        {{/if}}
+
+        {{#unless context.consume.scale.unavailable}}
+        {{formGroup context.consume.scale.field localize=true value=bonus.consume.scales}}
+        {{/unless}}
+
+        <div class="form-group values">
+          <label>
+            {{localize context.consume.values.label}}
+            {{{context.consume.values.range}}}
           </label>
-          <label class="checkbox {{#unless bonus.canExclude}}striked{{/unless}}" data-tooltip-direction="UP"
-            data-tooltip="BABONUS.ConfigurationExclusiveTooltip{{#unless bonus.canExclude}}Unavailable{{/unless}}">
-            <input type="checkbox" name="exclusive" {{checked bonus.exclusive}}>
-            {{localize "BABONUS.ConfigurationExclusive"}}
-          </label>
-          <label class="checkbox {{#unless bonus.isOptionable}}striked{{/unless}}" data-tooltip-direction="UP"
-            data-tooltip="BABONUS.ConfigurationOptionalTooltip{{#unless bonus.isOptionable}}Unavailable{{/unless}}">
-            <input type="checkbox" name="optional" {{checked bonus.optional}}>
-            {{localize "BABONUS.ConfigurationOptional"}}
-          </label>
-          {{#if bonus.canRemind}}
-          <label class="checkbox" data-tooltip-direction="UP" data-tooltip="BABONUS.ConfigurationReminderTooltip">
-            <input type="checkbox" name="reminder" {{checked bonus.reminder}}>
-            {{localize "BABONUS.ConfigurationReminder"}}
-          </label>
-          {{/if}}
+          <div class="form-fields">
+            {{formInput context.consume.values.field1 value=context.consume.source.value.min placeholder=context.consume.values.ph1}}
+            {{#if bonus.consume.scales}}
+            <span class="sep dash">&mdash;</span>
+            {{formInput context.consume.values.field2 value=context.consume.source.value.max placeholder=context.consume.values.ph2}}
+            {{/if}}
+          </div>
+          <p class="hint">{{localize context.consume.values.hint}}</p>
         </div>
-      </div>
 
-      <!-- Consumption Configuration -->
-      <h3 class="form-header">
-        {{localize "BABONUS.ConsumptionConfiguration"}}
-        <input type="checkbox" name="consume.enabled"
-        data-tooltip="BABONUS.ConfigurationConsumptionTooltip{{#unless bonus.isOptional}}Unavailable{{/unless}}"
-        data-tooltip-direction="UP" {{checked context.consume.enabled}}>
-      </h3>
+        {{#if context.consume.step.show}}
+        {{formGroup context.consume.step.field value=bonus.consume.value.step localize=true placeholder=context.consume.step.placeholder}}
+        {{/if}}
 
-      {{#if bonus.consume.enabled}}
+        {{#if context.consume.formula.show}}
+        {{formGroup context.consume.formula.field value=bonus.consume.formula localize=true placeholder=context.consume.formula.placeholder}}
+        {{/if}}
 
-      {{formGroup context.consume.type.field value=bonus.consume.type localize=true sort=true blank="-"}}
+        {{/unless}}
 
-      {{#unless context.consume.scale.unavailable}}
+        {{/if}}
 
-      {{#if context.consume.subtype.show}}
-      {{formGroup context.consume.subtype.field value=bonus.consume.subtype localize=true sort=false blank="-" choices=context.consume.subtype.choices label=context.consume.subtype.label}}
-      {{/if}}
-
-      {{#unless context.consume.scale.unavailable}}
-      {{formGroup context.consume.scale.field localize=true value=bonus.consume.scales}}
-      {{/unless}}
-
-      <div class="form-group values">
-        <label>
-          {{localize context.consume.values.label}}
-          {{{context.consume.values.range}}}
-        </label>
-        <div class="form-fields">
-          {{formInput context.consume.values.field1 value=context.consume.source.value.min placeholder=context.consume.values.ph1}}
-          {{#if bonus.consume.scales}}
-          <span class="sep dash">&mdash;</span>
-          {{formInput context.consume.values.field2 value=context.consume.source.value.max placeholder=context.consume.values.ph2}}
-          {{/if}}
-        </div>
-        <p class="hint">{{localize context.consume.values.hint}}</p>
-      </div>
-
-      {{#if context.consume.step.show}}
-      {{formGroup context.consume.step.field value=bonus.consume.value.step localize=true placeholder=context.consume.step.placeholder}}
-      {{/if}}
-
-      {{#if context.consume.formula.show}}
-      {{formGroup context.consume.formula.field value=bonus.consume.formula localize=true placeholder=context.consume.formula.placeholder}}
-      {{/if}}
-
-      {{/unless}}
-
-      {{/if}}
+      </fieldset>
 
       <!-- Aura Configuration -->
       <h3 class="form-header">

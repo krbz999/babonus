@@ -6,7 +6,10 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      enabled: new BooleanField(),
+      enabled: new BooleanField({
+        label: "BABONUS.Fields.Consume.Enabled.Label",
+        hint: "BABONUS.Fields.Consume.Enabled.Hint"
+      }),
       type: new StringField({
         required: true,
         initial: "",
