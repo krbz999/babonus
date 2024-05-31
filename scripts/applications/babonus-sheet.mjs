@@ -202,35 +202,43 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const consume = this.bonus.consume;
     const v = consume.value;
 
-    const isSlot = consume.type === "slots";
+    const isSlot = this.bonus.consume.type === "slots";
     const schema = this.bonus.schema;
+    const scales = this.bonus.consume.scales;
 
     const context = {
-      enabled: consume.enabled,
-      cannotScale: ["effect", "inspiration"].includes(consume.type),
-      isSlot: isSlot,
-      showMax: consume.scales,
-      labelMin: isSlot ? "BABONUS.Smallest" : "Minimum",
-      labelMax: isSlot ? "BABONUS.Largest" : "Maximum",
-      isInvalid: consume.enabled && !consume.isValidConsumption,
-      source: consume.toObject(),
+      enabled: this.bonus.consume.enabled,
+      source: this.bonus.consume.toObject(),
       consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null,
       type: {
         field: schema.getField("consume.type")
       },
       subtype: {
         field: schema.getField("consume.subtype"),
-        label: `BABONUS.ConsumptionType${consume.type.capitalize()}Subtype`
+        label: `BABONUS.ConsumptionType${this.bonus.consume.type.capitalize()}Subtype`
       },
       formula: {
         field: schema.getField("consume.formula"),
         placeholder: this.bonus.bonuses.bonus,
-        show: consume.scales
+        show: scales
       },
       step: {
         field: schema.getField("consume.value.step"),
-        show: ["health", "currency"].includes(consume.type) && consume.scales,
+        show: ["health", "currency"].includes(this.bonus.consume.type) && scales,
         placeholder: game.i18n.localize("BABONUS.Fields.Consume.ValueStep.Placeholder")
+      },
+      values: {
+        field1: schema.getField("consume.value.min"),
+        field2: schema.getField("consume.value.max"),
+        label: `BABONUS.Fields.Consume.Values.Label${isSlot ? "Slot" : ""}`,
+        ph1: game.i18n.localize(`BABONUS.Fields.Consume.Values.Min${isSlot ? "Slot" : ""}`),
+        ph2: game.i18n.localize(`BABONUS.Fields.Consume.Values.Max${isSlot ? "Slot" : ""}`),
+        hint: `BABONUS.Fields.Consume.Values.Hint${scales ? "Scale" : ""}${isSlot ? "Slot" : ""}`,
+        range: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null
+      },
+      scale: {
+        field: schema.getField("consume.scales"),
+        unavailable: !this.bonus.consume.type || ["effect", "inspiration"].includes(this.bonus.consume.type)
       }
     };
 

@@ -11,8 +11,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
         required: true,
         initial: "",
         blank: true,
-        label: "BABONUS.ConfigurationConsumptionType",
-        hint: "",
+        label: "BABONUS.Fields.Consume.Type.Label",
         choices: {
           currency: "DND5E.Currency",
           effect: "BABONUS.ConsumptionTypeEffect",
@@ -31,7 +30,10 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
         label: "BABONUS.ConfigurationConsumptionSubtype",
         hint: ""
       }),
-      scales: new BooleanField(),
+      scales: new BooleanField({
+        label: "BABONUS.Fields.Consume.Scales.Label",
+        hint: "BABONUS.Fields.Consume.Scales.Hint"
+      }),
       formula: new StringField({
         required: true,
         label: "BABONUS.Fields.Consume.Formula.Label",

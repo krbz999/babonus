@@ -217,39 +217,31 @@
 
       {{#if bonus.consume.enabled}}
 
-      {{#if context.consume.isInvalid}}
-      <p class="notification warning">{{localize "BABONUS.ConfigurationConsumptionInvalid"}}</p>
-      {{/if}}
-
       {{formGroup context.consume.type.field value=bonus.consume.type localize=true sort=true blank="-"}}
 
-      {{#unless context.consume.cannotScale}}
+      {{#unless context.consume.scale.unavailable}}
+
       {{#if context.consume.subtype.show}}
       {{formGroup context.consume.subtype.field value=bonus.consume.subtype localize=true sort=false blank="-" choices=context.consume.subtype.choices label=context.consume.subtype.label}}
       {{/if}}
 
-      <div class="form-group">
-        <label class="label">
-          {{#if context.consume.isSlot}}
-          {{localize "BABONUS.ConfigurationConsumptionConsumedSlots"}}
-          {{else}}
-          {{localize "BABONUS.ConfigurationConsumptionConsumedValues"}}
-          {{/if}}
-          {{{context.consume.consumeRange}}}
+      {{#unless context.consume.scale.unavailable}}
+      {{formGroup context.consume.scale.field localize=true value=bonus.consume.scales}}
+      {{/unless}}
+
+      <div class="form-group values">
+        <label>
+          {{localize context.consume.values.label}}
+          {{{context.consume.values.range}}}
         </label>
         <div class="form-fields">
-          <input type="text" name="consume.value.min" value="{{context.consume.source.value.min}}"
-          placeholder="{{localize context.consume.labelMin}}">
-          {{#if context.consume.showMax}}
+          {{formInput context.consume.values.field1 value=context.consume.source.value.min placeholder=context.consume.values.ph1}}
+          {{#if bonus.consume.scales}}
           <span class="sep dash">&mdash;</span>
-          <input type="text" name="consume.value.max" value="{{context.consume.source.value.max}}"
-          placeholder="{{localize context.consume.labelMax}}">
+          {{formInput context.consume.values.field2 value=context.consume.source.value.max placeholder=context.consume.values.ph2}}
           {{/if}}
-          <label class="checkbox">
-            <input type="checkbox" name="consume.scales" {{checked bonus.consume.scales}}>
-            {{localize "BABONUS.ConfigurationConsumptionScaling"}}
-          </label>
         </div>
+        <p class="hint">{{localize context.consume.values.hint}}</p>
       </div>
 
       {{#if context.consume.step.show}}
@@ -259,6 +251,7 @@
       {{#if context.consume.formula.show}}
       {{formGroup context.consume.formula.field value=bonus.consume.formula localize=true placeholder=context.consume.formula.placeholder}}
       {{/if}}
+
       {{/unless}}
 
       {{/if}}
