@@ -670,9 +670,21 @@ class AttackBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
-      criticalRange: new StringField({required: true}),
-      fumbleRange: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeAttackBonusTooltip",
+        label: "BABONUS.TypeAttackBonusLabel"
+      }),
+      criticalRange: new StringField({
+        required: true,
+        hint: "BABONUS.TypeAttackCriticalRangeTooltip",
+        label: "BABONUS.TypeAttackCriticalRangeLabel"
+      }),
+      fumbleRange: new StringField({
+        required: true,
+        hint: "BABONUS.TypeAttackFumbleRangeTooltip",
+        label: "BABONUS.TypeAttackFumbleRangeLabel"
+      })
     };
   }
 
@@ -705,11 +717,27 @@ class DamageBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
-      damageType: new StringField({required: true}),
-      criticalBonusDice: new StringField({required: true}),
-      criticalBonusDamage: new StringField({required: true}),
-      modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel)
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamageBonusTooltip",
+        label: "BABONUS.TypeDamageBonusLabel"
+      }),
+      damageType: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamageDamageTypeHint",
+        label: "BABONUS.TypeDamageDamageTypeLabel"
+      }),
+      criticalBonusDice: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamageCriticalBonusDiceTooltip",
+        label: "BABONUS.TypeDamageCriticalBonusDiceLabel"
+      }),
+      criticalBonusDamage: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamageCriticalBonusDamageTooltip",
+        label: "BABONUS.TypeDamageCriticalBonusDamageLabel"
+      }),
+      modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel, {})
     };
   }
 
@@ -743,7 +771,11 @@ class SaveBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeSaveBonusTooltip",
+        label: "BABONUS.TypeSaveBonusLabel"
+      })
     };
   }
 
@@ -776,9 +808,21 @@ class ThrowBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
-      targetValue: new StringField({required: true}),
-      deathSaveCritical: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeThrowBonusTooltip",
+        label: "BABONUS.TypeThrowBonusLabel"
+      }),
+      targetValue: new StringField({
+        required: true,
+        hint: "BABONUS.TypeThrowTargetValueTooltip",
+        label: "BABONUS.TypeThrowTargetValueLabel"
+      }),
+      deathSaveCritical: new StringField({
+        required: true,
+        hint: "BABONUS.TypeThrowDeathSaveCriticalTooltip",
+        label: "BABONUS.TypeThrowDeathSaveCriticalLabel"
+      })
     };
   }
 
@@ -814,7 +858,11 @@ class TestBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeTestBonusTooltip",
+        label: "BABONUS.TypeTestBonusLabel"
+      })
     };
   }
 
@@ -850,7 +898,11 @@ class HitDieBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeHitdieBonusTooltip",
+        label: "BABONUS.TypeHitdieBonusLabel"
+      }),
       modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel)
     };
   }

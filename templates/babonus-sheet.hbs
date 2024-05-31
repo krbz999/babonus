@@ -33,23 +33,11 @@
 
       <h3 class="form-header">{{localize "BABONUS.BasicBonuses"}}</h3>
       {{#each context.bonuses}}
-      <div class="form-group">
-        <label class="label" data-tooltip="{{hint}}">{{localize label}}</label>
-        <div class="form-fields">
-          <input type="text" name="bonuses.{{key}}" value="{{value}}">
-          {{#if isDamage}}
-          <select name="bonuses.damageType">
-            <option value="">{{localize "DND5E.None"}}</option>
-            <optgroup label="{{localize 'DND5E.Damage'}}">
-              {{selectOptions @root.config.damageTypes labelAttr="label" selected=selected}}
-            </optgroup>
-            <optgroup label="{{localize 'DND5E.Healing'}}">
-              {{selectOptions @root.config.healingTypes labelAttr="label" selected=selected}}
-            </optgroup>
-          </select>
-          {{/if}}
-        </div>
-      </div>
+      {{#if isDamage}}
+      {{formGroup field value=value options=options blank=blank localize=true}}
+      {{else}}
+      {{formGroup field value=value localize=true}}
+      {{/if}}
       {{/each}}
 
       {{#if context.hasModifiers}}
@@ -233,25 +221,11 @@
       <p class="notification warning">{{localize "BABONUS.ConfigurationConsumptionInvalid"}}</p>
       {{/if}}
 
-      <div class="form-group">
-        <label class="label">{{localize "BABONUS.ConfigurationConsumptionType"}}</label>
-        <div class="form-fields">
-          <select name="consume.type">
-            {{selectOptions context.consume.choices selected=bonus.consume.type localize=true blank="-" sort=true}}
-          </select>
-        </div>
-      </div>
+      {{formGroup context.consume.type.field value=bonus.consume.type localize=true sort=true blank="-"}}
 
       {{#unless context.consume.cannotScale}}
-      {{#if context.consume.showSubtype}}
-      <div class="form-group">
-        <label class="label">{{localize context.consume.subtypeLabel}}</label>
-        <div class="form-fields">
-          <select name="consume.subtype">
-            {{selectOptions context.consume.subtypeOptions selected=bonus.consume.subtype localize=true blank="-"}}
-          </select>
-        </div>
-      </div>
+      {{#if context.consume.subtype.show}}
+      {{formGroup context.consume.subtype.field value=bonus.consume.subtype localize=true sort=false blank="-" choices=context.consume.subtype.choices label=context.consume.subtype.label}}
       {{/if}}
 
       <div class="form-group">
@@ -278,23 +252,12 @@
         </div>
       </div>
 
-      {{#if context.consume.showStep}}
-      <div class="form-group">
-        <label class="label">{{localize "BABONUS.ConfigurationConsumptionStep"}}</label>
-        <div class="form-fields">
-          <input type="number" name="consume.value.step" value="{{bonus.consume.value.step}}"
-          placeholder="{{localize 'BABONUS.ConfigurationConsumptionStep'}}">
-        </div>
-      </div>
+      {{#if context.consume.step.show}}
+      {{formGroup context.consume.step.field value=bonus.consume.value.step localize=true placeholder=context.consume.step.placeholder}}
       {{/if}}
 
-      {{#if context.consume.showFormula}}
-      <div class="form-group">
-        <label class="label">{{localize "BABONUS.ConfigurationConsumptionScalingFormula"}}</label>
-        <div class="form-fields">
-          <input type="text" name="consume.formula" value="{{bonus.consume.formula}}" placeholder="{{bonus.bonuses.bonus}}">
-        </div>
-      </div>
+      {{#if context.consume.formula.show}}
+      {{formGroup context.consume.formula.field value=bonus.consume.formula localize=true placeholder=context.consume.formula.placeholder}}
       {{/if}}
       {{/unless}}
 

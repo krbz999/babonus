@@ -105,18 +105,28 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    */
   _prepareBonuses() {
     const b = Object.entries(this.bonus.toObject().bonuses);
+    const schema = this.bonus.schema;
     const bonuses = [];
-    const type = this.bonus.type;
     b.forEach(([k, v]) => {
-      if ((k === "modifiers") || (k === "damageType")) return;
-      bonuses.push({
-        key: k,
-        value: v,
-        hint: `BABONUS.Type${type.capitalize()}${k.capitalize()}Tooltip`,
-        label: `BABONUS.Type${type.capitalize()}${k.capitalize()}Label`,
-        isDamage: (type === "damage") && (k === "bonus"),
-        selected: this.bonus.bonuses.damageType
-      });
+      if (k === "modifiers") return;
+      const bonusData = {
+        field: schema.getField(`bonuses.${k}`),
+        value: v
+      };
+      if (k === "damageType") {
+        bonusData.isDamage = true;
+        bonusData.blank = "DND5E.None";
+        bonusData.options = [];
+        bonusData.groups = ["DND5E.Damage", "DND5E.Healing"];
+
+        for (const [k, v] of Object.entries(CONFIG.DND5E.damageTypes)) {
+          bonusData.options.push({group: "DND5E.Damage", value: k, label: v.label});
+        }
+        for (const [k, v] of Object.entries(CONFIG.DND5E.healingTypes)) {
+          bonusData.options.push({group: "DND5E.Healing", value: k, label: v.label});
+        }
+      }
+      bonuses.push(bonusData);
     });
     return bonuses;
   }
@@ -192,45 +202,59 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const consume = this.bonus.consume;
     const v = consume.value;
 
-    // Construct subtypes.
-    const subtypes = {};
-    if (consume.type === "currency") {
-      Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
-        subtypes[c[0]] = c[1].label;
-      });
-    } else if (consume.type === "hitdice") {
-      subtypes.smallest = "DND5E.ConsumeHitDiceSmallest";
-      subtypes.largest = "DND5E.ConsumeHitDiceLargest";
-      for (const d of CONFIG.DND5E.hitDieTypes) subtypes[d] = d;
-    }
     const isSlot = consume.type === "slots";
+    const schema = this.bonus.schema;
 
-    return {
+    const context = {
       enabled: consume.enabled,
-      choices: {
-        currency: "DND5E.Currency",
-        effect: "BABONUS.ConsumptionTypeEffect",
-        health: "DND5E.HitPoints",
-        hitdice: "DND5E.HitDice",
-        inspiration: "DND5E.Inspiration",
-        quantity: "DND5E.Quantity",
-        slots: "BABONUS.ConsumptionTypeSlots",
-        uses: "DND5E.LimitedUses"
-      },
       cannotScale: ["effect", "inspiration"].includes(consume.type),
       isSlot: isSlot,
-      showStep: ["health", "currency"].includes(consume.type) && consume.scales,
-      showFormula: consume.scales,
       showMax: consume.scales,
-      showSubtype: !foundry.utils.isEmpty(subtypes),
-      subtypeLabel: `BABONUS.ConsumptionType${consume.type.capitalize()}Subtype`,
-      subtypeOptions: subtypes,
       labelMin: isSlot ? "BABONUS.Smallest" : "Minimum",
       labelMax: isSlot ? "BABONUS.Largest" : "Maximum",
       isInvalid: consume.enabled && !consume.isValidConsumption,
       source: consume.toObject(),
-      consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null
+      consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null,
+      type: {
+        field: schema.getField("consume.type")
+      },
+      subtype: {
+        field: schema.getField("consume.subtype"),
+        label: `BABONUS.ConsumptionType${consume.type.capitalize()}Subtype`
+      },
+      formula: {
+        field: schema.getField("consume.formula"),
+        placeholder: this.bonus.bonuses.bonus,
+        show: consume.scales
+      },
+      step: {
+        field: schema.getField("consume.value.step"),
+        show: ["health", "currency"].includes(consume.type) && consume.scales,
+        placeholder: game.i18n.localize("BABONUS.Fields.Consume.ValueStep.Placeholder")
+      }
     };
+
+    const subtypes = {};
+    switch (this.bonus.consume.type) {
+      case "currency": {
+        Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
+          subtypes[c[0]] = c[1].label;
+        });
+        break;
+      }
+      case "hitdice": {
+        subtypes.smallest = "DND5E.ConsumeHitDiceSmallest";
+        subtypes.largest = "DND5E.ConsumeHitDiceLargest";
+        for (const d of CONFIG.DND5E.hitDieTypes) subtypes[d] = d;
+        break;
+      }
+      default: break;
+    }
+
+    context.subtype.choices = subtypes;
+    context.subtype.show = !foundry.utils.isEmpty(subtypes);
+
+    return context;
   }
 
   /**

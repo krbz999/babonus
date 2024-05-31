@@ -7,14 +7,46 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       enabled: new BooleanField(),
-      type: new StringField({required: true}),
-      subtype: new StringField({required: true}),
+      type: new StringField({
+        required: true,
+        initial: "",
+        blank: true,
+        label: "BABONUS.ConfigurationConsumptionType",
+        hint: "",
+        choices: {
+          currency: "DND5E.Currency",
+          effect: "BABONUS.ConsumptionTypeEffect",
+          health: "DND5E.HitPoints",
+          hitdice: "DND5E.HitDice",
+          inspiration: "DND5E.Inspiration",
+          quantity: "DND5E.Quantity",
+          slots: "BABONUS.ConsumptionTypeSlots",
+          uses: "DND5E.LimitedUses"
+        }
+      }),
+      subtype: new StringField({
+        required: true,
+        blank: true,
+        initial: "",
+        label: "BABONUS.ConfigurationConsumptionSubtype",
+        hint: ""
+      }),
       scales: new BooleanField(),
-      formula: new StringField({required: true}),
+      formula: new StringField({
+        required: true,
+        label: "BABONUS.Fields.Consume.Formula.Label",
+        hint: "BABONUS.Fields.Consume.Formula.Hint"
+      }),
       value: new SchemaField({
         min: new StringField({required: true}),
         max: new StringField({required: true}),
-        step: new NumberField({integer: true, min: 1, step: 1})
+        step: new NumberField({
+          integer: true,
+          min: 1,
+          step: 1,
+          label: "BABONUS.Fields.Consume.ValueStep.Label",
+          hint: "BABONUS.Fields.Consume.ValueStep.Hint"
+        })
       })
     };
   }

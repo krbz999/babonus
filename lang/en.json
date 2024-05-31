@@ -40,7 +40,6 @@
   "BABONUS.ConfigurationConsumptionConsumedValues": "Consumed Values",
   "BABONUS.ConfigurationConsumptionInvalid": "This bonus is not currently able to consume any values.",
   "BABONUS.ConfigurationConsumptionScaling": "Scaling?",
-  "BABONUS.ConfigurationConsumptionScalingFormula": "Scaling Formula",
   "BABONUS.ConfigurationConsumptionStep": "Step",
   "BABONUS.ConfigurationConsumptionTooltip": "Configure whether and how the bonus consumes a property.",
   "BABONUS.ConfigurationConsumptionTooltipUnavailable": "A bonus cannot be set to consume unless it is optional.",
@@ -285,6 +284,8 @@
   "BABONUS.TypeDamageCriticalBonusDamageTooltip": "Additional parts to add on top of the damage roll on critical hits.",
   "BABONUS.TypeDamageCriticalBonusDiceLabel": "Extra Critical Hit Dice",
   "BABONUS.TypeDamageCriticalBonusDiceTooltip": "An additional number of dice that should be rolled on a critical hit. This field respects roll data, but not dice rolls.",
+  "BABONUS.TypeDamageDamageTypeLabel": "Damage Type",
+  "BABONUS.TypeDamageDamageTypeHint": "The damage type of the parts added to the damage roll.",
   "BABONUS.TypeHitdie": "Hit Die Rolls",
   "BABONUS.TypeHitdieBonusLabel": "Hit Die Roll Bonus",
   "BABONUS.TypeHitdieBonusTooltip": "Additional parts to add on top of the hit die roll.",
@@ -300,5 +301,18 @@
   "BABONUS.TypeThrowDeathSaveCriticalLabel": "Death Save Critical Limit",
   "BABONUS.TypeThrowDeathSaveCriticalTooltip": "An integer to subtract from the threshold that decides when a Death Saving Throw results in restoring consciousness and 1 hit point. This field respects roll data, but not dice rolls.",
   "BABONUS.TypeThrowTargetValueLabel": "Target Value",
-  "BABONUS.TypeThrowTargetValueTooltip": "An integer to subtract from the minimum requirement to pass a saving throw. This field respects roll data, but not dice rolls."
+  "BABONUS.TypeThrowTargetValueTooltip": "An integer to subtract from the minimum requirement to pass a saving throw. This field respects roll data, but not dice rolls.",
+  "BABONUS.Fields": {
+    "Consume": {
+      "ValueStep": {
+        "Hint": "The delta, or step, of the choices when consuming.",
+        "Label": "Step",
+        "Placeholder": "Step"
+      },
+      "Formula": {
+        "Hint": "The formula by which the bonus scales at each step.",
+        "Label": "Scaling Formula"
+      }
+    }
+  }
 }
