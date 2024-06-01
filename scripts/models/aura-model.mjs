@@ -4,25 +4,43 @@ export class AuraModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      enabled: new BooleanField(),
-      template: new BooleanField(),
-      range: new StringField({required: true}),
-      self: new BooleanField({initial: true}),
-      disposition: new NumberField({initial: this.OPTIONS.ANY, choices: Object.values(this.OPTIONS)}),
+      enabled: new BooleanField({
+        label: "BABONUS.Fields.Aura.Enabled.Label",
+        hint: "BABONUS.Fields.Aura.Enabled.Hint"
+      }),
+      template: new BooleanField({
+        label: "BABONUS.Fields.Aura.Template.Label",
+        hint: "BABONUS.Fields.Aura.Template.Hint"
+      }),
+      range: new StringField({
+        required: true,
+        label: "BABONUS.Fields.Aura.Range.Label",
+        hint: "BABONUS.Fields.Aura.Range.Hint"
+      }),
+      self: new BooleanField({
+        initial: true,
+        label: "BABONUS.Fields.Aura.Self.Label",
+        hint: "BABONUS.Fields.Aura.Self.Hint"
+      }),
+      disposition: new NumberField({
+        label: "BABONUS.Fields.Aura.Disposition.Label",
+        hint: "BABONUS.Fields.Aura.Disposition.Hint",
+        initial: 2,
+        choices: {
+          2: "BABONUS.Fields.Aura.Disposition.OptionAny",
+          1: "BABONUS.Fields.Aura.Disposition.OptionAlly",
+          "-1": "BABONUS.Fields.Aura.Disposition.OptionEnemy"
+        }
+      }),
       blockers: new babonus.abstract.DataFields.filters.auraBlockers(),
       require: new SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
-        acc[k] = new BooleanField();
+        acc[k] = new BooleanField({
+          label: `BABONUS.Fields.Aura.Require${k.capitalize()}.Label`,
+          hint: `BABONUS.Fields.Aura.Require${k.capitalize()}.Hint`
+        });
         return acc;
       }, {}))
     };
-  }
-
-  /**
-   * The targeting options.
-   * @type {object}
-   */
-  static get OPTIONS() {
-    return {ALLY: 1, ENEMY: -1, ANY: 2};
   }
 
   /** @override */

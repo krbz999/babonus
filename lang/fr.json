@@ -9,32 +9,10 @@
   "Bonuses": "Bonus",
   "CompareToSelf": "Comparer au lanceur:",
   "Configuration": "Configuration",
-  "ConfigurationAuraDispositionAlly": "Cibles alliées",
-  "ConfigurationAuraDispositionAny": "Toutes les cibles",
-  "ConfigurationAuraDispositionEnemy": "Cibles ennemies",
   "ConfigurationAuraInvalid": "Ce bonus ne peut actuellement pas agir comme une aura.",
-  "ConfigurationAuraRange": "Portée ({range})",
-  "ConfigurationAuraRangeFt": "Portée ({range} ft)",
-  "ConfigurationAuraRangePlaceholder": "Portée…",
-  "ConfigurationAuraRangeTooltip": "La portée de l'aura, mesurée en pieds (mettre '-1' pour une portée illimitée). Ce champ prend en charge les données relatives aux jets.",
   "ConfigurationAuraRequire": "Prérequis",
-  "ConfigurationAuraRequireLight": "Lumière",
-  "ConfigurationAuraRequireLightTooltip": "Si coché, l'aura sera restreinte par tout ce qui bloque la lumière.",
-  "ConfigurationAuraRequireMove": "Déplacement",
-  "ConfigurationAuraRequireMoveTooltip": "Cette aura doit-elle avoir un chemin direct et dégagé ?",
-  "ConfigurationAuraRequireSight": "Ligne de vue",
-  "ConfigurationAuraRequireSightTooltip": "Cette aura doit-elle nécessiter une ligne de vue directe ?",
-  "ConfigurationAuraRequireSound": "Son",
-  "ConfigurationAuraRequireSoundTooltip": "Si coché, l'aura sera restreinte par tout ce qui bloque le son.",
   "ConfigurationAuraRequireTooltip": "Propriétés spécifiques liées au canvas qui sont nécessaires pour que l'aura affecte une cible.",
-  "ConfigurationAuraSelf": "S'affecte soi-même?",
   "ConfigurationAuraTargetArea": "Zone cible",
-  "ConfigurationAuraTemplate": "S'applique au modèle?",
-  "ConfigurationAuraTemplateTooltip": "Si l'aura affecte la zone située dans un gabarit au lieu d'avoir une portée (pour les objets capables de placer un gabarit).",
-  "ConfigurationAuraTemplateTooltipUnavailable": "Le parent de ce babonus n'est pas un objet.",
-  "ConfigurationAuraTooltip": "Permet de déterminer si et comment le bonus agit comme une aura.",
-  "ConfigurationAuraValidTargets": "Cibles Valides",
-  "ConfigurationAuraValidTargetsTooltip": "Quelles cibles doivent être affectées par cette aura, en fonction de la disposition du jeton d'origine.",
   "ConfigurationConsumptionConsume": "Consommer:",
   "ConfigurationConsumptionInvalid": "Ce bonus ne peut actuellement consommer aucune valeur.",
   "ConfigurationCopyTooltip": "Créez un duplicata de ce bonus",
@@ -58,6 +36,47 @@
   "Description": "Description",
   "Example": "Exemple",
   "Fields": {
+    "Aura": {
+      "Disposition": {
+        "Hint": "Quelles cibles doivent être affectées par cette aura, en fonction de la disposition du jeton d'origine.",
+        "Label": "Cibles Valides",
+        "OptionAlly": "Cibles alliées",
+        "OptionAny": "Toutes les cibles",
+        "OptionEnemy": "Cibles ennemies"
+      },
+      "Enabled": {
+        "Hint": "Permet de déterminer si et comment le bonus agit comme une aura."
+      },
+      "Range": {
+        "Hint": "La portée de l'aura, mesurée en pieds (mettre '-1' pour une portée illimitée). Ce champ prend en charge les données relatives aux jets.",
+        "Label": "Portée ({range})",
+        "LabelFt": "Portée ({range} ft)",
+        "Placeholder": "Portée…"
+      },
+      "RequireLight": {
+        "Hint": "Si coché, l'aura sera restreinte par tout ce qui bloque la lumière.",
+        "Label": "Lumière"
+      },
+      "RequireMove": {
+        "Hint": "Cette aura doit-elle avoir un chemin direct et dégagé ?",
+        "Label": "Déplacement"
+      },
+      "RequireSight": {
+        "Hint": "Cette aura doit-elle nécessiter une ligne de vue directe ?",
+        "Label": "Ligne de vue"
+      },
+      "RequireSound": {
+        "Hint": "Si coché, l'aura sera restreinte par tout ce qui bloque le son.",
+        "Label": "Son"
+      },
+      "Self": {
+        "Label": "S'affecte soi-même?"
+      },
+      "Template": {
+        "Hint": "Si l'aura affecte la zone située dans un gabarit au lieu d'avoir une portée (pour les objets capables de placer un gabarit).",
+        "Label": "S'applique au modèle?"
+      }
+    },
     "Consume": {
       "Enabled": {
         "Hint": "Configurer si et comment le bonus consomme une propriété. Un bonus ne peut être mis en \"consommation\" que si il est facultatif."

@@ -9,32 +9,10 @@
   "Bonuses": "Bônus",
   "CompareToSelf": "Comparar consigo mesmo:",
   "Configuration": "Configuração",
-  "ConfigurationAuraDispositionAlly": "Alvos Aliados",
-  "ConfigurationAuraDispositionAny": "Quaisquer Alvos",
-  "ConfigurationAuraDispositionEnemy": "Alvos Inimigos",
   "ConfigurationAuraInvalid": "No momento, este bônus não pode funcionar como uma aura.",
-  "ConfigurationAuraRange": "Alcance ({range})",
-  "ConfigurationAuraRangeFt": "Alcance ({range} pés)",
-  "ConfigurationAuraRangePlaceholder": "Alcance…",
-  "ConfigurationAuraRangeTooltip": "O alcance da aura, medido em pés (coloque '-1' para um alcance ilimitado). Este campo suporta dados de rolagem.",
   "ConfigurationAuraRequire": "Requisitos",
-  "ConfigurationAuraRequireLight": "Luz",
-  "ConfigurationAuraRequireLightTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a luz",
-  "ConfigurationAuraRequireMove": "Deslocamento",
-  "ConfigurationAuraRequireMoveTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o deslocamento.",
-  "ConfigurationAuraRequireSight": "Visão",
-  "ConfigurationAuraRequireSightTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a visão.",
-  "ConfigurationAuraRequireSound": "Som",
-  "ConfigurationAuraRequireSoundTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o som.",
   "ConfigurationAuraRequireTooltip": "Propriedades específicas relacionadas à tela que são necessárias para que a aura afete um alvo.",
-  "ConfigurationAuraSelf": "Afeta a Si Mesmo?",
   "ConfigurationAuraTargetArea": "Área Alvo",
-  "ConfigurationAuraTemplate": "Aplicar ao Modelo?",
-  "ConfigurationAuraTemplateTooltip": "Se a aura afeta a área dentro de um modelo ao invés de ter um alcance (para itens que são capazes de colocar um modelo).",
-  "ConfigurationAuraTemplateTooltipUnavailable": "O pai deste babonus não é um item.",
-  "ConfigurationAuraTooltip": "Configure se e como o bônus funciona como uma aura.",
-  "ConfigurationAuraValidTargets": "Alvos Válidos",
-  "ConfigurationAuraValidTargetsTooltip": "Quais alvos devem ser afetados por esta aura, em relação à disposição do token de origem.",
   "ConfigurationConsumptionConsume": "Consumir:",
   "ConfigurationConsumptionInvalid": "Este bônus não pode consumir nenhum valor no momento.",
   "ConfigurationCopyTooltip": "Crie uma duplicata deste bônus",
@@ -67,6 +45,47 @@
   "Description": "Descrição",
   "Example": "Exemplo",
   "Fields": {
+    "Aura": {
+      "Disposition": {
+        "Hint": "Quais alvos devem ser afetados por esta aura, em relação à disposição do token de origem.",
+        "Label": "Alvos Válidos",
+        "OptionAlly": "Alvos Aliados",
+        "OptionAny": "Quaisquer Alvos",
+        "OptionEnemy": "Alvos Inimigos"
+      },
+      "Enabled": {
+        "Hint": "Configure se e como o bônus funciona como uma aura."
+      },
+      "Range": {
+        "Hint": "O alcance da aura, medido em pés (coloque '-1' para um alcance ilimitado). Este campo suporta dados de rolagem.",
+        "Label": "Alcance ({range})",
+        "LabelFt": "Alcance ({range} pés)",
+        "Placeholder": "Alcance…"
+      },
+      "RequireLight": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a luz",
+        "Label": "Luz"
+      },
+      "RequireMove": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o deslocamento.",
+        "Label": "Deslocamento"
+      },
+      "RequireSight": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a visão.",
+        "Label": "Visão"
+      },
+      "RequireSound": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o som.",
+        "Label": "Som"
+      },
+      "Self": {
+        "Label": "Afeta a Si Mesmo?"
+      },
+      "Template": {
+        "Hint": "Se a aura afeta a área dentro de um modelo ao invés de ter um alcance (para itens que são capazes de colocar um modelo).",
+        "Label": "Aplicar ao Modelo?"
+      }
+    },
     "Consume": {
       "Enabled": {
         "Hint": "Configure se e como o bônus consome uma propriedade. Um bônus não pode ser definido para consumo, a menos que seja opcional."

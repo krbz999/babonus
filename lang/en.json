@@ -9,32 +9,10 @@
   "Bonuses": "Bonuses",
   "CompareToSelf": "Compare to self:",
   "Configuration": "Configuration",
-  "ConfigurationAuraDispositionAlly": "Allied Targets",
-  "ConfigurationAuraDispositionAny": "Any Targets",
-  "ConfigurationAuraDispositionEnemy": "Enemy Targets",
   "ConfigurationAuraInvalid": "This bonus is not currently able to act as an aura.",
-  "ConfigurationAuraRange": "Range ({range})",
-  "ConfigurationAuraRangeFt": "Range ({range} ft)",
-  "ConfigurationAuraRangePlaceholder": "Range…",
-  "ConfigurationAuraRangeTooltip": "The range of the aura, measured in feet (put in '-1' for an unlimited range). This field supports roll data.",
   "ConfigurationAuraRequire": "Requirements",
-  "ConfigurationAuraRequireLight": "Light",
-  "ConfigurationAuraRequireLightTooltip": "If checked, the aura will be restricted by anything that blocks light.",
-  "ConfigurationAuraRequireMove": "Movement",
-  "ConfigurationAuraRequireMoveTooltip": "If checked, the aura will be restricted by anything that blocks movement.",
-  "ConfigurationAuraRequireSight": "Sight",
-  "ConfigurationAuraRequireSightTooltip": "If checked, the aura will be restricted by anything that blocks vision.",
-  "ConfigurationAuraRequireSound": "Sound",
-  "ConfigurationAuraRequireSoundTooltip": "If checked, the aura will be restricted by anything that blocks sound.",
   "ConfigurationAuraRequireTooltip": "Specific canvas-related properties that are required for the aura to affect a target.",
-  "ConfigurationAuraSelf": "Affects Self?",
   "ConfigurationAuraTargetArea": "Target Area",
-  "ConfigurationAuraTemplate": "Applies to Template?",
-  "ConfigurationAuraTemplateTooltip": "If the aura affects the area within a Measured Template instead of having a range (for items that are able to place a template).",
-  "ConfigurationAuraTemplateTooltipUnavailable": "The parent of this babonus is not an item.",
-  "ConfigurationAuraTooltip": "Configure whether and how the bonus acts as an aura.",
-  "ConfigurationAuraValidTargets": "Valid Targets",
-  "ConfigurationAuraValidTargetsTooltip": "Which targets should be affected by this aura, relative to the disposition of the origin token.",
   "ConfigurationConsumptionConsume": "Consume:",
   "ConfigurationConsumptionInvalid": "This bonus is not currently able to consume any values.",
   "ConfigurationCopyTooltip": "Create a duplicate of this bonus",
@@ -67,10 +45,53 @@
   "Description": "Description",
   "Example": "Example",
   "Fields": {
+    "Aura": {
+      "Disposition": {
+        "Hint": "Which targets should be affected by this aura, relative to the disposition of the origin token.",
+        "Label": "Valid Targets",
+        "OptionAlly": "Allied Targets",
+        "OptionAny": "Any Targets",
+        "OptionEnemy": "Enemy Targets"
+      },
+      "Enabled": {
+        "Hint": "Configure whether and how the bonus acts as an aura.",
+        "Label": "Enable Aura"
+      },
+      "Range": {
+        "Hint": "The range of the aura, measured in feet (put in '-1' for an unlimited range). This field supports roll data.",
+        "Label": "Range ({range})",
+        "LabelFt": "Range ({range} ft)",
+        "Placeholder": "Range…"
+      },
+      "RequireLight": {
+        "Hint": "If checked, the aura will be restricted by anything that blocks light.",
+        "Label": "Enforce Light Restrictions"
+      },
+      "RequireMove": {
+        "Hint": "If checked, the aura will be restricted by anything that blocks movement.",
+        "Label": "Enforce Move Restrictions"
+      },
+      "RequireSight": {
+        "Hint": "If checked, the aura will be restricted by anything that blocks vision.",
+        "Label": "Enforce Sight Restrictions"
+      },
+      "RequireSound": {
+        "Hint": "If checked, the aura will be restricted by anything that blocks sound.",
+        "Label": "Enforce Sound Restrictions"
+      },
+      "Self": {
+        "Hint": "Whether the aura should affect its owner regardless of any other targeting behavior.",
+        "Label": "Affect Self"
+      },
+      "Template": {
+        "Hint": "If the aura affects the area within a Measured Template instead of having a range (for items that are able to place a template).",
+        "Label": "Applies to Template?"
+      }
+    },
     "Consume": {
       "Enabled": {
-        "Label": "Enable Consumption",
-        "Hint": "Configure whether and how the bonus consumes a property. A bonus cannot be set to consume unless it is optional."
+        "Hint": "Configure whether and how the bonus consumes a property. A bonus cannot be set to consume unless it is optional.",
+        "Label": "Enable Consumption"
       },
       "Formula": {
         "Hint": "The formula by which the bonus scales at each step.",

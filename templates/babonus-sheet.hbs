@@ -235,95 +235,33 @@
 
       </fieldset>
 
-      <!-- Aura Configuration -->
-      <h3 class="form-header">
-        {{localize "BABONUS.AuraConfiguration"}}
-        <input type="checkbox" name="aura.enabled" {{checked bonus.aura.enabled}} {{disabled context.aura.disabled}}>
-      </h3>
+      <fieldset>
+        <legend>{{localize "BABONUS.AuraConfiguration"}}</legend>
+        {{formGroup context.aura.enabled.field value=context.aura.enabled.value localize=true}}
 
-      {{#if bonus.aura.enabled}}
+        {{#if bonus.aura.enabled}}
+        {{formGroup context.aura.range.field value=context.aura.range.value localize=true placeholder=context.aura.range.placeholder disabled=context.aura.range.disabled label=context.aura.range.label}}
+        {{formGroup context.aura.template.field value=context.aura.template.value localize=true}}
+        {{formGroup context.aura.disposition.field value=context.aura.disposition.value localize=true sort=false}}
+        {{formGroup context.aura.self.field value=context.aura.self.value localize=true}}
 
-      {{#if context.aura.isInvalid}}
-      <p class="notification warning">{{localize "BABONUS.ConfigurationAuraInvalid"}}</p>
-      {{/if}}
-
-      <div class="form-group">
-        <label data-tooltip="BABONUS.ConfigurationAuraRangeTooltip" class="label">
-          {{#if bonus.aura.template}}
-          {{localize "BABONUS.ConfigurationAuraTargetArea"}}
-          {{else if (eq bonus.aura.range -1)}}
-          {{localize "BABONUS.ConfigurationAuraRange" range=context.aura.displayedRange}}
-          {{else}}
-          {{localize "BABONUS.ConfigurationAuraRangeFt" range=context.aura.displayedRange}}
-          {{/if}}
-        </label>
-        <div class="form-fields">
-          {{#if context.aura.showRange}}
-          <input type="text" name="aura.range" value="{{source.aura.range}}" placeholder="{{localize 'BABONUS.ConfigurationAuraRangePlaceholder'}}">
-          {{/if}}
-
-          <label class="checkbox {{#if context.aura.invalidTemplate}}striked{{/if}}" {{#unless context.aura.isItem}}data-tooltip="BABONUS.ConfigurationAuraTemplateTooltipUnavailable"{{/unless}} data-tooltip-direction="UP">
-            <input type="checkbox" name="aura.template" {{checked bonus.aura.template}}>
-            {{localize "BABONUS.ConfigurationAuraTemplate"}}
+        <div class="form-group">
+          <label data-tooltip="BABONUS.FiltersAuraBlockersTooltip" class="label">
+            {{localize "BABONUS.FiltersAuraBlockers"}}
           </label>
+          <div class="form-fields">
+            <input type="text" name="aura.blockers" value="{{context.aura.blockers}}">
+            <button data-action="keys-dialog" type="button" data-property="aura.blockers" data-id="auraBlockers">
+              <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label data-tooltip="BABONUS.ConfigurationAuraValidTargetsTooltip" class="label">
-          {{localize "BABONUS.ConfigurationAuraValidTargets"}}
-        </label>
-        <div class="form-fields">
-          <select name="aura.disposition" data-dtype="Number">
-            {{selectOptions context.aura.choices selected=bonus.aura.disposition localize=true}}
-          </select>
-
-          <label class="checkbox">
-            <input type="checkbox" name="aura.self" {{checked bonus.aura.self}}>
-            {{localize "BABONUS.ConfigurationAuraSelf"}}
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label data-tooltip="BABONUS.FiltersAuraBlockersTooltip" class="label">
-          {{localize "BABONUS.FiltersAuraBlockers"}}
-        </label>
-        <div class="form-fields">
-          <input type="text" name="aura.blockers" value="{{context.aura.blockers}}">
-          <button data-action="keys-dialog" type="button" data-property="aura.blockers" data-id="auraBlockers">
-            <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
-          </button>
-        </div>
-      </div>
-
-      {{#unless bonus.aura.template}}
-      <div class="form-group">
-        <label data-tooltip="BABONUS.ConfigurationAuraRequireTooltip" class="label">
-          {{localize "BABONUS.ConfigurationAuraRequire"}}
-        </label>
-        <div class="form-fields">
-          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireMoveTooltip">
-            <input type="checkbox" name="aura.require.move" {{checked bonus.aura.require.move}}>
-            {{localize "BABONUS.ConfigurationAuraRequireMove"}}
-          </label>
-          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireLightTooltip">
-            <input type="checkbox" name="aura.require.light" {{checked bonus.aura.require.light}}>
-            {{localize "BABONUS.ConfigurationAuraRequireLight"}}
-          </label>
-          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireSightTooltip">
-            <input type="checkbox" name="aura.require.sight" {{checked bonus.aura.require.sight}}>
-            {{localize "BABONUS.ConfigurationAuraRequireSight"}}
-          </label>
-          <label class="checkbox" data-tooltip="BABONUS.ConfigurationAuraRequireSoundTooltip">
-            <input type="checkbox" name="aura.require.sound" {{checked bonus.aura.require.sound}}>
-            {{localize "BABONUS.ConfigurationAuraRequireSound"}}
-          </label>
-        </div>
-      </div>
-      {{/unless}}
-
-      {{/if}}
+        {{#each context.aura.requirements}}
+        {{formGroup field value=value localize=true}}
+        {{/each}}
+        {{/if}}
+      </fieldset>
 
     </div>
 

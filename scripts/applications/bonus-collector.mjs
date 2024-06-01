@@ -343,14 +343,13 @@ export class BonusCollector {
    * @returns {boolean}     Whether the targeting applies.
    */
   _matchDisposition(tisp, bisp) {
-    const aura = babonus.abstract.DataFields.models.AuraModel.OPTIONS;
-    if (bisp === aura.ANY) {
+    if (bisp === 2) { // any
       // If the bonus targets everyone, immediately return true.
       return true;
-    } else if (bisp === aura.ALLY) {
+    } else if (bisp === 1) { // allies
       // If the bonus targets allies, the roller and the source must match.
       return tisp === this.token.document.disposition;
-    } else if (bisp === aura.ENEMY) {
+    } else if (bisp === -1) { // enemies
       // If the bonus targets enemies, the roller and the source must have opposite dispositions.
       const modes = CONST.TOKEN_DISPOSITIONS;
       const set = new Set([tisp, this.token.document.disposition]);

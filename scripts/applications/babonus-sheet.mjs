@@ -292,23 +292,55 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    * @returns {object}
    */
   _prepareAura() {
-    const aura = this.bonus.aura;
-    const isItem = this.owner instanceof Item;
-    const choices = Object.entries(babonus.abstract.DataFields.models.AuraModel.OPTIONS).reduce((acc, [k, v]) => {
-      acc[v] = `BABONUS.ConfigurationAuraDisposition${k.titleCase()}`;
-      return acc;
-    }, {});
+    const schema = this.bonus.aura.schema;
+    const src = this.bonus.aura.toObject();
+    const range = this.bonus.aura.range;
+    const context = {};
 
-    return {
-      showRange: !aura.template,
-      displayedRange: (aura.range > 0) ? aura.range : (aura.range === -1) ? game.i18n.localize("DND5E.Unlimited") : 0,
-      choices: choices,
-      blockers: Array.from(aura.blockers).filterJoin(";"),
-      isItem: isItem,
-      isInvalid: aura.enabled && !(aura.isTemplate || aura.isToken),
-      invalidTemplate: !isItem,
-      disabled: !!this.document.region // regions cannot be auras.
+    // Enabled
+    context.enabled = {
+      field: schema.getField("enabled"),
+      value: this.bonus.aura.enabled
     };
+
+    // Range
+    context.range = {
+      field: schema.getField("range"),
+      value: src.range,
+      placeholder: game.i18n.localize("BABONUS.Fields.Aura.Range.Placeholder"),
+      disabled: this.bonus.aura.template
+    };
+    const r = (range > 0) ? range : (range === -1) ? game.i18n.localize("DND5E.Unlimited") : 0;
+    const ft = (range === -1) ? "" : "Ft";
+    context.range.label = game.i18n.format(`BABONUS.Fields.Aura.Range.Label${ft}`, {range: r});
+
+    // Template
+    context.template = {
+      field: schema.getField("template"),
+      value: this.bonus.aura.template
+    };
+
+    // Targets
+    context.disposition = {
+      field: schema.getField("disposition"),
+      value: this.bonus.aura.disposition
+    };
+
+    // Self
+    context.self = {
+      field: schema.getField("self"),
+      value: this.bonus.aura.self
+    };
+
+    // Blockers
+    context.blockers = Array.from(this.bonus.aura.blockers).filterJoin(";");
+
+    // Requirements
+    context.requirements = ["move", "light", "sight", "sound"].map(k => {
+      return {field: schema.getField(`require.${k}`), value: this.bonus.aura.require[k]};
+    });
+
+    return context;
   }
 
   /**
