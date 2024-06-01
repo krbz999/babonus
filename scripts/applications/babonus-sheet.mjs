@@ -165,13 +165,13 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       if (!this._filters.has(key) || babonus.abstract.DataFields.filters[key].repeatable) acc.push({
         id: key,
         repeats: babonus.abstract.DataFields.filters[key].repeatable ? this.bonus.filters[key].length : null,
-        label: `BABONUS.Filters${key.capitalize()}`,
-        hint: `BABONUS.Filters${key.capitalize()}Tooltip`
+        label: `BABONUS.Filters.${key.capitalize()}.Label`,
+        hint: `BABONUS.Filters.${key.capitalize()}.Hint`
       });
       return acc;
     }, []).sort((a, b) => {
-      a = game.i18n.localize(`BABONUS.Filters${a.id.capitalize()}`);
-      b = game.i18n.localize(`BABONUS.Filters${b.id.capitalize()}`);
+      a = game.i18n.localize(`BABONUS.Filters.${a.id.capitalize()}.Label`);
+      b = game.i18n.localize(`BABONUS.Filters.${b.id.capitalize()}.Label`);
       return a.localeCompare(b);
     });
   }

@@ -24,7 +24,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
   /** @override */
   static async prompt({canExclude, values, filterId, ...configuration} = {}) {
     configuration.content = await renderTemplate(`modules/${MODULE.ID}/templates/subapplications/keys-dialog.hbs`, {
-      canExclude, values, description: `BABONUS.Filters${filterId.capitalize()}Tooltip`
+      canExclude, values, description: `BABONUS.Filters.${filterId.capitalize()}.Hint`
     });
     configuration.filterId = filterId;
     configuration.rejectClose = false;

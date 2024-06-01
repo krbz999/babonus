@@ -46,6 +46,10 @@
   "Example": "Exemplo",
   "Fields": {
     "Aura": {
+      "Blockers": {
+        "Hint": "Os tipos de condições que impedem a transferência de uma aura, como a aura de um Paladino que só fica ativa enquanto o Paladino não está Morto nem Inconsciente.",
+        "Label": "Condições de Bloqueio"
+      },
       "Disposition": {
         "Hint": "Quais alvos devem ser afetados por esta aura, em relação à disposição do token de origem.",
         "Label": "Alvos Válidos",
@@ -120,114 +124,125 @@
       "Label": "Opcional"
     }
   },
-  "Filters": "Filtros",
-  "FiltersAbilities": "Modificador de Atributo",
-  "FiltersAbilitiesLabel": "Modificador de Atributo",
-  "FiltersAbilitiesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano, CDs de salvaguarda e testes de atributo.",
-  "FiltersAbilitiesTooltip": "O valor de atributo usado para o teste. Isso respeita os itens definidos para usar o padrão, como magias que usam o atributo de conjuração ou armas de Acuidade que usam Força ou Destreza.",
-  "FiltersActorCreatureSizes": "Tamanhos de Criatura",
-  "FiltersActorCreatureSizesLabel": "Tamanhos de Criatura",
-  "FiltersActorCreatureSizesTooltip": "A categoria de tamanho que a criatura deve ser.",
-  "FiltersActorCreatureTypes": "Tipos de Criatura do Ator",
-  "FiltersActorCreatureTypesLabel": "Tipos de Criatura do Ator",
-  "FiltersActorCreatureTypesTooltip": "O tipo de criatura que o ator de origem deve ser (ou ter como subtipo) ou o tipo de criatura que o ator de origem não deve ser. Por exemplo, 'undead', 'fey' ou 'construct'",
-  "FiltersActorLanguages": "Idiomas Falados",
-  "FiltersActorLanguagesLabel": "Idiomas Falados",
-  "FiltersActorLanguagesTooltip": "Os idiomas que o ator deve ser capaz de falar, ou não deve ser capaz de falar.",
-  "FiltersArbitraryComparison": "Comparação Arbitrária",
-  "FiltersArbitraryComparisonLabel": "Comparação Arbitrária",
-  "FiltersArbitraryComparisonOne": "Valor…",
-  "FiltersArbitraryComparisonOther": "Outro valor…",
-  "FiltersArbitraryComparisonTooltip": "Insira números, propriedades de dados de rolagem, strings ou uma combinação dos três, que devem estar em um relacionamento específico para que o bônus seja aplicado. Esta comparação pode avaliar substrings usando qualquer uma das desigualdades. Você também pode usar dados de rolagem de um ator de token marcado, acrescentando '@target.",
-  "FiltersAttackTypes": "Tipos de Ataque",
-  "FiltersAttackTypesLabel": "Tipos de Ataque",
-  "FiltersAttackTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque ou de dano.",
-  "FiltersAttackTypesTooltip": "O tipo de jogada de ataque que o item deve ter para que o bônus seja aplicado. Por exemplo, se você conjurar uma magia que deve envolver um ataque mágico à distância (rsak) ou ataque armado corpo a corpo (mwak).",
-  "Fields.Aura.Blockers.Label": "Condições de Bloqueio",
-  "Fields.Aura.Blockers.Hint": "Os tipos de condições que impedem a transferência de uma aura, como a aura de um Paladino que só fica ativa enquanto o Paladino não está Morto nem Inconsciente.",
-  "FiltersBaseArmors": "Tipos de Armadura",
-  "FiltersBaseArmorsLabel": "Tipos de Armadura",
-  "FiltersBaseArmorsTooltip": "O tipo de armadura que você deve usar ou não deve usar para que o bônus seja aplicado, incluindo escudos.",
-  "FiltersBaseTools": "Tipos de Ferramenta",
-  "FiltersBaseToolsLabel": "Tipos de Ferramenta",
-  "FiltersBaseToolsRequirements": "Este filtro está disponível apenas para bônus aplicados a testes de atributo.",
-  "FiltersBaseToolsTooltip": "Os tipos de ferramentas que o item deve ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Kit de Herbalismo, Ferramentas de Ladrão ou Ferramentas de Sapateiro.",
-  "FiltersBaseWeapons": "Tipos de Arma",
-  "FiltersBaseWeaponsLabel": "Tipos de Arma",
-  "FiltersBaseWeaponsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersBaseWeaponsTooltip": "Os tipos de armas do item devem ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Machado de Batalha, Arco Curto ou Espada Longa.",
-  "FiltersCreatureTypes": "Tipos de Criatura Alvo",
-  "FiltersCreatureTypesLabel": "Tipos de Criatura Alvo",
-  "FiltersCreatureTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano, CDs de salvaguarda e salvaguardas.",
-  "FiltersCreatureTypesTooltip": "O tipo de criatura da qual o ator alvo deve ser (ou ter como subtipo), ou o tipo de criatura da qual o ator alvo não deve ser. Por exemplo, 'undead', 'fey', ou 'construct'.",
-  "FiltersCustomScripts": "Script Personalizado",
-  "FiltersCustomScriptsLabel": "Script Personalizado",
-  "FiltersCustomScriptsTooltip": "Qualquer script personalizado que você queira escrever. O script deve ser totalmente síncrono e retornar verdadeiro ou falso. Como variáveis ​​auxiliares, o script é fornecido com 'token', 'actor', 'item' e 'bonus', se aplicável.",
-  "FiltersDamageTypes": "Tipos de Dano",
-  "FiltersDamageTypesLabel": "Tipos de Dano",
-  "FiltersDamageTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersDamageTypesTooltip": "O tipo de dano que o item deve causar para que o bônus seja aplicado ou não deve causar para que o bônus seja aplicado. Por exemplo, se uma magia causa dano ígneo.",
-  "FiltersFeatureTypes": "Tipos de Característica",
-  "FiltersFeatureTypesLabel": "Tipos de Característica",
-  "FiltersFeatureTypesTooltip": "O tipo e subtipo que um item de característica deve ter. Por exemplo, um Recurso de Classe, Recurso de Ki ou Recurso de Monstro.",
-  "FiltersHealthPercentages": "Porcentagem de Vida",
-  "FiltersHealthPercentagesLabel": "Porcentagem de Vida",
-  "FiltersHealthPercentagesTooltip": "A porcentagem de vida que o ator deve ter no mínimo, ou no máximo, para que o bônus seja aplicado.",
-  "FiltersItemTypes": "Tipos de Item",
-  "FiltersItemTypesLabel": "Tipos de Item",
-  "FiltersItemTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersItemTypesTooltip": "Os tipos de itens aos quais o bônus deve ser aplicado. Por exemplo, se o item se aplicar apenas a magias ou apenas a armas.",
-  "FiltersPreparationModes": "Modos de Preparação",
-  "FiltersPreparationModesLabel": "Modos de Preparação",
-  "FiltersPreparationModesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersPreparationModesTooltip": "O tipo de modo de preparação em que o feitiço deve ser definido para que o bônus seja aplicado, como 'Pacto' para Magia de Pacto ou 'À Vontade'.",
-  "FiltersProficiencyLevels": "Níveis de Proficiência",
-  "FiltersProficiencyLevelsLabel": "Níveis de Proficiência",
-  "FiltersProficiencyLevelsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, testes de atributo e salvaguardas.",
-  "FiltersProficiencyLevelsTooltip": "O nível de proficiência que o ator deve ter com a rolagem feita.",
-  "FiltersRemainingSpellSlots": "Espaços de Magia Restantes",
-  "FiltersRemainingSpellSlotsLabel": "Espaços de Magia Restantes",
-  "FiltersRemainingSpellSlotsTooltip": "O número total mínimo e máximo de espaços de magia restantes que o ator deve ter para que o bônus seja aplicado. Por exemplo, se você quiser que um bônus seja aplicado apenas se você tiver 3 espaços de magia ou mais restantes, ou nenhum espaço restante.",
-  "FiltersSaveAbilities": "CD Atributo Salvaguarda",
-  "FiltersSaveAbilitiesLabel": "CD Atributo Salvaguarda",
-  "FiltersSaveAbilitiesRequirements": "Este filtro está disponível apenas para bônus aplicados a CDs de salvaguardas.",
-  "FiltersSaveAbilitiesTooltip": "O atributo que deve ser usado para definir a CD da salvaguarda do item para que o bônus seja aplicado; por exemplo, um Guerreiro Mestre de Batalha que determina sua CD de Manobra com Destreza. Isso pode ser diferente do atributo que o item usa. Se um item for ajustado para escalar com 'Conjuração', o atributo de conjuração do ator é comparado.",
-  "FiltersSkillIds": "Perícias",
-  "FiltersSkillIdsLabel": "Perícias",
-  "FiltersSkillIdsRequirements": "Este filtro está disponível apenas para bônus aplicados a testes de atributo.",
-  "FiltersSkillIdsTooltip": "Os tipos de perícias que a rolagem deve ser uma ou nenhuma para que o bônus seja aplicado. Por exemplo, Atletismo, Natureza ou Sobrevivência.",
-  "FiltersSpellComponents": "Componentes de Magia",
-  "FiltersSpellComponentsLabel": "Componentes de Magia",
-  "FiltersSpellComponentsMatchAll": "Corresponder todos",
-  "FiltersSpellComponentsMatchAny": "Corresponder qualquer um",
-  "FiltersSpellComponentsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersSpellComponentsTooltip": "Os componentes ou tags de magia que a magia deve ter para que o bônus seja aplicado. Você pode escolher se a magia deve ter todos os componentes ou tags fornecidos ou pelo menos um deles. Por exemplo, se você quiser que um bônus seja aplicado a todos os feitiços que exigem Concentração.",
-  "FiltersSpellLevels": "Níveis de Magia",
-  "FiltersSpellLevelsLabel": "Níveis de Magia",
-  "FiltersSpellLevelsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersSpellLevelsTooltip": "O nível que a magia deve ser conjurada para que o bônus seja aplicado. Você pode selecionar cada nível individualmente. Por exemplo, você pode aplicar um bônus apenas a truques, apenas a magias de nível ou apenas a magias de 3º nível ou inferior.",
-  "FiltersSpellSchools": "Escolas de Magia",
-  "FiltersSpellSchoolsLabel": "Escolas de Magia",
-  "FiltersSpellSchoolsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersSpellSchoolsTooltip": "A escola que a magia deve pertencer para que o bônus seja aplicado. Se diversas escolas forem selecionadas, a magia deverá pertencer a qualquer uma delas. Por exemplo, se você quiser que um bônus seja aplicado apenas a magias de Adivinhação.",
-  "FiltersStatusEffects": "Condições no Ator",
-  "FiltersStatusEffectsLabel": "Condições no Ator",
-  "FiltersStatusEffectsTooltip": "As condições que o ator deve ou não estar afetado, usando o conjunto de status do efeito.",
-  "FiltersTargetEffects": "Condições no Alvo",
-  "FiltersTargetEffectsLabel": "Condições no Alvo",
-  "FiltersTargetEffectsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano, CDs de salvaguarda e salvaguardas.",
-  "FiltersTargetEffectsTooltip": "As condições que o ator alvo deve ou não estar afetado, usando o conjunto de status do efeito.",
-  "FiltersThrowTypes": "Tipos de Salvaguarda",
-  "FiltersThrowTypesLabel": "Tipos de Salvaguarda",
-  "FiltersThrowTypesRequirements": "Este filtro está disponível apenas para bônus aplicados em salvaguardas.",
-  "FiltersThrowTypesTooltip": "O tipo de salvaguarda que o bônus deve ser aplicado. Isso também se aplica a Salvaguardas Contra Morte e você também pode ajustar o valor da Salvaguarda Contra Morte do alvo.",
-  "FiltersTokenSizes": "Tamanhos do Token",
-  "FiltersTokenSizesLabel": "Tamanhos do Token",
-  "FiltersTokenSizesTooltip": "O tamanho do token alvo e se também deve ser comparado com o token de origem. Se marcado, o alvo deve ser no mínimo ou no máximo tão grande quanto o de origem.",
-  "FiltersWeaponProperties": "Propriedades da Arma",
-  "FiltersWeaponPropertiesLabel": "Propriedades da Arma",
-  "FiltersWeaponPropertiesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "FiltersWeaponPropertiesTooltip": "As propriedades da arma que o item deve ou não ter para que o bônus seja aplicado. Se alguma for selecionada, a arma deverá ter pelo menos uma das propriedades incluídas e nenhuma das propriedades excluídas. Por exemplo, se você quiser que um bônus seja aplicado apenas a armas de Duas Mãos.",
+  "Filters": {
+    "Abilities": {
+      "Hint": "O valor de atributo usado para o teste. Isso respeita os itens definidos para usar o padrão, como magias que usam o atributo de conjuração ou armas de Acuidade que usam Força ou Destreza.",
+      "Label": "Modificador de Atributo"
+    },
+    "ActorCreatureSizes": {
+      "Hint": "A categoria de tamanho que a criatura deve ser.",
+      "Label": "Tamanhos de Criatura"
+    },
+    "ActorCreatureTypes": {
+      "Hint": "O tipo de criatura que o ator de origem deve ser (ou ter como subtipo) ou o tipo de criatura que o ator de origem não deve ser. Por exemplo, 'undead', 'fey' ou 'construct'",
+      "Label": "Tipos de Criatura do Ator"
+    },
+    "ActorLanguages": {
+      "Hint": "Os idiomas que o ator deve ser capaz de falar, ou não deve ser capaz de falar.",
+      "Label": "Idiomas Falados"
+    },
+    "ArbitraryComparison": {
+      "Hint": "Insira números, propriedades de dados de rolagem, strings ou uma combinação dos três, que devem estar em um relacionamento específico para que o bônus seja aplicado. Esta comparação pode avaliar substrings usando qualquer uma das desigualdades. Você também pode usar dados de rolagem de um ator de token marcado, acrescentando '@target.",
+      "Label": "Comparação Arbitrária",
+      "One": "Valor…",
+      "Other": "Outro valor…"
+    },
+    "AttackTypes": {
+      "Hint": "O tipo de jogada de ataque que o item deve ter para que o bônus seja aplicado. Por exemplo, se você conjurar uma magia que deve envolver um ataque mágico à distância (rsak) ou ataque armado corpo a corpo (mwak).",
+      "Label": "Tipos de Ataque"
+    },
+    "BaseArmors": {
+      "Hint": "O tipo de armadura que você deve usar ou não deve usar para que o bônus seja aplicado, incluindo escudos.",
+      "Label": "Tipos de Armadura"
+    },
+    "BaseTools": {
+      "Hint": "Os tipos de ferramentas que o item deve ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Kit de Herbalismo, Ferramentas de Ladrão ou Ferramentas de Sapateiro.",
+      "Label": "Tipos de Ferramenta"
+    },
+    "BaseWeapons": {
+      "Hint": "Os tipos de armas do item devem ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Machado de Batalha, Arco Curto ou Espada Longa.",
+      "Label": "Tipos de Arma"
+    },
+    "CreatureTypes": {
+      "Hint": "O tipo de criatura da qual o ator alvo deve ser (ou ter como subtipo), ou o tipo de criatura da qual o ator alvo não deve ser. Por exemplo, 'undead', 'fey', ou 'construct'.",
+      "Label": "Tipos de Criatura Alvo"
+    },
+    "CustomScripts": {
+      "Hint": "Qualquer script personalizado que você queira escrever. O script deve ser totalmente síncrono e retornar verdadeiro ou falso. Como variáveis auxiliares, o script é fornecido com 'token', 'actor', 'item' e 'bonus', se aplicável.",
+      "Label": "Script Personalizado"
+    },
+    "DamageTypes": {
+      "Hint": "O tipo de dano que o item deve causar para que o bônus seja aplicado ou não deve causar para que o bônus seja aplicado. Por exemplo, se uma magia causa dano ígneo.",
+      "Label": "Tipos de Dano"
+    },
+    "FeatureTypes": {
+      "Hint": "O tipo e subtipo que um item de característica deve ter. Por exemplo, um Recurso de Classe, Recurso de Ki ou Recurso de Monstro.",
+      "Label": "Tipos de Característica"
+    },
+    "HealthPercentages": {
+      "Hint": "A porcentagem de vida que o ator deve ter no mínimo, ou no máximo, para que o bônus seja aplicado.",
+      "Label": "Porcentagem de Vida"
+    },
+    "ItemTypes": {
+      "Hint": "Os tipos de itens aos quais o bônus deve ser aplicado. Por exemplo, se o item se aplicar apenas a magias ou apenas a armas.",
+      "Label": "Tipos de Item"
+    },
+    "PreparationModes": {
+      "Hint": "O tipo de modo de preparação em que o feitiço deve ser definido para que o bônus seja aplicado, como 'Pacto' para Magia de Pacto ou 'À Vontade'.",
+      "Label": "Modos de Preparação"
+    },
+    "ProficiencyLevels": {
+      "Hint": "O nível de proficiência que o ator deve ter com a rolagem feita.",
+      "Label": "Níveis de Proficiência"
+    },
+    "RemainingSpellSlots": {
+      "Hint": "O número total mínimo e máximo de espaços de magia restantes que o ator deve ter para que o bônus seja aplicado. Por exemplo, se você quiser que um bônus seja aplicado apenas se você tiver 3 espaços de magia ou mais restantes, ou nenhum espaço restante.",
+      "Label": "Espaços de Magia Restantes"
+    },
+    "SaveAbilities": {
+      "Hint": "O atributo que deve ser usado para definir a CD da salvaguarda do item para que o bônus seja aplicado; por exemplo, um Guerreiro Mestre de Batalha que determina sua CD de Manobra com Destreza. Isso pode ser diferente do atributo que o item usa. Se um item for ajustado para escalar com 'Conjuração', o atributo de conjuração do ator é comparado.",
+      "Label": "CD Atributo Salvaguarda"
+    },
+    "SkillIds": {
+      "Hint": "Os tipos de perícias que a rolagem deve ser uma ou nenhuma para que o bônus seja aplicado. Por exemplo, Atletismo, Natureza ou Sobrevivência.",
+      "Label": "Perícias"
+    },
+    "SpellComponents": {
+      "Hint": "Os componentes ou tags de magia que a magia deve ter para que o bônus seja aplicado. Você pode escolher se a magia deve ter todos os componentes ou tags fornecidos ou pelo menos um deles. Por exemplo, se você quiser que um bônus seja aplicado a todos os feitiços que exigem Concentração.",
+      "Label": "Componentes de Magia",
+      "MatchAll": "Corresponder todos",
+      "MatchAny": "Corresponder qualquer um"
+    },
+    "SpellLevels": {
+      "Hint": "O nível que a magia deve ser conjurada para que o bônus seja aplicado. Você pode selecionar cada nível individualmente. Por exemplo, você pode aplicar um bônus apenas a truques, apenas a magias de nível ou apenas a magias de 3º nível ou inferior.",
+      "Label": "Níveis de Magia"
+    },
+    "SpellSchools": {
+      "Hint": "A escola que a magia deve pertencer para que o bônus seja aplicado. Se diversas escolas forem selecionadas, a magia deverá pertencer a qualquer uma delas. Por exemplo, se você quiser que um bônus seja aplicado apenas a magias de Adivinhação.",
+      "Label": "Escolas de Magia"
+    },
+    "StatusEffects": {
+      "Hint": "As condições que o ator deve ou não estar afetado, usando o conjunto de status do efeito.",
+      "Label": "Condições no Ator"
+    },
+    "TargetEffects": {
+      "Hint": "As condições que o ator alvo deve ou não estar afetado, usando o conjunto de status do efeito.",
+      "Label": "Condições no Alvo"
+    },
+    "ThrowTypes": {
+      "Hint": "O tipo de salvaguarda que o bônus deve ser aplicado. Isso também se aplica a Salvaguardas Contra Morte e você também pode ajustar o valor da Salvaguarda Contra Morte do alvo.",
+      "Label": "Tipos de Salvaguarda"
+    },
+    "TokenSizes": {
+      "Hint": "O tamanho do token alvo e se também deve ser comparado com o token de origem. Se marcado, o alvo deve ser no mínimo ou no máximo tão grande quanto o de origem.",
+      "Label": "Tamanhos do Token"
+    },
+    "WeaponProperties": {
+      "Hint": "As propriedades da arma que o item deve ou não ter para que o bônus seja aplicado. Se alguma for selecionada, a arma deverá ter pelo menos uma das propriedades incluídas e nenhuma das propriedades excluídas. Por exemplo, se você quiser que um bônus seja aplicado apenas a armas de Duas Mãos.",
+      "Label": "Propriedades da Arma"
+    }
+  },
+  "FiltersCategory": "Filtros",
   "ID": "ID",
   "Keys": "Keys",
   "KeysDialogApplySelection": "Aplicar Seleção",

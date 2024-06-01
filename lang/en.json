@@ -46,6 +46,10 @@
   "Example": "Example",
   "Fields": {
     "Aura": {
+      "Blockers": {
+        "Hint": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious.",
+        "Label": "Blocking Conditions"
+      },
       "Disposition": {
         "Hint": "Which targets should be affected by this aura, relative to the disposition of the origin token.",
         "Label": "Valid Targets",
@@ -139,114 +143,125 @@
       "Label": "Reminder"
     }
   },
-  "Filters": "Filters",
-  "FiltersAbilities": "Ability Modifier",
-  "FiltersAbilitiesLabel": "Ability Modifier",
-  "FiltersAbilitiesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, save DCs, and ability checks.",
-  "FiltersAbilitiesTooltip": "The ability score used for the roll. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity.",
-  "FiltersActorCreatureSizes": "Creature Sizes",
-  "FiltersActorCreatureSizesLabel": "Creature Sizes",
-  "FiltersActorCreatureSizesTooltip": "The size this creature must be one of.",
-  "FiltersActorCreatureTypes": "Actor Creature Types",
-  "FiltersActorCreatureTypesLabel": "Actor Creature Types",
-  "FiltersActorCreatureTypesTooltip": "The type of creature the rolling actor must be one of (or have as a subtype), or the type of creature the rolling actor must not be one of. For example 'undead', 'fey', or 'construct'.",
-  "FiltersActorLanguages": "Spoken Languages",
-  "FiltersActorLanguagesLabel": "Spoken Languages",
-  "FiltersActorLanguagesTooltip": "The languages the actor must be able to speak one of, or none of.",
-  "FiltersArbitraryComparison": "Arbitrary Comparison",
-  "FiltersArbitraryComparisonLabel": "Arbitrary Comparison",
-  "FiltersArbitraryComparisonOne": "Value…",
-  "FiltersArbitraryComparisonOther": "Other value…",
-  "FiltersArbitraryComparisonTooltip": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with '@target'.",
-  "FiltersAttackTypes": "Attack Types",
-  "FiltersAttackTypesLabel": "Attack Types",
-  "FiltersAttackTypesRequirements": "This filter is only available for bonuses applying to attack rolls or damage rolls.",
-  "FiltersAttackTypesTooltip": "The type of attack roll the item must have for the bonus to apply. For example if you cast a spell that must involve a ranged spell attack (rsak) or melee weapon attack (mwak).",
-  "Fields.Aura.Blockers.Label": "Blocking Conditions",
-  "Fields.Aura.Blockers.Hint": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious.",
-  "FiltersBaseArmors": "Armor Types",
-  "FiltersBaseArmorsLabel": "Armor Types",
-  "FiltersBaseArmorsTooltip": "The type of armor you must be wearing one of or must be wearing none of for the bonus to apply, including shields.",
-  "FiltersBaseTools": "Tool Types",
-  "FiltersBaseToolsLabel": "Tool Types",
-  "FiltersBaseToolsRequirements": "This filter is only available for bonuses applying to ability checks.",
-  "FiltersBaseToolsTooltip": "The types of tools the item must be one of or none of for the bonus to apply. For example Herbalism Kit, Thieves' Tools, or Cobbler's Tools.",
-  "FiltersBaseWeapons": "Weapon Types",
-  "FiltersBaseWeaponsLabel": "Weapon Types",
-  "FiltersBaseWeaponsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersBaseWeaponsTooltip": "The types of weapons the item must be one of or none of for the bonus to apply. For example Battleaxe, Shortbow, or Longsword.",
-  "FiltersCreatureTypes": "Target Creature Types",
-  "FiltersCreatureTypesLabel": "Target Creature Types",
-  "FiltersCreatureTypesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, save DCs, and saving throws.",
-  "FiltersCreatureTypesTooltip": "The type of creature the target actor must be one of (or have as a subtype), or the type of creature the target must not be one of. For example 'undead', 'fey', or 'construct'.",
-  "FiltersCustomScripts": "Custom Script",
-  "FiltersCustomScriptsLabel": "Custom Script",
-  "FiltersCustomScriptsTooltip": "Any custom script you want to write yourself. The script has to be completely synchronous and must return true or false. As helper variables, the script is supplied with 'token', 'actor', 'item', and 'bonus', if applicable.",
-  "FiltersDamageTypes": "Damage Types",
-  "FiltersDamageTypesLabel": "Damage Types",
-  "FiltersDamageTypesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersDamageTypesTooltip": "The type of damage the item must deal for the bonus to apply or must not deal for the bonus to apply. For example if a spell deals fire damage.",
-  "FiltersFeatureTypes": "Feature Types",
-  "FiltersFeatureTypesLabel": "Feature Types",
-  "FiltersFeatureTypesTooltip": "The type and subtype a feature-type item must be. For example a class feature, ki feature, or monster feature.",
-  "FiltersHealthPercentages": "Health Percentage",
-  "FiltersHealthPercentagesLabel": "Health Percentage",
-  "FiltersHealthPercentagesTooltip": "The percentage of health the actor must at least have, or at most have, for the bonus to apply.",
-  "FiltersItemTypes": "Item Types",
-  "FiltersItemTypesLabel": "Item Types",
-  "FiltersItemTypesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersItemTypesTooltip": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
-  "FiltersPreparationModes": "Preparation Modes",
-  "FiltersPreparationModesLabel": "Preparation Modes",
-  "FiltersPreparationModesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersPreparationModesTooltip": "The type of preparation mode the spell must be set to for the bonus to apply, such as 'pact' for pact magic, or 'at will'.",
-  "FiltersProficiencyLevels": "Proficiency Levels",
-  "FiltersProficiencyLevelsLabel": "Proficiency Levels",
-  "FiltersProficiencyLevelsRequirements": "This filter is only available for bonuses applying to attack rolls, ability checks, and saving throws.",
-  "FiltersProficiencyLevelsTooltip": "The level of proficiency that the actor must have with the roll made.",
-  "FiltersRemainingSpellSlots": "Remaining Spell Slots",
-  "FiltersRemainingSpellSlotsLabel": "Remaining Spell Slots",
-  "FiltersRemainingSpellSlotsTooltip": "The minimum and maximum total number of remaining spell slots the actor must have for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all.",
-  "FiltersSaveAbilities": "Save DC Abilities",
-  "FiltersSaveAbilitiesLabel": "Save DC Abilities",
-  "FiltersSaveAbilitiesRequirements": "This filter is only available for bonuses applying to save DCs.",
-  "FiltersSaveAbilitiesTooltip": "The ability that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with 'Spellcasting', the actor's spellcasting ability is compared against.",
-  "FiltersSkillIds": "Skills",
-  "FiltersSkillIdsLabel": "Skills",
-  "FiltersSkillIdsRequirements": "This filter is only available for bonuses applying to ability checks.",
-  "FiltersSkillIdsTooltip": "The types of skills the roll must be one of or none of for the bonus to apply. For example Athletics, Nature, or Survival.",
-  "FiltersSpellComponents": "Spell Components",
-  "FiltersSpellComponentsLabel": "Spell Components",
-  "FiltersSpellComponentsMatchAll": "Match all",
-  "FiltersSpellComponentsMatchAny": "Match any",
-  "FiltersSpellComponentsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersSpellComponentsTooltip": "The components or spell tags the spell must have for the bonus to apply. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration.",
-  "FiltersSpellLevels": "Spell Levels",
-  "FiltersSpellLevelsLabel": "Spell Levels",
-  "FiltersSpellLevelsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersSpellLevelsTooltip": "The level at which the spell must be cast for the bonus to apply. You can select each level individually. For example, you can have a bonus apply only to cantrips, only to leveled spells, or only to spells of 3rd level or below.",
-  "FiltersSpellSchools": "Spell Schools",
-  "FiltersSpellSchoolsLabel": "Spell Schools",
-  "FiltersSpellSchoolsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersSpellSchoolsTooltip": "The school the spell must belong to for the bonus to apply. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination spells.",
-  "FiltersStatusEffects": "Actor Conditions",
-  "FiltersStatusEffectsLabel": "Actor Conditions",
-  "FiltersStatusEffectsTooltip": "The conditions the actor must be affected by or must not be affected by, using the effect's set of statuses.",
-  "FiltersTargetEffects": "Target Conditions",
-  "FiltersTargetEffectsLabel": "Target Conditions",
-  "FiltersTargetEffectsRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, save DCs, and saving throws.",
-  "FiltersTargetEffectsTooltip": "The conditions the target actor must be affected by or must not be affected by, using the effect's set of statuses.",
-  "FiltersThrowTypes": "Saving Throw Types",
-  "FiltersThrowTypesLabel": "Saving Throw Types",
-  "FiltersThrowTypesRequirements": "This filter is only available for bonuses applying to saving throws.",
-  "FiltersThrowTypesTooltip": "The type of saving throw the bonus should apply to. This also applies to death saving throws, and you can adjust the target value of death saves as well.",
-  "FiltersTokenSizes": "Token Sizes",
-  "FiltersTokenSizesLabel": "Token Sizes",
-  "FiltersTokenSizesTooltip": "The size of the targeted token, and whether to compare against the rolling token as well. If checked, the target must be at least or at most as big as the roller.",
-  "FiltersWeaponProperties": "Weapon Properties",
-  "FiltersWeaponPropertiesLabel": "Weapon Properties",
-  "FiltersWeaponPropertiesRequirements": "This filter is only available for bonuses applying to attack rolls, damage rolls, and save DCs.",
-  "FiltersWeaponPropertiesTooltip": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the included properties, and none of the excluded properties. For example if you want a bonus to apply only to Two-Handed weapons.",
+  "Filters": {
+    "Abilities": {
+      "Hint": "The ability score used for the roll. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity. This filter is only available for bonuses applying to attack rolls, damage rolls, save DCs, and ability checks.",
+      "Label": "Ability Modifier"
+    },
+    "ActorCreatureSizes": {
+      "Hint": "The size this creature must be one of.",
+      "Label": "Creature Sizes"
+    },
+    "ActorCreatureTypes": {
+      "Hint": "The type of creature the rolling actor must be one of (or have as a subtype), or the type of creature the rolling actor must not be one of. For example 'undead', 'fey', or 'construct'.",
+      "Label": "Actor Creature Types"
+    },
+    "ActorLanguages": {
+      "Hint": "The languages the actor must be able to speak one of, or none of.",
+      "Label": "Spoken Languages"
+    },
+    "ArbitraryComparison": {
+      "Hint": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with '@target'.",
+      "Label": "Arbitrary Comparison",
+      "One": "Value…",
+      "Other": "Other value…"
+    },
+    "AttackTypes": {
+      "Hint": "The type of attack roll the item must have for the bonus to apply. For example if you cast a spell that must involve a ranged spell attack (rsak) or melee weapon attack (mwak).",
+      "Label": "Attack Types"
+    },
+    "BaseArmors": {
+      "Hint": "The type of armor you must be wearing one of or must be wearing none of for the bonus to apply, including shields.",
+      "Label": "Armor Types"
+    },
+    "BaseTools": {
+      "Hint": "The types of tools the item must be one of or none of for the bonus to apply. For example Herbalism Kit, Thieves' Tools, or Cobbler's Tools.",
+      "Label": "Tool Types"
+    },
+    "BaseWeapons": {
+      "Hint": "The types of weapons the item must be one of or none of for the bonus to apply. For example Battleaxe, Shortbow, or Longsword.",
+      "Label": "Weapon Types"
+    },
+    "CreatureTypes": {
+      "Hint": "The type of creature the target actor must be one of (or have as a subtype), or the type of creature the target must not be one of. For example 'undead', 'fey', or 'construct'.",
+      "Label": "Target Creature Types"
+    },
+    "CustomScripts": {
+      "Hint": "Any custom script you want to write yourself. The script has to be completely synchronous and must return true or false. As helper variables, the script is supplied with 'token', 'actor', 'item', and 'bonus', if applicable.",
+      "Label": "Custom Script"
+    },
+    "DamageTypes": {
+      "Hint": "The type of damage the item must deal for the bonus to apply or must not deal for the bonus to apply. For example if a spell deals fire damage.",
+      "Label": "Damage Types"
+    },
+    "FeatureTypes": {
+      "Hint": "The type and subtype a feature-type item must be. For example a class feature, ki feature, or monster feature.",
+      "Label": "Feature Types"
+    },
+    "HealthPercentages": {
+      "Hint": "The percentage of health the actor must at least have, or at most have, for the bonus to apply.",
+      "Label": "Health Percentage"
+    },
+    "ItemTypes": {
+      "Hint": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
+      "Label": "Item Types"
+    },
+    "PreparationModes": {
+      "Hint": "The type of preparation mode the spell must be set to for the bonus to apply, such as 'pact' for pact magic, or 'at will'.",
+      "Label": "Preparation Modes"
+    },
+    "ProficiencyLevels": {
+      "Hint": "The level of proficiency that the actor must have with the roll made.",
+      "Label": "Proficiency Levels"
+    },
+    "RemainingSpellSlots": {
+      "Hint": "The minimum and maximum total number of remaining spell slots the actor must have for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all.",
+      "Label": "Remaining Spell Slots"
+    },
+    "SaveAbilities": {
+      "Hint": "The ability that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with 'Spellcasting', the actor's spellcasting ability is compared against.",
+      "Label": "Save DC Abilities"
+    },
+    "SkillIds": {
+      "Hint": "The types of skills the roll must be one of or none of for the bonus to apply. For example Athletics, Nature, or Survival.",
+      "Label": "Skills"
+    },
+    "SpellComponents": {
+      "Hint": "The components or spell tags the spell must have for the bonus to apply. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration.",
+      "Label": "Spell Components",
+      "MatchAll": "Match all",
+      "MatchAny": "Match any"
+    },
+    "SpellLevels": {
+      "Hint": "The level at which the spell must be cast for the bonus to apply. You can select each level individually. For example, you can have a bonus apply only to cantrips, only to leveled spells, or only to spells of 3rd level or below.",
+      "Label": "Spell Levels"
+    },
+    "SpellSchools": {
+      "Hint": "The school the spell must belong to for the bonus to apply. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination spells.",
+      "Label": "Spell Schools"
+    },
+    "StatusEffects": {
+      "Hint": "The conditions the actor must be affected by or must not be affected by, using the effect's set of statuses.",
+      "Label": "Actor Conditions"
+    },
+    "TargetEffects": {
+      "Hint": "The conditions the target actor must be affected by or must not be affected by, using the effect's set of statuses.",
+      "Label": "Target Conditions"
+    },
+    "ThrowTypes": {
+      "Hint": "The type of saving throw the bonus should apply to. This also applies to death saving throws, and you can adjust the target value of death saves as well.",
+      "Label": "Saving Throw Types"
+    },
+    "TokenSizes": {
+      "Hint": "The size of the targeted token, and whether to compare against the rolling token as well. If checked, the target must be at least or at most as big as the roller.",
+      "Label": "Token Sizes"
+    },
+    "WeaponProperties": {
+      "Hint": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the included properties, and none of the excluded properties. For example if you want a bonus to apply only to Two-Handed weapons.",
+      "Label": "Weapon Properties"
+    }
+  },
+  "FiltersCategory": "Filters",
   "ID": "ID",
   "Keys": "Keys",
   "KeysDialogApplySelection": "Apply Selection",
