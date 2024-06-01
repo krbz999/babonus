@@ -16,7 +16,7 @@ export class HealthPercentagesField extends FilterMixin(SchemaField) {
 
   /** @override */
   static async getData(bonus) {
-    const data = await super.getData();
+    const data = await super.getData(bonus);
     const {value, type} = this.value(bonus);
     data.options = {0: "BABONUS.OrLess", 1: "BABONUS.OrMore"};
     data.selected = type ?? null;

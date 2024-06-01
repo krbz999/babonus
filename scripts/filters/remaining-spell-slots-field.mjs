@@ -24,7 +24,7 @@ export class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
 
   /** @override */
   static async getData(bonus) {
-    const data = await super.getData();
+    const data = await super.getData(bonus);
     const value = bonus ? this.value(bonus) : {};
     data.min = value.min ?? null;
     data.max = value.max ?? null;

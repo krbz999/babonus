@@ -24,7 +24,7 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
 
   /** @override */
   static async getData(bonus) {
-    const data = await super.getData();
+    const data = await super.getData(bonus);
     data.options = this.selectOptions;
     data.placeholderOne = "BABONUS.FiltersArbitraryComparisonOne";
     data.placeholderOther = "BABONUS.FiltersArbitraryComparisonOther";

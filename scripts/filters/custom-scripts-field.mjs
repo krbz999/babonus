@@ -12,7 +12,7 @@ export class CustomScriptsField extends FilterMixin(StringField) {
 
   /** @override */
   static async getData(bonus) {
-    const data = await super.getData();
+    const data = await super.getData(bonus);
     data.value = this.value(bonus);
     return data;
   }

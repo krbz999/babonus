@@ -1,12 +1,1 @@
-<div class="form-group">
-  <label class="label" data-tooltip="{{tooltip}}">{{localize label}}</label>
-  <div class="form-fields">
-    <input type="text" name="filters.{{id}}" value="{{value}}">
-    <button data-action="keys-dialog" type="button" data-property="filters.{{id}}" data-id="{{id}}">
-      <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
-    </button>
-  </div>
-  <a data-action="delete-filter" data-id="{{id}}">
-    <i class="fa-solid fa-trash"></i>
-  </a>
-</div>
+{{formGroup field value=value localize=true}}

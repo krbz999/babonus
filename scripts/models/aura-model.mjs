@@ -32,7 +32,10 @@ export class AuraModel extends foundry.abstract.DataModel {
           "-1": "BABONUS.Fields.Aura.Disposition.OptionEnemy"
         }
       }),
-      blockers: new babonus.abstract.DataFields.filters.auraBlockers(),
+      blockers: new babonus.abstract.DataFields.filters.auraBlockers({
+        label: "BABONUS.Fields.Aura.Blockers.Label",
+        hint: "BABONUS.Fields.Aura.Blockers.Hint"
+      }),
       require: new SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
         acc[k] = new BooleanField({
           label: `BABONUS.Fields.Aura.Require${k.capitalize()}.Label`,

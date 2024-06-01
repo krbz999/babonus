@@ -37,7 +37,9 @@ export function FilterMixin(Base) {
         id: this.name,
         appId: foundry.utils.randomID(),
         label: `BABONUS.Filters${this.name.capitalize()}Label`,
-        tooltip: `BABONUS.Filters${this.name.capitalize()}Tooltip`
+        tooltip: `BABONUS.Filters${this.name.capitalize()}Tooltip`,
+        field: bonus.schema.getField(`filters.${this.name}`),
+        value: bonus.filters[this.name]
       };
     }
 
