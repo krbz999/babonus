@@ -5,9 +5,10 @@ const {SetField, StringField} = foundry.data.fields;
 class BaseField extends FilterMixin(SetField) {
   static template = "modules/babonus/templates/parts/text-keys.hbs";
   static canExclude = true;
+  static trash = true;
 
-  constructor() {
-    super(new StringField());
+  constructor(element = null, options = {}) {
+    super(element ? element : new StringField(), options);
   }
 
   /** @override */
@@ -31,6 +32,38 @@ class BaseField extends FilterMixin(SetField) {
     const data = await super.getData();
     data.value = Array.from(this.value(bonus)).filterJoin(";");
     return data;
+  }
+
+  /** @override */
+  _toInput(config) {
+    if ((config.value instanceof Set) || Array.isArray(config.value)) {
+      config.value = Array.from(config.value).join(";");
+    }
+    return foundry.data.fields.StringField.prototype._toInput.call(this, config);
+  }
+
+  /** @override */
+  toFormGroup(formConfig, inputConfig) {
+    const element = super.toFormGroup(formConfig, inputConfig);
+
+    const input = element.querySelector("input");
+    const button = document.createElement("BUTTON");
+    button.dataset.action = "keys-dialog";
+    button.dataset.property = input.name;
+    button.dataset.id = this.constructor.name;
+    button.type = "button";
+    button.innerHTML = `<i class="fa-solid fa-key"></i> ${game.i18n.localize("BABONUS.Keys")}`;
+    input.after(button);
+
+    if (this.constructor.trash) {
+      const trash = document.createElement("A");
+      trash.dataset.action = "delete-filter";
+      trash.dataset.id = this.constructor.name;
+      trash.innerHTML = "<i class='fa-solid fa-trash'></i>";
+      element.querySelector(".form-fields").after(trash);
+    }
+
+    return element;
   }
 }
 
@@ -88,6 +121,14 @@ class TargetEffectsField extends StatusEffectsField {
 class AuraBlockersField extends StatusEffectsField {
   static name = "auraBlockers";
   static canExclude = false;
+  static trash = false;
+
+  constructor() {
+    super(new StringField(), {
+      label: "BABONUS.Fields.Aura.Blockers.Label",
+      hint: "BABONUS.Fields.Aura.Blockers.Hint"
+    });
+  }
 }
 
 class CreatureTypesField extends BaseField {

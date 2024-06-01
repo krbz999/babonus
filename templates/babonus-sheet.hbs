@@ -245,17 +245,7 @@
         {{formGroup context.aura.disposition.field value=context.aura.disposition.value localize=true sort=false}}
         {{formGroup context.aura.self.field value=context.aura.self.value localize=true}}
 
-        <div class="form-group">
-          <label data-tooltip="BABONUS.FiltersAuraBlockersTooltip" class="label">
-            {{localize "BABONUS.FiltersAuraBlockers"}}
-          </label>
-          <div class="form-fields">
-            <input type="text" name="aura.blockers" value="{{context.aura.blockers}}">
-            <button data-action="keys-dialog" type="button" data-property="aura.blockers" data-id="auraBlockers">
-              <i class="fa-solid fa-key"></i> {{localize "BABONUS.Keys"}}
-            </button>
-          </div>
-        </div>
+        {{formGroup context.aura.blockers.field value=context.aura.blockers.value localize=true}}
 
         {{#each context.aura.requirements}}
         {{formGroup field value=value localize=true}}

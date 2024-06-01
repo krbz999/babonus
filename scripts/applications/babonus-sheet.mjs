@@ -336,7 +336,10 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     };
 
     // Blockers
-    context.blockers = Array.from(this.bonus.aura.blockers).filterJoin(";");
+    context.blockers = {
+      field: schema.getField("blockers"),
+      value: this.bonus.aura.blockers
+    };
 
     // Requirements
     context.requirements = ["move", "light", "sight", "sound"].map(k => {
