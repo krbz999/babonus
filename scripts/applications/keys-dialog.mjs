@@ -34,7 +34,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
   /** @override */
   get title() {
     return game.i18n.format("BABONUS.KeysDialogTitle", {
-      name: game.i18n.localize(`BABONUS.Filters${this.options.filterId.capitalize()}`)
+      name: game.i18n.localize(`BABONUS.Filters.${this.options.filterId.capitalize()}.Label`)
     });
   }
 

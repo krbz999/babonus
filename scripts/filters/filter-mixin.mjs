@@ -16,6 +16,12 @@ export function FilterMixin(Base) {
     static canExclude = false;
 
     /**
+     * Should this filter display the trash button?
+     * @type {boolean}
+     */
+    static trash = true;
+
+    /**
      * Is this filter available?
      * @param {Set<string>} filters     The set of current filters.
      * @param {Babonus} bonus           The current babonus.
@@ -73,6 +79,21 @@ export function FilterMixin(Base) {
      */
     static async choices() {
       throw new Error("This must be subclassed!");
+    }
+
+    /** @override */
+    toFormGroup(formConfig, inputConfig) {
+      const element = super.toFormGroup(formConfig, inputConfig);
+
+      if (this.constructor.trash) {
+        const trash = document.createElement("A");
+        trash.dataset.action = "delete-filter";
+        trash.dataset.id = this.constructor.name;
+        trash.innerHTML = "<i class='fa-solid fa-trash'></i>";
+        element.querySelector(".form-fields").after(trash);
+      }
+
+      return element;
     }
   };
 }

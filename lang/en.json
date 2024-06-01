@@ -229,6 +229,8 @@
     "SpellComponents": {
       "Hint": "The components or spell tags the spell must have for the bonus to apply. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration.",
       "Label": "Spell Components",
+      "TypesLabel": "Types",
+      "MatchLabel": "Matching",
       "MatchAll": "Match all",
       "MatchAny": "Match any"
     },

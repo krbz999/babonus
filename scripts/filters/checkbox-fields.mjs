@@ -5,27 +5,12 @@ const {SetField, NumberField, StringField, SchemaField} = foundry.data.fields;
 class BaseField extends FilterMixin(SetField) {
   static template = "modules/babonus/templates/parts/checkboxes.hbs";
 
-  /** @override */
-  static async getData(bonus) {
-    const data = await super.getData(bonus);
-    const value = bonus ? this.value(bonus) : [];
-    const choices = await this.choices();
-    data.value = choices.map(c => {
-      return {
-        checked: value.has(c.value),
-        value: c.value,
-        label: c.value,
-        tooltip: c.label
-      };
+  static render(bonus) {
+    const field = bonus.schema.getField(`filters.${this.name}`);
+    const value = bonus.filters[this.name] ?? new Set();
+    return Handlebars.compile("{{formGroup field value=value localize=true}}")({
+      field: field, value: value
     });
-    return data;
-  }
-
-  /** @override */
-  _cast(value) {
-    return super._cast(value.filter(i => {
-      return (i !== null) && (i !== undefined) && (i !== "");
-    }));
   }
 }
 
@@ -33,15 +18,12 @@ class ProficiencyLevelsField extends BaseField {
   static name = "proficiencyLevels";
 
   constructor() {
-    super(new NumberField());
-  }
-
-  /** @override */
-  static async choices() {
-    const levels = Object.entries(CONFIG.DND5E.proficiencyLevels);
-    return levels.map(([value, label]) => {
-      return {value: Number(value), label: label};
-    }).sort((a, b) => a.value - b.value);
+    super(new NumberField({
+      choices: CONFIG.DND5E.proficiencyLevels
+    }), {
+      label: "BABONUS.Filters.ProficiencyLevels.Label",
+      hint: "BABONUS.Filters.ProficiencyLevels.Hint"
+    });
   }
 }
 
@@ -49,23 +31,16 @@ class ItemTypesField extends BaseField {
   static name = "itemTypes";
 
   constructor() {
-    super(new StringField());
-  }
-
-  /** @override */
-  static async getData(bonus) {
-    const data = await super.getData(bonus);
-    data.value.forEach(v => v.label = v.label.slice(0, 4));
-    return data;
-  }
-
-  /** @override */
-  static async choices() {
-    return Object.keys(dnd5e.dataModels.item.config).reduce((acc, type) => {
-      if (!dnd5e.dataModels.item.config[type].schema.getField("damage.parts")) return acc;
-      acc.push({value: type, label: `TYPES.Item.${type}`});
-      return acc;
-    }, []);
+    super(new StringField({
+      choices: Object.keys(dnd5e.dataModels.item.config).reduce((acc, type) => {
+        if (!dnd5e.dataModels.item.config[type].schema.getField("damage.parts")) return acc;
+        acc[type] = `TYPES.Item.${type}`;
+        return acc;
+      }, {})
+    }), {
+      label: "BABONUS.Filters.ItemTypes.Label",
+      hint: "BABONUS.Filters.ItemTypes.Hint"
+    });
   }
 }
 
@@ -73,12 +48,15 @@ class AttackTypesField extends BaseField {
   static name = "attackTypes";
 
   constructor() {
-    super(new StringField());
-  }
-
-  /** @override */
-  static async choices() {
-    return ["mwak", "rwak", "msak", "rsak"].map(ak => ({value: ak, label: CONFIG.DND5E.itemActionTypes[ak]}));
+    super(new StringField({
+      choices: ["mwak", "rwak", "msak", "rsak"].reduce((acc, ak) => {
+        acc[ak] = CONFIG.DND5E.itemActionTypes[ak];
+        return acc;
+      }, {})
+    }), {
+      label: "BABONUS.Filters.AttackTypes.Label",
+      hint: "BABONUS.Filters.AttackTypes.Hint"
+    });
   }
 }
 
@@ -86,13 +64,12 @@ class SpellLevelsField extends BaseField {
   static name = "spellLevels";
 
   constructor() {
-    super(new NumberField());
-  }
-
-  /** @override */
-  static async choices() {
-    const levels = Object.entries(CONFIG.DND5E.spellLevels);
-    return levels.map(([value, label]) => ({value: Number(value), label}));
+    super(new NumberField({
+      choices: CONFIG.DND5E.spellLevels
+    }), {
+      label: "BABONUS.Filters.SpellLevels.Label",
+      hint: "BABONUS.Filters.SpellLevels.Hint"
+    });
   }
 }
 
@@ -102,43 +79,62 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
 
   constructor(fields = {}, options = {}) {
     super({
-      types: new BaseField(new StringField()),
-      match: new StringField({nullable: true, initial: null, choices: ["ANY", "ALL"]}),
+      types: new BaseField(new StringField({
+        choices: () => CONFIG.DND5E.validProperties.spell.reduce((acc, p) => {
+          const prop = CONFIG.DND5E.itemProperties[p];
+          if (prop) acc[p] = prop;
+          return acc;
+        }, {})
+      }), {
+        label: "BABONUS.Filters.SpellComponents.TypesLabel",
+        hint: "BABONUS.Filters.SpellComponents.TypesHint"
+      }),
+      match: new StringField({
+        choices: {
+          ANY: "BABONUS.Filters.SpellComponents.MatchAny",
+          ALL: "BABONUS.Filters.SpellComponents.MatchAll"
+        },
+        label: "BABONUS.Filters.SpellComponents.MatchLabel",
+        hint: "BABONUS.Filters.SpellComponents.MatchHint"
+      }),
       ...fields
-    }, options);
+    }, {
+      label: "BABONUS.Filters.SpellComponents.Label",
+      hint: "BABONUS.Filters.SpellComponents.Hint",
+      ...options
+    });
   }
 
-  /** @override */
-  static async getData(bonus) {
-    const value = this.value(bonus);
-    const types = value.types ?? [];
-    const match = value.match ?? null;
-    const data = await super.getData(bonus);
-    const choices = await this.choices();
+  static render(bonus) {
+    const template = `
+    <fieldset>
+      <legend>
+        {{localize types.parent.label}}
+        <a data-action="delete-filter" data-id="spellComponents">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </legend>
+      <div class="form-group">
+        <label>{{localize types.label}}</label>
+        <div class="form-fields">
+          {{formInput types value=typesValue localize=true}}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{{localize match.label}}</label>
+        <div class="form-fields">
+          {{formInput match value=matchValue localize=true sort=true}}
+        </div>
+      </div>
+      <p class="hint">{{localize types.parent.hint}}</p>
+    </fieldset>`;
 
-    data.types = choices.map(c => ({
-      checked: types.has(c.value),
-      value: c.value,
-      label: c.abbr,
-      tooltip: c.label
-    }));
-    data.selected = match;
-    data.options = {
-      ANY: "BABONUS.FiltersSpellComponentsMatchAny",
-      ALL: "BABONUS.FiltersSpellComponentsMatchAll"
-    };
-    return data;
-  }
-
-  /** @override */
-  static async choices() {
-    const keys = CONFIG.DND5E.validProperties.spell;
-    const labels = CONFIG.DND5E.itemProperties;
-    return keys.reduce((acc, k) => {
-      const {label, abbr} = labels[k] ?? {};
-      if (label) acc.push({value: k, label: label, abbr: abbr || label.slice(0, 1).toUpperCase()});
-      return acc;
-    }, []);
+    return Handlebars.compile(template)({
+      types: bonus.schema.getField("filters.spellComponents.types"),
+      match: bonus.schema.getField("filters.spellComponents.match"),
+      typesValue: bonus.filters.spellComponents.types,
+      matchValue: bonus.filters.spellComponents.match
+    });
   }
 
   /** @override */
@@ -152,22 +148,11 @@ class ActorCreatureSizesField extends BaseField {
   static name = "actorCreatureSizes";
 
   constructor() {
-    super(new StringField());
-  }
-
-  /** @override */
-  static async getData(bonus) {
-    const data = await super.getData(bonus);
-    data.value.forEach(v => {
-      v.label = CONFIG.DND5E.actorSizes[v.value].abbreviation;
-    });
-    return data;
-  }
-
-  /** @override */
-  static async choices() {
-    return Object.entries(CONFIG.DND5E.actorSizes).map(([k, v]) => {
-      return {value: k, label: v.label};
+    super(new StringField({
+      choices: CONFIG.DND5E.actorSizes
+    }), {
+      label: "BABONUS.Filters.ActorCreatureSizes.Label",
+      hint: "BABONUS.Filters.ActorCreatureSizes.Hint"
     });
   }
 }

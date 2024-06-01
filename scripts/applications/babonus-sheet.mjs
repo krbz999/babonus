@@ -183,8 +183,8 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   async _prepareFilters() {
     const div = document.createElement("DIV");
     const keys = [...this._filters].sort((a, b) => {
-      a = game.i18n.localize(`BABONUS.Filters${a.capitalize()}`);
-      b = game.i18n.localize(`BABONUS.Filters${b.capitalize()}`);
+      a = game.i18n.localize(`BABONUS.Filters.${a.capitalize()}.Label`);
+      b = game.i18n.localize(`BABONUS.Filters.${b.capitalize()}.Label`);
       return a.localeCompare(b);
     });
     for (const key of keys) {

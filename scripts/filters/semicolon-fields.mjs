@@ -5,7 +5,6 @@ const {SetField, StringField} = foundry.data.fields;
 class BaseField extends FilterMixin(SetField) {
   static template = "modules/babonus/templates/parts/text-keys.hbs";
   static canExclude = true;
-  static trash = true;
 
   constructor(options = {}) {
     super(new StringField(), options);
@@ -54,14 +53,6 @@ class BaseField extends FilterMixin(SetField) {
     button.type = "button";
     button.innerHTML = `<i class="fa-solid fa-key"></i> ${game.i18n.localize("BABONUS.Keys")}`;
     input.after(button);
-
-    if (this.constructor.trash) {
-      const trash = document.createElement("A");
-      trash.dataset.action = "delete-filter";
-      trash.dataset.id = this.constructor.name;
-      trash.innerHTML = "<i class='fa-solid fa-trash'></i>";
-      element.querySelector(".form-fields").after(trash);
-    }
 
     return element;
   }
