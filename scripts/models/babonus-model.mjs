@@ -484,7 +484,7 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineFilterSchema() {
     return {
-      arbitraryComparison: new babonus.abstract.DataFields.filters.arbitraryComparison(),
+      arbitraryComparisons: new babonus.abstract.DataFields.filters.arbitraryComparisons(),
       baseArmors: new babonus.abstract.DataFields.filters.baseArmors(),
       statusEffects: new babonus.abstract.DataFields.filters.statusEffects(),
       healthPercentages: new babonus.abstract.DataFields.filters.healthPercentages(),
@@ -500,6 +500,7 @@ class Babonus extends foundry.abstract.DataModel {
   static migrateData(source) {
     this.migrateMinimum(source);
     this.migrateDeathSaveTargetValue(source);
+    this.migrateArbitraryComparisonPlural(source);
   }
 
   /**
@@ -522,6 +523,15 @@ class Babonus extends foundry.abstract.DataModel {
   static migrateDeathSaveTargetValue(source) {
     const tv = source?.bonuses?.deathSaveTargetValue;
     if (tv) foundry.utils.setProperty(source, "bonuses.targetValue", tv);
+  }
+
+  /**
+   * Rename the 'arbitraryComparison' property to 'arbitraryComparisons'.
+   * @param {object} source     Candidate source data.
+   */
+  static migrateArbitraryComparisonPlural(source) {
+    const v = source?.filters?.arbitraryComparison;
+    if (v?.length) source.filters.arbitraryComparisons = v;
   }
 
   /**

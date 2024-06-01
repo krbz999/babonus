@@ -4,7 +4,7 @@ const {SchemaField, StringField, ArrayField} = foundry.data.fields;
 
 // ArrayField that filters invalid comparison fields.
 export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
-  static name = "arbitraryComparison";
+  static name = "arbitraryComparisons";
   static repeatable = true;
   static template = "modules/babonus/templates/parts/text-select-text.hbs";
 
@@ -46,7 +46,7 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
           {{formInput c.operator.field value=c.operator.value name=c.operator.name}}
           {{formInput c.other.field value=c.other.value placeholder=../placeholder2 name=c.other.name}}
         </div>
-        <a data-action="delete-filter" data-id="arbitraryComparison" data-idx="{{idx}}">
+        <a data-action="delete-filter" data-id="arbitraryComparisons" data-idx="{{idx}}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </div>
@@ -54,18 +54,18 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
       <p class="hint">{{localize hint}}</p>
     </fieldset>`;
 
-    const field = bonus.schema.getField("filters.arbitraryComparison");
+    const field = bonus.schema.getField("filters.arbitraryComparisons");
     const {one, other, operator} = field.element.fields;
     const data = {
       label: field.label,
       hint: field.hint,
       placeholder1: game.i18n.localize("BABONUS.Filters.ArbitraryComparisons.One"),
       placeholder2: game.i18n.localize("BABONUS.Filters.ArbitraryComparisons.Other"),
-      comparisons: bonus.filters.arbitraryComparison.map((c, i) => {
+      comparisons: bonus.filters.arbitraryComparisons.map((c, i) => {
         return {
-          one: {field: one, value: c.one, name: `filters.arbitraryComparison.${i}.one`},
-          other: {field: other, value: c.other, name: `filters.arbitraryComparison.${i}.other`},
-          operator: {field: operator, value: c.operator, name: `filters.arbitraryComparison.${i}.operator`}
+          one: {field: one, value: c.one, name: `filters.arbitraryComparisons.${i}.one`},
+          other: {field: other, value: c.other, name: `filters.arbitraryComparisons.${i}.other`},
+          operator: {field: operator, value: c.operator, name: `filters.arbitraryComparisons.${i}.operator`}
         };
       })
     };

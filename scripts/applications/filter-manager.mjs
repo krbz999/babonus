@@ -446,7 +446,7 @@ export class FilterManager {
    * @param {string} filter[].operator      The kind of comparison to make between the two values.
    * @returns {boolean}                     Whether every comparison were in the correct relationship.
    */
-  static arbitraryComparison(object, filter) {
+  static arbitraryComparisons(object, filter) {
     if (!filter.length) return true;
 
     const rollData = object.getRollData();

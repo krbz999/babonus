@@ -162,7 +162,7 @@
     },
     "ArbitraryComparisons": {
       "Hint": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with '@target'.",
-      "Label": "Arbitrary Comparison",
+      "Label": "Arbitrary Comparisons",
       "One": "Value…",
       "Other": "Other value…"
     },
