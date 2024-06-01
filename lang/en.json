@@ -160,7 +160,7 @@
       "Hint": "The languages the actor must be able to speak one of, or none of.",
       "Label": "Spoken Languages"
     },
-    "ArbitraryComparison": {
+    "ArbitraryComparisons": {
       "Hint": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with '@target'.",
       "Label": "Arbitrary Comparison",
       "One": "Value…",
@@ -196,7 +196,9 @@
     },
     "FeatureTypes": {
       "Hint": "The type and subtype a feature-type item must be. For example a class feature, ki feature, or monster feature.",
-      "Label": "Feature Types"
+      "Label": "Feature Types",
+      "TypeLabel": "Type",
+      "SubtypeLabel": "Subtype"
     },
     "HealthPercentages": {
       "Hint": "The percentage of health the actor must at least have, or at most have, for the bonus to apply.",

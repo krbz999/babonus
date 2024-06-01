@@ -8,22 +8,58 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
 
   constructor(fields = {}, options = {}) {
     super({
-      type: new StringField({required: true}),
-      subtype: new StringField({required: true}),
+      type: new StringField({
+        required: false,
+        label: "BABONUS.Filters.FeatureTypes.TypeLabel",
+        choices: () => CONFIG.DND5E.featureTypes
+      }),
+      subtype: new StringField({
+        required: true,
+        label: "BABONUS.Filters.FeatureTypes.SubtypeLabel"
+      }),
       ...fields
-    }, options);
+    }, {
+      label: "BABONUS.Filters.FeatureTypes.Label",
+      hint: "BABONUS.Filters.FeatureTypes.Hint",
+      ...options
+    });
   }
 
   /** @override */
-  static async getData(bonus) {
-    const data = await super.getData(bonus);
-    const value = this.value(bonus);
-    data.options = CONFIG.DND5E.featureTypes;
-    data.subOptions = CONFIG.DND5E.featureTypes[value.type]?.subtypes ?? {};
-    data.hasSubtype = !foundry.utils.isEmpty(data.subOptions);
-    data.selected = value.type;
-    data.subselected = value.subtype;
-    return data;
+  static render(bonus) {
+    const schema = bonus.schema.getField("filters.featureTypes");
+    const {type, subtype} = schema.fields;
+
+    const value1 = bonus.filters.featureTypes.type;
+    const value2 = bonus.filters.featureTypes.subtype;
+    const choices = CONFIG.DND5E.featureTypes[value1]?.subtypes ?? {};
+
+    const template = `
+    <fieldset>
+      <legend>
+        {{localize label}}
+        <a data-action="delete-filter" data-id="featureTypes">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </legend>
+      {{formGroup type value=value1 localize=true sort=true}}
+      {{#if choices}}
+      {{formGroup subtype value=value2 localize=true sort=true choices=choices}}
+      {{/if}}
+      <p class="hint">{{localize hint}}</p>
+    </fieldset>`;
+
+    const data = {
+      type: type,
+      subtype: subtype,
+      value1: value1,
+      value2: value2,
+      choices: foundry.utils.isEmpty(choices) ? null : choices,
+      label: schema.label,
+      hint: schema.hint
+    };
+
+    return Handlebars.compile(template)(data);
   }
 
   /** @override */

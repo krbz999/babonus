@@ -141,7 +141,7 @@
       "Hint": "Os idiomas que o ator deve ser capaz de falar, ou não deve ser capaz de falar.",
       "Label": "Idiomas Falados"
     },
-    "ArbitraryComparison": {
+    "ArbitraryComparisons": {
       "Hint": "Insira números, propriedades de dados de rolagem, strings ou uma combinação dos três, que devem estar em um relacionamento específico para que o bônus seja aplicado. Esta comparação pode avaliar substrings usando qualquer uma das desigualdades. Você também pode usar dados de rolagem de um ator de token marcado, acrescentando '@target.",
       "Label": "Comparação Arbitrária",
       "One": "Valor…",

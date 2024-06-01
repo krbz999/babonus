@@ -124,7 +124,7 @@
       "Hint": "Le type de créature dont l'acteur doit faire partie (ou qu'il doit avoir comme sous-type), ou le type de créature dont l'acteur ne doit pas faire partie. Par exemple \"mort-vivant\", \"fée\", ou \"construction\".",
       "Label": "Types de créatures de l'acteur"
     },
-    "ArbitraryComparison": {
+    "ArbitraryComparisons": {
       "Hint": "Insérez des nombres, des propriétés de jets, des chaînes de caractères ou une combinaison des trois, qui doivent être dans une relation spécifique pour que le bonus s'applique. Cette comparaison peut évaluer les sous-chaînes en utilisant l'une ou l'autre des inégalités. Vous pouvez également utiliser les données de jet d'acteur d'un token ciblé en les faisant précéder de '@target'.",
       "Label": "Comparaison arbitraire",
       "One": "Valeur…",
