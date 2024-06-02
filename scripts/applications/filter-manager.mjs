@@ -588,13 +588,15 @@ export class FilterManager {
    * @param {object} filter             The filtering for the bonus.
    * @param {number} filter.min         The minimum value available required for the bonus to apply.
    * @param {number} filter.max         The maximum value available required for the bonus to apply.
+   * @param {boolean} [filter.size]     Whether to take the size of the spell slot into account.
    * @returns {boolean}                 Whether the number of spell slots remaining falls within the bounds.
    */
-  static remainingSpellSlots(object, {min, max}) {
+  static remainingSpellSlots(object, {min, max, size = false}) {
     if (![min, max].some(m => Number.isInteger(m))) return true;
     const caster = object.actor ?? object;
     const spells = Object.values(caster.system.spells ?? {}).reduce((acc, val) => {
-      return acc + Math.clamped(val.value, 0, val.max);
+      if (!val.level) return acc;
+      return acc + Math.clamp(val.value, 0, val.max) * (size ? val.level : 1);
     }, 0);
     return spells.between(min || 0, max || Infinity);
   }

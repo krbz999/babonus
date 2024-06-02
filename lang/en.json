@@ -222,7 +222,10 @@
     },
     "RemainingSpellSlots": {
       "Hint": "The minimum and maximum total number of remaining spell slots the actor must have for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all.",
-      "Label": "Remaining Spell Slots"
+      "Label": "Remaining Spell Slots",
+      "RangesLabel": "Range",
+      "SizeLabel": "Size",
+      "SizeHint": "Take the size of the spell slot into account, meaning a spell slot of 5th level counts as a value of five. Otherwise, each spell slots count as one."
     },
     "SaveAbilities": {
       "Hint": "The ability that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with 'Spellcasting', the actor's spellcasting ability is compared against.",
