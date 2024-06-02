@@ -42,9 +42,9 @@ export class HealthPercentagesField extends FilterMixin(SchemaField) {
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      {{formGroup valueField value=value localize=true unit="%"}}
-      {{formGroup typeField value=type localize=true}}
       <p class="hint">{{localize hint}}</p>
+      {{formGroup valueField value=value localize=true}}
+      {{formGroup typeField value=type localize=true}}
     </fieldset>`;
 
     const schema = bonus.schema.getField(`filters.${this.name}`);

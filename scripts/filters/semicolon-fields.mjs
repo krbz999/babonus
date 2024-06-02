@@ -255,24 +255,6 @@ class DamageTypesField extends BaseField {
   }
 }
 
-class PreparationModesField extends BaseField {
-  static name = "preparationModes";
-  static canExclude = false;
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.PreparationModes.Label",
-      hint: "BABONUS.Filters.PreparationModes.Hint"
-    });
-  }
-
-  /** @override */
-  static async choices() {
-    const modes = Object.entries(CONFIG.DND5E.spellPreparationModes);
-    return modes.map(([value, {label}]) => ({value, label}));
-  }
-}
-
 class SkillIdsField extends BaseField {
   static name = "skillIds";
 
@@ -379,7 +361,6 @@ export default {
   BaseToolsField,
   BaseWeaponsField,
   DamageTypesField,
-  PreparationModesField,
   SkillIdsField,
   SpellSchoolsField,
   WeaponPropertiesField,

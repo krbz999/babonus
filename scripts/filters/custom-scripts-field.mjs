@@ -18,11 +18,11 @@ export class CustomScriptsField extends FilterMixin(JavaScriptField) {
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
+      <p class="hint">{{localize hint}}</p>
       <div class="form-group">
         <div class="form-fields">
-          {{formInput field value=value height=300}}
+          {{formInput field value=value}}
         </div>
-        <p class="hint">{{localize hint}}</p>
       </div>
     </fieldset>`;
 

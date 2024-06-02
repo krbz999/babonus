@@ -39,6 +39,7 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
     const template = `
     <fieldset>
       <legend>{{localize label}}</legend>
+      <p class="hint">{{localize hint}}</p>
       {{#each comparisons as |c idx|}}
       <div class="form-group">
         <div class="form-fields">
@@ -51,7 +52,6 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
         </a>
       </div>
       {{/each}}
-      <p class="hint">{{localize hint}}</p>
     </fieldset>`;
 
     const field = bonus.schema.getField("filters.arbitraryComparisons");

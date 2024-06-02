@@ -42,11 +42,11 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
+      <p class="hint">{{localize hint}}</p>
       {{formGroup type value=value1 localize=true sort=true}}
       {{#if choices}}
       {{formGroup subtype value=value2 localize=true sort=true choices=choices}}
       {{/if}}
-      <p class="hint">{{localize hint}}</p>
     </fieldset>`;
 
     const data = {

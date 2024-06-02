@@ -531,7 +531,9 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static migrateArbitraryComparisonPlural(source) {
     const v = source?.filters?.arbitraryComparison;
-    if (v?.length) source.filters.arbitraryComparisons = v;
+    if (v?.length && !source.filters.arbitraryComparisons) {
+      source.filters.arbitraryComparisons = v;
+    }
   }
 
   /**

@@ -90,6 +90,8 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
         hint: "BABONUS.Filters.SpellComponents.TypesHint"
       }),
       match: new StringField({
+        required: true,
+        initial: "ANY",
         choices: {
           ANY: "BABONUS.Filters.SpellComponents.MatchAny",
           ALL: "BABONUS.Filters.SpellComponents.MatchAll"
@@ -114,6 +116,7 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
+      <p class="hint">{{localize types.parent.hint}}</p>
       <div class="form-group">
         <label>{{localize types.label}}</label>
         <div class="form-fields">
@@ -126,7 +129,6 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
           {{formInput match value=matchValue localize=true sort=true}}
         </div>
       </div>
-      <p class="hint">{{localize types.parent.hint}}</p>
     </fieldset>`;
 
     return Handlebars.compile(template)({
@@ -157,11 +159,25 @@ class ActorCreatureSizesField extends BaseField {
   }
 }
 
+class PreparationModesField extends BaseField {
+  static name = "preparationModes";
+
+  constructor() {
+    super(new StringField({
+      choices: CONFIG.DND5E.spellPreparationModes
+    }), {
+      label: "BABONUS.Filters.PreparationModes.Label",
+      hint: "BABONUS.Filters.PreparationModes.Hint"
+    });
+  }
+}
+
 export default {
   ProficiencyLevelsField,
   ItemTypesField,
   AttackTypesField,
   SpellLevelsField,
   SpellComponentsField,
-  ActorCreatureSizesField
+  ActorCreatureSizesField,
+  PreparationModesField
 };
