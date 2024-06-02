@@ -1,12 +1,14 @@
 import {MODULE} from "../constants.mjs";
 
-export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) {
+const {HandlebarsApplicationMixin, DocumentSheetV2} = foundry.applications.api;
+
+export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   /**
    * @param {Babonus} bonus        The babonus managed by this sheet.
    * @param {object} [options]     Optional configuration parameters for how the sheet behaves.
    */
   constructor(bonus, options = {}) {
-    super(bonus, options);
+    super({...options, document: bonus.parent, bonus: bonus});
 
     const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => {
       return babonus.abstract.DataFields.filters[id].storage(bonus);
@@ -17,62 +19,81 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
      * @type {Set<string>}
      */
     this._filters = ids;
-
-    this.appId = this.id;
-
-    this.owner = bonus.parent;
+    this.bonus = bonus;
   }
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: [MODULE.ID, "sheet", "dnd5e2"],
-      template: "modules/babonus/templates/babonus-sheet.hbs",
-      sheetConfig: true,
+  static DEFAULT_OPTIONS = {
+    classes: [MODULE.ID, "sheet"],
+    sheetConfig: false,
+    window: {
+      icon: "fa-solid fa-otter",
+      resizable: false,
+      contentClasses: ["standard-form"]
+    },
+    position: {
+      width: 600,
+      height: "auto"
+    },
+    form: {
       submitOnChange: true,
-      submitOnClose: true,
-      closeOnSubmit: false,
-      tabs: [{navSelector: "nav[data-group=main]", contentSelector: "div.document-tabs"}],
-      resizable: true,
-      scrollY: [
-        ".document-tabs [data-tab=bonuses]",
-        ".document-tabs [data-tab=configuration]",
-        ".document-tabs [data-tab=filters]",
-        ".document-tabs [data-tab=advanced]"
-      ],
-      width: 500,
-      height: null
-    });
-  }
+      closeOnSubmit: false
+    },
+    actions: {
+      keysDialog: this._onKeysDialog,
+      addFilter: this._onAddFilter,
+      deleteFilter: this._onDeleteFilter,
+      copyUuid: {handler: this._onCopyUuid, buttons: [0, 2]}
+    }
+  };
+
+  /** @override */
+  static PARTS = {
+    header: {template: "modules/babonus/templates/sheet-header.hbs"},
+    navigation: {template: "modules/babonus/templates/sheet-navigation.hbs"},
+    description: {template: "modules/babonus/templates/sheet-description.hbs", scrollable: [""]},
+    bonuses: {template: "modules/babonus/templates/sheet-bonuses.hbs", scrollable: [""]},
+    configuration: {template: "modules/babonus/templates/sheet-configuration.hbs", scrollable: [""]},
+    filters: {template: "modules/babonus/templates/sheet-filters.hbs", scrollable: [""]},
+    advanced: {template: "modules/babonus/templates/sheet-advanced.hbs", scrollable: [""]}
+  };
+
+  /** @override */
+  tabGroups = {
+    main: "description"
+  };
 
   /**
    * The babonus.
    * @type {Babonus}
    */
-  get document() {
-    return this.object;
-  }
   get bonus() {
-    return this.object;
+    return this.#bonus;
   }
-
-  /** @override */
-  get id() {
-    return `babonus-sheet-${this.bonus?.uuid.replaceAll(".", "-")}`;
+  set bonus(b) {
+    this.#bonus = b;
   }
+  #bonus = null;
 
   /** @override */
   get title() {
-    return this.document.name;
+    return this.bonus.name;
   }
 
   /** @override */
   get isEditable() {
-    return this.owner.isOwner;
+    return super.isEditable && !!this.bonus?.parent?.isOwner;
   }
 
   /** @override */
-  async getData(options = {}) {
+  _initializeApplicationOptions(options) {
+    options = super._initializeApplicationOptions(options);
+    options.uniqueId = `${this.constructor.name}-${options.bonus.uuid}`;
+    return options;
+  }
+
+  /** @override */
+  async _prepareContext(options) {
     const rollData = this.bonus.getRollData();
 
     const context = {};
@@ -81,12 +102,21 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     context.hasModifiers = !foundry.utils.isEmpty(context.modifiers);
     context.aura = this._prepareAura();
     context.consume = this._prepareConsume();
-    context.description = await TextEditor.enrichHTML(this.bonus.description, {
-      rollData: rollData, async: true, relativeTo: this.bonus.origin
-    });
+    context.description = {
+      enriched: await TextEditor.enrichHTML(this.bonus.description, {
+        rollData: rollData, async: true, relativeTo: this.bonus.origin
+      }),
+      field: this.bonus.schema.getField("description"),
+      value: this.bonus.description,
+      height: 300
+    };
     context.labels = this._prepareLabels();
     context.filters = this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
+    context.tab = ["description", "bonuses", "configuration", "filters", "advanced"].reduce((acc, k) => {
+      acc[k] = (this.tabGroups.main === k) ? "active" : "";
+      return acc;
+    }, {});
 
     // Root fields.
     context.root = {
@@ -384,68 +414,62 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     return context;
   }
 
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
-    html = html[0];
-    html.querySelectorAll("[data-action='keysDialog']").forEach(n => {
-      n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
-    });
-    html.querySelectorAll("input[type=text], input[type=number]").forEach(n => {
-      n.addEventListener("focus", event => event.currentTarget.select());
-    });
-    html.querySelectorAll("[data-action='addFilter']").forEach(n => {
-      n.addEventListener("click", this._onClickAddFilter.bind(this));
-    });
-    html.querySelectorAll("[data-action='deleteFilter']").forEach(n => {
-      n.addEventListener("click", this._onClickDeleteFilter.bind(this));
-    });
-  }
-
   /**
    * Handle deleting a filter.
-   * @param {Event} event                                   The initiating click event.
-   * @returns {Promise<Actor5e|Item5e|ActiveEffect5e>}      A promise that resolves to the updated owner of the bonus.
+   * @param {Event} event             The initiating click event.
+   * @param {HTMLElement} target      Targeted html element.
    */
-  async _onClickDeleteFilter(event) {
-    const id = event.currentTarget.dataset.id;
-    if (!babonus.abstract.DataFields.filters[id].repeatable) {
-      this._filters.delete(id);
-      return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.-=${id}`]: null});
+  static _onDeleteFilter(event, target) {
+    const id = target.dataset.id;
+    const data = this.bonus.toObject();
+
+    if (babonus.abstract.DataFields.filters[id].repeatable) {
+      const idx = parseInt(target.dataset.idx);
+      const property = foundry.utils.deepClone(data.filters[id]);
+      property.splice(idx, 1);
+      if (!property.length) delete data.filters[id];
+      data.filters[id] = property;
     } else {
-      const arr = this.bonus.filters[id];
-      const idx = event.currentTarget.dataset.idx;
-      arr.splice(idx, 1);
-      return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.${id}`]: arr});
+      this._filters.delete(id);
+      delete data.filters[id];
     }
+
+    const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
+    collection.findSplice(k => k.id === this.bonus.id, data);
+    this.document.update({"flags.babonus.bonuses": collection});
   }
 
   /**
    * Handle adding a filter.
-   * @param {Event} event     The initiating click event.
+   * @param {Event} event             The initiating click event.
+   * @param {HTMLElement} target      Targeted html element.
    */
-  _onClickAddFilter(event) {
-    const id = event.currentTarget.dataset.id;
+  static _onAddFilter(event, target) {
+    const id = target.dataset.id;
     this._filters.add(id);
     if (babonus.abstract.DataFields.filters[id].repeatable) {
-      const arr = this.bonus.filters[id].concat({});
-      return this.owner.update({[`flags.babonus.bonuses.${this.bonus.id}.filters.${id}`]: arr});
+      const data = this.bonus.toObject();
+      data.filters[id].push({});
+      const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
+      collection.findSplice(k => k.id === this.bonus.id, data);
+      this.document.update({"flags.babonus.bonuses": collection});
+    } else {
+      this.render();
     }
-    return this.render();
   }
 
   /**
    * Helper function to display the keys dialog and update the corresponding filter value.
-   * @param {Event} event     The initiating click event.
+   * @param {Event} event             The initiating click event.
+   * @param {HTMLElement} target      Targeted html element.
    */
-  async _onDisplayKeysDialog(event) {
+  static _onKeysDialog(event, target) {
     const bonus = this.bonus;
-    const filterId = event.currentTarget.dataset.id;
+    const filterId = target.dataset.id;
     const filter = babonus.abstract.DataFields.filters[filterId];
-    const property = event.currentTarget.dataset.property;
+    const property = target.dataset.property;
     const list = filter.choices();
     const values = foundry.utils.getProperty(bonus, property);
-    const owner = this.owner;
 
     for (const value of values) {
       const key = value.replaceAll("!", "");
@@ -475,7 +499,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       }
     }
 
-    return babonus.abstract.applications.KeysDialog.prompt({
+    babonus.abstract.applications.KeysDialog.prompt({
       ok: {
         label: "BABONUS.KeysDialogApplySelection",
         icon: "fa-solid fa-check",
@@ -485,8 +509,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
             if (s.value === "include") values.push(s.dataset.value);
             else if (s.value === "exclude") values.push("!" + s.dataset.value);
           });
-          bonus.updateSource({[property]: values});
-          return babonus.abstract.applications.BabonusWorkshop._embedBabonus(owner, bonus, true);
+          bonus.update({[property]: values});
         }
       },
       filterId: filterId,
@@ -495,62 +518,38 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     });
   }
 
-  /** @override */
-  _createDocumentIdLink(html) {
-    const label = game.i18n.localize(this.document.constructor.metadata.label);
-    const idLink = document.createElement("A");
-    idLink.classList.add("document-id-link");
-    idLink.dataset.tooltip = "SHEETS.CopyUuid";
-    idLink.dataset.tooltipDirection = "DOWN";
-    idLink.innerHTML = "<i class=\"fa-solid fa-passport\"></i>";
-    idLink.addEventListener("click", event => {
-      event.preventDefault();
-      game.clipboard.copyPlainText(this.document.uuid);
-      ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
-        label, type: "uuid", id: this.document.uuid
-      }));
-    });
-    idLink.addEventListener("contextmenu", event => {
-      event.preventDefault();
-      game.clipboard.copyPlainText(this.document.id);
-      ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
-        label, type: "id", id: this.document.id
-      }));
-    });
-    html[0].querySelector(".header-button.close").before(idLink);
+  /**
+   * Copy the uuid or id of the bonus.
+   * @param {Event} event             The initiating click event.
+   * @param {HTMLElement} target      Targeted html element.
+   */
+  static _onCopyUuid(event, target) {
+    event.preventDefault(); // Don't open context menu
+    event.stopPropagation(); // Don't trigger other events
+    if (event.detail > 1) return; // Ignore repeated clicks
+    const id = (event.button === 2) ? this.bonus.id : this.bonus.uuid;
+    const type = (event.button === 2) ? "id" : "uuid";
+    const label = game.i18n.localize(this.bonus.constructor.metadata.label);
+    game.clipboard.copyPlainText(id);
+    ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {label, type, id}));
   }
 
   /** @override */
-  async _updateObject(event, formData) {
-    try {
-      const obj = this.bonus.updateSource(formData);
-      if (foundry.utils.isEmpty(obj)) return this.render();
-    } catch (err) {
-      ui.notifications.error(err);
-      return this.render();
-    }
-    return babonus.abstract.applications.BabonusWorkshop._embedBabonus(this.owner, this.bonus, true, this._filters);
+  _prepareSubmitData(event, form, formData) {
+    const submitData = foundry.utils.expandObject(formData.object);
+    this.bonus.validate({changes: submitData, clean: true, fallback: false});
+    submitData.id = this.bonus.id;
+    const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
+    this.bonus.updateSource(submitData);
+    collection.findSplice(k => k.id === this.bonus.id, this.bonus.toObject());
+    return {flags: {babonus: {bonuses: collection}}};
   }
 
   /** @override */
-  render(force = false, options = {}) {
-    const object = babonus.getCollection(this.owner).get(this.bonus.id);
-    if (!object) return this.close({submit: false});
-    this.object = object;
-    options.editable = options.editable ?? this.bonus.isOwner;
-    this.owner.apps[this.appId] = this;
-    return super.render(force, options);
-  }
-
-  /** @override */
-  async close(options = {}) {
-    delete this.owner?.apps[this.appId];
-    if (!this.object) options.submit = false;
-    return super.close(options);
-  }
-
-  /** @override */
-  _onChangeTab(event, tabs, active) {
-    this.setPosition({height: "auto"});
+  render(...T) {
+    const bonus = babonus.getCollection(this.document).get(this.bonus.id);
+    if (!bonus) return this.close();
+    this.bonus = bonus;
+    return super.render(...T);
   }
 }

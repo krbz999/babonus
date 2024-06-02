@@ -319,10 +319,10 @@ export class RollHooks {
     const tokenDocument = item.actor.token ?? item.actor.getActiveTokens(false, true)[0];
     const disp = tokenDocument?.disposition ?? item.actor.prototypeToken.disposition;
 
-    const bonusData = babonus.getCollection(item).reduce((acc, bab) => {
-      if (bab.aura.isTemplate) acc[bab.id] = bab.toObject();
+    const bonusData = babonus.getCollection(item).reduce((acc, bonus) => {
+      if (bonus.aura.isTemplate) acc.push(bonus.toObject());
       return acc;
-    }, {});
+    }, []);
     if (foundry.utils.isEmpty(bonusData)) return;
     foundry.utils.setProperty(templateData, `flags.${MODULE.ID}`, {
       bonuses: bonusData,

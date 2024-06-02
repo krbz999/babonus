@@ -1,0 +1,12 @@
+<div class="tab scrollable {{context.tab.filters}}" data-tab="filters" data-group="main">
+  <p class="notification info">{{localize "BABONUS.AvailableFiltersTooltip"}}</p>
+  {{#each context.filterpickers}}
+  <div class="filter">
+    <a class="filter-header" data-action="addFilter" data-id="{{id}}">
+      {{localize label}} {{#if repeats}}({{repeats}}){{/if}}
+      <i class="fa-solid fa-plus"></i>
+    </a>
+    <div class="filter-description">{{{localize hint}}}</div>
+  </div>
+  {{/each}}
+</div>

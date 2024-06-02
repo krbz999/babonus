@@ -104,7 +104,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
             async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
           }),
           icon: bonus.icon,
-          typeTooltip: `BABONUS.Type${bonus.type.capitalize()}`
+          typeTooltip: `BABONUS.Type${bonus.type.capitalize()}.Label`
         }
       });
     }
@@ -113,7 +113,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
     // New babonus buttons.
     data.createButtons = Object.entries(babonus.abstract.DataModels).map(([type, cls]) => ({
-      type, icon: cls.icon, label: `BABONUS.Type${type.capitalize()}`
+      type, icon: cls.icon, label: `BABONUS.Type${type.capitalize()}.Label`
     }));
 
     data.ICON = MODULE.ICON;
@@ -339,17 +339,16 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
   }
 
   /**
-   * Copy a babonus on the actor or item.
-   * @param {Event} event                   The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus copied.
+   * Copy a babonus on the document.
+   * @param {Event} event     The initiating click event.
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = this.collection.get(id).toObject();
+    const src = this.collection.get(id);
+    const data = src.toObject();
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
-    data.id = foundry.utils.randomID();
-    data.enabled = false;
-    return this.document.setFlag(MODULE.ID, `bonuses.${data.id}`, data);
+    const bonus = new src.constructor(data, {parent: src.parent});
+    this.constructor._embedBabonus(src.parent, bonus);
   }
 
   //#endregion
@@ -382,8 +381,13 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     }
     const id = keepId ? data.id : foundry.utils.randomID();
     data.id = id;
-    await object.update({[`flags.${MODULE.ID}.bonuses.-=${data.id}`]: null}, {render: false, noHook: true});
-    return object.setFlag(MODULE.ID, `bonuses.${id}`, data);
+
+    let collection = babonus.getCollection(object);
+    if (collection.has(id)) collection.delete(id);
+    collection = collection.contents;
+    collection.push(data);
+
+    return object.setFlag("babonus", "bonuses", collection);
   }
 
   //#endregion

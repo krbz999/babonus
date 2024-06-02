@@ -137,18 +137,19 @@ function babonusFromUuidSync(uuid) {
  * @returns {Collection<Babonus>}     A collection of babonuses.
  */
 function getCollection(object) {
-  const bonuses = Object.entries(object.flags[MODULE.ID]?.bonuses ?? {});
-  const contents = bonuses.reduce((acc, [id, data]) => {
-    if (!foundry.data.validators.isValidId(id)) return acc;
+  let bonuses = foundry.utils.getProperty(object, "flags.babonus.bonuses") ?? [];
+  if (foundry.utils.getType(bonuses) === "Object") bonuses = Object.values(bonuses);
+
+  const contents = [];
+  for (const bonusData of bonuses) {
     try {
-      data.id = id;
-      const bonus = new models[data.type](data, {parent: object});
-      acc.push([id, bonus]);
+      if (!foundry.data.validators.isValidId(bonusData.id)) continue;
+      const bonus = new models[bonusData.type](bonusData, {parent: object});
+      contents.push([bonus.id, bonus]);
     } catch (err) {
       console.warn(err);
     }
-    return acc;
-  }, []);
+  }
   return new foundry.utils.Collection(contents);
 }
 

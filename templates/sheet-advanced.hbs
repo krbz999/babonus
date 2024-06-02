@@ -1,0 +1,76 @@
+<div class="tab scrollable {{context.tab.advanced}}" data-tab="advanced" data-group="main">
+
+  <fieldset>
+    <legend>{{localize "BABONUS.Toggles"}}</legend>
+    {{#with context.root}}
+    {{formGroup enabled.field value=enabled.value localize=true}}
+    {{formGroup exclusive.field value=exclusive.value localize=true}}
+    {{formGroup optional.field value=optional.value localize=true}}
+    {{formGroup reminder.field value=reminder.value localize=true disabled=reminder.disabled}}
+    {{/with}}
+  </fieldset>
+
+  <fieldset>
+    <legend>{{localize "BABONUS.Fields.Consume.Label"}}</legend>
+    {{#with context.consume}}
+    {{formGroup enabled.field value=enabled.value localize=true}}
+    {{#if enabled.value}}
+    {{formGroup type.field value=type.value localize=true sort=true blank="-"}}
+    {{#unless scale.unavailable}}
+    {{#if subtype.show}}
+    {{formGroup subtype.field value=subtype.value localize=true sort=false blank="-" choices=subtype.choices label=subtype.label}}
+    {{/if}}
+    {{#unless scale.unavailable}}
+    {{formGroup scale.field localize=true value=scale.value}}
+    {{/unless}}
+
+    <div class="form-group values">
+      <label>
+        {{localize values.label}}
+        {{{values.range}}}
+      </label>
+      <div class="form-fields">
+        {{formInput values.field1 value=values.value1 placeholder=values.ph1}}
+        {{#if scale.value}}
+        <span class="sep dash">&mdash;</span>
+        {{formInput values.field2 value=values.value2 placeholder=values.ph2}}
+        {{/if}}
+      </div>
+      <p class="hint">{{localize values.hint}}</p>
+    </div>
+
+    {{#if step.show}}
+    {{formGroup step.field value=step.value localize=true placeholder=(localize step.field.label)}}
+    {{/if}}
+
+    {{#if formula.show}}
+    {{formGroup formula.field value=formula.value localize=true placeholder=formula.placeholder}}
+    {{/if}}
+
+    {{/unless}}
+
+    {{/if}}
+    {{/with}}
+  </fieldset>
+
+  <fieldset>
+    <legend>{{localize "BABONUS.Fields.Aura.Label"}}</legend>
+    {{#with context.aura}}
+    {{formGroup enabled.field value=enabled.value localize=true}}
+
+    {{#if enabled.value}}
+    {{formGroup template.field value=template.value localize=true}}
+    {{#unless template.value}}
+    {{formGroup range.field value=range.value localize=true label=range.label placeholder=(localize range.field.label)}}
+    {{/unless}}
+    {{formGroup disposition.field value=disposition.value localize=true sort=false}}
+    {{formGroup self.field value=self.value localize=true}}
+    {{formGroup blockers.field value=blockers.value localize=true}}
+    {{#each requirements}}
+    {{formGroup field value=value localize=true}}
+    {{/each}}
+    {{/if}}
+    {{/with}}
+  </fieldset>
+
+</div>

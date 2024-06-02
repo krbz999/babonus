@@ -1,0 +1,6 @@
+<div class="tab scrollable {{context.tab.configuration}}" data-tab="configuration" data-group="main">
+  {{#unless context.filters}}
+  <p class="notification info">{{localize "BABONUS.CurrentFiltersTooltip"}}</p>
+  {{/unless}}
+  {{{context.filters}}}
+</div>

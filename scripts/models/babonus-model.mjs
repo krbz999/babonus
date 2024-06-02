@@ -574,8 +574,7 @@ class Babonus extends foundry.abstract.DataModel {
   async setFlag(scope, key, value) {
     const scopes = this.parent.constructor.database.getFlagScopes();
     if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
-    await this.parent.update({[`flags.babonus.bonuses.${this.id}.flags.${scope}.${key}`]: value});
-    this.updateSource({[`flags.${scope}.${key}`]: value});
+    await this.update({[`flags.${scope}.${key}`]: value});
     return this;
   }
 
@@ -591,8 +590,7 @@ class Babonus extends foundry.abstract.DataModel {
     const head = key.split(".");
     const tail = `-=${head.pop()}`;
     key = ["flags", scope, ...head, tail].join(".");
-    await this.parent.update({[`flags.babonus.bonuses.${this.id}.${key}`]: null});
-    this.updateSource({[key]: null});
+    await this.update({[key]: null});
     return this;
   }
 
@@ -606,11 +604,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {Promise<Babonus>}
    */
   async toggle(state = null) {
-    const path = `flags.babonus.bonuses.${this.id}.enabled`;
-    const c = foundry.utils.getProperty(this.parent, path);
-    state = [true, false].includes(state) ? state : !c;
-    await this.parent.update({[path]: state});
-    this.updateSource({enabled: state});
+    await this.update({enabled: [true, false].includes(state) ? state : !this.enabled});
     return this;
   }
 
@@ -621,11 +615,10 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {Promise<Babonus>}
    */
   async update(changes, options = {}) {
-    const path = `flags.babonus.bonuses.${this.id}`;
     changes = foundry.utils.expandObject(changes);
     delete changes.id;
-    await this.parent.update({[path]: changes}, options);
     this.updateSource(changes, options);
+    await babonus.abstract.applications.BabonusWorkshop._embedBabonus(this.parent, this, true);
     return this;
   }
 
@@ -634,8 +627,10 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {Promise<Babonus>}
    */
   async delete() {
-    const update = {[`flags.babonus.bonuses.-=${this.id}`]: null};
-    await this.parent.update(update);
+    let collection = babonus.getCollection(this.parent);
+    collection.delete(this.id);
+    collection = collection.contents.map(k => k.toObject());
+    await this.parent.setFlag("babonus", "bonuses", collection);
     return this;
   }
 

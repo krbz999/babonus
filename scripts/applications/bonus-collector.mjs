@@ -238,20 +238,11 @@ export class BonusCollector {
    * @returns {Babonus[]}                  An array of babonuses of the right type.
    */
   _collectFromDocument(document, filterings = []) {
-    const flags = document.flags.babonus?.bonuses ?? {};
-    const bonuses = Object.entries(flags).reduce((acc, [id, data]) => {
-      if (this.type !== data.type) return acc;
-      if (!foundry.data.validators.isValidId(id)) return acc;
-      try {
-        const bab = new babonus.abstract.DataModels[this.type](data, {parent: document});
-        if (!this._generalFilter(bab)) return acc;
-        for (const func of filterings) {
-          if (!func(bab)) return acc;
-        }
-        acc.push(bab);
-      } catch (err) {
-        console.warn(err);
-      }
+    const bonuses = babonus.getCollection(document).reduce((acc, bonus) => {
+      if (this.type !== bonus.type) return acc;
+      if (!this._generalFilter(bonus)) return acc;
+      for (const fn of filterings) if (!fn(bonus)) return acc;
+      acc.push(bonus);
       return acc;
     }, []);
     return bonuses;

@@ -1,7 +1,4 @@
 .babonus.sheet {
-  height: auto;
-  min-width: 500px;
-  min-height: 500px;
   max-height: 95%;
 
   .notification.info {
@@ -9,88 +6,31 @@
     padding: 6px 8px;
   }
 
-  & form {
-    display: flex;
-    flex-direction: column;
-    margin: 5px 0;
-    overflow: hidden;
-
-    .form-group {
-
-      /* Arbitrary Comparisons */
-      & select[name^="filters.arbitraryComparisons"] { flex: 0; }
-
-      /* Custom Scripts */
-      & textarea[name^="filters.customScripts"] {
-        resize: vertical;
-        min-height: calc(3rem + var(--form-field-height));
-        overflow-y: hidden;
-      }
-
-      .form-fields {
-
-        & input[type=text], & input[type=number], & select {
-          height: 24px;
-          border: 1px solid #7a7971;
-          background: rgba(0, 0, 0, 0.05);
-
-          &:disabled {
-            border-color: lightgray;
-          }
-        }
-
-        & [data-action="keysDialog"] {
-          width: 100px;
-          max-width: 100px;
-          height: 26px;
-        }
-      }
-
-      & button {
-        &:disabled {
-          color: #4b4a44;
-          cursor: default;
-        }
-      }
-
-      & [data-action="deleteFilter"] {
-        flex: none;
-        padding-left: 0.5em;
-      }
-
-      &.modifiers {
-        .checkbox {
-          text-align: left;
-          &.long {
-            flex: 0 0 110px;
-          }
-        }
-
-        .form-fields.reroll, .form-fields.explode {
-          flex-wrap: wrap;
-
-          [name$=".limit"] {
-            flex: 0 0 100%;
-          }
-        }
-
-        &.example {
-          .label {
-            padding-left: 1rem;
-          }
-
-          .formula {
-            font-family: monospace;
-            font-weight: bold;
-            font-size: var(--font-size-14);
-            padding-right: 1rem;
-          }
-        }
-      }
-    }
+  /* Arbitrary Comparisons */
+  & select[name^="filters.arbitraryComparisons"] {
+    flex: 0;
+    width: fit-content;
   }
 
-  .header {
+  /* Custom Scripts */
+  & textarea[name^="filters.customScripts"] {
+    resize: vertical;
+    min-height: calc(3rem + var(--form-field-height));
+    overflow-y: hidden;
+  }
+
+  & [data-action="keysDialog"] {
+    width: 100px;
+    max-width: 100px;
+    height: 26px;
+  }
+
+  & [data-action="deleteFilter"] {
+    flex: none;
+    padding-left: 0.5em;
+  }
+
+  .header.name-stacked {
     display: flex;
     padding: 0 5px;
     flex-direction: row;
@@ -110,37 +50,6 @@
     }
   }
 
-  & nav {
-    margin-top: 0.5em;
-    display: flex;
-    justify-content: space-evenly;
-
-    .item {
-      font-family: "Modesto Condensed";
-      font-size: 22px;
-      flex: none;
-      border-bottom: 3px solid #b5b3a4;
-
-      &.active {
-        border-bottom: 3px solid #44191A;
-      }
-    }
-  }
-
-  .document-tabs {
-    flex: 1;
-    overflow: hidden;
-
-    .tab {
-      padding: 5px;
-      overflow: hidden auto;
-
-      &.active {
-        height: 100%;
-      }
-    }
-  }
-
   .description {
     display: flex;
     height: 100%;
@@ -151,19 +60,20 @@
       list-style: none;
       margin: 1em 0;
       padding: 0 0.5em 0 0;
-      border-right: 2px groove;
+      border-right: 2px groove var(--color-fieldset-border);
 
       .header {
         font-weight: bold;
-        color: #4b4a44;
+        font-family: "Modesto Condensed";
         margin: 0;
+        font-size: 16px;
       }
 
       .property {
         margin: 3px 0;
         padding: 0 2px;
         background: rgba(0, 0, 0, 0.05);
-        border: 2px groove #eeede0;
+        border: 2px groove var(--color-fieldset-border);
         text-align: center;
         font-size: 12px;
         line-height: 18px;
@@ -193,9 +103,4 @@
       padding: 0 0.5em;
     }
   }
-}
-
-.dnd5e-theme-dark .babonus.sheet {
-  --color-text-dark-primary: #191813;
-  &.dnd5e2 .window-resizable-handle { color: var(--dnd5e-color-black); }
 }
