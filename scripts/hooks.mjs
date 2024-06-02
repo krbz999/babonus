@@ -90,21 +90,6 @@ function _createSettings() {
   });
 }
 
-/* Preload all template partials for the builder. */
-async function _preloadPartials() {
-  console.log("Build-a-Bonus | Loading template partials.");
-  return loadTemplates([
-    "modules/babonus/templates/parts/checkboxes-select.hbs",
-    "modules/babonus/templates/parts/checkboxes.hbs",
-    "modules/babonus/templates/parts/range-select.hbs",
-    "modules/babonus/templates/parts/select-number-checkbox.hbs",
-    "modules/babonus/templates/parts/text-dash-text.hbs",
-    "modules/babonus/templates/parts/text-keys.hbs",
-    "modules/babonus/templates/parts/text-select-text.hbs",
-    "modules/babonus/templates/parts/textarea.hbs"
-  ]);
-}
-
 /**
  * On-drop handler for the hotbar.
  * @param {Hotbar} bar                The hotbar application.
@@ -140,7 +125,6 @@ async function setupTree() {
 // General setup.
 Hooks.once("init", _createSettings);
 Hooks.once("setup", createAPI);
-Hooks.once("setup", _preloadPartials);
 Hooks.on("hotbarDrop", _onHotbarDrop);
 Hooks.once("setup", () => applications.CharacterSheetTab.setup());
 

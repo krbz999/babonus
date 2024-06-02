@@ -22,32 +22,6 @@ export function FilterMixin(Base) {
     static trash = true;
 
     /**
-     * Is this filter available?
-     * @param {Set<string>} filters     The set of current filters.
-     * @param {Babonus} bonus           The current babonus.
-     * @returns {boolean}
-     */
-    static isFilterAvailable(filters, bonus) {
-      if (this.repeatable) return true;
-      if (filters.has(this.name)) return false;
-      return !!babonus.abstract.DataModels[bonus.type].schema.getField(`filters.${this.name}`);
-    }
-
-    /**
-     * A class getData method for rendering purposes.
-     * @param {Babonus} bonus     The bonus being rendered.
-     * @returns {object}          The template data.
-     */
-    static async getData(bonus) {
-      return {
-        id: this.name,
-        appId: foundry.utils.randomID(),
-        field: bonus.schema.getField(`filters.${this.name}`),
-        value: bonus.filters[this.name]
-      };
-    }
-
-    /**
      * Get the current data values of this filter.
      * @param {Babonus} bonus     The instance of the babonus on which this field lives.
      */
@@ -57,11 +31,11 @@ export function FilterMixin(Base) {
 
     /**
      * Render the filter.
-     * @param {Babonus} bonus         The bonus being rendered.
-     * @returns {Promise<string>}     The rendered template.
+     * @param {Babonus} bonus     The bonus being rendered.
+     * @returns {string}          The rendered template.
      */
-    static async render(bonus) {
-      return renderTemplate(this.template, await this.getData(bonus));
+    static render(bonus) {
+      throw new Error("This must be subclassed!");
     }
 
     /**

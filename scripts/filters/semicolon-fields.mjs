@@ -27,13 +27,6 @@ class BaseField extends FilterMixin(SetField) {
   }
 
   /** @override */
-  static async getData(bonus) {
-    const data = await super.getData(bonus);
-    data.value = Array.from(this.value(bonus)).filterJoin(";");
-    return data;
-  }
-
-  /** @override */
   _toInput(config) {
     if ((config.value instanceof Set) || Array.isArray(config.value)) {
       config.value = Array.from(config.value).join(";");
@@ -55,6 +48,17 @@ class BaseField extends FilterMixin(SetField) {
     input.after(button);
 
     return element;
+  }
+
+  /** @override */
+  static render(bonus) {
+    const template = "{{formGroup field value=value localize=true}}";
+    const data = {
+      field: bonus.schema.getField(`filters.${this.name}`),
+      value: bonus.filters[this.name]
+    };
+
+    return Handlebars.compile(template)(data);
   }
 }
 

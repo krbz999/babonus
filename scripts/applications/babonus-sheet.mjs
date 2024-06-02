@@ -35,6 +35,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       tabs: [{navSelector: "nav[data-group=main]", contentSelector: "div.document-tabs"}],
       resizable: true,
       scrollY: [
+        ".document-tabs [data-tab=configuration]",
         ".document-tabs [data-tab=filters]",
         ".document-tabs [data-tab=advanced]"
       ],

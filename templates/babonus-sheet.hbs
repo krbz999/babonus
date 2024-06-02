@@ -159,7 +159,9 @@
 
     <!-- Active Filters Tab -->
     <div class="tab" data-tab="configuration">
+      {{#unless context.filters}}
       <p class="notification info">{{localize "BABONUS.CurrentFiltersTooltip"}}</p>
+      {{/unless}}
       {{{context.filters}}}
     </div>
 
