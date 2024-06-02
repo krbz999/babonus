@@ -119,7 +119,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }, {});
 
     // Root fields.
-    context.root = {
+    context.checks = {
       enabled: {
         field: this.bonus.schema.getField("enabled"),
         value: this.bonus.enabled
@@ -143,7 +143,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       bonus: this.bonus,
       editable: this.isEditable,
       filters: this._filters,
-      context: context
+      context: context,
+      rootId: this.bonus.id
     };
   }
 

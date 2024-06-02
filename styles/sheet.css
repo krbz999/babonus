@@ -6,6 +6,10 @@
     padding: 6px 8px;
   }
 
+  .tab.scrollable {
+    min-height: 300px;
+  }
+
   /* Arbitrary Comparisons */
   & select[name^="filters.arbitraryComparisons"] {
     flex: 0;

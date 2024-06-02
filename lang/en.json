@@ -65,13 +65,13 @@
       },
       "Template": {
         "Hint": "If the aura affects the area within a Measured Template instead of having a range (for items that are able to place a template).",
-        "Label": "Applies to Template?"
+        "Label": "Applies to Template"
       }
     },
     "Consume": {
       "Enabled": {
         "Hint": "Configure whether and how the bonus consumes a property. A bonus cannot be set to consume unless it is optional.",
-        "Label": "Enable Consumption"
+        "Label": "Enable"
       },
       "Formula": {
         "Hint": "The formula by which the bonus scales at each step.",
@@ -121,7 +121,7 @@
       "Label": "Optional"
     },
     "Reminder": {
-      "Hint": "Toggle whether this bonus simply serves as a reminder.",
+      "Hint": "Toggle whether this bonus simply serves as a reminder. To use this, it must not be granting any bonuses or dice modifications. This feature is also only available for rolls that have a configuration dialog.",
       "Label": "Reminder"
     }
   },

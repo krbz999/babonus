@@ -2,18 +2,18 @@
 
   <fieldset>
     <legend>{{localize "BABONUS.Toggles"}}</legend>
-    {{#with context.root}}
-    {{formGroup enabled.field value=enabled.value localize=true}}
-    {{formGroup exclusive.field value=exclusive.value localize=true}}
-    {{formGroup optional.field value=optional.value localize=true}}
-    {{formGroup reminder.field value=reminder.value localize=true disabled=reminder.disabled}}
+    {{#with context.checks}}
+    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
+    {{formGroup exclusive.field value=exclusive.value localize=true rootId=@root.rootId}}
+    {{formGroup optional.field value=optional.value localize=true rootId=@root.rootId}}
+    {{formGroup reminder.field value=reminder.value localize=true disabled=reminder.disabled rootId=@root.rootId}}
     {{/with}}
   </fieldset>
 
   <fieldset>
     <legend>{{localize "BABONUS.Fields.Consume.Label"}}</legend>
     {{#with context.consume}}
-    {{formGroup enabled.field value=enabled.value localize=true}}
+    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{#if enabled.value}}
     {{formGroup type.field value=type.value localize=true sort=true blank="-"}}
     {{#unless scale.unavailable}}
@@ -21,7 +21,7 @@
     {{formGroup subtype.field value=subtype.value localize=true sort=false blank="-" choices=subtype.choices label=subtype.label}}
     {{/if}}
     {{#unless scale.unavailable}}
-    {{formGroup scale.field localize=true value=scale.value}}
+    {{formGroup scale.field localize=true value=scale.value rootId=@root.rootId}}
     {{/unless}}
 
     <div class="form-group values">
@@ -56,19 +56,21 @@
   <fieldset>
     <legend>{{localize "BABONUS.Fields.Aura.Label"}}</legend>
     {{#with context.aura}}
-    {{formGroup enabled.field value=enabled.value localize=true}}
+    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
 
     {{#if enabled.value}}
-    {{formGroup template.field value=template.value localize=true}}
+    {{formGroup template.field value=template.value localize=true rootId=@root.rootId}}
     {{#unless template.value}}
     {{formGroup range.field value=range.value localize=true label=range.label placeholder=(localize range.field.label)}}
     {{/unless}}
     {{formGroup disposition.field value=disposition.value localize=true sort=false}}
-    {{formGroup self.field value=self.value localize=true}}
+    {{formGroup self.field value=self.value localize=true rootId=@root.rootId}}
     {{formGroup blockers.field value=blockers.value localize=true}}
+    {{#unless template.value}}
     {{#each requirements}}
-    {{formGroup field value=value localize=true}}
+    {{formGroup field value=value localize=true rootId=@root.rootId}}
     {{/each}}
+    {{/unless}}
     {{/if}}
     {{/with}}
   </fieldset>
