@@ -96,6 +96,33 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   async _prepareContext(options) {
     const rollData = this.bonus.getRollData();
 
+    const tabs = {
+      description: {
+        icon: "fa-solid fa-pen-fancy",
+        label: "BABONUS.SheetTabs.Description"
+      },
+      bonuses: {
+        icon: "fa-solid fa-dice",
+        label: "BABONUS.SheetTabs.Bonuses"
+      },
+      configuration: {
+        icon: "fa-solid fa-wrench",
+        label: "BABONUS.SheetTabs.Configuration"
+      },
+      filters: {
+        icon: "fa-solid fa-plug",
+        label: "BABONUS.SheetTabs.Filters"
+      },
+      advanced: {
+        icon: "fa-solid fa-cubes",
+        label: "BABONUS.SheetTabs.Advanced"
+      }
+    };
+    for (const [k, v] of Object.entries(tabs)) {
+      v.cssClass = (this.tabGroups.main === k) ? "active" : "";
+      v.id = k;
+    }
+
     const context = {};
     context.bonuses = this._prepareBonuses();
     context.modifiers = this._prepareModifiers(rollData);
@@ -113,10 +140,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     context.labels = this._prepareLabels();
     context.filters = this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
-    context.tab = ["description", "bonuses", "configuration", "filters", "advanced"].reduce((acc, k) => {
-      acc[k] = (this.tabGroups.main === k) ? "active" : "";
-      return acc;
-    }, {});
+    context.tabs = tabs;
 
     // Root fields.
     context.checks = {

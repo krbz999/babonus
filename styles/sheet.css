@@ -1,6 +1,14 @@
 .babonus.sheet {
   max-height: 95%;
 
+  .sheet-tabs.tabs .item {
+    flex-direction: column;
+
+    .fa-solid {
+      font-size: 20px;
+    }
+  }
+
   .notification.info {
     margin: 0.5em 0;
     padding: 6px 8px;
@@ -8,6 +16,10 @@
 
   .tab.scrollable {
     min-height: 300px;
+  }
+
+  & fieldset:hover > .hint {
+    color: var(--color-form-hint-hover);
   }
 
   /* Arbitrary Comparisons */
