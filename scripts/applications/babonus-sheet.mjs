@@ -11,8 +11,15 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => {
       return babonus.abstract.DataFields.filters[id].storage(bonus);
     });
+
+    /**
+     * The filters that are currently active.
+     * @type {Set<string>}
+     */
     this._filters = ids;
+
     this.appId = this.id;
+
     this.owner = bonus.parent;
   }
 
@@ -76,7 +83,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       rollData: rollData, async: true, relativeTo: this.bonus.origin
     });
     context.labels = this._prepareLabels();
-    context.filters = await this._prepareFilters();
+    context.filters = this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
 
     const modes = babonus.abstract.DataFields.models.ModifiersModel.MODIFIER_MODES;
@@ -178,9 +185,9 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
 
   /**
    * Prepare filters.
-   * @returns {Promise<string>}
+   * @returns {string}
    */
-  async _prepareFilters() {
+  _prepareFilters() {
     const div = document.createElement("DIV");
     const keys = [...this._filters].sort((a, b) => {
       a = game.i18n.localize(`BABONUS.Filters.${a.capitalize()}.Label`);
@@ -189,7 +196,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     });
     for (const key of keys) {
       const filter = babonus.abstract.DataFields.filters[key];
-      if (filter) div.innerHTML += await filter.render(this.bonus);
+      if (filter) div.innerHTML += filter.render(this.bonus);
     }
     return div.innerHTML;
   }

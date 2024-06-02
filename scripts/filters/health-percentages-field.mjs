@@ -13,11 +13,13 @@ export class HealthPercentagesField extends FilterMixin(SchemaField) {
         max: 100,
         step: 1,
         integer: true,
+        nullable: true, // nullable required to be able to remove it
         initial: 50,
         label: "BABONUS.Filters.HealthPercentages.ValueLabel"
       }),
       type: new NumberField({
-        initial: 0,
+        initial: null,
+        nullable: true, // nullable required to be able to remove it
         choices: {
           0: "BABONUS.Filters.HealthPercentages.OptionLess",
           1: "BABONUS.Filters.HealthPercentages.OptionMore"

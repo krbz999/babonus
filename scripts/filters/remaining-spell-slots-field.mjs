@@ -71,6 +71,7 @@ export class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
 
   /** @override */
   static storage(bonus) {
-    return Object.values(this.value(bonus)).some(v => Number.isNumeric(v));
+    const {min, max} = bonus.filters[this.name];
+    return Number.isNumeric(min) || Number.isNumeric(max);
   }
 }
