@@ -47,14 +47,6 @@ export function FilterMixin(Base) {
       return this.value(bonus).size > 0;
     }
 
-    /**
-     * Return an array objects with 'value' and 'label', related to what this field should show.
-     * @returns {Promise<object[]>}
-     */
-    static async choices() {
-      throw new Error("This must be subclassed!");
-    }
-
     /** @override */
     toFormGroup(formConfig, inputConfig) {
       const element = super.toFormGroup(formConfig, inputConfig);

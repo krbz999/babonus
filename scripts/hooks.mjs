@@ -116,7 +116,7 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
 /** Setup the global 'trees' for proficiency searching. */
 async function setupTree() {
   const trees = {};
-  for (const k of ["languages", "weapon", "armor", "tool"]) {
+  for (const k of ["languages", "weapon", "armor", "tool", "skills"]) {
     trees[k] = await dnd5e.documents.Trait.choices(k);
   }
   babonus.trees = trees;

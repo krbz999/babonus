@@ -60,6 +60,14 @@ class BaseField extends FilterMixin(SetField) {
 
     return Handlebars.compile(template)(data);
   }
+
+  /**
+   * Retrieve the choices for a Keys dialog when configuring this field.
+   * @returns {{value: string, label: string}[]}
+   */
+  static choices() {
+    throw new Error("This must be subclassed!");
+  }
 }
 
 class AbilitiesField extends BaseField {
@@ -74,7 +82,7 @@ class AbilitiesField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
+  static choices() {
     const abilities = Object.entries(CONFIG.DND5E.abilities);
     return abilities.map(([value, {label}]) => ({value, label}));
   }
@@ -103,8 +111,8 @@ class ThrowTypesField extends AbilitiesField {
   }
 
   /** @override */
-  static async choices() {
-    const choices = await super.choices();
+  static choices() {
+    const choices = super.choices();
 
     choices.push({
       value: "death",
@@ -129,7 +137,7 @@ class StatusEffectsField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
+  static choices() {
     return CONFIG.statusEffects.reduce((acc, {id, img, name}) => {
       if (id && img && name) acc.push({value: id, label: name, icon: img});
       return acc;
@@ -165,7 +173,7 @@ class CreatureTypesField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
+  static choices() {
     const types = Object.entries(CONFIG.DND5E.creatureTypes);
     return types.map(([k, v]) => {
       return {value: k, label: v.label};
@@ -195,11 +203,13 @@ class BaseArmorsField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
-    const trait = dnd5e.documents.Trait;
-    const choices = await trait.choices("armor", {chosen: new Set()});
-    const keys = choices.asSet();
-    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`armor:${k}`)}]), []);
+  static choices() {
+    return Array.from(babonus.trees.armor.asSet()).map(k => {
+      return {
+        value: k,
+        label: dnd5e.documents.Trait.keyLabel(`armor:${k}`)
+      };
+    });
   }
 }
 
@@ -214,11 +224,13 @@ class BaseToolsField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
-    const trait = dnd5e.documents.Trait;
-    const choices = await trait.choices("tool", {chosen: new Set()});
-    const keys = choices.asSet();
-    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`tool:${k}`)}]), []);
+  static choices() {
+    return Array.from(babonus.trees.tool.asSet()).map(k => {
+      return {
+        value: k,
+        label: dnd5e.documents.Trait.keyLabel(`tool:${k}`)
+      };
+    });
   }
 }
 
@@ -233,11 +245,13 @@ class BaseWeaponsField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
-    const trait = dnd5e.documents.Trait;
-    const choices = await trait.choices("weapon", {chosen: new Set()});
-    const keys = choices.asSet();
-    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`weapon:${k}`)}]), []);
+  static choices() {
+    return Array.from(babonus.trees.weapon.asSet()).map(k => {
+      return {
+        value: k,
+        label: dnd5e.documents.Trait.keyLabel(`weapon:${k}`)
+      };
+    });
   }
 }
 
@@ -252,7 +266,7 @@ class DamageTypesField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
+  static choices() {
     const damages = Object.entries(CONFIG.DND5E.damageTypes);
     const heals = Object.entries(CONFIG.DND5E.healingTypes);
     return [...damages, ...heals].map(([k, v]) => ({value: k, label: v.label}));
@@ -270,11 +284,13 @@ class SkillIdsField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
-    const trait = dnd5e.documents.Trait;
-    const choices = await trait.choices("skills", {chosen: new Set()});
-    const keys = choices.asSet();
-    return keys.reduce((acc, k) => acc.concat([{value: k, label: trait.keyLabel(`skills:${k}`)}]), []);
+  static choices() {
+    return Array.from(babonus.trees.skills.asSet()).map(k => {
+      return {
+        value: k,
+        label: dnd5e.documents.Trait.keyLabel(`skills:${k}`)
+      };
+    });
   }
 }
 
@@ -289,7 +305,7 @@ class SpellSchoolsField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
+  static choices() {
     const schools = Object.entries(CONFIG.DND5E.spellSchools);
     return schools.map(([k, v]) => ({value: k, label: v.label}));
   }
@@ -306,7 +322,7 @@ class WeaponPropertiesField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
+  static choices() {
     const keys = CONFIG.DND5E.validProperties.weapon;
     const labels = CONFIG.DND5E.itemProperties;
     return keys.reduce((acc, k) => {
@@ -328,9 +344,9 @@ class ActorLanguagesField extends BaseField {
   }
 
   /** @override */
-  static async choices() {
+  static choices() {
     const trait = dnd5e.documents.Trait;
-    const choices = await trait.choices("languages", {chosen: new Set()});
+    const choices = babonus.trees.languages;
 
     const langs = new Set();
     const cats = new Set();

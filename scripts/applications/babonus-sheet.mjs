@@ -440,7 +440,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const filterId = event.currentTarget.dataset.id;
     const filter = babonus.abstract.DataFields.filters[filterId];
     const property = event.currentTarget.dataset.property;
-    const list = await filter.choices();
+    const list = filter.choices();
     const values = foundry.utils.getProperty(bonus, property);
     const owner = this.owner;
 
