@@ -1,13 +1,17 @@
 {"BABONUS": {
-  "Advanced": "Avançado",
+  "SheetTabs": {
+    "Advanced": "Avançado",
+    "Configuration": "Configuração",
+    "Bonuses": "Bônus",
+    "Description": "Descrição",
+    "Filters": "Filtros"
+  },
   "AuraConfiguration": "Aura",
   "AvailableFiltersTooltip": "A lista de filtros que você pode aplicar a este bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado",
   "Babonus": "Babonus",
   "BasicBonuses": "Bônus Básicos",
   "BasicConfiguration": "Configuração Base",
   "BonusCopy": "{name} (Copy)",
-  "Bonuses": "Bônus",
-  "Configuration": "Configuração",
   "ConfigurationAuraInvalid": "No momento, este bônus não pode funcionar como uma aura.",
   "ConfigurationAuraRequire": "Requisitos",
   "ConfigurationAuraRequireTooltip": "Propriedades específicas relacionadas à tela que são necessárias para que a aura afete um alvo.",
@@ -41,7 +45,6 @@
   "CurrentBonuses": "Bônus Atuais",
   "CurrentBonusesTooltip": "Os bônus que você criou e que estão atualmente armazenados neste Ator, Item ou Efeito Ativo.",
   "CurrentFiltersTooltip": "Os filtros atualmente aplicados ao bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado.",
-  "Description": "Descrição",
   "Example": "Exemplo",
   "Fields": {
     "Aura": {
@@ -247,7 +250,6 @@
       "Label": "Propriedades da Arma"
     }
   },
-  "FiltersCategory": "Filtros",
   "ID": "ID",
   "Keys": "Keys",
   "KeysDialogApplySelection": "Aplicar Seleção",
@@ -292,7 +294,6 @@
   "ModifiersSize": "Categoria do Dado",
   "ModifiersSizeValue": "aumento de categoria",
   "ModuleTitle": "Build-a-Bonus",
-  "NamePlaceholder": "Nome…",
   "NewBabonus": "Novo Babonus",
   "OriginName": "Origem: {name}",
   "OverviewActor": "Ator",

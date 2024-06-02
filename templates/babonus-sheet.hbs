@@ -1,16 +1,16 @@
 <form>
 
   <div class="header name-stacked">
-    <img src="{{bonus.img}}" data-edit="img">
-    <input class="title" type="text" name="name" value="{{bonus.name}}" placeholder="{{localize 'BABONUS.NamePlaceholder'}}">
+    <img src="{{bonus.img}}" data-edit="img" alt="{{bonu.name}}">
+    <input class="title" type="text" name="name" value="{{bonus.name}}" placeholder="{{localize 'Name'}}">
   </div>
 
   <nav class="tabs" data-group="main">
-    <a class="item" data-tab="description">{{localize "BABONUS.Description"}}</a>
-    <a class="item" data-tab="bonuses">{{localize "BABONUS.Bonuses"}}</a>
-    <a class="item" data-tab="configuration">{{localize "BABONUS.Configuration"}}</a>
-    <a class="item" data-tab="filters">{{localize "BABONUS.Filters"}}</a>
-    <a class="item" data-tab="advanced">{{localize "BABONUS.Advanced"}}</a>
+    <a class="item" data-tab="description">{{localize "BABONUS.SheetTabs.Description"}}</a>
+    <a class="item" data-tab="bonuses">{{localize "BABONUS.SheetTabs.Bonuses"}}</a>
+    <a class="item" data-tab="configuration">{{localize "BABONUS.SheetTabs.Configuration"}}</a>
+    <a class="item" data-tab="filters">{{localize "BABONUS.SheetTabs.Filters"}}</a>
+    <a class="item" data-tab="advanced">{{localize "BABONUS.SheetTabs.Advanced"}}</a>
   </nav>
 
   <div class="document-tabs">
@@ -31,128 +31,132 @@
     <!-- Bonuses Tab -->
     <div class="tab" data-tab="bonuses">
 
-      <h3 class="form-header">{{localize "BABONUS.BasicBonuses"}}</h3>
-      {{#each context.bonuses}}
-      {{#if isDamage}}
-      {{formGroup field value=value options=options blank=blank localize=true}}
-      {{else}}
-      {{formGroup field value=value localize=true}}
-      {{/if}}
-      {{/each}}
+      <fieldset>
+        <legend>{{localize "BABONUS.BasicBonuses"}}</legend>
+        {{#each context.bonuses}}
+        {{#if isDamage}}
+        {{formGroup field value=value options=options blank=blank localize=true}}
+        {{else}}
+        {{formGroup field value=value localize=true}}
+        {{/if}}
+        {{/each}}
+      </fieldset>
 
       {{#if context.hasModifiers}}
-      <h3 class="form-header">{{localize "BABONUS.Modifiers"}}</h3>
+      <fieldset>
+        <legend>{{localize "BABONUS.Modifiers"}}</legend>
 
-      <div class="form-group">
-        <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">{{localize "BABONUS.ModifiersFirst"}}</label>
-        <div class="form-fields">
-          <input type="checkbox" name="bonuses.modifiers.config.first" {{checked context.modifiers.config.first}}>
+        <div class="form-group">
+          <label class="label" data-tooltip="BABONUS.ModifiersFirstTooltip">{{localize "BABONUS.ModifiersFirst"}}</label>
+          <div class="form-fields">
+            <input type="checkbox" name="bonuses.modifiers.config.first" {{checked context.modifiers.config.first}}>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group modifiers">
-        <label class="label">{{localize "BABONUS.ModifiersAmount"}}</label>
-        <div class="form-fields">
-          <label class="checkbox">
-            <input type="checkbox" name="bonuses.modifiers.amount.enabled" {{checked context.modifiers.amount.enabled}}>
-          </label>
-          <input type="text" name="bonuses.modifiers.amount.value" value="{{context.modifiers.amount.value}}" {{disabled context.modifiers.amount.disabled}}>
-          <select name="bonuses.modifiers.amount.mode" {{disabled context.modifiers.amount.disabled}}>
-            {{selectOptions context.modifierOptions selected=bonus.bonuses.modifiers.amount.mode localize=true}}
-          </select>
+        <div class="form-group modifiers">
+          <label class="label">{{localize "BABONUS.ModifiersAmount"}}</label>
+          <div class="form-fields">
+            <label class="checkbox">
+              <input type="checkbox" name="bonuses.modifiers.amount.enabled" {{checked context.modifiers.amount.enabled}}>
+            </label>
+            <input type="text" name="bonuses.modifiers.amount.value" value="{{context.modifiers.amount.value}}" {{disabled context.modifiers.amount.disabled}}>
+            <select name="bonuses.modifiers.amount.mode" {{disabled context.modifiers.amount.disabled}}>
+              {{selectOptions context.modifierOptions selected=bonus.bonuses.modifiers.amount.mode localize=true}}
+            </select>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group modifiers">
-        <label class="label">{{localize "BABONUS.ModifiersSize"}}</label>
-        <div class="form-fields">
-          <label class="checkbox">
-            <input type="checkbox" name="bonuses.modifiers.size.enabled" {{checked context.modifiers.size.enabled}}>
-          </label>
-          <input type="text" name="bonuses.modifiers.size.value" value="{{context.modifiers.size.value}}" {{disabled context.modifiers.size.disabled}}>
-          <select name="bonuses.modifiers.size.mode" {{disabled context.modifiers.size.disabled}}>
-            {{selectOptions context.modifierOptions selected=bonus.bonuses.modifiers.size.mode localize=true}}
-          </select>
+        <div class="form-group modifiers">
+          <label class="label">{{localize "BABONUS.ModifiersSize"}}</label>
+          <div class="form-fields">
+            <label class="checkbox">
+              <input type="checkbox" name="bonuses.modifiers.size.enabled" {{checked context.modifiers.size.enabled}}>
+            </label>
+            <input type="text" name="bonuses.modifiers.size.value" value="{{context.modifiers.size.value}}" {{disabled context.modifiers.size.disabled}}>
+            <select name="bonuses.modifiers.size.mode" {{disabled context.modifiers.size.disabled}}>
+              {{selectOptions context.modifierOptions selected=bonus.bonuses.modifiers.size.mode localize=true}}
+            </select>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group modifiers">
-        <label class="label">{{localize "BABONUS.ModifiersReroll"}}</label>
-        <div class="form-fields reroll">
-          <label class="checkbox">
-            <input type="checkbox" name="bonuses.modifiers.reroll.enabled" {{checked context.modifiers.reroll.enabled}}>
-          </label>
+        <div class="form-group modifiers">
+          <label class="label">{{localize "BABONUS.ModifiersReroll"}}</label>
+          <div class="form-fields reroll">
+            <label class="checkbox">
+              <input type="checkbox" name="bonuses.modifiers.reroll.enabled" {{checked context.modifiers.reroll.enabled}}>
+            </label>
 
-          <input type="text" name="bonuses.modifiers.reroll.value" value="{{context.modifiers.reroll.value}}" {{disabled context.modifiers.reroll.disabled}}>
+            <input type="text" name="bonuses.modifiers.reroll.value" value="{{context.modifiers.reroll.value}}" {{disabled context.modifiers.reroll.disabled}}>
 
-          <label class="checkbox">
-            <input type="checkbox" name="bonuses.modifiers.reroll.invert" {{checked context.modifiers.reroll.invert}} {{disabled context.modifiers.reroll.disabled}}>
-            {{localize "BABONUS.ModifiersRerollInvert"}}
-          </label>
+            <label class="checkbox">
+              <input type="checkbox" name="bonuses.modifiers.reroll.invert" {{checked context.modifiers.reroll.invert}} {{disabled context.modifiers.reroll.disabled}}>
+              {{localize "BABONUS.ModifiersRerollInvert"}}
+            </label>
 
-          <label class="checkbox long">
-            <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked context.modifiers.reroll.recursive}} {{disabled context.modifiers.reroll.disabled}}>
-            {{localize "BABONUS.ModifiersRerollRecursive"}}
-          </label>
+            <label class="checkbox long">
+              <input type="checkbox" name="bonuses.modifiers.reroll.recursive" {{checked context.modifiers.reroll.recursive}} {{disabled context.modifiers.reroll.disabled}}>
+              {{localize "BABONUS.ModifiersRerollRecursive"}}
+            </label>
 
-          {{#if context.modifiers.reroll.recursive}}
-          <input type="text" name="bonuses.modifiers.reroll.limit" placeholder="{{localize 'BABONUS.ModifiersRerollLimit'}}" value="{{context.modifiers.reroll.limit}}" {{disabled context.modifiers.reroll.disabled}}>
-          {{/if}}
+            {{#if context.modifiers.reroll.recursive}}
+            <input type="text" name="bonuses.modifiers.reroll.limit" placeholder="{{localize 'BABONUS.ModifiersRerollLimit'}}" value="{{context.modifiers.reroll.limit}}" {{disabled context.modifiers.reroll.disabled}}>
+            {{/if}}
+          </div>
         </div>
-      </div>
 
-      <div class="form-group modifiers">
-        <label class="label">{{localize "BABONUS.ModifiersExplode"}}</label>
-        <div class="form-fields explode">
-          <label class="checkbox">
-            <input type="checkbox" name="bonuses.modifiers.explode.enabled" {{checked context.modifiers.explode.enabled}}>
-          </label>
+        <div class="form-group modifiers">
+          <label class="label">{{localize "BABONUS.ModifiersExplode"}}</label>
+          <div class="form-fields explode">
+            <label class="checkbox">
+              <input type="checkbox" name="bonuses.modifiers.explode.enabled" {{checked context.modifiers.explode.enabled}}>
+            </label>
 
-          <input type="text" name="bonuses.modifiers.explode.value" value="{{context.modifiers.explode.value}}" {{disabled context.modifiers.explode.disabled}}>
+            <input type="text" name="bonuses.modifiers.explode.value" value="{{context.modifiers.explode.value}}" {{disabled context.modifiers.explode.disabled}}>
 
-          <label class="checkbox long">
-            <input type="checkbox" name="bonuses.modifiers.explode.once" {{checked context.modifiers.explode.once}} {{disabled context.modifiers.explode.disabled}}>
-            {{localize "BABONUS.ModifiersExplodeOnce"}}
-          </label>
+            <label class="checkbox long">
+              <input type="checkbox" name="bonuses.modifiers.explode.once" {{checked context.modifiers.explode.once}} {{disabled context.modifiers.explode.disabled}}>
+              {{localize "BABONUS.ModifiersExplodeOnce"}}
+            </label>
 
-          {{#unless context.modifiers.explode.once}}
-          <input type="text" name="bonuses.modifiers.explode.limit" placeholder="{{localize 'BABONUS.ModifiersExplodeLimit'}}" value="{{context.modifiers.explode.limit}}" {{disabled context.modifiers.explode.disabled}}>
-          {{/unless}}
+            {{#unless context.modifiers.explode.once}}
+            <input type="text" name="bonuses.modifiers.explode.limit" placeholder="{{localize 'BABONUS.ModifiersExplodeLimit'}}" value="{{context.modifiers.explode.limit}}" {{disabled context.modifiers.explode.disabled}}>
+            {{/unless}}
+          </div>
         </div>
-      </div>
 
-      <div class="form-group modifiers">
-        <label class="label">{{localize "BABONUS.ModifiersMinimum"}}</label>
-        <div class="form-fields">
-          <label class="checkbox">
-            <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
-          </label>
-          <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}" {{disabled context.modifiers.minimum.disabled}}>
-          <label class="checkbox long">
-            <input type="checkbox" name="bonuses.modifiers.minimum.maximize" {{checked context.modifiers.minimum.maximize}} {{disabled context.modifiers.minimum.disabled}}>
-            {{localize "BABONUS.ModifiersMinimumMaximize"}}
-          </label>
+        <div class="form-group modifiers">
+          <label class="label">{{localize "BABONUS.ModifiersMinimum"}}</label>
+          <div class="form-fields">
+            <label class="checkbox">
+              <input type="checkbox" name="bonuses.modifiers.minimum.enabled" {{checked context.modifiers.minimum.enabled}}>
+            </label>
+            <input type="text" name="bonuses.modifiers.minimum.value" value="{{context.modifiers.minimum.value}}" {{disabled context.modifiers.minimum.disabled}}>
+            <label class="checkbox long">
+              <input type="checkbox" name="bonuses.modifiers.minimum.maximize" {{checked context.modifiers.minimum.maximize}} {{disabled context.modifiers.minimum.disabled}}>
+              {{localize "BABONUS.ModifiersMinimumMaximize"}}
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group modifiers">
-        <label class="label">{{localize "BABONUS.ModifiersMaximum"}}</label>
-        <div class="form-fields">
-          <label class="checkbox">
-            <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked context.modifiers.maximum.enabled}}>
-          </label>
-          <input type="text" name="bonuses.modifiers.maximum.value" value="{{context.modifiers.maximum.value}}" {{disabled context.modifiers.maximum.disabled}}>
-          <label class="checkbox long">
-            <input type="checkbox" name="bonuses.modifiers.maximum.zero" {{checked context.modifiers.maximum.zero}} {{disabled context.modifiers.maximum.disabled}}>
-            {{localize "BABONUS.ModifiersMaximumZero"}}
-          </label>
+        <div class="form-group modifiers">
+          <label class="label">{{localize "BABONUS.ModifiersMaximum"}}</label>
+          <div class="form-fields">
+            <label class="checkbox">
+              <input type="checkbox" name="bonuses.modifiers.maximum.enabled" {{checked context.modifiers.maximum.enabled}}>
+            </label>
+            <input type="text" name="bonuses.modifiers.maximum.value" value="{{context.modifiers.maximum.value}}" {{disabled context.modifiers.maximum.disabled}}>
+            <label class="checkbox long">
+              <input type="checkbox" name="bonuses.modifiers.maximum.zero" {{checked context.modifiers.maximum.zero}} {{disabled context.modifiers.maximum.disabled}}>
+              {{localize "BABONUS.ModifiersMaximumZero"}}
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group modifiers example">
-        <label class="label">{{localize "BABONUS.Example"}}:</label>
-        <div class="form-fields formula">{{context.modifiers.example}}</div>
-      </div>
+        <div class="form-group modifiers example">
+          <label class="label">{{localize "BABONUS.Example"}}:</label>
+          <div class="form-fields formula">{{context.modifiers.example}}</div>
+        </div>
+      </fieldset>
       {{/if}}
 
     </div>

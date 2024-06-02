@@ -1,13 +1,10 @@
 {"BABONUS": {
-  "Advanced": "Advanced",
   "AuraConfiguration": "Aura",
   "AvailableFiltersTooltip": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
   "Babonus": "Babonus",
   "BasicBonuses": "Basic Bonuses",
   "BasicConfiguration": "Base Configuration",
   "BonusCopy": "{name} (Copy)",
-  "Bonuses": "Bonuses",
-  "Configuration": "Configuration",
   "ConfigurationAuraInvalid": "This bonus is not currently able to act as an aura.",
   "ConfigurationAuraRequire": "Requirements",
   "ConfigurationAuraRequireTooltip": "Specific canvas-related properties that are required for the aura to affect a target.",
@@ -41,7 +38,13 @@
   "CurrentBonuses": "Current Bonuses",
   "CurrentBonusesTooltip": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",
   "CurrentFiltersTooltip": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
-  "Description": "Description",
+  "SheetTabs": {
+    "Description": "Description",
+    "Bonuses": "Bonuses",
+    "Configuration": "Configuration",
+    "Filters": "Filters",
+    "Advanced": "Advanced"
+  },
   "Example": "Example",
   "Fields": {
     "Aura": {
@@ -277,7 +280,6 @@
       "Label": "Weapon Properties"
     }
   },
-  "FiltersCategory": "Filters",
   "ID": "ID",
   "Keys": "Keys",
   "KeysDialogApplySelection": "Apply Selection",
@@ -322,7 +324,6 @@
   "ModifiersSize": "Dice Size",
   "ModifiersSizeValue": "size increase",
   "ModuleTitle": "Build-a-Bonus",
-  "NamePlaceholder": "Name…",
   "NewBabonus": "New Babonus",
   "OriginName": "Origin: {name}",
   "OverviewActor": "Actor",

@@ -15,8 +15,6 @@
     margin: 5px 0;
     overflow: hidden;
 
-    [data-tab=configuration] > * { margin-bottom: 1rem; }
-
     .form-group {
 
       /* Arbitrary Comparisons */
@@ -176,20 +174,6 @@
       flex: 1;
       margin: 5px 0;
     }
-  }
-
-  .form-header {
-    font-family: "Modesto Condensed";
-    font-size: 20px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 34px;
-  }
-
-  & [data-tab=picker] {
-    overflow: hidden auto;
   }
 
   .filter {

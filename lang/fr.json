@@ -1,13 +1,17 @@
 {"BABONUS": {
-  "Advanced": "Avancé",
+  "SheetTabs": {
+    "Description": "Description",
+    "Bonuses": "Bonus",
+    "Configuration": "Configuration",
+    "Filters": "Filtres",
+    "Advanced": "Avancé"
+  },
   "AuraConfiguration": "Aura",
   "AvailableFiltersTooltip": "La liste des filtres que vous pouvez appliquer à ce bonus, afin de restreindre davantage les jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
   "Babonus": "Babonus",
   "BasicBonuses": "Bonus de base",
   "BasicConfiguration": "Configuration de base",
   "BonusCopy": "{name} (Copie)",
-  "Bonuses": "Bonus",
-  "Configuration": "Configuration",
   "ConfigurationAuraInvalid": "Ce bonus ne peut actuellement pas agir comme une aura.",
   "ConfigurationAuraRequire": "Prérequis",
   "ConfigurationAuraRequireTooltip": "Propriétés spécifiques liées au canvas qui sont nécessaires pour que l'aura affecte une cible.",
@@ -32,7 +36,6 @@
   "CurrentBonuses": "Bonus actuels",
   "CurrentBonusesTooltip": "Les bonus que vous avez créés et qui sont actuellement stockés sur cet Acteur, Objet ou ActiveEffect.",
   "CurrentFiltersTooltip": "Les filtres actuellement appliqués au bonus, qui réduisent encore plus le nombre de jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
-  "Description": "Description",
   "Example": "Exemple",
   "Fields": {
     "Aura": {
@@ -230,7 +233,6 @@
       "Label": "Propriétés de l'arme"
     }
   },
-  "FiltersCategory": "Filtres",
   "ID": "ID",
   "Keys": "Clés",
   "KeysDialogApplySelection": "Appliquer la sélection",
@@ -270,7 +272,6 @@
   "ModifiersSize": "Taille des dés",
   "ModifiersSizeValue": "augmentation de la taille",
   "ModuleTitle": "Build-a-Bonus",
-  "NamePlaceholder": "Nom…",
   "NewBabonus": "Nouveau Babonus",
   "OriginName": "Origine : {name}",
   "OverviewActor": "Acteur",
