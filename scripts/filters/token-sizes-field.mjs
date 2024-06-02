@@ -37,7 +37,7 @@ export class TokenSizesField extends FilterMixin(SchemaField) {
     <fieldset>
       <legend>
         {{localize label}}
-        <a data-action="delete-filter" data-id="${this.name}">
+        <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>

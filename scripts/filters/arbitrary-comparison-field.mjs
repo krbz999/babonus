@@ -47,7 +47,7 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
           {{formInput c.operator.field value=c.operator.value name=c.operator.name}}
           {{formInput c.other.field value=c.other.value placeholder=../placeholder2 name=c.other.name}}
         </div>
-        <a data-action="delete-filter" data-id="${this.name}" data-idx="{{idx}}">
+        <a data-action="deleteFilter" data-id="${this.name}" data-idx="{{idx}}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </div>

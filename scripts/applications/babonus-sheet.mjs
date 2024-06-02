@@ -388,16 +388,16 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   activateListeners(html) {
     super.activateListeners(html);
     html = html[0];
-    html.querySelectorAll("[data-action='keys-dialog']").forEach(n => {
+    html.querySelectorAll("[data-action='keysDialog']").forEach(n => {
       n.addEventListener("click", this._onDisplayKeysDialog.bind(this));
     });
     html.querySelectorAll("input[type=text], input[type=number]").forEach(n => {
       n.addEventListener("focus", event => event.currentTarget.select());
     });
-    html.querySelectorAll("[data-action='add-filter']").forEach(n => {
+    html.querySelectorAll("[data-action='addFilter']").forEach(n => {
       n.addEventListener("click", this._onClickAddFilter.bind(this));
     });
-    html.querySelectorAll("[data-action='delete-filter']").forEach(n => {
+    html.querySelectorAll("[data-action='deleteFilter']").forEach(n => {
       n.addEventListener("click", this._onClickDeleteFilter.bind(this));
     });
   }

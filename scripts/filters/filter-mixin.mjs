@@ -53,7 +53,7 @@ export function FilterMixin(Base) {
 
       if (this.constructor.trash) {
         const trash = document.createElement("A");
-        trash.dataset.action = "delete-filter";
+        trash.dataset.action = "deleteFilter";
         trash.dataset.id = this.constructor.name;
         trash.innerHTML = "<i class='fa-solid fa-trash'></i>";
         element.querySelector(".form-fields").after(trash);

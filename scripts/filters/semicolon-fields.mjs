@@ -39,7 +39,7 @@ class BaseField extends FilterMixin(SetField) {
 
     const input = element.querySelector("input");
     const button = document.createElement("BUTTON");
-    button.dataset.action = "keys-dialog";
+    button.dataset.action = "keysDialog";
     button.dataset.property = input.name;
     button.dataset.id = this.constructor.name;
     button.type = "button";
