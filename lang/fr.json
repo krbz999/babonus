@@ -3,10 +3,6 @@
   "Babonus": "Babonus",
   "BasicBonuses": "Bonus de base",
   "BonusCopy": "{name} (Copie)",
-  "ConfigurationAuraInvalid": "Ce bonus ne peut actuellement pas agir comme une aura.",
-  "ConfigurationAuraRequire": "Prérequis",
-  "ConfigurationAuraRequireTooltip": "Propriétés spécifiques liées au canvas qui sont nécessaires pour que l'aura affecte une cible.",
-  "ConfigurationAuraTargetArea": "Zone cible",
   "ConfigurationConsumptionConsume": "Consommer:",
   "ConfigurationConsumptionInvalid": "Ce bonus ne peut actuellement consommer aucune valeur.",
   "ConfigurationCopyTooltip": "Créez un duplicata de ce bonus",
@@ -89,7 +85,9 @@
       },
       "Values": {
         "Label": "Valeurs Consommées",
-        "LabelSlot": "Taille de l'emplacement du sort"
+        "LabelSlot": "Taille de l'emplacement du sort",
+        "MaxSlot": "Le plus grand",
+        "MinSlot": "Le plus petit"
       },
       "ValueStep": {
         "Label": "Étape"
@@ -232,36 +230,50 @@
   "KeysDialogState": "État",
   "KeysDialogTitle": "Clés : {name}",
   "KeysDialogValue": "Valeur",
-  "LabelsConsuming": "Consommer",
-  "LabelsDisabled": "Désactivé",
-  "LabelsExclusive": "Objets seulement",
-  "LabelsFilters": "{n} Filtres",
-  "LabelsOptional": "Optionnel",
-  "LabelsTemplateAura": "Aura du modèle",
-  "LabelsTokenAura": "Aura du jeton",
-  "Largest": "Le plus grand",
-  "Maximized": "Maximisé",
-  "Maximum": "Maximum",
-  "Modifiers": "Modificateurs",
-  "ModifiersAmount": "Montant du dé",
-  "ModifiersAmountValue": "supplémentaires",
-  "ModifiersExplode": "Explosion",
-  "ModifiersExplodeOnce": "Exploser une fois ?",
-  "ModifiersExplodeValue": "si elle est supérieure à",
-  "ModifiersFirst": "Première mort",
-  "ModifiersFirstTooltip": "Si cette case est cochée, les modificateurs de dé ne s'appliquent qu'au premier dé de l'expression complète.",
-  "ModifiersMaximum": "Maximum",
-  "ModifiersMaximumValue": "Valeur maximum",
-  "ModifiersMaximumZero": "Autoriser zéro ?",
-  "ModifiersMinimum": "Minimum",
-  "ModifiersMinimumMaximize": "Maximiser ?",
-  "ModifiersMinimumValue": "Valeur minimum",
-  "ModifiersReroll": "Relancer",
-  "ModifiersRerollInvert": "Inversé ?",
-  "ModifiersRerollRecursive": "Relancer récursivement ?",
-  "ModifiersRerollValue": "si elle est inférieure à",
-  "ModifiersSize": "Taille des dés",
-  "ModifiersSizeValue": "augmentation de la taille",
+  "Labels": {
+    "Consuming": "Consommer",
+    "Disabled": "Désactivé",
+    "Exclusive": "Objets seulement",
+    "Filters": "{n} Filtres",
+    "Optional": "Optionnel",
+    "TemplateAura": "Aura du modèle",
+    "TokenAura": "Aura du jeton"
+  },
+  "Modifiers": {
+    "Amount": {
+      "Label": "Montant du dé",
+      "ValueLabel": "supplémentaires"
+    },
+    "Config": {
+      "FirstHint": "Si cette case est cochée, les modificateurs de dé ne s'appliquent qu'au premier dé de l'expression complète.",
+      "FirstLabel": "Première mort"
+    },
+    "Explode": {
+      "Label": "Explosion",
+      "OnceLabel": "Exploser une fois ?",
+      "ValueLabel": "si elle est supérieure à"
+    },
+    "Maximum": {
+      "Label": "Maximum",
+      "ValueLabel": "Valeur maximum",
+      "ZeroLabel": "Autoriser zéro ?"
+    },
+    "Minimum": {
+      "Label": "Minimum",
+      "MaximizeLabel": "Maximiser ?",
+      "ValueLabel": "Valeur minimum"
+    },
+    "Reroll": {
+      "InvertLabel": "Inversé ?",
+      "Label": "Relancer",
+      "RecursiveLabel": "Relancer récursivement ?",
+      "ValueLabel": "si elle est inférieure à"
+    },
+    "Size": {
+      "Label": "Taille des dés",
+      "ValueLabel": "augmentation de la taille"
+    }
+  },
   "ModuleTitle": "Build-a-Bonus",
   "NewBabonus": "Nouveau Babonus",
   "OriginName": "Origine : {name}",
@@ -293,7 +305,6 @@
     "Description": "Description",
     "Filters": "Filtres"
   },
-  "Smallest": "Le plus petit",
   "ToggleBonus": "Basculer le bonus",
   "Toggles": "Activations",
   "TypeAttack": "Jets d'attaque",

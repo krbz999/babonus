@@ -3,10 +3,6 @@
   "Babonus": "Babonus",
   "BasicBonuses": "Bônus Básicos",
   "BonusCopy": "{name} (Copy)",
-  "ConfigurationAuraInvalid": "No momento, este bônus não pode funcionar como uma aura.",
-  "ConfigurationAuraRequire": "Requisitos",
-  "ConfigurationAuraRequireTooltip": "Propriedades específicas relacionadas à tela que são necessárias para que a aura afete um alvo.",
-  "ConfigurationAuraTargetArea": "Área Alvo",
   "ConfigurationConsumptionConsume": "Consumir:",
   "ConfigurationConsumptionInvalid": "Este bônus não pode consumir nenhum valor no momento.",
   "ConfigurationCopyTooltip": "Crie uma duplicata deste bônus",
@@ -98,7 +94,9 @@
       },
       "Values": {
         "Label": "Valores Consumidos",
-        "LabelSlot": "Tamanho do Espaço de Magia"
+        "LabelSlot": "Tamanho do Espaço de Magia",
+        "MaxSlot": "Maior",
+        "MinSlot": "Menor"
       },
       "ValueStep": {
         "Label": "Etapa"
@@ -249,44 +247,60 @@
   "KeysDialogState": "Estado",
   "KeysDialogTitle": "Keys: {name}",
   "KeysDialogValue": "Valor",
-  "LabelsConsuming": "Consumindo",
-  "LabelsDisabled": "Desabilitado",
-  "LabelsExclusive": "Somente Item",
-  "LabelsFilters": "{n} Filtros",
-  "LabelsOptional": "Opcional",
-  "LabelsTemplateAura": "Aura Modelo",
-  "LabelsTokenAura": "Aura Token",
-  "Largest": "Maior",
-  "Maximized": "Maximizado",
-  "Maximum": "Máximo",
+  "Labels": {
+    "Consuming": "Consumindo",
+    "Disabled": "Desabilitado",
+    "Exclusive": "Somente Item",
+    "Filters": "{n} Filtros",
+    "Optional": "Opcional",
+    "TemplateAura": "Aura Modelo",
+    "TokenAura": "Aura Token"
+  },
   "Modifiers": {
+    "Amount": {
+      "Label": "Quantidade de Dados",
+      "ModeLabel": "Modo",
+      "ValueLabel": "adicional"
+    },
+    "Config": {
+      "FirstHint": "Se marcado, os modificadores de dados só se aplicam ao primeiro dado na expressão completa.",
+      "FirstLabel": "Apenas Primeiro Dado?"
+    },
+    "Explode": {
+      "Label": "Explodir",
+      "LimitLabel": "Explosões Máximas",
+      "OnceLabel": "Explodir Uma Vez?",
+      "ValueLabel": "se superior a"
+    },
+    "Maximum": {
+      "Label": "Máximo",
+      "ValueLabel": "Valor máximo",
+      "ZeroLabel": "Permitir Zero?"
+    },
+    "Minimum": {
+      "Label": "Mínimo",
+      "Maximize": {
+        "Label": "Maximizar?"
+      },
+      "ValueLabel": "Valor mínimo"
+    },
     "Modes": {
       "ChoiceAdd": "Adicionar",
       "ChoiceMultiply": "Multiplicar"
+    },
+    "Reroll": {
+      "InvertLabel": "Invertido?",
+      "Label": "Rerolar",
+      "LimitLabel": "Máximo de Re-rolagens",
+      "RecursiveLabel": "Recursivo?",
+      "ValueLabel": "se inferior a"
+    },
+    "Size": {
+      "Label": "Categoria do Dado",
+      "ModeLabel": "Modo",
+      "ValueLabel": "aumento de categoria"
     }
   },
-  "ModifiersAmount": "Quantidade de Dados",
-  "ModifiersAmountValue": "adicional",
-  "ModifiersExplode": "Explodir",
-  "ModifiersExplodeLimit": "Explosões Máximas",
-  "ModifiersExplodeOnce": "Explodir Uma Vez?",
-  "ModifiersExplodeValue": "se superior a",
-  "ModifiersFirst": "Apenas Primeiro Dado?",
-  "ModifiersFirstTooltip": "Se marcado, os modificadores de dados só se aplicam ao primeiro dado na expressão completa.",
-  "ModifiersMaximum": "Máximo",
-  "ModifiersMaximumValue": "Valor máximo",
-  "ModifiersMaximumZero": "Permitir Zero?",
-  "ModifiersMinimum": "Mínimo",
-  "ModifiersMinimumMaximize": "Maximizar?",
-  "ModifiersMinimumValue": "Valor mínimo",
-  "ModifiersMode": "Modo",
-  "ModifiersReroll": "Rerolar",
-  "ModifiersRerollInvert": "Invertido?",
-  "ModifiersRerollLimit": "Máximo de Re-rolagens",
-  "ModifiersRerollRecursive": "Recursivo?",
-  "ModifiersRerollValue": "se inferior a",
-  "ModifiersSize": "Categoria do Dado",
-  "ModifiersSizeValue": "aumento de categoria",
   "ModuleTitle": "Build-a-Bonus",
   "NewBabonus": "Novo Babonus",
   "OriginName": "Origem: {name}",
@@ -318,7 +332,6 @@
     "Description": "Descrição",
     "Filters": "Filtros"
   },
-  "Smallest": "Menor",
   "ToggleBonus": "Alternar Bônus",
   "Toggles": "Alterna",
   "TypeAttack": "Jogadas de Ataque",

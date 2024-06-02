@@ -200,14 +200,15 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const filterLabels = Object.keys(this.bonus.filters).filter(key => {
       return babonus.abstract.DataFields.filters[key].storage(this.bonus);
     }).length;
-    labels.push(game.i18n.format("BABONUS.LabelsFilters", {n: filterLabels}));
+    labels.push(game.i18n.format("BABONUS.Labels.Filters", {n: filterLabels}));
 
-    if (!this.bonus.enabled) labels.push(game.i18n.localize("BABONUS.LabelsDisabled"));
-    if (this.bonus.isExclusive) labels.push(game.i18n.localize("BABONUS.LabelsExclusive"));
-    if (this.bonus.isOptional) labels.push(game.i18n.localize("BABONUS.LabelsOptional"));
-    if (this.bonus.consume.isValidConsumption) labels.push(game.i18n.localize("BABONUS.LabelsConsuming"));
-    if (this.bonus.aura.isToken) labels.push(game.i18n.localize("BABONUS.LabelsTokenAura"));
-    if (this.bonus.aura.isTemplate) labels.push(game.i18n.localize("BABONUS.LabelsTemplateAura"));
+    if (!this.bonus.enabled) labels.push(game.i18n.localize("BABONUS.Labels.Disabled"));
+    if (this.bonus.isExclusive) labels.push(game.i18n.localize("BABONUS.Labels.Exclusive"));
+    if (this.bonus.isOptional) labels.push(game.i18n.localize("BABONUS.Labels.Optional"));
+    if (this.bonus.consume.isValidConsumption) labels.push(game.i18n.localize("BABONUS.Labels.Consuming"));
+    if (this.bonus.aura.isToken) labels.push(game.i18n.localize("BABONUS.Labels.TokenAura"));
+    if (this.bonus.aura.isTemplate) labels.push(game.i18n.localize("BABONUS.Labels.TemplateAura"));
+    if (this.bonus.isReminder) labels.push(game.i18n.localize("BABONUS.Labels.Reminder"));
 
     return labels;
   }
