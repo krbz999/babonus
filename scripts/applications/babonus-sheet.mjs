@@ -88,12 +88,6 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     context.filters = this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
 
-    const modes = babonus.abstract.DataFields.models.ModifiersModel.MODIFIER_MODES;
-    context.modifierOptions = Object.entries(modes).reduce((acc, [k, v]) => {
-      acc[v] = `BABONUS.ModifiersMode${k.titleCase()}`;
-      return acc;
-    }, {});
-
     // Root fields.
     context.root = {
       enabled: {
