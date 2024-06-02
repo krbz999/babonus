@@ -13,7 +13,7 @@ export class CharacterSheetTab {
 
     async function _prepareBonus(bonus, rollData) {
       const section = bonuses[bonus.type] ??= {};
-      section.label ??= `BABONUS.Type${bonus.type.capitalize()}`;
+      section.label ??= `BABONUS.Type${bonus.type.capitalize()}.Label`;
       section.key ??= bonus.type;
       section.bonuses ??= [];
       section.bonuses.push({
