@@ -7,7 +7,6 @@
   "BasicConfiguration": "Configuração Base",
   "BonusCopy": "{name} (Copy)",
   "Bonuses": "Bônus",
-  "CompareToSelf": "Comparar consigo mesmo:",
   "Configuration": "Configuração",
   "ConfigurationAuraInvalid": "No momento, este bônus não pode funcionar como uma aura.",
   "ConfigurationAuraRequire": "Requisitos",
@@ -237,7 +236,11 @@
     },
     "TokenSizes": {
       "Hint": "O tamanho do token alvo e se também deve ser comparado com o token de origem. Se marcado, o alvo deve ser no mínimo ou no máximo tão grande quanto o de origem.",
-      "Label": "Tamanhos do Token"
+      "Label": "Tamanhos do Token",
+      "SizeGreaterThan": "Maior que",
+      "SizePlaceholder": "Tamanho…",
+      "SizeSmallerThan": "Menor que",
+      "SelfLabel": "Comparar consigo mesmo"
     },
     "WeaponProperties": {
       "Hint": "As propriedades da arma que o item deve ou não ter para que o bônus seja aplicado. Se alguma for selecionada, a arma deverá ter pelo menos uma das propriedades incluídas e nenhuma das propriedades excluídas. Por exemplo, se você quiser que um bônus seja aplicado apenas a armas de Duas Mãos.",
@@ -313,9 +316,6 @@
   "SettingsShowBuilderForPlayersName": "Mostrar para Jogadores",
   "SettingsShowSheetTab": "Aba na Ficha",
   "SettingsShowSheetTabHint": "Adicione uma nova aba na ficha de personagem em vez de adicionar um botão de cabeçalho.",
-  "SizeGreaterThan": "Maior que",
-  "SizePlaceholder": "Tamanho…",
-  "SizeSmallerThan": "Menor que",
   "Smallest": "Menor",
   "ToggleBonus": "Alternar Bônus",
   "Toggles": "Alterna",

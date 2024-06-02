@@ -7,7 +7,6 @@
   "BasicConfiguration": "Base Configuration",
   "BonusCopy": "{name} (Copy)",
   "Bonuses": "Bonuses",
-  "CompareToSelf": "Compare to self:",
   "Configuration": "Configuration",
   "ConfigurationAuraInvalid": "This bonus is not currently able to act as an aura.",
   "ConfigurationAuraRequire": "Requirements",
@@ -265,7 +264,13 @@
     },
     "TokenSizes": {
       "Hint": "The size of the targeted token, and whether to compare against the rolling token as well. If checked, the target must be at least or at most as big as the roller.",
-      "Label": "Token Sizes"
+      "Label": "Token Sizes",
+      "RangeLabel": "Size",
+      "SizeGreaterThan": "Greater than",
+      "SizePlaceholder": "Size…",
+      "SizeSmallerThan": "Smaller than",
+      "SelfLabel": "Compare to self",
+      "SelfHint": "If checked, the target token must be larger/smaller than the rolling actor's token size in addition to the above value."
     },
     "WeaponProperties": {
       "Hint": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the included properties, and none of the excluded properties. For example if you want a bonus to apply only to Two-Handed weapons.",
@@ -344,9 +349,6 @@
   "SettingsShowBuilderForPlayersName": "Show for Players",
   "SettingsShowSheetTab": "Character Sheet Tab",
   "SettingsShowSheetTabHint": "Add a new tab on the character sheet rather than adding a header button.",
-  "SizeGreaterThan": "Greater than",
-  "SizePlaceholder": "Size…",
-  "SizeSmallerThan": "Smaller than",
   "Smallest": "Smallest",
   "ToggleBonus": "Toggle Bonus",
   "Toggles": "Toggles",

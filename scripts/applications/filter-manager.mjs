@@ -665,7 +665,18 @@ export class FilterManager {
     } else {
       se = size;
     }
-    return ((type === 0) && (enemySize >= Math.max(se, size))) || ((type === 1) && (enemySize <= Math.min(se, size)));
+
+    // Greater than
+    if (type === 0) {
+      return enemySize >= Math.max(se, size);
+    }
+
+    // Less than
+    if (type === 1) {
+      return enemySize <= Math.min(se, size);
+    }
+
+    return false;
   }
 
   /**

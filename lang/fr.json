@@ -7,7 +7,6 @@
   "BasicConfiguration": "Configuration de base",
   "BonusCopy": "{name} (Copie)",
   "Bonuses": "Bonus",
-  "CompareToSelf": "Comparer au lanceur:",
   "Configuration": "Configuration",
   "ConfigurationAuraInvalid": "Ce bonus ne peut actuellement pas agir comme une aura.",
   "ConfigurationAuraRequire": "Prérequis",
@@ -220,7 +219,11 @@
     },
     "TokenSizes": {
       "Hint": "La taille du token ciblé, et s'il faut également comparer avec le token qui lance le jet. Si la case est cochée, la cible doit être au moins ou au plus aussi grande que le lanceur.",
-      "Label": "Taille des Tokens"
+      "Label": "Taille des Tokens",
+      "SizeGreaterThan": "Supérieure à",
+      "SizePlaceholder": "Taille…",
+      "SizeSmallerThan": "Inférieur à",
+      "SelfLabel": "Comparer au lanceur"
     },
     "WeaponProperties": {
       "Hint": "Les propriétés de l'arme que l'objet doit ou ne peut pas avoir pour que le bonus s'applique. Si l'une d'entre elles est sélectionnée, l'arme doit posséder au moins une des propriétés incluses et aucune des propriétés exclues. Par exemple, si vous souhaitez qu'un bonus ne s'applique qu'aux armes à deux mains.",
@@ -291,9 +294,6 @@
   "SettingsShowBuilderForPlayersName": "Montrer aux joueurs",
   "SettingsShowSheetTab": "Onglet Feuille de personnages",
   "SettingsShowSheetTabHint": "Ajouter un nouvel onglet sur la feuille de personnage plutôt que d'ajouter un bouton d'en-tête.",
-  "SizeGreaterThan": "Supérieure à",
-  "SizePlaceholder": "Taille…",
-  "SizeSmallerThan": "Inférieur à",
   "Smallest": "Le plus petit",
   "ToggleBonus": "Basculer le bonus",
   "Toggles": "Activations",
