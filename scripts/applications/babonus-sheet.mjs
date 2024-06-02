@@ -119,16 +119,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       bonus: this.bonus,
       editable: this.isEditable,
       filters: this._filters,
-      actor: this.bonus.actor,
-      item: this.bonus.item,
-      template: this.bonus.template,
-      effect: this.bonus.effect,
-      token: this.bonus.token,
-      parent: this.owner,
-      type: this.bonus.type,
-      context: context,
-      source: this.bonus.toObject(),
-      config: CONFIG.DND5E
+      context: context
     };
   }
 
@@ -237,28 +228,32 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     const schema = this.bonus.schema;
     const scales = this.bonus.consume.scales;
 
+    const source = this.bonus.consume.toObject();
+
     const context = {
       enabled: {
         field: schema.getField("consume.enabled"),
-        value: this.bonus.consume.enabled
+        value: source.enabled
       },
-      source: this.bonus.consume.toObject(),
-      consumeRange: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null,
       type: {
-        field: schema.getField("consume.type")
+        field: schema.getField("consume.type"),
+        value: source.type
       },
       subtype: {
         field: schema.getField("consume.subtype"),
-        label: `BABONUS.ConsumptionType${this.bonus.consume.type.capitalize()}Subtype`
+        label: `BABONUS.ConsumptionType${source.type.capitalize()}Subtype`,
+        value: source.subtype
       },
       formula: {
         field: schema.getField("consume.formula"),
         placeholder: this.bonus.bonuses.bonus,
-        show: scales
+        show: scales,
+        value: source.formula
       },
       step: {
         field: schema.getField("consume.value.step"),
-        show: ["health", "currency"].includes(this.bonus.consume.type) && scales
+        show: ["health", "currency"].includes(source.type) && scales,
+        value: source.value.step
       },
       values: {
         field1: schema.getField("consume.value.min"),
@@ -267,16 +262,19 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
         ph1: game.i18n.localize(`BABONUS.Fields.Consume.Values.Min${isSlot ? "Slot" : ""}`),
         ph2: game.i18n.localize(`BABONUS.Fields.Consume.Values.Max${isSlot ? "Slot" : ""}`),
         hint: `BABONUS.Fields.Consume.Values.Hint${scales ? "Scale" : ""}${isSlot ? "Slot" : ""}`,
-        range: (v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null
+        range: (scales && v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null,
+        value1: source.value.min,
+        value2: source.value.max
       },
       scale: {
         field: schema.getField("consume.scales"),
-        unavailable: !this.bonus.consume.type || ["effect", "inspiration"].includes(this.bonus.consume.type)
+        value: source.scales,
+        unavailable: !source.type || ["effect", "inspiration"].includes(source.type)
       }
     };
 
     const subtypes = {};
-    switch (this.bonus.consume.type) {
+    switch (source.type) {
       case "currency": {
         Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
           subtypes[c[0]] = c[1].label;
@@ -319,10 +317,13 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       field: schema.getField("range"),
       value: src.range
     };
-    if (range >= 0) context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelFt", {range: range});
-    else if (range === -1) context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelUnlimited", {
-      range: game.i18n.localize("DND5E.Unlimited")
-    });
+    if (!range || (range > 0)) {
+      context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelFt", {range: range || 0});
+    } else if (range === -1) {
+      context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelUnlimited", {
+        range: game.i18n.localize("DND5E.Unlimited")
+      });
+    }
 
     // Template
     context.template = {

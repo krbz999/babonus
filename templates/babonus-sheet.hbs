@@ -1,7 +1,7 @@
 <form>
 
   <div class="header name-stacked">
-    <img src="{{bonus.img}}" data-edit="img" alt="{{bonu.name}}">
+    <img src="{{bonus.img}}" data-edit="img" alt="{{bonus.name}}">
     <input class="title" type="text" name="name" value="{{bonus.name}}" placeholder="{{localize 'Name'}}">
   </div>
 
@@ -166,52 +166,55 @@
 
       <fieldset>
         <legend>{{localize "BABONUS.Toggles"}}</legend>
-        {{formGroup context.root.enabled.field value=context.root.enabled.value localize=true}}
-        {{formGroup context.root.exclusive.field value=context.root.exclusive.value localize=true}}
-        {{formGroup context.root.optional.field value=context.root.optional.value localize=true}}
-        {{formGroup context.root.reminder.field value=context.root.reminder.value localize=true disabled=context.root.reminder.disabled}}
+        {{#with context.root}}
+        {{formGroup enabled.field value=enabled.value localize=true}}
+        {{formGroup exclusive.field value=exclusive.value localize=true}}
+        {{formGroup optional.field value=optional.value localize=true}}
+        {{formGroup reminder.field value=reminder.value localize=true disabled=reminder.disabled}}
+        {{/with}}
       </fieldset>
 
       <fieldset>
         <legend>{{localize "BABONUS.Fields.Consume.Label"}}</legend>
-        {{formGroup context.consume.enabled.field value=context.consume.enabled.value localize=true}}
-        {{#if bonus.consume.enabled}}
-        {{formGroup context.consume.type.field value=bonus.consume.type localize=true sort=true blank="-"}}
-        {{#unless context.consume.scale.unavailable}}
-        {{#if context.consume.subtype.show}}
-        {{formGroup context.consume.subtype.field value=bonus.consume.subtype localize=true sort=false blank="-" choices=context.consume.subtype.choices label=context.consume.subtype.label}}
+        {{#with context.consume}}
+        {{formGroup enabled.field value=enabled.value localize=true}}
+        {{#if enabled.value}}
+        {{formGroup type.field value=type.value localize=true sort=true blank="-"}}
+        {{#unless scale.unavailable}}
+        {{#if subtype.show}}
+        {{formGroup subtype.field value=subtype.value localize=true sort=false blank="-" choices=subtype.choices label=subtype.label}}
         {{/if}}
-        {{#unless context.consume.scale.unavailable}}
-        {{formGroup context.consume.scale.field localize=true value=bonus.consume.scales}}
+        {{#unless scale.unavailable}}
+        {{formGroup scale.field localize=true value=scale.value}}
         {{/unless}}
 
         <div class="form-group values">
           <label>
-            {{localize context.consume.values.label}}
-            {{{context.consume.values.range}}}
+            {{localize values.label}}
+            {{{values.range}}}
           </label>
           <div class="form-fields">
-            {{formInput context.consume.values.field1 value=context.consume.source.value.min placeholder=context.consume.values.ph1}}
-            {{#if bonus.consume.scales}}
+            {{formInput values.field1 value=values.value1 placeholder=values.ph1}}
+            {{#if scale.value}}
             <span class="sep dash">&mdash;</span>
-            {{formInput context.consume.values.field2 value=context.consume.source.value.max placeholder=context.consume.values.ph2}}
+            {{formInput values.field2 value=values.value2 placeholder=values.ph2}}
             {{/if}}
           </div>
-          <p class="hint">{{localize context.consume.values.hint}}</p>
+          <p class="hint">{{localize values.hint}}</p>
         </div>
 
-        {{#if context.consume.step.show}}
-        {{formGroup context.consume.step.field value=bonus.consume.value.step localize=true placeholder=(localize context.consume.step.field.label)}}
+        {{#if step.show}}
+        {{formGroup step.field value=step.value localize=true placeholder=(localize step.field.label)}}
         {{/if}}
 
-        {{#if context.consume.formula.show}}
-        {{formGroup context.consume.formula.field value=bonus.consume.formula localize=true placeholder=context.consume.formula.placeholder}}
+        {{#if formula.show}}
+        {{formGroup formula.field value=formula.value localize=true placeholder=formula.placeholder}}
         {{/if}}
 
         {{/unless}}
 
         {{/if}}
-
+        {{/with}}
       </fieldset>
 
       <fieldset>
