@@ -79,7 +79,6 @@
       border-right: 2px groove var(--color-fieldset-border);
 
       .header {
-        font-weight: bold;
         font-family: "Modesto Condensed";
         margin: 0;
         font-size: 16px;

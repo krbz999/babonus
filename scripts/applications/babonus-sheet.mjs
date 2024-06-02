@@ -43,7 +43,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       keysDialog: this._onKeysDialog,
       addFilter: this._onAddFilter,
       deleteFilter: this._onDeleteFilter,
-      copyUuid: {handler: this._onCopyUuid, buttons: [0, 2]}
+      copyUuid: {handler: this._onCopyUuid, buttons: [0, 2]},
+      editImage: this._onEditImage
     }
   };
 
@@ -557,6 +558,20 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const label = game.i18n.localize(this.bonus.constructor.metadata.label);
     game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {label, type, id}));
+  }
+
+  /**
+   * Change the image of the bonus.
+   * @param {Event} event             The initiating click event.
+   * @param {HTMLElement} target      Targeted html element.
+   */
+  static _onEditImage(event, target) {
+    new FilePicker({
+      type: "image",
+      current: this.bonus.img,
+      allowUpload: false,
+      callback: src => this.bonus.update({img: src})
+    }).browse();
   }
 
   /** @override */
