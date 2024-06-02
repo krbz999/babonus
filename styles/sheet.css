@@ -16,6 +16,42 @@
 
   .tab.scrollable {
     min-height: 300px;
+
+    &[data-tab=bonuses] {
+      position: relative;
+
+      & #example {
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 200ms ease;
+
+        padding: 0 10px;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        background: var(--background);
+        box-shadow: 0 0 10px #000;
+
+        &.expanded {
+          grid-template-rows: 1fr;
+          padding: 10px 10px;
+
+          &.inst {
+            transition: none;
+          }
+        }
+
+        .wrapper {
+          overflow: hidden;
+          display: flex;
+          justify-content: space-around;
+        }
+      }
+    }
   }
 
   & fieldset:hover > .hint {

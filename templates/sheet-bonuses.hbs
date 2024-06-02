@@ -1,4 +1,10 @@
 <div class="tab scrollable {{context.tabs.bonuses.cssClass}}" data-tab="bonuses" data-group="main">
+  <div id="example">
+    <div class="wrapper">
+      <label>{{localize "BABONUS.Example"}}</label>
+      <div class="formula">{{context.modifiers.config.example}}</div>
+    </div>
+  </div>
 
   <fieldset>
     <legend>{{localize "BABONUS.BasicBonuses"}}</legend>
@@ -18,7 +24,7 @@
     {{formGroup context.modifiers.config.first.field value=context.modifiers.config.first.value localize=true rootId=@root.rootId}}
 
     <div class="form-group modifiers example">
-      <label class="label">{{localize "BABONUS.Example"}}:</label>
+      <label>{{localize "BABONUS.Example"}}:</label>
       <div class="form-fields formula">{{context.modifiers.config.example}}</div>
     </div>
   </fieldset>

@@ -94,6 +94,59 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   }
 
   /** @override */
+  _prepareSubmitData(event, form, formData) {
+    const submitData = foundry.utils.expandObject(formData.object);
+    this.bonus.validate({changes: submitData, clean: true, fallback: false});
+    submitData.id = this.bonus.id;
+    const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
+    this.bonus.updateSource(submitData);
+    collection.findSplice(k => k.id === this.bonus.id, this.bonus.toObject());
+    return {flags: {babonus: {bonuses: collection}}};
+  }
+
+  /* ------------------------------- */
+  /*                                 */
+  /* Rendering                       */
+  /*                                 */
+  /* ------------------------------- */
+
+  /** @override */
+  render(...T) {
+    const bonus = babonus.getCollection(this.document).get(this.bonus.id);
+    if (!bonus) return this.close();
+    this.bonus = bonus;
+    return super.render(...T);
+  }
+
+  /** @override */
+  _onRender(...T) {
+    super._onRender(...T);
+
+    const element = this.element.querySelector(".example");
+    const replacement = this.element.querySelector("#example");
+    const options = {
+      root: element.closest(".tab.scrollable"),
+      rootMargin: "0px",
+      threshold: 0.5
+    };
+    new IntersectionObserver(([{target, isIntersecting}], observer) => {
+      if (this.tabGroups.main !== "bonuses") isIntersecting = true;
+      replacement.classList.toggle("expanded", !isIntersecting);
+      replacement.classList.remove("inst");
+    }, options).observe(element);
+  }
+
+  /** @override */
+  _syncPartState(partId, newElement, priorElement, state) {
+    super._syncPartState(partId, newElement, priorElement, state);
+    if (partId === "bonuses") {
+      if (priorElement.querySelector("#example").classList.contains("expanded")) {
+        newElement.querySelector("#example").classList.add("expanded", "inst");
+      }
+    }
+  }
+
+  /** @override */
   async _prepareContext(options) {
     const rollData = this.bonus.getRollData();
 
@@ -440,6 +493,12 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     return context;
   }
 
+  /* ------------------------------- */
+  /*                                 */
+  /* Event handlers                  */
+  /*                                 */
+  /* ------------------------------- */
+
   /**
    * Handle deleting a filter.
    * @param {Event} event             The initiating click event.
@@ -574,22 +633,4 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }).browse();
   }
 
-  /** @override */
-  _prepareSubmitData(event, form, formData) {
-    const submitData = foundry.utils.expandObject(formData.object);
-    this.bonus.validate({changes: submitData, clean: true, fallback: false});
-    submitData.id = this.bonus.id;
-    const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
-    this.bonus.updateSource(submitData);
-    collection.findSplice(k => k.id === this.bonus.id, this.bonus.toObject());
-    return {flags: {babonus: {bonuses: collection}}};
-  }
-
-  /** @override */
-  render(...T) {
-    const bonus = babonus.getCollection(this.document).get(this.bonus.id);
-    if (!bonus) return this.close();
-    this.bonus = bonus;
-    return super.render(...T);
-  }
 }
