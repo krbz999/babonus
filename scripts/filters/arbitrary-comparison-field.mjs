@@ -6,7 +6,6 @@ const {SchemaField, StringField, ArrayField} = foundry.data.fields;
 export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
   static name = "arbitraryComparisons";
   static repeatable = true;
-  static template = "modules/babonus/templates/parts/text-select-text.hbs";
 
   /** @override */
   constructor(options = {}) {
@@ -35,6 +34,7 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
     });
   }
 
+  /** @override */
   static render(bonus) {
     const template = `
     <fieldset>
@@ -47,7 +47,7 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
           {{formInput c.operator.field value=c.operator.value name=c.operator.name}}
           {{formInput c.other.field value=c.other.value placeholder=../placeholder2 name=c.other.name}}
         </div>
-        <a data-action="delete-filter" data-id="arbitraryComparisons" data-idx="{{idx}}">
+        <a data-action="delete-filter" data-id="${this.name}" data-idx="{{idx}}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </div>
@@ -63,9 +63,9 @@ export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
       placeholder2: game.i18n.localize("BABONUS.Filters.ArbitraryComparisons.Other"),
       comparisons: bonus.filters.arbitraryComparisons.map((c, i) => {
         return {
-          one: {field: one, value: c.one, name: `filters.arbitraryComparisons.${i}.one`},
-          other: {field: other, value: c.other, name: `filters.arbitraryComparisons.${i}.other`},
-          operator: {field: operator, value: c.operator, name: `filters.arbitraryComparisons.${i}.operator`}
+          one: {field: one, value: c.one, name: `filters.${this.name}.${i}.one`},
+          other: {field: other, value: c.other, name: `filters.${this.name}.${i}.other`},
+          operator: {field: operator, value: c.operator, name: `filters.${this.name}.${i}.operator`}
         };
       })
     };

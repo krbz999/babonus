@@ -4,7 +4,6 @@ const {SchemaField, NumberField} = foundry.data.fields;
 
 export class HealthPercentagesField extends FilterMixin(SchemaField) {
   static name = "healthPercentages";
-  static template = "modules/babonus/templates/parts/range-select.hbs";
 
   constructor(fields = {}, options = {}) {
     super({

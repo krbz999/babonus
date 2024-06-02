@@ -4,8 +4,8 @@ const {JavaScriptField, StringField} = foundry.data.fields;
 
 export class CustomScriptsField extends FilterMixin(JavaScriptField) {
   static name = "customScripts";
-  static template = "modules/babonus/templates/parts/textarea.hbs";
 
+  /** @override */
   static render(bonus) {
     const field = bonus.schema.getField(`filters.${this.name}`);
     const value = bonus.filters[this.name] ?? "";
@@ -44,13 +44,6 @@ export class CustomScriptsField extends FilterMixin(JavaScriptField) {
   /** @override */
   _validateType(value, options) {
     return StringField.prototype._validateType.call(this, value, options);
-  }
-
-  /** @override */
-  static async getData(bonus) {
-    const data = await super.getData(bonus);
-    data.value = this.value(bonus);
-    return data;
   }
 
   /** @override */

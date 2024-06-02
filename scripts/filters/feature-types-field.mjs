@@ -4,7 +4,6 @@ const {SchemaField, StringField} = foundry.data.fields;
 
 export class FeatureTypesField extends FilterMixin(SchemaField) {
   static name = "featureTypes";
-  static template = "modules/babonus/templates/parts/double-select.hbs";
 
   constructor(fields = {}, options = {}) {
     super({
@@ -38,7 +37,7 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
     <fieldset>
       <legend>
         {{localize label}}
-        <a data-action="delete-filter" data-id="featureTypes">
+        <a data-action="delete-filter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>

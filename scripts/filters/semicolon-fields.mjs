@@ -3,7 +3,6 @@ import {FilterMixin} from "./filter-mixin.mjs";
 const {SetField, StringField} = foundry.data.fields;
 
 class BaseField extends FilterMixin(SetField) {
-  static template = "modules/babonus/templates/parts/text-keys.hbs";
   static canExclude = true;
 
   constructor(options = {}) {

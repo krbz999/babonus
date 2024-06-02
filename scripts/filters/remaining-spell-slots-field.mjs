@@ -4,7 +4,6 @@ const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
 
 export class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
   static name = "remainingSpellSlots";
-  static template = "modules/babonus/templates/parts/text-dash-text.hbs";
 
   constructor(fields = {}, options = {}) {
     super({

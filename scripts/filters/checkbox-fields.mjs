@@ -3,8 +3,7 @@ import {FilterMixin} from "./filter-mixin.mjs";
 const {SetField, NumberField, StringField, SchemaField} = foundry.data.fields;
 
 class BaseField extends FilterMixin(SetField) {
-  static template = "modules/babonus/templates/parts/checkboxes.hbs";
-
+  /** @override */
   static render(bonus) {
     const field = bonus.schema.getField(`filters.${this.name}`);
     const value = bonus.filters[this.name] ?? new Set();
@@ -75,7 +74,6 @@ class SpellLevelsField extends BaseField {
 
 class SpellComponentsField extends FilterMixin(SchemaField) {
   static name = "spellComponents";
-  static template = "modules/babonus/templates/parts/checkboxes-select.hbs";
 
   constructor(fields = {}, options = {}) {
     super({
@@ -107,12 +105,13 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
     });
   }
 
+  /** @override */
   static render(bonus) {
     const template = `
     <fieldset>
       <legend>
         {{localize types.parent.label}}
-        <a data-action="delete-filter" data-id="spellComponents">
+        <a data-action="delete-filter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>

@@ -5,7 +5,6 @@ const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
 // SchemaField that requires a value in all fields.
 export class TokenSizesField extends FilterMixin(SchemaField) {
   static name = "tokenSizes";
-  static template = "modules/babonus/templates/parts/select-number-checkbox.hbs";
 
   constructor(fields = {}, options = {}) {
     super({
