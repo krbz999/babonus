@@ -15,40 +15,124 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       amount: new SchemaField({
-        enabled: new BooleanField(),
-        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Amount.EnabledLabel",
+          hint: "BABONUS.Modifiers.Amount.EnabledHint"
+        }),
+        mode: new NumberField({
+          initial: 0,
+          choices: {
+            [ModifiersModel.MODIFIER_MODES.ADD]: "BABONUS.Modifiers.Modes.ChoiceAdd",
+            [ModifiersModel.MODIFIER_MODES.MULTIPLY]: "BABONUS.Modifiers.Modes.ChoiceMultiply"
+          },
+          label: "BABONUS.Modifiers.Amount.ModeLabel",
+          hint: "BABONUS.Modifiers.Amount.ModeHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Amount.ValueLabel",
+          hint: "BABONUS.Modifiers.Amount.ValueHint"
+        })
       }),
       size: new SchemaField({
-        enabled: new BooleanField(),
-        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Size.EnabledLabel",
+          hint: "BABONUS.Modifiers.Size.EnabledHint"
+        }),
+        mode: new NumberField({
+          initial: 0,
+          choices: {
+            [ModifiersModel.MODIFIER_MODES.ADD]: "BABONUS.Modifiers.Modes.ChoiceAdd",
+            [ModifiersModel.MODIFIER_MODES.MULTIPLY]: "BABONUS.Modifiers.Modes.ChoiceMultiply"
+          },
+          label: "BABONUS.Modifiers.Size.ModeLabel",
+          hint: "BABONUS.Modifiers.Size.ModeHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Size.ValueLabel",
+          hint: "BABONUS.Modifiers.Size.ValueHint"
+        })
       }),
       reroll: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        invert: new BooleanField(),
-        recursive: new BooleanField(),
-        limit: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Reroll.EnabledLabel",
+          hint: "BABONUS.Modifiers.Reroll.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Reroll.ValueLabel",
+          hint: "BABONUS.Modifiers.Reroll.ValueHint"
+        }),
+        invert: new BooleanField({
+          label: "BABONUS.Modifiers.Reroll.InvertLabel",
+          hint: "BABONUS.Modifiers.Reroll.InvertHint"
+        }),
+        recursive: new BooleanField({
+          label: "BABONUS.Modifiers.Reroll.RecursiveLabel",
+          hint: "BABONUS.Modifiers.Reroll.RecursiveHint"
+        }),
+        limit: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Reroll.LimitLabel",
+          hint: "BABONUS.Modifiers.Reroll.LimitHint"
+        })
       }),
       explode: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        once: new BooleanField(),
-        limit: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Explode.EnabledLabel",
+          hint: "BABONUS.Modifiers.Explode.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Explode.ValueLabel",
+          hint: "BABONUS.Modifiers.Explode.ValueHint"
+        }),
+        once: new BooleanField({
+          label: "BABONUS.Modifiers.Explode.OnceLabel",
+          hint: "BABONUS.Modifiers.Explode.OnceHint"
+        }),
+        limit: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Explode.LimitLabel",
+          hint: "BABONUS.Modifiers.Explode.LimitHint"
+        })
       }),
       minimum: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        maximize: new BooleanField()
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Minimum.EnabledLabel",
+          hint: "BABONUS.Modifiers.Minimum.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Minimum.ValueLabel",
+          hint: "BABONUS.Modifiers.Minimum.ValueHint"
+        }),
+        maximize: new BooleanField({
+          label: "BABONUS.Modifiers.Minimum.MaximizeLabel",
+          hint: "BABONUS.Modifiers.Minimum.MaximizeHint"
+        })
       }),
       maximum: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        zero: new BooleanField()
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Maximum.EnabledLabel",
+          hint: "BABONUS.Modifiers.Maximum.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Maximum.ValueLabel",
+          hint: "BABONUS.Modifiers.Maximum.ValueHint"
+        }),
+        zero: new BooleanField({
+          label: "BABONUS.Modifiers.Maximum.ZeroLabel",
+          hint: "BABONUS.Modifiers.Maximum.ZeroHint"
+        })
       }),
       config: new SchemaField({
-        first: new BooleanField()
+        first: new BooleanField({
+          label: "BABONUS.Modifiers.Config.FirstLabel",
+          hint: "BABONUS.Modifiers.Config.FirstHint"
+        })
       })
     };
   }

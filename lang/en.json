@@ -1,9 +1,7 @@
 {"BABONUS": {
-  "AuraConfiguration": "Aura",
   "AvailableFiltersTooltip": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
   "Babonus": "Babonus",
   "BasicBonuses": "Basic Bonuses",
-  "BasicConfiguration": "Base Configuration",
   "BonusCopy": "{name} (Copy)",
   "ConfigurationAuraInvalid": "This bonus is not currently able to act as an aura.",
   "ConfigurationAuraRequire": "Requirements",
@@ -13,7 +11,6 @@
   "ConfigurationConsumptionInvalid": "This bonus is not currently able to consume any values.",
   "ConfigurationCopyTooltip": "Create a duplicate of this bonus",
   "ConfigurationEditTooltip": "Edit this bonus",
-  "ConsumptionConfiguration": "Consumption",
   "ConsumptionOption": "({value}) of {max} {label}",
   "ConsumptionTypeCurrencySubtype": "Denomination",
   "ConsumptionTypeCurrencyUnavailable": "You do not have the required amount of that denomination.",
@@ -38,13 +35,6 @@
   "CurrentBonuses": "Current Bonuses",
   "CurrentBonusesTooltip": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",
   "CurrentFiltersTooltip": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
-  "SheetTabs": {
-    "Description": "Description",
-    "Bonuses": "Bonuses",
-    "Configuration": "Configuration",
-    "Filters": "Filters",
-    "Advanced": "Advanced"
-  },
   "Example": "Example",
   "Fields": {
     "Aura": {
@@ -61,13 +51,14 @@
       },
       "Enabled": {
         "Hint": "Configure whether and how the bonus acts as an aura.",
-        "Label": "Enable Aura"
+        "Label": "Enable"
       },
+      "Label": "Aura Configuration",
       "Range": {
-        "Hint": "The range of the aura, measured in feet (put in '-1' for an unlimited range). This field supports roll data.",
-        "Label": "Range ({range})",
+        "Hint": "The range of the aura, measured in feet (put in '-1' for an unlimited range).",
+        "Label": "Range",
         "LabelFt": "Range ({range} ft)",
-        "Placeholder": "Range…"
+        "LabelUnlimited": "Range ({range})"
       },
       "RequireLight": {
         "Hint": "If checked, the aura will be restricted by anything that blocks light.",
@@ -103,6 +94,7 @@
         "Hint": "The formula by which the bonus scales at each step.",
         "Label": "Scaling Formula"
       },
+      "Label": "Consumption Configuration",
       "Scales": {
         "Hint": "Decide whether this bonus can consume more than the base amount of the consumed property and scale its bonus accordingly.",
         "Label": "Enable Scaling"
@@ -124,8 +116,7 @@
       },
       "ValueStep": {
         "Hint": "The delta, or step, of the choices when consuming.",
-        "Label": "Step",
-        "Placeholder": "Step"
+        "Label": "Step"
       }
     },
     "Enabled": {
@@ -199,16 +190,16 @@
     "FeatureTypes": {
       "Hint": "The type and subtype a feature-type item must be. For example a class feature, ki feature, or monster feature.",
       "Label": "Feature Types",
-      "TypeLabel": "Type",
-      "SubtypeLabel": "Subtype"
+      "SubtypeLabel": "Subtype",
+      "TypeLabel": "Type"
     },
     "HealthPercentages": {
       "Hint": "The percentage of health the actor must at least have, or at most have, for the bonus to apply.",
       "Label": "Health Percentage",
-      "ValueLabel": "Threshold",
-      "TypeLabel": "Type",
       "OptionLess": "Less Than",
-      "OptionMore": "More Than"
+      "OptionMore": "More Than",
+      "TypeLabel": "Type",
+      "ValueLabel": "Threshold"
     },
     "ItemTypes": {
       "Hint": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
@@ -226,8 +217,8 @@
       "Hint": "The minimum and maximum total number of remaining spell slots the actor must have for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all.",
       "Label": "Remaining Spell Slots",
       "RangesLabel": "Range",
-      "SizeLabel": "Size",
-      "SizeHint": "Take the size of the spell slot into account, meaning a spell slot of 5th level counts as a value of five. Otherwise, each spell slots count as one."
+      "SizeHint": "Take the size of the spell slot into account, meaning a spell slot of 5th level counts as a value of five. Otherwise, each spell slots count as one.",
+      "SizeLabel": "Size"
     },
     "SaveAbilities": {
       "Hint": "The ability that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with 'Spellcasting', the actor's spellcasting ability is compared against.",
@@ -240,10 +231,10 @@
     "SpellComponents": {
       "Hint": "The components or spell tags the spell must have for the bonus to apply. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration.",
       "Label": "Spell Components",
-      "TypesLabel": "Types",
-      "MatchLabel": "Matching",
       "MatchAll": "Match all",
-      "MatchAny": "Match any"
+      "MatchAny": "Match any",
+      "MatchLabel": "Matching",
+      "TypesLabel": "Types"
     },
     "SpellLevels": {
       "Hint": "The level at which the spell must be cast for the bonus to apply. You can select each level individually. For example, you can have a bonus apply only to cantrips, only to leveled spells, or only to spells of 3rd level or below.",
@@ -269,11 +260,11 @@
       "Hint": "The size of the targeted token, and whether to compare against the rolling token as well. If checked, the target must be at least or at most as big as the roller.",
       "Label": "Token Sizes",
       "RangeLabel": "Size",
+      "SelfHint": "If checked, the target token must be larger/smaller than the rolling actor's token size in addition to the above value.",
+      "SelfLabel": "Compare to self",
       "SizeGreaterThan": "Greater than",
       "SizePlaceholder": "Size…",
-      "SizeSmallerThan": "Smaller than",
-      "SelfLabel": "Compare to self",
-      "SelfHint": "If checked, the target token must be larger/smaller than the rolling actor's token size in addition to the above value."
+      "SizeSmallerThan": "Smaller than"
     },
     "WeaponProperties": {
       "Hint": "The weapon properties the item either must have or cannot have for the bonus to apply. If any are selected, the weapon must have at least one of the included properties, and none of the excluded properties. For example if you want a bonus to apply only to Two-Handed weapons.",
@@ -298,31 +289,77 @@
   "Largest": "Largest",
   "Maximized": "Maximized",
   "Maximum": "Maximum",
-  "Modifiers": "Modifiers",
-  "ModifiersAmount": "Dice Amount",
-  "ModifiersAmountValue": "additional",
-  "ModifiersExplode": "Explode",
-  "ModifiersExplodeLimit": "Maximum Explosions",
-  "ModifiersExplodeOnce": "Explode Once?",
-  "ModifiersExplodeValue": "if higher than",
-  "ModifiersFirst": "First Die Only?",
-  "ModifiersFirstTooltip": "If checked, the die modifiers only apply to the first die in the full expression.",
-  "ModifiersMaximum": "Maximum",
-  "ModifiersMaximumValue": "Maximum value",
-  "ModifiersMaximumZero": "Allow Zero?",
-  "ModifiersMinimum": "Minimum",
-  "ModifiersMinimumMaximize": "Maximize?",
-  "ModifiersMinimumValue": "Minimum value",
-  "ModifiersMode": "Mode",
-  "ModifiersModeAdd": "Add",
-  "ModifiersModeMultiply": "Multiply",
-  "ModifiersReroll": "Reroll",
-  "ModifiersRerollInvert": "Inverted?",
-  "ModifiersRerollLimit": "Maximum Rerolls",
-  "ModifiersRerollRecursive": "Recursively?",
-  "ModifiersRerollValue": "if less than",
-  "ModifiersSize": "Dice Size",
-  "ModifiersSizeValue": "size increase",
+  "Modifiers": {
+    "Amount": {
+      "EnabledHint": "Allow this bonus to make changes to the amount of dice rolled.",
+      "EnabledLabel": "Enable",
+      "Label": "Dice Amount",
+      "ModeHint": "Whether to add the additional dice on top or multiply the value by this amount.",
+      "ModeLabel": "Mode",
+      "ValueHint": "The increase to the amount of dice rolled.",
+      "ValueLabel": "Additional Dice"
+    },
+    "Config": {
+      "FirstHint": "If checked, the die modifiers only apply to the first die in the full expression.",
+      "FirstLabel": "First Die Only",
+      "Label": "Dice Configuration"
+    },
+    "Explode": {
+      "EnabledHint": "Allow this bonus to cause the dice to explode.",
+      "EnabledLabel": "Enable",
+      "Label": "Exploding Dice",
+      "LimitHint": "The maximum amount of explosions allowed. If left blank, there will not be any limit enforced.",
+      "LimitLabel": "Maximum Explosions",
+      "OnceHint": "Limit the dice to explode at most once.",
+      "OnceLabel": "Explode Once",
+      "ValueHint": "The threshold for the explosive behaviour.",
+      "ValueLabel": "Threshold"
+    },
+    "Maximum": {
+      "EnabledHint": "Allow this bonus to configure the maximum result rolled on each die.",
+      "EnabledLabel": "Enable",
+      "Label": "Maximum Results",
+      "ValueHint": "The maximum result able to be rolled. By using negative values, the ceiling will be calculated from the top rather than the bottom.",
+      "ValueLabel": "Maximum Value",
+      "ZeroHint": "Allow 0 as a final value. Otherwise the minimum result allowed will be 1.",
+      "ZeroLabel": "Allow Zero"
+    },
+    "Minimum": {
+      "EnabledHint": "Allow this bonus to configure the minimum result rolled on each die.",
+      "EnabledLabel": "Enable",
+      "Label": "Minimum Results",
+      "MaximizeHint": "Cause all dice to be maximized.",
+      "MaximizeLabel": "Maximize",
+      "ValueHint": "The minimum result able to be rolled. By using negative values, the floor will be calculated from the top rather than the bottom.",
+      "ValueLabel": "Minimum Value"
+    },
+    "Modes": {
+      "ChoiceAdd": "Add",
+      "ChoiceMultiply": "Multiply"
+    },
+    "Reroll": {
+      "EnabledHint": "Allow this bonus to cause the dice to reroll.",
+      "EnabledLabel": "Enable",
+      "InvertHint": "Whether to reroll dice that roll above the threshold instead of below the threshold.",
+      "InvertLabel": "Inverted",
+      "Label": "Rerolling Dice",
+      "LimitHint": "The maximum amount of rerolls allowed if recursive. If left blank, there will not be any limit enforced.",
+      "LimitLabel": "Maximum Rerolls",
+      "RecursiveHint": "Whether to reroll the dice recursively.",
+      "RecursiveLabel": "Recursive",
+      "ValueHint": "The threshold for the reroll behaviour.",
+      "ValueLabel": "Threshold"
+    },
+    "Size": {
+      "EnabledHint": "Allow this bonus to make changes to the size of dice rolled.",
+      "EnabledLabel": "Enable",
+      "Label": "Dice Size",
+      "ModeHint": "Whether to increase the dice sizes by the amount or multiply the faces.",
+      "ModeLabel": "Mode",
+      "ValueHint": "The increase to the size of the dice rolled.",
+      "ValueLabel": "Size Increase"
+    }
+  },
   "ModuleTitle": "Build-a-Bonus",
   "NewBabonus": "New Babonus",
   "OriginName": "Origin: {name}",
@@ -350,6 +387,13 @@
   "SettingsShowBuilderForPlayersName": "Show for Players",
   "SettingsShowSheetTab": "Character Sheet Tab",
   "SettingsShowSheetTabHint": "Add a new tab on the character sheet rather than adding a header button.",
+  "SheetTabs": {
+    "Advanced": "Advanced",
+    "Bonuses": "Bonuses",
+    "Configuration": "Configuration",
+    "Description": "Description",
+    "Filters": "Filters"
+  },
   "Smallest": "Smallest",
   "ToggleBonus": "Toggle Bonus",
   "Toggles": "Toggles",

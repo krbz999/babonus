@@ -1,16 +1,7 @@
 {"BABONUS": {
-  "SheetTabs": {
-    "Description": "Description",
-    "Bonuses": "Bonus",
-    "Configuration": "Configuration",
-    "Filters": "Filtres",
-    "Advanced": "Avancé"
-  },
-  "AuraConfiguration": "Aura",
   "AvailableFiltersTooltip": "La liste des filtres que vous pouvez appliquer à ce bonus, afin de restreindre davantage les jets auxquels il doit s'appliquer. Chaque filtre doit être vrai pour que le bonus s'applique.",
   "Babonus": "Babonus",
   "BasicBonuses": "Bonus de base",
-  "BasicConfiguration": "Configuration de base",
   "BonusCopy": "{name} (Copie)",
   "ConfigurationAuraInvalid": "Ce bonus ne peut actuellement pas agir comme une aura.",
   "ConfigurationAuraRequire": "Prérequis",
@@ -20,7 +11,6 @@
   "ConfigurationConsumptionInvalid": "Ce bonus ne peut actuellement consommer aucune valeur.",
   "ConfigurationCopyTooltip": "Créez un duplicata de ce bonus",
   "ConfigurationEditTooltip": "Modifiez ce bonus",
-  "ConsumptionConfiguration": "Consommation",
   "ConsumptionOption": "({value}) de {max} {label}",
   "ConsumptionTypeCurrencySubtype": "Dénomination",
   "ConsumptionTypeCurrencyUnavailable": "Vous n'avez pas le montant requis pour cette dénomination.",
@@ -53,11 +43,11 @@
       "Enabled": {
         "Hint": "Permet de déterminer si et comment le bonus agit comme une aura."
       },
+      "Label": "Aura Configuration",
       "Range": {
         "Hint": "La portée de l'aura, mesurée en pieds (mettre '-1' pour une portée illimitée). Ce champ prend en charge les données relatives aux jets.",
         "Label": "Portée ({range})",
-        "LabelFt": "Portée ({range} ft)",
-        "Placeholder": "Portée…"
+        "LabelFt": "Portée ({range} ft)"
       },
       "RequireLight": {
         "Hint": "Si coché, l'aura sera restreinte par tout ce qui bloque la lumière.",
@@ -90,6 +80,7 @@
       "Formula": {
         "Label": "Formule d'évolution"
       },
+      "Label": "Consommation Configuration",
       "Scales": {
         "Label": "La mise à l'échelle ?"
       },
@@ -223,10 +214,10 @@
     "TokenSizes": {
       "Hint": "La taille du token ciblé, et s'il faut également comparer avec le token qui lance le jet. Si la case est cochée, la cible doit être au moins ou au plus aussi grande que le lanceur.",
       "Label": "Taille des Tokens",
+      "SelfLabel": "Comparer au lanceur",
       "SizeGreaterThan": "Supérieure à",
       "SizePlaceholder": "Taille…",
-      "SizeSmallerThan": "Inférieur à",
-      "SelfLabel": "Comparer au lanceur"
+      "SizeSmallerThan": "Inférieur à"
     },
     "WeaponProperties": {
       "Hint": "Les propriétés de l'arme que l'objet doit ou ne peut pas avoir pour que le bonus s'applique. Si l'une d'entre elles est sélectionnée, l'arme doit posséder au moins une des propriétés incluses et aucune des propriétés exclues. Par exemple, si vous souhaitez qu'un bonus ne s'applique qu'aux armes à deux mains.",
@@ -295,6 +286,13 @@
   "SettingsShowBuilderForPlayersName": "Montrer aux joueurs",
   "SettingsShowSheetTab": "Onglet Feuille de personnages",
   "SettingsShowSheetTabHint": "Ajouter un nouvel onglet sur la feuille de personnage plutôt que d'ajouter un bouton d'en-tête.",
+  "SheetTabs": {
+    "Advanced": "Avancé",
+    "Bonuses": "Bonus",
+    "Configuration": "Configuration",
+    "Description": "Description",
+    "Filters": "Filtres"
+  },
   "Smallest": "Le plus petit",
   "ToggleBonus": "Basculer le bonus",
   "Toggles": "Activations",

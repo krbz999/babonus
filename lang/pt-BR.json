@@ -1,16 +1,7 @@
 {"BABONUS": {
-  "SheetTabs": {
-    "Advanced": "Avançado",
-    "Configuration": "Configuração",
-    "Bonuses": "Bônus",
-    "Description": "Descrição",
-    "Filters": "Filtros"
-  },
-  "AuraConfiguration": "Aura",
   "AvailableFiltersTooltip": "A lista de filtros que você pode aplicar a este bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado",
   "Babonus": "Babonus",
   "BasicBonuses": "Bônus Básicos",
-  "BasicConfiguration": "Configuração Base",
   "BonusCopy": "{name} (Copy)",
   "ConfigurationAuraInvalid": "No momento, este bônus não pode funcionar como uma aura.",
   "ConfigurationAuraRequire": "Requisitos",
@@ -20,7 +11,6 @@
   "ConfigurationConsumptionInvalid": "Este bônus não pode consumir nenhum valor no momento.",
   "ConfigurationCopyTooltip": "Crie uma duplicata deste bônus",
   "ConfigurationEditTooltip": "Edite este bônus",
-  "ConsumptionConfiguration": "Consumo",
   "ConsumptionOption": "({value}) de {max} {label}",
   "ConsumptionTypeCurrencySubtype": "Denominação",
   "ConsumptionTypeCurrencyUnavailable": "Você não tem a quantidade necessária dessa denominação.",
@@ -62,11 +52,11 @@
       "Enabled": {
         "Hint": "Configure se e como o bônus funciona como uma aura."
       },
+      "Label": "Aura Configuração",
       "Range": {
         "Hint": "O alcance da aura, medido em pés (coloque '-1' para um alcance ilimitado). Este campo suporta dados de rolagem.",
         "Label": "Alcance ({range})",
-        "LabelFt": "Alcance ({range} pés)",
-        "Placeholder": "Alcance…"
+        "LabelFt": "Alcance ({range} pés)"
       },
       "RequireLight": {
         "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a luz",
@@ -99,6 +89,7 @@
       "Formula": {
         "Label": "Fórmula de Escala"
       },
+      "Label": "Consumo Configuração",
       "Scales": {
         "Label": "Escalar?"
       },
@@ -240,10 +231,10 @@
     "TokenSizes": {
       "Hint": "O tamanho do token alvo e se também deve ser comparado com o token de origem. Se marcado, o alvo deve ser no mínimo ou no máximo tão grande quanto o de origem.",
       "Label": "Tamanhos do Token",
+      "SelfLabel": "Comparar consigo mesmo",
       "SizeGreaterThan": "Maior que",
       "SizePlaceholder": "Tamanho…",
-      "SizeSmallerThan": "Menor que",
-      "SelfLabel": "Comparar consigo mesmo"
+      "SizeSmallerThan": "Menor que"
     },
     "WeaponProperties": {
       "Hint": "As propriedades da arma que o item deve ou não ter para que o bônus seja aplicado. Se alguma for selecionada, a arma deverá ter pelo menos uma das propriedades incluídas e nenhuma das propriedades excluídas. Por exemplo, se você quiser que um bônus seja aplicado apenas a armas de Duas Mãos.",
@@ -268,7 +259,12 @@
   "Largest": "Maior",
   "Maximized": "Maximizado",
   "Maximum": "Máximo",
-  "Modifiers": "Modificadores",
+  "Modifiers": {
+    "Modes": {
+      "ChoiceAdd": "Adicionar",
+      "ChoiceMultiply": "Multiplicar"
+    }
+  },
   "ModifiersAmount": "Quantidade de Dados",
   "ModifiersAmountValue": "adicional",
   "ModifiersExplode": "Explodir",
@@ -284,8 +280,6 @@
   "ModifiersMinimumMaximize": "Maximizar?",
   "ModifiersMinimumValue": "Valor mínimo",
   "ModifiersMode": "Modo",
-  "ModifiersModeAdd": "Adicionar",
-  "ModifiersModeMultiply": "Multiplicar",
   "ModifiersReroll": "Rerolar",
   "ModifiersRerollInvert": "Invertido?",
   "ModifiersRerollLimit": "Máximo de Re-rolagens",
@@ -317,6 +311,13 @@
   "SettingsShowBuilderForPlayersName": "Mostrar para Jogadores",
   "SettingsShowSheetTab": "Aba na Ficha",
   "SettingsShowSheetTabHint": "Adicione uma nova aba na ficha de personagem em vez de adicionar um botão de cabeçalho.",
+  "SheetTabs": {
+    "Advanced": "Avançado",
+    "Bonuses": "Bônus",
+    "Configuration": "Configuração",
+    "Description": "Descrição",
+    "Filters": "Filtros"
+  },
   "Smallest": "Menor",
   "ToggleBonus": "Alternar Bônus",
   "Toggles": "Alterna",

@@ -35,6 +35,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       tabs: [{navSelector: "nav[data-group=main]", contentSelector: "div.document-tabs"}],
       resizable: true,
       scrollY: [
+        ".document-tabs [data-tab=bonuses]",
         ".document-tabs [data-tab=configuration]",
         ".document-tabs [data-tab=filters]",
         ".document-tabs [data-tab=advanced]"
@@ -257,8 +258,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       },
       step: {
         field: schema.getField("consume.value.step"),
-        show: ["health", "currency"].includes(this.bonus.consume.type) && scales,
-        placeholder: game.i18n.localize("BABONUS.Fields.Consume.ValueStep.Placeholder")
+        show: ["health", "currency"].includes(this.bonus.consume.type) && scales
       },
       values: {
         field1: schema.getField("consume.value.min"),
@@ -317,13 +317,12 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
     // Range
     context.range = {
       field: schema.getField("range"),
-      value: src.range,
-      placeholder: game.i18n.localize("BABONUS.Fields.Aura.Range.Placeholder"),
-      disabled: this.bonus.aura.template
+      value: src.range
     };
-    const r = (range > 0) ? range : (range === -1) ? game.i18n.localize("DND5E.Unlimited") : 0;
-    const ft = (range === -1) ? "" : "Ft";
-    context.range.label = game.i18n.format(`BABONUS.Fields.Aura.Range.Label${ft}`, {range: r});
+    if (range >= 0) context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelFt", {range: range});
+    else if (range === -1) context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelUnlimited", {
+      range: game.i18n.localize("DND5E.Unlimited")
+    });
 
     // Template
     context.template = {
@@ -363,22 +362,30 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
    * @returns {object}
    */
   _prepareModifiers(rollData) {
-    const modifiers = this.bonus.toObject().bonuses.modifiers;
-    if (!modifiers) return;
-    const mods = this.bonus.bonuses.modifiers;
-    const data = {};
-    const parts = ["2d10", "1d4"];
-    mods.modifyParts(parts, rollData);
-    data.example = parts.join(" + ");
-    for (const [key, v] of Object.entries(modifiers)) {
-      data[key] = {
-        ...v,
-        key: key,
-        enabled: v.enabled,
-        disabled: !v.enabled
-      };
+    const src = this.bonus.toObject();
+    if (!src.bonuses?.modifiers) return;
+
+    const makeField = path => {
+      const field = this.bonus.schema.getField(path);
+      const value = foundry.utils.getProperty(src, path);
+      return {field, value};
+    };
+
+    const paths = Object.keys(foundry.utils.flattenObject(this.bonus.bonuses.modifiers.schema.initial()));
+
+    const context = {};
+    for (const path of paths) {
+      const props = path.split(".");
+      const key = props.shift();
+      context[key] ??= {};
+      context[key][props.pop()] = makeField(`bonuses.modifiers.${path}`);
     }
-    return data;
+
+    const parts = ["2d10", "1d4"];
+    this.bonus.bonuses.modifiers.modifyParts(parts, rollData);
+    context.config.example = parts.join(" + ");
+
+    return context;
   }
 
   /** @override */
