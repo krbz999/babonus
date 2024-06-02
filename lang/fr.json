@@ -4,20 +4,9 @@
   "BasicBonuses": "Bonus de base",
   "BonusCopy": "{name} (Copie)",
   "ConfigurationConsumptionConsume": "Consommer:",
-  "ConfigurationConsumptionInvalid": "Ce bonus ne peut actuellement consommer aucune valeur.",
   "ConfigurationCopyTooltip": "Créez un duplicata de ce bonus",
   "ConfigurationEditTooltip": "Modifiez ce bonus",
   "ConsumptionOption": "({value}) de {max} {label}",
-  "ConsumptionTypeCurrencySubtype": "Dénomination",
-  "ConsumptionTypeCurrencyUnavailable": "Vous n'avez pas le montant requis pour cette dénomination.",
-  "ConsumptionTypeEffect": "Effet actif",
-  "ConsumptionTypeEffectUnavailable": "L'effet associé n'existe plus.",
-  "ConsumptionTypeHealthUnavailable": "Il ne vous reste pas assez de points de vie.",
-  "ConsumptionTypeInspirationUnavailable": "Vous n'avez pas d'inspiration.",
-  "ConsumptionTypeQuantityUnavailable": "Vous ne disposez pas de la quantité requise de l'objet associé.",
-  "ConsumptionTypeSlots": "Emplacements de sort",
-  "ConsumptionTypeSlotsUnavailable": "Vous n'avez plus d'emplacements de sorts de ce niveau.",
-  "ConsumptionTypeUsesUnavailable": "Vous n'avez pas le nombre requis de charges sur l'objet.",
   "Create": "Créer un nouveau bonus",
   "CurrentBonuses": "Bonus actuels",
   "CurrentBonusesTooltip": "Les bonus que vous avez créés et qui sont actuellement stockés sur cet Acteur, Objet ou ActiveEffect.",
@@ -80,8 +69,13 @@
       "Scales": {
         "Label": "La mise à l'échelle ?"
       },
+      "Subtype": {
+        "CurrencyLabel": "Dénomination"
+      },
       "Type": {
-        "Label": "Type de Consommation"
+        "Label": "Type de Consommation",
+        "OptionEffect": "Effet actif",
+        "OptionSlots": "Emplacements de sort"
       },
       "Values": {
         "Label": "Valeurs Consommées",
@@ -307,34 +301,57 @@
   },
   "ToggleBonus": "Basculer le bonus",
   "Toggles": "Activations",
-  "TypeAttack": "Jets d'attaque",
-  "TypeAttackBonusLabel": "Bonus de jet d'attaque",
-  "TypeAttackBonusTooltip": "Parties supplémentaires à ajouter en plus du jet d'attaque.",
-  "TypeAttackCriticalRangeLabel": "Modificateur de portée critique",
-  "TypeAttackCriticalRangeTooltip": "Un nombre entier à soustraire de la portée critique du jet d'attaque. Ce champ respecte les données des jets, mais pas les jets de dés.",
-  "TypeAttackFumbleRangeLabel": "Modificateur de la plage d'échec",
-  "TypeAttackFumbleRangeTooltip": "Un nombre entier à ajouter à la plage d'échec du jet d'attaque. Ce champ respecte les données des jets, mais pas les jets de dés.",
-  "TypeDamage": "Jets de dégâts",
-  "TypeDamageBonusLabel": "Bonus au jet de dégâts",
-  "TypeDamageBonusTooltip": "Parties supplémentaires à ajouter en plus du jet de dégâts.",
-  "TypeDamageCriticalBonusDamageLabel": "Dégâts supplémentaires dus aux coups critiques",
-  "TypeDamageCriticalBonusDamageTooltip": "Parties supplémentaires à ajouter en plus du jet de dégâts sur les coups critiques.",
-  "TypeDamageCriticalBonusDiceLabel": "Dés de touche critique supplémentaires",
-  "TypeDamageCriticalBonusDiceTooltip": "Nombre supplémentaire de dés à lancer en cas de coup critique. Ce champ respecte les données des jets, mais pas les jets de dés.",
-  "TypeHitdie": "Jets de dés de vie",
-  "TypeHitdieBonusLabel": "Bonus au lancer de dé",
-  "TypeHitdieBonusTooltip": "Parties supplémentaires à ajouter en plus du dé de vie.",
-  "TypeSave": "DD de sauvegarde",
-  "TypeSaveBonusLabel": "Bonus DD Sauv.",
-  "TypeSaveBonusTooltip": "Un nombre entier à ajouter au DD d'un jet de sauvegarde. Ce champ respecte les données des jets, mais pas les jets de dés.",
-  "TypeTest": "Jets de caractéristiques",
-  "TypeTestBonusLabel": "Bonus aux tests d'aptitude",
-  "TypeTestBonusTooltip": "Parties supplémentaires à ajouter en plus du test de caractéristique.",
-  "TypeThrow": "Jets de Sauvegardes",
-  "TypeThrowBonusLabel": "Bonus aux jets de sauvegarde",
-  "TypeThrowBonusTooltip": "Parts supplémentaires à ajouter au jet de sauvegarde.",
-  "TypeThrowDeathSaveCriticalLabel": "Limite critique de sauvegarde de la mort",
-  "TypeThrowDeathSaveCriticalTooltip": "Un nombre entier à soustraire du seuil qui détermine quand un jet de sauvegarde contre la mort permet de retrouver la conscience et 1 point de vie. Ce champ respecte les données des jets, mais pas les jets de dés.",
-  "TypeThrowTargetValueLabel": "Valeur cible",
-  "TypeThrowTargetValueTooltip": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde. Ce champ respecte les données des lancers, mais pas les lancers de dés."
+  "TypeAttack": {
+    "BonusHint": "Parties supplémentaires à ajouter en plus du jet d'attaque.",
+    "BonusLabel": "Bonus de jet d'attaque",
+    "CriticalRangeHint": "Un nombre entier à soustraire de la portée critique du jet d'attaque. Ce champ respecte les données des jets, mais pas les jets de dés.",
+    "CriticalRangeLabel": "Modificateur de portée critique",
+    "FumbleRangeHint": "Un nombre entier à ajouter à la plage d'échec du jet d'attaque. Ce champ respecte les données des jets, mais pas les jets de dés.",
+    "FumbleRangeLabel": "Modificateur de la plage d'échec",
+    "Label": "Jets d'attaque"
+  },
+  "TypeDamage": {
+    "BonusHint": "Parties supplémentaires à ajouter en plus du jet de dégâts.",
+    "BonusLabel": "Bonus au jet de dégâts",
+    "CriticalBonusDamageHint": "Parties supplémentaires à ajouter en plus du jet de dégâts sur les coups critiques.",
+    "CriticalBonusDamageLabel": "Dégâts supplémentaires dus aux coups critiques",
+    "CriticalBonusDiceHint": "Nombre supplémentaire de dés à lancer en cas de coup critique. Ce champ respecte les données des jets, mais pas les jets de dés.",
+    "CriticalBonusDiceLabel": "Dés de touche critique supplémentaires",
+    "Label": "Jets de dégâts"
+  },
+  "TypeHitdie": {
+    "BonusHint": "Parties supplémentaires à ajouter en plus du dé de vie.",
+    "BonusLabel": "Bonus au lancer de dé",
+    "Label": "Jets de dés de vie"
+  },
+  "TypeSave": {
+    "BonusHint": "Un nombre entier à ajouter au DD d'un jet de sauvegarde. Ce champ respecte les données des jets, mais pas les jets de dés.",
+    "BonusLabel": "Bonus DD Sauv.",
+    "Label": "DD de sauvegarde"
+  },
+  "TypeTest": {
+    "BonusHint": "Parties supplémentaires à ajouter en plus du test de caractéristique.",
+    "BonusLabel": "Bonus aux tests d'aptitude",
+    "Label": "Jets de caractéristiques"
+  },
+  "TypeThrow": {
+    "BonusHint": "Parts supplémentaires à ajouter au jet de sauvegarde.",
+    "BonusLabel": "Bonus aux jets de sauvegarde",
+    "DeathSaveCriticalHint": "Un nombre entier à soustraire du seuil qui détermine quand un jet de sauvegarde contre la mort permet de retrouver la conscience et 1 point de vie. Ce champ respecte les données des jets, mais pas les jets de dés.",
+    "DeathSaveCriticalLabel": "Limite critique de sauvegarde de la mort",
+    "Label": "Jets de Sauvegardes",
+    "TargetValueHint": "Un nombre entier à soustraire du minimum requis pour réussir un jet de sauvegarde. Ce champ respecte les données des lancers, mais pas les lancers de dés.",
+    "TargetValueLabel": "Valeur cible"
+  },
+  "Warning": {
+    "Consuming": {
+      "CurrencyUnavailable": "Vous n'avez pas le montant requis pour cette dénomination.",
+      "EffectUnavailable": "L'effet associé n'existe plus.",
+      "HealthUnavailable": "Il ne vous reste pas assez de points de vie.",
+      "InspirationUnavailable": "Vous n'avez pas d'inspiration.",
+      "QuantityUnavailable": "Vous ne disposez pas de la quantité requise de l'objet associé.",
+      "SlotsUnavailable": "Vous n'avez plus d'emplacements de sorts de ce niveau.",
+      "UsesUnavailable": "Vous n'avez pas le nombre requis de charges sur l'objet."
+    }
+  }
 }}

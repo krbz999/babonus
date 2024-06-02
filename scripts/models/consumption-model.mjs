@@ -17,12 +17,12 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
         label: "BABONUS.Fields.Consume.Type.Label",
         choices: {
           currency: "DND5E.Currency",
-          effect: "BABONUS.ConsumptionTypeEffect",
+          effect: "BABONUS.Fields.Consume.Type.OptionEffect",
           health: "DND5E.HitPoints",
           hitdice: "DND5E.HitDice",
           inspiration: "DND5E.Inspiration",
           quantity: "DND5E.Quantity",
-          slots: "BABONUS.ConsumptionTypeSlots",
+          slots: "BABONUS.Fields.Consume.Type.OptionSlots",
           uses: "DND5E.LimitedUses"
         }
       }),

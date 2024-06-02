@@ -195,7 +195,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
   _prepareLabels() {
     const labels = [];
 
-    labels.push(game.i18n.localize(`BABONUS.Type${this.bonus.type.capitalize()}`));
+    labels.push(game.i18n.localize(`BABONUS.Type${this.bonus.type.capitalize()}.Label`));
 
     const filterLabels = Object.keys(this.bonus.filters).filter(key => {
       return babonus.abstract.DataFields.filters[key].storage(this.bonus);
@@ -236,7 +236,7 @@ export class BabonusSheet extends dnd5e.applications.DialogMixin(DocumentSheet) 
       },
       subtype: {
         field: schema.getField("consume.subtype"),
-        label: `BABONUS.ConsumptionType${source.type.capitalize()}Subtype`,
+        label: `BABONUS.Fields.Consume.Subtype.${source.type.capitalize()}Label`,
         value: source.subtype
       },
       formula: {

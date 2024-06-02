@@ -4,22 +4,9 @@
   "BasicBonuses": "Bônus Básicos",
   "BonusCopy": "{name} (Copy)",
   "ConfigurationConsumptionConsume": "Consumir:",
-  "ConfigurationConsumptionInvalid": "Este bônus não pode consumir nenhum valor no momento.",
   "ConfigurationCopyTooltip": "Crie uma duplicata deste bônus",
   "ConfigurationEditTooltip": "Edite este bônus",
   "ConsumptionOption": "({value}) de {max} {label}",
-  "ConsumptionTypeCurrencySubtype": "Denominação",
-  "ConsumptionTypeCurrencyUnavailable": "Você não tem a quantidade necessária dessa denominação.",
-  "ConsumptionTypeEffect": "Efeito Ativo",
-  "ConsumptionTypeEffectUnavailable": "O efeito associado não existe mais.",
-  "ConsumptionTypeHealthUnavailable": "Você não tem pontos de vida suficientes.",
-  "ConsumptionTypeHitdiceSubtype": "Tamanho do Dado de Vida",
-  "ConsumptionTypeHitdiceUnavailable": "Você não tem dados de vida suficientes restantes.",
-  "ConsumptionTypeInspirationUnavailable": "Você não tem Inspiração.",
-  "ConsumptionTypeQuantityUnavailable": "Você não tem a quantidade necessária do item associado.",
-  "ConsumptionTypeSlots": "Espaço de Magia",
-  "ConsumptionTypeSlotsUnavailable": "Você não tem espaços de magia restantes desse nível.",
-  "ConsumptionTypeUsesUnavailable": "Você não tem o número necessário de cargas no item.",
   "ContextMenu": {
     "Delete": "Excluir",
     "Disable": "Desabilitar",
@@ -89,8 +76,14 @@
       "Scales": {
         "Label": "Escalar?"
       },
+      "Subtype": {
+        "CurrencyLabel": "Denominação",
+        "HitdiceLabel": "Tamanho do Dado de Vida"
+      },
       "Type": {
-        "Label": "Tipo de Consumo"
+        "Label": "Tipo de Consumo",
+        "OptionEffect": "Efeito Ativo",
+        "OptionSlots": "Espaço de Magia"
       },
       "Values": {
         "Label": "Valores Consumidos",
@@ -334,34 +327,58 @@
   },
   "ToggleBonus": "Alternar Bônus",
   "Toggles": "Alterna",
-  "TypeAttack": "Jogadas de Ataque",
-  "TypeAttackBonusLabel": "Bônus Jogadas de Ataque",
-  "TypeAttackBonusTooltip": "Partes adicionais para adicionar no topo da jogada de ataque.",
-  "TypeAttackCriticalRangeLabel": "Modificador de Acerto Crítico",
-  "TypeAttackCriticalRangeTooltip": "Um número inteiro a ser subtraído da margem de acerto crítico da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "TypeAttackFumbleRangeLabel": "Modificador de Falha Crítica",
-  "TypeAttackFumbleRangeTooltip": "Um número inteiro a ser subtraído da margem de falha crítica da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "TypeDamage": "Jogadas de Dano",
-  "TypeDamageBonusLabel": "Bônus Jogadas de Dano",
-  "TypeDamageBonusTooltip": "Partes adicionais para adicionar no topo da jogada de dano.",
-  "TypeDamageCriticalBonusDamageLabel": "Dano Crítico Adicional",
-  "TypeDamageCriticalBonusDamageTooltip": "Partes adicionais para adicionar no topo da jogada de dano crítico.",
-  "TypeDamageCriticalBonusDiceLabel": "Dado Crítico Adicional",
-  "TypeDamageCriticalBonusDiceTooltip": "Um número adicional de dados que devem ser rolados em um acerto crítico. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "TypeHitdie": "Jogadas de Dados de Vida",
-  "TypeHitdieBonusLabel": "Bônus Jogadas de Dados de Vida",
-  "TypeHitdieBonusTooltip": "Partes adicionais para adicionar no topo da jogada de dados de vida.",
-  "TypeSave": "CDs de Salvaguarda",
-  "TypeSaveBonusLabel": "Bônus CD Salvaguarda",
-  "TypeSaveBonusTooltip": "Um número inteiro para adicionar à CD de uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "TypeTest": "Testes de Atributo",
-  "TypeTestBonusLabel": "Bônus Testes de Atributo",
-  "TypeTestBonusTooltip": "Partes adicionais para adicionar no topo da jogada de teste de atributo.",
-  "TypeThrow": "Salvaguardas",
-  "TypeThrowBonusLabel": "Bônus Salvaguardas",
-  "TypeThrowBonusTooltip": "Partes adicionais para adicionar no topo da jogada de salvaguarda.",
-  "TypeThrowDeathSaveCriticalLabel": "Limite Crítico Salvaguarda Contra Morte",
-  "TypeThrowDeathSaveCriticalTooltip": "Um número inteiro a ser subtraído do limite que decide quando uma Salvaguarda Contra Morte resulta na restauração da consciência e em 1 ponto de vida. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "TypeThrowTargetValueLabel": "Valor Alvo",
-  "TypeThrowTargetValueTooltip": "Um número inteiro para subtrair do requisito mínimo para ter um sucesso em uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados."
+  "TypeAttack": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de ataque.",
+    "BonusLabel": "Bônus Jogadas de Ataque",
+    "CriticalRangeHint": "Um número inteiro a ser subtraído da margem de acerto crítico da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "CriticalRangeLabel": "Modificador de Acerto Crítico",
+    "FumbleRangeHint": "Um número inteiro a ser subtraído da margem de falha crítica da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "FumbleRangeLabel": "Modificador de Falha Crítica",
+    "Label": "Jogadas de Ataque"
+  },
+  "TypeDamage": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de dano.",
+    "BonusLabel": "Bônus Jogadas de Dano",
+    "CriticalBonusDamageHint": "Partes adicionais para adicionar no topo da jogada de dano crítico.",
+    "CriticalBonusDamageLabel": "Dano Crítico Adicional",
+    "CriticalBonusDiceHint": "Um número adicional de dados que devem ser rolados em um acerto crítico. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "CriticalBonusDiceLabel": "Dado Crítico Adicional",
+    "Label": "Jogadas de Dano"
+  },
+  "TypeHitdie": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de dados de vida.",
+    "BonusLabel": "Bônus Jogadas de Dados de Vida",
+    "Label": "Jogadas de Dados de Vida"
+  },
+  "TypeSave": {
+    "BonusHint": "Um número inteiro para adicionar à CD de uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "BonusLabel": "Bônus CD Salvaguarda",
+    "Label": "CDs de Salvaguarda"
+  },
+  "TypeTest": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de teste de atributo.",
+    "BonusLabel": "Bônus Testes de Atributo",
+    "Label": "Testes de Atributo"
+  },
+  "TypeThrow": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de salvaguarda.",
+    "BonusLabel": "Bônus Salvaguardas",
+    "DeathSaveCriticalHint": "Um número inteiro a ser subtraído do limite que decide quando uma Salvaguarda Contra Morte resulta na restauração da consciência e em 1 ponto de vida. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "DeathSaveCriticalLabel": "Limite Crítico Salvaguarda Contra Morte",
+    "Label": "Salvaguardas",
+    "TargetValueHint": "Um número inteiro para subtrair do requisito mínimo para ter um sucesso em uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "TargetValueLabel": "Valor Alvo"
+  },
+  "Warning": {
+    "Consuming": {
+      "CurrencyUnavailable": "Você não tem a quantidade necessária dessa denominação.",
+      "EffectUnavailable": "O efeito associado não existe mais.",
+      "HealthUnavailable": "Você não tem pontos de vida suficientes.",
+      "HitdiceUnavailable": "Você não tem dados de vida suficientes restantes.",
+      "InspirationUnavailable": "Você não tem Inspiração.",
+      "QuantityUnavailable": "Você não tem a quantidade necessária do item associado.",
+      "SlotsUnavailable": "Você não tem espaços de magia restantes desse nível.",
+      "UsesUnavailable": "Você não tem o número necessário de cargas no item."
+    }
+  }
 }}

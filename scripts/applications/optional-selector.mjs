@@ -194,7 +194,7 @@ export class OptionalSelector {
    * @param {string} type     The consumption type of the babonus.
    */
   _displayConsumptionWarning(type) {
-    ui.notifications.warn(`BABONUS.ConsumptionType${type.capitalize()}Unavailable`, {localize: true});
+    ui.notifications.warn(`BABONUS.Warning.Consuming.${type.capitalize()}Unavailable`, {localize: true});
   }
 
   /**

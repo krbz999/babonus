@@ -4,22 +4,9 @@
   "BasicBonuses": "Basic Bonuses",
   "BonusCopy": "{name} (Copy)",
   "ConfigurationConsumptionConsume": "Consume:",
-  "ConfigurationConsumptionInvalid": "This bonus is not currently able to consume any values.",
   "ConfigurationCopyTooltip": "Create a duplicate of this bonus",
   "ConfigurationEditTooltip": "Edit this bonus",
   "ConsumptionOption": "({value}) of {max} {label}",
-  "ConsumptionTypeCurrencySubtype": "Denomination",
-  "ConsumptionTypeCurrencyUnavailable": "You do not have the required amount of that denomination.",
-  "ConsumptionTypeEffect": "Active Effect",
-  "ConsumptionTypeEffectUnavailable": "The associated effect no longer exists.",
-  "ConsumptionTypeHealthUnavailable": "You do not have enough hit points remaining.",
-  "ConsumptionTypeHitdiceSubtype": "Hit Die Size",
-  "ConsumptionTypeHitdiceUnavailable": "You do not have enough hit dice remaining.",
-  "ConsumptionTypeInspirationUnavailable": "You do not have inspiration.",
-  "ConsumptionTypeQuantityUnavailable": "You do not have the required quantity of the associated item.",
-  "ConsumptionTypeSlots": "Spell Slot",
-  "ConsumptionTypeSlotsUnavailable": "You do not have any remaining spell slots of that level.",
-  "ConsumptionTypeUsesUnavailable": "You do not have the required number of charges on the item.",
   "ContextMenu": {
     "Delete": "Delete",
     "Disable": "Disable",
@@ -95,8 +82,14 @@
         "Hint": "Decide whether this bonus can consume more than the base amount of the consumed property and scale its bonus accordingly.",
         "Label": "Enable Scaling"
       },
+      "Subtype": {
+        "CurrencyLabel": "Denomination",
+        "HitdiceLabel": "Hit Die Size"
+      },
       "Type": {
-        "Label": "Consumption Type"
+        "Label": "Consumption Type",
+        "OptionEffect": "Active Effect",
+        "OptionSlots": "Spell Slot"
       },
       "Values": {
         "Hint": "The amount that will be consumed when opting into this bonus.",
@@ -391,39 +384,62 @@
     "Description": "Description",
     "Filters": "Filters"
   },
-  "Smallest": "Smallest",
   "ToggleBonus": "Toggle Bonus",
   "Toggles": "Toggles",
-  "TypeAttack": "Attack Rolls",
-  "TypeAttackBonusLabel": "Attack Roll Bonus",
-  "TypeAttackBonusTooltip": "Additional parts to add on top of the attack roll.",
-  "TypeAttackCriticalRangeLabel": "Critical Range Modifier",
-  "TypeAttackCriticalRangeTooltip": "An integer to subtract from the critical range of the attack roll. This field respects roll data, but not dice rolls.",
-  "TypeAttackFumbleRangeLabel": "Fumble Range Modifier",
-  "TypeAttackFumbleRangeTooltip": "An integer to add to the fumble range of the attack roll. This field respects roll data, but not dice rolls.",
-  "TypeDamage": "Damage Rolls",
-  "TypeDamageBonusLabel": "Damage Roll Bonus",
-  "TypeDamageBonusTooltip": "Additional parts to add on top of the damage roll.",
-  "TypeDamageCriticalBonusDamageLabel": "Extra Critical Hit Damage",
-  "TypeDamageCriticalBonusDamageTooltip": "Additional parts to add on top of the damage roll on critical hits.",
-  "TypeDamageCriticalBonusDiceLabel": "Extra Critical Hit Dice",
-  "TypeDamageCriticalBonusDiceTooltip": "An additional number of dice that should be rolled on a critical hit. This field respects roll data, but not dice rolls.",
-  "TypeDamageDamageTypeHint": "The damage type of the parts added to the damage roll.",
-  "TypeDamageDamageTypeLabel": "Damage Type",
-  "TypeHitdie": "Hit Die Rolls",
-  "TypeHitdieBonusLabel": "Hit Die Roll Bonus",
-  "TypeHitdieBonusTooltip": "Additional parts to add on top of the hit die roll.",
-  "TypeSave": "Save DCs",
-  "TypeSaveBonusLabel": "Save DC Bonus",
-  "TypeSaveBonusTooltip": "An integer to add onto the DC of a saving throw. This field respects roll data, but not dice rolls.",
-  "TypeTest": "Ability Checks",
-  "TypeTestBonusLabel": "Ability Check Bonus",
-  "TypeTestBonusTooltip": "Additional parts to add on top of the ability check.",
-  "TypeThrow": "Saving Throws",
-  "TypeThrowBonusLabel": "Saving Throw Bonus",
-  "TypeThrowBonusTooltip": "Additional parts to add on top of the saving throw roll.",
-  "TypeThrowDeathSaveCriticalLabel": "Death Save Critical Limit",
-  "TypeThrowDeathSaveCriticalTooltip": "An integer to subtract from the threshold that decides when a Death Saving Throw results in restoring consciousness and 1 hit point. This field respects roll data, but not dice rolls.",
-  "TypeThrowTargetValueLabel": "Target Value",
-  "TypeThrowTargetValueTooltip": "An integer to subtract from the minimum requirement to pass a saving throw. This field respects roll data, but not dice rolls."
+  "TypeAttack": {
+    "BonusHint": "Additional parts to add on top of the attack roll.",
+    "BonusLabel": "Attack Roll Bonus",
+    "CriticalRangeHint": "An integer to subtract from the critical range of the attack roll. This field respects roll data, but not dice rolls.",
+    "CriticalRangeLabel": "Critical Range Modifier",
+    "FumbleRangeHint": "An integer to add to the fumble range of the attack roll. This field respects roll data, but not dice rolls.",
+    "FumbleRangeLabel": "Fumble Range Modifier",
+    "Label": "Attack Rolls"
+  },
+  "TypeDamage": {
+    "BonusHint": "Additional parts to add on top of the damage roll.",
+    "BonusLabel": "Damage Roll Bonus",
+    "CriticalBonusDamageHint": "Additional parts to add on top of the damage roll on critical hits.",
+    "CriticalBonusDamageLabel": "Extra Critical Hit Damage",
+    "CriticalBonusDiceHint": "An additional number of dice that should be rolled on a critical hit. This field respects roll data, but not dice rolls.",
+    "CriticalBonusDiceLabel": "Extra Critical Hit Dice",
+    "DamageTypeHint": "The damage type of the parts added to the damage roll.",
+    "DamageTypeLabel": "Damage Type",
+    "Label": "Damage Rolls"
+  },
+  "TypeHitdie": {
+    "BonusHint": "Additional parts to add on top of the hit die roll.",
+    "BonusLabel": "Hit Die Roll Bonus",
+    "Label": "Hit Die Rolls"
+  },
+  "TypeSave": {
+    "BonusHint": "An integer to add onto the DC of a saving throw. This field respects roll data, but not dice rolls.",
+    "BonusLabel": "Save DC Bonus",
+    "Label": "Save DCs"
+  },
+  "TypeTest": {
+    "BonusHint": "Additional parts to add on top of the ability check.",
+    "BonusLabel": "Ability Check Bonus",
+    "Label": "Ability Checks"
+  },
+  "TypeThrow": {
+    "BonusHint": "Additional parts to add on top of the saving throw roll.",
+    "BonusLabel": "Saving Throw Bonus",
+    "DeathSaveCriticalHint": "An integer to subtract from the threshold that decides when a Death Saving Throw results in restoring consciousness and 1 hit point. This field respects roll data, but not dice rolls.",
+    "DeathSaveCriticalLabel": "Death Save Critical Limit",
+    "Label": "Saving Throws",
+    "TargetValueHint": "An integer to subtract from the minimum requirement to pass a saving throw. This field respects roll data, but not dice rolls.",
+    "TargetValueLabel": "Target Value"
+  },
+  "Warning": {
+    "Consuming": {
+      "CurrencyUnavailable": "You do not have the required amount of that denomination.",
+      "EffectUnavailable": "The associated effect no longer exists.",
+      "HealthUnavailable": "You do not have enough hit points remaining.",
+      "HitdiceUnavailable": "You do not have enough hit dice remaining.",
+      "InspirationUnavailable": "You do not have inspiration.",
+      "QuantityUnavailable": "You do not have the required quantity of the associated item.",
+      "SlotsUnavailable": "You do not have any remaining spell slots of that level.",
+      "UsesUnavailable": "You do not have the required number of charges on the item."
+    }
+  }
 }}
