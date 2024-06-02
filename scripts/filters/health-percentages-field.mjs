@@ -8,20 +8,58 @@ export class HealthPercentagesField extends FilterMixin(SchemaField) {
 
   constructor(fields = {}, options = {}) {
     super({
-      value: new NumberField({min: 0, max: 100, step: 1, integer: true}),
-      type: new NumberField({nullable: true, choices: [0, 1]}),
+      value: new NumberField({
+        min: 0,
+        max: 100,
+        step: 1,
+        integer: true,
+        initial: 50,
+        label: "BABONUS.Filters.HealthPercentages.ValueLabel"
+      }),
+      type: new NumberField({
+        initial: 0,
+        choices: {
+          0: "BABONUS.Filters.HealthPercentages.OptionLess",
+          1: "BABONUS.Filters.HealthPercentages.OptionMore"
+        },
+        label: "BABONUS.Filters.HealthPercentages.TypeLabel"
+      }),
       ...fields
-    }, options);
+    }, {
+      label: "BABONUS.Filters.HealthPercentages.Label",
+      hint: "BABONUS.Filters.HealthPercentages.Hint",
+      ...options
+    });
   }
 
   /** @override */
-  static async getData(bonus) {
-    const data = await super.getData(bonus);
-    const {value, type} = this.value(bonus);
-    data.options = {0: "BABONUS.OrLess", 1: "BABONUS.OrMore"};
-    data.selected = type ?? null;
-    data.value = value ?? 50;
-    return data;
+  static render(bonus) {
+    const template = `
+    <fieldset>
+      <legend>
+        {{localize label}}
+        <a data-action="delete-filter" data-id="${this.name}">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </legend>
+      {{formGroup valueField value=value localize=true unit="%"}}
+      {{formGroup typeField value=type localize=true}}
+      <p class="hint">{{localize hint}}</p>
+    </fieldset>`;
+
+    const schema = bonus.schema.getField(`filters.${this.name}`);
+    const valueField = bonus.schema.getField(`filters.${this.name}.value`);
+    const typeField = bonus.schema.getField(`filters.${this.name}.type`);
+    const data = {
+      valueField: valueField,
+      typeField: typeField,
+      value: bonus.filters[this.name].value,
+      type: bonus.filters[this.name].type,
+      hint: schema.hint,
+      label: schema.label
+    };
+
+    return Handlebars.compile(template)(data);
   }
 
   /** @override */

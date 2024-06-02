@@ -181,7 +181,9 @@
     },
     "HealthPercentages": {
       "Hint": "A porcentagem de vida que o ator deve ter no mínimo, ou no máximo, para que o bônus seja aplicado.",
-      "Label": "Porcentagem de Vida"
+      "Label": "Porcentagem de Vida",
+      "OptionLess": "ou menor",
+      "OptionMore": "ou maior"
     },
     "ItemTypes": {
       "Hint": "Os tipos de itens aos quais o bônus deve ser aplicado. Por exemplo, se o item se aplicar apenas a magias ou apenas a armas.",
@@ -290,8 +292,6 @@
   "NamePlaceholder": "Nome…",
   "NewBabonus": "Novo Babonus",
   "OriginName": "Origem: {name}",
-  "OrLess": "ou menor",
-  "OrMore": "ou maior",
   "OverviewActor": "Ator",
   "OverviewCopied": "O uuid foi copiado para a área de transferência.",
   "OverviewImmediateParent": "Pai Imediato",

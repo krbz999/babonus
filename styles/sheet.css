@@ -4,10 +4,6 @@
   min-height: 500px;
   max-height: 95%;
 
-  .striked {
-    text-decoration: line-through;
-  }
-
   .notification.info {
     margin: 0.5em 0;
     padding: 6px 8px;
@@ -21,12 +17,17 @@
 
     .form-group {
 
-      .form-fields {
-        flex-wrap: nowrap;
+      /* Arbitrary Comparisons */
+      & select[name^="filters.arbitraryComparisons"] { flex: 0; }
 
-        & > * {
-          margin-right: 0;
-        }
+      /* Custom Scripts */
+      & textarea[name^="filters.customScripts"] {
+        resize: vertical;
+        min-height: calc(3rem + var(--form-field-height));
+        overflow-y: hidden;
+      }
+
+      .form-fields {
 
         & input[type=text], & input[type=number], & select {
           height: 24px;
@@ -38,77 +39,10 @@
           }
         }
 
-        & select {
-          flex: 0;
-        }
-
-        &:not(:has(.checkboxes, [type=text], [type=number], [type=range])) select {
-          flex: 1;
-        }
-
-        .checkboxes {
-          display: flex;
-          overflow-x: auto;
-          flex-flow: wrap;
-          justify-content: space-around;
-
-          & label {
-            flex: none;
-          }
-
-          & [type=checkbox] {
-            display: none !important;
-
-            &:checked ~ .check {
-              border: 2px groove #ff00006e;
-              box-shadow: 0 0 4px darkred;
-              background-color: #ff000066;
-            }
-          }
-
-          .check {
-            font-weight: bold;
-            border: 2px groove gray;
-            border-radius: 4px;
-            padding: 0 0.4em;
-            text-transform: uppercase;
-
-            &:hover {
-              text-shadow: 0 0 5px var(--color-shadow-primary);
-            }
-          }
-        }
-
-        & textarea {
-          resize: vertical;
-          min-height: calc(10px + var(--form-field-height));
-          height: var(--form-field-height);
-          overflow-y: hidden;
-        }
-
-        .range-value {
-          flex: 0 1 48px;
-
-          &::after {
-            content: "%";
-          }
-        }
-
         & [data-action="keys-dialog"] {
           width: 100px;
           max-width: 100px;
           height: 26px;
-        }
-      }
-
-      .label {
-        flex: 1.5;
-        white-space: nowrap;
-
-        &.checkbox {
-          &:only-child {
-            margin-left: auto;
-          }
         }
       }
 

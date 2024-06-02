@@ -202,7 +202,11 @@
     },
     "HealthPercentages": {
       "Hint": "The percentage of health the actor must at least have, or at most have, for the bonus to apply.",
-      "Label": "Health Percentage"
+      "Label": "Health Percentage",
+      "ValueLabel": "Threshold",
+      "TypeLabel": "Type",
+      "OptionLess": "Less Than",
+      "OptionMore": "More Than"
     },
     "ItemTypes": {
       "Hint": "The types of items the bonus should apply to. For example if the item should only apply to spells or only to weapons.",
@@ -313,8 +317,6 @@
   "NamePlaceholder": "Name…",
   "NewBabonus": "New Babonus",
   "OriginName": "Origin: {name}",
-  "OrLess": "or less",
-  "OrMore": "or more",
   "OverviewActor": "Actor",
   "OverviewCopied": "The uuid has been copied to clipboard.",
   "OverviewImmediateParent": "Immediate Parent",

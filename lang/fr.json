@@ -164,7 +164,9 @@
     },
     "HealthPercentages": {
       "Hint": "Le pourcentage de santé que l'acteur doit avoir au minimum, ou au maximum, pour que le bonus s'applique.",
-      "Label": "Pourcentage de santé"
+      "Label": "Pourcentage de santé",
+      "OptionLess": "ou moins",
+      "OptionMore": "ou plus"
     },
     "ItemTypes": {
       "Hint": "Les types d'objets auxquels le bonus doit s'appliquer. Par exemple, si l'objet ne doit s'appliquer qu'aux sorts ou qu'aux armes.",
@@ -268,8 +270,6 @@
   "NamePlaceholder": "Nom…",
   "NewBabonus": "Nouveau Babonus",
   "OriginName": "Origine : {name}",
-  "OrLess": "ou moins",
-  "OrMore": "ou plus",
   "OverviewActor": "Acteur",
   "OverviewCopied": "L'uuid a été copié dans le presse-papiers.",
   "OverviewImmediateParent": "Parent immédiat",
