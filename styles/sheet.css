@@ -48,7 +48,9 @@
         .wrapper {
           overflow: hidden;
           display: flex;
-          justify-content: space-around;
+
+          & label { flex: 0; margin-left: 1rem; }
+          .formula { flex: 1; text-align: right; margin-right: 1rem; }
         }
       }
     }
