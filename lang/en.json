@@ -286,8 +286,8 @@
   "Modifiers": {
     "Amount": {
       "EnabledHint": "Allow this bonus to make changes to the amount of dice rolled.",
-      "EnabledLabel": "Enable",
-      "Label": "Dice Amount",
+      "EnabledLabel": "Quantity Modification",
+      "Label": "Dice Quantity",
       "ModeHint": "Whether to add the additional dice on top or multiply the value by this amount.",
       "ModeLabel": "Mode",
       "ValueHint": "The increase to the amount of dice rolled.",
@@ -300,7 +300,7 @@
     },
     "Explode": {
       "EnabledHint": "Allow this bonus to cause the dice to explode.",
-      "EnabledLabel": "Enable",
+      "EnabledLabel": "Exploding Dice",
       "Label": "Exploding Dice",
       "LimitHint": "The maximum amount of explosions allowed. If left blank, there will not be any limit enforced.",
       "LimitLabel": "Maximum Explosions",
@@ -311,7 +311,7 @@
     },
     "Maximum": {
       "EnabledHint": "Allow this bonus to configure the maximum result rolled on each die.",
-      "EnabledLabel": "Enable",
+      "EnabledLabel": "Maximum Results",
       "Label": "Maximum Results",
       "ValueHint": "The maximum result able to be rolled. By using negative values, the ceiling will be calculated from the top rather than the bottom.",
       "ValueLabel": "Maximum Value",
@@ -320,7 +320,7 @@
     },
     "Minimum": {
       "EnabledHint": "Allow this bonus to configure the minimum result rolled on each die.",
-      "EnabledLabel": "Enable",
+      "EnabledLabel": "Minimum Results",
       "Label": "Minimum Results",
       "MaximizeHint": "Cause all dice to be maximized.",
       "MaximizeLabel": "Maximize",
@@ -333,7 +333,7 @@
     },
     "Reroll": {
       "EnabledHint": "Allow this bonus to cause the dice to reroll.",
-      "EnabledLabel": "Enable",
+      "EnabledLabel": "Rerolling Behaviour",
       "InvertHint": "Whether to reroll dice that roll above the threshold instead of below the threshold.",
       "InvertLabel": "Inverted",
       "Label": "Rerolling Dice",
@@ -346,7 +346,7 @@
     },
     "Size": {
       "EnabledHint": "Allow this bonus to make changes to the size of dice rolled.",
-      "EnabledLabel": "Enable",
+      "EnabledLabel": "Size Modification",
       "Label": "Dice Size",
       "ModeHint": "Whether to increase the dice sizes by the amount or multiply the faces.",
       "ModeLabel": "Mode",
