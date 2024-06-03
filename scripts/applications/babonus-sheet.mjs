@@ -356,7 +356,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     context.filterpickers = this._prepareFilterPicker();
     context.tabs = tabs;
     context.bonus = bonus;
-    context.rootId = bonus.id;
+    // context.rootId = bonus.id; // Add this back once #11119 is fixed.
 
     return context;
   }

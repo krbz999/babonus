@@ -148,7 +148,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const rollData = this.parent.getRollData({deterministic: true});
     for (const m of ["amount", "size", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
-      if (!value) this[m].value = 0;
+      if (!value) this[m].value = null;
       else {
         const bonus = dnd5e.utils.simplifyBonus(value, rollData);
         this[m].value = Number.isNumeric(bonus) ? Math.round(bonus) : null;
@@ -223,7 +223,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (!this.hasReroll || die.modifiers.some(m => m.match(this.constructor.REGEX.reroll))) return;
     const l = this.reroll.limit;
     const prefix = this.reroll.recursive ? (l ? `rr${l}` : "rr") : "r";
-    const v = this.reroll.value;
+    const v = this.reroll.value ?? 1;
     let mod;
     if (this.reroll.invert) {
       if (v > 0) {
@@ -257,7 +257,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   _modifyExplode(die) {
     if (!this.hasExplode || die.modifiers.some(m => m.match(this.constructor.REGEX.explode))) return;
-    const v = this.explode.value;
+    const v = this.explode.value ?? 0;
     const l = this.explode.limit;
     const prefix = (this.explode.once || (l === 1)) ? "xo" : (l ? `x${l}` : "x");
     const _prefix = () => /x\d+/.test(prefix) ? `${prefix}=${die.faces}` : prefix;
@@ -373,7 +373,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get hasReroll() {
     if (!this.reroll.enabled) return false;
-    return Number.isInteger(this.reroll.value);
+    return (this.reroll.value === null) || Number.isInteger(this.reroll.value);
   }
 
   /**
@@ -382,7 +382,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get hasExplode() {
     if (!this.explode.enabled) return false;
-    return Number.isInteger(this.explode.value);
+    return (this.maximum.value === null) || Number.isInteger(this.explode.value);
   }
 
   /**
