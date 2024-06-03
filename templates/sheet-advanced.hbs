@@ -13,7 +13,7 @@
   <fieldset>
     <legend>{{localize "BABONUS.Fields.Consume.Label"}}</legend>
     {{#with context.consume}}
-    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
+    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId disabled=enabled.disabled}}
     {{#if enabled.value}}
     {{formGroup type.field value=type.value localize=true sort=true blank="-"}}
     {{#unless scale.unavailable}}

@@ -336,11 +336,13 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const scales = this.bonus.consume.scales;
 
     const source = this.bonus.consume.toObject();
+    const blocked = ["save", "hitdie"].includes(this.bonus.type);
 
     const context = {
       enabled: {
         field: schema.getField("consume.enabled"),
-        value: source.enabled
+        value: blocked ? false : source.enabled,
+        disabled: blocked
       },
       type: {
         field: schema.getField("consume.type"),
