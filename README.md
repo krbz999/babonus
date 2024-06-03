@@ -20,20 +20,24 @@ Interested in following along with development of any of my modules? Join the [D
 
 <h1 style="font-weight: bold;">How to Use</h1>
 <p>Open any actor's sheet, any item sheet, or any effect config, then click the otter icon in the header. Choose the type of bonus you want to create, then fill out the name, description, and the bonus. Then start narrowing down when and how the bonus should apply, using the available filters.<p>
-<p>If you need additional hints, hover over any of the labels to get tooltips. Not all filters are available for each type of bonus. Below is an example using the artificer's <em>Alchemical Savant</em> feature.</p>
+<p>As of foundry version 12, Build-a-Bonus also supports adding bonuses to Scene Regions. A button for this can be found in the region's sheet.</p>
+<p>Below is an example using the artificer's <em>Alchemical Savant</em> feature.</p>
 
-<p style="text-align: center"><img src="https://i.imgur.com/x2SzpM1.png" style="border: none"></p>
+<p style="text-align: center"><img src="https://i.imgur.com/XAz02TI.png" style="border: none"></p>
+
+<p style="text-align: center"><img src="https://i.imgur.com/AQqfmvF.png" style="border: none"></p>
+
+<p style="text-align: center"><img src="https://i.imgur.com/lorQcCg.png" style="border: none"></p>
 
 <h1>The Babonus Sheet</h1>
 
 <h2>Description Tab</h2>
-<p>This tab shows the current properties of the babonus. Note that these might be dependant on what kind of parent the bonus is embedded on.</p>
+<p>This simple tab allows you to edit the displayed image and description of the bonus.</p>
 
 <h2>Bonuses Tab</h2>
 <p>This tab allows for configuring the bonus that should be applying, assuming all filters are matched. Some babonus types also support dice modifiers.</p>
 <p>Depending on the type you choose, Build-a-Bonus can add on top of the value or roll, or even several kinds at once. For example, for attack rolls, you can add bonuses on top of the roll itself, but also increase the critical range and the fumble range. This can be roll data and scale values, such as <code>@abilities.int.mod</code>, or just integers or dice expressions.</p>
 <p>For damage rolls and hit dice rolls, you can also affect die modifiers. The supported modifiers are minimum and maximum values, rerolling, and explosive dice, as well as the quantity of the dice, and the size of dice.</p>
-<p>The 'minimum' modifier will be forced to be no higher than the size of the die. E.g., if you input '99', then a d8 will still roll no higher than 8. You can maximize dice by inputting '-1'.<p>
 
 <h2>Configuration and Filters Tabs</h2>
 <p>These tabs are for configuring the filters on the babonus. The full list of filters can be found below.</p>
@@ -50,7 +54,7 @@ Interested in following along with development of any of my modules? Join the [D
 <p>If the bonus is optional as described above, the bonus can also be configured to consume limited uses, item quantity, spell slots, hit points, currencies, the active effect on which it is created, or even the inspiration granted to the character from the GM. You can configure the minimum required consumption, as well as the maximum if the bonus should scale. For example, if you create an item with 10 limited uses, a bonus of "1d6", configure that the bonus is optional, and consumes between 2 and 6 uses when opted into, the actor making the roll can easily add between 2d6 and 6d6 in the roll configuration dialog, and the expended uses are automatically subtracted. This works similarly for spell slots, instead using 1 slot and scaling with spell level. A bonus consuming its effect or GM inspiration cannot scale.</p>
 <p>Lastly, you can toggle 'Optional' on regardless for a bonus that grants no properties or dice modifiers. This will give you the ability to toggle it as a 'Reminder', causing its text to display in the roll configuration dialog.</p>
 
-<p style="text-align: center"><img src="https://i.imgur.com/eJsfogz.png" style="border: none"></p>
+<p style="text-align: center"><img src="https://i.imgur.com/Erpo2to.png" style="border: none"></p>
 
 <h1 style="font-weight: bold;">Available Filters</h1>
 <p>These are the available filters that narrow down if the bonus should apply when making a roll.</p>
