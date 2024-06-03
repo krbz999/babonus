@@ -44,7 +44,6 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       addFilter: this._onAddFilter,
       deleteFilter: this._onDeleteFilter,
       copyUuid: {handler: this._onCopyUuid, buttons: [0, 2]},
-      editImage: this._onEditImage,
       viewFilter: this._onViewFilter
     }
   };
@@ -193,8 +192,9 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     fields.reminder = makeField("reminder", {
       disabled: !bonus.canRemind
     });
+    fields.img = makeField("img");
     fields.description = makeField("description", {
-      height: 400,
+      height: 200,
       enriched: await TextEditor.enrichHTML(bonus.description, {
         rollData: rollData, async: true, relativeTo: bonus.origin
       })
@@ -525,20 +525,6 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const label = game.i18n.localize(this.bonus.constructor.metadata.label);
     game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {label, type, id}));
-  }
-
-  /**
-   * Change the image of the bonus.
-   * @param {Event} event             The initiating click event.
-   * @param {HTMLElement} target      Targeted html element.
-   */
-  static _onEditImage(event, target) {
-    new FilePicker({
-      type: "image",
-      current: this.bonus.img,
-      allowUpload: false,
-      callback: src => this.bonus.update({img: src})
-    }).browse();
   }
 
   /**

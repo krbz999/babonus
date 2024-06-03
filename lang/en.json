@@ -120,6 +120,10 @@
       "Hint": "Toggle whether this bonus applies only to the item on which it is created. A bonus cannot be set to apply to one specific item only, unless created on said item, and applying to attack, damage, save DCs, or tool checks.",
       "Label": "Exclusive"
     },
+    "Img": {
+      "Hint": "The image of this bonus to display where relevant.",
+      "Label": "Image"
+    },
     "Optional": {
       "Hint": "Toggle whether this bonus should be opted into when rolling. A bonus cannot be set to be optional unless it provides an additive bonus on top of an attack roll, damage roll, saving throw, or ability check.",
       "Label": "Optional"
