@@ -463,7 +463,10 @@ class Babonus extends foundry.abstract.DataModel {
         label: "BABONUS.Fields.Reminder.Label",
         hint: "BABONUS.Fields.Reminder.Hint"
       }),
-      description: new HTMLField(),
+      description: new HTMLField({
+        label: "BABONUS.Fields.Description.Label",
+        hint: "BABONUS.Fields.Description.Hint"
+      }),
       consume: new EmbeddedDataField(babonus.abstract.DataFields.models.ConsumptionModel),
       aura: new EmbeddedDataField(babonus.abstract.DataFields.models.AuraModel),
       flags: new ObjectField()

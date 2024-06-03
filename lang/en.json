@@ -108,6 +108,10 @@
         "Label": "Step"
       }
     },
+    "Description": {
+      "Hint": "The text that accompanies this bonus. While not required, this is shown in tooltips as well as any hints for optional bonuses.",
+      "Label": "Description"
+    },
     "Enabled": {
       "Hint": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored.",
       "Label": "Enabled"
