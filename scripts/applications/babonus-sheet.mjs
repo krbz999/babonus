@@ -123,6 +123,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     super._onRender(...T);
 
     const element = this.element.querySelector(".example");
+    if (!element) return;
     const replacement = this.element.querySelector("#example");
     const options = {
       root: element.closest(".tab.scrollable"),
@@ -314,7 +315,9 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     if (!this.bonus.enabled) labels.push(game.i18n.localize("BABONUS.Labels.Disabled"));
     if (this.bonus.isExclusive) labels.push(game.i18n.localize("BABONUS.Labels.Exclusive"));
     if (this.bonus.isOptional) labels.push(game.i18n.localize("BABONUS.Labels.Optional"));
-    if (this.bonus.consume.isValidConsumption) labels.push(game.i18n.localize("BABONUS.Labels.Consuming"));
+    if (this.bonus.consume.isValidConsumption && this.bonus.consume.enabled) {
+      labels.push(game.i18n.localize("BABONUS.Labels.Consuming"));
+    }
     if (this.bonus.aura.isToken) labels.push(game.i18n.localize("BABONUS.Labels.TokenAura"));
     if (this.bonus.aura.isTemplate) labels.push(game.i18n.localize("BABONUS.Labels.TemplateAura"));
     if (this.bonus.isReminder) labels.push(game.i18n.localize("BABONUS.Labels.Reminder"));

@@ -36,6 +36,7 @@
         -webkit-backdrop-filter: blur(4px);
         background: var(--background);
         box-shadow: 0 0 10px #000;
+        margin-bottom: -1rem;
 
         &.expanded {
           grid-template-rows: 1fr;
@@ -89,6 +90,8 @@
     display: flex;
     padding: 0 5px;
     flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: calc(3px - 1rem);
 
     & img {
       flex: none;
@@ -103,40 +106,25 @@
       font-family: "Modesto Condensed";
       font-size: 32px;
     }
-  }
-
-  .description {
-    display: flex;
-    height: 100%;
-    gap: 1em;
 
     .properties {
-      width: 8.5em;
+      width: 100%;
       list-style: none;
-      margin: 1em 0;
-      padding: 0 0.5em 0 0;
-      border-right: 2px groove var(--color-fieldset-border);
-
-      .header {
-        font-family: "Modesto Condensed";
-        margin: 0;
-        font-size: 16px;
-      }
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 3px;
+      margin-top: 3px;
 
       .property {
-        margin: 3px 0;
-        padding: 0 2px;
+        margin: 0;
+        padding: 2px 4px;
         background: rgba(0, 0, 0, 0.05);
-        border: 2px groove var(--color-fieldset-border);
-        text-align: center;
+        border: 1px groove var(--color-fieldset-border);
+        border-radius: 3px;
         font-size: 12px;
-        line-height: 18px;
+        white-space: nowrap;
       }
-    }
-
-    .editor {
-      flex: 1;
-      margin: 5px 0;
     }
   }
 

@@ -104,7 +104,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    */
   get isValidConsumption() {
     const {type, value} = this;
-    if (!MODULE.CONSUMPTION_TYPES.has(type)) return false;
+    if (!MODULE.CONSUMPTION_TYPES.has(type) || ["save", "hitdie"].includes(this.parent.type)) return false;
     const invalidScale = this.scales && ((this.value.max ?? Infinity) < this.value.min);
 
     switch (type) {
