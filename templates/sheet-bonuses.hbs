@@ -1,14 +1,14 @@
-<div class="tab scrollable {{context.tabs.bonuses.cssClass}}" data-tab="bonuses" data-group="main">
+<div class="tab scrollable {{tabs.bonuses.cssClass}}" data-tab="bonuses" data-group="main">
   <div id="example">
     <div class="wrapper">
       <label>{{localize "BABONUS.Example"}}</label>
-      <div class="formula">{{context.modifiers.config.example}}</div>
+      <div class="formula">{{modifiers.config.example}}</div>
     </div>
   </div>
 
   <fieldset>
     <legend>{{localize "BABONUS.BasicBonuses"}}</legend>
-    {{#each context.bonuses}}
+    {{#each bonuses}}
     {{#if isDamage}}
     {{formGroup field value=value options=options blank=blank localize=true}}
     {{else}}
@@ -17,22 +17,22 @@
     {{/each}}
   </fieldset>
 
-  {{#if context.hasModifiers}}
+  {{#if hasModifiers}}
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Config.Label"}}</legend>
 
-    {{formGroup context.modifiers.config.first.field value=context.modifiers.config.first.value localize=true rootId=@root.rootId}}
+    {{formGroup modifiers.config.first.field value=modifiers.config.first.value localize=true rootId=@root.rootId}}
 
     <div class="form-group modifiers example">
       <label>{{localize "BABONUS.Example"}}:</label>
-      <div class="form-fields formula">{{context.modifiers.config.example}}</div>
+      <div class="form-fields formula">{{modifiers.config.example}}</div>
     </div>
   </fieldset>
 
   <!-- Amount -->
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Amount.Label"}}</legend>
-    {{#with context.modifiers.amount}}
+    {{#with modifiers.amount}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{#if enabled.value}}
     {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
@@ -44,7 +44,7 @@
   <!-- Size -->
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Size.Label"}}</legend>
-    {{#with context.modifiers.size}}
+    {{#with modifiers.size}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{#if enabled.value}}
     {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
@@ -56,7 +56,7 @@
   <!-- Reroll -->
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Reroll.Label"}}</legend>
-    {{#with context.modifiers.reroll}}
+    {{#with modifiers.reroll}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{#if enabled.value}}
     {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
@@ -72,7 +72,7 @@
   <!-- Explode -->
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Explode.Label"}}</legend>
-    {{#with context.modifiers.explode}}
+    {{#with modifiers.explode}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{#if enabled.value}}
     {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
@@ -87,7 +87,7 @@
   <!-- Minimum -->
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Minimum.Label"}}</legend>
-    {{#with context.modifiers.minimum}}
+    {{#with modifiers.minimum}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{#if enabled.value}}
     {{formGroup maximize.field value=maximize.value localize=true rootId=@root.rootId}}
@@ -101,7 +101,7 @@
   <!-- Maximum -->
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Maximum.Label"}}</legend>
-    {{#with context.modifiers.maximum}}
+    {{#with modifiers.maximum}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{#if enabled.value}}
     {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}

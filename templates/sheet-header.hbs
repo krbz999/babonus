@@ -2,7 +2,7 @@
   <img src="{{bonus.img}}" data-action="editImage" alt="{{bonus.name}}">
   <input class="title" type="text" name="name" value="{{bonus.name}}" placeholder="{{localize 'Name'}}">
   <ul class="properties">
-    {{#each context.labels}}
+    {{#each labels}}
     <li class="property">{{this}}</li>
     {{/each}}
   </ul>

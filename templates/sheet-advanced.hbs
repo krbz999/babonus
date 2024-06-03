@@ -1,8 +1,8 @@
-<div class="tab scrollable {{context.tabs.advanced.cssClass}}" data-tab="advanced" data-group="main">
+<div class="tab scrollable {{tabs.advanced.cssClass}}" data-tab="advanced" data-group="main">
 
   <fieldset>
     <legend>{{localize "BABONUS.Toggles"}}</legend>
-    {{#with context.checks}}
+    {{#with fields}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
     {{formGroup exclusive.field value=exclusive.value localize=true rootId=@root.rootId}}
     {{formGroup optional.field value=optional.value localize=true rootId=@root.rootId}}
@@ -12,31 +12,31 @@
 
   <fieldset>
     <legend>{{localize "BABONUS.Fields.Consume.Label"}}</legend>
-    {{#with context.consume}}
+    {{#with consume}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId disabled=enabled.disabled}}
     {{#if enabled.value}}
     {{formGroup type.field value=type.value localize=true sort=true blank="-"}}
-    {{#unless scale.unavailable}}
+    {{#unless scales.unavailable}}
     {{#if subtype.show}}
     {{formGroup subtype.field value=subtype.value localize=true sort=false blank="-" choices=subtype.choices label=subtype.label}}
     {{/if}}
-    {{#unless scale.unavailable}}
-    {{formGroup scale.field localize=true value=scale.value rootId=@root.rootId}}
+    {{#unless scales.unavailable}}
+    {{formGroup scales.field localize=true value=scales.value rootId=@root.rootId}}
     {{/unless}}
 
     <div class="form-group values">
       <label>
-        {{localize values.label}}
-        {{{values.range}}}
+        {{localize value.label}}
+        {{{value.range}}}
       </label>
       <div class="form-fields">
-        {{formInput values.field1 value=values.value1 placeholder=values.ph1}}
-        {{#if scale.value}}
+        {{formInput value.min.field value=value.min.value placeholder=value.min.placeholder}}
+        {{#if scales.value}}
         <span class="sep dash">&mdash;</span>
-        {{formInput values.field2 value=values.value2 placeholder=values.ph2}}
+        {{formInput value.max.field value=value.max.value placeholder=value.max.placeholder}}
         {{/if}}
       </div>
-      <p class="hint">{{localize values.hint}}</p>
+      <p class="hint">{{localize value.hint}}</p>
     </div>
 
     {{#if step.show}}
@@ -55,7 +55,7 @@
 
   <fieldset>
     <legend>{{localize "BABONUS.Fields.Aura.Label"}}</legend>
-    {{#with context.aura}}
+    {{#with aura}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
 
     {{#if enabled.value}}

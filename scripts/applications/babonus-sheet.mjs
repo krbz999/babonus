@@ -149,8 +149,6 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
 
   /** @override */
   async _prepareContext(options) {
-    const rollData = this.bonus.getRollData();
-
     const tabs = {
       description: {
         icon: "fa-solid fa-pen-fancy",
@@ -179,84 +177,169 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }
 
     const context = {};
-    context.bonuses = this._prepareBonuses();
-    context.modifiers = this._prepareModifiers(rollData);
-    context.hasModifiers = !foundry.utils.isEmpty(context.modifiers);
-    context.aura = this._prepareAura();
-    context.consume = this._prepareConsume();
-    context.description = {
-      enriched: await TextEditor.enrichHTML(this.bonus.description, {
-        rollData: rollData, async: true, relativeTo: this.bonus.origin
-      }),
-      field: this.bonus.schema.getField("description"),
-      value: this.bonus.description,
-      height: 400
+    const bonus = this.bonus;
+    const source = bonus.toObject();
+    const rollData = bonus.getRollData();
+
+    const makeField = (path, options = {}) => {
+      const field = bonus.schema.getField(path);
+      const value = foundry.utils.getProperty(source, path);
+
+      return {
+        field: field,
+        value: value,
+        ...options
+      };
     };
+
+    // Root fields.
+    const fields = context.fields = {};
+    fields.enabled = makeField("enabled");
+    fields.exclusive = makeField("exclusive");
+    fields.optional = makeField("optional");
+    fields.reminder = makeField("reminder", {
+      disabled: !bonus.canRemind
+    });
+    fields.description = makeField("description", {
+      height: 400,
+      enriched: await TextEditor.enrichHTML(bonus.description, {
+        rollData: rollData, async: true, relativeTo: bonus.origin
+      })
+    });
+
+    // Bonuses.
+    const bonuses = context.bonuses = [];
+    for (const k of Object.keys(source.bonuses)) {
+      if (k === "modifiers") continue; // Handled separately.
+      let options = {};
+      if (k === "damageType") {
+        options = {
+          isDamage: true,
+          blank: "DND5E.None",
+          options: [],
+          groups: ["DND5E.Damage", "DND5E.Healing"]
+        };
+        for (const [k, v] of Object.entries(CONFIG.DND5E.damageTypes)) {
+          options.options.push({group: "DND5E.Damage", value: k, label: v.label});
+        }
+        for (const [k, v] of Object.entries(CONFIG.DND5E.healingTypes)) {
+          options.options.push({group: "DND5E.Healing", value: k, label: v.label});
+        }
+      }
+      const data = makeField(`bonuses.${k}`, options);
+      bonuses.push(data);
+    }
+
+    // Modifiers.
+    if (source.bonuses?.modifiers) {
+      const initial = bonus.bonuses.modifiers.schema.initial();
+      const paths = Object.keys(foundry.utils.flattenObject(initial));
+      const modifiers = context.modifiers = {};
+      for (const path of paths) {
+        const parts = path.split(".");
+        const key = parts.shift();
+        modifiers[key] ??= {};
+        modifiers[key][parts.pop()] = makeField(`bonuses.modifiers.${path}`);
+      }
+
+      const parts = ["3", "2d10", "1d4"];
+      bonus.bonuses.modifiers.modifyParts(parts, rollData);
+      modifiers.config ??= {};
+      modifiers.config.example = parts.join(" + ");
+      context.hasModifiers = true;
+    } else context.hasModifiers = false;
+
+    // Consumption.
+    const consume = context.consume = {};
+    if (!["save", "hitdie"].includes(bonus.type)) {
+      consume.enabled = makeField("consume.enabled");
+      consume.type = makeField("consume.type");
+      consume.subtype = makeField("consume.subtype", {
+        label: `BABONUS.Fields.Consume.Subtype.${source.consume.type.capitalize()}Label`
+      });
+      consume.formula = makeField("consume.formula", {
+        placeholder: bonus.bonuses.bonus,
+        show: bonus.consume.scales
+      });
+      consume.step = makeField("consume.value.step", {
+        show: ["health", "currency"].includes(source.consume.type) && bonus.consume.scales
+      });
+
+      const isSlot = (source.consume.type === "slots") ? "Slot" : "";
+      const scales = bonus.consume.scales;
+      const v = bonus.consume.value;
+      consume.value = {
+        min: makeField("consume.value.min", {
+          placeholder: game.i18n.localize(`BABONUS.Fields.Consume.Values.Min${isSlot}`)
+        }),
+        max: makeField("consume.value.max", {
+          placeholder: game.i18n.localize(`BABONUS.Fields.Consume.Values.Max${isSlot}`)
+        }),
+        label: `BABONUS.Fields.Consume.Values.Label${isSlot}`,
+        hint: `BABONUS.Fields.Consume.Values.Hint${scales ? "Scale" : ""}${isSlot}`,
+        range: (scales && v.min && v.max) ? `(${v.min}&ndash;${v.max})` : null
+      };
+
+      consume.scales = makeField("consume.scales", {
+        unavailable: !source.consume.type || ["effect", "inspiration"].includes(source.consume.type)
+      });
+
+      consume.subtype.show = true;
+      if (source.consume.type === "currency") {
+        consume.subtype.choices = Object.entries(CONFIG.DND5E.currencies).sort((a, b) => {
+          return b[1].conversion - a[1].conversion;
+        }).reduce((acc, [k, v]) => {
+          acc[k] = v.label;
+          return acc;
+        }, {});
+      } else if (source.consume.type === "hitdice") {
+        consume.subtype.choices = CONFIG.DND5E.hitDieTypes.reduce((acc, d) => {
+          acc[d] = d;
+          return acc;
+        }, {
+          smallest: "DND5E.ConsumeHitDiceSmallest",
+          largest: "DND5E.ConsumeHitDiceLargetst"
+        });
+      } else consume.subtype.show = false;
+    } else {
+      consume.enabled = makeField("consume.enabled", {value: false, disabled: true});
+    }
+
+    // Aura.
+    const aura = context.aura = {};
+    aura.enabled = makeField("aura.enabled");
+    if (aura.enabled.value) {
+      aura.range = makeField("aura.range");
+      let loc;
+      let range;
+      if (!bonus.aura.range || (bonus.aura.range > 0)) {
+        loc = "BABONUS.Fields.Aura.Range.LabelFt";
+        range = bonus.aura.range;
+      } else if (bonus.aura.range === -1) {
+        loc = "BABONUS.Fields.Aura.Range.LabelUnlimited";
+        range = game.i18n.localize("DND5E.Unlimited");
+      }
+      if (loc) {
+        aura.range.label = game.i18n.format(loc, {range: range});
+      }
+
+      aura.template = makeField("aura.template");
+      aura.disposition = makeField("aura.disposition");
+      aura.self = makeField("aura.self");
+      aura.blockers = makeField("aura.blockers");
+      aura.requirements = ["move", "light", "sight", "sound"].map(k => {
+        return makeField(`aura.require.${k}`);
+      });
+    }
+
     context.labels = this._prepareLabels();
     context.filters = this._prepareFilters();
     context.filterpickers = this._prepareFilterPicker();
     context.tabs = tabs;
+    context.bonus = bonus;
+    context.rootId = bonus.id;
 
-    // Root fields.
-    context.checks = {
-      enabled: {
-        field: this.bonus.schema.getField("enabled"),
-        value: this.bonus.enabled
-      },
-      exclusive: {
-        field: this.bonus.schema.getField("exclusive"),
-        value: this.bonus.exclusive
-      },
-      optional: {
-        field: this.bonus.schema.getField("optional"),
-        value: this.bonus.optional
-      },
-      reminder: {
-        field: this.bonus.schema.getField("reminder"),
-        value: this.bonus.reminder,
-        disabled: !this.bonus.canRemind
-      }
-    };
-
-    return {
-      bonus: this.bonus,
-      editable: this.isEditable,
-      filters: this._filters,
-      context: context,
-      rootId: this.bonus.id
-    };
-  }
-
-  /**
-   * Prepare the bonuses.
-   * @returns {object[]}
-   */
-  _prepareBonuses() {
-    const b = Object.entries(this.bonus.toObject().bonuses);
-    const schema = this.bonus.schema;
-    const bonuses = [];
-    b.forEach(([k, v]) => {
-      if (k === "modifiers") return;
-      const bonusData = {
-        field: schema.getField(`bonuses.${k}`),
-        value: v
-      };
-      if (k === "damageType") {
-        bonusData.isDamage = true;
-        bonusData.blank = "DND5E.None";
-        bonusData.options = [];
-        bonusData.groups = ["DND5E.Damage", "DND5E.Healing"];
-
-        for (const [k, v] of Object.entries(CONFIG.DND5E.damageTypes)) {
-          bonusData.options.push({group: "DND5E.Damage", value: k, label: v.label});
-        }
-        for (const [k, v] of Object.entries(CONFIG.DND5E.healingTypes)) {
-          bonusData.options.push({group: "DND5E.Healing", value: k, label: v.label});
-        }
-      }
-      bonuses.push(bonusData);
-    });
-    return bonuses;
+    return context;
   }
 
   /**
@@ -323,179 +406,6 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     if (this.bonus.isReminder) labels.push(game.i18n.localize("BABONUS.Labels.Reminder"));
 
     return labels;
-  }
-
-  /**
-   * Prepare consumption data.
-   * @returns {object}
-   */
-  _prepareConsume() {
-    const v = this.bonus.consume.value;
-    const isSlot = this.bonus.consume.type === "slots";
-    const schema = this.bonus.schema;
-    const scales = this.bonus.consume.scales;
-
-    const source = this.bonus.consume.toObject();
-    const blocked = ["save", "hitdie"].includes(this.bonus.type);
-
-    const context = {
-      enabled: {
-        field: schema.getField("consume.enabled"),
-        value: blocked ? false : source.enabled,
-        disabled: blocked
-      },
-      type: {
-        field: schema.getField("consume.type"),
-        value: source.type
-      },
-      subtype: {
-        field: schema.getField("consume.subtype"),
-        label: `BABONUS.Fields.Consume.Subtype.${source.type.capitalize()}Label`,
-        value: source.subtype
-      },
-      formula: {
-        field: schema.getField("consume.formula"),
-        placeholder: this.bonus.bonuses.bonus,
-        show: scales,
-        value: source.formula
-      },
-      step: {
-        field: schema.getField("consume.value.step"),
-        show: ["health", "currency"].includes(source.type) && scales,
-        value: source.value.step
-      },
-      values: {
-        field1: schema.getField("consume.value.min"),
-        field2: schema.getField("consume.value.max"),
-        label: `BABONUS.Fields.Consume.Values.Label${isSlot ? "Slot" : ""}`,
-        ph1: game.i18n.localize(`BABONUS.Fields.Consume.Values.Min${isSlot ? "Slot" : ""}`),
-        ph2: game.i18n.localize(`BABONUS.Fields.Consume.Values.Max${isSlot ? "Slot" : ""}`),
-        hint: `BABONUS.Fields.Consume.Values.Hint${scales ? "Scale" : ""}${isSlot ? "Slot" : ""}`,
-        range: (scales && v.max && v.min) ? `(${v.min}&ndash;${v.max})` : null,
-        value1: source.value.min,
-        value2: source.value.max
-      },
-      scale: {
-        field: schema.getField("consume.scales"),
-        value: source.scales,
-        unavailable: !source.type || ["effect", "inspiration"].includes(source.type)
-      }
-    };
-
-    const subtypes = {};
-    switch (source.type) {
-      case "currency": {
-        Object.entries(CONFIG.DND5E.currencies).sort((a, b) => b[1].conversion - a[1].conversion).forEach(c => {
-          subtypes[c[0]] = c[1].label;
-        });
-        break;
-      }
-      case "hitdice": {
-        subtypes.smallest = "DND5E.ConsumeHitDiceSmallest";
-        subtypes.largest = "DND5E.ConsumeHitDiceLargest";
-        for (const d of CONFIG.DND5E.hitDieTypes) subtypes[d] = d;
-        break;
-      }
-      default: break;
-    }
-
-    context.subtype.choices = subtypes;
-    context.subtype.show = !foundry.utils.isEmpty(subtypes);
-
-    return context;
-  }
-
-  /**
-   * Prepare aura data.
-   * @returns {object}
-   */
-  _prepareAura() {
-    const schema = this.bonus.aura.schema;
-    const src = this.bonus.aura.toObject();
-    const range = this.bonus.aura.range;
-    const context = {};
-
-    // Enabled
-    context.enabled = {
-      field: schema.getField("enabled"),
-      value: this.bonus.aura.enabled
-    };
-
-    // Range
-    context.range = {
-      field: schema.getField("range"),
-      value: src.range
-    };
-    if (!range || (range > 0)) {
-      context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelFt", {range: range || 0});
-    } else if (range === -1) {
-      context.range.label = game.i18n.format("BABONUS.Fields.Aura.Range.LabelUnlimited", {
-        range: game.i18n.localize("DND5E.Unlimited")
-      });
-    }
-
-    // Template
-    context.template = {
-      field: schema.getField("template"),
-      value: this.bonus.aura.template
-    };
-
-    // Targets
-    context.disposition = {
-      field: schema.getField("disposition"),
-      value: this.bonus.aura.disposition
-    };
-
-    // Self
-    context.self = {
-      field: schema.getField("self"),
-      value: this.bonus.aura.self
-    };
-
-    // Blockers
-    context.blockers = {
-      field: schema.getField("blockers"),
-      value: this.bonus.aura.blockers
-    };
-
-    // Requirements
-    context.requirements = ["move", "light", "sight", "sound"].map(k => {
-      return {field: schema.getField(`require.${k}`), value: this.bonus.aura.require[k]};
-    });
-
-    return context;
-  }
-
-  /**
-   * Prepare bonuses modifiers for rendering.
-   * @param {object} rollData     The roll data of the bonus,
-   * @returns {object}
-   */
-  _prepareModifiers(rollData) {
-    const src = this.bonus.toObject();
-    if (!src.bonuses?.modifiers) return;
-
-    const makeField = path => {
-      const field = this.bonus.schema.getField(path);
-      const value = foundry.utils.getProperty(src, path);
-      return {field, value};
-    };
-
-    const paths = Object.keys(foundry.utils.flattenObject(this.bonus.bonuses.modifiers.schema.initial()));
-
-    const context = {};
-    for (const path of paths) {
-      const props = path.split(".");
-      const key = props.shift();
-      context[key] ??= {};
-      context[key][props.pop()] = makeField(`bonuses.modifiers.${path}`);
-    }
-
-    const parts = ["2d10", "1d4"];
-    this.bonus.bonuses.modifiers.modifyParts(parts, rollData);
-    context.config.example = parts.join(" + ");
-
-    return context;
   }
 
   /* ------------------------------- */

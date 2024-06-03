@@ -1,6 +1,6 @@
-<div class="tab scrollable {{context.tabs.filters.cssClass}}" data-tab="filters" data-group="main">
+<div class="tab scrollable {{tabs.filters.cssClass}}" data-tab="filters" data-group="main">
   <p class="notification info">{{localize "BABONUS.AvailableFiltersTooltip"}}</p>
-  {{#each context.filterpickers}}
+  {{#each filterpickers}}
   <div class="filter">
     <a class="filter-header" data-action="addFilter" data-id="{{id}}">
       {{localize label}} {{#if repeats}}({{repeats}}){{/if}}
