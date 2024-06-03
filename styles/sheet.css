@@ -16,9 +16,9 @@
 
   .tab.scrollable {
     min-height: 400px;
-    &:not([data-tab=description]) { padding-bottom: 5rem; }
 
     &[data-tab=bonuses] {
+      padding-bottom: 5rem;
       position: relative;
 
       & #example {
@@ -55,6 +55,18 @@
           .formula { flex: 1; text-align: right; margin-right: 1rem; }
         }
       }
+    }
+
+    &[data-tab=configuration] {
+      padding-bottom: 5rem;
+    }
+
+    &[data-tab=advanced] {
+      padding-bottom: 5rem;
+    }
+
+    &[data-tab=filters] .scrollable {
+      padding-bottom: 5rem;
     }
   }
 
@@ -128,21 +140,34 @@
     }
   }
 
-  .filter {
-    padding-bottom: 0.5em;
+  [data-tab=filters] {
+    flex-direction: row;
 
-    .filter-header {
-      font-family: 'Modesto Condensed';
-      display: flex;
-      justify-content: space-between;
-      padding: 0 0.5em;
-      font-size: 24px;
-      border-bottom: 2px groove rgba(139, 27, 27, 0.733);
-      margin-bottom: 0.25em;
+    .toc {
+      flex: 0 0 160px;
+      list-style: none;
+      padding: 0;
+
+      & li {
+        margin: 5px 0;
+        border: 1px groove rgba(0, 0, 0, 0);
+        border-radius: 3px;
+        padding: 3px;
+
+        &.viewed {
+          border-color: var(--color-fieldset-border);
+        }
+      }
     }
 
-    .filter-description {
-      padding: 0 0.5em;
+    .picker .filter {
+      margin-top: 1rem;
+      cursor: pointer;
+      transition: border-color 200ms ease;
+
+      &:hover {
+        border-color: var(--button-hover-background-color);
+      }
     }
   }
 }

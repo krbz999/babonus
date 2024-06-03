@@ -44,7 +44,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       addFilter: this._onAddFilter,
       deleteFilter: this._onDeleteFilter,
       copyUuid: {handler: this._onCopyUuid, buttons: [0, 2]},
-      editImage: this._onEditImage
+      editImage: this._onEditImage,
+      viewFilter: this._onViewFilter
     }
   };
 
@@ -55,7 +56,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     description: {template: "modules/babonus/templates/sheet-description.hbs", scrollable: [""]},
     bonuses: {template: "modules/babonus/templates/sheet-bonuses.hbs", scrollable: [""]},
     configuration: {template: "modules/babonus/templates/sheet-configuration.hbs", scrollable: [""]},
-    filters: {template: "modules/babonus/templates/sheet-filters.hbs", scrollable: [""]},
+    filters: {template: "modules/babonus/templates/sheet-filters.hbs", scrollable: [".toc", ".picker"]},
     advanced: {template: "modules/babonus/templates/sheet-advanced.hbs", scrollable: [""]}
   };
 
@@ -78,7 +79,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
 
   /** @override */
   get title() {
-    return this.bonus.name;
+    return `${game.i18n.localize("BABONUS.ModuleTitle")}: ${this.bonus.name}`;
   }
 
   /** @override */
@@ -122,19 +123,37 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   _onRender(...T) {
     super._onRender(...T);
 
+    // Observe the 'example' formula for die modifiers.
     const element = this.element.querySelector(".example");
-    if (!element) return;
-    const replacement = this.element.querySelector("#example");
-    const options = {
-      root: element.closest(".tab.scrollable"),
+    if (element) {
+      const replacement = this.element.querySelector("#example");
+      const options = {
+        root: element.closest(".tab.scrollable"),
+        rootMargin: "0px",
+        threshold: 0.5
+      };
+      new IntersectionObserver(([{target, isIntersecting}], observer) => {
+        if (this.tabGroups.main !== "bonuses") isIntersecting = true;
+        replacement.classList.toggle("expanded", !isIntersecting);
+        replacement.classList.remove("inst");
+      }, options).observe(element);
+    }
+
+    // Observe the filters in the picker tab.
+    const filters = this.element.querySelectorAll(".tab[data-tab=filters] .filter[data-id]");
+    const observer = new IntersectionObserver((entries, observer) => {
+      for (const entry of entries) {
+        const target = entry.target;
+        const isIntersecting = entry.isIntersecting;
+        const toc = observer.root.querySelector(`.toc [data-id="${target.dataset.id}"]`);
+        toc.classList.toggle("viewed", isIntersecting);
+      }
+    }, {
+      root: this.element.querySelector(".tab[data-tab=filters]"),
       rootMargin: "0px",
       threshold: 0.5
-    };
-    new IntersectionObserver(([{target, isIntersecting}], observer) => {
-      if (this.tabGroups.main !== "bonuses") isIntersecting = true;
-      replacement.classList.toggle("expanded", !isIntersecting);
-      replacement.classList.remove("inst");
-    }, options).observe(element);
+    });
+    for (const filter of filters) observer.observe(filter);
   }
 
   /** @override */
@@ -445,7 +464,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * @param {HTMLElement} target      Targeted html element.
    */
   static _onAddFilter(event, target) {
-    const id = target.dataset.id;
+    const id = target.closest("[data-id]").dataset.id;
     this._filters.add(id);
     if (babonus.abstract.DataFields.filters[id].repeatable) {
       const data = this.bonus.toObject();
@@ -548,4 +567,14 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }).browse();
   }
 
+  /**
+   * Scroll a filter into view in the picker.
+   * @param {Event} event             The initiating click event.
+   * @param {HTMLElement} target      Targeted html element.
+   */
+  static _onViewFilter(event, target) {
+    const id = target.closest("[data-id]").dataset.id;
+    const element = target.closest("[data-tab]").querySelector(`.filter[data-id="${id}"]`);
+    element.scrollIntoView({behavior: "smooth"});
+  }
 }

@@ -1,12 +1,17 @@
 <div class="tab scrollable {{tabs.filters.cssClass}}" data-tab="filters" data-group="main">
-  <p class="notification info">{{localize "BABONUS.AvailableFiltersTooltip"}}</p>
-  {{#each filterpickers}}
-  <div class="filter">
-    <a class="filter-header" data-action="addFilter" data-id="{{id}}">
-      {{localize label}} {{#if repeats}}({{repeats}}){{/if}}
-      <i class="fa-solid fa-plus"></i>
-    </a>
-    <div class="filter-description">{{{localize hint}}}</div>
+  <ul class="scrollable toc">
+    {{#each filterpickers}}
+    <li data-id="{{id}}">
+      <a data-action="viewFilter">{{localize label}}</a>
+    </li>
+    {{/each}}
+  </ul>
+  <div class="scrollable picker">
+    {{#each filterpickers}}
+    <fieldset class="filter" data-id="{{id}}" data-action="addFilter">
+      <legend>{{localize label}} {{#if repeats}}({{repeats}}){{/if}}</legend>
+      <p class="hint">{{{localize hint}}}</p>
+    </fieldset>
+    {{/each}}
   </div>
-  {{/each}}
 </div>
