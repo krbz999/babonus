@@ -127,7 +127,7 @@
   },
   "Filters": {
     "Abilities": {
-      "Hint": "The ability score used for the roll. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity. This filter is only available for bonuses applying to attack rolls, damage rolls, save DCs, and ability checks.",
+      "Hint": "The ability score used for the roll. This respects items set to use defaults, such as spells using the spellcasting ability, or finesse weapons using either Strength or Dexterity.",
       "Label": "Ability Modifier"
     },
     "ActorCreatureSizes": {
