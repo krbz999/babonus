@@ -15,7 +15,8 @@
   }
 
   .tab.scrollable {
-    min-height: 300px;
+    min-height: 400px;
+    &:not([data-tab=description]) { padding-bottom: 5rem; }
 
     &[data-tab=bonuses] {
       position: relative;

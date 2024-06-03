@@ -189,7 +189,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       }),
       field: this.bonus.schema.getField("description"),
       value: this.bonus.description,
-      height: 300
+      height: 400
     };
     context.labels = this._prepareLabels();
     context.filters = this._prepareFilters();
