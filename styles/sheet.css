@@ -19,42 +19,6 @@
 
     &[data-tab=bonuses] {
       padding-bottom: 5rem;
-      position: relative;
-
-      & #example {
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-
-        display: grid;
-        grid-template-rows: 0fr;
-        transition: grid-template-rows 200ms ease;
-
-        padding: 0 10px;
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        background: var(--background);
-        box-shadow: 0 0 10px #000;
-        margin-bottom: -1rem;
-
-        &.expanded {
-          grid-template-rows: 1fr;
-          padding: 10px 10px;
-
-          &.inst {
-            transition: none;
-          }
-        }
-
-        .wrapper {
-          overflow: hidden;
-          display: flex;
-
-          & label { flex: 0; margin-left: 1rem; }
-          .formula { flex: 1; text-align: right; margin-right: 1rem; }
-        }
-      }
     }
 
     &[data-tab=configuration] {
@@ -68,6 +32,12 @@
     &[data-tab=filters] .scrollable {
       padding-bottom: 5rem;
     }
+  }
+
+  .modifiers.example {
+    position: sticky;
+    top: 0;
+
   }
 
   & fieldset:hover > .hint {

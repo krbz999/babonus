@@ -123,22 +123,6 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   _onRender(...T) {
     super._onRender(...T);
 
-    // Observe the 'example' formula for die modifiers.
-    const element = this.element.querySelector(".example");
-    if (element) {
-      const replacement = this.element.querySelector("#example");
-      const options = {
-        root: element.closest(".tab.scrollable"),
-        rootMargin: "0px",
-        threshold: 0.5
-      };
-      new IntersectionObserver(([{target, isIntersecting}], observer) => {
-        if (this.tabGroups.main !== "bonuses") isIntersecting = true;
-        replacement.classList.toggle("expanded", !isIntersecting);
-        replacement.classList.remove("inst");
-      }, options).observe(element);
-    }
-
     // Observe the filters in the picker tab.
     const filters = this.element.querySelectorAll(".tab[data-tab=filters] .filter[data-id]");
     const observer = new IntersectionObserver((entries, observer) => {
@@ -154,16 +138,6 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       threshold: 0.5
     });
     for (const filter of filters) observer.observe(filter);
-  }
-
-  /** @override */
-  _syncPartState(partId, newElement, priorElement, state) {
-    super._syncPartState(partId, newElement, priorElement, state);
-    if (partId === "bonuses") {
-      if (priorElement.querySelector("#example").classList.contains("expanded")) {
-        newElement.querySelector("#example").classList.add("expanded", "inst");
-      }
-    }
   }
 
   /** @override */
