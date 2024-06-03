@@ -1,36 +1,51 @@
 import {MODULE} from "../constants.mjs";
+import {registry} from "./roll-hooks.mjs";
 
 export class OptionalSelector {
-  constructor(options) {
+  /**
+   * @constructor
+   * @param {string} id     Id for the registry.
+   */
+  constructor(id) {
+    const registered = registry.get(id);
     /**
      * The optional bonuses.
      * @type {Collection<Babonus>}
      */
-    this.bonuses = new foundry.utils.Collection(options.optionals.map(o => [o.uuid, o]));
+    this.bonuses = new foundry.utils.Collection(registered.optionals.map(o => [o.uuid, o]));
 
     /**
      * All bonuses.
      * @type {Collection<Babonus>}
      */
-    this.allBonuses = new foundry.utils.Collection(options.bonuses.map(o => [o.uuid, o]));
+    this.allBonuses = new foundry.utils.Collection(registered.bonuses.map(o => [o.uuid, o]));
+
+    /**
+     * The bonuses that just serve as reminders
+     * @type {Collection<Babonus>}
+     */
+    this.reminders = new foundry.utils.Collection(registered.bonuses.reduce((acc, bonus) => {
+      if (bonus.isReminder) acc.push([bonus.uuid, bonus]);
+      return acc;
+    }, []));
 
     /**
      * The actor performing the roll.
      * @type {Actor5e}
      */
-    this.actor = options.actor;
+    this.actor = registered.actor;
 
     /**
      * The item being rolled.
      * @type {Item5e}
      */
-    this.item = options.item;
+    this.item = registered.item;
 
     /**
      * The spell level of any item being rolled.
      * @type {number}
      */
-    this.level = options.spellLevel;
+    this.level = registered.spellLevel;
 
     /**
      * Placeholder variable for the appended content.
@@ -41,18 +56,20 @@ export class OptionalSelector {
      * The dialog being appended to.
      * @type {Dialog}
      */
-    this.dialog = options.dialog;
-
-    /**
-     * The situtional bonus field to append bonuses to.
-     * @type {HTMLElement}
-     */
-    this.field = this.dialog.element[0].querySelector("[name='bonus']");
+    this.dialog = registered.dialog;
   }
 
   /** @override */
   get template() {
     return `modules/${MODULE.ID}/templates/subapplications/optional-selector.hbs`;
+  }
+
+  /**
+   * The situational bonus field to append bonuses to.
+   * @type {HTMLElement}
+   */
+  get field() {
+    return this.dialog.element[0].querySelector("[name=bonus]");
   }
 
   /*************************************/
@@ -93,7 +110,18 @@ export class OptionalSelector {
       bonuses.push(data);
     }
 
-    return {bonuses};
+    const reminders = [];
+    for (const reminder of this.reminders) {
+      reminders.push({
+        uuid: reminder.uuid,
+        name: reminder.name,
+        description: await TextEditor.enrichHTML(reminder.description, {
+          async: true, rollData: reminder.getRollData(), relativeTo: reminder.origin
+        })
+      });
+    }
+
+    return {bonuses, reminders};
   }
 
   /**
@@ -131,7 +159,7 @@ export class OptionalSelector {
   async render() {
     this.form = document.createElement("DIV");
     const data = await this.getData();
-    if (!data.bonuses.length) return;
+    if (!data.bonuses.length && !data.reminders.length) return;
     this.form.innerHTML = await renderTemplate(this.template, data);
     this.activateListeners(this.form);
     const group = this.dialog.element[0].querySelector(".dialog-content > form");
@@ -166,7 +194,7 @@ export class OptionalSelector {
    * @param {string} type     The consumption type of the babonus.
    */
   _displayConsumptionWarning(type) {
-    ui.notifications.warn(`BABONUS.ConsumptionType${type.capitalize()}Unavailable`, {localize: true});
+    ui.notifications.warn(`BABONUS.Warning.Consuming.${type.capitalize()}Unavailable`, {localize: true});
   }
 
   /**

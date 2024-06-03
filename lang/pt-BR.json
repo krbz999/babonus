@@ -1,300 +1,384 @@
-{
-  "BABONUS.Advanced": "Avançado",
-  "BABONUS.AuraConfiguration": "Aura",
-  "BABONUS.AvailableFiltersTooltip": "A lista de filtros que você pode aplicar a este bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado",
-  "BABONUS.Babonus": "Babonus",
-  "BABONUS.BasicBonuses": "Bônus Básicos",
-  "BABONUS.BasicConfiguration": "Configuração Base",
-  "BABONUS.BonusCopy": "{name} (Copy)",
-  "BABONUS.Bonuses": "Bônus",
-  "BABONUS.CompareToSelf": "Comparar consigo mesmo:",
-  "BABONUS.Configuration": "Configuração",
-  "BABONUS.ConfigurationAuraDispositionAlly": "Alvos Aliados",
-  "BABONUS.ConfigurationAuraDispositionAny": "Quaisquer Alvos",
-  "BABONUS.ConfigurationAuraDispositionEnemy": "Alvos Inimigos",
-  "BABONUS.ConfigurationAuraInvalid": "No momento, este bônus não pode funcionar como uma aura.",
-  "BABONUS.ConfigurationAuraRange": "Alcance ({range})",
-  "BABONUS.ConfigurationAuraRangeFt": "Alcance ({range} pés)",
-  "BABONUS.ConfigurationAuraRangePlaceholder": "Alcance…",
-  "BABONUS.ConfigurationAuraRangeTooltip": "O alcance da aura, medido em pés (coloque '-1' para um alcance ilimitado). Este campo suporta dados de rolagem.",
-  "BABONUS.ConfigurationAuraRequire": "Requisitos",
-  "BABONUS.ConfigurationAuraRequireLight": "Luz",
-  "BABONUS.ConfigurationAuraRequireLightTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a luz",
-  "BABONUS.ConfigurationAuraRequireMove": "Deslocamento",
-  "BABONUS.ConfigurationAuraRequireMoveTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o deslocamento.",
-  "BABONUS.ConfigurationAuraRequireSight": "Visão",
-  "BABONUS.ConfigurationAuraRequireSightTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a visão.",
-  "BABONUS.ConfigurationAuraRequireSound": "Som",
-  "BABONUS.ConfigurationAuraRequireSoundTooltip": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o som.",
-  "BABONUS.ConfigurationAuraRequireTooltip": "Propriedades específicas relacionadas à tela que são necessárias para que a aura afete um alvo.",
-  "BABONUS.ConfigurationAuraSelf": "Afeta a Si Mesmo?",
-  "BABONUS.ConfigurationAuraTargetArea": "Área Alvo",
-  "BABONUS.ConfigurationAuraTemplate": "Aplicar ao Modelo?",
-  "BABONUS.ConfigurationAuraTemplateTooltip": "Se a aura afeta a área dentro de um modelo ao invés de ter um alcance (para itens que são capazes de colocar um modelo).",
-  "BABONUS.ConfigurationAuraTemplateTooltipUnavailable": "O pai deste babonus não é um item.",
-  "BABONUS.ConfigurationAuraTooltip": "Configure se e como o bônus funciona como uma aura.",
-  "BABONUS.ConfigurationAuraValidTargets": "Alvos Válidos",
-  "BABONUS.ConfigurationAuraValidTargetsTooltip": "Quais alvos devem ser afetados por esta aura, em relação à disposição do token de origem.",
-  "BABONUS.ConfigurationConsumptionConsume": "Consumir:",
-  "BABONUS.ConfigurationConsumptionConsumedSlots": "Tamanho do Espaço de Magia",
-  "BABONUS.ConfigurationConsumptionConsumedValues": "Valores Consumidos",
-  "BABONUS.ConfigurationConsumptionInvalid": "Este bônus não pode consumir nenhum valor no momento.",
-  "BABONUS.ConfigurationConsumptionScaling": "Escalar?",
-  "BABONUS.ConfigurationConsumptionScalingFormula": "Fórmula de Escala",
-  "BABONUS.ConfigurationConsumptionStep": "Etapa",
-  "BABONUS.ConfigurationConsumptionTooltip": "Configure se e como o bônus consome uma propriedade.",
-  "BABONUS.ConfigurationConsumptionTooltipUnavailable": "Um bônus não pode ser definido para consumo, a menos que seja opcional.",
-  "BABONUS.ConfigurationConsumptionType": "Tipo de Consumo",
-  "BABONUS.ConfigurationCopyTooltip": "Crie uma duplicata deste bônus",
-  "BABONUS.ConfigurationDeleteAreYouSure": "Tem certeza que deseja excluir '{name}'? Essa ação não pode ser desfeita.",
-  "BABONUS.ConfigurationDeleteTitle": "Deletar Bônus: {name}",
-  "BABONUS.ConfigurationDeleteTooltip": "Exclua este bônus deste documento",
-  "BABONUS.ConfigurationEditTooltip": "Edite este bônus",
-  "BABONUS.ConfigurationEnabled": "Habilitado",
-  "BABONUS.ConfigurationEnabledTooltip": "Ative ou desative este bônus. Um bônus desativado será completamente ignorado",
-  "BABONUS.ConfigurationExclusive": "Exclusivo",
-  "BABONUS.ConfigurationExclusiveTooltip": "Alterne se este bônus se aplica apenas ao item em que foi criado.",
-  "BABONUS.ConfigurationExclusiveTooltipUnavailable": "Um bônus não pode ser definido para ser aplicado apenas a um item específico, a menos que seja criado nesse item e aplicado a ataques, danos, CDs de salvaguarda ou testes de ferramentas.",
-  "BABONUS.ConfigurationOptional": "Opcional",
-  "BABONUS.ConfigurationOptionalTooltip": "Alterne se este bônus deve ser ativado ao rolar.",
-  "BABONUS.ConfigurationOptionalTooltipUnavailable": "Um bônus não pode ser definido como opcional, a menos que forneça um bônus aditivo além de uma jogada de ataque, jogada de dano, salvaguarda ou teste de atributo.",
-  "BABONUS.ConsumptionConfiguration": "Consumo",
-  "BABONUS.ConsumptionOption": "({value}) de {max} {label}",
-  "BABONUS.ConsumptionTypeCurrencySubtype": "Denominação",
-  "BABONUS.ConsumptionTypeCurrencyUnavailable": "Você não tem a quantidade necessária dessa denominação.",
-  "BABONUS.ConsumptionTypeEffect": "Efeito Ativo",
-  "BABONUS.ConsumptionTypeEffectUnavailable": "O efeito associado não existe mais.",
-  "BABONUS.ConsumptionTypeHealthUnavailable": "Você não tem pontos de vida suficientes.",
-  "BABONUS.ConsumptionTypeInspirationUnavailable": "Você não tem Inspiração.",
-  "BABONUS.ConsumptionTypeQuantityUnavailable": "Você não tem a quantidade necessária do item associado.",
-  "BABONUS.ConsumptionTypeSlots": "Espaço de Magia",
-  "BABONUS.ConsumptionTypeSlotsUnavailable": "Você não tem espaços de magia restantes desse nível.",
-  "BABONUS.ConsumptionTypeUsesUnavailable": "Você não tem o número necessário de cargas no item.",
-  "BABONUS.ContextMenu": {
-    "Edit": "Editar",
-    "Duplicate": "Duplicar",
+{"BABONUS": {
+  "AvailableFiltersTooltip": "A lista de filtros que você pode aplicar a este bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado",
+  "Babonus": "Babonus",
+  "BasicBonuses": "Bônus Básicos",
+  "BonusCopy": "{name} (Copy)",
+  "ConfigurationConsumptionConsume": "Consumir:",
+  "ConfigurationCopyTooltip": "Crie uma duplicata deste bônus",
+  "ConfigurationEditTooltip": "Edite este bônus",
+  "ConsumptionOption": "({value}) de {max} {label}",
+  "ContextMenu": {
     "Delete": "Excluir",
-    "Enable": "Habilitar",
-    "Disable": "Desabilitar"
+    "Disable": "Desabilitar",
+    "Duplicate": "Duplicar",
+    "Edit": "Editar",
+    "Enable": "Habilitar"
   },
-  "BABONUS.Create": "Criar Novo Bônus",
-  "BABONUS.CurrentBonuses": "Bônus Atuais",
-  "BABONUS.CurrentBonusesTooltip": "Os bônus que você criou e que estão atualmente armazenados neste Ator, Item ou Efeito Ativo.",
-  "BABONUS.CurrentFiltersTooltip": "Os filtros atualmente aplicados ao bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado.",
-  "BABONUS.Description": "Descrição",
-  "BABONUS.Example": "Exemplo",
-  "BABONUS.Filters": "Filtros",
-  "BABONUS.FiltersAbilities": "Modificador de Atributo",
-  "BABONUS.FiltersAbilitiesLabel": "Modificador de Atributo",
-  "BABONUS.FiltersAbilitiesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano, CDs de salvaguarda e testes de atributo.",
-  "BABONUS.FiltersAbilitiesTooltip": "O valor de atributo usado para o teste. Isso respeita os itens definidos para usar o padrão, como magias que usam o atributo de conjuração ou armas de Acuidade que usam Força ou Destreza.",
-  "BABONUS.FiltersActorCreatureSizes": "Tamanhos de Criatura",
-  "BABONUS.FiltersActorCreatureSizesLabel": "Tamanhos de Criatura",
-  "BABONUS.FiltersActorCreatureSizesTooltip": "A categoria de tamanho que a criatura deve ser.",
-  "BABONUS.FiltersActorCreatureTypes": "Tipos de Criatura do Ator",
-  "BABONUS.FiltersActorCreatureTypesLabel": "Tipos de Criatura do Ator",
-  "BABONUS.FiltersActorCreatureTypesTooltip": "O tipo de criatura que o ator de origem deve ser (ou ter como subtipo) ou o tipo de criatura que o ator de origem não deve ser. Por exemplo, 'undead', 'fey' ou 'construct'",
-  "BABONUS.FiltersActorLanguages": "Idiomas Falados",
-  "BABONUS.FiltersActorLanguagesLabel": "Idiomas Falados",
-  "BABONUS.FiltersActorLanguagesTooltip": "Os idiomas que o ator deve ser capaz de falar, ou não deve ser capaz de falar.",
-  "BABONUS.FiltersArbitraryComparison": "Comparação Arbitrária",
-  "BABONUS.FiltersArbitraryComparisonLabel": "Comparação Arbitrária",
-  "BABONUS.FiltersArbitraryComparisonOne": "Valor…",
-  "BABONUS.FiltersArbitraryComparisonOther": "Outro valor…",
-  "BABONUS.FiltersArbitraryComparisonTooltip": "Insira números, propriedades de dados de rolagem, strings ou uma combinação dos três, que devem estar em um relacionamento específico para que o bônus seja aplicado. Esta comparação pode avaliar substrings usando qualquer uma das desigualdades. Você também pode usar dados de rolagem de um ator de token marcado, acrescentando '@target.",
-  "BABONUS.FiltersAttackTypes": "Tipos de Ataque",
-  "BABONUS.FiltersAttackTypesLabel": "Tipos de Ataque",
-  "BABONUS.FiltersAttackTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque ou de dano.",
-  "BABONUS.FiltersAttackTypesTooltip": "O tipo de jogada de ataque que o item deve ter para que o bônus seja aplicado. Por exemplo, se você conjurar uma magia que deve envolver um ataque mágico à distância (rsak) ou ataque armado corpo a corpo (mwak).",
-  "BABONUS.FiltersAuraBlockers": "Condições de Bloqueio",
-  "BABONUS.FiltersAuraBlockersTooltip": "Os tipos de condições que impedem a transferência de uma aura, como a aura de um Paladino que só fica ativa enquanto o Paladino não está Morto nem Inconsciente.",
-  "BABONUS.FiltersBaseArmors": "Tipos de Armadura",
-  "BABONUS.FiltersBaseArmorsLabel": "Tipos de Armadura",
-  "BABONUS.FiltersBaseArmorsTooltip": "O tipo de armadura que você deve usar ou não deve usar para que o bônus seja aplicado, incluindo escudos.",
-  "BABONUS.FiltersBaseTools": "Tipos de Ferramenta",
-  "BABONUS.FiltersBaseToolsLabel": "Tipos de Ferramenta",
-  "BABONUS.FiltersBaseToolsRequirements": "Este filtro está disponível apenas para bônus aplicados a testes de atributo.",
-  "BABONUS.FiltersBaseToolsTooltip": "Os tipos de ferramentas que o item deve ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Kit de Herbalismo, Ferramentas de Ladrão ou Ferramentas de Sapateiro.",
-  "BABONUS.FiltersBaseWeapons": "Tipos de Arma",
-  "BABONUS.FiltersBaseWeaponsLabel": "Tipos de Arma",
-  "BABONUS.FiltersBaseWeaponsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersBaseWeaponsTooltip": "Os tipos de armas do item devem ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Machado de Batalha, Arco Curto ou Espada Longa.",
-  "BABONUS.FiltersCreatureTypes": "Tipos de Criatura Alvo",
-  "BABONUS.FiltersCreatureTypesLabel": "Tipos de Criatura Alvo",
-  "BABONUS.FiltersCreatureTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano, CDs de salvaguarda e salvaguardas.",
-  "BABONUS.FiltersCreatureTypesTooltip": "O tipo de criatura da qual o ator alvo deve ser (ou ter como subtipo), ou o tipo de criatura da qual o ator alvo não deve ser. Por exemplo, 'undead', 'fey', ou 'construct'.",
-  "BABONUS.FiltersCustomScripts": "Script Personalizado",
-  "BABONUS.FiltersCustomScriptsLabel": "Script Personalizado",
-  "BABONUS.FiltersCustomScriptsTooltip": "Qualquer script personalizado que você queira escrever. O script deve ser totalmente síncrono e retornar verdadeiro ou falso. Como variáveis ​​auxiliares, o script é fornecido com 'token', 'actor', 'item' e 'bonus', se aplicável.",
-  "BABONUS.FiltersDamageTypes": "Tipos de Dano",
-  "BABONUS.FiltersDamageTypesLabel": "Tipos de Dano",
-  "BABONUS.FiltersDamageTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersDamageTypesTooltip": "O tipo de dano que o item deve causar para que o bônus seja aplicado ou não deve causar para que o bônus seja aplicado. Por exemplo, se uma magia causa dano ígneo.",
-  "BABONUS.FiltersFeatureTypes": "Tipos de Característica",
-  "BABONUS.FiltersFeatureTypesLabel": "Tipos de Característica",
-  "BABONUS.FiltersFeatureTypesTooltip": "O tipo e subtipo que um item de característica deve ter. Por exemplo, um Recurso de Classe, Recurso de Ki ou Recurso de Monstro.",
-  "BABONUS.FiltersHealthPercentages": "Porcentagem de Vida",
-  "BABONUS.FiltersHealthPercentagesLabel": "Porcentagem de Vida",
-  "BABONUS.FiltersHealthPercentagesTooltip": "A porcentagem de vida que o ator deve ter no mínimo, ou no máximo, para que o bônus seja aplicado.",
-  "BABONUS.FiltersItemTypes": "Tipos de Item",
-  "BABONUS.FiltersItemTypesLabel": "Tipos de Item",
-  "BABONUS.FiltersItemTypesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersItemTypesTooltip": "Os tipos de itens aos quais o bônus deve ser aplicado. Por exemplo, se o item se aplicar apenas a magias ou apenas a armas.",
-  "BABONUS.FiltersPreparationModes": "Modos de Preparação",
-  "BABONUS.FiltersPreparationModesLabel": "Modos de Preparação",
-  "BABONUS.FiltersPreparationModesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersPreparationModesTooltip": "O tipo de modo de preparação em que o feitiço deve ser definido para que o bônus seja aplicado, como 'Pacto' para Magia de Pacto ou 'À Vontade'.",
-  "BABONUS.FiltersProficiencyLevels": "Níveis de Proficiência",
-  "BABONUS.FiltersProficiencyLevelsLabel": "Níveis de Proficiência",
-  "BABONUS.FiltersProficiencyLevelsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, testes de atributo e salvaguardas.",
-  "BABONUS.FiltersProficiencyLevelsTooltip": "O nível de proficiência que o ator deve ter com a rolagem feita.",
-  "BABONUS.FiltersRemainingSpellSlots": "Espaços de Magia Restantes",
-  "BABONUS.FiltersRemainingSpellSlotsLabel": "Espaços de Magia Restantes",
-  "BABONUS.FiltersRemainingSpellSlotsTooltip": "O número total mínimo e máximo de espaços de magia restantes que o ator deve ter para que o bônus seja aplicado. Por exemplo, se você quiser que um bônus seja aplicado apenas se você tiver 3 espaços de magia ou mais restantes, ou nenhum espaço restante.",
-  "BABONUS.FiltersSaveAbilities": "CD Atributo Salvaguarda",
-  "BABONUS.FiltersSaveAbilitiesLabel": "CD Atributo Salvaguarda",
-  "BABONUS.FiltersSaveAbilitiesRequirements": "Este filtro está disponível apenas para bônus aplicados a CDs de salvaguardas.",
-  "BABONUS.FiltersSaveAbilitiesTooltip": "O atributo que deve ser usado para definir a CD da salvaguarda do item para que o bônus seja aplicado; por exemplo, um Guerreiro Mestre de Batalha que determina sua CD de Manobra com Destreza. Isso pode ser diferente do atributo que o item usa. Se um item for ajustado para escalar com 'Conjuração', o atributo de conjuração do ator é comparado.",
-  "BABONUS.FiltersSkillIds": "Perícias",
-  "BABONUS.FiltersSkillIdsLabel": "Perícias",
-  "BABONUS.FiltersSkillIdsRequirements": "Este filtro está disponível apenas para bônus aplicados a testes de atributo.",
-  "BABONUS.FiltersSkillIdsTooltip": "Os tipos de perícias que a rolagem deve ser uma ou nenhuma para que o bônus seja aplicado. Por exemplo, Atletismo, Natureza ou Sobrevivência.",
-  "BABONUS.FiltersSpellComponents": "Componentes de Magia",
-  "BABONUS.FiltersSpellComponentsLabel": "Componentes de Magia",
-  "BABONUS.FiltersSpellComponentsMatchAll": "Corresponder todos",
-  "BABONUS.FiltersSpellComponentsMatchAny": "Corresponder qualquer um",
-  "BABONUS.FiltersSpellComponentsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersSpellComponentsTooltip": "Os componentes ou tags de magia que a magia deve ter para que o bônus seja aplicado. Você pode escolher se a magia deve ter todos os componentes ou tags fornecidos ou pelo menos um deles. Por exemplo, se você quiser que um bônus seja aplicado a todos os feitiços que exigem Concentração.",
-  "BABONUS.FiltersSpellLevels": "Níveis de Magia",
-  "BABONUS.FiltersSpellLevelsLabel": "Níveis de Magia",
-  "BABONUS.FiltersSpellLevelsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersSpellLevelsTooltip": "O nível que a magia deve ser conjurada para que o bônus seja aplicado. Você pode selecionar cada nível individualmente. Por exemplo, você pode aplicar um bônus apenas a truques, apenas a magias de nível ou apenas a magias de 3º nível ou inferior.",
-  "BABONUS.FiltersSpellSchools": "Escolas de Magia",
-  "BABONUS.FiltersSpellSchoolsLabel": "Escolas de Magia",
-  "BABONUS.FiltersSpellSchoolsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersSpellSchoolsTooltip": "A escola que a magia deve pertencer para que o bônus seja aplicado. Se diversas escolas forem selecionadas, a magia deverá pertencer a qualquer uma delas. Por exemplo, se você quiser que um bônus seja aplicado apenas a magias de Adivinhação.",
-  "BABONUS.FiltersStatusEffects": "Condições no Ator",
-  "BABONUS.FiltersStatusEffectsLabel": "Condições no Ator",
-  "BABONUS.FiltersStatusEffectsTooltip": "As condições que o ator deve ou não estar afetado, usando o conjunto de status do efeito.",
-  "BABONUS.FiltersTargetEffects": "Condições no Alvo",
-  "BABONUS.FiltersTargetEffectsLabel": "Condições no Alvo",
-  "BABONUS.FiltersTargetEffectsRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano, CDs de salvaguarda e salvaguardas.",
-  "BABONUS.FiltersTargetEffectsTooltip": "As condições que o ator alvo deve ou não estar afetado, usando o conjunto de status do efeito.",
-  "BABONUS.FiltersThrowTypes": "Tipos de Salvaguarda",
-  "BABONUS.FiltersThrowTypesLabel": "Tipos de Salvaguarda",
-  "BABONUS.FiltersThrowTypesRequirements": "Este filtro está disponível apenas para bônus aplicados em salvaguardas.",
-  "BABONUS.FiltersThrowTypesTooltip": "O tipo de salvaguarda que o bônus deve ser aplicado. Isso também se aplica a Salvaguardas Contra Morte e você também pode ajustar o valor da Salvaguarda Contra Morte do alvo.",
-  "BABONUS.FiltersTokenSizes": "Tamanhos do Token",
-  "BABONUS.FiltersTokenSizesLabel": "Tamanhos do Token",
-  "BABONUS.FiltersTokenSizesTooltip": "O tamanho do token alvo e se também deve ser comparado com o token de origem. Se marcado, o alvo deve ser no mínimo ou no máximo tão grande quanto o de origem.",
-  "BABONUS.FiltersWeaponProperties": "Propriedades da Arma",
-  "BABONUS.FiltersWeaponPropertiesLabel": "Propriedades da Arma",
-  "BABONUS.FiltersWeaponPropertiesRequirements": "Este filtro está disponível apenas para bônus aplicados a jogadas de ataque, jogadas de dano e CDs de salvaguarda.",
-  "BABONUS.FiltersWeaponPropertiesTooltip": "As propriedades da arma que o item deve ou não ter para que o bônus seja aplicado. Se alguma for selecionada, a arma deverá ter pelo menos uma das propriedades incluídas e nenhuma das propriedades excluídas. Por exemplo, se você quiser que um bônus seja aplicado apenas a armas de Duas Mãos.",
-  "BABONUS.ID": "ID",
-  "BABONUS.Keys": "Keys",
-  "BABONUS.KeysDialogApplySelection": "Aplicar Seleção",
-  "BABONUS.KeysDialogExclude": "Excluir",
-  "BABONUS.KeysDialogInclude": "Incluir",
-  "BABONUS.KeysDialogState": "Estado",
-  "BABONUS.KeysDialogTitle": "Keys: {name}",
-  "BABONUS.KeysDialogValue": "Valor",
-  "BABONUS.LabelsConsuming": "Consumindo",
-  "BABONUS.LabelsDisabled": "Desabilitado",
-  "BABONUS.LabelsExclusive": "Somente Item",
-  "BABONUS.LabelsFilters": "{n} Filtros",
-  "BABONUS.LabelsOptional": "Opcional",
-  "BABONUS.LabelsTemplateAura": "Aura Modelo",
-  "BABONUS.LabelsTokenAura": "Aura Token",
-  "BABONUS.Largest": "Maior",
-  "BABONUS.Maximized": "Maximizado",
-  "BABONUS.Maximum": "Máximo",
-  "BABONUS.Modifiers": "Modificadores",
-  "BABONUS.ModifiersAmount": "Quantidade de Dados",
-  "BABONUS.ModifiersAmountValue": "adicional",
-  "BABONUS.ModifiersExplode": "Explodir",
-  "BABONUS.ModifiersExplodeLimit": "Explosões Máximas",
-  "BABONUS.ModifiersExplodeOnce": "Explodir Uma Vez?",
-  "BABONUS.ModifiersExplodeValue": "se superior a",
-  "BABONUS.ModifiersFirst": "Apenas Primeiro Dado?",
-  "BABONUS.ModifiersFirstTooltip": "Se marcado, os modificadores de dados só se aplicam ao primeiro dado na expressão completa.",
-  "BABONUS.ModifiersMaximum": "Máximo",
-  "BABONUS.ModifiersMaximumValue": "Valor máximo",
-  "BABONUS.ModifiersMaximumZero": "Permitir Zero?",
-  "BABONUS.ModifiersMinimum": "Mínimo",
-  "BABONUS.ModifiersMinimumMaximize": "Maximizar?",
-  "BABONUS.ModifiersMinimumValue": "Valor mínimo",
-  "BABONUS.ModifiersMode": "Modo",
-  "BABONUS.ModifiersModeAdd": "Adicionar",
-  "BABONUS.ModifiersModeMultiply": "Multiplicar",
-  "BABONUS.ModifiersReroll": "Rerolar",
-  "BABONUS.ModifiersRerollInvert": "Invertido?",
-  "BABONUS.ModifiersRerollLimit": "Máximo de Re-rolagens",
-  "BABONUS.ModifiersRerollRecursive": "Recursivo?",
-  "BABONUS.ModifiersRerollValue": "se inferior a",
-  "BABONUS.ModifiersSize": "Categoria do Dado",
-  "BABONUS.ModifiersSizeValue": "aumento de categoria",
-  "BABONUS.ModuleTitle": "Build-a-Bonus",
-  "BABONUS.NamePlaceholder": "Nome…",
-  "BABONUS.NewBabonus": "Novo Babonus",
-  "BABONUS.OriginName": "Origem: {name}",
-  "BABONUS.OrLess": "ou menor",
-  "BABONUS.OrMore": "ou maior",
-  "BABONUS.OverviewActor": "Ator",
-  "BABONUS.OverviewCopied": "O uuid foi copiado para a área de transferência.",
-  "BABONUS.OverviewImmediateParent": "Pai Imediato",
-  "BABONUS.OverviewName": "Nome",
-  "BABONUS.OverviewTitle": "Bônus Aplicados",
-  "BABONUS.Relative": "Relativo",
-  "BABONUS.SearchBonuses": "Procurar Bônus",
-  "BABONUS.SelectType": "Selecione um Tipo",
-  "BABONUS.SelectTypeTooltip": "Selecione um tipo para seu novo bônus; o tipo de rolagem que deve ser aplicado.",
-  "BABONUS.SettingsAllowFumbleNegationHint": "Permitir que os modificadores do alcance de falha nas jogadas de ataque fiquem abaixo de 1?",
-  "BABONUS.SettingsAllowFumbleNegationName": "Permitir Falha Negativa",
-  "BABONUS.SettingsDisableCustomScriptFilterHint": "Desativa os filtros de 'Script Personalizado' para não ter seus valores lidos. Em vez disso, o filtro sempre retorna verdadeiro imediatamente. Habilite esta configuração se preferir que outros usuários não executem scripts.",
-  "BABONUS.SettingsDisableCustomScriptFilterName": "Desabilitar 'Script Personalizado'.",
-  "BABONUS.SettingsDisplayLabelHint": "Se marcado, o rótulo é exibido no cabeçalho dos atores, itens e efeitos aplicáveis.",
-  "BABONUS.SettingsDisplayLabelName": "Exibir Etiqueta",
-  "BABONUS.SettingsShowAuraRangesHint": "Crie um indicador visual para os alcances de auras babonus. Isso não se aplica a auras modelo ou auras com alcance ilimitado. Se a origem estiver dentro de uma aura, ele será marcado em verde, caso contrário, em vermelho.",
-  "BABONUS.SettingsShowAuraRangesName": "Mostrar Alcances de Aura",
-  "BABONUS.SettingsShowBuilderForPlayersHint": "Se desabilitado, o ícone para abrir o módulo não estará disponível no cabeçalho para os jogadores.",
-  "BABONUS.SettingsShowBuilderForPlayersName": "Mostrar para Jogadores",
-  "BABONUS.SettingsShowSheetTab": "Aba na Ficha",
-  "BABONUS.SettingsShowSheetTabHint": "Adicione uma nova aba na ficha de personagem em vez de adicionar um botão de cabeçalho.",
-  "BABONUS.SizeGreaterThan": "Maior que",
-  "BABONUS.SizePlaceholder": "Tamanho…",
-  "BABONUS.SizeSmallerThan": "Menor que",
-  "BABONUS.Smallest": "Menor",
-  "BABONUS.ToggleBonus": "Alternar Bônus",
-  "BABONUS.Toggles": "Alterna",
-  "BABONUS.TypeAttack": "Jogadas de Ataque",
-  "BABONUS.TypeAttackBonusLabel": "Bônus Jogadas de Ataque",
-  "BABONUS.TypeAttackBonusTooltip": "Partes adicionais para adicionar no topo da jogada de ataque.",
-  "BABONUS.TypeAttackCriticalRangeLabel": "Modificador de Acerto Crítico",
-  "BABONUS.TypeAttackCriticalRangeTooltip": "Um número inteiro a ser subtraído da margem de acerto crítico da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "BABONUS.TypeAttackFumbleRangeLabel": "Modificador de Falha Crítica",
-  "BABONUS.TypeAttackFumbleRangeTooltip": "Um número inteiro a ser subtraído da margem de falha crítica da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "BABONUS.TypeDamage": "Jogadas de Dano",
-  "BABONUS.TypeDamageBonusLabel": "Bônus Jogadas de Dano",
-  "BABONUS.TypeDamageBonusTooltip": "Partes adicionais para adicionar no topo da jogada de dano.",
-  "BABONUS.TypeDamageCriticalBonusDamageLabel": "Dano Crítico Adicional",
-  "BABONUS.TypeDamageCriticalBonusDamageTooltip": "Partes adicionais para adicionar no topo da jogada de dano crítico.",
-  "BABONUS.TypeDamageCriticalBonusDiceLabel": "Dado Crítico Adicional",
-  "BABONUS.TypeDamageCriticalBonusDiceTooltip": "Um número adicional de dados que devem ser rolados em um acerto crítico. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "BABONUS.TypeHitdie": "Jogadas de Dados de Vida",
-  "BABONUS.TypeHitdieBonusLabel": "Bônus Jogadas de Dados de Vida",
-  "BABONUS.TypeHitdieBonusTooltip": "Partes adicionais para adicionar no topo da jogada de dados de vida.",
-  "BABONUS.TypeSave": "CDs de Salvaguarda",
-  "BABONUS.TypeSaveBonusLabel": "Bônus CD Salvaguarda",
-  "BABONUS.TypeSaveBonusTooltip": "Um número inteiro para adicionar à CD de uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "BABONUS.TypeTest": "Testes de Atributo",
-  "BABONUS.TypeTestBonusLabel": "Bônus Testes de Atributo",
-  "BABONUS.TypeTestBonusTooltip": "Partes adicionais para adicionar no topo da jogada de teste de atributo.",
-  "BABONUS.TypeThrow": "Salvaguardas",
-  "BABONUS.TypeThrowBonusLabel": "Bônus Salvaguardas",
-  "BABONUS.TypeThrowBonusTooltip": "Partes adicionais para adicionar no topo da jogada de salvaguarda.",
-  "BABONUS.TypeThrowDeathSaveCriticalLabel": "Limite Crítico Salvaguarda Contra Morte",
-  "BABONUS.TypeThrowDeathSaveCriticalTooltip": "Um número inteiro a ser subtraído do limite que decide quando uma Salvaguarda Contra Morte resulta na restauração da consciência e em 1 ponto de vida. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
-  "BABONUS.TypeThrowTargetValueLabel": "Valor Alvo",
-  "BABONUS.TypeThrowTargetValueTooltip": "Um número inteiro para subtrair do requisito mínimo para ter um sucesso em uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados."
-}
+  "Create": "Criar Novo Bônus",
+  "CurrentBonuses": "Bônus Atuais",
+  "CurrentBonusesTooltip": "Os bônus que você criou e que estão atualmente armazenados neste Ator, Item ou Efeito Ativo.",
+  "CurrentFiltersTooltip": "Os filtros atualmente aplicados ao bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado.",
+  "Example": "Exemplo",
+  "Fields": {
+    "Aura": {
+      "Blockers": {
+        "Hint": "Os tipos de condições que impedem a transferência de uma aura, como a aura de um Paladino que só fica ativa enquanto o Paladino não está Morto nem Inconsciente.",
+        "Label": "Condições de Bloqueio"
+      },
+      "Disposition": {
+        "Hint": "Quais alvos devem ser afetados por esta aura, em relação à disposição do token de origem.",
+        "Label": "Alvos Válidos",
+        "OptionAlly": "Alvos Aliados",
+        "OptionAny": "Quaisquer Alvos",
+        "OptionEnemy": "Alvos Inimigos"
+      },
+      "Enabled": {
+        "Hint": "Configure se e como o bônus funciona como uma aura."
+      },
+      "Label": "Aura Configuração",
+      "Range": {
+        "Hint": "O alcance da aura, medido em pés (coloque '-1' para um alcance ilimitado). Este campo suporta dados de rolagem.",
+        "Label": "Alcance ({range})",
+        "LabelFt": "Alcance ({range} pés)"
+      },
+      "RequireLight": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a luz",
+        "Label": "Luz"
+      },
+      "RequireMove": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o deslocamento.",
+        "Label": "Deslocamento"
+      },
+      "RequireSight": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie a visão.",
+        "Label": "Visão"
+      },
+      "RequireSound": {
+        "Hint": "Se marcada, a aura será restringida por qualquer coisa que bloqueie o som.",
+        "Label": "Som"
+      },
+      "Self": {
+        "Label": "Afeta a Si Mesmo?"
+      },
+      "Template": {
+        "Hint": "Se a aura afeta a área dentro de um modelo ao invés de ter um alcance (para itens que são capazes de colocar um modelo).",
+        "Label": "Aplicar ao Modelo?"
+      }
+    },
+    "Consume": {
+      "Enabled": {
+        "Hint": "Configure se e como o bônus consome uma propriedade. Um bônus não pode ser definido para consumo, a menos que seja opcional."
+      },
+      "Formula": {
+        "Label": "Fórmula de Escala"
+      },
+      "Label": "Consumo Configuração",
+      "Scales": {
+        "Label": "Escalar?"
+      },
+      "Subtype": {
+        "CurrencyLabel": "Denominação",
+        "HitdiceLabel": "Tamanho do Dado de Vida"
+      },
+      "Type": {
+        "Label": "Tipo de Consumo",
+        "OptionEffect": "Efeito Ativo",
+        "OptionSlots": "Espaço de Magia"
+      },
+      "Values": {
+        "Label": "Valores Consumidos",
+        "LabelSlot": "Tamanho do Espaço de Magia",
+        "MaxSlot": "Maior",
+        "MinSlot": "Menor"
+      },
+      "ValueStep": {
+        "Label": "Etapa"
+      }
+    },
+    "Enabled": {
+      "Hint": "Ative ou desative este bônus. Um bônus desativado será completamente ignorado",
+      "Label": "Habilitado"
+    },
+    "Exclusive": {
+      "Hint": "Alterne se este bônus se aplica apenas ao item em que foi criado. Um bônus não pode ser definido para ser aplicado apenas a um item específico, a menos que seja criado nesse item e aplicado a ataques, danos, CDs de salvaguarda ou testes de ferramentas.",
+      "Label": "Exclusivo"
+    },
+    "Optional": {
+      "Hint": "Alterne se este bônus deve ser ativado ao rolar. Um bônus não pode ser definido como opcional, a menos que forneça um bônus aditivo além de uma jogada de ataque, jogada de dano, salvaguarda ou teste de atributo.",
+      "Label": "Opcional"
+    }
+  },
+  "Filters": {
+    "Abilities": {
+      "Hint": "O valor de atributo usado para o teste. Isso respeita os itens definidos para usar o padrão, como magias que usam o atributo de conjuração ou armas de Acuidade que usam Força ou Destreza.",
+      "Label": "Modificador de Atributo"
+    },
+    "ActorCreatureSizes": {
+      "Hint": "A categoria de tamanho que a criatura deve ser.",
+      "Label": "Tamanhos de Criatura"
+    },
+    "ActorCreatureTypes": {
+      "Hint": "O tipo de criatura que o ator de origem deve ser (ou ter como subtipo) ou o tipo de criatura que o ator de origem não deve ser. Por exemplo, 'undead', 'fey' ou 'construct'",
+      "Label": "Tipos de Criatura do Ator"
+    },
+    "ActorLanguages": {
+      "Hint": "Os idiomas que o ator deve ser capaz de falar, ou não deve ser capaz de falar.",
+      "Label": "Idiomas Falados"
+    },
+    "ArbitraryComparisons": {
+      "Hint": "Insira números, propriedades de dados de rolagem, strings ou uma combinação dos três, que devem estar em um relacionamento específico para que o bônus seja aplicado. Esta comparação pode avaliar substrings usando qualquer uma das desigualdades. Você também pode usar dados de rolagem de um ator de token marcado, acrescentando '@target.",
+      "Label": "Comparação Arbitrária",
+      "One": "Valor…",
+      "Other": "Outro valor…"
+    },
+    "AttackTypes": {
+      "Hint": "O tipo de jogada de ataque que o item deve ter para que o bônus seja aplicado. Por exemplo, se você conjurar uma magia que deve envolver um ataque mágico à distância (rsak) ou ataque armado corpo a corpo (mwak).",
+      "Label": "Tipos de Ataque"
+    },
+    "BaseArmors": {
+      "Hint": "O tipo de armadura que você deve usar ou não deve usar para que o bônus seja aplicado, incluindo escudos.",
+      "Label": "Tipos de Armadura"
+    },
+    "BaseTools": {
+      "Hint": "Os tipos de ferramentas que o item deve ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Kit de Herbalismo, Ferramentas de Ladrão ou Ferramentas de Sapateiro.",
+      "Label": "Tipos de Ferramenta"
+    },
+    "BaseWeapons": {
+      "Hint": "Os tipos de armas do item devem ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Machado de Batalha, Arco Curto ou Espada Longa.",
+      "Label": "Tipos de Arma"
+    },
+    "CreatureTypes": {
+      "Hint": "O tipo de criatura da qual o ator alvo deve ser (ou ter como subtipo), ou o tipo de criatura da qual o ator alvo não deve ser. Por exemplo, 'undead', 'fey', ou 'construct'.",
+      "Label": "Tipos de Criatura Alvo"
+    },
+    "CustomScripts": {
+      "Hint": "Qualquer script personalizado que você queira escrever. O script deve ser totalmente síncrono e retornar verdadeiro ou falso. Como variáveis auxiliares, o script é fornecido com 'token', 'actor', 'item' e 'bonus', se aplicável.",
+      "Label": "Script Personalizado"
+    },
+    "DamageTypes": {
+      "Hint": "O tipo de dano que o item deve causar para que o bônus seja aplicado ou não deve causar para que o bônus seja aplicado. Por exemplo, se uma magia causa dano ígneo.",
+      "Label": "Tipos de Dano"
+    },
+    "FeatureTypes": {
+      "Hint": "O tipo e subtipo que um item de característica deve ter. Por exemplo, um Recurso de Classe, Recurso de Ki ou Recurso de Monstro.",
+      "Label": "Tipos de Característica"
+    },
+    "HealthPercentages": {
+      "Hint": "A porcentagem de vida que o ator deve ter no mínimo, ou no máximo, para que o bônus seja aplicado.",
+      "Label": "Porcentagem de Vida",
+      "OptionLess": "ou menor",
+      "OptionMore": "ou maior"
+    },
+    "ItemTypes": {
+      "Hint": "Os tipos de itens aos quais o bônus deve ser aplicado. Por exemplo, se o item se aplicar apenas a magias ou apenas a armas.",
+      "Label": "Tipos de Item"
+    },
+    "PreparationModes": {
+      "Hint": "O tipo de modo de preparação em que o feitiço deve ser definido para que o bônus seja aplicado, como 'Pacto' para Magia de Pacto ou 'À Vontade'.",
+      "Label": "Modos de Preparação"
+    },
+    "ProficiencyLevels": {
+      "Hint": "O nível de proficiência que o ator deve ter com a rolagem feita.",
+      "Label": "Níveis de Proficiência"
+    },
+    "RemainingSpellSlots": {
+      "Hint": "O número total mínimo e máximo de espaços de magia restantes que o ator deve ter para que o bônus seja aplicado. Por exemplo, se você quiser que um bônus seja aplicado apenas se você tiver 3 espaços de magia ou mais restantes, ou nenhum espaço restante.",
+      "Label": "Espaços de Magia Restantes"
+    },
+    "SaveAbilities": {
+      "Hint": "O atributo que deve ser usado para definir a CD da salvaguarda do item para que o bônus seja aplicado; por exemplo, um Guerreiro Mestre de Batalha que determina sua CD de Manobra com Destreza. Isso pode ser diferente do atributo que o item usa. Se um item for ajustado para escalar com 'Conjuração', o atributo de conjuração do ator é comparado.",
+      "Label": "CD Atributo Salvaguarda"
+    },
+    "SkillIds": {
+      "Hint": "Os tipos de perícias que a rolagem deve ser uma ou nenhuma para que o bônus seja aplicado. Por exemplo, Atletismo, Natureza ou Sobrevivência.",
+      "Label": "Perícias"
+    },
+    "SpellComponents": {
+      "Hint": "Os componentes ou tags de magia que a magia deve ter para que o bônus seja aplicado. Você pode escolher se a magia deve ter todos os componentes ou tags fornecidos ou pelo menos um deles. Por exemplo, se você quiser que um bônus seja aplicado a todos os feitiços que exigem Concentração.",
+      "Label": "Componentes de Magia",
+      "MatchAll": "Corresponder todos",
+      "MatchAny": "Corresponder qualquer um"
+    },
+    "SpellLevels": {
+      "Hint": "O nível que a magia deve ser conjurada para que o bônus seja aplicado. Você pode selecionar cada nível individualmente. Por exemplo, você pode aplicar um bônus apenas a truques, apenas a magias de nível ou apenas a magias de 3º nível ou inferior.",
+      "Label": "Níveis de Magia"
+    },
+    "SpellSchools": {
+      "Hint": "A escola que a magia deve pertencer para que o bônus seja aplicado. Se diversas escolas forem selecionadas, a magia deverá pertencer a qualquer uma delas. Por exemplo, se você quiser que um bônus seja aplicado apenas a magias de Adivinhação.",
+      "Label": "Escolas de Magia"
+    },
+    "StatusEffects": {
+      "Hint": "As condições que o ator deve ou não estar afetado, usando o conjunto de status do efeito.",
+      "Label": "Condições no Ator"
+    },
+    "TargetEffects": {
+      "Hint": "As condições que o ator alvo deve ou não estar afetado, usando o conjunto de status do efeito.",
+      "Label": "Condições no Alvo"
+    },
+    "ThrowTypes": {
+      "Hint": "O tipo de salvaguarda que o bônus deve ser aplicado. Isso também se aplica a Salvaguardas Contra Morte e você também pode ajustar o valor da Salvaguarda Contra Morte do alvo.",
+      "Label": "Tipos de Salvaguarda"
+    },
+    "TokenSizes": {
+      "Hint": "O tamanho do token alvo e se também deve ser comparado com o token de origem. Se marcado, o alvo deve ser no mínimo ou no máximo tão grande quanto o de origem.",
+      "Label": "Tamanhos do Token",
+      "SelfLabel": "Comparar consigo mesmo",
+      "SizeGreaterThan": "Maior que",
+      "SizePlaceholder": "Tamanho…",
+      "SizeSmallerThan": "Menor que"
+    },
+    "WeaponProperties": {
+      "Hint": "As propriedades da arma que o item deve ou não ter para que o bônus seja aplicado. Se alguma for selecionada, a arma deverá ter pelo menos uma das propriedades incluídas e nenhuma das propriedades excluídas. Por exemplo, se você quiser que um bônus seja aplicado apenas a armas de Duas Mãos.",
+      "Label": "Propriedades da Arma"
+    }
+  },
+  "ID": "ID",
+  "Keys": "Keys",
+  "KeysDialogApplySelection": "Aplicar Seleção",
+  "KeysDialogExclude": "Excluir",
+  "KeysDialogInclude": "Incluir",
+  "KeysDialogState": "Estado",
+  "KeysDialogTitle": "Keys: {name}",
+  "KeysDialogValue": "Valor",
+  "Labels": {
+    "Consuming": "Consumindo",
+    "Disabled": "Desabilitado",
+    "Exclusive": "Somente Item",
+    "Filters": "{n} Filtros",
+    "Optional": "Opcional",
+    "TemplateAura": "Aura Modelo",
+    "TokenAura": "Aura Token"
+  },
+  "Modifiers": {
+    "Amount": {
+      "Label": "Quantidade de Dados",
+      "ModeLabel": "Modo",
+      "ValueLabel": "adicional"
+    },
+    "Config": {
+      "FirstHint": "Se marcado, os modificadores de dados só se aplicam ao primeiro dado na expressão completa.",
+      "FirstLabel": "Apenas Primeiro Dado?"
+    },
+    "Explode": {
+      "Label": "Explodir",
+      "LimitLabel": "Explosões Máximas",
+      "OnceLabel": "Explodir Uma Vez?",
+      "ValueLabel": "se superior a"
+    },
+    "Maximum": {
+      "Label": "Máximo",
+      "ValueLabel": "Valor máximo",
+      "ZeroLabel": "Permitir Zero?"
+    },
+    "Minimum": {
+      "Label": "Mínimo",
+      "Maximize": {
+        "Label": "Maximizar?"
+      },
+      "ValueLabel": "Valor mínimo"
+    },
+    "Modes": {
+      "ChoiceAdd": "Adicionar",
+      "ChoiceMultiply": "Multiplicar"
+    },
+    "Reroll": {
+      "InvertLabel": "Invertido?",
+      "Label": "Rerolar",
+      "LimitLabel": "Máximo de Re-rolagens",
+      "RecursiveLabel": "Recursivo?",
+      "ValueLabel": "se inferior a"
+    },
+    "Size": {
+      "Label": "Categoria do Dado",
+      "ModeLabel": "Modo",
+      "ValueLabel": "aumento de categoria"
+    }
+  },
+  "ModuleTitle": "Build-a-Bonus",
+  "NewBabonus": "Novo Babonus",
+  "OriginName": "Origem: {name}",
+  "OverviewActor": "Ator",
+  "OverviewCopied": "O uuid foi copiado para a área de transferência.",
+  "OverviewImmediateParent": "Pai Imediato",
+  "OverviewName": "Nome",
+  "OverviewTitle": "Bônus Aplicados",
+  "Relative": "Relativo",
+  "SearchBonuses": "Procurar Bônus",
+  "SelectType": "Selecione um Tipo",
+  "SelectTypeTooltip": "Selecione um tipo para seu novo bônus; o tipo de rolagem que deve ser aplicado.",
+  "SettingsAllowFumbleNegationHint": "Permitir que os modificadores do alcance de falha nas jogadas de ataque fiquem abaixo de 1?",
+  "SettingsAllowFumbleNegationName": "Permitir Falha Negativa",
+  "SettingsDisableCustomScriptFilterHint": "Desativa os filtros de 'Script Personalizado' para não ter seus valores lidos. Em vez disso, o filtro sempre retorna verdadeiro imediatamente. Habilite esta configuração se preferir que outros usuários não executem scripts.",
+  "SettingsDisableCustomScriptFilterName": "Desabilitar 'Script Personalizado'.",
+  "SettingsDisplayLabelHint": "Se marcado, o rótulo é exibido no cabeçalho dos atores, itens e efeitos aplicáveis.",
+  "SettingsDisplayLabelName": "Exibir Etiqueta",
+  "SettingsShowAuraRangesHint": "Crie um indicador visual para os alcances de auras babonus. Isso não se aplica a auras modelo ou auras com alcance ilimitado. Se a origem estiver dentro de uma aura, ele será marcado em verde, caso contrário, em vermelho.",
+  "SettingsShowAuraRangesName": "Mostrar Alcances de Aura",
+  "SettingsShowBuilderForPlayersHint": "Se desabilitado, o ícone para abrir o módulo não estará disponível no cabeçalho para os jogadores.",
+  "SettingsShowBuilderForPlayersName": "Mostrar para Jogadores",
+  "SettingsShowSheetTab": "Aba na Ficha",
+  "SettingsShowSheetTabHint": "Adicione uma nova aba na ficha de personagem em vez de adicionar um botão de cabeçalho.",
+  "SheetTabs": {
+    "Advanced": "Avançado",
+    "Bonuses": "Bônus",
+    "Configuration": "Configuração",
+    "Description": "Descrição",
+    "Filters": "Filtros"
+  },
+  "ToggleBonus": "Alternar Bônus",
+  "Toggles": "Alterna",
+  "TypeAttack": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de ataque.",
+    "BonusLabel": "Bônus Jogadas de Ataque",
+    "CriticalRangeHint": "Um número inteiro a ser subtraído da margem de acerto crítico da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "CriticalRangeLabel": "Modificador de Acerto Crítico",
+    "FumbleRangeHint": "Um número inteiro a ser subtraído da margem de falha crítica da jogada de ataque. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "FumbleRangeLabel": "Modificador de Falha Crítica",
+    "Label": "Jogadas de Ataque"
+  },
+  "TypeDamage": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de dano.",
+    "BonusLabel": "Bônus Jogadas de Dano",
+    "CriticalBonusDamageHint": "Partes adicionais para adicionar no topo da jogada de dano crítico.",
+    "CriticalBonusDamageLabel": "Dano Crítico Adicional",
+    "CriticalBonusDiceHint": "Um número adicional de dados que devem ser rolados em um acerto crítico. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "CriticalBonusDiceLabel": "Dado Crítico Adicional",
+    "Label": "Jogadas de Dano"
+  },
+  "TypeHitdie": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de dados de vida.",
+    "BonusLabel": "Bônus Jogadas de Dados de Vida",
+    "Label": "Jogadas de Dados de Vida"
+  },
+  "TypeSave": {
+    "BonusHint": "Um número inteiro para adicionar à CD de uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "BonusLabel": "Bônus CD Salvaguarda",
+    "Label": "CDs de Salvaguarda"
+  },
+  "TypeTest": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de teste de atributo.",
+    "BonusLabel": "Bônus Testes de Atributo",
+    "Label": "Testes de Atributo"
+  },
+  "TypeThrow": {
+    "BonusHint": "Partes adicionais para adicionar no topo da jogada de salvaguarda.",
+    "BonusLabel": "Bônus Salvaguardas",
+    "DeathSaveCriticalHint": "Um número inteiro a ser subtraído do limite que decide quando uma Salvaguarda Contra Morte resulta na restauração da consciência e em 1 ponto de vida. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "DeathSaveCriticalLabel": "Limite Crítico Salvaguarda Contra Morte",
+    "Label": "Salvaguardas",
+    "TargetValueHint": "Um número inteiro para subtrair do requisito mínimo para ter um sucesso em uma salvaguarda. Este campo respeita os dados de rolagem, mas não as rolagens de dados.",
+    "TargetValueLabel": "Valor Alvo"
+  },
+  "Warning": {
+    "Consuming": {
+      "CurrencyUnavailable": "Você não tem a quantidade necessária dessa denominação.",
+      "EffectUnavailable": "O efeito associado não existe mais.",
+      "HealthUnavailable": "Você não tem pontos de vida suficientes.",
+      "HitdiceUnavailable": "Você não tem dados de vida suficientes restantes.",
+      "InspirationUnavailable": "Você não tem Inspiração.",
+      "QuantityUnavailable": "Você não tem a quantidade necessária do item associado.",
+      "SlotsUnavailable": "Você não tem espaços de magia restantes desse nível.",
+      "UsesUnavailable": "Você não tem o número necessário de cargas no item."
+    }
+  }
+}}

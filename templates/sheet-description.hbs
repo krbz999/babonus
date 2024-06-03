@@ -1,0 +1,10 @@
+<div class="tab scrollable {{tabs.description.cssClass}}" data-tab="description" data-group="main">
+  <fieldset>
+    <legend>{{localize fields.description.field.label}}</legend>
+    {{formGroup fields.img.field value=fields.img.value localize=true}}
+
+    {{#with fields.description}}
+    {{formGroup field value=value enriched=enriched height=height button=true toggled=true localize=true}}
+    {{/with}}
+  </fieldset>
+</div>

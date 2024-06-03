@@ -15,14 +15,29 @@ export class FilterManager {
   //#region
 
   /**
+   * @param {Actor5e|Item5e} object     Actor or item performing the roll.
+   * @param {string} type               The type of roll.
+   * @param {object} [details]          Details for filtering.
+   * @returns {Collection<Babonus>}     The filtered Collection.
+   */
+  static check(object, type, details = {}) {
+    const collector = new babonus.abstract.applications.BonusCollector({
+      object: object,
+      type: type
+    });
+    const bonuses = collector.returnBonuses();
+    const filtered = this.finalFilterBonuses(type, bonuses, object, details);
+    setTimeout(() => collector.destroyAuras(), 2000);
+    return filtered;
+  }
+
+  /**
    * Initiate the collection and filtering of bonuses applying to hit die rolls.
-   * @param {Actor5e} actor     The actor performing the roll.
-   * @returns {Babonus[]}       A filtered array of babonuses to apply.
+   * @param {Actor5e} actor             The actor performing the roll.
+   * @returns {Collection<Babonus>}     The filtered Collection.
    */
   static hitDieCheck(actor) {
-    const bonuses = new babonus.abstract.applications.BonusCollector({object: actor, type: "hitdie"}).returnBonuses();
-    if (!bonuses.size) return [];
-    return this.finalFilterBonuses("hitdie", bonuses, actor);
+    return this.check(actor, "hitdie");
   }
 
   /**
@@ -32,12 +47,10 @@ export class FilterManager {
    * @param {string} [details.ability]              The ability used for the saving throw.
    * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
    * @param {boolean} [details.isDeath]             Is this a death saving throw?
-   * @returns {Babonus[]}                           A filtered array of babonuses to apply.
+   * @returns {Collection<Babonus>}                 The filtered Collection.
    */
   static throwCheck(actor, {ability, isConcentration, isDeath}) {
-    const bonuses = new babonus.abstract.applications.BonusCollector({object: actor, type: "throw"}).returnBonuses();
-    if (!bonuses.size) return [];
-    return this.finalFilterBonuses("throw", bonuses, actor, {ability, isConcentration, isDeath});
+    return this.check(actor, "throw", {ability, isConcentration, isDeath});
   }
 
   /**
@@ -48,13 +61,10 @@ export class FilterManager {
    * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
    * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
    * @param {Item5e} [details.item]         The tool being used if rolled from an item instead.
-   * @returns {Babonus[]}                   A filtered array of babonuses to apply.
+   * @returns {Collection<Babonus>}         The filtered Collection.
    */
   static testCheck(actor, abilityId, {skillId, toolId, item} = {}) {
-    const object = item ?? actor;
-    const bonuses = new babonus.abstract.applications.BonusCollector({object: object, type: "test"}).returnBonuses();
-    if (!bonuses.size) return [];
-    return this.finalFilterBonuses("test", bonuses, object, {abilityId, skillId, toolId});
+    return this.check(item ?? actor, "test", {abilityId, skillId, toolId});
   }
 
   /**
@@ -63,18 +73,16 @@ export class FilterManager {
    * @param {string} hookType                 The type of hook ('attack', 'damage', or 'save').
    * @param {object} [details]                Additional context for the filtering and checks.
    * @param {number} [details.spellLevel]     The level of the spell, if needed.
-   * @returns {Babonus[]}                     A filtered array of babonuses to apply.
+   * @returns {Collection<Babonus>}           The filtered Collection.
    */
   static itemCheck(item, hookType, {spellLevel} = {}) {
-    const bonuses = new babonus.abstract.applications.BonusCollector({object: item, type: hookType}).returnBonuses();
-    if (!bonuses.size) return [];
-    return this.finalFilterBonuses(hookType, bonuses, item, {spellLevel});
+    return this.check(item, hookType, {spellLevel});
   }
 
   /**
    * Filters the Collection of bonuses using the filters of Babonus.
    * @param {string} hookType                        The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
-   * @param {Collection<Babonus>} bonuses            The babonuses to filter.
+   * @param {Collection<Babonus>} bonuses            The babonuses to filter. **will be mutated**
    * @param {Actor5e|Item5e} object                  The actor or item used in each filter and for roll data.
    * @param {object} [details]                       Additional data necessary to pass along.
    * @param {string} [details.ability]               The ability used for the saving throw.
@@ -84,7 +92,7 @@ export class FilterManager {
    * @param {string} [details.skillId]               The id of the skill, in case of skill checks.
    * @param {number} [details.spellLevel]            The level of the spell, if needed.
    * @param {string} [details.toolId]                The id of the tool type, in case of tool checks.
-   * @returns {Babonus[]}                            The filtered Collection.
+   * @returns {Collection<Babonus>}                  The filtered Collection.
    */
   static finalFilterBonuses(hookType, bonuses, object, details = {}) {
     /**
@@ -96,24 +104,29 @@ export class FilterManager {
      */
     Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
 
-    bonuses = bonuses.reduce((acc, bab) => {
-      const filters = Object.entries(bab.filters ?? {});
-      for (const [key, val] of filters) {
-        if (val === undefined) continue;
-        const valid = this[key].call(bab, object, val, details);
-        if (!valid) return acc;
+    const filter = (bab) => {
+      for (const [k, v] of Object.entries(bab.filters ?? {})) {
+        if (v === undefined) continue;
+        if (!FilterManager[k].call(bab, object, v, details)) {
+          return false;
+        }
       }
-      acc.push(bab);
-      return acc;
-    }, []);
+      return true;
+    };
+
+    for (const [key, bab] of bonuses.entries()) {
+      if (!filter(bab)) bonuses.delete(key);
+    }
+
     this._replaceRollDataOfBonuses(bonuses, object);
 
     /**
      * A hook that is called after the collection of bonuses has been filtered.
-     * @param {Babonus[]} bonuses         The array of bonuses, after filtering.
-     * @param {Actor5e|Item5e} object     The actor or item performing the roll.
-     * @param {object} [details]          Additional data passed along to perform the filtering.
-     * @param {string} hookType           The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
+     * @param {Collection<Babonus>} bonuses     The array of bonuses, after filtering.
+     * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+     * @param {object} [details]                Additional data passed along to perform the filtering.
+     * @param {string} hookType                 The type of hook being executed ('attack', 'damage',
+     *                                          'save', 'throw', 'test', 'hitdie').
      */
     Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
 
@@ -122,8 +135,8 @@ export class FilterManager {
 
   /**
    * Replace roll data of bonuses that originate from foreign sources, including transferred effects.
-   * @param {Babonus[]} bonuses         An array of babonuses whose bonuses to replace.
-   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {Collection<Babonus>} bonuses     A collection of babonuses whose bonuses to replace.
+   * @param {Actor5e|Item5e} object           The actor or item performing the roll.
    */
   static _replaceRollDataOfBonuses(bonuses, object) {
     const item = (object instanceof Item) ? object : null;
@@ -433,7 +446,7 @@ export class FilterManager {
    * @param {string} filter[].operator      The kind of comparison to make between the two values.
    * @returns {boolean}                     Whether every comparison were in the correct relationship.
    */
-  static arbitraryComparison(object, filter) {
+  static arbitraryComparisons(object, filter) {
     if (!filter.length) return true;
 
     const rollData = object.getRollData();
@@ -575,13 +588,15 @@ export class FilterManager {
    * @param {object} filter             The filtering for the bonus.
    * @param {number} filter.min         The minimum value available required for the bonus to apply.
    * @param {number} filter.max         The maximum value available required for the bonus to apply.
+   * @param {boolean} [filter.size]     Whether to take the size of the spell slot into account.
    * @returns {boolean}                 Whether the number of spell slots remaining falls within the bounds.
    */
-  static remainingSpellSlots(object, {min, max}) {
+  static remainingSpellSlots(object, {min, max, size = false}) {
     if (![min, max].some(m => Number.isInteger(m))) return true;
     const caster = object.actor ?? object;
     const spells = Object.values(caster.system.spells ?? {}).reduce((acc, val) => {
-      return acc + Math.clamped(val.value, 0, val.max);
+      if (!val.level) return acc;
+      return acc + Math.clamp(val.value, 0, val.max) * (size ? val.level : 1);
     }, 0);
     return spells.between(min || 0, max || Infinity);
   }
@@ -650,7 +665,18 @@ export class FilterManager {
     } else {
       se = size;
     }
-    return ((type === 0) && (enemySize >= Math.max(se, size))) || ((type === 1) && (enemySize <= Math.min(se, size)));
+
+    // Greater than
+    if (type === 0) {
+      return enemySize >= Math.max(se, size);
+    }
+
+    // Less than
+    if (type === 1) {
+      return enemySize <= Math.min(se, size);
+    }
+
+    return false;
   }
 
   /**

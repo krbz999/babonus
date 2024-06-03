@@ -1,4 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
+import {AppliedBonusesDialog} from "./applied-bonuses-dialog.mjs";
 
 /** Utility class that gets subclassed to inject header buttons on actors, items, and effects. */
 class HeaderButton {
@@ -91,21 +92,41 @@ class HeaderButtonEffect extends HeaderButton {
 class HeaderButtonDialog extends HeaderButton {
   /** @override */
   static inject(app, array) {
-    const bonuses = app.options[MODULE.ID]?.bonuses;
-    if (!bonuses?.length) return;
+    const id = app.options[MODULE.ID]?.registry;
+    if (!id) return;
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
-      onclick: () => new babonus.abstract.applications.AppliedBonusesDialog({bonuses, dialog: app}).render(true)
+      onclick: () => new AppliedBonusesDialog({id, dialog: app}).render(true)
     };
     if (this.showLabel) button.label = this.label;
     array.unshift(button);
   }
 }
 
+/** Inject form element on scene region configs. */
+function injectRegionConfigElement(config, element) {
+  if (!config.isEditable) return;
+  const fg = element.querySelector("[name=visibility]").closest(".form-group");
+  const div = document.createElement("FIELDSET");
+  div.classList.add("babonus");
+  div.innerHTML = `
+  <legend>${game.i18n.localize("BABONUS.ModuleTitle")}</legend>
+  <button type="button" data-action="babonusBuilder">
+    <i class="fa-solid fa-otter"></i>
+    ${game.i18n.localize("BABONUS.ModuleTitle")}
+  </button>
+  <p class="hint">${game.i18n.localize("BABONUS.RegionConfigHint")}</p>`;
+  div.querySelector("[data-action]").addEventListener("click", (event) => {
+    new babonus.abstract.applications.BabonusWorkshop(config.document).render(true);
+  });
+  fg.after(div);
+}
+
 export default {
   HeaderButtonActor,
   HeaderButtonItem,
   HeaderButtonEffect,
-  HeaderButtonDialog
+  HeaderButtonDialog,
+  injectRegionConfigElement
 };

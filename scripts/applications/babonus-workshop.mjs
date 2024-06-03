@@ -26,7 +26,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      width: 450,
+      width: 510,
       height: 700,
       template: `modules/${MODULE.ID}/templates/babonus-workshop.hbs`,
       classes: [MODULE.ID, "builder", "dnd5e2"],
@@ -104,7 +104,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
             async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
           }),
           icon: bonus.icon,
-          typeTooltip: `BABONUS.Type${bonus.type.capitalize()}`
+          typeTooltip: `BABONUS.Type${bonus.type.capitalize()}.Label`
         }
       });
     }
@@ -113,7 +113,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
     // New babonus buttons.
     data.createButtons = Object.entries(babonus.abstract.DataModels).map(([type, cls]) => ({
-      type, icon: cls.icon, label: `BABONUS.Type${type.capitalize()}`
+      type, icon: cls.icon, label: `BABONUS.Type${type.capitalize()}.Label`
     }));
 
     data.ICON = MODULE.ICON;
@@ -311,57 +311,44 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   async _onClickId(event) {
     const bonus = this.collection.get(event.currentTarget.closest(".bonus").dataset.id);
-    const id = (event.type === "contextmenu") ? bonus.uuid : bonus.id;
+    const id = (event.type === "contextmenu") ? bonus.id : bonus.uuid;
     await game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {
-      id, label: "Babonus", type: (event.type === "contextmenu") ? "uuid" : "id"
+      id, label: "Babonus", type: (event.type === "contextmenu") ? "id" : "uuid"
     }));
   }
 
   /**
-   * Delete a babonus on the builder when hitting its trashcan icon. This resets the UI entirely.
-   * @param {Event} event                   The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus deleted.
+   * Delete a babonus on the builder when hitting its trashcan icon.
+   * @param {Event} event     The initiating click event.
    */
   async _onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const name = this.collection.get(id).name;
-    const prompt = await Dialog.confirm({
-      title: game.i18n.format("BABONUS.ConfigurationDeleteTitle", {name}),
-      content: game.i18n.format("BABONUS.ConfigurationDeleteAreYouSure", {name}),
-      options: {id: `babonus-confirm-delete-${id}`}
-    });
-    if (!prompt) return false;
-    return this.document.unsetFlag(MODULE.ID, `bonuses.${id}`);
+    const bonus = this.collection.get(id);
+    bonus.deleteDialog();
   }
 
   /**
    * Toggle the enabled property on a babonus.
-   * @param {Event} event                   The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus toggled.
+   * @param {Event} event     The initiating click event.
    */
   async _onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bonus = this.collection.get(id);
-    return this.constructor._onToggleBonus(bonus);
-  }
-  static async _onToggleBonus(bonus, state = null) {
-    const value = (state === null) ? !bonus.enabled : !!state;
-    return bonus.parent.update({[`flags.babonus.bonuses.${bonus.id}.enabled`]: value});
+    bonus.toggle();
   }
 
   /**
-   * Copy a babonus on the actor or item.
-   * @param {Event} event                   The initiating click event.
-   * @returns {Promise<Actor5e|Item5e>}     The actor or item having its babonus copied.
+   * Copy a babonus on the document.
+   * @param {Event} event     The initiating click event.
    */
   async _onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const data = this.collection.get(id).toObject();
+    const src = this.collection.get(id);
+    const data = src.toObject();
     data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
-    data.id = foundry.utils.randomID();
-    data.enabled = false;
-    return this.document.setFlag(MODULE.ID, `bonuses.${data.id}`, data);
+    const bonus = new src.constructor(data, {parent: src.parent});
+    this.constructor._embedBabonus(src.parent, bonus);
   }
 
   //#endregion
@@ -394,8 +381,13 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     }
     const id = keepId ? data.id : foundry.utils.randomID();
     data.id = id;
-    await object.update({[`flags.${MODULE.ID}.bonuses.-=${data.id}`]: null}, {render: false, noHook: true});
-    return object.setFlag(MODULE.ID, `bonuses.${id}`, data);
+
+    let collection = babonus.getCollection(object);
+    if (collection.has(id)) collection.delete(id);
+    collection = collection.contents;
+    collection.push(data);
+
+    return object.setFlag("babonus", "bonuses", collection);
   }
 
   //#endregion

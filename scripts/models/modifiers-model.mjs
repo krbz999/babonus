@@ -15,40 +15,124 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       amount: new SchemaField({
-        enabled: new BooleanField(),
-        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Amount.EnabledLabel",
+          hint: "BABONUS.Modifiers.Amount.EnabledHint"
+        }),
+        mode: new NumberField({
+          initial: 0,
+          choices: {
+            [ModifiersModel.MODIFIER_MODES.ADD]: "BABONUS.Modifiers.Modes.ChoiceAdd",
+            [ModifiersModel.MODIFIER_MODES.MULTIPLY]: "BABONUS.Modifiers.Modes.ChoiceMultiply"
+          },
+          label: "BABONUS.Modifiers.Amount.ModeLabel",
+          hint: "BABONUS.Modifiers.Amount.ModeHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Amount.ValueLabel",
+          hint: "BABONUS.Modifiers.Amount.ValueHint"
+        })
       }),
       size: new SchemaField({
-        enabled: new BooleanField(),
-        mode: new NumberField({initial: 0, choices: Object.values(ModifiersModel.MODIFIER_MODES)}),
-        value: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Size.EnabledLabel",
+          hint: "BABONUS.Modifiers.Size.EnabledHint"
+        }),
+        mode: new NumberField({
+          initial: 0,
+          choices: {
+            [ModifiersModel.MODIFIER_MODES.ADD]: "BABONUS.Modifiers.Modes.ChoiceAdd",
+            [ModifiersModel.MODIFIER_MODES.MULTIPLY]: "BABONUS.Modifiers.Modes.ChoiceMultiply"
+          },
+          label: "BABONUS.Modifiers.Size.ModeLabel",
+          hint: "BABONUS.Modifiers.Size.ModeHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Size.ValueLabel",
+          hint: "BABONUS.Modifiers.Size.ValueHint"
+        })
       }),
       reroll: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        invert: new BooleanField(),
-        recursive: new BooleanField(),
-        limit: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Reroll.EnabledLabel",
+          hint: "BABONUS.Modifiers.Reroll.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Reroll.ValueLabel",
+          hint: "BABONUS.Modifiers.Reroll.ValueHint"
+        }),
+        invert: new BooleanField({
+          label: "BABONUS.Modifiers.Reroll.InvertLabel",
+          hint: "BABONUS.Modifiers.Reroll.InvertHint"
+        }),
+        recursive: new BooleanField({
+          label: "BABONUS.Modifiers.Reroll.RecursiveLabel",
+          hint: "BABONUS.Modifiers.Reroll.RecursiveHint"
+        }),
+        limit: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Reroll.LimitLabel",
+          hint: "BABONUS.Modifiers.Reroll.LimitHint"
+        })
       }),
       explode: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        once: new BooleanField(),
-        limit: new StringField({required: true})
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Explode.EnabledLabel",
+          hint: "BABONUS.Modifiers.Explode.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Explode.ValueLabel",
+          hint: "BABONUS.Modifiers.Explode.ValueHint"
+        }),
+        once: new BooleanField({
+          label: "BABONUS.Modifiers.Explode.OnceLabel",
+          hint: "BABONUS.Modifiers.Explode.OnceHint"
+        }),
+        limit: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Explode.LimitLabel",
+          hint: "BABONUS.Modifiers.Explode.LimitHint"
+        })
       }),
       minimum: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        maximize: new BooleanField()
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Minimum.EnabledLabel",
+          hint: "BABONUS.Modifiers.Minimum.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Minimum.ValueLabel",
+          hint: "BABONUS.Modifiers.Minimum.ValueHint"
+        }),
+        maximize: new BooleanField({
+          label: "BABONUS.Modifiers.Minimum.MaximizeLabel",
+          hint: "BABONUS.Modifiers.Minimum.MaximizeHint"
+        })
       }),
       maximum: new SchemaField({
-        enabled: new BooleanField(),
-        value: new StringField({required: true}),
-        zero: new BooleanField()
+        enabled: new BooleanField({
+          label: "BABONUS.Modifiers.Maximum.EnabledLabel",
+          hint: "BABONUS.Modifiers.Maximum.EnabledHint"
+        }),
+        value: new StringField({
+          required: true,
+          label: "BABONUS.Modifiers.Maximum.ValueLabel",
+          hint: "BABONUS.Modifiers.Maximum.ValueHint"
+        }),
+        zero: new BooleanField({
+          label: "BABONUS.Modifiers.Maximum.ZeroLabel",
+          hint: "BABONUS.Modifiers.Maximum.ZeroHint"
+        })
       }),
       config: new SchemaField({
-        first: new BooleanField()
+        first: new BooleanField({
+          label: "BABONUS.Modifiers.Config.FirstLabel",
+          hint: "BABONUS.Modifiers.Config.FirstHint"
+        })
       })
     };
   }
@@ -64,7 +148,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const rollData = this.parent.getRollData({deterministic: true});
     for (const m of ["amount", "size", "reroll", "explode", "minimum", "maximum"]) {
       const value = this[m].value;
-      if (!value) this[m].value = 0;
+      if (!value) this[m].value = null;
       else {
         const bonus = dnd5e.utils.simplifyBonus(value, rollData);
         this[m].value = Number.isNumeric(bonus) ? Math.round(bonus) : null;
@@ -139,7 +223,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (!this.hasReroll || die.modifiers.some(m => m.match(this.constructor.REGEX.reroll))) return;
     const l = this.reroll.limit;
     const prefix = this.reroll.recursive ? (l ? `rr${l}` : "rr") : "r";
-    const v = this.reroll.value;
+    const v = this.reroll.value ?? 1;
     let mod;
     if (this.reroll.invert) {
       if (v > 0) {
@@ -173,7 +257,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   _modifyExplode(die) {
     if (!this.hasExplode || die.modifiers.some(m => m.match(this.constructor.REGEX.explode))) return;
-    const v = this.explode.value;
+    const v = this.explode.value ?? 0;
     const l = this.explode.limit;
     const prefix = (this.explode.once || (l === 1)) ? "xo" : (l ? `x${l}` : "x");
     const _prefix = () => /x\d+/.test(prefix) ? `${prefix}=${die.faces}` : prefix;
@@ -289,7 +373,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get hasReroll() {
     if (!this.reroll.enabled) return false;
-    return Number.isInteger(this.reroll.value);
+    return (this.reroll.value === null) || Number.isInteger(this.reroll.value);
   }
 
   /**
@@ -298,7 +382,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    */
   get hasExplode() {
     if (!this.explode.enabled) return false;
-    return Number.isInteger(this.explode.value);
+    return (this.maximum.value === null) || Number.isInteger(this.explode.value);
   }
 
   /**

@@ -1,6 +1,6 @@
 const {
   DocumentIdField, IntegerSortField, StringField, FilePathField,
-  BooleanField, EmbeddedDataField, ObjectField, SchemaField
+  BooleanField, EmbeddedDataField, ObjectField, SchemaField, HTMLField
 } = foundry.data.fields;
 
 /**
@@ -92,6 +92,7 @@ const {
  * @property {boolean} enabled                Whether the bonus is currently active.
  * @property {string} description             The description of the bonus.
  * @property {boolean} optional               Whether the additive bonus is opted into in the roll config.
+ * @property {boolean} reminder               Is this optional bonus just a reminder?
  * @property {boolean} exclusive              Whether the bonus is applying only to its parent item,
  *                                            or its parent effect's parent item.
  * @property {object} filters                 Schema of valid filter types.
@@ -195,7 +196,7 @@ class Babonus extends foundry.abstract.DataModel {
    * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
    * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
    * @TODO once hit die rolls have a dialog as well, this should be amended.
-   * @TODO once rolls can be "remade" in 3.2.0, optional bonuses should be able to apply to other properties as well.
+   * @TODO once rolls can be "remade" in 3.3.0, optional bonuses should be able to apply to other properties as well.
    * @type {boolean}
    */
   get isOptionable() {
@@ -208,6 +209,35 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get isOptional() {
     return this.optional && this.isOptionable;
+  }
+
+  /**
+   * Can this bonus act as a reminder?
+   * @type {boolean}
+   */
+  get canRemind() {
+    const valid = ["attack", "damage", "throw", "test"].includes(this.type) && !this.hasBonuses;
+    return valid && this.optional && !this.bonuses.modifiers?.hasModifiers;
+  }
+
+  /**
+   * Is this bonus a reminder, and not an actual 'bonus'?
+   * @type {boolean}
+   */
+  get isReminder() {
+    return this.reminder && this.canRemind;
+  }
+
+  /**
+   * Is this providing a bonus to any properties, or dice modifiers?
+   * @type {boolean}
+   */
+  get hasBonuses() {
+    for (const [k, v] of Object.entries(this.bonuses)) {
+      if (k === "modifiers") continue;
+      if (v) return true;
+    }
+    return !!this.bonuses.modifiers?.hasModifiers;
   }
 
   /**
@@ -250,7 +280,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get isSuppressed() {
-    // If this bonus lives on an effect or template, defer to those.
+    // If this bonus lives on an effect, template, or region, defer to those.
     const effect = this.effect;
     if (effect) {
       if (!effect.active) return true;
@@ -259,6 +289,7 @@ class Babonus extends foundry.abstract.DataModel {
     }
     const template = this.template;
     if (template) return template.hidden;
+    if (this.region) return false; // a region cannot be disabled.
 
     const item = this.item;
     if (!item) return false;
@@ -388,6 +419,14 @@ class Babonus extends foundry.abstract.DataModel {
     return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
   }
 
+  /**
+   * The scene region that this bonus is currently embedded on, if any.
+   * @type {SceneRegion|null}
+   */
+  get region() {
+    return (this.parent instanceof RegionDocument) ? this.parent : null;
+  }
+
   /** @override */
   static defineSchema() {
     const base = this._defineBaseSchema();
@@ -405,12 +444,33 @@ class Babonus extends foundry.abstract.DataModel {
       id: new DocumentIdField({initial: () => foundry.utils.randomID()}),
       sort: new IntegerSortField(),
       name: new StringField({required: true, blank: false}),
-      img: new FilePathField({categories: ["IMAGE"]}),
+      img: new FilePathField({
+        label: "BABONUS.Fields.Img.Label",
+        hint: "BABONUS.Fields.Img.Hint",
+        categories: ["IMAGE"]
+      }),
       type: new StringField({required: true, initial: this.type, choices: [this.type]}),
-      enabled: new BooleanField({initial: true}),
-      exclusive: new BooleanField(),
-      optional: new BooleanField(),
-      description: new StringField({required: true}),
+      enabled: new BooleanField({
+        initial: true,
+        label: "BABONUS.Fields.Enabled.Label",
+        hint: "BABONUS.Fields.Enabled.Hint"
+      }),
+      exclusive: new BooleanField({
+        label: "BABONUS.Fields.Exclusive.Label",
+        hint: "BABONUS.Fields.Exclusive.Hint"
+      }),
+      optional: new BooleanField({
+        label: "BABONUS.Fields.Optional.Label",
+        hint: "BABONUS.Fields.Optional.Hint"
+      }),
+      reminder: new BooleanField({
+        label: "BABONUS.Fields.Reminder.Label",
+        hint: "BABONUS.Fields.Reminder.Hint"
+      }),
+      description: new HTMLField({
+        label: "BABONUS.Fields.Description.Label",
+        hint: "BABONUS.Fields.Description.Hint"
+      }),
       consume: new EmbeddedDataField(babonus.abstract.DataFields.models.ConsumptionModel),
       aura: new EmbeddedDataField(babonus.abstract.DataFields.models.AuraModel),
       flags: new ObjectField()
@@ -431,7 +491,7 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineFilterSchema() {
     return {
-      arbitraryComparison: new babonus.abstract.DataFields.filters.arbitraryComparison(),
+      arbitraryComparisons: new babonus.abstract.DataFields.filters.arbitraryComparisons(),
       baseArmors: new babonus.abstract.DataFields.filters.baseArmors(),
       statusEffects: new babonus.abstract.DataFields.filters.statusEffects(),
       healthPercentages: new babonus.abstract.DataFields.filters.healthPercentages(),
@@ -447,6 +507,7 @@ class Babonus extends foundry.abstract.DataModel {
   static migrateData(source) {
     this.migrateMinimum(source);
     this.migrateDeathSaveTargetValue(source);
+    this.migrateArbitraryComparisonPlural(source);
   }
 
   /**
@@ -469,6 +530,17 @@ class Babonus extends foundry.abstract.DataModel {
   static migrateDeathSaveTargetValue(source) {
     const tv = source?.bonuses?.deathSaveTargetValue;
     if (tv) foundry.utils.setProperty(source, "bonuses.targetValue", tv);
+  }
+
+  /**
+   * Rename the 'arbitraryComparison' property to 'arbitraryComparisons'.
+   * @param {object} source     Candidate source data.
+   */
+  static migrateArbitraryComparisonPlural(source) {
+    const v = source?.filters?.arbitraryComparison;
+    if (v?.length && !source.filters.arbitraryComparisons) {
+      source.filters.arbitraryComparisons = v;
+    }
   }
 
   /**
@@ -509,8 +581,7 @@ class Babonus extends foundry.abstract.DataModel {
   async setFlag(scope, key, value) {
     const scopes = this.parent.constructor.database.getFlagScopes();
     if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
-    await this.parent.update({[`flags.babonus.bonuses.${this.id}.flags.${scope}.${key}`]: value});
-    this.updateSource({[`flags.${scope}.${key}`]: value});
+    await this.update({[`flags.${scope}.${key}`]: value});
     return this;
   }
 
@@ -526,8 +597,7 @@ class Babonus extends foundry.abstract.DataModel {
     const head = key.split(".");
     const tail = `-=${head.pop()}`;
     key = ["flags", scope, ...head, tail].join(".");
-    await this.parent.update({[`flags.babonus.bonuses.${this.id}.${key}`]: null});
-    this.updateSource({[key]: null});
+    await this.update({[key]: null});
     return this;
   }
 
@@ -537,13 +607,11 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Toggle this bonus.
+   * @param {boolean} [state]     A specific state to set the bonus to.
    * @returns {Promise<Babonus>}
    */
-  async toggle() {
-    const path = `flags.babonus.bonuses.${this.id}.enabled`;
-    const state = foundry.utils.getProperty(this.parent, path);
-    await this.parent.update({[path]: !state});
-    this.updateSource({enabled: !state});
+  async toggle(state = null) {
+    await this.update({enabled: [true, false].includes(state) ? state : !this.enabled});
     return this;
   }
 
@@ -554,11 +622,10 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {Promise<Babonus>}
    */
   async update(changes, options = {}) {
-    const path = `flags.babonus.bonuses.${this.id}`;
     changes = foundry.utils.expandObject(changes);
     delete changes.id;
-    await this.parent.update({[path]: changes}, options);
     this.updateSource(changes, options);
+    await babonus.abstract.applications.BabonusWorkshop._embedBabonus(this.parent, this, true);
     return this;
   }
 
@@ -567,23 +634,36 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {Promise<Babonus>}
    */
   async delete() {
-    const update = {[`flags.babonus.bonuses.-=${this.id}`]: null};
-    await this.parent.update(update);
+    let collection = babonus.getCollection(this.parent);
+    collection.delete(this.id);
+    collection = collection.contents.map(k => k.toObject());
+    await this.parent.setFlag("babonus", "bonuses", collection);
     return this;
   }
 
   /**
    * Present a Dialog form to confirm deletion of this bonus.
-   * @param {object} [options]    Positioning and sizing options for the resulting dialog.
+   * @param {object} [options]      Options tl configure to the dleteion
    * @returns {Promise}           A Promise which resolves to the deleted bonus.
    */
   async deleteDialog(options = {}) {
     const type = game.i18n.localize(this.constructor.metadata.label);
-    return Dialog.confirm({
-      title: `Build-a-Bonus: ${this.name}`,
-      content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
-      yes: this.delete.bind(this),
-      options: options
+    return foundry.applications.api.DialogV2.confirm({
+      window: {
+        title: `Build-a-Bonus: ${this.name}`,
+        icon: "fa-solid fa-otter"
+      },
+      content: `<p>${game.i18n.localize("AreYouSure")}</p><p>${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
+      yes: {
+        callback: () => this.delete(),
+        default: true
+      },
+      no: {
+        default: false
+      },
+      rejectClose: false,
+      modal: true,
+      ...options
     });
   }
 }
@@ -617,9 +697,21 @@ class AttackBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
-      criticalRange: new StringField({required: true}),
-      fumbleRange: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeAttack.BonusHint",
+        label: "BABONUS.TypeAttack.BonusLabel"
+      }),
+      criticalRange: new StringField({
+        required: true,
+        hint: "BABONUS.TypeAttack.CriticalRangeHint",
+        label: "BABONUS.TypeAttack.CriticalRangeLabel"
+      }),
+      fumbleRange: new StringField({
+        required: true,
+        hint: "BABONUS.TypeAttack.FumbleRangeHint",
+        label: "BABONUS.TypeAttack.FumbleRangeLabel"
+      })
     };
   }
 
@@ -652,11 +744,27 @@ class DamageBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
-      damageType: new StringField({required: true}),
-      criticalBonusDice: new StringField({required: true}),
-      criticalBonusDamage: new StringField({required: true}),
-      modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel)
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamage.BonusHint",
+        label: "BABONUS.TypeDamage.BonusLabel"
+      }),
+      damageType: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamage.DamageTypeHint",
+        label: "BABONUS.TypeDamage.DamageTypeLabel"
+      }),
+      criticalBonusDice: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamage.CriticalBonusDiceHint",
+        label: "BABONUS.TypeDamage.CriticalBonusDiceLabel"
+      }),
+      criticalBonusDamage: new StringField({
+        required: true,
+        hint: "BABONUS.TypeDamage.CriticalBonusDamageHint",
+        label: "BABONUS.TypeDamage.CriticalBonusDamageLabel"
+      }),
+      modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel, {})
     };
   }
 
@@ -690,7 +798,11 @@ class SaveBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeSave.BonusHint",
+        label: "BABONUS.TypeSave.BonusLabel"
+      })
     };
   }
 
@@ -723,9 +835,21 @@ class ThrowBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
-      targetValue: new StringField({required: true}),
-      deathSaveCritical: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeThrow.BonusHint",
+        label: "BABONUS.TypeThrow.BonusLabel"
+      }),
+      targetValue: new StringField({
+        required: true,
+        hint: "BABONUS.TypeThrow.TargetValueHint",
+        label: "BABONUS.TypeThrow.TargetValueLabel"
+      }),
+      deathSaveCritical: new StringField({
+        required: true,
+        hint: "BABONUS.TypeThrow.DeathSaveCriticalHint",
+        label: "BABONUS.TypeThrow.DeathSaveCriticalLabel"
+      })
     };
   }
 
@@ -761,7 +885,11 @@ class TestBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true})
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeTest.BonusHint",
+        label: "BABONUS.TypeTest.BonusLabel"
+      })
     };
   }
 
@@ -797,7 +925,11 @@ class HitDieBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true}),
+      bonus: new StringField({
+        required: true,
+        hint: "BABONUS.TypeHitdie.BonusHint",
+        label: "BABONUS.TypeHitdie.BonusLabel"
+      }),
       modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel)
     };
   }

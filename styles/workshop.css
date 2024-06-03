@@ -94,7 +94,9 @@
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .functions {
   display: flex;
   justify-content: space-evenly;
+  align-items: center;
   font-size: 12px;
+  gap: 8px;
 }
 .babonus.builder .pages .current-bonuses .bonuses .bonus .bonus-header .label {
   text-align: center;

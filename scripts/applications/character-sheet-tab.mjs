@@ -13,7 +13,7 @@ export class CharacterSheetTab {
 
     async function _prepareBonus(bonus, rollData) {
       const section = bonuses[bonus.type] ??= {};
-      section.label ??= `BABONUS.Type${bonus.type.capitalize()}`;
+      section.label ??= `BABONUS.Type${bonus.type.capitalize()}.Label`;
       section.key ??= bonus.type;
       section.bonuses ??= [];
       section.bonuses.push({
@@ -114,9 +114,8 @@ export class CharacterSheetTab {
       callback: () => {
         const data = bonus.toObject();
         data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
-        data.id = foundry.utils.randomID();
-        data.enabled = false;
-        bonus.parent.setFlag(MODULE.ID, `bonuses.${data.id}`, data);
+        const b = new bonus.constructor(data);
+        babonus.abstract.applications.BabonusWorkshop._embedBabonus(bonus.parent, b);
       }
     }, {
       name: "BABONUS.ContextMenu.Delete",
@@ -151,7 +150,7 @@ export class CharacterSheetTab {
       name: game.i18n.localize("BABONUS.NewBabonus"),
       type: babonus.abstract.TYPES[0],
       types: babonus.abstract.TYPES.reduce((acc, type) => {
-        const label = game.i18n.localize(`BABONUS.Type${type.capitalize()}`);
+        const label = game.i18n.localize(`BABONUS.Type${type.capitalize()}.Label`);
         acc.push({
           type: type,
           label: label,

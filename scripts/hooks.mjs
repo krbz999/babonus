@@ -2,6 +2,8 @@ import {MODULE, SETTINGS} from "./constants.mjs";
 import {default as buttons} from "./applications/header-button.mjs";
 import {createAPI} from "./api.mjs";
 import {default as applications} from "./applications/_module.mjs";
+import {registry} from "./applications/roll-hooks.mjs";
+import {OptionalSelector} from "./applications/optional-selector.mjs";
 
 /**
  * Render the optional bonus selector on a roll dialog.
@@ -9,10 +11,11 @@ import {default as applications} from "./applications/_module.mjs";
  * @param {Dialog} dialog     The dialog being rendered.
  */
 async function _renderDialog(dialog) {
-  const optionals = dialog.options.babonus?.optionals;
-  if (!optionals?.length) return;
-  dialog.options.babonus.dialog = dialog;
-  new applications.OptionalSelector(dialog.options.babonus).render();
+  const m = dialog.options.babonus;
+  if (!m) return;
+  const r = registry.get(m.registry);
+  r.dialog = dialog;
+  new OptionalSelector(m.registry).render();
 }
 
 /* Settings. */
@@ -55,6 +58,16 @@ function _createSettings() {
     requiresReload: false
   });
 
+  game.settings.register(MODULE.ID, SETTINGS.RADIUS, {
+    name: "BABONUS.SettingsPadAuraRadius",
+    hint: "BABONUS.SettingsPadAuraRadiusHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    requiresReload: false
+  });
+
   // Allow for modifiers to the fumble range to go below 1?
   game.settings.register(MODULE.ID, SETTINGS.FUMBLE, {
     name: "BABONUS.SettingsAllowFumbleNegationName",
@@ -77,21 +90,6 @@ function _createSettings() {
   });
 }
 
-/* Preload all template partials for the builder. */
-async function _preloadPartials() {
-  console.log("Build-a-Bonus | Loading template partials.");
-  return loadTemplates([
-    "modules/babonus/templates/parts/checkboxes-select.hbs",
-    "modules/babonus/templates/parts/checkboxes.hbs",
-    "modules/babonus/templates/parts/range-select.hbs",
-    "modules/babonus/templates/parts/select-number-checkbox.hbs",
-    "modules/babonus/templates/parts/text-dash-text.hbs",
-    "modules/babonus/templates/parts/text-keys.hbs",
-    "modules/babonus/templates/parts/text-select-text.hbs",
-    "modules/babonus/templates/parts/textarea.hbs"
-  ]);
-}
-
 /**
  * On-drop handler for the hotbar.
  * @param {Hotbar} bar                The hotbar application.
@@ -111,26 +109,22 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
   };
   const macro = game.macros.find(m => {
     return Object.entries(data).every(([k, v]) => m[k] === v) && m.isAuthor;
-  }) ?? await Macro.create(data);
+  }) ?? await Macro.implementation.create(data);
   return game.user.assignHotbarMacro(macro, slot);
 }
 
-/**
- * Setup the global 'trees' for proficiency searching.
- * @returns {Promise<object>}     The object of proficiency or trait trees.
- */
+/** Setup the global 'trees' for proficiency searching. */
 async function setupTree() {
   const trees = {};
-  for (const k of ["languages", "weapon", "armor", "tool"]) {
+  for (const k of ["languages", "weapon", "armor", "tool", "skills"]) {
     trees[k] = await dnd5e.documents.Trait.choices(k);
   }
-  return trees;
+  babonus.trees = trees;
 }
 
 // General setup.
 Hooks.once("init", _createSettings);
 Hooks.once("setup", createAPI);
-Hooks.once("setup", _preloadPartials);
 Hooks.on("hotbarDrop", _onHotbarDrop);
 Hooks.once("setup", () => applications.CharacterSheetTab.setup());
 
@@ -140,9 +134,10 @@ Hooks.on("getActorSheetHeaderButtons", (...T) => buttons.HeaderButtonActor.injec
 Hooks.on("getDialogHeaderButtons", (...T) => buttons.HeaderButtonDialog.inject(...T));
 Hooks.on("getItemSheetHeaderButtons", (...T) => buttons.HeaderButtonItem.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
+Hooks.on("renderRegionConfig", buttons.injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
-Hooks.once("ready", async function() {
+Hooks.once("ready", function() {
   Hooks.on("dnd5e.preDisplayCard", applications.RollHooks.preDisplayCard);
   Hooks.on("dnd5e.preRollAbilitySave", applications.RollHooks.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", applications.RollHooks.preRollAbilityTest);
@@ -153,6 +148,5 @@ Hooks.once("ready", async function() {
   Hooks.on("dnd5e.preRollSkill", applications.RollHooks.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", applications.RollHooks.preRollToolCheck);
   Hooks.on("dnd5e.preCreateItemTemplate", applications.RollHooks.preCreateItemTemplate);
-
-  babonus.trees = await setupTree();
+  setupTree();
 });

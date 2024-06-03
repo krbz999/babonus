@@ -6,15 +6,52 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      enabled: new BooleanField(),
-      type: new StringField({required: true}),
-      subtype: new StringField({required: true}),
-      scales: new BooleanField(),
-      formula: new StringField({required: true}),
+      enabled: new BooleanField({
+        label: "BABONUS.Fields.Consume.Enabled.Label",
+        hint: "BABONUS.Fields.Consume.Enabled.Hint"
+      }),
+      type: new StringField({
+        required: true,
+        initial: "",
+        blank: true,
+        label: "BABONUS.Fields.Consume.Type.Label",
+        choices: {
+          currency: "DND5E.Currency",
+          effect: "BABONUS.Fields.Consume.Type.OptionEffect",
+          health: "DND5E.HitPoints",
+          hitdice: "DND5E.HitDice",
+          inspiration: "DND5E.Inspiration",
+          quantity: "DND5E.Quantity",
+          slots: "BABONUS.Fields.Consume.Type.OptionSlots",
+          uses: "DND5E.LimitedUses"
+        }
+      }),
+      subtype: new StringField({
+        required: true,
+        blank: true,
+        initial: "",
+        label: "BABONUS.ConfigurationConsumptionSubtype",
+        hint: ""
+      }),
+      scales: new BooleanField({
+        label: "BABONUS.Fields.Consume.Scales.Label",
+        hint: "BABONUS.Fields.Consume.Scales.Hint"
+      }),
+      formula: new StringField({
+        required: true,
+        label: "BABONUS.Fields.Consume.Formula.Label",
+        hint: "BABONUS.Fields.Consume.Formula.Hint"
+      }),
       value: new SchemaField({
         min: new StringField({required: true}),
         max: new StringField({required: true}),
-        step: new NumberField({integer: true, min: 1, step: 1})
+        step: new NumberField({
+          integer: true,
+          min: 1,
+          step: 1,
+          label: "BABONUS.Fields.Consume.ValueStep.Label",
+          hint: "BABONUS.Fields.Consume.ValueStep.Hint"
+        })
       })
     };
   }
@@ -67,7 +104,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
    */
   get isValidConsumption() {
     const {type, value} = this;
-    if (!MODULE.CONSUMPTION_TYPES.has(type)) return false;
+    if (!MODULE.CONSUMPTION_TYPES.has(type) || ["save", "hitdie"].includes(this.parent.type)) return false;
     const invalidScale = this.scales && ((this.value.max ?? Infinity) < this.value.min);
 
     switch (type) {

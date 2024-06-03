@@ -1,9 +1,9 @@
 import {MODULE} from "../constants.mjs";
+import {registry} from "./roll-hooks.mjs";
 
 export class AppliedBonusesDialog extends Dialog {
   constructor(options) {
     super({}, options);
-    this.bonuses = options.bonuses;
     this.dialog = options.dialog;
   }
 
@@ -29,7 +29,7 @@ export class AppliedBonusesDialog extends Dialog {
 
   /** @override */
   async getData() {
-    return {bonuses: this.bonuses};
+    return {bonuses: registry.get(this.options.id).bonuses};
   }
 
   /** @override */

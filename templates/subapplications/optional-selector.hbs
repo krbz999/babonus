@@ -1,9 +1,18 @@
 <div class="babonus optionals">
+  {{#if reminders.length}}
+  <div class="reminders">
+    {{#each reminders}}
+    <div class="reminder notification info" data-bonus-uuid="{{uuid}}" style="--bonus-name: '{{name}}.'">
+      <span class="description">{{{description}}}</span>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+
   {{#each bonuses}}
   <div class="optional" data-bonus-uuid="{{babonus.uuid}}">
 
-    <div class="bonus-text">
-      <span class="name" data-tooltip="{{tooltip}}">{{babonus.name}}.</span>
+    <div class="bonus-text" style="--bonus-name: '{{babonus.name}}.'">
       <span class="description">{{{description}}}</span>
     </div>
 

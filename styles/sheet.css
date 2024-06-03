@@ -1,11 +1,12 @@
 .babonus.sheet {
-  height: auto;
-  min-width: 500px;
-  min-height: 500px;
   max-height: 95%;
 
-  .striked {
-    text-decoration: line-through;
+  .sheet-tabs.tabs .item {
+    flex-direction: column;
+
+    .fa-solid {
+      font-size: 20px;
+    }
   }
 
   .notification.info {
@@ -13,153 +14,66 @@
     padding: 6px 8px;
   }
 
-  & form {
-    display: flex;
-    flex-direction: column;
-    margin: 5px 0;
-    overflow: hidden;
+  .tab.scrollable {
+    min-height: 400px;
 
-    .form-group {
+    &[data-tab=bonuses] {
+      padding-bottom: 5rem;
+    }
 
-      .form-fields {
-        flex-wrap: nowrap;
+    &[data-tab=configuration] {
+      padding-bottom: 5rem;
+    }
 
-        & > * {
-          margin-right: 0;
-        }
+    &[data-tab=advanced] {
+      padding-bottom: 5rem;
+    }
 
-        & input[type=text], & input[type=number], & select {
-          height: 24px;
-          border: 1px solid #7a7971;
-          background: rgba(0, 0, 0, 0.05);
-
-          &:disabled {
-            border-color: lightgray;
-          }
-        }
-
-        & select {
-          flex: 0;
-        }
-
-        &:not(:has(.checkboxes, [type=text], [type=number], [type=range])) select {
-          flex: 1;
-        }
-
-        .checkboxes {
-          display: flex;
-          overflow-x: auto;
-          flex-flow: wrap;
-          justify-content: space-around;
-
-          & label {
-            flex: none;
-          }
-
-          & [type=checkbox] {
-            display: none !important;
-
-            &:checked ~ .check {
-              border: 2px groove #ff00006e;
-              box-shadow: 0 0 4px darkred;
-              background-color: #ff000066;
-            }
-          }
-
-          .check {
-            font-weight: bold;
-            border: 2px groove gray;
-            border-radius: 4px;
-            padding: 0 0.4em;
-            text-transform: uppercase;
-
-            &:hover {
-              text-shadow: 0 0 5px var(--color-shadow-primary);
-            }
-          }
-        }
-
-        & textarea {
-          resize: vertical;
-          min-height: calc(10px + var(--form-field-height));
-          height: var(--form-field-height);
-          overflow-y: hidden;
-        }
-
-        .range-value {
-          flex: 0 1 48px;
-
-          &::after {
-            content: "%";
-          }
-        }
-
-        & [data-action="keys-dialog"] {
-          width: 100px;
-          max-width: 100px;
-          height: 26px;
-        }
-      }
-
-      .label {
-        flex: 1.5;
-        white-space: nowrap;
-
-        &.checkbox {
-          &:only-child {
-            margin-left: auto;
-          }
-        }
-      }
-
-      & button {
-        &:disabled {
-          color: #4b4a44;
-          cursor: default;
-        }
-      }
-
-      & [data-action="delete-filter"] {
-        flex: none;
-        padding-left: 0.5em;
-      }
-
-      &.modifiers {
-        .checkbox {
-          text-align: left;
-          &.long {
-            flex: 0 0 110px;
-          }
-        }
-
-        .form-fields.reroll, .form-fields.explode {
-          flex-wrap: wrap;
-
-          [name$=".limit"] {
-            flex: 0 0 100%;
-          }
-        }
-
-        &.example {
-          .label {
-            padding-left: 1rem;
-          }
-
-          .formula {
-            font-family: monospace;
-            font-weight: bold;
-            font-size: var(--font-size-14);
-            padding-right: 1rem;
-          }
-        }
-      }
+    &[data-tab=filters] .scrollable {
+      padding-bottom: 5rem;
     }
   }
 
-  .header {
+  .modifiers.example {
+    position: sticky;
+    top: 0;
+
+  }
+
+  & fieldset:hover > .hint {
+    color: var(--color-form-hint-hover);
+  }
+
+  /* Arbitrary Comparisons */
+  & select[name^="filters.arbitraryComparisons"] {
+    flex: 0;
+    width: fit-content;
+  }
+
+  /* Custom Scripts */
+  & textarea[name^="filters.customScripts"] {
+    resize: vertical;
+    min-height: calc(3rem + var(--form-field-height));
+    overflow-y: hidden;
+  }
+
+  & [data-action="keysDialog"] {
+    width: 100px;
+    max-width: 100px;
+    height: 26px;
+  }
+
+  & [data-action="deleteFilter"] {
+    flex: none;
+    padding-left: 0.5em;
+  }
+
+  .header.name-stacked {
     display: flex;
     padding: 0 5px;
     flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: calc(3px - 1rem);
 
     & img {
       flex: none;
@@ -174,108 +88,56 @@
       font-family: "Modesto Condensed";
       font-size: 32px;
     }
-  }
-
-  & nav {
-    margin-top: 0.5em;
-    display: flex;
-    justify-content: space-evenly;
-
-    .item {
-      font-family: "Modesto Condensed";
-      font-size: 22px;
-      flex: none;
-      border-bottom: 3px solid #b5b3a4;
-
-      &.active {
-        border-bottom: 3px solid #44191A;
-      }
-    }
-  }
-
-  .document-tabs {
-    flex: 1;
-    overflow: hidden;
-
-    .tab {
-      padding: 5px;
-      overflow: hidden auto;
-
-      &.active {
-        height: 100%;
-      }
-    }
-  }
-
-  .description {
-    display: flex;
-    height: 100%;
-    gap: 1em;
 
     .properties {
-      width: 8.5em;
+      width: 100%;
       list-style: none;
-      margin: 1em 0;
-      padding: 0 0.5em 0 0;
-      border-right: 2px groove;
-
-      .header {
-        font-weight: bold;
-        color: #4b4a44;
-        margin: 0;
-      }
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 3px;
+      margin-top: 3px;
 
       .property {
-        margin: 3px 0;
-        padding: 0 2px;
+        margin: 0;
+        padding: 2px 4px;
         background: rgba(0, 0, 0, 0.05);
-        border: 2px groove #eeede0;
-        text-align: center;
+        border: 1px groove var(--color-fieldset-border);
+        border-radius: 3px;
         font-size: 12px;
-        line-height: 18px;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  [data-tab=filters] {
+    flex-direction: row;
+
+    .toc {
+      flex: 0 0 160px;
+      list-style: none;
+      padding: 0;
+
+      & li {
+        margin: 5px 0;
+        border: 1px groove rgba(0, 0, 0, 0);
+        border-radius: 3px;
+        padding: 3px;
+
+        &.viewed {
+          border-color: var(--color-fieldset-border);
+        }
       }
     }
 
-    .editor {
-      flex: 1;
-      margin: 5px 0;
+    .picker .filter {
+      margin-top: 1rem;
+      cursor: pointer;
+      transition: border-color 200ms ease;
+
+      &:hover {
+        border-color: var(--button-hover-background-color);
+      }
     }
   }
-
-  .form-header {
-    font-family: "Modesto Condensed";
-    font-size: 20px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 34px;
-  }
-
-  & [data-tab=picker] {
-    overflow: hidden auto;
-  }
-
-  .filter {
-    padding-bottom: 0.5em;
-
-    .filter-header {
-      font-family: 'Modesto Condensed';
-      display: flex;
-      justify-content: space-between;
-      padding: 0 0.5em;
-      font-size: 24px;
-      border-bottom: 2px groove rgba(139, 27, 27, 0.733);
-      margin-bottom: 0.25em;
-    }
-
-    .filter-description {
-      padding: 0 0.5em;
-    }
-  }
-}
-
-.dnd5e-theme-dark .babonus.sheet {
-  --color-text-dark-primary: #191813;
-  &.dnd5e2 .window-resizable-handle { color: var(--dnd5e-color-black); }
 }

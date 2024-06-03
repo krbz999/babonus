@@ -1,0 +1,78 @@
+<div class="tab scrollable {{tabs.advanced.cssClass}}" data-tab="advanced" data-group="main">
+
+  <fieldset>
+    <legend>{{localize "BABONUS.Toggles"}}</legend>
+    {{#with fields}}
+    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
+    {{formGroup exclusive.field value=exclusive.value localize=true rootId=@root.rootId}}
+    {{formGroup optional.field value=optional.value localize=true rootId=@root.rootId}}
+    {{formGroup reminder.field value=reminder.value localize=true disabled=reminder.disabled rootId=@root.rootId}}
+    {{/with}}
+  </fieldset>
+
+  <fieldset>
+    <legend>{{localize "BABONUS.Fields.Consume.Label"}}</legend>
+    {{#with consume}}
+    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId disabled=enabled.disabled}}
+    {{#if enabled.value}}
+    {{formGroup type.field value=type.value localize=true sort=true blank="-"}}
+    {{#unless scales.unavailable}}
+    {{#if subtype.show}}
+    {{formGroup subtype.field value=subtype.value localize=true sort=false blank="-" choices=subtype.choices label=subtype.label}}
+    {{/if}}
+    {{#unless scales.unavailable}}
+    {{formGroup scales.field localize=true value=scales.value rootId=@root.rootId}}
+    {{/unless}}
+
+    <div class="form-group values">
+      <label>
+        {{localize value.label}}
+        {{{value.range}}}
+      </label>
+      <div class="form-fields">
+        {{formInput value.min.field value=value.min.value placeholder=value.min.placeholder}}
+        {{#if scales.value}}
+        <span class="sep dash">&mdash;</span>
+        {{formInput value.max.field value=value.max.value placeholder=value.max.placeholder}}
+        {{/if}}
+      </div>
+      <p class="hint">{{localize value.hint}}</p>
+    </div>
+
+    {{#if step.show}}
+    {{formGroup step.field value=step.value localize=true placeholder=(localize step.field.label)}}
+    {{/if}}
+
+    {{#if formula.show}}
+    {{formGroup formula.field value=formula.value localize=true placeholder=formula.placeholder}}
+    {{/if}}
+
+    {{/unless}}
+
+    {{/if}}
+    {{/with}}
+  </fieldset>
+
+  <fieldset>
+    <legend>{{localize "BABONUS.Fields.Aura.Label"}}</legend>
+    {{#with aura}}
+    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
+
+    {{#if enabled.value}}
+    {{formGroup template.field value=template.value localize=true rootId=@root.rootId}}
+    {{#unless template.value}}
+    {{formGroup range.field value=range.value localize=true label=range.label placeholder=(localize range.field.label)}}
+    {{/unless}}
+    {{formGroup disposition.field value=disposition.value localize=true sort=false}}
+    {{formGroup self.field value=self.value localize=true rootId=@root.rootId}}
+    {{formGroup blockers.field value=blockers.value localize=true}}
+    {{#unless template.value}}
+    {{#each requirements}}
+    {{formGroup field value=value localize=true rootId=@root.rootId}}
+    {{/each}}
+    {{/unless}}
+    {{/if}}
+    {{/with}}
+  </fieldset>
+
+</div>

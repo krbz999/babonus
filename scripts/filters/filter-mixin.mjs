@@ -16,30 +16,10 @@ export function FilterMixin(Base) {
     static canExclude = false;
 
     /**
-     * Is this filter available?
-     * @param {Set<string>} filters     The set of current filters.
-     * @param {Babonus} bonus           The current babonus.
-     * @returns {boolean}
+     * Should this filter display the trash button?
+     * @type {boolean}
      */
-    static isFilterAvailable(filters, bonus) {
-      if (this.repeatable) return true;
-      if (filters.has(this.name)) return false;
-      return !!babonus.abstract.DataModels[bonus.type].schema.getField(`filters.${this.name}`);
-    }
-
-    /**
-     * A class getData method for rendering purposes.
-     * @param {Babonus} bonus     The bonus being rendered.
-     * @returns {object}          The template data.
-     */
-    static async getData(bonus) {
-      return {
-        id: this.name,
-        appId: foundry.utils.randomID(),
-        label: `BABONUS.Filters${this.name.capitalize()}Label`,
-        tooltip: `BABONUS.Filters${this.name.capitalize()}Tooltip`
-      };
-    }
+    static trash = true;
 
     /**
      * Get the current data values of this filter.
@@ -51,11 +31,11 @@ export function FilterMixin(Base) {
 
     /**
      * Render the filter.
-     * @param {Babonus} bonus         The bonus being rendered.
-     * @returns {Promise<string>}     The rendered template.
+     * @param {Babonus} bonus     The bonus being rendered.
+     * @returns {string}          The rendered template.
      */
-    static async render(bonus) {
-      return renderTemplate(this.template, await this.getData(bonus));
+    static render(bonus) {
+      throw new Error("This must be subclassed!");
     }
 
     /**
@@ -67,12 +47,19 @@ export function FilterMixin(Base) {
       return this.value(bonus).size > 0;
     }
 
-    /**
-     * Return an array objects with 'value' and 'label', related to what this field should show.
-     * @returns {Promise<object[]>}
-     */
-    static async choices() {
-      throw new Error("This must be subclassed!");
+    /** @override */
+    toFormGroup(formConfig, inputConfig) {
+      const element = super.toFormGroup(formConfig, inputConfig);
+
+      if (this.constructor.trash) {
+        const trash = document.createElement("A");
+        trash.dataset.action = "deleteFilter";
+        trash.dataset.id = this.constructor.name;
+        trash.innerHTML = "<i class='fa-solid fa-trash'></i>";
+        element.querySelector(".form-fields").after(trash);
+      }
+
+      return element;
     }
   };
 }

@@ -16,7 +16,7 @@
     </header>
     <div class="types">
       {{#each createButtons}}
-      <a data-action="pick-type" data-type="{{type}}">
+      <a data-action="pick-type" data-type="{{type}}" data-tooltip="{{label}}">
         <i class="{{icon}}"></i>
         <span class="label">{{localize label}}</span>
       </a>
@@ -38,14 +38,12 @@
           <a class="label {{#unless bonus.enabled}}disabled{{/unless}}" data-action="current-collapse">
             <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
           </a>
-          <div class="details">
-            <div class="functions">
-              <a data-action="current-toggle"><i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i></a>
-              <a data-action="current-copy"><i class="fa-solid fa-copy"></i></a>
-              <a data-action="current-edit"><i class="fa-solid fa-edit"></i></a>
-              <a data-action="current-delete"><i class="fa-solid fa-trash"></i></a>
-            </div>
-            <a data-action="current-id">{{bonus.id}}</a>
+          <div class="functions">
+            <a data-action="current-toggle"><i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i></a>
+            <a data-action="current-copy"><i class="fa-solid fa-copy"></i></a>
+            <a data-action="current-edit"><i class="fa-solid fa-edit"></i></a>
+            <a data-action="current-delete"><i class="fa-solid fa-trash"></i></a>
+            <a data-action="current-id"><i class="fa-solid fa-passport"></i></a>
           </div>
         </div>
         <div class="description">{{{context.description}}}</div>

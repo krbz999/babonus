@@ -1,20 +1,49 @@
 import {FilterMixin} from "./filter-mixin.mjs";
 
-const {StringField} = foundry.data.fields;
+const {JavaScriptField, StringField} = foundry.data.fields;
 
-export class CustomScriptsField extends FilterMixin(StringField) {
+export class CustomScriptsField extends FilterMixin(JavaScriptField) {
   static name = "customScripts";
-  static template = "modules/babonus/templates/parts/textarea.hbs";
+
+  /** @override */
+  static render(bonus) {
+    const field = bonus.schema.getField(`filters.${this.name}`);
+    const value = bonus.filters[this.name] ?? "";
+
+    const template = `
+    <fieldset>
+      <legend>
+        {{localize label}}
+        <a data-action="deleteFilter" data-id="${this.name}">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </legend>
+      <p class="hint">{{localize hint}}</p>
+      <div class="form-group">
+        <div class="form-fields">
+          {{formInput field value=value}}
+        </div>
+      </div>
+    </fieldset>`;
+
+    return Handlebars.compile(template)({
+      field: field,
+      value: value,
+      label: field.label,
+      hint: field.hint
+    });
+  }
 
   constructor() {
-    super({initial: null, nullable: true});
+    super({
+      label: "BABONUS.Filters.CustomScripts.Label",
+      hint: "BABONUS.Filters.CustomScripts.Hint"
+    });
   }
 
   /** @override */
-  static async getData(bonus) {
-    const data = await super.getData();
-    data.value = this.value(bonus);
-    return data;
+  _validateType(value, options) {
+    return StringField.prototype._validateType.call(this, value, options);
   }
 
   /** @override */
