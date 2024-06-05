@@ -1,9 +1,9 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
 
 export default class TokenAura {
-  static RED = 0xFF0000;
-  static GREEN = 0x00FF00;
-  static WHITE = 0xFFFFFF;
+  static RED = new Color(0xFF0000);
+  static GREEN = new Color(0x00FF00);
+  static WHITE = new Color(0xFFFFFF);
 
   /**
    * @constructor
@@ -16,10 +16,35 @@ export default class TokenAura {
     this.showAuras = game.settings.get(MODULE.ID, SETTINGS.AURA);
     this.padRadius = !canvas.grid.isGridless || game.settings.get(MODULE.ID, SETTINGS.RADIUS);
 
-    babonus._currentAuras ??= {};
-    const old = babonus._currentAuras[bonus.uuid];
+    const auras = this.auras;
+    const old = auras[bonus.uuid];
     if (old) old.destroy({fadeOut: false});
-    babonus._currentAuras[bonus.uuid] = this;
+    auras[bonus.uuid] = this;
+  }
+
+  /**
+   * The collection of auras being kept track of.
+   * @type {Record<string, TokenAura>}
+   */
+  get auras() {
+    babonus._currentAuras ??= {};
+    return babonus._currentAuras;
+  }
+
+  /**
+   * The default color of the aura (white).
+   * @type {Color}
+   */
+  get white() {
+    return this.constructor.WHITE;
+  }
+
+  /**
+   * The name of this aura.
+   * @type {string}
+   */
+  get name() {
+    return `${this.bonus.uuid}-aura`;
   }
 
   /**
@@ -55,6 +80,10 @@ export default class TokenAura {
     return this.#token;
   }
 
+  /**
+   * The babonus from which to draw data.
+   * @type {Babonus}
+   */
   #bonus = null;
   get bonus() {
     return this.#bonus;
@@ -134,6 +163,14 @@ export default class TokenAura {
   }
 
   /**
+   * Is this aura visible?
+   * @type {boolean}
+   */
+  get visible() {
+    return this.token.object.visible && this.token.object.renderable;
+  }
+
+  /**
    * Initialize the aura.
    * @param {Token5e} target      The target to test containment against.
    */
@@ -158,10 +195,32 @@ export default class TokenAura {
     this.colorize();
 
     // Add element to container.
+    if (!this.container) return;
     this.container.addChild(this.element);
 
     // Fade in the container.
-    if (fadeIn) this.fadeIn();
+    if (this.visible) {
+      if (fadeIn) this.fadeIn();
+      else this.show();
+    } else this.hide();
+  }
+
+  /**
+   * Immediately hide this aura.
+   */
+  hide() {
+    if (!this.container) return;
+    CanvasAnimation.terminateAnimation(this.name);
+    this.container.alpha = 0;
+  }
+
+  /**
+   * Immediately show this aura.
+   */
+  show() {
+    if (!this.container) return;
+    CanvasAnimation.terminateAnimation(this.name);
+    this.container.alpha = 1;
   }
 
   /**
@@ -169,9 +228,10 @@ export default class TokenAura {
    */
   fadeIn() {
     if (!this.container || !this.showAuras) return;
+    this.show();
     CanvasAnimation.animate(
       [{attribute: "alpha", parent: this.container, to: 1, from: 0}],
-      {name: foundry.utils.randomID(), duration: 1000, easing: (x) => x * x}
+      {name: this.name, duration: 200, easing: (x) => x * x}
     );
   }
 
@@ -202,7 +262,7 @@ export default class TokenAura {
     if (this.element) this.element.destroy();
 
     const g = new PIXI.Graphics();
-    g.lineStyle({width: 3, color: this.constructor.WHITE, alpha: 0.75});
+    g.lineStyle({width: 3, color: this.white, alpha: 0.75});
     g.beginFill(0xFFFFFF, 0.03).drawPolygon(sweep).endFill();
 
     this.element = g;
@@ -216,16 +276,15 @@ export default class TokenAura {
    * @returns {PIXI.Container|null}
    */
   draw() {
-    if (!this.element) return null;
-    const o = this.token.object;
-    if (!o || !o.visible || !o.renderable) return null;
+    if (!this.element || !this.token.object) return null;
 
     if (!this.container) {
       const container = new PIXI.Container();
       canvas.interface.grid.addChild(container);
       this.container = container;
 
-      container.alpha = this.showAuras ? 1 : 0;
+      if (this.showAuras) this.show();
+      else this.hide();
     }
     return this.container;
   }
@@ -234,7 +293,7 @@ export default class TokenAura {
    * Set the color of the aura to either white, red, or green.
    */
   colorize() {
-    if (!this.target) this.element.tint = this.constructor.WHITE;
+    if (!this.target) this.element.tint = this.white;
     else this.element.tint = this.contains(this.target) ? this.constructor.GREEN : this.constructor.RED;
   }
 
@@ -271,16 +330,17 @@ export default class TokenAura {
    * @param {boolean} [options.fadeOut]     Should the aura fade out or be destroyed immediately?
    * @param {number} [options.duration]     Fade-out duration.
    */
-  destroy({fadeOut = true, duration = 4000} = {}) {
+  destroy({fadeOut = true, duration = 500} = {}) {
     const remove = () => {
       this.container?.destroy();
-      delete babonus._currentAuras[this.bonus.uuid];
+      delete this.auras[this.bonus.uuid];
     };
 
-    if (this.container && fadeOut && this.showAuras) {
+    if (this.container && fadeOut && this.showAuras && this.visible) {
+      this.show();
       CanvasAnimation.animate(
         [{attribute: "alpha", parent: this.container, to: 0, from: 1}],
-        {name: foundry.utils.randomID(), duration, easing: (x) => x * x}
+        {name: this.name, duration, easing: (x) => x * x}
       ).then(() => remove());
     } else remove();
   }

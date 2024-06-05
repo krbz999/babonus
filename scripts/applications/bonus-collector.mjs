@@ -357,6 +357,8 @@ Hooks.on("refreshToken", function(token) {
 
 Hooks.on("deleteToken", function(tokenDoc) {
   for (const aura of Object.values(babonus._currentAuras ?? {})) {
-    if (aura.token === tokenDoc) a.destroy({fadeOut: false});
+    if (aura.token === tokenDoc) aura.destroy({fadeOut: false});
   }
 });
+
+Hooks.on("canvasTearDown", (canvas) => babonus._currentAuras = {});
