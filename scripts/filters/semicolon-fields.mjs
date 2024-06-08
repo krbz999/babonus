@@ -4,6 +4,7 @@ const {SetField, StringField} = foundry.data.fields;
 
 class BaseField extends FilterMixin(SetField) {
   static canExclude = true;
+  static trash = false;
 
   constructor(options = {}) {
     super(new StringField(), options);
@@ -37,6 +38,21 @@ class BaseField extends FilterMixin(SetField) {
   toFormGroup(formConfig, inputConfig) {
     const element = super.toFormGroup(formConfig, inputConfig);
 
+    const set = document.createElement("FIELDSET");
+    const label = element.querySelector("LABEL");
+    set.innerHTML = `
+    <legend>
+      ${label.textContent}
+      <a data-action="deleteFilter" data-id="${this.constructor.name}">
+        <i class="fa-solid fa-trash"></i>
+      </a>
+    </legend>`;
+    label.remove();
+
+    const hint = element.querySelector(".hint");
+    hint.remove();
+    set.appendChild(hint);
+
     const input = element.querySelector("input");
     const button = document.createElement("BUTTON");
     button.dataset.action = "keysDialog";
@@ -46,7 +62,8 @@ class BaseField extends FilterMixin(SetField) {
     button.innerHTML = `<i class="fa-solid fa-key"></i> ${game.i18n.localize("BABONUS.Keys")}`;
     input.after(button);
 
-    return element;
+    set.appendChild(element);
+    return set;
   }
 
   /** @override */
