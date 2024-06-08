@@ -37,7 +37,6 @@
   .modifiers.example {
     position: sticky;
     top: 0;
-
   }
 
   & fieldset:hover > .hint {
