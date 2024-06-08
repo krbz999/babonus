@@ -7,9 +7,27 @@ class BaseField extends FilterMixin(SetField) {
   static render(bonus) {
     const field = bonus.schema.getField(`filters.${this.name}`);
     const value = bonus.filters[this.name] ?? new Set();
-    return Handlebars.compile("{{formGroup field value=value localize=true}}")({
-      field: field, value: value
+    const template = `
+    <fieldset>
+      <legend>
+        {{localize label}}
+        <a data-action="deleteFilter" data-id="${this.name}">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </legend>
+      <p class="hint">{{localize hint}}</p>
+      {{formInput field value=value localize=true}}
+    </fieldset>`;
+    return Handlebars.compile(template)({
+      field: field, value: value, hint: field.hint, label: field.label
     });
+  }
+
+  /** @override */
+  _cleanType(value, source) {
+    const choices = (this.element.choices instanceof Function) ? this.element.choices() : this.element.choices;
+    value = super._cleanType(value, source).filter(v => v in choices);
+    return value;
   }
 }
 

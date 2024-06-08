@@ -9,8 +9,7 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
     super({
       type: new StringField({
         required: false,
-        label: "BABONUS.Filters.FeatureTypes.TypeLabel",
-        choices: () => CONFIG.DND5E.featureTypes
+        label: "BABONUS.Filters.FeatureTypes.TypeLabel"
       }),
       subtype: new StringField({
         required: true,
@@ -31,7 +30,8 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
 
     const value1 = bonus.filters.featureTypes.type;
     const value2 = bonus.filters.featureTypes.subtype;
-    const choices = CONFIG.DND5E.featureTypes[value1]?.subtypes ?? {};
+    const choices1 = CONFIG.DND5E.featureTypes;
+    const choices2 = CONFIG.DND5E.featureTypes[value1]?.subtypes ?? {};
 
     const template = `
     <fieldset>
@@ -42,9 +42,9 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
         </a>
       </legend>
       <p class="hint">{{localize hint}}</p>
-      {{formGroup type value=value1 localize=true sort=true}}
-      {{#if choices}}
-      {{formGroup subtype value=value2 localize=true sort=true choices=choices}}
+      {{formGroup type value=value1 localize=true sort=true choices=choices1}}
+      {{#if choices2}}
+      {{formGroup subtype value=value2 localize=true sort=true choices=choices2}}
       {{/if}}
     </fieldset>`;
 
@@ -53,7 +53,8 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
       subtype: subtype,
       value1: value1,
       value2: value2,
-      choices: foundry.utils.isEmpty(choices) ? null : choices,
+      choices1: choices1,
+      choices2: foundry.utils.isEmpty(choices2) ? null : choices2,
       label: schema.label,
       hint: schema.hint
     };

@@ -443,13 +443,20 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new DocumentIdField({initial: () => foundry.utils.randomID()}),
       sort: new IntegerSortField(),
-      name: new StringField({required: true, blank: false}),
+      name: new StringField({
+        required: true,
+        blank: false
+      }),
       img: new FilePathField({
         label: "BABONUS.Fields.Img.Label",
         hint: "BABONUS.Fields.Img.Hint",
         categories: ["IMAGE"]
       }),
-      type: new StringField({required: true, initial: this.type, choices: [this.type]}),
+      type: new StringField({
+        required: true,
+        initial: this.type,
+        choices: [this.type]
+      }),
       enabled: new BooleanField({
         initial: true,
         label: "BABONUS.Fields.Enabled.Label",

@@ -63,7 +63,10 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  static migrateData(source) {}
+  static migrateData(source) {
+    // Resource as a consumption type is deprecated fully and without replacement.
+    if (source.type === "resource") source.type = "";
+  }
 
   /** @override */
   prepareDerivedData() {
