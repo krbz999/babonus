@@ -291,7 +291,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
           return acc;
         }, {
           smallest: "DND5E.ConsumeHitDiceSmallest",
-          largest: "DND5E.ConsumeHitDiceLargetst"
+          largest: "DND5E.ConsumeHitDiceLargest"
         });
       } else consume.subtype.show = false;
     } else {
