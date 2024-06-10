@@ -6,6 +6,12 @@ class BaseField extends FilterMixin(SetField) {
   static canExclude = true;
   static trash = false;
 
+  /**
+   * Encapsulate this in a fieldset when using the formGroup hbs helper?
+   * @type {boolean}
+   */
+  static fieldset = true;
+
   constructor(options = {}) {
     super(new StringField(), options);
   }
@@ -38,21 +44,6 @@ class BaseField extends FilterMixin(SetField) {
   toFormGroup(formConfig, inputConfig) {
     const element = super.toFormGroup(formConfig, inputConfig);
 
-    const set = document.createElement("FIELDSET");
-    const label = element.querySelector("LABEL");
-    set.innerHTML = `
-    <legend>
-      ${label.textContent}
-      <a data-action="deleteFilter" data-id="${this.constructor.name}">
-        <i class="fa-solid fa-trash"></i>
-      </a>
-    </legend>`;
-    label.remove();
-
-    const hint = element.querySelector(".hint");
-    hint.remove();
-    set.appendChild(hint);
-
     const input = element.querySelector("input");
     const button = document.createElement("BUTTON");
     button.dataset.action = "keysDialog";
@@ -62,8 +53,27 @@ class BaseField extends FilterMixin(SetField) {
     button.innerHTML = `<i class="fa-solid fa-key"></i> ${game.i18n.localize("BABONUS.Keys")}`;
     input.after(button);
 
-    set.appendChild(element);
-    return set;
+    if (this.constructor.fieldset) {
+      const set = document.createElement("FIELDSET");
+      const label = element.querySelector("LABEL");
+      set.innerHTML = `
+      <legend>
+        ${label.textContent}
+        <a data-action="deleteFilter" data-id="${this.constructor.name}">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </legend>`;
+      label.remove();
+
+      const hint = element.querySelector(".hint");
+      hint.remove();
+      set.appendChild(hint);
+
+      set.appendChild(element);
+      return set;
+    }
+
+    return element;
   }
 
   /** @override */
@@ -176,6 +186,7 @@ class AuraBlockersField extends StatusEffectsField {
   static name = "auraBlockers";
   static canExclude = false;
   static trash = false;
+  static fieldset = false;
 }
 
 class CreatureTypesField extends BaseField {

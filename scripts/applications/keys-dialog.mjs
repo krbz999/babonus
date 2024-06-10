@@ -23,8 +23,14 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
 
   /** @override */
   static async prompt({canExclude, values, filterId, ...configuration} = {}) {
+    const description = (filterId === "auraBlockers")
+      ? "BABONUS.Fields.Aura.Blockers.Hint"
+      : `BABONUS.Filters.${filterId.capitalize()}.Hint`;
+
     configuration.content = await renderTemplate(`modules/${MODULE.ID}/templates/subapplications/keys-dialog.hbs`, {
-      canExclude, values, description: `BABONUS.Filters.${filterId.capitalize()}.Hint`
+      canExclude: canExclude,
+      values: values,
+      description: description
     });
     configuration.filterId = filterId;
     configuration.rejectClose = false;
@@ -33,9 +39,10 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
 
   /** @override */
   get title() {
-    return game.i18n.format("BABONUS.KeysDialogTitle", {
-      name: game.i18n.localize(`BABONUS.Filters.${this.options.filterId.capitalize()}.Label`)
-    });
+    const name = (this.options.filterId === "auraBlockers")
+      ? "BABONUS.Fields.Aura.Blockers.Label"
+      : `BABONUS.Filters.${this.options.filterId.capitalize()}.Label`;
+    return game.i18n.format("BABONUS.KeysDialogTitle", {name: game.i18n.localize(name)});
   }
 
   /**
