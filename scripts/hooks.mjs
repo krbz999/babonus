@@ -1,9 +1,16 @@
 import {MODULE, SETTINGS} from "./constants.mjs";
-import {default as buttons} from "./applications/header-button.mjs";
+import {
+  HeaderButtonActor,
+  HeaderButtonDialog,
+  HeaderButtonEffect,
+  HeaderButtonItem,
+  injectRegionConfigElement
+} from "./applications/header-button.mjs";
 import {createAPI} from "./api.mjs";
-import {default as applications} from "./applications/_module.mjs";
-import {registry} from "./applications/roll-hooks.mjs";
+import {RollHooks, registry} from "./applications/roll-hooks.mjs";
 import {OptionalSelector} from "./applications/optional-selector.mjs";
+import enricherSetup from "./applications/enrichers.mjs";
+import {CharacterSheetTab} from "./applications/character-sheet-tab.mjs";
 
 /**
  * Render the optional bonus selector on a roll dialog.
@@ -124,29 +131,30 @@ async function setupTree() {
 
 // General setup.
 Hooks.once("init", _createSettings);
+// Hooks.once("init", enricherSetup);
 Hooks.once("setup", createAPI);
 Hooks.on("hotbarDrop", _onHotbarDrop);
-Hooks.once("setup", () => applications.CharacterSheetTab.setup());
+Hooks.once("setup", () => CharacterSheetTab.setup());
 
 // Any application injections.
-Hooks.on("getActiveEffectConfigHeaderButtons", (...T) => buttons.HeaderButtonEffect.inject(...T));
-Hooks.on("getActorSheetHeaderButtons", (...T) => buttons.HeaderButtonActor.inject(...T));
-Hooks.on("getDialogHeaderButtons", (...T) => buttons.HeaderButtonDialog.inject(...T));
-Hooks.on("getItemSheetHeaderButtons", (...T) => buttons.HeaderButtonItem.inject(...T));
+Hooks.on("getActiveEffectConfigHeaderButtons", (...T) => HeaderButtonEffect.inject(...T));
+Hooks.on("getActorSheetHeaderButtons", (...T) => HeaderButtonActor.inject(...T));
+Hooks.on("getDialogHeaderButtons", (...T) => HeaderButtonDialog.inject(...T));
+Hooks.on("getItemSheetHeaderButtons", (...T) => HeaderButtonItem.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
-Hooks.on("renderRegionConfig", buttons.injectRegionConfigElement);
+Hooks.on("renderRegionConfig", injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
 Hooks.once("ready", function() {
-  Hooks.on("dnd5e.preDisplayCard", applications.RollHooks.preDisplayCard);
-  Hooks.on("dnd5e.preRollAbilitySave", applications.RollHooks.preRollAbilitySave);
-  Hooks.on("dnd5e.preRollAbilityTest", applications.RollHooks.preRollAbilityTest);
-  Hooks.on("dnd5e.preRollAttack", applications.RollHooks.preRollAttack);
-  Hooks.on("dnd5e.preRollDamage", applications.RollHooks.preRollDamage);
-  Hooks.on("dnd5e.preRollDeathSave", applications.RollHooks.preRollDeathSave);
-  Hooks.on("dnd5e.preRollHitDie", applications.RollHooks.preRollHitDie);
-  Hooks.on("dnd5e.preRollSkill", applications.RollHooks.preRollSkill);
-  Hooks.on("dnd5e.preRollToolCheck", applications.RollHooks.preRollToolCheck);
-  Hooks.on("dnd5e.preCreateItemTemplate", applications.RollHooks.preCreateItemTemplate);
+  Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
+  Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
+  Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
+  Hooks.on("dnd5e.preRollAttack", RollHooks.preRollAttack);
+  Hooks.on("dnd5e.preRollDamage", RollHooks.preRollDamage);
+  Hooks.on("dnd5e.preRollDeathSave", RollHooks.preRollDeathSave);
+  Hooks.on("dnd5e.preRollHitDie", RollHooks.preRollHitDie);
+  Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
+  Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
+  Hooks.on("dnd5e.preCreateItemTemplate", RollHooks.preCreateItemTemplate);
   setupTree();
 });

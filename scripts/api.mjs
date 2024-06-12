@@ -3,6 +3,7 @@ import {default as applications} from "./applications/_module.mjs";
 import {default as filters} from "./filters/_module.mjs";
 import {default as models} from "./models/babonus-model.mjs";
 import {default as fields} from "./models/_module.mjs";
+import {FilterManager} from "./applications/filter-manager.mjs";
 
 /**
  * Set up the public API.
@@ -16,6 +17,7 @@ export function createAPI() {
     createBabonus,
     embedBabonus,
     hotbarToggle: hotbarToggle,
+    duplicateBonus: duplicateBonus,
 
     findEmbeddedDocumentsWithBonuses,
     openBabonusWorkshop,
@@ -37,7 +39,7 @@ export function createAPI() {
     },
 
     filters: Object.keys(filters).reduce((acc, key) => {
-      acc[key] = applications.FilterManager[key];
+      acc[key] = FilterManager[key];
       return acc;
     }, {})
   };
@@ -84,6 +86,15 @@ function createBabonus(data, parent = null) {
   if (!(data.type in models)) throw new Error("INVALID BABONUS TYPE.");
   data.id = foundry.utils.randomID();
   return new models[data.type](data, {parent});
+}
+
+/**
+ * Duplicate a bonus.
+ * @param {Babonus} bonus           The bonus to duplicate.
+ * @returns {Promise<Babonus>}      The duplicate.
+ */
+function duplicateBonus(bonus) {
+  return applications.BabonusWorkshop.copyBonus(bonus);
 }
 
 /**
@@ -155,15 +166,16 @@ function getCollection(object) {
 
 /**
  * Embed a created babonus onto the target object.
- * @param {Document} object         The actor, item, or effect that should have the babonus.
+ * @param {Document} object         The actor, item, effect, or region that should have the babonus.
  * @param {Babonus} bonus           The created babonus.
- * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+ * @returns {Promise<Document>}     The actor, item, effect, or region that has received the babonus.
  */
 async function embedBabonus(object, bonus) {
   const validDocumentType = ["Actor", "Item", "ActiveEffect", "Region"].includes(object.documentName);
   if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
   if (!Object.values(models).some(t => bonus instanceof t)) return null;
-  return applications.BabonusWorkshop._embedBabonus(object, bonus);
+  await applications.BabonusWorkshop._embedBabonus(object, bonus);
+  return object;
 }
 
 /**

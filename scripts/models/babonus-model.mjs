@@ -630,9 +630,14 @@ class Babonus extends foundry.abstract.DataModel {
    */
   async update(changes, options = {}) {
     changes = foundry.utils.expandObject(changes);
+
     delete changes.id;
+    delete changes.type;
+
     this.updateSource(changes, options);
-    await babonus.abstract.applications.BabonusWorkshop._embedBabonus(this.parent, this, true);
+    const collection = babonus.getCollection(this.parent);
+    collection.set(this.id, this);
+    await this.parent.setFlag("babonus", "bonuses", collection.map(k => k.toObject()));
     return this;
   }
 
@@ -641,10 +646,9 @@ class Babonus extends foundry.abstract.DataModel {
    * @returns {Promise<Babonus>}
    */
   async delete() {
-    let collection = babonus.getCollection(this.parent);
+    const collection = babonus.getCollection(this.parent);
     collection.delete(this.id);
-    collection = collection.contents.map(k => k.toObject());
-    await this.parent.setFlag("babonus", "bonuses", collection);
+    await this.parent.setFlag("babonus", "bonuses", collection.map(k => k.toObject()));
     return this;
   }
 

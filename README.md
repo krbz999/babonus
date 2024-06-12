@@ -93,7 +93,7 @@ Interested in following along with development of any of my modules? Join the [D
 ```js
 /**
  * Return the collection of bonuses on the document.
- * @param {Document} object           An actor, item, effect, or template.
+ * @param {Document} object           An actor, item, effect, template, or region.
  * @returns {Collection<Babonus>}     A collection of babonuses.
  */
 function getCollection(object)
@@ -129,10 +129,19 @@ function createBabonus(data, parent = null)
 
 ```js
 /**
+ * Duplicate a bonus.
+ * @param {Babonus} bonus           The bonus to duplicate.
+ * @returns {Promise<Babonus>}      The duplicate.
+ */
+function duplicateBonus(bonus)
+```
+
+```js
+/**
  * Embed a created babonus onto the target object.
- * @param {Document} object         The actor, item, or effect that should have the babonus.
+ * @param {Document} object         The actor, item, effect, or region that should have the babonus.
  * @param {Babonus} bonus           The created babonus.
- * @returns {Promise<Document>}     The actor, item, or effect that has received the babonus.
+ * @returns {Promise<Document>}     The actor, item, effect, or region that has received the babonus.
  */
 async function embedBabonus(object, bonus)
 ```
@@ -150,7 +159,7 @@ function findEmbeddedDocumentsWithBonuses(object)
 ```js
 /**
  * Render the build-a-bonus application for a document.
- * @param {Document} object       An actor, item, or effect.
+ * @param {Document} object       An actor, item, effect, or region.
  * @returns {BabonusWorkshop}     The rendered workshop.
  */
 function openBabonusWorkshop(object)

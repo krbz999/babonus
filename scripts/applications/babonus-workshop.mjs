@@ -8,11 +8,11 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
   //#region
 
   // The right-hand side bonuses that have a collapsed description.
-  _collapsedBonuses = new Set();
+  #collapsedBonuses = new Set();
 
   // The color of the left-side otter.
-  _otterColor = "black";
-  _otterVomits = 0;
+  #otterColor = "black";
+  #otterVomits = 0;
 
   constructor(object, options) {
     super(object, options);
@@ -38,7 +38,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * A reference to the owner of the bonuses.
-   * @type {Actor5e|Item5e|ActiveEffect5e}
+   * @type {Actor5e|Item5e|ActiveEffect5e|RegionDocument}
    */
   get document() {
     return this.object;
@@ -99,7 +99,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
       data.currentBonuses.push({
         bonus: bonus,
         context: {
-          collapsed: this._collapsedBonuses.has(bonus.id),
+          collapsed: this.#collapsedBonuses.has(bonus.id),
           description: await TextEditor.enrichHTML(bonus.description, {
             async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
           }),
@@ -117,7 +117,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     }));
 
     data.ICON = MODULE.ICON;
-    data.otterColor = this._otterColor;
+    data.otterColor = this.#otterColor;
     return data;
   }
 
@@ -129,17 +129,17 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
       const action = n.dataset.action;
       switch (action) {
         case "otter-rainbow":
-          n.addEventListener("click", this._onOtterRainbow.bind(this));
+          n.addEventListener("click", this.#onOtterRainbow.bind(this));
           break;
         case "otter-dance":
-          n.addEventListener("click", this._onOtterDance.bind(this));
+          n.addEventListener("click", this.#onOtterDance.bind(this));
           break;
         case "current-collapse":
-          n.addEventListener("click", this._onCollapseBonus.bind(this));
+          n.addEventListener("click", this.#onCollapseBonus.bind(this));
           break;
         case "current-id":
-          n.addEventListener("click", this._onClickId.bind(this));
-          n.addEventListener("contextmenu", this._onClickId.bind(this));
+          n.addEventListener("click", this.#onClickId.bind(this));
+          n.addEventListener("contextmenu", this.#onClickId.bind(this));
           break;
       }
     });
@@ -158,19 +158,19 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
       const action = n.dataset.action;
       switch (action) {
         case "pick-type":
-          n.addEventListener("click", this._onClickType.bind(this));
+          n.addEventListener("click", this.#onClickType.bind(this));
           break;
         case "current-toggle":
-          n.addEventListener("click", this._onToggleBonus.bind(this));
+          n.addEventListener("click", this.#onToggleBonus.bind(this));
           break;
         case "current-copy":
-          n.addEventListener("click", this._onCopyBonus.bind(this));
+          n.addEventListener("click", this.#onCopyBonus.bind(this));
           break;
         case "current-edit":
-          n.addEventListener("click", this._onClickBonus.bind(this));
+          n.addEventListener("click", this.#onClickBonus.bind(this));
           break;
         case "current-delete":
-          n.addEventListener("click", this._onDeleteBonus.bind(this));
+          n.addEventListener("click", this.#onDeleteBonus.bind(this));
           break;
       }
     });
@@ -192,8 +192,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     let dragData;
     const id = label.dataset.id ?? label.dataset.itemId;
     if (id) {
-      const collection = this.collection ?? babonus.getCollection(this.document);
-      const bab = collection.get(id);
+      const bab = this.collection.get(id);
       dragData = bab.toDragData();
     }
     if (!dragData) return;
@@ -205,9 +204,9 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     const data = TextEditor.getDragEventData(event);
     const doc = this.document;
     if (!this.isEditable) return null;
-    const bab = await BabonusWorkshop._fromDropData.call(this, data);
+    const bab = await BabonusWorkshop.#fromDropData.call(this, data);
     if (!bab) return null;
-    return BabonusWorkshop._embedBabonus(doc, bab);
+    BabonusWorkshop._embedBabonus(doc, bab);
   }
 
   /**
@@ -215,7 +214,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * @param {object} data                 An object of babonus data or a uuid.
    * @returns {Promise<Babonus|null>}     The created babonus.
    */
-  static async _fromDropData(data) {
+  static async #fromDropData(data) {
     if (!data.uuid || (data.type !== "Babonus")) return null;
     const bonus = await babonus.fromUuid(data.uuid);
     if (!bonus || (bonus.parent === this.document)) return null;
@@ -226,17 +225,13 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /**
    * Handle creating a new bonus.
-   * @param {Event} event                 The initiating click event.
-   * @returns {Promise<BabonusSheet>}     The sheet of the newly created bonus.
+   * @param {Event} event     The initiating click event.
    */
-  async _onClickType(event) {
+  async #onClickType(event) {
     const type = event.currentTarget.dataset.type;
-    const bonus = new babonus.abstract.DataModels[type]({
-      type: type,
-      id: foundry.utils.randomID()
-    }, {parent: this.document});
-    await this.constructor._embedBabonus(this.document, bonus, true);
-    return this.collection.get(bonus.id).sheet.render(true);
+    const bonus = new babonus.abstract.DataModels[type]();
+    const id = await BabonusWorkshop._embedBabonus(this.document, bonus);
+    this.collection.get(id).sheet.render(true);
   }
 
   /**
@@ -244,7 +239,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * @param {Event} event         The initiating click event.
    * @returns {BabonusSheet}      The sheet of a babonus.
    */
-  _onClickBonus(event) {
+  #onClickBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bonus = this.collection.get(id);
     return bonus.sheet.render(true);
@@ -274,10 +269,10 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * Otter Rainbow.
    * @param {Event} event     The initiating click event.
    */
-  _onOtterRainbow(event) {
-    this._otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
-    event.currentTarget.style.color = this._otterColor;
-    const count = this._otterVomits++;
+  #onOtterRainbow(event) {
+    this.#otterColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    event.currentTarget.style.color = this.#otterColor;
+    const count = this.#otterVomits++;
     const content = event.currentTarget.closest(".window-content");
     if (count >= 50) content.classList.toggle("vomit", true);
   }
@@ -286,7 +281,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * Otter Dance.
    * @param {Event} event     The initiating click event.
    */
-  _onOtterDance(event) {
+  #onOtterDance(event) {
     const spin = [{transform: "rotate(0)"}, {transform: "rotate(360deg)"}];
     const time = {duration: 1000, iterations: 1};
     if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
@@ -296,20 +291,20 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * Collapse or expand a babonus and its description.
    * @param {Event} event     The initiating click event.
    */
-  _onCollapseBonus(event) {
+  #onCollapseBonus(event) {
     const bonus = event.currentTarget.closest(".bonus");
     const id = bonus.dataset.id;
-    const has = this._collapsedBonuses.has(id);
+    const has = this.#collapsedBonuses.has(id);
     bonus.classList.toggle("collapsed", !has);
-    if (has) this._collapsedBonuses.delete(id);
-    else this._collapsedBonuses.add(id);
+    if (has) this.#collapsedBonuses.delete(id);
+    else this.#collapsedBonuses.add(id);
   }
 
   /**
    * Handle copying the id or uuid of a babonus.
    * @param {Event} event     The initiating click event.
    */
-  async _onClickId(event) {
+  async #onClickId(event) {
     const bonus = this.collection.get(event.currentTarget.closest(".bonus").dataset.id);
     const id = (event.type === "contextmenu") ? bonus.id : bonus.uuid;
     await game.clipboard.copyPlainText(id);
@@ -322,7 +317,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * Delete a babonus on the builder when hitting its trashcan icon.
    * @param {Event} event     The initiating click event.
    */
-  async _onDeleteBonus(event) {
+  async #onDeleteBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bonus = this.collection.get(id);
     bonus.deleteDialog();
@@ -332,7 +327,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * Toggle the enabled property on a babonus.
    * @param {Event} event     The initiating click event.
    */
-  async _onToggleBonus(event) {
+  async #onToggleBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bonus = this.collection.get(id);
     bonus.toggle();
@@ -342,52 +337,43 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    * Copy a babonus on the document.
    * @param {Event} event     The initiating click event.
    */
-  async _onCopyBonus(event) {
+  async #onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    const src = this.collection.get(id);
-    const data = src.toObject();
-    data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
-    const bonus = new src.constructor(data, {parent: src.parent});
-    this.constructor._embedBabonus(src.parent, bonus);
+    BabonusWorkshop.copyBonus(this.collection.get(id));
   }
 
-  //#endregion
-
   /**
-   * ----------------------------------------------------
-   *
-   *
-   *                   STATIC FUNCTIONS
-   *
-   *
-   * ----------------------------------------------------
+   * Duplicate a bonus.
+   * @param {Babonus} bonus           The bonus to duplicate.
+   * @returns {Promise<Babonus>}      The created bonus.
    */
-
-  //#region
+  static async copyBonus(bonus) {
+    const data = bonus.toObject();
+    data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
+    bonus = new bonus.constructor(data, {parent: bonus.parent});
+    const id = await BabonusWorkshop._embedBabonus(bonus.parent, bonus);
+    return babonus.getCollection(bonus.parent).get(id);
+  }
 
   /**
    * Embed a created babonus onto the target object.
-   * @param {Document5e} object         The actor, item, or effect that should have the babonus.
-   * @param {Babonus} bonus             The created babonus.
-   * @param {boolean} [keepId]          Keep the ID or generate a new one?
-   * @param {Set<string>} [filters]     A set of strings denoting keys to not delete from the bonus object.
-   * @returns {Promise<Document5e>}     The actor, item, or effect that has received the babonus.
+   * @param {Document} object       The actor, item, effect, or region that should have the babonus.
+   * @param {Babonus} bonus         The created babonus.
+   * @returns {Promise<string>}     The id of the bonus created.
    */
-  static async _embedBabonus(object, bonus, keepId = false, filters) {
+  static async _embedBabonus(object, bonus) {
     const data = bonus.toObject();
-    filters ??= new Set();
     for (const id of Object.keys(data.filters)) {
-      if (!filters.has(id) && !babonus.abstract.DataFields.filters[id].storage(bonus)) delete data.filters[id];
+      if (!babonus.abstract.DataFields.filters[id].storage(bonus)) delete data.filters[id];
     }
-    const id = keepId ? data.id : foundry.utils.randomID();
-    data.id = id;
-
+    data.id = foundry.utils.randomID();
     let collection = babonus.getCollection(object);
-    if (collection.has(id)) collection.delete(id);
-    collection = collection.contents;
+    if (collection.has(data.id)) collection.delete(data.id);
+    collection = collection.map(k => k.toObject());
     collection.push(data);
 
-    return object.setFlag("babonus", "bonuses", collection);
+    await object.setFlag("babonus", "bonuses", collection);
+    return data.id;
   }
 
   //#endregion

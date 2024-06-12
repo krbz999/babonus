@@ -6,7 +6,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
     classes: [MODULE.ID, "keys-dialog"],
     modal: true,
     window: {
-      resizable: true,
+      resizable: false,
       icon: "fa-solid fa-otter"
     },
     position: {
@@ -14,10 +14,10 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
       width: 400
     },
     actions: {
-      cycleAll: this._onCycleAll,
-      cycleRight: this._onCycleRight,
-      cycleLeft: this._onCycleLeft,
-      cycle: this._onCycleRight
+      cycleAll: this.#onCycleAll,
+      cycleRight: this.#onCycleRight,
+      cycleLeft: this.#onCycleLeft,
+      cycle: this.#onCycleRight
     }
   };
 
@@ -49,7 +49,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
    * Cycle all selects in a column between the valid options.
    * @param {Event} event     The initiating click event.
    */
-  static _onCycleAll(event, target) {
+  static #onCycleAll(event, target) {
     const table = target.closest(".table");
     const selects = table.querySelectorAll("select");
     const newIndex = (selects[0].selectedIndex + 1) % selects[0].options.length;
@@ -60,7 +60,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
    * Custom implementation for label-to-checkbox linking.
    * @param {Event} event     The initiating click event.
    */
-  static _onCycleRight(event, target) {
+  static #onCycleRight(event, target) {
     const select = target.closest(".row").querySelector(".select select");
     const newIndex = (select.selectedIndex + 1) % select.options.length;
     select.selectedIndex = newIndex;
@@ -70,7 +70,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
    * Cycle backwards in the select options.
    * @param {Event} event     The initiating click event.
    */
-  static _onCycleLeft(event, target) {
+  static #onCycleLeft(event, target) {
     const select = target.nextElementSibling;
     const n = select.selectedIndex - 1;
     const mod = select.options.length;

@@ -1,4 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
+import {BonusCollector} from "./bonus-collector.mjs";
 
 export class FilterManager {
   /**
@@ -21,7 +22,7 @@ export class FilterManager {
    * @returns {Collection<Babonus>}     The filtered Collection.
    */
   static check(object, type, details = {}) {
-    const collector = new babonus.abstract.applications.BonusCollector({
+    const collector = new BonusCollector({
       object: object,
       type: type
     });

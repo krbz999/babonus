@@ -46,14 +46,14 @@ class HeaderButton {
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
-      onclick: () => new babonus.abstract.applications.BabonusWorkshop(app.document).render(true)
+      onclick: () => babonus.openBabonusWorkshop(app.document)
     };
     if (this.showLabel) button.label = this.label;
     array.unshift(button);
   }
 }
 
-class HeaderButtonActor extends HeaderButton {
+export class HeaderButtonActor extends HeaderButton {
   /** @override */
   static get invalidTypes() {
     return new Set(["group"]);
@@ -67,21 +67,21 @@ class HeaderButtonActor extends HeaderButton {
     const button = {
       class: MODULE.ID,
       icon: MODULE.ICON,
-      onclick: () => new babonus.abstract.applications.BabonusWorkshop(app.document).render(true),
+      onclick: () => babonus.openBabonusWorkshop(app.document),
       label: this.label
     };
     array.unshift(button);
   }
 }
 
-class HeaderButtonItem extends HeaderButton {
+export class HeaderButtonItem extends HeaderButton {
   /** @override */
   static get invalidTypes() {
     return new Set(["background", "class", "subclass", "race"]);
   }
 }
 
-class HeaderButtonEffect extends HeaderButton {
+export class HeaderButtonEffect extends HeaderButton {
   /** @override */
   static get invalidTypes() {
     return new Set();
@@ -89,7 +89,7 @@ class HeaderButtonEffect extends HeaderButton {
 }
 
 /** Add a header button to display the source of all applied bonuses. */
-class HeaderButtonDialog extends HeaderButton {
+export class HeaderButtonDialog extends HeaderButton {
   /** @override */
   static inject(app, array) {
     const id = app.options[MODULE.ID]?.registry;
@@ -105,7 +105,7 @@ class HeaderButtonDialog extends HeaderButton {
 }
 
 /** Inject form element on scene region configs. */
-function injectRegionConfigElement(config, element) {
+export function injectRegionConfigElement(config, element) {
   if (!config.isEditable) return;
   const fg = element.querySelector("[name=visibility]").closest(".form-group");
   const div = document.createElement("FIELDSET");
@@ -117,16 +117,6 @@ function injectRegionConfigElement(config, element) {
     ${game.i18n.localize("BABONUS.ModuleTitle")}
   </button>
   <p class="hint">${game.i18n.localize("BABONUS.RegionConfigHint")}</p>`;
-  div.querySelector("[data-action]").addEventListener("click", (event) => {
-    new babonus.abstract.applications.BabonusWorkshop(config.document).render(true);
-  });
+  div.querySelector("[data-action]").addEventListener("click", (event) => babonus.openBabonusWorkshop(config.document));
   fg.after(div);
 }
-
-export default {
-  HeaderButtonActor,
-  HeaderButtonItem,
-  HeaderButtonEffect,
-  HeaderButtonDialog,
-  injectRegionConfigElement
-};

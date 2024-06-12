@@ -1,4 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
+import {FilterManager} from "./filter-manager.mjs";
 
 class RollRegister extends Map {
   register(bonuses) {
@@ -21,7 +22,7 @@ export class RollHooks {
     if (!item.hasSave) return;
 
     // Get bonuses:
-    const bonuses = babonus.abstract.applications.FilterManager.itemCheck(item, "save", {spellLevel: item.system.level});
+    const bonuses = FilterManager.itemCheck(item, "save", {spellLevel: item.system.level});
     if (!bonuses.size) return;
     const id = registry.register(bonuses);
 
@@ -57,7 +58,7 @@ export class RollHooks {
     if (!item) return;
     // get bonuses:
     const spellLevel = rollConfig.data.item.level;
-    const bonuses = babonus.abstract.applications.FilterManager.itemCheck(item, "attack", {spellLevel});
+    const bonuses = FilterManager.itemCheck(item, "attack", {spellLevel});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -104,7 +105,7 @@ export class RollHooks {
     if (!item) return;
     // get bonus:
     const spellLevel = rollConfig.data.item.level;
-    const bonuses = babonus.abstract.applications.FilterManager.itemCheck(item, "damage", {spellLevel});
+    const bonuses = FilterManager.itemCheck(item, "damage", {spellLevel});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -154,7 +155,7 @@ export class RollHooks {
    */
   static preRollSave(actor, rollConfig, {ability, isDeath, isConcentration} = {}) {
     // get bonus:
-    const bonuses = babonus.abstract.applications.FilterManager.throwCheck(actor, {ability, isDeath, isConcentration});
+    const bonuses = FilterManager.throwCheck(actor, {ability, isDeath, isConcentration});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -222,7 +223,7 @@ export class RollHooks {
    * @param {string} abilityId      The key for the ability being used.
    */
   static preRollAbilityTest(actor, rollConfig, abilityId) {
-    const bonuses = babonus.abstract.applications.FilterManager.testCheck(actor, abilityId);
+    const bonuses = FilterManager.testCheck(actor, abilityId);
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -244,7 +245,7 @@ export class RollHooks {
    */
   static preRollSkill(actor, rollConfig, skillId) {
     const abilityId = actor.system.skills[skillId].ability;
-    const bonuses = babonus.abstract.applications.FilterManager.testCheck(actor, abilityId, {skillId});
+    const bonuses = FilterManager.testCheck(actor, abilityId, {skillId});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -266,7 +267,7 @@ export class RollHooks {
    */
   static preRollToolCheck(actor, rollConfig, toolId) {
     const abilityId = rollConfig.ability || rollConfig.data.defaultAbility;
-    const bonuses = babonus.abstract.applications.FilterManager.testCheck(actor, abilityId, {
+    const bonuses = FilterManager.testCheck(actor, abilityId, {
       toolId,
       item: rollConfig.item ?? null
     });
@@ -289,7 +290,7 @@ export class RollHooks {
    * @param {string} denomination     The denomination of the die, e.g., 'd8'.
    */
   static preRollHitDie(actor, rollConfig, denomination) {
-    const bonuses = babonus.abstract.applications.FilterManager.hitDieCheck(actor);
+    const bonuses = FilterManager.hitDieCheck(actor);
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 

@@ -156,7 +156,7 @@ export class BonusCollector {
     };
 
     const enchantments = [];
-    if (this.item && foundry.utils.isNewerVersion(game.system.version, "3.2")) {
+    if (this.item) {
       for (const effect of this.item.allApplicableEffects()) {
         if (effect.active) enchantments.push(...this._collectFromDocument(effect, [validSelfAura]));
       }

@@ -19,7 +19,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
      * @type {Set<string>}
      */
     this._filters = ids;
-    this.bonus = bonus;
+    this.#bonus = bonus;
   }
 
   /** @override */
@@ -40,11 +40,11 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       closeOnSubmit: false
     },
     actions: {
-      keysDialog: this._onKeysDialog,
-      addFilter: this._onAddFilter,
-      deleteFilter: this._onDeleteFilter,
-      copyUuid: {handler: this._onCopyUuid, buttons: [0, 2]},
-      viewFilter: this._onViewFilter
+      keysDialog: this.#onKeysDialog,
+      addFilter: this.#onAddFilter,
+      deleteFilter: this.#onDeleteFilter,
+      copyUuid: {handler: this.#onCopyUuid, buttons: [0, 2]},
+      viewFilter: this.#onViewFilter
     }
   };
 
@@ -70,9 +70,6 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    */
   get bonus() {
     return this.#bonus;
-  }
-  set bonus(b) {
-    this.#bonus = b;
   }
   #bonus = null;
 
@@ -114,7 +111,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   render(...T) {
     const bonus = babonus.getCollection(this.document).get(this.bonus.id);
     if (!bonus) return this.close();
-    this.bonus = bonus;
+    this.#bonus = bonus;
     return super.render(...T);
   }
 
@@ -326,8 +323,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }
 
     context.labels = this._prepareLabels();
-    context.filters = this._prepareFilters();
-    context.filterpickers = this._prepareFilterPicker();
+    context.filters = this.#prepareFilters();
+    context.filterpickers = this.#prepareFilterPicker();
     context.tabs = tabs;
     context.bonus = bonus;
     // context.rootId = bonus.id; // Add this back once #11119 is fixed.
@@ -339,7 +336,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * Prepare the filter picker.
    * @returns {object[]}
    */
-  _prepareFilterPicker() {
+  #prepareFilterPicker() {
     const keys = Object.keys(this.bonus.filters);
     return keys.reduce((acc, key) => {
       if (!this._filters.has(key) || babonus.abstract.DataFields.filters[key].repeatable) acc.push({
@@ -360,7 +357,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * Prepare filters.
    * @returns {string}
    */
-  _prepareFilters() {
+  #prepareFilters() {
     const div = document.createElement("DIV");
     const keys = [...this._filters].sort((a, b) => {
       a = game.i18n.localize(`BABONUS.Filters.${a.capitalize()}.Label`);
@@ -412,7 +409,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * @param {Event} event             The initiating click event.
    * @param {HTMLElement} target      Targeted html element.
    */
-  static _onDeleteFilter(event, target) {
+  static #onDeleteFilter(event, target) {
     const id = target.dataset.id;
     const data = this.bonus.toObject();
 
@@ -437,7 +434,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * @param {Event} event             The initiating click event.
    * @param {HTMLElement} target      Targeted html element.
    */
-  static _onAddFilter(event, target) {
+  static #onAddFilter(event, target) {
     const id = target.closest("[data-id]").dataset.id;
     this._filters.add(id);
     if (babonus.abstract.DataFields.filters[id].repeatable) {
@@ -456,7 +453,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * @param {Event} event             The initiating click event.
    * @param {HTMLElement} target      Targeted html element.
    */
-  static _onKeysDialog(event, target) {
+  static #onKeysDialog(event, target) {
     const bonus = this.bonus;
     const filterId = target.dataset.id;
     const filter = babonus.abstract.DataFields.filters[filterId];
@@ -516,7 +513,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * @param {Event} event             The initiating click event.
    * @param {HTMLElement} target      Targeted html element.
    */
-  static _onCopyUuid(event, target) {
+  static #onCopyUuid(event, target) {
     event.preventDefault(); // Don't open context menu
     event.stopPropagation(); // Don't trigger other events
     if (event.detail > 1) return; // Ignore repeated clicks
@@ -532,7 +529,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
    * @param {Event} event             The initiating click event.
    * @param {HTMLElement} target      Targeted html element.
    */
-  static _onViewFilter(event, target) {
+  static #onViewFilter(event, target) {
     const id = target.closest("[data-id]").dataset.id;
     const element = target.closest("[data-tab]").querySelector(`.filter[data-id="${id}"]`);
     element.scrollIntoView({behavior: "smooth"});

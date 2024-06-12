@@ -65,7 +65,7 @@ export class CharacterSheetTab {
         switch (action) {
           case "toggle": return (await babonus.fromUuid(uuid)).toggle();
           case "edit": return (await babonus.fromUuid(uuid)).sheet.render(true);
-          case "delete": return (await babonus.fromUuid(uuid)).delete();
+          case "delete": return (await babonus.fromUuid(uuid)).deleteDialog();
           case "contextMenu":
             event.preventDefault();
             event.stopPropagation();
@@ -76,12 +76,35 @@ export class CharacterSheetTab {
         }
       });
     });
-    const workshop = babonus.abstract.applications.BabonusWorkshop;
-    div.firstElementChild.addEventListener("drop", workshop.prototype._onDrop.bind(sheet));
-    div.querySelectorAll("[data-item-id][draggable]").forEach(n => {
-      n.addEventListener("dragstart", workshop.prototype._onDragStart.bind(sheet));
+
+    div.firstElementChild.addEventListener("drop", async (event) => {
+      const data = TextEditor.getDragEventData(event);
+      if (!sheet.isEditable) return null;
+      const bonus = await babonus.fromUuid(data.uuid);
+      if (!bonus) return null;
+      babonus.embedBabonus(sheet.document, bonus);
     });
-    div.querySelector("[data-action='otter-dance']").addEventListener("click", workshop.prototype._onOtterDance);
+
+    div.querySelectorAll("[data-item-id][draggable]").forEach(n => {
+      n.addEventListener("dragstart", (event) => {
+        const label = event.currentTarget.closest(".bonus, [data-item-id]");
+        let dragData;
+        const id = label.dataset.id ?? label.dataset.itemId;
+        if (id) {
+          const bab = babonus.getCollection(sheet.document).get(id);
+          dragData = bab.toDragData();
+        }
+        if (!dragData) return;
+        event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+      });
+    });
+
+    div.querySelector("[data-action='otter-dance']").addEventListener("click", (event) => {
+      const spin = [{transform: "rotate(0)"}, {transform: "rotate(360deg)"}];
+      const time = {duration: 1000, iterations: 1};
+      if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
+    });
+
     div.querySelectorAll("[data-action='bonus-source']").forEach(n => {
       n.addEventListener("click", async (event) => {
         const uuid = event.currentTarget.dataset.uuid;
@@ -111,12 +134,7 @@ export class CharacterSheetTab {
     }, {
       name: "BABONUS.ContextMenu.Duplicate",
       icon: "<i class='fa-solid fa-copy'></i>",
-      callback: () => {
-        const data = bonus.toObject();
-        data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
-        const b = new bonus.constructor(data);
-        babonus.abstract.applications.BabonusWorkshop._embedBabonus(bonus.parent, b);
-      }
+      callback: () => babonus.duplicateBonus(bonus)
     }, {
       name: "BABONUS.ContextMenu.Delete",
       icon: "<i class='fa-solid fa-trash'></i>",
@@ -208,8 +226,8 @@ export class CharacterSheetTab {
         const embedded = babonus.findEmbeddedDocumentsWithBonuses(this.document);
 
         const actor = babonus.getCollection(this.document).contents;
-        const items = embedded.items.flatMap(item => babonus.getCollection(item).contents);
-        const effects = embedded.effects.flatMap(effect => babonus.getCollection(effect).contents);
+        const items = embedded.items?.flatMap(item => babonus.getCollection(item).contents) ?? [];
+        const effects = embedded.effects?.flatMap(effect => babonus.getCollection(effect).contents) ?? [];
         return actor.concat(items).concat(effects);
       }
     }
