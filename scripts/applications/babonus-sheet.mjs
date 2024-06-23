@@ -22,6 +22,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     this.#bonus = bonus;
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   static DEFAULT_OPTIONS = {
     classes: [MODULE.ID, "sheet"],
@@ -48,6 +50,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }
   };
 
+  /* ----------------------------------------- */
+
   /** @override */
   static PARTS = {
     header: {template: "modules/babonus/templates/sheet-header.hbs"},
@@ -59,29 +63,46 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     advanced: {template: "modules/babonus/templates/sheet-advanced.hbs", scrollable: [""]}
   };
 
+  /* ----------------------------------------- */
+
   /** @override */
   tabGroups = {
     main: "description"
   };
 
+  /* ----------------------------------------- */
+
   /**
-   * The babonus.
+   * The babonus represented by this sheet.
    * @type {Babonus}
    */
   get bonus() {
     return this.#bonus;
   }
+
+  /* ----------------------------------------- */
+
+  /**
+   * The babonus represented by this sheet.
+   * @type {Babonus}
+   */
   #bonus = null;
+
+  /* ----------------------------------------- */
 
   /** @override */
   get title() {
     return `${game.i18n.localize("BABONUS.ModuleTitle")}: ${this.bonus.name}`;
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   get isEditable() {
     return super.isEditable && !!this.bonus?.parent?.isOwner;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   _initializeApplicationOptions(options) {
@@ -89,6 +110,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     options.uniqueId = `${this.constructor.name}-${options.bonus.uuid}`;
     return options;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   _prepareSubmitData(event, form, formData) {
@@ -101,11 +124,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     return {flags: {babonus: {bonuses: collection}}};
   }
 
-  /* ------------------------------- */
-  /*                                 */
-  /* Rendering                       */
-  /*                                 */
-  /* ------------------------------- */
+  /* ----------------------------------------- */
 
   /** @override */
   render(...T) {
@@ -114,6 +133,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     this.#bonus = bonus;
     return super.render(...T);
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   _onRender(...T) {
@@ -135,6 +156,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     });
     for (const filter of filters) observer.observe(filter);
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   async _prepareContext(options) {
@@ -332,6 +355,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     return context;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Prepare the filter picker.
    * @returns {object[]}
@@ -353,6 +378,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     });
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Prepare filters.
    * @returns {string}
@@ -370,6 +397,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }
     return div.innerHTML;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Prepare labels.
@@ -398,11 +427,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     return labels;
   }
 
-  /* ------------------------------- */
-  /*                                 */
-  /* Event handlers                  */
-  /*                                 */
-  /* ------------------------------- */
+  /* ----------------------------------------- */
 
   /**
    * Handle deleting a filter.
@@ -429,6 +454,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     this.document.update({"flags.babonus.bonuses": collection});
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Handle adding a filter.
    * @param {Event} event             The initiating click event.
@@ -447,6 +474,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       this.render();
     }
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Helper function to display the keys dialog and update the corresponding filter value.
@@ -508,6 +537,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     });
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Copy the uuid or id of the bonus.
    * @param {Event} event             The initiating click event.
@@ -523,6 +554,8 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {label, type, id}));
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Scroll a filter into view in the picker.

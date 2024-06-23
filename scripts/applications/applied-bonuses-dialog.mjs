@@ -7,6 +7,22 @@ export class AppliedBonusesDialog extends Dialog {
     this.dialog = options.dialog;
   }
 
+  /* ----------------------------------------- */
+
+  /** @override */
+  get title() {
+    return game.i18n.localize("BABONUS.OverviewTitle");
+  }
+
+  /* ----------------------------------------- */
+
+  /** @override */
+  get id() {
+    return `${this.dialog.id}-bonuses-overview`;
+  }
+
+  /* ----------------------------------------- */
+
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
@@ -17,26 +33,22 @@ export class AppliedBonusesDialog extends Dialog {
     });
   }
 
-  /** @override */
-  get title() {
-    return game.i18n.localize("BABONUS.OverviewTitle");
-  }
-
-  /** @override */
-  get id() {
-    return `${this.dialog.id}-bonuses-overview`;
-  }
+  /* ----------------------------------------- */
 
   /** @override */
   async getData() {
     return {bonuses: registry.get(this.options.id).bonuses};
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
     html[0].querySelectorAll("[data-uuid]").forEach(n => n.addEventListener("click", this._onClickUuid.bind(this)));
   }
+
+  /* ----------------------------------------- */
 
   /**
    * When clicking a uuid tag, copy it.
@@ -46,6 +58,8 @@ export class AppliedBonusesDialog extends Dialog {
     await game.clipboard.copyPlainText(event.currentTarget.dataset.uuid);
     ui.notifications.info("BABONUS.OverviewCopied", {localize: true});
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   _onClickButton(event) {

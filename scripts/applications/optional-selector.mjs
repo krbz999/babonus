@@ -59,10 +59,14 @@ export class OptionalSelector {
     this.dialog = registered.dialog;
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   get template() {
     return `modules/${MODULE.ID}/templates/subapplications/optional-selector.hbs`;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The situational bonus field to append bonuses to.
@@ -72,11 +76,7 @@ export class OptionalSelector {
     return this.dialog.element[0].querySelector("[name=bonus]");
   }
 
-  /*************************************/
-  /*                                   */
-  /*            DATA METHODS           */
-  /*                                   */
-  /*************************************/
+  /* ----------------------------------------- */
 
   /**
    * Custom helper method for retrieving all the data for the template.
@@ -124,6 +124,8 @@ export class OptionalSelector {
     return {bonuses, reminders};
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Does the bonus scale?
    * @param {Babonus} bonus
@@ -142,6 +144,8 @@ export class OptionalSelector {
     return true;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Helper method to activate listeners on the optional bonuses' buttons.
    * @param {HTMLElement} html     The entire list of html injected onto the dialog.
@@ -151,6 +155,8 @@ export class OptionalSelector {
       n.addEventListener("click", this._onApplyOption.bind(this));
     });
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Custom rendering method.
@@ -167,11 +173,7 @@ export class OptionalSelector {
     this.dialog.setPosition({height: "auto"});
   }
 
-  /*************************************/
-  /*                                   */
-  /*          HELPER METHODS           */
-  /*                                   */
-  /*************************************/
+  /* ----------------------------------------- */
 
   /**
    * Get a tooltip for an optional bonus' origin.
@@ -189,6 +191,8 @@ export class OptionalSelector {
     return game.i18n.format("BABONUS.OriginName", {name});
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Display a warning about lack of limited uses, quantity, spell slots, or missing effect.
    * @param {string} type     The consumption type of the babonus.
@@ -196,6 +200,8 @@ export class OptionalSelector {
   _displayConsumptionWarning(type) {
     ui.notifications.warn(`BABONUS.Warning.Consuming.${type.capitalize()}Unavailable`, {localize: true});
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Construct options for a scaling bonus.
@@ -302,6 +308,8 @@ export class OptionalSelector {
     }
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Is consumption valid and allowed?
    * @param {Babonus} bonus
@@ -311,6 +319,8 @@ export class OptionalSelector {
     const target = ["uses", "quantity", "effect"].includes(bonus.consume.type) ? bonus.parent : this.actor;
     return bonus.consume.canActorConsume(this.actor) && bonus.consume.canBeConsumed(target);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Apply an optional bonus. Depending on the bonus, consume a document or property and scale the applied value.
@@ -460,6 +470,8 @@ export class OptionalSelector {
     }
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Return an upscaled bonus given a base and a number to multiply with. If 'scale' is 0, the default bonus is returned
    * and no scaling is performed. Evaluating roll data properties is necessary here, otherwise scaling will not work. It is
@@ -477,6 +489,8 @@ export class OptionalSelector {
     const base = Roll.replaceFormulaData(bonus.bonuses.bonus, data);
     return dnd5e.dice.simplifyRollFormula(`${base} + ${formula}`, {preserveFlavor: true});
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
@@ -513,6 +527,8 @@ export class OptionalSelector {
     this.dialog.setPosition({height: "auto"});
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Get the attribute key for the lowest available and valid spell slot. If the lowest level
    * is both a spell slot and a different kind of slot, prefer the alternative.
@@ -546,6 +562,8 @@ export class OptionalSelector {
     return minData.keys.first();
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Construct the roll data for upscaling a bonus. The priority goes origin, then rolling item,
    * then rolling actor. If the bonus originates from the rolling item, the upcast level of the item
@@ -563,6 +581,8 @@ export class OptionalSelector {
 
     return data;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.

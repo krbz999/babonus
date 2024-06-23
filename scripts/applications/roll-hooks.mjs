@@ -1,18 +1,34 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
 import {FilterManager} from "./filter-manager.mjs";
 
+/**
+ * Utility extension of Map to keep track of rolls and bonuses that apply to them.
+ */
 class RollRegister extends Map {
-  register(bonuses) {
+  /**
+   * Register an object of data with a generated id.
+   * @param {object} config     The data to store.
+   * @returns {string}          Randomly generated id to later retrieve the stored data.
+   */
+  register(config) {
     const id = foundry.utils.randomID();
-    this.set(id, bonuses);
+    this.set(id, config);
     return id;
   }
 }
+
+/* ----------------------------------------- */
+
+/**
+ * The registry of rolls being made.
+ * @type {RollRegister}
+ */
 export const registry = new RollRegister();
+
+/* ----------------------------------------- */
 
 /** Utility class for the various roll hooks. */
 export class RollHooks {
-
   /**
    * When you force a saving throw...
    * @param {Item5e} item         The item whose card is being displayed.
@@ -48,6 +64,8 @@ export class RollHooks {
     foundry.utils.setProperty(chatData, `flags.${MODULE.ID}.saveDC`, dc);
     chatData.content = div.innerHTML;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * When you make an attack roll...
@@ -95,6 +113,8 @@ export class RollHooks {
     if (rollConfig.critical < 1) rollConfig.critical = 1;
     if ((rollConfig.fumble < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) rollConfig.fumble = 1;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * When you make a damage roll...
@@ -144,6 +164,8 @@ export class RollHooks {
     }
   }
 
+  /* ----------------------------------------- */
+
   /**
    * When you roll a saving throw...
    * @param {Actor5e} actor                         The actor that is making the roll.
@@ -189,6 +211,8 @@ export class RollHooks {
     if (isDeath) rollConfig.critical = (rollConfig.critical ?? 20) - accum.critical;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * When you roll an ability or concentration saving throw...
    * @param {Actor5e} actor         The actor that is making the roll.
@@ -203,6 +227,8 @@ export class RollHooks {
     });
   }
 
+  /* ----------------------------------------- */
+
   /**
    * When you roll a death saving throw...
    * @param {Actor5e} actor         The actor that is making the roll.
@@ -215,6 +241,8 @@ export class RollHooks {
       isDeath: true
     });
   }
+
+  /* ----------------------------------------- */
 
   /**
    * When you roll an ability check...
@@ -235,6 +263,8 @@ export class RollHooks {
 
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * When you roll a skill...
@@ -257,6 +287,8 @@ export class RollHooks {
 
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * When you roll a tool check...
@@ -282,6 +314,8 @@ export class RollHooks {
 
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * When you roll a hit die...
@@ -310,6 +344,8 @@ export class RollHooks {
     rollConfig.formula = `max(0, ${parts.join(" + ")})`;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Inject babonus data on templates created by items.
    * @param {Item5e} item             The item that creates the template.
@@ -330,6 +366,8 @@ export class RollHooks {
       templateDisposition: disp
     });
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Gather optional bonuses and put non-optional bonuses into the roll config.
@@ -362,6 +400,8 @@ export class RollHooks {
     return optionals;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Gather optional bonuses and put non-optional bonuses into the roll config.
    * @param {Babonus[]} bonuses     An array of babonuses to apply.
@@ -377,6 +417,8 @@ export class RollHooks {
       return acc;
     }, []);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Add the target's roll data to the actor's roll data.

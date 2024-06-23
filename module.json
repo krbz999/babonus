@@ -58,9 +58,6 @@
     }
   ],
   "flags": {
-    "fvttdevleague": {
-      "package-jam": 2022
-    },
     "hotReload": {
       "extensions": ["json", "css"],
       "paths": ["styles/*.css", "lang/en.json"]

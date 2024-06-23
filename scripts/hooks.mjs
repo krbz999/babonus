@@ -9,8 +9,7 @@ import {
 import {createAPI} from "./api.mjs";
 import {RollHooks, registry} from "./applications/roll-hooks.mjs";
 import {OptionalSelector} from "./applications/optional-selector.mjs";
-import enricherSetup from "./applications/enrichers.mjs";
-import {CharacterSheetTab} from "./applications/character-sheet-tab.mjs";
+import characterSheetTabSetup from "./applications/character-sheet-tab.mjs";
 
 /**
  * Render the optional bonus selector on a roll dialog.
@@ -134,7 +133,7 @@ Hooks.once("init", _createSettings);
 // Hooks.once("init", enricherSetup);
 Hooks.once("setup", createAPI);
 Hooks.on("hotbarDrop", _onHotbarDrop);
-Hooks.once("setup", () => CharacterSheetTab.setup());
+Hooks.once("setup", () => characterSheetTabSetup());
 
 // Any application injections.
 Hooks.on("getActiveEffectConfigHeaderButtons", (...T) => HeaderButtonEffect.inject(...T));

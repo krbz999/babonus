@@ -9,54 +9,6 @@
  * - effects being unavailable
  */
 export class BonusCollector {
-  /**
-   * The type of bonuses being collected.
-   * @type {string}
-   */
-  type = null;
-
-  /**
-   * Collected bonuses.
-   * @type {Babonus[]}
-   */
-  bonuses = [];
-
-  /**
-   * The item performing the roll, if any.
-   * @type {Item5e|null}
-   */
-  item = null;
-
-  /**
-   * The actor performing the roll or owning the item performing the roll.
-   * @type {Actor5e}
-   */
-  actor = null;
-
-  /**
-   * The token object of the actor performing the roll, if any.
-   * @type {Token5e|null}
-   */
-  token = null;
-
-  /**
-   * Center points of all occupied grid spaces of the token placeable.
-   * @type {object[]}
-   */
-  tokenCenters = [];
-
-  /**
-   * Token documents on the same scene which are valid, not a group, and not the same token.
-   * @type {TokenDocument5e[]}
-   */
-  tokens = [];
-
-  /**
-   * Reference to auras that are to be drawn later.
-   * @type {Set<TokenAura>}
-   */
-  auras = new Set();
-
   constructor(data) {
     // Set up type.
     this.type = data.type;
@@ -78,6 +30,72 @@ export class BonusCollector {
     this.bonuses = this._collectBonuses();
   }
 
+  /* ----------------------------------------- */
+
+  /**
+   * The type of bonuses being collected.
+   * @type {string}
+   */
+  type = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * Collected bonuses.
+   * @type {Babonus[]}
+   */
+  bonuses = [];
+
+  /* ----------------------------------------- */
+
+  /**
+   * The item performing the roll, if any.
+   * @type {Item5e|null}
+   */
+  item = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * The actor performing the roll or owning the item performing the roll.
+   * @type {Actor5e}
+   */
+  actor = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * The token object of the actor performing the roll, if any.
+   * @type {Token5e|null}
+   */
+  token = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * Center points of all occupied grid spaces of the token placeable.
+   * @type {object[]}
+   */
+  tokenCenters = [];
+
+  /* ----------------------------------------- */
+
+  /**
+   * Token documents on the same scene which are valid, not a group, and not the same token.
+   * @type {TokenDocument5e[]}
+   */
+  tokens = [];
+
+  /* ----------------------------------------- */
+
+  /**
+   * Reference to auras that are to be drawn later.
+   * @type {Set<TokenAura>}
+   */
+  auras = new Set();
+
+  /* ----------------------------------------- */
+
   /**
    * A method that can be called at any point to retrieve the bonuses hung on to.
    * This returns a collection of uuids mapping to bonuses due to ids not necessarily changing.
@@ -87,11 +105,7 @@ export class BonusCollector {
     return new foundry.utils.Collection(this.bonuses.map(b => [b.uuid, b]));
   }
 
-  /*************************************/
-  /*                                   */
-  /*         COLLECTION METHODS        */
-  /*                                   */
-  /*************************************/
+  /* ----------------------------------------- */
 
   /**
    * Main collection method that calls the below collectors for self, all tokens, and all templates.
@@ -137,12 +151,16 @@ export class BonusCollector {
     return bonuses.actor.concat(bonuses.token).concat(bonuses.template).concat(bonuses.regions);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Destroy all auras that were created and drawn during this collection.
    */
   destroyAuras() {
     for (const aura of this.auras) aura.destroy({fadeOut: true});
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Get all bonuses that originate from yourself.
@@ -167,6 +185,8 @@ export class BonusCollector {
     const effects = this.actor.appliedEffects.reduce((acc, effect) => acc.concat(this._collectFromDocument(effect, [validSelfAura])), []);
     return [...enchantments, ...actor, ...items, ...effects];
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Get all bonuses that originate from another token on the scene.
@@ -200,6 +220,8 @@ export class BonusCollector {
     return bonuses;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Get all bonuses that originate from templates the rolling token is standing on.
    * @param {MeasuredTemplateDocument} template     The template.
@@ -221,6 +243,8 @@ export class BonusCollector {
     return templates;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Collect bonuses from a scene region the token is standing in.
    * @param {RegionDocument} region     The region.
@@ -229,6 +253,8 @@ export class BonusCollector {
   _collectFromRegion(region) {
     return this._collectFromDocument(region, []);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * General collection method that all other collection methods call in some fashion.
@@ -248,6 +274,8 @@ export class BonusCollector {
     return bonuses;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Some general filters that apply no matter where the babonus is located.
    * @param {Babonus} bonus     A babonus to evaluate.
@@ -263,11 +291,7 @@ export class BonusCollector {
     return item ? (this.item?.uuid === item.uuid) : true;
   }
 
-  /*************************************/
-  /*                                   */
-  /*         UTILITY FUNCTIONS         */
-  /*                                   */
-  /*************************************/
+  /* ----------------------------------------- */
 
   /**
    * Get the centers of all grid spaces that overlap with a token document.
@@ -293,6 +317,8 @@ export class BonusCollector {
     return points;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Get whether the rolling token has any grid center within a given template.
    * @param {MeasuredTemplate} template     A measured template placeable.
@@ -302,6 +328,8 @@ export class BonusCollector {
     const {shape, x: tx, y: ty} = template;
     return this.tokenCenters.some(({x, y}) => shape.contains(x - tx, y - ty));
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Get whether an aura can target the rolling actor's token depending on its targeting.
@@ -315,6 +343,8 @@ export class BonusCollector {
     return this._matchDisposition(tisp, bisp);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Get whether a template aura can target the contained token depending on its targeting.
    * @param {MeasuredTemplateDocument} template   The containing template.
@@ -326,6 +356,8 @@ export class BonusCollector {
     const bisp = bonus.aura.disposition;
     return this._matchDisposition(tisp, bisp);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Given a disposition of a template/token and the targeting of of an aura, get whether the aura should apply.
@@ -349,16 +381,22 @@ export class BonusCollector {
   }
 }
 
+/* ----------------------------------------- */
+
 Hooks.on("refreshToken", function(token) {
   for (const aura of Object.values(babonus._currentAuras ?? {})) {
     if ((aura.target === token) || (aura.token === token.document)) aura.refresh();
   }
 });
 
+/* ----------------------------------------- */
+
 Hooks.on("deleteToken", function(tokenDoc) {
   for (const aura of Object.values(babonus._currentAuras ?? {})) {
     if (aura.token === tokenDoc) aura.destroy({fadeOut: false});
   }
 });
+
+/* ----------------------------------------- */
 
 Hooks.on("canvasTearDown", (canvas) => babonus._currentAuras = {});

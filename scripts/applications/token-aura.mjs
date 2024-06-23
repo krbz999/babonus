@@ -1,10 +1,6 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
 
 export default class TokenAura {
-  static RED = new Color(0xFF0000);
-  static GREEN = new Color(0x00FF00);
-  static WHITE = new Color(0xFFFFFF);
-
   /**
    * @constructor
    * @param {TokenDocument5e} token
@@ -22,6 +18,32 @@ export default class TokenAura {
     auras[bonus.uuid] = this;
   }
 
+  /* ----------------------------------------- */
+
+  /**
+   * The color of the aura when the target is not contained within it.
+   * @type {Color}
+   */
+  static RED = new Color(0xFF0000);
+
+  /* ----------------------------------------- */
+
+  /**
+   * The color of the aura when the target is contained within it.
+   * @type {Color}
+   */
+  static GREEN = new Color(0x00FF00);
+
+  /* ----------------------------------------- */
+
+  /**
+   * The untinted default color of the aura.
+   * @type {Color}
+   */
+  static WHITE = new Color(0xFFFFFF);
+
+  /* ----------------------------------------- */
+
   /**
    * The collection of auras being kept track of.
    * @type {Record<string, TokenAura>}
@@ -31,6 +53,8 @@ export default class TokenAura {
     return babonus._currentAuras;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * The default color of the aura (white).
    * @type {Color}
@@ -38,6 +62,8 @@ export default class TokenAura {
   get white() {
     return this.constructor.WHITE;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The name of this aura.
@@ -47,84 +73,183 @@ export default class TokenAura {
     return `${this.bonus.uuid}-aura`;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Do auras show and fade in and out?
    * @type {boolean}
    */
   #showAuras = true;
+
+  /* ----------------------------------------- */
+
+  /**
+   * Do auras show and fade in and out?
+   * @type {boolean}
+   */
   get showAuras() {
     return this.#showAuras;
   }
+
+  /* ----------------------------------------- */
+
+  /**
+   * Set whether auras show and fade in and out.
+   * @param {boolean} bool      Whether to show.
+   */
   set showAuras(bool) {
     this.#showAuras = bool;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Do auras pad the radius due to token sizes?
    * @type {boolean}
    */
   #padRadius = true;
+
+  /* ----------------------------------------- */
+
+  /**
+   * Do auras pad the radius due to token sizes?
+   * @type {boolean}
+   */
   get padRadius() {
     return this.#padRadius;
   }
+
+  /* ----------------------------------------- */
+
+  /**
+   * Set whether auras are padded due to token size.
+   * @param {boolean} bool      Whether to pad.
+   */
   set padRadius(bool) {
     this.#padRadius = bool;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The origin of the aura.
    * @type {TokenDocument5e}
    */
   #token = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * The origin of the aura.
+   * @type {TokenDocument5e}
+   */
   get token() {
     return this.#token;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The babonus from which to draw data.
    * @type {Babonus}
    */
   #bonus = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * The babonus from which to draw data.
+   * @type {Babonus}
+   */
   get bonus() {
     return this.#bonus;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The drawn pixi graphics.
    * @type {PIXI.Graphics|null}
    */
   #element = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * The drawn pixi graphics.
+   * @type {PIXI.Graphics|null}
+   */
   get element() {
     return this.#element;
   }
+
+  /* ----------------------------------------- */
+
+  /**
+   * Set the displayed pixi graphical element.
+   * @param {PIXI.Graphics}
+   */
   set element(g) {
     this.#element = g;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The container element for the aura.
    * @type {PIXI.Container}
    */
   #container = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * The container element for the aura.
+   * @type {PIXI.Container}
+   */
   get container() {
     return this.#container;
   }
+
+  /* ----------------------------------------- */
+
+  /**
+   * Set the container element for the aura.
+   * @param {PIXI.Container} c      The container.
+   */
   set container(c) {
     this.#container = c;
   }
 
+  /* ----------------------------------------- */
+
   /**
-   * A current token target this aura is being evaluated against.
-   * Not the origin of the aura.
+   * A current token target this aura is being evaluated against. Not the origin of the aura.
    * @type {Token5e}
    */
   #target = null;
+
+  /* ----------------------------------------- */
+
+  /**
+   * A current token target this aura is being evaluated against. Not the origin of the aura.
+   * @type {Token5e}
+   */
   get target() {
     return this.#target;
   }
+
+  /* ----------------------------------------- */
+
+  /**
+   * Set the current token target of this aura.
+   * @param {Token5e}
+   */
   set target(token) {
     this.#target = token;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The type of wall restrictions that apply to this bonus.
@@ -138,13 +263,17 @@ export default class TokenAura {
     return r;
   }
 
+  /* ----------------------------------------- */
+
   /**
-   * The radius of this aura, in feet.
+   * The radius of this aura, in grid measurement units.
    * @type {number}
    */
   get radius() {
     return this.bonus.aura.range;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Can this aura be drawn?
@@ -154,6 +283,8 @@ export default class TokenAura {
     return this.bonus.aura._validRange;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Should this aura apply its bonus to the target?
    * @type {boolean}
@@ -161,6 +292,8 @@ export default class TokenAura {
   get isApplying() {
     return this.element?.tint === this.constructor.GREEN;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Is this aura visible?
@@ -170,6 +303,8 @@ export default class TokenAura {
     return this.token.object.visible && this.token.object.renderable;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Initialize the aura.
    * @param {Token5e} target      The target to test containment against.
@@ -178,6 +313,8 @@ export default class TokenAura {
     this.target = target;
     this.refresh({fadeIn: true});
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Refresh the drawn state of the container and the contained aura.
@@ -205,6 +342,8 @@ export default class TokenAura {
     } else this.hide();
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Immediately hide this aura.
    */
@@ -214,6 +353,8 @@ export default class TokenAura {
     this.container.alpha = 0;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Immediately show this aura.
    */
@@ -222,6 +363,8 @@ export default class TokenAura {
     CanvasAnimation.terminateAnimation(this.name);
     this.container.alpha = 1;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Fade in the aura over a period of time.
@@ -234,6 +377,8 @@ export default class TokenAura {
       {name: this.name, duration: 200, easing: (x) => x * x}
     );
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Create the inner pixi element and assign it.
@@ -270,6 +415,8 @@ export default class TokenAura {
     return g;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Create and assign a container if one is missing,
    * add the aura element to it, and add the container to the grid.
@@ -289,6 +436,8 @@ export default class TokenAura {
     return this.container;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Set the color of the aura to either white, red, or green.
    */
@@ -296,6 +445,8 @@ export default class TokenAura {
     if (!this.target) this.element.tint = this.white;
     else this.element.tint = this.contains(this.target) ? this.constructor.GREEN : this.constructor.RED;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Does this aura contain a token within its bounds?
@@ -323,6 +474,8 @@ export default class TokenAura {
     }
     return false;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Destroy the aura and its container.
