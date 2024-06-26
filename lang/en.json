@@ -251,6 +251,10 @@
       "Hint": "Filter by the conditions the actor performing the roll must be affected by or must not be affected by. This will take into account any condition immunities the actor has, such as immunity to being paralyzed.",
       "Label": "Actor Conditions"
     },
+    "TargetArmors": {
+      "Hint": "Filter by the type of armor the target must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when the target is wearing Chain Mail or is unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",
+      "Label": "Target Armor"
+    },
     "TargetEffects": {
       "Hint": "Filter by the conditions the targeted actor must be affected by or must not be affected by. This will take into account any condition immunities the actor has, such as immunity to being paralyzed.",
       "Label": "Target Conditions"

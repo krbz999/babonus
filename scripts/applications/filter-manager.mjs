@@ -281,11 +281,13 @@ export class FilterManager {
     const actor = (object instanceof Item) ? object.actor : object;
     const {included, excluded} = FilterManager._splitExlusion(filter);
 
-    const shield = actor.system.attributes?.ac?.equippedShield ?? null;
-    const armor = actor.system.attributes?.ac?.equippedArmor ?? null;
+    const ac = actor.system.attributes?.ac ?? {};
+    const shield = ac?.equippedShield ?? null;
+    const armor = ac?.equippedArmor ?? null;
     const types = new Set();
     if (shield) types.add(shield.system.type.baseItem).add(shield.system.type.value);
     if (armor) types.add(armor.system.type.baseItem).add(armor.system.type.value);
+    if (ac.calc === "natural") types.add("natural");
 
     // If no armor worn.
     if (!types.size) return !(included.size > 0);
@@ -293,6 +295,21 @@ export class FilterManager {
     if (included.size && !included.intersects(types)) return false;
     if (excluded.size && excluded.intersects(types)) return false;
     return true;
+  }
+
+  /* ----------------------------------------- */
+
+  /**
+   * Find out if the actor is wearing one of the included armor types
+   * in the filter and none of the excluded types. Note that this includes shields as well.
+   * @param {Actor5e|Item5e} object     The actor or item performing the roll.
+   * @param {Set<string>} filter        The set of base armor keys.
+   * @returns {boolean}                 Whether the rolling actor is wearing appropriate armor.
+   */
+  static targetArmors(object, filter) {
+    const target = game.user.targets.first()?.actor;
+    if (!target) return !FilterManager._splitExlusion(filter).included.size;
+    return FilterManager.baseArmors(target, filter);
   }
 
   /* ----------------------------------------- */

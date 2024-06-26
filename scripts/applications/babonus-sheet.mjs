@@ -501,6 +501,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const types = {
       baseWeapons: CONFIG.DND5E.weaponTypes,
       baseArmors: CONFIG.DND5E.armorTypes,
+      targetArmors: CONFIG.DND5E.armorTypes,
       baseTools: CONFIG.DND5E.toolTypes
     }[filterId] ?? null;
 

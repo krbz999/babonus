@@ -63,6 +63,7 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Attack Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has an attack roll of that specific kind.</p>
 <p><strong><em>Available Spell Slots.</em></strong> Filter the bonus to apply only if the actor performing the roll has more than the set minimum amount of spell slots available and/or less than the set maximum amount of spell slots available. Not both fields are required.</p>
 <p><strong><em>Base Armors.</em></strong> Filter the bonus to only apply if the actor is wearing a specific type of armor or a shield.</p>
+<p><strong><em>Target Armors.</em></strong> Filter the bonus to only apply if the user's current target is wearing a specific type of armor or a shield.</p>
 <p><strong><em>Base Tools.</em></strong> The type of tool the item must be for the bonus to apply. For example Herbalism Kit, Thieves' Tools, or Cobbler's Tools.</p>
 <p><strong><em>Base Weapons.</em></strong> Filter the bonus to only apply if the item is a weapon with one of these base weapon types, such as 'battleaxe' or 'blowgun'.</p>
 <p><strong><em>Conditions (Target).</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is affected by any of the included status conditions while having none of the excluded status conditions.</p>

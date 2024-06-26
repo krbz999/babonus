@@ -222,11 +222,12 @@ class ActorCreatureTypesField extends CreatureTypesField {
 class BaseArmorsField extends BaseField {
   static name = "baseArmors";
 
-  constructor() {
-    super({
+  constructor(options = {}) {
+    options = foundry.utils.mergeObject({
       label: "BABONUS.Filters.BaseArmors.Label",
       hint: "BABONUS.Filters.BaseArmors.Hint"
-    });
+    }, options);
+    super(options);
   }
 
   /** @override */
@@ -236,6 +237,17 @@ class BaseArmorsField extends BaseField {
         value: k,
         label: dnd5e.documents.Trait.keyLabel(`armor:${k}`)
       };
+    });
+  }
+}
+
+class TargetArmorsField extends BaseArmorsField {
+  static name = "targetArmors";
+
+  constructor() {
+    super({
+      label: "BABONUS.Filters.TargetArmors.Label",
+      hint: "BABONUS.Filters.TargetArmors.Hint"
     });
   }
 }
@@ -397,19 +409,20 @@ class ActorLanguagesField extends BaseField {
 
 export default {
   AbilitiesField,
-  SaveAbilitiesField,
-  ThrowTypesField,
-  StatusEffectsField,
-  TargetEffectsField,
-  AuraBlockersField,
-  CreatureTypesField,
   ActorCreatureTypesField,
+  ActorLanguagesField,
+  AuraBlockersField,
   BaseArmorsField,
   BaseToolsField,
   BaseWeaponsField,
+  CreatureTypesField,
   DamageTypesField,
+  SaveAbilitiesField,
   SkillIdsField,
   SpellSchoolsField,
-  WeaponPropertiesField,
-  ActorLanguagesField
+  StatusEffectsField,
+  TargetArmorsField,
+  TargetEffectsField,
+  ThrowTypesField,
+  WeaponPropertiesField
 };

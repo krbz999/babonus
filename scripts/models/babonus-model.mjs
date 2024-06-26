@@ -763,6 +763,7 @@ class ItemBabonus extends Babonus {
       spellComponents: new babonus.abstract.DataFields.filters.spellComponents(),
       spellLevels: new babonus.abstract.DataFields.filters.spellLevels(),
       spellSchools: new babonus.abstract.DataFields.filters.spellSchools(),
+      targetArmors: new babonus.abstract.DataFields.filters.targetArmors(),
       targetEffects: new babonus.abstract.DataFields.filters.targetEffects(),
       tokenSizes: new babonus.abstract.DataFields.filters.tokenSizes(),
       weaponProperties: new babonus.abstract.DataFields.filters.weaponProperties()
