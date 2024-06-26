@@ -108,6 +108,8 @@ class Babonus extends foundry.abstract.DataModel {
    */
   _halted = false;
 
+  /* ----------------------------------------- */
+
   constructor(data, options = {}) {
     data = foundry.utils.mergeObject({
       name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
@@ -116,12 +118,16 @@ class Babonus extends foundry.abstract.DataModel {
     super(data, options);
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   static metadata = Object.freeze({
     label: "BABONUS.BaseBabonus",
     icon: null,
     defaultImg: null
   });
+
+  /* ----------------------------------------- */
 
   /**
    * An object of applications that re-render when this bonus is updated.
@@ -130,6 +136,8 @@ class Babonus extends foundry.abstract.DataModel {
   get apps() {
     return this._apps ??= {};
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The sheet of the bonus.
@@ -140,6 +148,8 @@ class Babonus extends foundry.abstract.DataModel {
     return this._sheet = new babonus.abstract.applications.BabonusSheet(this);
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   testUserPermission() {
     // Since babs are always local, all users have permission to render them.
@@ -147,11 +157,15 @@ class Babonus extends foundry.abstract.DataModel {
     return true;
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   _initialize(...args) {
     super._initialize(...args);
     this.prepareDerivedData();
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static cleanData(source, options = {}) {
@@ -160,10 +174,14 @@ class Babonus extends foundry.abstract.DataModel {
     return super.cleanData(source, options);
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   toDragData() {
     return {type: "Babonus", uuid: this.uuid};
   }
+
+  /* ----------------------------------------- */
 
   /**
    * A formatted uuid of a babonus, an extension of its parent's uuid.
@@ -173,13 +191,17 @@ class Babonus extends foundry.abstract.DataModel {
     return `${this.parent.uuid}.Babonus.${this.id}`;
   }
 
+  /* ----------------------------------------- */
+
   /**
-   * The FA icon unique to this babonus type. Must be subclassed.
+   * Getter for the metadata icon for this babonus type.
    * @type {string}
    */
   get icon() {
     return this.constructor.metadata.icon;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
@@ -193,6 +215,8 @@ class Babonus extends foundry.abstract.DataModel {
     return ["attack", "damage", "throw", "test"].includes(this.type) && !!this.bonuses.bonus;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Whether a babonus is currently optional, which is only true if it is both able to be optional, and toggled as such.
    * @type {boolean}
@@ -200,6 +224,8 @@ class Babonus extends foundry.abstract.DataModel {
   get isOptional() {
     return this.optional && this.isOptionable;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Can this bonus act as a reminder?
@@ -210,6 +236,8 @@ class Babonus extends foundry.abstract.DataModel {
     return valid && this.optional && !this.bonuses.modifiers?.hasModifiers;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Is this bonus a reminder, and not an actual 'bonus'?
    * @type {boolean}
@@ -217,6 +245,8 @@ class Babonus extends foundry.abstract.DataModel {
   get isReminder() {
     return this.reminder && this.canRemind;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Is this providing a bonus to any properties, or dice modifiers?
@@ -229,6 +259,8 @@ class Babonus extends foundry.abstract.DataModel {
     }
     return !!this.bonuses.modifiers?.hasModifiers;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Whether a babonus is valid for being 'item only' in the builder. It must be embedded in an item (or an
@@ -256,6 +288,8 @@ class Babonus extends foundry.abstract.DataModel {
     return (validityA || validityB);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Whether the bonus applies only to its parent item. This is true if it has the property enabled and is valid to do so.
    * @type {boolean}
@@ -263,6 +297,8 @@ class Babonus extends foundry.abstract.DataModel {
   get isExclusive() {
     return this.exclusive && this.canExclude;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Whether the babonus is unavailable due to its parent item being unequipped,
@@ -294,6 +330,8 @@ class Babonus extends foundry.abstract.DataModel {
 
     return item.areEffectsSuppressed;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The true source of the babonus intended for the retrieval of roll data.
@@ -331,6 +369,8 @@ class Babonus extends foundry.abstract.DataModel {
     return null;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * The actor that this bonus is currently directly or indirectly embedded on, if any.
    * @type {Actor5e|null}
@@ -353,6 +393,8 @@ class Babonus extends foundry.abstract.DataModel {
     return null;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Get the corresponding token of the actor that has the bonus, no matter what type of document it is embedded in.
    * Note that this is different from the 'origin' and is dependant on where the bonus currently lives.
@@ -364,6 +406,8 @@ class Babonus extends foundry.abstract.DataModel {
     const token = actor.isToken ? actor.token?.object : actor.getActiveTokens()[0];
     return token ? token : null;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The item that this bonus is currently directly or indirectly embedded on, if any.
@@ -393,6 +437,8 @@ class Babonus extends foundry.abstract.DataModel {
     return null;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * The effect that this bonus is currently directly embedded on, if any.
    * @type {ActiveEffect5e|null}
@@ -400,6 +446,8 @@ class Babonus extends foundry.abstract.DataModel {
   get effect() {
     return (this.parent instanceof ActiveEffect) ? this.parent : null;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * The template that this bonus is currently directly embedded on, if any.
@@ -409,6 +457,8 @@ class Babonus extends foundry.abstract.DataModel {
     return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * The scene region that this bonus is currently embedded on, if any.
    * @type {SceneRegion|null}
@@ -417,6 +467,8 @@ class Babonus extends foundry.abstract.DataModel {
     return (this.parent instanceof RegionDocument) ? this.parent : null;
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   static defineSchema() {
     const base = this._defineBaseSchema();
@@ -424,6 +476,8 @@ class Babonus extends foundry.abstract.DataModel {
     base.filters = new SchemaField(this._defineFilterSchema());
     return base;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Define the basics of the schema, properties that are not type specific.
@@ -474,6 +528,8 @@ class Babonus extends foundry.abstract.DataModel {
     };
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Define the bonuses data of the schema.
    * @returns {object}      An object of properties.
@@ -481,6 +537,8 @@ class Babonus extends foundry.abstract.DataModel {
   static _defineBonusSchema() {
     return {};
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Define the filter data of the schema.
@@ -500,12 +558,16 @@ class Babonus extends foundry.abstract.DataModel {
     };
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   static migrateData(source) {
     this.migrateMinimum(source);
     this.migrateDeathSaveTargetValue(source);
     this.migrateArbitraryComparisonPlural(source);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Migrate the old version of maximizing dice.
@@ -520,6 +582,8 @@ class Babonus extends foundry.abstract.DataModel {
     }
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Migrate 'deathSaveTargetValue' to 'targetValue'.
    * @param {object} source     Candidate source data.
@@ -528,6 +592,8 @@ class Babonus extends foundry.abstract.DataModel {
     const tv = source?.bonuses?.deathSaveTargetValue;
     if (tv) foundry.utils.setProperty(source, "bonuses.targetValue", tv);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Rename the 'arbitraryComparison' property to 'arbitraryComparisons'.
@@ -540,6 +606,8 @@ class Babonus extends foundry.abstract.DataModel {
     }
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Get applicable roll data from the origin.
    * @param {boolean} deterministic     Whether to force flat values for properties that could be a die term or flat term.
@@ -549,12 +617,14 @@ class Babonus extends foundry.abstract.DataModel {
     return this.origin?.getRollData({deterministic}) ?? {};
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   prepareDerivedData() {}
 
-  /* -------------------------------------------- */
-  /*               Flag Operations                */
-  /* -------------------------------------------- */
+  /* ----------------------------------------- */
+  /*   Flag Operations                         */
+  /* ----------------------------------------- */
 
   /**
    * Get the value of a flag on this babonus.
@@ -567,6 +637,8 @@ class Babonus extends foundry.abstract.DataModel {
     if (!scopes.includes(scope)) throw new Error(`Flag scope "${scope}" is not valid or not currently active.`);
     return foundry.utils.getProperty(this.flags?.[scope], key);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Set a flag on this babonus.
@@ -581,6 +653,8 @@ class Babonus extends foundry.abstract.DataModel {
     await this.update({[`flags.${scope}.${key}`]: value});
     return this;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Remove a flag on this babonus.
@@ -598,9 +672,9 @@ class Babonus extends foundry.abstract.DataModel {
     return this;
   }
 
-  /* -------------------------------------------- */
-  /*               Instance Methods               */
-  /* -------------------------------------------- */
+  /* ----------------------------------------- */
+  /*   Instance Methods                        */
+  /* ----------------------------------------- */
 
   /**
    * Toggle this bonus.
@@ -611,6 +685,8 @@ class Babonus extends foundry.abstract.DataModel {
     await this.update({enabled: [true, false].includes(state) ? state : !this.enabled});
     return this;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Update this bonus, propagating the data to its parent.
@@ -628,6 +704,8 @@ class Babonus extends foundry.abstract.DataModel {
     return this;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Delete this bonus.
    * @returns {Promise<Babonus>}
@@ -638,6 +716,8 @@ class Babonus extends foundry.abstract.DataModel {
     await this.parent.setFlag("babonus", "bonuses", collection.map(k => k.toObject()));
     return this;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Present a Dialog form to confirm deletion of this bonus.
@@ -698,6 +778,8 @@ class AttackBabonus extends ItemBabonus {
     defaultImg: "systems/dnd5e/icons/svg/trait-weapon-proficiencies.svg"
   }, {inplace: false}));
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineBaseSchema() {
     const schema = super._defineBaseSchema();
@@ -708,6 +790,8 @@ class AttackBabonus extends ItemBabonus {
     });
     return schema;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineBonusSchema() {
@@ -731,6 +815,8 @@ class AttackBabonus extends ItemBabonus {
     };
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineFilterSchema() {
     return {
@@ -748,6 +834,8 @@ class DamageBabonus extends ItemBabonus {
     defaultImg: "systems/dnd5e/icons/svg/properties/magical.svg"
   }, {inplace: false}));
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineBaseSchema() {
     const schema = super._defineBaseSchema();
@@ -758,6 +846,8 @@ class DamageBabonus extends ItemBabonus {
     });
     return schema;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineBonusSchema() {
@@ -787,6 +877,8 @@ class DamageBabonus extends ItemBabonus {
     };
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Does this bonus have a damage or healing type?
    * @type {boolean}
@@ -805,6 +897,8 @@ class SaveBabonus extends ItemBabonus {
     defaultImg: "systems/dnd5e/icons/svg/trait-damage-resistances.svg"
   }, {inplace: false}));
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineBaseSchema() {
     const schema = super._defineBaseSchema();
@@ -815,6 +909,8 @@ class SaveBabonus extends ItemBabonus {
     });
     return schema;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineBonusSchema() {
@@ -827,6 +923,8 @@ class SaveBabonus extends ItemBabonus {
       })
     };
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineFilterSchema() {
@@ -845,6 +943,8 @@ class ThrowBabonus extends Babonus {
     defaultImg: "systems/dnd5e/icons/svg/trait-saves.svg"
   }, {inplace: false}));
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineBaseSchema() {
     const schema = super._defineBaseSchema();
@@ -855,6 +955,8 @@ class ThrowBabonus extends Babonus {
     });
     return schema;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineBonusSchema() {
@@ -878,6 +980,8 @@ class ThrowBabonus extends Babonus {
     };
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineFilterSchema() {
     return {
@@ -898,6 +1002,8 @@ class TestBabonus extends Babonus {
     defaultImg: "systems/dnd5e/icons/svg/trait-skills.svg"
   }, {inplace: false}));
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineBaseSchema() {
     const schema = super._defineBaseSchema();
@@ -908,6 +1014,8 @@ class TestBabonus extends Babonus {
     });
     return schema;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineBonusSchema() {
@@ -920,6 +1028,8 @@ class TestBabonus extends Babonus {
       })
     };
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineFilterSchema() {
@@ -941,6 +1051,8 @@ class HitDieBabonus extends Babonus {
     defaultImg: "systems/dnd5e/icons/svg/hit-points.svg"
   }, {inplace: false}));
 
+  /* ----------------------------------------- */
+
   /** @override */
   static _defineBaseSchema() {
     const schema = super._defineBaseSchema();
@@ -951,6 +1063,8 @@ class HitDieBabonus extends Babonus {
     });
     return schema;
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   static _defineBonusSchema() {
