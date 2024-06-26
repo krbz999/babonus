@@ -46,6 +46,8 @@ export function createAPI() {
   window.babonus = game.modules.get(MODULE.ID).api = API;
 }
 
+/* ----------------------------------------- */
+
 /**
  * Return an object of arrays of items and effects on the given document
  * that have one or more babonuses embedded in them.
@@ -65,6 +67,8 @@ function findEmbeddedDocumentsWithBonuses(object) {
   return documents;
 }
 
+/* ----------------------------------------- */
+
 /**
  * Render the build-a-bonus application for a document.
  * @param {Document} object       An actor, item, effect, or region.
@@ -75,6 +79,8 @@ function openBabonusWorkshop(object) {
   if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
   return new applications.BabonusWorkshop(object).render(true);
 }
+
+/* ----------------------------------------- */
 
 /**
  * Create a babonus in memory with the given data.
@@ -88,6 +94,8 @@ function createBabonus(data, parent = null) {
   return new models[data.type](data, {parent});
 }
 
+/* ----------------------------------------- */
+
 /**
  * Duplicate a bonus.
  * @param {Babonus} bonus           The bonus to duplicate.
@@ -96,6 +104,8 @@ function createBabonus(data, parent = null) {
 function duplicateBonus(bonus) {
   return applications.BabonusWorkshop.copyBonus(bonus);
 }
+
+/* ----------------------------------------- */
 
 /**
  * Internal helper method for fromUuid and fromUuidSync.
@@ -109,6 +119,8 @@ const _getParentUuidAndId = (uuid) => {
   const parentUuid = parts.join(".");
   return {parentUuid, id};
 };
+
+/* ----------------------------------------- */
 
 /**
  * Return a babonus using its uuid.
@@ -126,6 +138,8 @@ async function babonusFromUuid(uuid) {
   }
 }
 
+/* ----------------------------------------- */
+
 /**
  * Return a babonus using its uuid synchronously.
  * @param {string} uuid         The babonus uuid.
@@ -141,6 +155,8 @@ function babonusFromUuidSync(uuid) {
     return null;
   }
 }
+
+/* ----------------------------------------- */
 
 /**
  * Return the collection of bonuses on the document.
@@ -164,6 +180,8 @@ function getCollection(object) {
   return new foundry.utils.Collection(contents);
 }
 
+/* ----------------------------------------- */
+
 /**
  * Embed a created babonus onto the target object.
  * @param {Document} object         The actor, item, effect, or region that should have the babonus.
@@ -177,6 +195,8 @@ async function embedBabonus(object, bonus) {
   await applications.BabonusWorkshop._embedBabonus(object, bonus);
   return object;
 }
+
+/* ----------------------------------------- */
 
 /**
  * Hotbar method for toggling a bonus via uuid.
@@ -192,6 +212,8 @@ async function hotbarToggle(uuid) {
   return bonus.toggle();
 }
 
+/* ----------------------------------------- */
+
 /**
  * Does this actor speak a given language?
  * @param {Actor5e} actor     The actor to test.
@@ -201,6 +223,8 @@ async function hotbarToggle(uuid) {
 function speaksLanguage(actor, trait) {
   return _hasTrait(actor, trait, "languages");
 }
+
+/* ----------------------------------------- */
 
 /**
  * Does this actor have a given weapon proficiency?
@@ -212,6 +236,8 @@ function hasWeaponProficiency(actor, trait) {
   return _hasTrait(actor, trait, "weapon");
 }
 
+/* ----------------------------------------- */
+
 /**
  * Does this actor have a given armor proficiency?
  * @param {Actor5e} actor     The actor to test.
@@ -221,6 +247,8 @@ function hasWeaponProficiency(actor, trait) {
 function hasArmorProficiency(actor, trait) {
   return _hasTrait(actor, trait, "armor");
 }
+
+/* ----------------------------------------- */
 
 /**
  * Does this actor have a given tool proficiency?
@@ -232,6 +260,8 @@ function hasToolProficiency(actor, trait) {
   return _hasTrait(actor, trait, "tool");
 }
 
+/* ----------------------------------------- */
+
 function _hasTrait(actor, trait, category) {
   const path = CONFIG.DND5E.traits[category].actorKeyPath ?? `system.traits.${category}`;
   const set = foundry.utils.getProperty(actor, path)?.value ?? new Set();
@@ -241,6 +271,8 @@ function _hasTrait(actor, trait, category) {
     return (k === trait) || (obj.children && obj.children.find(trait));
   });
 }
+
+/* ----------------------------------------- */
 
 /**
  * Retrieve a path through nested proficiencies to find a specific proficiency in a category.

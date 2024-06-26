@@ -56,17 +56,23 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     };
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   _initialize(...args) {
     super._initialize(...args);
     this.prepareDerivedData();
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   static migrateData(source) {
     // Resource as a consumption type is deprecated fully and without replacement.
     if (source.type === "resource") source.type = "";
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   prepareDerivedData() {
@@ -80,6 +86,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     }
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Get applicable roll data from the origin.
    * @returns {object}      The roll data.
@@ -88,9 +96,9 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     return this.bonus.getRollData({deterministic: true});
   }
 
-  /* ----------------------------- */
-  /* Getters                       */
-  /* ----------------------------- */
+  /* ----------------------------------------- */
+  /*   Getters                                 */
+  /* ----------------------------------------- */
 
   /**
    * The babonus this lives on.
@@ -99,6 +107,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   get bonus() {
     return this.parent;
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Whether the set up in consumption can be used to create something that consumes.
@@ -156,6 +166,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
     }
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Is the actor or user able to make the change when performing the consumption?
    * This checks for permission issues only as well as properties being existing on the actor.
@@ -180,6 +192,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
       default: return false;
     }
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Whether there are enough remaining of the target to be consumed.

@@ -6,10 +6,12 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    * The modifier modes for amount and size.
    * @type {number}
    */
-  static MODIFIER_MODES = {
+  static MODIFIER_MODES = Object.freeze({
     ADD: 0,
     MULTIPLY: 1
-  };
+  });
+
+  /* ----------------------------------------- */
 
   /** @override */
   static defineSchema() {
@@ -137,11 +139,15 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     };
   }
 
+  /* ----------------------------------------- */
+
   /** @override */
   _initialize(...args) {
     super._initialize(...args);
     this.prepareDerivedData();
   }
+
+  /* ----------------------------------------- */
 
   /** @override */
   prepareDerivedData() {
@@ -165,19 +171,21 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     }
   }
 
-  /* ----------------------------- */
-  /*       Dice Modifications      */
-  /* ----------------------------- */
+  /* ----------------------------------------- */
+  /*   Dice Modifications                      */
+  /* ----------------------------------------- */
 
   /**
    * Regex to determine whether a die already has a modifier.
    */
-  static REGEX = {
+  static REGEX = Object.freeze({
     reroll: /rr?([0-9]+)?([<>=]+)?([0-9]+)?/i,
     explode: /xo?([0-9]+)?([<>=]+)?([0-9]+)?/i,
     minimum: /(?:min)([0-9]+)/i,
     maximum: /(?:max)([0-9]+)/i
-  };
+  });
+
+  /* ----------------------------------------- */
 
   /**
    * Append applicable modifiers to a die.
@@ -193,6 +201,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (options.maximum !== false) this._modifyMax(die);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Append applicable amount modifiers to a die.
    * @param {DieTerm} die     The die term that will be mutated.
@@ -204,6 +214,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     else die.number = Math.max(0, die.number + this.amount.value);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Append applicable size modifiers to a die.
    * @param {DieTerm} die     The die term that will be mutated.
@@ -214,6 +226,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (isMult) die.faces = Math.max(0, die.faces * this.size.value);
     else die.faces = Math.max(0, die.faces + this.size.value);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Append applicable reroll modifiers to a die.
@@ -251,6 +265,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (die.faces > 1) die.modifiers.push(mod);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Append applicable explode modifiers to a die.
    * @param {DieTerm} die     The die term that will be mutated.
@@ -277,6 +293,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (valid || l) die.modifiers.push(mod);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Append applicable minimum modifiers to a die.
    * @param {DieTerm} die     The die term that will be mutated.
@@ -291,6 +309,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (mod !== "min1") die.modifiers.push(mod);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Append applicable maximum modifiers to a die.
    * @param {DieTerm} die     The die term that will be mutated.
@@ -302,6 +322,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     const max = (v === 0) ? (zero ? 0 : 1) : (v > 0) ? v : Math.max(zero ? 0 : 1, die.faces + v);
     if (max < die.faces) die.modifiers.push(`max${max}`);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Append applicable modifiers to a roll part.
@@ -329,9 +351,9 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     return false;
   }
 
-  /* ----------------------------- */
-  /*           Getters             */
-  /* ----------------------------- */
+  /* ----------------------------------------- */
+  /*   Getters                                 */
+  /* ----------------------------------------- */
 
   /**
    * The babonus this lives on.
@@ -341,6 +363,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     return this.parent.parent;
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Does this bonus have applicable modifiers for dice?
    * @type {boolean}
@@ -348,6 +372,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   get hasModifiers() {
     return ["hasAmount", "hasSize", "hasReroll", "hasExplode", "hasMin", "hasMax"].some(m => this[m]);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Does this bonus affect the dice amount?
@@ -358,6 +384,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     return Number.isInteger(this.amount.value);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Does this bonus affect the die size?
    * @type {boolean}
@@ -366,6 +394,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (!this.size.enabled) return false;
     return Number.isInteger(this.size.value);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Does this bonus affect rerolling?
@@ -376,6 +406,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     return (this.reroll.value === null) || Number.isInteger(this.reroll.value);
   }
 
+  /* ----------------------------------------- */
+
   /**
    * Does this bonus affect explosive dice?
    * @type {boolean}
@@ -384,6 +416,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (!this.explode.enabled) return false;
     return (this.maximum.value === null) || Number.isInteger(this.explode.value);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Does this bonus affect the minimum cap?
@@ -394,6 +428,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
     if (this.minimum.maximize) return true;
     return Number.isInteger(this.minimum.value) && (this.minimum.value !== 0);
   }
+
+  /* ----------------------------------------- */
 
   /**
    * Does this bonus affect the maximum cap?

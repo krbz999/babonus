@@ -24,6 +24,8 @@ async function _renderDialog(dialog) {
   new OptionalSelector(m.registry).render();
 }
 
+/* ----------------------------------------- */
+
 /* Settings. */
 function _createSettings() {
   game.settings.register(MODULE.ID, SETTINGS.PLAYERS, {
@@ -96,6 +98,8 @@ function _createSettings() {
   });
 }
 
+/* ----------------------------------------- */
+
 /**
  * On-drop handler for the hotbar.
  * @param {Hotbar} bar                The hotbar application.
@@ -119,6 +123,8 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
   return game.user.assignHotbarMacro(macro, slot);
 }
 
+/* ----------------------------------------- */
+
 /** Setup the global 'trees' for proficiency searching. */
 async function setupTree() {
   const trees = {};
@@ -127,6 +133,8 @@ async function setupTree() {
   }
   babonus.trees = trees;
 }
+
+/* ----------------------------------------- */
 
 // General setup.
 Hooks.once("init", _createSettings);
