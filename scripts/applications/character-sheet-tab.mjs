@@ -175,7 +175,7 @@ async function _createChildBonus() {
       acc.push({
         type: type,
         label: label,
-        icon: babonus.abstract.DataModels[type].defaultImg
+        icon: babonus.abstract.DataModels[type].metadata.defaultImg
       });
       return acc;
     }, []).sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang))

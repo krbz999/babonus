@@ -117,9 +117,11 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
-  static get metadata() {
-    return {label: game.i18n.localize("BABONUS.Babonus")};
-  }
+  static metadata = Object.freeze({
+    label: "BABONUS.BaseBabonus",
+    icon: null,
+    defaultImg: null
+  });
 
   /**
    * An object of applications that re-render when this bonus is updated.
@@ -152,6 +154,13 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /** @override */
+  static cleanData(source, options = {}) {
+    delete options.partial?.id;
+    delete options.partial?.type;
+    return super.cleanData(source, options);
+  }
+
+  /** @override */
   toDragData() {
     return {type: "Babonus", uuid: this.uuid};
   }
@@ -168,27 +177,8 @@ class Babonus extends foundry.abstract.DataModel {
    * The FA icon unique to this babonus type. Must be subclassed.
    * @type {string}
    */
-  static get icon() {
-    return null;
-  }
   get icon() {
-    return this.constructor.icon;
-  }
-
-  /**
-   * The default image to use for this babonus type. Must be subclassed.
-   * @type {string}
-   */
-  static get defaultImg() {
-    return null;
-  }
-
-  /**
-   * Get the type of a babonus.
-   * @type {string}
-   */
-  static get type() {
-    return null;
+    return this.constructor.metadata.icon;
   }
 
   /**
@@ -454,8 +444,8 @@ class Babonus extends foundry.abstract.DataModel {
       }),
       type: new StringField({
         required: true,
-        initial: this.type,
-        choices: [this.type]
+        initial: "base",
+        readonly: true
       }),
       enabled: new BooleanField({
         initial: true,
@@ -631,9 +621,6 @@ class Babonus extends foundry.abstract.DataModel {
   async update(changes, options = {}) {
     changes = foundry.utils.expandObject(changes);
 
-    delete changes.id;
-    delete changes.type;
-
     this.updateSource(changes, options);
     const collection = babonus.getCollection(this.parent);
     collection.set(this.id, this);
@@ -654,8 +641,8 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Present a Dialog form to confirm deletion of this bonus.
-   * @param {object} [options]      Options tl configure to the dleteion
-   * @returns {Promise}           A Promise which resolves to the deleted bonus.
+   * @param {object} [options]      Options to configure the deletetion.
+   * @returns {Promise}             A Promise which resolves to the deleted bonus.
    */
   async deleteDialog(options = {}) {
     const type = game.i18n.localize(this.constructor.metadata.label);
@@ -705,6 +692,24 @@ class ItemBabonus extends Babonus {
 
 class AttackBabonus extends ItemBabonus {
   /** @override */
+  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+    label: "BABONUS.AttackBabonus",
+    icon: "fa-solid fa-location-crosshairs",
+    defaultImg: "systems/dnd5e/icons/svg/trait-weapon-proficiencies.svg"
+  }, {inplace: false}));
+
+  /** @override */
+  static _defineBaseSchema() {
+    const schema = super._defineBaseSchema();
+    schema.type = new StringField({
+      required: true,
+      readonly: true,
+      initial: "attack"
+    });
+    return schema;
+  }
+
+  /** @override */
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
@@ -733,24 +738,27 @@ class AttackBabonus extends ItemBabonus {
       proficiencyLevels: new babonus.abstract.DataFields.filters.proficiencyLevels()
     };
   }
-
-  /** @override */
-  static get icon() {
-    return "fa-solid fa-location-crosshairs";
-  }
-
-  /** @override */
-  static get type() {
-    return "attack";
-  }
-
-  /** @override */
-  static get defaultImg() {
-    return "systems/dnd5e/icons/svg/trait-weapon-proficiencies.svg";
-  }
 }
 
 class DamageBabonus extends ItemBabonus {
+  /** @override */
+  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+    label: "BABONUS.DamageBabonus",
+    icon: "fa-solid fa-burst",
+    defaultImg: "systems/dnd5e/icons/svg/properties/magical.svg"
+  }, {inplace: false}));
+
+  /** @override */
+  static _defineBaseSchema() {
+    const schema = super._defineBaseSchema();
+    schema.type = new StringField({
+      required: true,
+      readonly: true,
+      initial: "damage"
+    });
+    return schema;
+  }
+
   /** @override */
   static _defineBonusSchema() {
     return {
@@ -779,21 +787,6 @@ class DamageBabonus extends ItemBabonus {
     };
   }
 
-  /** @override */
-  static get icon() {
-    return "fa-solid fa-burst";
-  }
-
-  /** @override */
-  static get type() {
-    return "damage";
-  }
-
-  /** @override */
-  static get defaultImg() {
-    return "systems/dnd5e/icons/svg/properties/magical.svg";
-  }
-
   /**
    * Does this bonus have a damage or healing type?
    * @type {boolean}
@@ -805,6 +798,24 @@ class DamageBabonus extends ItemBabonus {
 }
 
 class SaveBabonus extends ItemBabonus {
+  /** @override */
+  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+    label: "BABONUS.SaveBabonus",
+    icon: "fa-solid fa-hand-sparkles",
+    defaultImg: "systems/dnd5e/icons/svg/trait-damage-resistances.svg"
+  }, {inplace: false}));
+
+  /** @override */
+  static _defineBaseSchema() {
+    const schema = super._defineBaseSchema();
+    schema.type = new StringField({
+      required: true,
+      readonly: true,
+      initial: "save"
+    });
+    return schema;
+  }
+
   /** @override */
   static _defineBonusSchema() {
     return {
@@ -824,24 +835,27 @@ class SaveBabonus extends ItemBabonus {
       saveAbilities: new babonus.abstract.DataFields.filters.saveAbilities()
     };
   }
-
-  /** @override */
-  static get icon() {
-    return "fa-solid fa-hand-sparkles";
-  }
-
-  /** @override */
-  static get type() {
-    return "save";
-  }
-
-  /** @override */
-  static get defaultImg() {
-    return "systems/dnd5e/icons/svg/trait-damage-resistances.svg";
-  }
 }
 
 class ThrowBabonus extends Babonus {
+  /** @override */
+  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+    label: "BABONUS.ThrowBabonus",
+    icon: "fa-solid fa-person-falling-burst",
+    defaultImg: "systems/dnd5e/icons/svg/trait-saves.svg"
+  }, {inplace: false}));
+
+  /** @override */
+  static _defineBaseSchema() {
+    const schema = super._defineBaseSchema();
+    schema.type = new StringField({
+      required: true,
+      readonly: true,
+      initial: "throw"
+    });
+    return schema;
+  }
+
   /** @override */
   static _defineBonusSchema() {
     return {
@@ -874,24 +888,27 @@ class ThrowBabonus extends Babonus {
       proficiencyLevels: new babonus.abstract.DataFields.filters.proficiencyLevels()
     };
   }
-
-  /** @override */
-  static get icon() {
-    return "fa-solid fa-person-falling-burst";
-  }
-
-  /** @override */
-  static get type() {
-    return "throw";
-  }
-
-  /** @override */
-  static get defaultImg() {
-    return "systems/dnd5e/icons/svg/trait-saves.svg";
-  }
 }
 
 class TestBabonus extends Babonus {
+  /** @override */
+  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+    label: "BABONUS.TestBabonus",
+    icon: "fa-solid fa-bolt",
+    defaultImg: "systems/dnd5e/icons/svg/trait-skills.svg"
+  }, {inplace: false}));
+
+  /** @override */
+  static _defineBaseSchema() {
+    const schema = super._defineBaseSchema();
+    schema.type = new StringField({
+      required: true,
+      readonly: true,
+      initial: "test"
+    });
+    return schema;
+  }
+
   /** @override */
   static _defineBonusSchema() {
     return {
@@ -914,24 +931,27 @@ class TestBabonus extends Babonus {
       proficiencyLevels: new babonus.abstract.DataFields.filters.proficiencyLevels()
     };
   }
-
-  /** @override */
-  static get icon() {
-    return "fa-solid fa-bolt";
-  }
-
-  /** @override */
-  static get type() {
-    return "test";
-  }
-
-  /** @override */
-  static get defaultImg() {
-    return "systems/dnd5e/icons/svg/trait-skills.svg";
-  }
 }
 
 class HitDieBabonus extends Babonus {
+  /** @override */
+  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+    label: "BABONUS.HitdieBabonus",
+    icon: "fa-solid fa-heart-pulse",
+    defaultImg: "systems/dnd5e/icons/svg/hit-points.svg"
+  }, {inplace: false}));
+
+  /** @override */
+  static _defineBaseSchema() {
+    const schema = super._defineBaseSchema();
+    schema.type = new StringField({
+      required: true,
+      readonly: true,
+      initial: "hitdie"
+    });
+    return schema;
+  }
+
   /** @override */
   static _defineBonusSchema() {
     return {
@@ -943,21 +963,6 @@ class HitDieBabonus extends Babonus {
       }),
       modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel)
     };
-  }
-
-  /** @override */
-  static get icon() {
-    return "fa-solid fa-heart-pulse";
-  }
-
-  /** @override */
-  static get type() {
-    return "hitdie";
-  }
-
-  /** @override */
-  static get defaultImg() {
-    return "systems/dnd5e/icons/svg/hit-points.svg";
   }
 }
 

@@ -1,6 +1,12 @@
 {"BABONUS": {
   "AvailableFiltersTooltip": "The list of filters you can apply to this bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
   "Babonus": "Babonus",
+  "TestBabonus": "Ability Check Babonus",
+  "AttackBabonus": "Attack Roll Babonus",
+  "DamageBabonus": "Damage Roll Babonus",
+  "HitdieBabonus": "Hit Die Babonus",
+  "SaveBabonus": "Save DC Babonus",
+  "ThrowBabonus": "Saving Throw Babonus",
   "BasicBonuses": "Basic Bonuses",
   "BonusCopy": "{name} (Copy)",
   "ConfigurationConsumptionConsume": "Consume:",
