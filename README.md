@@ -239,7 +239,23 @@ async function hotbarToggle(uuid)
 
 <h1 style="font-weight: bold;">Hooks</h1>
 
-<p>The below hook is called during appliction of an optional bonus.</p>
+<p>The below hooks are called immediately before and after this module has fully initialized any roll-relevant hooks. This can help other module developers ensure that their hooks are applied before or after this module.</p>
+
+```js
+/**
+ * A hook that is called before babonus has registered all its hooks.
+ */
+Hooks.call("babonus.preInitializeRollHooks");
+```
+
+```js
+/**
+ * A hook that is called after babonus has registered all its hooks.
+ */
+Hooks.call("babonus.initializeRollHooks");
+```
+
+<p>The below hook is called during application of an optional bonus.</p>
 
 ```js
 /**
@@ -251,6 +267,7 @@ async function hotbarToggle(uuid)
  * @param {string} config.bonus                         The bonus that will be applied.
  * @returns {boolean}                                   Explicitly return false to cancel the application of the bonus.
  */
+Hooks.call("babonus.applyOptionalBonus", babonus, roller, target, config);
 ```
 
 <p>Two hooks are called during the filtering of the collected bonuses when making a relevant roll.</p>

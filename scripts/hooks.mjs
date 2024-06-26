@@ -153,6 +153,8 @@ Hooks.on("renderRegionConfig", injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
 Hooks.once("ready", function() {
+  Hooks.callAll("babonus.preInitializeRollHooks");
+
   Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
   Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
@@ -164,4 +166,6 @@ Hooks.once("ready", function() {
   Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
   Hooks.on("dnd5e.preCreateItemTemplate", RollHooks.preCreateItemTemplate);
   setupTree();
+
+  Hooks.callAll("babonus.initializeRollHooks");
 });
