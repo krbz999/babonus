@@ -110,6 +110,21 @@ class Babonus extends foundry.abstract.DataModel {
 
   /* ----------------------------------------- */
 
+  /**
+   * Available babonus types.
+   * @type {string[]}
+   */
+  static TYPES = Object.freeze([
+    "attack",
+    "damage",
+    "hitdie",
+    "save",
+    "test",
+    "throw"
+  ]);
+
+  /* ----------------------------------------- */
+
   constructor(data, options = {}) {
     data = foundry.utils.mergeObject({
       name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
@@ -123,6 +138,7 @@ class Babonus extends foundry.abstract.DataModel {
   /** @override */
   static metadata = Object.freeze({
     label: "BABONUS.BaseBabonus",
+    documentName: "babonus",
     icon: null,
     defaultImg: null
   });
@@ -546,15 +562,15 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineFilterSchema() {
     return {
+      actorCreatureSizes: new babonus.abstract.DataFields.filters.actorCreatureSizes(),
+      actorCreatureTypes: new babonus.abstract.DataFields.filters.actorCreatureTypes(),
+      actorLanguages: new babonus.abstract.DataFields.filters.actorLanguages(),
       arbitraryComparisons: new babonus.abstract.DataFields.filters.arbitraryComparisons(),
       baseArmors: new babonus.abstract.DataFields.filters.baseArmors(),
-      statusEffects: new babonus.abstract.DataFields.filters.statusEffects(),
-      healthPercentages: new babonus.abstract.DataFields.filters.healthPercentages(),
       customScripts: new babonus.abstract.DataFields.filters.customScripts(),
+      healthPercentages: new babonus.abstract.DataFields.filters.healthPercentages(),
       remainingSpellSlots: new babonus.abstract.DataFields.filters.remainingSpellSlots(),
-      actorCreatureTypes: new babonus.abstract.DataFields.filters.actorCreatureTypes(),
-      actorCreatureSizes: new babonus.abstract.DataFields.filters.actorCreatureSizes(),
-      actorLanguages: new babonus.abstract.DataFields.filters.actorLanguages()
+      statusEffects: new babonus.abstract.DataFields.filters.statusEffects()
     };
   }
 
@@ -987,10 +1003,10 @@ class ThrowBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      throwTypes: new babonus.abstract.DataFields.filters.throwTypes(),
-      targetEffects: new babonus.abstract.DataFields.filters.targetEffects(),
       creatureTypes: new babonus.abstract.DataFields.filters.creatureTypes(),
-      proficiencyLevels: new babonus.abstract.DataFields.filters.proficiencyLevels()
+      proficiencyLevels: new babonus.abstract.DataFields.filters.proficiencyLevels(),
+      targetEffects: new babonus.abstract.DataFields.filters.targetEffects(),
+      throwTypes: new babonus.abstract.DataFields.filters.throwTypes()
     };
   }
 }
@@ -1038,8 +1054,8 @@ class TestBabonus extends Babonus {
       ...super._defineFilterSchema(),
       abilities: new babonus.abstract.DataFields.filters.abilities(),
       baseTools: new babonus.abstract.DataFields.filters.baseTools(),
-      skillIds: new babonus.abstract.DataFields.filters.skillIds(),
-      proficiencyLevels: new babonus.abstract.DataFields.filters.proficiencyLevels()
+      proficiencyLevels: new babonus.abstract.DataFields.filters.proficiencyLevels(),
+      skillIds: new babonus.abstract.DataFields.filters.skillIds()
     };
   }
 }
@@ -1084,8 +1100,8 @@ class HitDieBabonus extends Babonus {
 export default {
   attack: AttackBabonus,
   damage: DamageBabonus,
+  hitdie: HitDieBabonus,
   save: SaveBabonus,
-  throw: ThrowBabonus,
   test: TestBabonus,
-  hitdie: HitDieBabonus
+  throw: ThrowBabonus
 };
