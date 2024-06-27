@@ -717,7 +717,19 @@ class Babonus extends foundry.abstract.DataModel {
     const collection = babonus.getCollection(this.parent);
     collection.set(this.id, this);
     await this.parent.setFlag("babonus", "bonuses", collection.map(k => k.toObject()));
+    this.#updateContentLinks();
     return this;
+  }
+
+  /* ----------------------------------------- */
+
+  /**
+   * Refresh the state of all content links.
+   */
+  #updateContentLinks() {
+    for (const link of document.querySelectorAll(`a[data-link][data-uuid="${this.uuid}"]`)) {
+      link.classList.toggle("enabled", this.enabled);
+    }
   }
 
   /* ----------------------------------------- */

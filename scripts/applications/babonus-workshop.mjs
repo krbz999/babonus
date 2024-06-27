@@ -132,7 +132,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
     // New babonus buttons.
     data.createButtons = Object.entries(babonus.abstract.DataModels).map(([type, cls]) => ({
-      type, icon: cls.icon, label: `BABONUS.Type${type.capitalize()}.Label`
+      type, icon: cls.metadata.icon, label: `BABONUS.Type${type.capitalize()}.Label`
     }));
 
     data.ICON = MODULE.ICON;

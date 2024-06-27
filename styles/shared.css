@@ -112,3 +112,13 @@
     }
   }
 }
+
+.babonus.content-link[data-link][data-uuid] {
+  .fa-otter {
+    transition: transform 200ms ease;
+  }
+
+  &:not(.enabled) .fa-otter {
+    transform: rotate(180deg);
+  }
+}
