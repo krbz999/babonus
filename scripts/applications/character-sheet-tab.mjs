@@ -159,6 +159,7 @@ function _onOpenContextMenu(element) {
 
 /**
  * Utility method that creates a popup dialog for a new bonus.
+ * @this {ActorSheet5eCharacter2}
  * @returns {Promise}
  */
 async function _createChildBonus() {
