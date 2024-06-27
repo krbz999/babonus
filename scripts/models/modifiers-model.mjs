@@ -370,7 +370,7 @@ export class ModifiersModel extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get hasModifiers() {
-    return ["hasAmount", "hasSize", "hasReroll", "hasExplode", "hasMin", "hasMax"].some(m => this[m]);
+    return this.hasAmount || this.hasSize || this.hasReroll || this.hasExplode || this.hasMin || this.hasMax;
   }
 
   /* ----------------------------------------- */

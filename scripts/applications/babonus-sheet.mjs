@@ -116,6 +116,16 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   /** @override */
   _prepareSubmitData(event, form, formData) {
     const submitData = foundry.utils.expandObject(formData.object);
+
+    // Move bonuses.modifiers.config.enabled into respective objects.
+    let enabled = submitData.bonuses?.modifiers?.config?.enabled;
+    if (enabled) {
+      enabled = new Set(enabled);
+      for (const k of ["amount", "explode", "maximum", "minimum", "reroll", "size"]) {
+        foundry.utils.setProperty(submitData, `bonuses.modifiers.${k}.enabled`, enabled.has(k));
+      }
+    }
+
     this.bonus.validate({changes: submitData, clean: true, fallback: false});
     submitData.id = this.bonus.id;
     const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
@@ -248,12 +258,29 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       const initial = bonus.bonuses.modifiers.schema.initial();
       const paths = Object.keys(foundry.utils.flattenObject(initial));
       const modifiers = context.modifiers = {};
+      modifiers.enabled = {value: new Set(), choices: []};
       for (const path of paths) {
         const parts = path.split(".");
         const key = parts.shift();
+        const tail = parts.pop();
         modifiers[key] ??= {};
-        modifiers[key][parts.pop()] = makeField(`bonuses.modifiers.${path}`);
+        if (tail !== "enabled") {
+          modifiers[key][tail] = makeField(`bonuses.modifiers.${path}`);
+        } else {
+          if (source.bonuses.modifiers[key].enabled) {
+            modifiers[key].enabled = true;
+            modifiers.enabled.value.add(key);
+          }
+          modifiers.enabled.choices.push({
+            value: key,
+            label: bonus.bonuses.modifiers.schema.getField(`${key}.enabled`).label
+          });
+        }
       }
+      modifiers.enabled.field = new foundry.data.fields.SetField(new foundry.data.fields.StringField(), {
+        label: "BABONUS.Modifiers.Config.Enabled",
+        hint: "BABONUS.Modifiers.Config.EnabledHint"
+      });
 
       const parts = ["3", "2d10", "1d4"];
       bonus.bonuses.modifiers.modifyParts(parts, rollData);

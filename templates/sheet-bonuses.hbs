@@ -18,40 +18,20 @@
     {{formGroup field value=value localize=true rootId=@root.rootId}}
     {{/with}}
 
-    <div class="form-group modifiers example">
-      <label>{{localize "BABONUS.Example"}}:</label>
-      <div class="form-fields formula">{{modifiers.config.example}}</div>
-    </div>
-
-    {{#with modifiers.amount.enabled}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
-    {{/with}}
-
-    {{#with modifiers.size.enabled}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
-    {{/with}}
-
-    {{#with modifiers.reroll.enabled}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
-    {{/with}}
-
-    {{#with modifiers.explode.enabled}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
-    {{/with}}
-
-    {{#with modifiers.minimum.enabled}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
-    {{/with}}
-
-    {{#with modifiers.maximum.enabled}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
+    {{#with modifiers.enabled}}
+    {{formGroup field value=value options=choices localize=true name="bonuses.modifiers.config.enabled" type="checkboxes" classes="stacked"}}
     {{/with}}
 
   </fieldset>
+
+  <div class="form-group modifiers example">
+    <label>{{localize "BABONUS.Example"}}:</label>
+    <div class="form-fields formula">{{modifiers.config.example}}</div>
+  </div>
   {{/if}}
 
   <!-- Amount -->
-  {{#if modifiers.amount.enabled.value}}
+  {{#if modifiers.amount.enabled}}
   {{#with modifiers.amount}}
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Amount.Label"}}</legend>
@@ -62,7 +42,7 @@
   {{/if}}
 
   <!-- Size -->
-  {{#if modifiers.size.enabled.value}}
+  {{#if modifiers.size.enabled}}
   {{#with modifiers.size}}
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Size.Label"}}</legend>
@@ -73,7 +53,7 @@
   {{/if}}
 
   <!-- Reroll -->
-  {{#if modifiers.reroll.enabled.value}}
+  {{#if modifiers.reroll.enabled}}
   {{#with modifiers.reroll}}
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Reroll.Label"}}</legend>
@@ -88,7 +68,7 @@
   {{/if}}
 
   <!-- Explode -->
-  {{#if modifiers.explode.enabled.value}}
+  {{#if modifiers.explode.enabled}}
   {{#with modifiers.explode}}
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Explode.Label"}}</legend>
@@ -102,7 +82,7 @@
   {{/if}}
 
   <!-- Minimum -->
-  {{#if modifiers.minimum.enabled.value}}
+  {{#if modifiers.minimum.enabled}}
   {{#with modifiers.minimum}}
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Minimum.Label"}}</legend>
@@ -115,7 +95,7 @@
   {{/if}}
 
   <!-- Maximum -->
-  {{#if modifiers.maximum.enabled.value}}
+  {{#if modifiers.maximum.enabled}}
   {{#with modifiers.maximum}}
   <fieldset>
     <legend>{{localize "BABONUS.Modifiers.Maximum.Label"}}</legend>

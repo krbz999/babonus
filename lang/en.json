@@ -310,7 +310,9 @@
     "Config": {
       "FirstHint": "If checked, the die modifiers only apply to the first die in the full expression.",
       "FirstLabel": "First Die Only",
-      "Label": "Dice Configuration"
+      "Label": "Dice Configuration",
+      "Enabled": "Enabled Modifications",
+      "EnabledHint": "Toggle which dice modifications should be configurable and applying to the die rolls."
     },
     "Explode": {
       "EnabledHint": "Allow this bonus to cause the dice to explode.",
