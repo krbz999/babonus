@@ -230,28 +230,17 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
 
   /** @override */
   async _onDrop(event) {
-    const data = TextEditor.getDragEventData(event);
-    const doc = this.document;
-    if (!this.isEditable) return null;
-    const bab = await BabonusWorkshop.#fromDropData.call(this, data);
-    if (!bab) return null;
-    BabonusWorkshop._embedBabonus(doc, bab);
-  }
+    if (!this.isEditable) return;
+    let data = TextEditor.getDragEventData(event);
+    if (!data.uuid || (data.type !== "Babonus")) return;
 
-  /* ----------------------------------------- */
+    let bonus = await babonus.fromUuid(data.uuid);
+    if (!bonus || (bonus.parent === this.document)) return;
 
-  /**
-   * Turn drop data into a babonus.
-   * @param {object} data                 An object of babonus data or a uuid.
-   * @returns {Promise<Babonus|null>}     The created babonus.
-   */
-  static async #fromDropData(data) {
-    if (!data.uuid || (data.type !== "Babonus")) return null;
-    const bonus = await babonus.fromUuid(data.uuid);
-    if (!bonus || (bonus.parent === this.document)) return null;
     data = bonus.toObject();
     data.id = foundry.utils.randomID();
-    return new babonus.abstract.DataModels[data.type](data, {parent: this.document});
+    bonus = new babonus.abstract.DataModels[data.type](data, {parent: this.document});
+    babonus.embedBabonus(this.document, bonus);
   }
 
   /* ----------------------------------------- */
@@ -263,7 +252,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
   async #onClickType(event) {
     const type = event.currentTarget.dataset.type;
     const bonus = new babonus.abstract.DataModels[type]();
-    const id = await BabonusWorkshop._embedBabonus(this.document, bonus);
+    const id = await babonus.embedBabonus(this.document, bonus, {bonusId: true});
     this.collection.get(id).sheet.render(true);
   }
 
@@ -384,44 +373,6 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   async #onCopyBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
-    BabonusWorkshop.copyBonus(this.collection.get(id));
-  }
-
-  /* ----------------------------------------- */
-
-  /**
-   * Duplicate a bonus.
-   * @param {Babonus} bonus           The bonus to duplicate.
-   * @returns {Promise<Babonus>}      The created bonus.
-   */
-  static async copyBonus(bonus) {
-    const data = bonus.toObject();
-    data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
-    bonus = new bonus.constructor(data, {parent: bonus.parent});
-    const id = await BabonusWorkshop._embedBabonus(bonus.parent, bonus);
-    return babonus.getCollection(bonus.parent).get(id);
-  }
-
-  /* ----------------------------------------- */
-
-  /**
-   * Embed a created babonus onto the target object.
-   * @param {Document} object       The actor, item, effect, or region that should have the babonus.
-   * @param {Babonus} bonus         The created babonus.
-   * @returns {Promise<string>}     The id of the bonus created.
-   */
-  static async _embedBabonus(object, bonus) {
-    const data = bonus.toObject();
-    for (const id of Object.keys(data.filters)) {
-      if (!babonus.abstract.DataFields.filters[id].storage(bonus)) delete data.filters[id];
-    }
-    data.id = foundry.utils.randomID();
-    let collection = babonus.getCollection(object);
-    if (collection.has(data.id)) collection.delete(data.id);
-    collection = collection.map(k => k.toObject());
-    collection.push(data);
-
-    await object.setFlag("babonus", "bonuses", collection);
-    return data.id;
+    babonus.duplicateBonus(this.collection.get(id));
   }
 }

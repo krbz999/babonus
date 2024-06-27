@@ -8,17 +8,22 @@ export class OptionalSelector {
    */
   constructor(id) {
     const registered = registry.get(id);
+
     /**
      * The optional bonuses.
      * @type {Collection<Babonus>}
      */
     this.bonuses = new foundry.utils.Collection(registered.optionals.map(o => [o.uuid, o]));
 
+    /* ----------------------------------------- */
+
     /**
      * All bonuses.
      * @type {Collection<Babonus>}
      */
     this.allBonuses = new foundry.utils.Collection(registered.bonuses.map(o => [o.uuid, o]));
+
+    /* ----------------------------------------- */
 
     /**
      * The bonuses that just serve as reminders
@@ -29,11 +34,15 @@ export class OptionalSelector {
       return acc;
     }, []));
 
+    /* ----------------------------------------- */
+
     /**
      * The actor performing the roll.
      * @type {Actor5e}
      */
     this.actor = registered.actor;
+
+    /* ----------------------------------------- */
 
     /**
      * The item being rolled.
@@ -41,16 +50,22 @@ export class OptionalSelector {
      */
     this.item = registered.item;
 
+    /* ----------------------------------------- */
+
     /**
      * The spell level of any item being rolled.
      * @type {number}
      */
     this.level = registered.spellLevel;
 
+    /* ----------------------------------------- */
+
     /**
      * Placeholder variable for the appended content.
      */
     this.form = null;
+
+    /* ----------------------------------------- */
 
     /**
      * The dialog being appended to.
@@ -503,7 +518,7 @@ export class OptionalSelector {
     if (apply) {
       const rollData = this._getRollData(bab);
 
-      // TODO: replace this in 3.2 with new form submission method.
+      // TODO: replace this in 3.3 with new form submission method.
       if (bab.hasDamageType) {
         // Need 'DamageRoll' in case of dice with no '.number', and need
         // to replace roll data to be able to properly append the damage type.
@@ -524,7 +539,6 @@ export class OptionalSelector {
       else this.field.value = `${this.field.value.trim()} + ${parts[0]}`;
     }
     target.closest(".optional").classList.toggle("active", true);
-    this.dialog.setPosition({height: "auto"});
   }
 
   /* ----------------------------------------- */

@@ -101,8 +101,12 @@ function createBabonus(data, parent = null) {
  * @param {Babonus} bonus           The bonus to duplicate.
  * @returns {Promise<Babonus>}      The duplicate.
  */
-function duplicateBonus(bonus) {
-  return applications.BabonusWorkshop.copyBonus(bonus);
+async function duplicateBonus(bonus) {
+  const data = bonus.toObject();
+  data.name = game.i18n.format("BABONUS.BonusCopy", {name: data.name});
+  bonus = new bonus.constructor(data, {parent: bonus.parent});
+  const id = await embedBabonus(bonus.parent, bonus, {bonusId: true});
+  return getCollection(bonus.parent).get(id);
 }
 
 /* ----------------------------------------- */
@@ -186,14 +190,38 @@ function getCollection(object) {
  * Embed a created babonus onto the target object.
  * @param {Document} object         The actor, item, effect, or region that should have the babonus.
  * @param {Babonus} bonus           The created babonus.
+ * @param {object} [options]        Creation and return options.
  * @returns {Promise<Document>}     The actor, item, effect, or region that has received the babonus.
  */
-async function embedBabonus(object, bonus) {
+async function embedBabonus(object, bonus, options = {}) {
   const validDocumentType = ["Actor", "Item", "ActiveEffect", "Region"].includes(object.documentName);
   if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
   if (!Object.values(models).some(t => bonus instanceof t)) return null;
-  await applications.BabonusWorkshop._embedBabonus(object, bonus);
-  return object;
+  const id = await _embedBabonus(object, bonus);
+  return options.bonusId ? id : object;
+}
+
+/* ----------------------------------------- */
+
+/**
+ * Embed a created babonus onto the target object.
+ * @param {Document} object       The actor, item, effect, or region that should have the babonus.
+ * @param {Babonus} bonus         The created babonus.
+ * @returns {Promise<string>}     The id of the bonus created.
+ */
+async function _embedBabonus(object, bonus) {
+  const data = bonus.toObject();
+  for (const id of Object.keys(data.filters)) {
+    if (!babonus.abstract.DataFields.filters[id].storage(bonus)) delete data.filters[id];
+  }
+  data.id = foundry.utils.randomID();
+  let collection = babonus.getCollection(object);
+  if (collection.has(data.id)) collection.delete(data.id);
+  collection = collection.map(k => k.toObject());
+  collection.push(data);
+
+  await object.setFlag("babonus", "bonuses", collection);
+  return data.id;
 }
 
 /* ----------------------------------------- */

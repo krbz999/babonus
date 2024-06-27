@@ -9,8 +9,10 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   const template = "modules/babonus/templates/subapplications/character-sheet-tab.hbs";
 
   const bonuses = {};
+  const uuids = new Set();
 
   async function _prepareBonus(bonus, rollData) {
+    uuids.add(bonus.uuid);
     const section = bonuses[bonus.type] ??= {};
     section.label ??= `BABONUS.Type${bonus.type.capitalize()}.Label`;
     section.key ??= bonus.type;
@@ -78,21 +80,17 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
 
   div.firstElementChild.addEventListener("drop", async (event) => {
     const data = TextEditor.getDragEventData(event);
-    if (!sheet.isEditable) return null;
+    if (!sheet.isEditable) return;
     const bonus = await babonus.fromUuid(data.uuid);
-    if (!bonus) return null;
+    if (!bonus || uuids.has(bonus.uuid)) return;
     babonus.embedBabonus(sheet.document, bonus);
   });
 
-  div.querySelectorAll("[data-item-id][draggable]").forEach(n => {
-    n.addEventListener("dragstart", (event) => {
-      const label = event.currentTarget.closest(".bonus, [data-item-id]");
-      let dragData;
-      const id = label.dataset.id ?? label.dataset.itemId;
-      if (id) {
-        const bab = babonus.getCollection(sheet.document).get(id);
-        dragData = bab.toDragData();
-      }
+  div.querySelectorAll("[data-item-uuid][draggable]").forEach(n => {
+    n.addEventListener("dragstart", async (event) => {
+      const uuid = event.currentTarget.dataset.itemUuid;
+      const bab = await babonus.fromUuid(uuid);
+      const dragData = bab.toDragData();
       if (!dragData) return;
       event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
     });
