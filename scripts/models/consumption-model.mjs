@@ -77,7 +77,7 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   /** @override */
   prepareDerivedData() {
     const rollData = this.getRollData();
-    this.value.min = this.value.min ? dnd5e.utils.simplifyBonus(this.value.min, rollData) : null;
+    this.value.min = this.value.min ? dnd5e.utils.simplifyBonus(this.value.min, rollData) : 1;
     this.value.max = this.value.max ? dnd5e.utils.simplifyBonus(this.value.max, rollData) : null;
     if ((this.value.min > this.value.max) && (this.value.max !== null)) {
       const m = this.value.min;
@@ -134,23 +134,20 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
       case "quantity": {
         const item = this.bonus.parent;
         if (!(item instanceof Item)) return false;
-        if (this.scales && (this.value.max < this.value.min)) return false;
+        if (invalidScale) return false;
         const hasQuantity = "quantity" in item.system;
-        return !invalidScale && hasQuantity && (value.min > 0);
+        return hasQuantity && (value.min > 0);
       }
       case "slots": {
-        if (this.scales && (this.value.max < this.value.min)) return false;
         return !invalidScale && (value.min > 0);
       }
       case "effect": {
         return this.bonus.parent instanceof ActiveEffect;
       }
       case "health": {
-        if (this.scales && (this.value.max < this.value.min)) return false;
         return !invalidScale && (value.min > 0);
       }
       case "currency": {
-        if (this.scales && (this.value.max < this.value.min)) return false;
         const subtypes = new Set(Object.keys(CONFIG.DND5E.currencies));
         return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
       }
@@ -158,7 +155,6 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
         return true;
       }
       case "hitdice": {
-        if (this.scales && (this.value.max < this.value.min)) return false;
         const subtypes = new Set(["smallest", "largest"].concat(CONFIG.DND5E.hitDieTypes));
         return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
       }

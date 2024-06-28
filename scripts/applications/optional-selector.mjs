@@ -29,10 +29,10 @@ export class OptionalSelector {
      * The bonuses that just serve as reminders
      * @type {Collection<Babonus>}
      */
-    this.reminders = new foundry.utils.Collection(registered.bonuses.reduce((acc, bonus) => {
-      if (bonus.isReminder) acc.push([bonus.uuid, bonus]);
+    this.reminders = registered.bonuses.reduce((acc, bonus) => {
+      if (bonus.isReminder) acc.set(bonus.uuid, bonus);
       return acc;
-    }, []));
+    }, new foundry.utils.Collection());
 
     /* ----------------------------------------- */
 
@@ -62,6 +62,7 @@ export class OptionalSelector {
 
     /**
      * Placeholder variable for the appended content.
+     * @type {HTMLElement}
      */
     this.form = null;
 
@@ -143,8 +144,8 @@ export class OptionalSelector {
 
   /**
    * Does the bonus scale?
-   * @param {Babonus} bonus
-   * @returns {boolean}
+   * @param {Babonus} bonus     A bonus to test.
+   * @returns {boolean}         Whether it is set up to scale.
    */
   doesBonusScale(bonus) {
     if (!bonus.consume.scales || !bonus.consume.isValidConsumption) return false;
@@ -175,7 +176,7 @@ export class OptionalSelector {
 
   /**
    * Custom rendering method.
-   * @returns {Promise<void>}
+   * @returns {Promise}
    */
   async render() {
     this.form = document.createElement("DIV");
@@ -544,36 +545,36 @@ export class OptionalSelector {
   /* ----------------------------------------- */
 
   /**
-   * Get the attribute key for the lowest available and valid spell slot. If the lowest level
-   * is both a spell slot and a different kind of slot, prefer the alternative.
-   * @param {Babonus} bonus         The bonus used to determine the minimum spell level required.
-   * @returns {string|boolean}      The attribute key, or false if no valid level found.
+   * Get the attribute key for the lowest available and valid spell slot. If the
+   * lowest level is both a spell slot and a different kind of slot, prefer the
+   * alternative. At this stage, an appropriate key is guaranteed to exist.
+   * @param {Babonus} bonus     The bonus used to determine the minimum spell level required.
+   * @returns {string}          The attribute key.
    */
   _getLowestValidSpellSlotProperty(bonus) {
     const spells = this.actor.system.spells;
-    if (!spells) return false; // Vehicle actors do not have spell slots.
     const min = bonus.consume.value.min || 1;
 
+    let lowest = Infinity;
     const pairs = Object.entries(spells).reduce((acc, [k, v]) => {
       if (!v.value || !v.max || !v.level || (v.level < min)) return acc;
-      acc.push([k, v.level]);
+      let set = acc.get(v.level);
+      if (!set) {
+        acc.set(v.level, new Set());
+        set = acc.get(v.level);
+      }
+      set.add(k);
+
+      lowest = Math.min(lowest, v.level);
+
       return acc;
-    }, []);
+    }, new Map());
 
-    const minData = pairs.reduce((acc, [k, level]) => {
-      if (level > acc.level) return acc;
-      if (level < acc.level) acc = {level: level};
-      acc.keys ??= new Set();
-      acc.keys.add(k);
-      return acc;
-    }, {level: Infinity, keys: new Set()});
+    const keys = pairs.get(lowest);
 
-    if (!Number.isInteger(minData.level)) return false;
-
-    if (minData.keys.size === 1) return minData.keys.first();
-
-    for (const k of minData.keys) if (k.startsWith("spell")) minData.keys.delete(k);
-    return minData.keys.first();
+    if (keys.size === 1) return keys.first();
+    for (const k of keys) if (k.startsWith("spell")) keys.delete(k);
+    return keys.first();
   }
 
   /* ----------------------------------------- */
