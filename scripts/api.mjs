@@ -290,6 +290,13 @@ function hasToolProficiency(actor, trait) {
 
 /* ----------------------------------------- */
 
+/**
+ * Internal method for proficiency checking.
+ * @param {Actor5e} actor       The actor to test.
+ * @param {string} trait        The trait to test.
+ * @param {string} category     The tree to scan.
+ * @returns {boolean}
+ */
 function _hasTrait(actor, trait, category) {
   const path = CONFIG.DND5E.traits[category].actorKeyPath ?? `system.traits.${category}`;
   const set = foundry.utils.getProperty(actor, path)?.value ?? new Set();
