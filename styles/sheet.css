@@ -140,3 +140,18 @@
     }
   }
 }
+
+.dnd5e-theme-light .babonus.sheet {
+  .sheet-tabs .item {
+    color: black;
+  }
+
+  .properties .property,
+  .toc .viewed {
+    --color-fieldset-border: black;
+  }
+
+  .picker .filter:hover {
+    --button-hover-background-color: black;
+  }
+}
