@@ -19,7 +19,7 @@ export class FilterManager {
     return filtered;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Initiate the collection and filtering of bonuses applying to hit die rolls.
@@ -30,7 +30,7 @@ export class FilterManager {
     return this.check(actor, "hitdie");
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Initiate the collection and filtering of bonuses applying to saving throws.
@@ -45,7 +45,7 @@ export class FilterManager {
     return this.check(actor, "throw", {ability, isConcentration, isDeath});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Initiate the collection and filtering of bonuses applying to ability checks.
@@ -61,7 +61,7 @@ export class FilterManager {
     return this.check(item ?? actor, "test", {abilityId, skillId, toolId});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Initiate the collection and filtering of bonuses applying to attack rolls, damage rolls, and save DCs.
@@ -75,7 +75,7 @@ export class FilterManager {
     return this.check(item, hookType, {spellLevel});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Filters the Collection of bonuses using the filters of Babonus.
@@ -131,7 +131,7 @@ export class FilterManager {
     return bonuses;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Replace roll data of bonuses that originate from foreign sources, including transferred effects.
@@ -174,7 +174,7 @@ export class FilterManager {
     }
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Split a set into 'included' and 'exluded'.
@@ -193,7 +193,7 @@ export class FilterManager {
     return data;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Utility function to split a string by '/'.
@@ -209,7 +209,7 @@ export class FilterManager {
     }, new Set());
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Utility function to split racial values.
@@ -233,11 +233,9 @@ export class FilterManager {
     return races;
   }
 
-  /* ----------------------------------------- */
-  /*                                           */
-  /*   Filtering functions                     */
-  /*                                           */
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
+  /*   Filtering functions                              */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item's type is one of the valid ones in the filter.
@@ -249,7 +247,7 @@ export class FilterManager {
     return !filter.size || filter.has(item.type);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item's base weapon type is one of the valid ones in the filter.
@@ -268,7 +266,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the actor is wearing one of the included armor types
@@ -297,7 +295,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the actor is wearing one of the included armor types
@@ -312,7 +310,7 @@ export class FilterManager {
     return FilterManager.baseArmors(target, filter);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item has any of the included damage types in its damage parts and none of the excluded types.
@@ -329,7 +327,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item is a spell and belongs to one of the filter's spell schools.
@@ -341,7 +339,7 @@ export class FilterManager {
     return !filter.size || ((item.type === "spell") && filter.has(item.system.school));
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item is using one of the abilities in the filter. Consideration is made
@@ -379,7 +377,7 @@ export class FilterManager {
     return !!abi;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item is a spell and has any, or all, of the required spell components.
@@ -402,7 +400,7 @@ export class FilterManager {
     return ((match === "ALL") && types.isSubset(comps)) || ((match === "ANY") && types.intersects(comps));
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item was cast at any of the required spell levels. When a spell is upcast,
@@ -420,7 +418,7 @@ export class FilterManager {
     return filter.has(spellLevel ?? item.system.level);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item's action type is set to any of the required attack types.
@@ -432,7 +430,7 @@ export class FilterManager {
     return !filter.size || filter.has(item.system.actionType);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item has any of the included weapon properties and none of the excluded properties.
@@ -450,7 +448,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the saving throw in the item is set using an ability in the filter.
@@ -473,7 +471,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if 'one' and 'other have the correct relationship for each of the comparisons.
@@ -520,7 +518,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the actor has any of the included effects and none of the excluded effects.
@@ -542,7 +540,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the target actor has any of the status conditions required.
@@ -566,7 +564,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the bonus should apply to this type of saving throw.
@@ -585,7 +583,7 @@ export class FilterManager {
       || (filter.has("death") && isDeath);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the target is one of the included creature types and none of the excluded types.
@@ -609,7 +607,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the rolling actor is one of the included creature etypes and none of the excluded types.
@@ -633,7 +631,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the actor has a number of spell slots remaining between the min and max.
@@ -654,7 +652,7 @@ export class FilterManager {
     return spells.between(min || 0, max || Infinity);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the embedded script returns true.
@@ -686,7 +684,7 @@ export class FilterManager {
     }
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the spell that is cast is one able to consume a spell slot.
@@ -698,7 +696,7 @@ export class FilterManager {
     return !filter.size || ((item.type === "spell") && filter.has(item.system.preparation.mode));
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the targeted token is at least x-by-x or larger, or at most x-by-x or smaller,
@@ -738,7 +736,7 @@ export class FilterManager {
     return false;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the tool being rolled for a check is one of the correct types.
@@ -758,7 +756,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the skill being rolled is one of the correct types.
@@ -777,7 +775,7 @@ export class FilterManager {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the health of the actor is at or above/below the threshold.
@@ -794,7 +792,7 @@ export class FilterManager {
     return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the roll was proficient, and if at a valid level.
@@ -847,7 +845,7 @@ export class FilterManager {
     else return false;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the item that made the roll was the correct feature type and feature subtype.
@@ -870,7 +868,7 @@ export class FilterManager {
     return item.system.type.subtype === subtype;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the actor is one of the correct creature sizes.
@@ -885,7 +883,7 @@ export class FilterManager {
     return !!size && filter.has(size);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Find out if the actor speaks one of the included languages while not any of the excluded languages.

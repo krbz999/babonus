@@ -8,7 +8,7 @@ export default function enricherSetup() {
   });
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Enrich a content link.
@@ -29,7 +29,7 @@ async function enrichBabonus(config) {
   return anchor;
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Add a click event listener to content links.

@@ -118,7 +118,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   });
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Populate the context menu options.
@@ -153,7 +153,7 @@ function _onOpenContextMenu(element) {
   }];
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Utility method that creates a popup dialog for a new bonus.
@@ -206,7 +206,7 @@ async function _createChildBonus() {
   });
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Add a new tab to the v2 character sheet.
@@ -238,7 +238,7 @@ function _addCharacterTab() {
   cls.prototype._filterChildren = sheet.prototype._filterChildren;
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /** Initialize this part of the module. */
 export default function characterSheetTabSetup() {

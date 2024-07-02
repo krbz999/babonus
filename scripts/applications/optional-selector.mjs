@@ -15,7 +15,7 @@ export class OptionalSelector {
      */
     this.bonuses = new foundry.utils.Collection(registered.optionals.map(o => [o.uuid, o]));
 
-    /* ----------------------------------------- */
+    /* -------------------------------------------------- */
 
     /**
      * All bonuses.
@@ -23,7 +23,7 @@ export class OptionalSelector {
      */
     this.allBonuses = new foundry.utils.Collection(registered.bonuses.map(o => [o.uuid, o]));
 
-    /* ----------------------------------------- */
+    /* -------------------------------------------------- */
 
     /**
      * The bonuses that just serve as reminders
@@ -34,7 +34,7 @@ export class OptionalSelector {
       return acc;
     }, new foundry.utils.Collection());
 
-    /* ----------------------------------------- */
+    /* -------------------------------------------------- */
 
     /**
      * The actor performing the roll.
@@ -42,7 +42,7 @@ export class OptionalSelector {
      */
     this.actor = registered.actor;
 
-    /* ----------------------------------------- */
+    /* -------------------------------------------------- */
 
     /**
      * The item being rolled.
@@ -50,7 +50,7 @@ export class OptionalSelector {
      */
     this.item = registered.item;
 
-    /* ----------------------------------------- */
+    /* -------------------------------------------------- */
 
     /**
      * The spell level of any item being rolled.
@@ -58,7 +58,7 @@ export class OptionalSelector {
      */
     this.level = registered.spellLevel;
 
-    /* ----------------------------------------- */
+    /* -------------------------------------------------- */
 
     /**
      * Placeholder variable for the appended content.
@@ -66,7 +66,7 @@ export class OptionalSelector {
      */
     this.form = null;
 
-    /* ----------------------------------------- */
+    /* -------------------------------------------------- */
 
     /**
      * The dialog being appended to.
@@ -75,14 +75,14 @@ export class OptionalSelector {
     this.dialog = registered.dialog;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   get template() {
     return `modules/${MODULE.ID}/templates/subapplications/optional-selector.hbs`;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * The situational bonus field to append bonuses to.
@@ -92,7 +92,7 @@ export class OptionalSelector {
     return this.dialog.element[0].querySelector("[name=bonus]");
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Custom helper method for retrieving all the data for the template.
@@ -140,7 +140,7 @@ export class OptionalSelector {
     return {bonuses, reminders};
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Does the bonus scale?
@@ -160,7 +160,7 @@ export class OptionalSelector {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Helper method to activate listeners on the optional bonuses' buttons.
@@ -172,7 +172,7 @@ export class OptionalSelector {
     });
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Custom rendering method.
@@ -189,7 +189,7 @@ export class OptionalSelector {
     this.dialog.setPosition({height: "auto"});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Get a tooltip for an optional bonus' origin.
@@ -207,7 +207,7 @@ export class OptionalSelector {
     return game.i18n.format("BABONUS.OriginName", {name});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Display a warning about lack of limited uses, quantity, spell slots, or missing effect.
@@ -217,7 +217,7 @@ export class OptionalSelector {
     ui.notifications.warn(`BABONUS.Warning.Consuming.${type.capitalize()}Unavailable`, {localize: true});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Construct options for a scaling bonus.
@@ -324,7 +324,7 @@ export class OptionalSelector {
     }
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Is consumption valid and allowed?
@@ -336,7 +336,7 @@ export class OptionalSelector {
     return bonus.consume.canActorConsume(this.actor) && bonus.consume.canBeConsumed(target);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Apply an optional bonus. Depending on the bonus, consume a document or property and scale the applied value.
@@ -486,7 +486,7 @@ export class OptionalSelector {
     }
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Return an upscaled bonus given a base and a number to multiply with. If 'scale' is 0, the default bonus is returned
@@ -506,7 +506,7 @@ export class OptionalSelector {
     return dnd5e.dice.simplifyRollFormula(`${base} + ${formula}`, {preserveFlavor: true});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
@@ -542,7 +542,7 @@ export class OptionalSelector {
     target.closest(".optional").classList.toggle("active", true);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Get the attribute key for the lowest available and valid spell slot. If the
@@ -577,7 +577,7 @@ export class OptionalSelector {
     return keys.first();
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Construct the roll data for upscaling a bonus. The priority goes origin, then rolling item,
@@ -597,7 +597,7 @@ export class OptionalSelector {
     return data;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.

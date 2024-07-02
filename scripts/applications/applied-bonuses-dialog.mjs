@@ -7,21 +7,21 @@ export class AppliedBonusesDialog extends Dialog {
     this.dialog = options.dialog;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   get title() {
     return game.i18n.localize("BABONUS.OverviewTitle");
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   get id() {
     return `${this.dialog.id}-bonuses-overview`;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   static get defaultOptions() {
@@ -33,14 +33,14 @@ export class AppliedBonusesDialog extends Dialog {
     });
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   async getData() {
     return {bonuses: registry.get(this.options.id).bonuses};
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   activateListeners(html) {
@@ -48,7 +48,7 @@ export class AppliedBonusesDialog extends Dialog {
     html[0].querySelectorAll("[data-uuid]").forEach(n => n.addEventListener("click", this._onClickUuid.bind(this)));
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When clicking a uuid tag, copy it.
@@ -59,7 +59,7 @@ export class AppliedBonusesDialog extends Dialog {
     ui.notifications.info("BABONUS.OverviewCopied", {localize: true});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   _onClickButton(event) {

@@ -46,7 +46,7 @@ export function createAPI() {
   window.babonus = game.modules.get(MODULE.ID).api = API;
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Return an object of arrays of items and effects on the given document
@@ -67,7 +67,7 @@ function findEmbeddedDocumentsWithBonuses(object) {
   return documents;
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Render the build-a-bonus application for a document.
@@ -80,7 +80,7 @@ function openBabonusWorkshop(object) {
   return new applications.BabonusWorkshop(object).render(true);
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Create a babonus in memory with the given data.
@@ -94,7 +94,7 @@ function createBabonus(data, parent = null) {
   return new models[data.type](data, {parent});
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Duplicate a bonus.
@@ -109,7 +109,7 @@ async function duplicateBonus(bonus) {
   return getCollection(bonus.parent).get(id);
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Internal helper method for fromUuid and fromUuidSync.
@@ -124,7 +124,7 @@ const _getParentUuidAndId = (uuid) => {
   return {parentUuid, id};
 };
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Return a babonus using its uuid.
@@ -142,7 +142,7 @@ async function babonusFromUuid(uuid) {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Return a babonus using its uuid synchronously.
@@ -160,7 +160,7 @@ function babonusFromUuidSync(uuid) {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Return the collection of bonuses on the document.
@@ -184,7 +184,7 @@ function getCollection(object) {
   return new foundry.utils.Collection(contents);
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Embed a created babonus onto the target object.
@@ -201,7 +201,7 @@ async function embedBabonus(object, bonus, options = {}) {
   return options.bonusId ? id : object;
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Embed a created babonus onto the target object.
@@ -224,7 +224,7 @@ async function _embedBabonus(object, bonus) {
   return data.id;
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Hotbar method for toggling a bonus via uuid.
@@ -240,7 +240,7 @@ async function hotbarToggle(uuid) {
   return bonus.toggle();
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Does this actor speak a given language?
@@ -252,7 +252,7 @@ function speaksLanguage(actor, trait) {
   return _hasTrait(actor, trait, "languages");
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Does this actor have a given weapon proficiency?
@@ -264,7 +264,7 @@ function hasWeaponProficiency(actor, trait) {
   return _hasTrait(actor, trait, "weapon");
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Does this actor have a given armor proficiency?
@@ -276,7 +276,7 @@ function hasArmorProficiency(actor, trait) {
   return _hasTrait(actor, trait, "armor");
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Does this actor have a given tool proficiency?
@@ -288,7 +288,7 @@ function hasToolProficiency(actor, trait) {
   return _hasTrait(actor, trait, "tool");
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Internal method for proficiency checking.
@@ -307,7 +307,7 @@ function _hasTrait(actor, trait, category) {
   });
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * Retrieve a path through nested proficiencies to find a specific proficiency in a category.

@@ -17,7 +17,7 @@ class RollRegister extends Map {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /**
  * The registry of rolls being made.
@@ -25,7 +25,7 @@ class RollRegister extends Map {
  */
 export const registry = new RollRegister();
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /** Utility class for the various roll hooks. */
 export class RollHooks {
@@ -65,7 +65,7 @@ export class RollHooks {
     chatData.content = div.innerHTML;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you make an attack roll...
@@ -114,7 +114,7 @@ export class RollHooks {
     if ((rollConfig.fumble < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) rollConfig.fumble = 1;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you make a damage roll...
@@ -164,7 +164,7 @@ export class RollHooks {
     }
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you roll a saving throw...
@@ -211,7 +211,7 @@ export class RollHooks {
     if (isDeath) rollConfig.critical = (rollConfig.critical ?? 20) - accum.critical;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you roll an ability or concentration saving throw...
@@ -227,7 +227,7 @@ export class RollHooks {
     });
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you roll a death saving throw...
@@ -242,7 +242,7 @@ export class RollHooks {
     });
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you roll an ability check...
@@ -264,7 +264,7 @@ export class RollHooks {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you roll a skill...
@@ -288,7 +288,7 @@ export class RollHooks {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you roll a tool check...
@@ -315,7 +315,7 @@ export class RollHooks {
     foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * When you roll a hit die...
@@ -344,7 +344,7 @@ export class RollHooks {
     rollConfig.formula = `max(0, ${parts.join(" + ")})`;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Inject babonus data on templates created by items.
@@ -367,7 +367,7 @@ export class RollHooks {
     });
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Gather optional bonuses and put non-optional bonuses into the roll config.
@@ -400,7 +400,7 @@ export class RollHooks {
     return optionals;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Gather optional bonuses and put non-optional bonuses into the roll config.
@@ -418,7 +418,7 @@ export class RollHooks {
     }, []);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Add the target's roll data to the actor's roll data.

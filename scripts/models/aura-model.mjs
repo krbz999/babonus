@@ -46,7 +46,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     };
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   _initialize(...args) {
@@ -54,14 +54,14 @@ export class AuraModel extends foundry.abstract.DataModel {
     this.prepareDerivedData();
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   static migrateData(source) {
     if (source.isTemplate) source.template = source.isTemplate;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   prepareDerivedData() {
@@ -75,7 +75,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     if (this.bonus.region) this.enabled = false;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Get applicable roll data from the origin.
@@ -85,9 +85,9 @@ export class AuraModel extends foundry.abstract.DataModel {
     return this.parent.getRollData({deterministic: true});
   }
 
-  /* ----------------------------------------- */
-  /*   Getters                                 */
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
+  /*   Properties                                       */
+  /* -------------------------------------------------- */
 
   /**
    * The babonus this lives on.
@@ -97,7 +97,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     return this.parent;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Get whether this has a range that matters.
@@ -107,7 +107,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     return (this.range === -1) || (this.range > 0);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Whether the babonus is an enabled and valid aura centered on a token. This is true if the property is enabled, the
@@ -118,7 +118,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     return this.enabled && !this.template && this._validRange && !this.bonus.isExclusive;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Whether the babonus is a template aura. This is true if the aura property is enabled, along with the 'template' aura
@@ -131,7 +131,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     return this.enabled && this.template && item.hasAreaTarget && !this.bonus.isExclusive;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Whether the babonus aura is suppressed due to its originating actor having at least one of the blocker conditions.
@@ -145,9 +145,9 @@ export class AuraModel extends foundry.abstract.DataModel {
     return blockers.intersects(actor.statuses);
   }
 
-  /* ----------------------------------------- */
-  /*   Bonus collection                        */
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
+  /*   Bonus collection                                 */
+  /* -------------------------------------------------- */
 
   /**
    * Return whether this should be filtered out of token auras due to being blocked from affecting its owner.
@@ -158,7 +158,7 @@ export class AuraModel extends foundry.abstract.DataModel {
     return !this.isBlocked && this.self;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Is this a token aura that is not blocked?

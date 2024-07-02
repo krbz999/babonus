@@ -21,7 +21,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
     }
   };
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   static async prompt({canExclude, values, filterId, ...configuration} = {}) {
@@ -39,7 +39,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
     return super.prompt(configuration);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   get title() {
@@ -49,7 +49,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
     return game.i18n.format("BABONUS.KeysDialogTitle", {name: game.i18n.localize(name)});
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Cycle all selects in a column between the valid options.
@@ -62,7 +62,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
     selects.forEach(select => select.selectedIndex = newIndex);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Custom implementation for label-to-checkbox linking.
@@ -74,7 +74,7 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
     select.selectedIndex = newIndex;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Cycle backwards in the select options.

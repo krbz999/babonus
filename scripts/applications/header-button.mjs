@@ -11,7 +11,7 @@ class HeaderButton {
     return game.settings.get(MODULE.ID, SETTINGS.PLAYERS) || game.user.isGM;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Should the label be shown?
@@ -21,7 +21,7 @@ class HeaderButton {
     return game.settings.get(MODULE.ID, SETTINGS.LABEL);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * The invalid document types that should prevent the button from being shown.
@@ -31,7 +31,7 @@ class HeaderButton {
     throw new Error("This must be subclassed.");
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * The button label.
@@ -41,7 +41,7 @@ class HeaderButton {
     return game.i18n.localize("BABONUS.ModuleTitle");
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Inject the button in the application's header.
@@ -61,7 +61,7 @@ class HeaderButton {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 export class HeaderButtonActor extends HeaderButton {
   /** @override */
@@ -69,7 +69,7 @@ export class HeaderButtonActor extends HeaderButton {
     return new Set(["group"]);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   static inject(app, array) {
@@ -86,7 +86,7 @@ export class HeaderButtonActor extends HeaderButton {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 export class HeaderButtonItem extends HeaderButton {
   /** @override */
@@ -95,7 +95,7 @@ export class HeaderButtonItem extends HeaderButton {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 export class HeaderButtonEffect extends HeaderButton {
   /** @override */
@@ -104,7 +104,7 @@ export class HeaderButtonEffect extends HeaderButton {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /** Add a header button to display the source of all applied bonuses. */
 export class HeaderButtonDialog extends HeaderButton {
@@ -122,7 +122,7 @@ export class HeaderButtonDialog extends HeaderButton {
   }
 }
 
-/* ----------------------------------------- */
+/* -------------------------------------------------- */
 
 /** Inject form element on scene region configs. */
 export function injectRegionConfigElement(config, element) {

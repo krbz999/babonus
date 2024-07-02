@@ -10,7 +10,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     this.appId = `${this.document.uuid.replaceAll(".", "-")}-babonus-workshop`;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * The right-hand side bonuses that have a collapsed description.
@@ -18,7 +18,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   #collapsedBonuses = new Set();
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * The color of the left-side otter.
@@ -26,7 +26,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   #otterColor = "black";
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Number of times the left-side otter has been clicked.
@@ -34,7 +34,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
    */
   #otterVomits = 0;
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * A reference to the owner of the bonuses.
@@ -44,28 +44,28 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     return this.object;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   get id() {
     return `${MODULE.ID}-${this.document.uuid.replaceAll(".", "-")}`;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   get isEditable() {
     return this.document.sheet.isEditable;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   get title() {
     return `${MODULE.NAME}: ${this.document.name}`;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * A reference to the collection of bonuses on this document.
@@ -75,7 +75,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     return babonus.getCollection(this.document);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   static get defaultOptions() {
@@ -90,7 +90,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     });
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   setPosition(pos = {}) {
@@ -102,7 +102,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     return super.setPosition(pos);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   async getData() {
@@ -140,7 +140,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     return data;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   activateListeners(html) {
@@ -197,21 +197,21 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     });
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   _canDragDrop() {
     return this.isEditable;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   _canDragStart() {
     return true;
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   _onDragStart(event) {
@@ -226,7 +226,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   async _onDrop(event) {
@@ -243,7 +243,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     babonus.embedBabonus(this.document, bonus);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Handle creating a new bonus.
@@ -256,7 +256,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     this.collection.get(id).sheet.render(true);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Render the sheet of an existing bonus.
@@ -269,7 +269,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     return bonus.sheet.render(true);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   render(...T) {
@@ -277,7 +277,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     return super.render(...T);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /** @override */
   close(...T) {
@@ -285,7 +285,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     return super.close(...T);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Otter Rainbow.
@@ -299,7 +299,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     if (count >= 50) content.classList.toggle("vomit", true);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Otter Dance.
@@ -311,7 +311,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     if (!event.currentTarget.getAnimations().length) event.currentTarget.animate(spin, time);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Collapse or expand a babonus and its description.
@@ -326,7 +326,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     else this.#collapsedBonuses.add(id);
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Handle copying the id or uuid of a babonus.
@@ -341,7 +341,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     }));
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Delete a babonus on the builder when hitting its trashcan icon.
@@ -353,7 +353,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     bonus.deleteDialog();
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Toggle the enabled property on a babonus.
@@ -365,7 +365,7 @@ export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application)
     bonus.toggle();
   }
 
-  /* ----------------------------------------- */
+  /* -------------------------------------------------- */
 
   /**
    * Copy a babonus on the document.
