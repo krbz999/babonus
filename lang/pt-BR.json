@@ -1,6 +1,12 @@
 {"BABONUS": {
   "AvailableFiltersTooltip": "A lista de filtros que você pode aplicar a este bônus, restringindo ainda mais a quais jogadas ele deve ser aplicado. Cada filtro deve ser verdadeiro para que o bônus seja aplicado",
   "Babonus": "Babonus",
+  "TestBabonus": "Teste de Atributo Babonus",
+  "AttackBabonus": "Rolagem de Ataque Babonus",
+  "DamageBabonus": "Rolagem de Dano Babonus",
+  "HitdieBabonus": "Dado de Vida Babonus",
+  "SaveBabonus": "CD de Salvaguarda Babonus",
+  "ThrowBabonus": "Salvaguarda Babonus",
   "BasicBonuses": "Bônus Básicos",
   "BonusCopy": "{name} (Copy)",
   "ConfigurationConsumptionConsume": "Consumir:",
@@ -135,19 +141,19 @@
   },
   "Filters": {
     "Abilities": {
-      "Hint": "O valor de atributo usado para o teste. Isso respeita os itens definidos para usar o padrão, como magias que usam o atributo de conjuração ou armas de Acuidade que usam Força ou Destreza.",
+      "Hint": "Filtre pelo valor de habilidade que está sendo usado para o teste. Este filtro respeitará os itens que estão configurados para usar seu valor de habilidade Padrão, como magias configuradas para usar o atributo de Conjuração ou armas que são Acuidade.",
       "Label": "Modificador de Atributo"
     },
     "ActorCreatureSizes": {
-      "Hint": "A categoria de tamanho que a criatura deve ser.",
+      "Hint": "Filtre pelo tamanho da criatura do ator, exigindo que o ator que realizar a rolagem seja de uma das categorias de tamanho de criatura escolhida.",
       "Label": "Tamanhos de Criatura"
     },
     "ActorCreatureTypes": {
-      "Hint": "O tipo de criatura que o ator de origem deve ser (ou ter como subtipo) ou o tipo de criatura que o ator de origem não deve ser. Por exemplo, 'undead', 'fey' ou 'construct'",
+      "Hint": "Filtre pelo tipo de criatura que o ator que realizar a rolagem deve ser (ou ter como subtipo), ou pelo tipo de criatura que o ator que realizar a rolagem não deve ser. Por exemplo, 'undead', 'fey' ou 'construct'. Para designar um tipo de criatura como subtipo, escreva quantos quiser no campo Subtipo do ator, separados por '/'.",
       "Label": "Tipos de Criatura do Ator"
     },
     "ActorLanguages": {
-      "Hint": "Os idiomas que o ator deve ser capaz de falar, ou não deve ser capaz de falar.",
+      "Hint": "Filtre pelos idiomas que o ator pode ou não falar, ler ou escrever. Isso levará em consideração se um ator pode falar um grupo inteiro de línguas, como o Primordial, em vez de apenas os dialetos específicos.",
       "Label": "Idiomas Falados"
     },
     "ArbitraryComparisons": {
@@ -157,41 +163,41 @@
       "Other": "Outro valor…"
     },
     "AttackTypes": {
-      "Hint": "O tipo de jogada de ataque que o item deve ter para que o bônus seja aplicado. Por exemplo, se você conjurar uma magia que deve envolver um ataque mágico à distância (rsak) ou ataque armado corpo a corpo (mwak).",
+      "Hint": "Filtre pelo tipo de jogada de ataque que o item deve ser capaz de realizar para que o bônus seja aplicado. Por exemplo, se você conjurar uma magia que deve envolver um ataque mágico à distância ou um ataque armado corpo a corpo.",
       "Label": "Tipos de Ataque"
     },
     "BaseArmors": {
-      "Hint": "O tipo de armadura que você deve usar ou não deve usar para que o bônus seja aplicado, incluindo escudos.",
+      "Hint": "Filtre pelo tipo de armadura que o ator deve ou não usar (incluindo escudos). Por exemplo, se quiser que o bônus seja aplicado apenas ao usar Cota de Malha ou sem armadura. Este filtro também pode levar em consideração categorias de armaduras como 'Armadura Leve'.",
       "Label": "Tipos de Armadura"
     },
     "BaseTools": {
-      "Hint": "Os tipos de ferramentas que o item deve ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Kit de Herbalismo, Ferramentas de Ladrão ou Ferramentas de Sapateiro.",
+      "Hint": "Filtre pelos tipos de ferramentas que o item que realizar a rolagem deve ser um ou nenhum. Por exemplo, se quiser que o bônus seja aplicado apenas ao usar um Kit de Herbalismo, Ferramentas de Ladrão ou Ferramentas de Sapateiro.",
       "Label": "Tipos de Ferramenta"
     },
     "BaseWeapons": {
-      "Hint": "Os tipos de armas do item devem ser um ou nenhum para que o bônus seja aplicado. Por exemplo, Machado de Batalha, Arco Curto ou Espada Longa.",
+      "Hint": "Filtre pelos tipos de armas em que o item que realizar a rolagem deve ser um ou nenhum deles. Por exemplo, se quiser que o bônus seja aplicado apenas ao usar um Machado de Batalha, Arco Curto ou Espada Longa. Este filtro também pode levar em consideração categorias.",
       "Label": "Tipos de Arma"
     },
     "CreatureTypes": {
-      "Hint": "O tipo de criatura da qual o ator alvo deve ser (ou ter como subtipo), ou o tipo de criatura da qual o ator alvo não deve ser. Por exemplo, 'undead', 'fey', ou 'construct'.",
+      "Hint": "Filtre pelo tipo de criatura que o ator alvo deve ser (ou ter como subtipo), ou pelo tipo de criatura que o ator alvo não deve ser. Por exemplo, 'undead', 'fey' ou 'construct'. Para designar um tipo de criatura como subtipo, escreva quantos quiser no campo Subtipo do ator, separados por '/'.",
       "Label": "Tipos de Criatura Alvo"
     },
     "CustomScripts": {
-      "Hint": "Qualquer script personalizado que você queira escrever. O script deve ser totalmente síncrono e retornar verdadeiro ou falso. Como variáveis auxiliares, o script é fornecido com 'token', 'actor', 'item' e 'bonus', se aplicável.",
+      "Hint": "Filtre usando qualquer script personalizado que você deseja escrever. O script deve ser completamente síncrono e retornar explicitamente verdadeiro ou falso. Como variáveis ​​auxiliares, o script é fornecido com o ator e o token daquele que realiza o teste ('actor' e 'token'), o item que está sendo usado ('item', se houver), e o bônus no qual este script é anexado ('bonus'). Essas variáveis ​​podem ser acessadas diretamente.",
       "Label": "Script Personalizado"
     },
     "DamageTypes": {
-      "Hint": "O tipo de dano que o item deve causar para que o bônus seja aplicado ou não deve causar para que o bônus seja aplicado. Por exemplo, se uma magia causa dano ígneo.",
+      "Hint": "Filtre pelo tipo de dano que deve ou não fazer parte da rolagem. Por exemplo, se uma magia deve causar dano ígneo ou elétrico.",
       "Label": "Tipos de Dano"
     },
     "FeatureTypes": {
-      "Hint": "O tipo e subtipo que um item de característica deve ter. Por exemplo, um Recurso de Classe, Recurso de Ki ou Recurso de Monstro.",
+      "Hint": "Filtre pelo tipo e subtipo que um item de característica deve ter. Por exemplo, um Recurso de Classe, Recurso de Ki ou Recurso de Monstro.",
       "Label": "Tipos de Característica",
       "SubtypeLabel": "Subtipo",
       "TypeLabel": "Tipo"
     },
     "HealthPercentages": {
-      "Hint": "A porcentagem de vida que o ator deve ter no mínimo, ou no máximo, para que o bônus seja aplicado.",
+      "Hint": "Filtre pela porcentagem de vida que o ator deve ter no mínimo ou no máximo. Por exemplo, se o ator que estiver realizando o teste deve ter 90% ou mais de vida restante.",
       "Label": "Porcentagem de Vida",
       "OptionLess": "Menor que",
       "OptionMore": "Maior que",
@@ -199,34 +205,34 @@
       "ValueLabel": "Limite"
     },
     "ItemTypes": {
-      "Hint": "Os tipos de itens aos quais o bônus deve ser aplicado. Por exemplo, se o item se aplicar apenas a magias ou apenas a armas.",
+      "Hint": "Filtre pelo tipo de item que está sendo usado para realizar a rolagem. Por exemplo, se o bônus se aplicar apenas a magias ou apenas a armas.",
       "Label": "Tipos de Item"
     },
     "PreparationModes": {
-      "Hint": "O tipo de modo de preparação em que o feitiço deve ser definido para que o bônus seja aplicado, como 'Pacto' para Magia de Pacto ou 'À Vontade'.",
+      "Hint": "Filtre pelo tipo de modo de preparação que uma magia deve ser definido para que o bônus seja aplicado. Por exemplo, ao usar uma magia preparado como Magia de Pacto ou Conjuração de Ritual.",
       "Label": "Modos de Preparação"
     },
     "ProficiencyLevels": {
-      "Hint": "O nível de proficiência que o ator deve ter com a rolagem feita.",
+      "Hint": "Filtre pelo nível de proficiência da rolagem. Por exemplo, se o bônus só for aplicado se a ferramenta usada for rolada com especialidade ou se uma salvaguarda não for proficiente.",
       "Label": "Níveis de Proficiência"
     },
     "RemainingSpellSlots": {
-      "Hint": "O número total mínimo e máximo de espaços de magia restantes que o ator deve ter para que o bônus seja aplicado. Por exemplo, se você quiser que um bônus seja aplicado apenas se você tiver 3 espaços de magia ou mais restantes, ou nenhum espaço restante.",
+      "Hint": "Filtre pelo número total mínimo e máximo de espaços de magia que o ator que realizar o teste deve ter restantes para que o bônus seja aplicado. Por exemplo, se você quiser que um bônus seja aplicado somente se você tiver 3 espaços de magia ou mais restantes, ou nenhum espaço de magia restante. Isso pode ser alternado de modo que cada espaço de magia restante tenha um valor igual ao seu tamanho.",
       "Label": "Espaços de Magia Restantes",
       "RangesLabel": "Alcance",
       "SizeHint": "Leve em consideração o tamanho do espaço de magia, o que significa que um espaço de magia de 5º nível conta como um valor de cinco. Caso contrário, cada espaço de magia conta como um.",
       "SizeLabel": "Tamanho"
     },
     "SaveAbilities": {
-      "Hint": "O atributo que deve ser usado para definir a CD da salvaguarda do item para que o bônus seja aplicado; por exemplo, um Guerreiro Mestre de Batalha que determina sua CD de Manobra com Destreza. Isso pode ser diferente do atributo que o item usa. Se um item for ajustado para escalar com 'Conjuração', o atributo de conjuração do ator é comparado.",
+      "Hint": "Filtre pelo valor de atributo que deve ser usado para definir a CD da salvaguarda do item para que o bônus seja aplicado. Por exemplo, um Guerreiro Mestre de Batalha que determina sua CD de suas Manobra com Destreza. Isso pode ser diferente da habilidade que o item usa. Se um item for definido para escalar com 'Conjuração', a habilidade de conjuração do ator que realiza a rolagem é usada para comparação.",
       "Label": "CD Atributo Salvaguarda"
     },
     "SkillIds": {
-      "Hint": "Os tipos de perícias que a rolagem deve ser uma ou nenhuma para que o bônus seja aplicado. Por exemplo, Atletismo, Natureza ou Sobrevivência.",
+      "Hint": "Filtre pelos tipos de perícias que o teste que está sendo realizado deve ser uma ou nenhuma. Por exemplo, se o bônus for aplicado apenas a testes de perícia feitos com Atletismo, Natureza ou Sobrevivência.",
       "Label": "Perícias"
     },
     "SpellComponents": {
-      "Hint": "Os componentes ou tags de magia que a magia deve ter para que o bônus seja aplicado. Você pode escolher se a magia deve ter todos os componentes ou tags fornecidos ou pelo menos um deles. Por exemplo, se você quiser que um bônus seja aplicado a todos os feitiços que exigem Concentração.",
+      "Hint": "Filtre pelos componentes ou tags que a magia que está sendo conjurada deve ter. Você pode escolher se a magia deve ter todos os componentes ou tags fornecidos, ou pelo menos um deles. Por exemplo, se você quiser que um bônus seja aplicado a todas as magias que exigem concentração ou a todas as magias com um componente material.",
       "Label": "Componentes de Magia",
       "MatchAll": "Corresponder todos",
       "MatchAny": "Corresponder qualquer um",
@@ -234,27 +240,31 @@
       "TypesLabel": "Tipos"
     },
     "SpellLevels": {
-      "Hint": "O nível que a magia deve ser conjurada para que o bônus seja aplicado. Você pode selecionar cada nível individualmente. Por exemplo, você pode aplicar um bônus apenas a truques, apenas a magias de nível ou apenas a magias de 3º nível ou inferior.",
+      "Hint": "Filtre pelo nível em que a magia deve ser conjurada. Por exemplo, você pode aplicar um bônus apenas a truques, apenas a magias de nível ou apenas a magias de 3º nível ou menor.",
       "Label": "Níveis de Magia"
     },
     "SpellSchools": {
-      "Hint": "A escola que a magia deve pertencer para que o bônus seja aplicado. Se diversas escolas forem selecionadas, a magia deverá pertencer a qualquer uma delas. Por exemplo, se você quiser que um bônus seja aplicado apenas a magias de Adivinhação.",
+      "Hint": "Filtre pela escola que a magia deve pertencer. Se diversas escolas forem selecionadas, a magia deverá pertencer a qualquer uma delas. Por exemplo, se você quiser que um bônus seja aplicado apenas a magias de Adivinhação ou Evocação.",
       "Label": "Escolas de Magia"
     },
     "StatusEffects": {
-      "Hint": "As condições que o ator deve ou não estar afetado, usando o conjunto de status do efeito.",
+      "Hint": "Filtre pelas condições que o ator que realiza o teste deve ou não ser afetado. Isso levará em consideração qualquer imunidade à condição que o ator tenha, como imunidade a paralisado.",
       "Label": "Condições no Ator"
     },
+    "TargetArmors": {
+      "Hint": "Filtre pelo tipo de armadura que o alvo deve ou não usar (incluindo escudos). Por exemplo, se quiser que o bônus seja aplicado apenas quando o alvo estiver usando Cota de Malha ou sem armadura. Este filtro também pode levar em consideração categorias de armaduras como 'Armadura Leve'.",
+      "Label": "Armadura do Alvo"
+      },
     "TargetEffects": {
-      "Hint": "As condições que o ator alvo deve ou não estar afetado, usando o conjunto de status do efeito.",
+      "Hint": "Filtre pelas condições que o ator alvo deve ou não ser afetado. Isso levará em consideração qualquer imunidade à condição que o ator tenha, como imunidade a paralisado.",
       "Label": "Condições no Alvo"
     },
     "ThrowTypes": {
-      "Hint": "O tipo de salvaguarda que o bônus deve ser aplicado. Isso também se aplica a Salvaguardas Contra Morte e você também pode ajustar o valor da Salvaguarda Contra Morte do alvo.",
+      "Hint": "Filtre pelo tipo de salvaguarda que o bônus deve ser aplicado. Por exemplo, se o bônus deve ser aplicado apenas a salvaguardas de Inteligência ou Carisma, ou mesmo a Salvaguardas Contra Morte ou salvaguardas para manter a concentração em um efeito.",
       "Label": "Tipos de Salvaguarda"
     },
     "TokenSizes": {
-      "Hint": "O tamanho do token alvo e se também deve ser comparado com o token de origem. Se marcado, o alvo deve ser no mínimo ou no máximo tão grande quanto o de origem.",
+      "Hint": "Filtre pelo tamanho de um token marcado e compare também com o token que realizar a rolagem. Por exemplo, se for necessário que um tokem marcado seja pelo menos 2x2, mas também maior que o token do ator que realizar a rolagem.",
       "Label": "Tamanhos do Token",
       "RangeLabel": "Tamanho",
       "SelfHint": "Se marcado, o token alvo deve ser maior/menor que o tamanho do token do ator de origem, além do valor acima.",
@@ -264,7 +274,7 @@
       "SizeSmallerThan": "Menor que"
     },
     "WeaponProperties": {
-      "Hint": "As propriedades da arma que o item deve ou não ter para que o bônus seja aplicado. Se alguma for selecionada, a arma deverá ter pelo menos uma das propriedades incluídas e nenhuma das propriedades excluídas. Por exemplo, se você quiser que um bônus seja aplicado apenas a armas de Duas Mãos.",
+      "Hint": "Filtre pelas propriedades da arma que o item que está sendo usado para realizar a rolagem deve ter alguma ou não pode ter nenhuma. Por exemplo, se o bônus for aplicado apenas a armas de Duas Mãos ou armas Versáteis.",
       "Label": "Propriedades da Arma"
     }
   },
@@ -279,7 +289,7 @@
   "Labels": {
     "Consuming": "Consumindo",
     "Disabled": "Desabilitado",
-    "Exclusive": "Somente Item",
+    "Exclusive": "Item Exclusivo",
     "Filters": "{n} Filtros",
     "Optional": "Opcional",
     "Reminder": "Lembrete",
@@ -300,7 +310,9 @@
     "Config": {
       "FirstHint": "Se marcado, os modificadores de dados só se aplicam ao primeiro dado na expressão completa.",
       "FirstLabel": "Apenas Primeiro Dado",
-      "Label": "Configuração de Dado"
+      "Label": "Configuração de Dado",
+      "Enabled": "Habilitar Modificações",
+      "EnabledHint": "Alternar quais modificações de dados devem ser configuráveis ​​e aplicadas às rolagens de dados."
     },
     "Explode": {
       "EnabledHint": "Permita que este bônus faça os dados explodirem.",
