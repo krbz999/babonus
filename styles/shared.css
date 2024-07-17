@@ -85,6 +85,7 @@
 
   .tab.babonus {
     .items-section {
+      .item { display: flex; }
       .bonus-source {
         width: 150px;
         border: none;
