@@ -57,19 +57,13 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /* -------------------------------------------------- */
+  /*   Data preparation                                 */
+  /* -------------------------------------------------- */
 
   /** @override */
   _initialize(...args) {
     super._initialize(...args);
     this.prepareDerivedData();
-  }
-
-  /* -------------------------------------------------- */
-
-  /** @override */
-  static migrateData(source) {
-    // Resource as a consumption type is deprecated fully and without replacement.
-    if (source.type === "resource") source.type = "";
   }
 
   /* -------------------------------------------------- */
@@ -87,13 +81,13 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /* -------------------------------------------------- */
+  /*   Migrations                                       */
+  /* -------------------------------------------------- */
 
-  /**
-   * Get applicable roll data from the origin.
-   * @returns {object}      The roll data.
-   */
-  getRollData() {
-    return this.bonus.getRollData({deterministic: true});
+  /** @override */
+  static migrateData(source) {
+    // Resource as a consumption type is deprecated fully and without replacement.
+    if (source.type === "resource") source.type = "";
   }
 
   /* -------------------------------------------------- */
@@ -163,6 +157,8 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
   }
 
   /* -------------------------------------------------- */
+  /*   Instance methods                                 */
+  /* -------------------------------------------------- */
 
   /**
    * Is the actor or user able to make the change when performing the consumption?
@@ -222,5 +218,15 @@ export class ConsumptionModel extends foundry.abstract.DataModel {
       }
       default: return false;
     }
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Get applicable roll data from the origin.
+   * @returns {object}      The roll data.
+   */
+  getRollData() {
+    return this.bonus.getRollData({deterministic: true});
   }
 }

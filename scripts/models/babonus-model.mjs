@@ -102,11 +102,25 @@ const {
  *
  */
 class Babonus extends foundry.abstract.DataModel {
-  /**
-   * Variable to track whether this bonus has modified dice and was halted at the first die.
-   * @type {boolean}
-   */
-  _halted = false;
+  constructor(data, options = {}) {
+    data = foundry.utils.mergeObject({
+      name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
+      img: options.parent?.img ?? "icons/svg/dice-target.svg"
+    }, data);
+    super(data, options);
+  }
+
+  /* -------------------------------------------------- */
+  /*   Properties                                       */
+  /* -------------------------------------------------- */
+
+  /** @override */
+  static metadata = Object.freeze({
+    label: "BABONUS.BaseBabonus",
+    documentName: "babonus",
+    icon: null,
+    defaultImg: null
+  });
 
   /* -------------------------------------------------- */
 
@@ -125,23 +139,35 @@ class Babonus extends foundry.abstract.DataModel {
 
   /* -------------------------------------------------- */
 
-  constructor(data, options = {}) {
-    data = foundry.utils.mergeObject({
-      name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
-      img: options.parent?.img ?? "icons/svg/dice-target.svg"
-    }, data);
-    super(data, options);
+  /**
+   * The actor that this bonus is currently directly or indirectly embedded on, if any.
+   * @type {Actor5e|null}
+   */
+  get actor() {
+    if (this.parent instanceof Actor) return this.parent;
+
+    if (this.parent instanceof Item) return this.parent.parent ?? null;
+
+    if (this.parent instanceof ActiveEffect) {
+      if (this.parent.parent instanceof Actor) return this.parent.parent;
+      if (this.parent.parent instanceof Item) return this.parent.parent.parent ?? null;
+    }
+
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
+      return (item instanceof Item) ? (item.parent ?? null) : null;
+    }
+
+    return null;
   }
 
   /* -------------------------------------------------- */
 
-  /** @override */
-  static metadata = Object.freeze({
-    label: "BABONUS.BaseBabonus",
-    documentName: "babonus",
-    icon: null,
-    defaultImg: null
-  });
+  /**
+   * Variable to track whether this bonus has modified dice and was halted at the first die.
+   * @type {boolean}
+   */
+  _halted = false;
 
   /* -------------------------------------------------- */
 
@@ -151,129 +177,6 @@ class Babonus extends foundry.abstract.DataModel {
    */
   get apps() {
     return this._apps ??= {};
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * The sheet of the bonus.
-   * @type {BabonusSheet}
-   */
-  get sheet() {
-    if (this._sheet) return this._sheet;
-    return this._sheet = new babonus.abstract.applications.BabonusSheet(this);
-  }
-
-  /* -------------------------------------------------- */
-
-  /** @override */
-  testUserPermission() {
-    // Since babs are always local, all users have permission to render them.
-    // Proper permissions are handled elsewhere.
-    return true;
-  }
-
-  /* -------------------------------------------------- */
-
-  /** @override */
-  _initialize(...args) {
-    super._initialize(...args);
-    this.prepareDerivedData();
-  }
-
-  /* -------------------------------------------------- */
-
-  /** @override */
-  static cleanData(source, options = {}) {
-    delete options.partial?.id;
-    delete options.partial?.type;
-    return super.cleanData(source, options);
-  }
-
-  /* -------------------------------------------------- */
-
-  /** @override */
-  toDragData() {
-    return {type: "Babonus", uuid: this.uuid};
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * A formatted uuid of a babonus, an extension of its parent's uuid.
-   * @type {string}
-   */
-  get uuid() {
-    return `${this.parent.uuid}.Babonus.${this.id}`;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * Getter for the metadata icon for this babonus type.
-   * @type {string}
-   */
-  get icon() {
-    return this.constructor.metadata.icon;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
-   * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
-   * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
-   * @TODO once hit die rolls have a dialog as well, this should be amended.
-   * @TODO once rolls can be "remade" in 3.3.0, optional bonuses should be able to apply to other properties as well.
-   * @type {boolean}
-   */
-  get isOptionable() {
-    return ["attack", "damage", "throw", "test"].includes(this.type) && !!this.bonuses.bonus;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * Whether a babonus is currently optional, which is only true if it is both able to be optional, and toggled as such.
-   * @type {boolean}
-   */
-  get isOptional() {
-    return this.optional && this.isOptionable;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * Can this bonus act as a reminder?
-   * @type {boolean}
-   */
-  get canRemind() {
-    const valid = ["attack", "damage", "throw", "test"].includes(this.type) && !this.hasBonuses;
-    return valid && this.optional && !this.bonuses.modifiers?.hasModifiers;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * Is this bonus a reminder, and not an actual 'bonus'?
-   * @type {boolean}
-   */
-  get isReminder() {
-    return this.reminder && this.canRemind;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * Is this providing a bonus to any properties, or dice modifiers?
-   * @type {boolean}
-   */
-  get hasBonuses() {
-    for (const [k, v] of Object.entries(this.bonuses)) {
-      if (k === "modifiers") continue;
-      if (v) return true;
-    }
-    return !!this.bonuses.modifiers?.hasModifiers;
   }
 
   /* -------------------------------------------------- */
@@ -307,11 +210,100 @@ class Babonus extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
+   * Can this bonus act as a reminder?
+   * @type {boolean}
+   */
+  get canRemind() {
+    const valid = ["attack", "damage", "throw", "test"].includes(this.type) && !this.hasBonuses;
+    return valid && this.optional && !this.bonuses.modifiers?.hasModifiers;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * The effect that this bonus is currently directly embedded on, if any.
+   * @type {ActiveEffect5e|null}
+   */
+  get effect() {
+    return (this.parent instanceof ActiveEffect) ? this.parent : null;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Is this providing a bonus to any properties, or dice modifiers?
+   * @type {boolean}
+   */
+  get hasBonuses() {
+    for (const [k, v] of Object.entries(this.bonuses)) {
+      if (k === "modifiers") continue;
+      if (v) return true;
+    }
+    return !!this.bonuses.modifiers?.hasModifiers;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Does this bonus have a damage or healing type?
+   * @type {boolean}
+   */
+  get hasDamageType() {
+    return false;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Getter for the metadata icon for this babonus type.
+   * @type {string}
+   */
+  get icon() {
+    return this.constructor.metadata.icon;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
    * Whether the bonus applies only to its parent item. This is true if it has the property enabled and is valid to do so.
    * @type {boolean}
    */
   get isExclusive() {
     return this.exclusive && this.canExclude;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
+   * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
+   * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
+   * @TODO once hit die rolls have a dialog as well, this should be amended.
+   * @TODO once rolls can be "remade" in 3.3.0, optional bonuses should be able to apply to other properties as well.
+   * @type {boolean}
+   */
+  get isOptionable() {
+    return ["attack", "damage", "throw", "test"].includes(this.type) && !!this.bonuses.bonus;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Whether a babonus is currently optional, which is only true if it is both able to be optional, and toggled as such.
+   * @type {boolean}
+   */
+  get isOptional() {
+    return this.optional && this.isOptionable;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Is this bonus a reminder, and not an actual 'bonus'?
+   * @type {boolean}
+   */
+  get isReminder() {
+    return this.reminder && this.canRemind;
   }
 
   /* -------------------------------------------------- */
@@ -345,6 +337,36 @@ class Babonus extends foundry.abstract.DataModel {
     }
 
     return item.areEffectsSuppressed;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * The item that this bonus is currently directly or indirectly embedded on, if any.
+   * @type {Item5e|null}
+   */
+  get item() {
+    if (this.parent instanceof Actor) return null;
+
+    if (this.parent instanceof Item) return this.parent;
+
+    if (this.parent instanceof MeasuredTemplateDocument) {
+      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
+      return (item instanceof Item) ? item : null;
+    }
+
+    if (this.parent instanceof ActiveEffect) {
+      let item;
+      try {
+        item = fromUuidSync(this.parent.origin ?? "");
+      } catch (err) {
+        console.warn(err);
+        return null;
+      }
+      return (item instanceof Item) ? item : null;
+    }
+
+    return null;
   }
 
   /* -------------------------------------------------- */
@@ -388,25 +410,32 @@ class Babonus extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * The actor that this bonus is currently directly or indirectly embedded on, if any.
-   * @type {Actor5e|null}
+   * The scene region that this bonus is currently embedded on, if any.
+   * @type {SceneRegion|null}
    */
-  get actor() {
-    if (this.parent instanceof Actor) return this.parent;
+  get region() {
+    return (this.parent instanceof RegionDocument) ? this.parent : null;
+  }
 
-    if (this.parent instanceof Item) return this.parent.parent ?? null;
+  /* -------------------------------------------------- */
 
-    if (this.parent instanceof ActiveEffect) {
-      if (this.parent.parent instanceof Actor) return this.parent.parent;
-      if (this.parent.parent instanceof Item) return this.parent.parent.parent ?? null;
-    }
+  /**
+   * The sheet of the bonus.
+   * @type {BabonusSheet}
+   */
+  get sheet() {
+    if (this._sheet) return this._sheet;
+    return this._sheet = new babonus.abstract.applications.BabonusSheet(this);
+  }
 
-    if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
-      return (item instanceof Item) ? (item.parent ?? null) : null;
-    }
+  /* -------------------------------------------------- */
 
-    return null;
+  /**
+   * The template that this bonus is currently directly embedded on, if any.
+   * @type {MeasuredTemplateDocument|null}
+   */
+  get template() {
+    return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
   }
 
   /* -------------------------------------------------- */
@@ -426,63 +455,15 @@ class Babonus extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * The item that this bonus is currently directly or indirectly embedded on, if any.
-   * @type {Item5e|null}
+   * A formatted uuid of a babonus, an extension of its parent's uuid.
+   * @type {string}
    */
-  get item() {
-    if (this.parent instanceof Actor) return null;
-
-    if (this.parent instanceof Item) return this.parent;
-
-    if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
-      return (item instanceof Item) ? item : null;
-    }
-
-    if (this.parent instanceof ActiveEffect) {
-      let item;
-      try {
-        item = fromUuidSync(this.parent.origin ?? "");
-      } catch (err) {
-        console.warn(err);
-        return null;
-      }
-      return (item instanceof Item) ? item : null;
-    }
-
-    return null;
+  get uuid() {
+    return `${this.parent.uuid}.Babonus.${this.id}`;
   }
 
   /* -------------------------------------------------- */
-
-  /**
-   * The effect that this bonus is currently directly embedded on, if any.
-   * @type {ActiveEffect5e|null}
-   */
-  get effect() {
-    return (this.parent instanceof ActiveEffect) ? this.parent : null;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * The template that this bonus is currently directly embedded on, if any.
-   * @type {MeasuredTemplateDocument|null}
-   */
-  get template() {
-    return (this.parent instanceof MeasuredTemplateDocument) ? this.parent : null;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * The scene region that this bonus is currently embedded on, if any.
-   * @type {SceneRegion|null}
-   */
-  get region() {
-    return (this.parent instanceof RegionDocument) ? this.parent : null;
-  }
-
+  /*   Data preparation                                 */
   /* -------------------------------------------------- */
 
   /** @override */
@@ -577,6 +558,32 @@ class Babonus extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /** @override */
+  static cleanData(source, options = {}) {
+    delete options.partial?.id;
+    delete options.partial?.type;
+    return super.cleanData(source, options);
+  }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
+  _initialize(...args) {
+    super._initialize(...args);
+    this.prepareDerivedData();
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Prepare any derived values.
+   */
+  prepareDerivedData() {}
+
+  /* -------------------------------------------------- */
+  /*   Migration                                        */
+  /* -------------------------------------------------- */
+
+  /** @override */
   static migrateData(source) {
     this.migrateMinimum(source);
     this.migrateDeathSaveTargetValue(source);
@@ -623,6 +630,24 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /* -------------------------------------------------- */
+  /*   Instance methods                                 */
+  /* -------------------------------------------------- */
+
+  /** @override */
+  testUserPermission() {
+    // Since babs are always local, all users have permission to render them.
+    // Proper permissions are handled elsewhere.
+    return true;
+  }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
+  toDragData() {
+    return {type: "Babonus", uuid: this.uuid};
+  }
+
+  /* -------------------------------------------------- */
 
   /**
    * Get applicable roll data from the origin.
@@ -633,13 +658,6 @@ class Babonus extends foundry.abstract.DataModel {
     return this.origin?.getRollData({deterministic}) ?? {};
   }
 
-  /* -------------------------------------------------- */
-
-  /** @override */
-  prepareDerivedData() {}
-
-  /* -------------------------------------------------- */
-  /*   Flag operations                                  */
   /* -------------------------------------------------- */
 
   /**
@@ -689,8 +707,6 @@ class Babonus extends foundry.abstract.DataModel {
   }
 
   /* -------------------------------------------------- */
-  /*   Instance methods                                 */
-  /* -------------------------------------------------- */
 
   /**
    * Toggle this bonus.
@@ -702,6 +718,8 @@ class Babonus extends foundry.abstract.DataModel {
     return this;
   }
 
+  /* -------------------------------------------------- */
+  /*   Life-cycle methods                               */
   /* -------------------------------------------------- */
 
   /**
@@ -908,10 +926,7 @@ class DamageBabonus extends ItemBabonus {
 
   /* -------------------------------------------------- */
 
-  /**
-   * Does this bonus have a damage or healing type?
-   * @type {boolean}
-   */
+  /** @override */
   get hasDamageType() {
     const type = this.bonuses.damageType;
     return (type in CONFIG.DND5E.damageTypes) || (type in CONFIG.DND5E.healingTypes);

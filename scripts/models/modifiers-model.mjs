@@ -140,6 +140,8 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   }
 
   /* -------------------------------------------------- */
+  /*   Data preparation                                 */
+  /* -------------------------------------------------- */
 
   /** @override */
   _initialize(...args) {
@@ -366,16 +368,6 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * Does this bonus have applicable modifiers for dice?
-   * @type {boolean}
-   */
-  get hasModifiers() {
-    return this.hasAmount || this.hasSize || this.hasReroll || this.hasExplode || this.hasMin || this.hasMax;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
    * Does this bonus affect the dice amount?
    * @type {boolean}
    */
@@ -387,34 +379,23 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * Does this bonus affect the die size?
-   * @type {boolean}
-   */
-  get hasSize() {
-    if (!this.size.enabled) return false;
-    return Number.isInteger(this.size.value);
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * Does this bonus affect rerolling?
-   * @type {boolean}
-   */
-  get hasReroll() {
-    if (!this.reroll.enabled) return false;
-    return (this.reroll.value === null) || Number.isInteger(this.reroll.value);
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
    * Does this bonus affect explosive dice?
    * @type {boolean}
    */
   get hasExplode() {
     if (!this.explode.enabled) return false;
     return (this.maximum.value === null) || Number.isInteger(this.explode.value);
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Does this bonus affect the maximum cap?
+   * @type {boolean}
+   */
+  get hasMax() {
+    if (!this.maximum.enabled) return false;
+    return Number.isInteger(this.maximum.value);
   }
 
   /* -------------------------------------------------- */
@@ -432,11 +413,32 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * Does this bonus affect the maximum cap?
+   * Does this bonus have applicable modifiers for dice?
    * @type {boolean}
    */
-  get hasMax() {
-    if (!this.maximum.enabled) return false;
-    return Number.isInteger(this.maximum.value);
+  get hasModifiers() {
+    return this.hasAmount || this.hasSize || this.hasReroll || this.hasExplode || this.hasMin || this.hasMax;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Does this bonus affect rerolling?
+   * @type {boolean}
+   */
+  get hasReroll() {
+    if (!this.reroll.enabled) return false;
+    return (this.reroll.value === null) || Number.isInteger(this.reroll.value);
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Does this bonus affect the die size?
+   * @type {boolean}
+   */
+  get hasSize() {
+    if (!this.size.enabled) return false;
+    return Number.isInteger(this.size.value);
   }
 }
