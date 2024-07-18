@@ -2,8 +2,8 @@ import {MODULE, SETTINGS} from "../constants.mjs";
 
 /**
  * Handle rendering a new tab on the v2 character sheet.
- * @param {ActorSheet5eCharacter2} sheet      The rendered sheet.
- * @param {HTMLElement} html                  The element of the sheet.
+ * @param {ActorSheet5eCharacter2|ActorSheet5eNPC2} sheet     The rendered sheet.
+ * @param {HTMLElement} html                                  The element of the sheet.
  */
 async function _onRenderCharacterSheet2(sheet, [html]) {
   const template = "modules/babonus/templates/subapplications/character-sheet-tab.hbs";
@@ -212,30 +212,35 @@ async function _createChildBonus() {
  * Add a new tab to the v2 character sheet.
  */
 function _addCharacterTab() {
-  const cls = dnd5e.applications.actor.ActorSheet5eCharacter2;
-  cls.TABS.push({
-    tab: MODULE.ID, label: MODULE.NAME, icon: MODULE.ICON
-  });
-  /*cls.FILTER_COLLECTIONS.babonus = function(c, f) {
-      console.warn({c,f})
-      return Array.from(babonus.getCollection(this.document));
-    };
-    return;*/
-  const fn = cls.prototype._filterChildren;
-  class sheet extends cls {
-    /** @override */
-    _filterChildren(collection, filters) {
-      if (collection !== "babonus") return fn.call(this, collection, filters);
+  const classes = [
+    dnd5e.applications.actor.ActorSheet5eCharacter2,
+    dnd5e.applications.actor.ActorSheet5eNPC2
+  ];
+  for (const cls of classes) {
+    cls.TABS.push({
+      tab: MODULE.ID, label: MODULE.NAME, icon: MODULE.ICON
+    });
+    /*cls.FILTER_COLLECTIONS.babonus = function(c, f) {
+        console.warn({c,f})
+        return Array.from(babonus.getCollection(this.document));
+      };
+      return;*/
+    const fn = cls.prototype._filterChildren;
+    class sheet extends cls {
+      /** @override */
+      _filterChildren(collection, filters) {
+        if (collection !== "babonus") return fn.call(this, collection, filters);
 
-      const embedded = babonus.findEmbeddedDocumentsWithBonuses(this.document);
+        const embedded = babonus.findEmbeddedDocumentsWithBonuses(this.document);
 
-      const actor = babonus.getCollection(this.document).contents;
-      const items = embedded.items?.flatMap(item => babonus.getCollection(item).contents) ?? [];
-      const effects = embedded.effects?.flatMap(effect => babonus.getCollection(effect).contents) ?? [];
-      return actor.concat(items).concat(effects);
+        const actor = babonus.getCollection(this.document).contents;
+        const items = embedded.items?.flatMap(item => babonus.getCollection(item).contents) ?? [];
+        const effects = embedded.effects?.flatMap(effect => babonus.getCollection(effect).contents) ?? [];
+        return actor.concat(items).concat(effects);
+      }
     }
+    cls.prototype._filterChildren = sheet.prototype._filterChildren;
   }
-  cls.prototype._filterChildren = sheet.prototype._filterChildren;
 }
 
 /* -------------------------------------------------- */
@@ -246,4 +251,5 @@ export default function characterSheetTabSetup() {
   if (!game.user.isGM && !game.settings.get(MODULE.ID, SETTINGS.PLAYERS)) return;
   _addCharacterTab();
   Hooks.on("renderActorSheet5eCharacter2", _onRenderCharacterSheet2);
+  Hooks.on("renderActorSheet5eNPC2", _onRenderCharacterSheet2);
 }

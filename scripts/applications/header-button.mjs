@@ -73,7 +73,9 @@ export class HeaderButtonActor extends HeaderButton {
 
   /** @override */
   static inject(app, array) {
-    if (app.constructor.name !== "ActorSheet5eCharacter2") return super.inject(app, array);
+    if (!["ActorSheet5eCharacter2", "ActorSheet5eNPC2"].includes(app.constructor.name)) {
+      return super.inject(app, array);
+    }
     if (!this.showButton || this.invalidTypes.has(app.document.type)) return;
     if (game.settings.get(MODULE.ID, SETTINGS.SHEET_TAB)) return;
     const button = {

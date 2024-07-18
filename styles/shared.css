@@ -74,16 +74,18 @@
   }
 }
 
-.dnd5e-theme-dark .dnd5e2.sheet.actor.character h1.otters {
+.dnd5e-theme-dark .dnd5e2.sheet.actor h1.otters {
   color: var(--dnd5e-color-gold);
 }
 
-.dnd5e2.sheet.actor.character {
+.dnd5e2.sheet.actor {
   & form.tab-babonus .create-child {
     display: block;
   }
 
   .tab.babonus {
+    flex-direction: column;
+
     .items-section {
       .item { display: flex; }
       .bonus-source {
