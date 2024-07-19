@@ -501,8 +501,8 @@ export class FilterManager {
 
       try {
         // try comparing numbers.
-        const nLeft = Roll.safeEval(left);
-        const nRight = Roll.safeEval(right);
+        const nLeft = Roll.create(left).evaluateSync().total;
+        const nRight = Roll.create(right).evaluateSync().total;
         if ((operator === "EQ") && !(nLeft === nRight)) return false;
         else if ((operator === "LT") && !(nLeft < nRight)) return false;
         else if ((operator === "GT") && !(nLeft > nRight)) return false;
