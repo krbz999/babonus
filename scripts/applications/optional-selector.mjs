@@ -119,7 +119,14 @@ export class OptionalSelector {
         const type = ["uses", "quantity"].includes(bonus.consume.type) ? "item" : bonus.consume.type;
         data.scales = this.doesBonusScale(bonus);
         data.action = data.scales ? `consume-${type}-scale` : `consume-${type}`;
-        data.options = data.scales ? this._constructScalingOptions(bonus) : null;
+        data.options = null;
+        if (data.scales) {
+          const options = this._constructScalingOptions(bonus);
+          if (options instanceof foundry.data.fields.DataField) {
+            data.isField = true;
+            data.field = options;
+          } else data.options = options;
+        }
       } else {
         data.action = "consume-none";
       }
@@ -221,31 +228,53 @@ export class OptionalSelector {
 
   /**
    * Construct options for a scaling bonus.
-   * @param {Babonus} bonus     The bonus.
-   * @returns {string}          The string of select options.
+   * @param {Babonus} bonus               The bonus.
+   * @returns {object|DataField|null}     The object of select options, a data field for a RangePicker, or null if invalid.
    */
   _constructScalingOptions(bonus) {
+    let label;
+    let hint;
+    let min;
+    let max;
+    let step;
+    const NumberField = foundry.data.fields.NumberField;
+
+    const item = bonus.item;
+
     switch (bonus.consume.type) {
-      case "uses":
+      case "uses": {
+        label = "DND5E.Uses";
+        step = bonus.consume.value.step || 1;
+        min = bonus.consume.value.min || 1;
+        max = Math.min(item.system.uses.value, bonus.consume.value.max || Infinity);
+        hint = `Consume between ${min} and ${max} of ${item.name}'s Limited Uses.`;
+        return new NumberField({label, hint, min, max, step});
+      }
       case "quantity": {
-        const isUses = bonus.consume.type === "uses";
-        const item = bonus.item;
-        const bounds = {
-          min: isUses ? item.system.uses.value : item.system.quantity,
-          max: isUses ? item.system.uses.max : item.system.quantity
-        };
-        if (bounds.min <= 0) return {};
-        const min = bonus.consume.value.min || 1;
-        const max = bonus.consume.value.max || Infinity;
-        return Array.fromRange(bounds.min, 1).reduce((acc, n) => {
-          if (!n.between(min, max)) return acc;
-          acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
-            value: n,
-            label: game.i18n.format(isUses ? "DND5E.Uses" : "DND5E.Quantity"),
-            max: isUses ? `${bounds.min}/${bounds.max}` : bounds.min
-          });
-          return acc;
-        }, {});
+        label = "DND5E.Quantity";
+        step = bonus.consume.value.step || 1;
+        min = bonus.consume.value.min || 1;
+        max = Math.min(item.system.quantity, bonus.consume.value.max || Infinity);
+        hint = `Consume between ${min} and ${max} of ${item.name}'s Quantity.`;
+        return new NumberField({label, hint, min, max, step});
+      }
+      case "health": {
+        const hp = this.actor.system.attributes.hp;
+        label = "DND5E.HitPoints";
+        step = bonus.consume.value.step || 1;
+        min = bonus.consume.value.min || 1;
+        max = Math.min(hp.value + hp.temp, bonus.consume.value.max || (hp.max + hp.tempmax));
+        step = bonus.consume.value.step || 1;
+        hint = `Consume between ${step} and ${max} of ${this.actor.name}'s Hit Points.`;
+        return new NumberField({label, hint, min, max, step});
+      }
+      case "currency": {
+        label = CONFIG.DND5E.currencies[bonus.consume.subtype].label;
+        step = bonus.consume.value.step || 1;
+        min = bonus.consume.value.min || 1;
+        max = Math.min(this.actor.system.currency[bonus.consume.subtype], bonus.consume.value.max || Infinity);
+        hint = `Consume between ${min} and ${max} of ${this.actor.name}'s ${label}`;
+        return new NumberField({label, hint, min, max, step});
       }
       case "slots": {
         // The 'value' of the option is the spell property key, like "spell3" or "pact".
@@ -261,54 +290,21 @@ export class OptionalSelector {
         }, {});
         return dnd5e.utils.sortObjectEntries(entries);
       }
-      case "health": {
-        // The 'value' of the option is the amount of hp to subtract.
-        const value = bonus.consume.value;
-        const hp = this.actor.system.attributes.hp;
-        const min = Math.max(0, hp.value) + Math.max(0, hp.temp);
-        const max = Math.max(0, hp.max) + Math.max(0, hp.tempmax);
-        if ((min < value.min) || !(value.step > 0)) return {};
-        const options = {};
-        for (let i = (value.min || 1); i <= Math.min(min, value.max || max); i += value.step) {
-          options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
-            value: i,
-            label: game.i18n.localize("DND5E.HitPoints"),
-            max: `${min}/${max}`
-          });
-        }
-        return options;
-      }
-      case "currency": {
-        const value = bonus.consume.value;
-        const subtype = bonus.consume.subtype;
-        const label = CONFIG.DND5E.currencies[subtype].label;
-        const currency = this.actor.system.currency[subtype];
-        if ((currency < value.min) || !(value.step > 0)) return {};
-        const options = {};
-        for (let i = (value.min || 1); i <= Math.min(currency, value.max || Infinity); i += value.step) {
-          options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
-            value: i,
-            label: label,
-            max: currency
-          });
-        }
-        return options;
-      }
       case "hitdice": {
         const value = bonus.consume.value;
         const subtype = bonus.consume.subtype;
         const hd = this.actor.system.attributes.hd;
+
         if (["largest", "smallest"].includes(subtype)) {
-          return Array.fromRange(Math.min(value.max || Infinity, hd.value) + 1 - value.min, value.min).reduce((acc, n) => {
-            acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
-              value: n,
-              label: game.i18n.localize(`DND5E.ConsumeHitDice${subtype.capitalize()}`),
-              max: `${hd.value}/${hd.max}`
-            });
-            return acc;
-          }, {});
+          max = Math.min(hd.value, value.max || Infinity);
+          step = value.step || 1;
+          min = value.min;
+          hint = game.i18n.localize(`DND5E.ConsumeHitDice${subtype.capitalize()}`);
+          hint = `Consume between ${min} and ${max} of ${this.actor.name}'s ${hint} Hit Dice.`;
+          label = "DND5E.HitDice";
+          return new NumberField({label, hint, min, max, step});
         }
-        const max = Math.min(hd.bySize[subtype], value.max ?? Infinity);
+        max = Math.min(hd.bySize[subtype], value.max ?? Infinity);
         return Array.fromRange(max - value.min + 1, value.min).reduce((acc, n) => {
           acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
             value: n,
@@ -351,7 +347,7 @@ export class OptionalSelector {
     const {actor, item, effect} = bonus;
     const consumeMin = parseInt(bonus.consume.value.min || 1);
     const consumeMax = bonus.consume.value.max || Infinity;
-    const scaleValue = target.closest(".optional").querySelector(".consumption select")?.value;
+    const scaleValue = target.closest(".optional").querySelector(".consumption :is(select, range-picker)")?.value;
 
     switch (type) {
       case "uses":

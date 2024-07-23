@@ -17,12 +17,20 @@
     </div>
 
     {{#if scales}}
+    {{#if isField}}
+    <div class="form-group consumption">
+      <label>{{localize field.label}}</label>
+      <div class="form-fields">{{formInput field value=field.min}}</div>
+      <p class="hint">{{localize field.hint}}</p>
+    </div>
+    {{else}}
     <div class="consumption">
       <label class="label">
         {{localize "BABONUS.ConfigurationConsumptionConsume"}}
       </label>
       <select>{{selectOptions options}}</select>
     </div>
+    {{/if}}
     {{/if}}
 
     <button type="button" data-action="{{action}}">

@@ -302,7 +302,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
         show: bonus.consume.scales
       });
       consume.step = makeField("consume.value.step", {
-        show: ["health", "currency"].includes(source.consume.type) && bonus.consume.scales
+        show: (source.consume.type !== "slots") && bonus.consume.scales
       });
 
       const isSlot = (source.consume.type === "slots") ? "Slot" : "";
