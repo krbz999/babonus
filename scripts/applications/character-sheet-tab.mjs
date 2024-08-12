@@ -111,7 +111,10 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   });
 
   html.querySelector(".tab-body").appendChild(div.firstElementChild);
-  html.querySelector("button.create-child").addEventListener("click", _createChildBonus.bind(sheet));
+  html.querySelectorAll("button.create-child").forEach(button => {
+    // Assigning listener to all buttons due to weirdness on npc sheet.
+    button.addEventListener("click", _createChildBonus.bind(sheet));
+  });
 
   new dnd5e.applications.ContextMenu5e(html, ".item[data-item-uuid]", [], {
     onOpen: (...args) => _onOpenContextMenu(...args)
