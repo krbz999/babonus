@@ -111,6 +111,7 @@ export class OptionalSelector {
       const data = {
         tooltip: this._getTooltip(bonus),
         babonus: bonus,
+        name: bonus.name.replaceAll("'", "\\'"),
         description: await TextEditor.enrichHTML(bonus.description, {
           async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
         })
@@ -130,7 +131,7 @@ export class OptionalSelector {
     for (const reminder of this.reminders) {
       reminders.push({
         uuid: reminder.uuid,
-        name: reminder.name,
+        name: reminder.name.replaceAll("'", "\\'"),
         description: await TextEditor.enrichHTML(reminder.description, {
           async: true, rollData: reminder.getRollData(), relativeTo: reminder.origin
         })

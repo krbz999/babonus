@@ -69,9 +69,15 @@
     padding-bottom: 0.5em;
   }
 
-  .description > :first-child::before {
+  .description:empty::before,
+  .description:not(:empty) > :first-child::before {
     content: var(--bonus-name);
     font-weight: bold;
     margin-right: 5px;
+    margin-left: 5px;
+  }
+
+  .reminder::before {
+    display: none;
   }
 }
