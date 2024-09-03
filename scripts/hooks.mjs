@@ -159,10 +159,10 @@ Hooks.once("ready", function() {
   Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
   Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
-  Hooks.on("dnd5e.preRollAttack", RollHooks.preRollAttack);
-  Hooks.on("dnd5e.preRollDamage", RollHooks.preRollDamage);
+  Hooks.on("dnd5e.preRollAttackV2", RollHooks.preRollAttack);
+  Hooks.on("dnd5e.preRollDamageV2", RollHooks.preRollDamage);
   Hooks.on("dnd5e.preRollDeathSave", RollHooks.preRollDeathSave);
-  Hooks.on("dnd5e.preRollHitDie", RollHooks.preRollHitDie);
+  Hooks.on("dnd5e.preRollHitDieV2", RollHooks.preRollHitDie);
   Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
   Hooks.on("dnd5e.preCreateItemTemplate", RollHooks.preCreateItemTemplate);

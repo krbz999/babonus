@@ -183,9 +183,8 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Whether a babonus is valid for being 'item only' in the builder. It must be embedded in an item (or an
-   * effect on an item which targets the item's actor), must not be an aura or template aura, and must either
-   * apply to attack rolls, damage rolls, or save DCs while the parent item can make use of one of those, or
-   * it must apply to ability checks while being embedded on a tool-type item.
+   * effect on an item which targets the item's actor), must not be an aura or template aura, and the item
+   * must be able to use activities.
    * @type {boolean}
    */
   get canExclude() {
@@ -196,15 +195,7 @@ class Babonus extends foundry.abstract.DataModel {
       item = this.parent.parent;
     }
     if (!item) return false;
-
-    // Valid for attack/damage/save:
-    const model = dnd5e.dataModels.item.config[item.type];
-    const validityA = ["attack", "damage", "save"].includes(this.type) && !!model.schema.getField("damage.parts");
-
-    // Valid for test:
-    const validityB = (this.type === "test") && (item.type === "tool");
-
-    return (validityA || validityB);
+    return item.system.schema.has("activities");
   }
 
   /* -------------------------------------------------- */

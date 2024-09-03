@@ -69,29 +69,33 @@ export class RollHooks {
 
   /**
    * When you make an attack roll...
-   * @param {Item5e} [item]         The item that is making the roll.
-   * @param {object} rollConfig     The configuration for the roll.
+   * @param {AttackRollProcessConfiguration} config  Configuration data for the pending roll.
+   * @param {BasicRollDialogConfiguration} dialog    Presentation data for the roll configuration dialog.
+   * @param {BasicRollMessageConfiguration} message  Configuration data for the roll's message.
    */
-  static preRollAttack(item, rollConfig) {
+  static preRollAttack(config, dialog, message) {
+    const item = config.origin?.item;
     if (!item) return;
     // get bonuses:
-    const spellLevel = rollConfig.data.item.level;
+    const spellLevel = config.rolls[0].data.scaling.value;
     const bonuses = FilterManager.itemCheck(item, "attack", {spellLevel});
     if (!bonuses.size) return;
-    RollHooks._addTargetData(rollConfig);
+    RollHooks._addTargetData(config);
+
+    const {data: rollData} = config.rolls[0];
 
     // Gather up all bonuses.
     const optionals = [];
-    const mods = {critical: 0, fumble: 0};
+    const mods = {criticalSuccess: 0, criticalFailure: 0};
     for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
       const valid = !!bonus && Roll.validate(bonus);
       if (valid) {
         if (bab.isOptional) optionals.push(bab);
-        else rollConfig.parts.push(bonus);
+        else config.rolls[0].parts.push(bonus);
       }
-      mods.critical += dnd5e.utils.simplifyBonus(bab.bonuses.criticalRange, rollConfig.data);
-      mods.fumble += dnd5e.utils.simplifyBonus(bab.bonuses.fumbleRange, rollConfig.data);
+      mods.criticalSuccess += dnd5e.utils.simplifyBonus(bab.bonuses.criticalRange, rollData);
+      mods.criticalFailure += dnd5e.utils.simplifyBonus(bab.bonuses.fumbleRange, rollData);
     }
 
     const id = registry.register({
@@ -99,66 +103,75 @@ export class RollHooks {
       actor: item.actor,
       spellLevel: spellLevel,
       item: item,
-      bonuses: bonuses
+      bonuses: bonuses,
+      configurations: {config, dialog, message}
     });
 
     // Add parts.
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
+    foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
 
-    // Add modifiers to raise/lower the criticial and fumble.
-    rollConfig.critical = (rollConfig.critical ?? 20) - mods.critical;
-    rollConfig.fumble = (rollConfig.fumble ?? 1) + mods.fumble;
+    for (const {options} of config.rolls) {
+      // Add modifiers to raise/lower the criticial and fumble.
+      options.criticalSuccess = (options.criticalSuccess ?? 20) - mods.criticalSuccess;
+      options.criticalFailure = (options.criticalFailure ?? 1) + mods.criticalFailure;
 
-    // Don't set crit to below 1, and don't set fumble to below 1 unless allowed.
-    if (rollConfig.critical < 1) rollConfig.critical = 1;
-    if ((rollConfig.fumble < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) rollConfig.fumble = 1;
+      // Don't set crit to below 1, and don't set fumble to below 1 unless allowed.
+      if (options.criticalSuccess < 1) options.criticalSuccess = 1;
+      if ((options.criticalFailure < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) options.criticalFailure = 1;
+    }
   }
 
   /* -------------------------------------------------- */
 
   /**
    * When you make a damage roll...
-   * @param {Item5e} [item]         The item that is making the roll.
-   * @param {object} rollConfig     The configuration for the roll.
+   * @param {DamageRollProcessConfiguration} config  Configuration data for the pending roll.
+   * @param {BasicRollDialogConfiguration} dialog    Presentation data for the roll configuration dialog.
+   * @param {BasicRollMessageConfiguration} message  Configuration data for the roll's message.
    */
-  static preRollDamage(item, rollConfig) {
+  static preRollDamage(config, dialog, message) {
+    const item = config.origin?.item;
     if (!item) return;
     // get bonus:
-    const spellLevel = rollConfig.data.item.level;
+    const spellLevel = config.rolls[0].data.scaling.value;
     const bonuses = FilterManager.itemCheck(item, "damage", {spellLevel});
     if (!bonuses.size) return;
-    RollHooks._addTargetData(rollConfig);
+    RollHooks._addTargetData(config);
 
     const id = registry.register({
-      optionals: RollHooks._getDamageParts(bonuses, rollConfig, "rollConfigs"),
+      optionals: RollHooks._getDamageParts(bonuses, config),
       actor: item.actor,
       spellLevel: spellLevel,
       item: item,
-      bonuses: bonuses
+      bonuses: bonuses,
+      configurations: {config, dialog, message}
     });
 
-    // add to parts:
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
+    // Add parts.
+    foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
+
+    // Add to critical dice and critical damage.
+    config.critical ??= {};
 
     // add to crit bonus dice:
-    rollConfig.criticalBonusDice = bonuses.reduce((acc, bab) => {
-      return acc + dnd5e.utils.simplifyBonus(bab.bonuses.criticalBonusDice, rollConfig.data);
-    }, rollConfig.criticalBonusDice ?? 0);
-    if (rollConfig.criticalBonusDice < 0) rollConfig.criticalBonusDice = 0;
+    config.critical.bonusDice = bonuses.reduce((acc, bab) => {
+      return acc + dnd5e.utils.simplifyBonus(bab.bonuses.criticalBonusDice, config.rolls[0].data);
+    }, config.critical.bonusDice ?? 0);
+    if (config.critical.bonusDice < 0) config.critical.bonusDice = 0;
 
     // add to crit damage:
-    rollConfig.criticalBonusDamage = bonuses.reduce((acc, bab) => {
+    config.critical.bonusDamage = bonuses.reduce((acc, bab) => {
       const bonus = bab.bonuses.criticalBonusDamage;
       const valid = !!bonus && Roll.validate(bonus);
       if (!valid) return acc;
       return `${acc} + ${bonus}`;
-    }, rollConfig.criticalBonusDamage ?? "");
+    }, config.critical.bonusDamage ?? "");
 
     // Modify the parts if there are modifiers in the bab.
     for (const bab of bonuses) {
-      for (const {parts} of rollConfig.rollConfigs) {
+      for (const {parts, data} of config.rolls) {
         if (bab._halted) break;
-        const halted = bab.bonuses.modifiers.modifyParts(parts, rollConfig.data);
+        const halted = bab.bonuses.modifiers.modifyParts(parts, data ?? {});
         if (halted) bab._halted = true;
       }
     }
@@ -319,17 +332,18 @@ export class RollHooks {
 
   /**
    * When you roll a hit die...
-   * @param {Actor5e} actor           The actor that is making the roll.
-   * @param {object} rollConfig       The configuration for the roll.
-   * @param {string} denomination     The denomination of the die, e.g., 'd8'.
+   * @param {HitDieRollProcessConfiguration} config  Configuration information for the roll.
+   * @param {BasicRollDialogConfiguration} dialog    Configuration for the roll dialog.
+   * @param {BasicRollMessageConfiguration} message  Configuration for the roll message.
    */
-  static preRollHitDie(actor, rollConfig, denomination) {
+  static preRollHitDie(config, dialog, message) {
+    const actor = config.origin;
     const bonuses = FilterManager.hitDieCheck(actor);
     if (!bonuses.size) return;
-    RollHooks._addTargetData(rollConfig);
+    RollHooks._addTargetData(config);
 
     // Construct an array of parts.
-    const parts = [`1${denomination} + @abilities.con.mod`];
+    const parts = [`1${config.denomination}`, `@abilities.${CONFIG.DND5E.defaultAbilities.hitPoints}.mod`];
     for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
       if (!!bonus && Roll.validate(bonus)) parts.push(bonus);
@@ -337,11 +351,26 @@ export class RollHooks {
 
     // Add die modifiers.
     for (const bonus of bonuses) {
-      bonus.bonuses.modifiers.modifyParts(parts, rollConfig.data);
+      bonus.bonuses.modifiers.modifyParts(parts, config.rolls[0].data);
     }
 
-    // Construct the replacement formula.
-    rollConfig.formula = `max(0, ${parts.join(" + ")})`;
+    // TODO: Force dialog when situational bonuses are implemented.
+    // dialog.configure = true;
+
+    const id = registry.register({
+      optionals: [], //RollHooks._getParts(bonuses, config),
+      actor: actor,
+      bonuses: bonuses,
+      configurations: {config, dialog, message}
+    });
+
+    foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
+
+    // Replace parts.
+    if (parts.length) {
+      const [denom, mod, ...rest] = parts;
+      config.rolls[0].parts = [`max(0, ${[denom, mod].join(" + ")})`, ...rest];
+    }
   }
 
   /* -------------------------------------------------- */
@@ -372,10 +401,10 @@ export class RollHooks {
   /**
    * Gather optional bonuses and put non-optional bonuses into the roll config.
    * @param {Babonus[]} bonuses     An array of babonuses to apply.
-   * @param {object} rollConfig     The roll config for this roll. **will be mutated**
+   * @param {object} config         The roll config for this roll. **will be mutated**
    * @returns {string[]}            An array of optional bonuses to modify a roll.
    */
-  static _getDamageParts(bonuses, rollConfig) {
+  static _getDamageParts(bonuses, config) {
     const optionals = [];
     for (const bab of bonuses) {
       const bonus = bab.bonuses.bonus;
@@ -387,14 +416,17 @@ export class RollHooks {
       }
 
       let existing;
-      if (bab.hasDamageType) existing = rollConfig.rollConfigs.find(config => config.type === bab.bonuses.damageType);
-      else existing = rollConfig.rollConfigs[0];
+      if (bab.hasDamageType) existing = config.rolls.find(config => config.options.types.includes(bab.bonuses.damageType));
+      else existing = config.rolls[0];
 
       if (existing) existing.parts.push(bonus);
-      else rollConfig.rollConfigs.push({
-        parts: [bonus],
-        type: bab.bonuses.damageType,
-        properties: [...rollConfig.rollConfigs[0].properties ?? []]
+      else config.rolls.push({
+        data: config.rolls[0].data,
+        options: {
+          type: bab.bonuses.damageType,
+          properties: [...config.rolls[0].options.properties ?? []]
+        },
+        parts: [bonus]
       });
     }
     return optionals;
@@ -422,11 +454,15 @@ export class RollHooks {
 
   /**
    * Add the target's roll data to the actor's roll data.
-   * @param {object} rollConfig           The roll config for this roll. **will be mutated**
+   * @param {object} config               The roll config for this roll. **will be mutated**
    * @param {boolean} [deterministic]     Whether to force flat values for properties that could be a die or flat term.
    */
-  static _addTargetData(rollConfig, deterministic = false) {
+  static _addTargetData(config, deterministic = false) {
     const target = game.user.targets.first();
-    if (target?.actor) rollConfig.data.target = target.actor.getRollData({deterministic});
+    if (target?.actor) {
+      for (const {data} of config.rolls) {
+        data.target = target.actor.getRollData({deterministic});
+      }
+    }
   }
 }
