@@ -74,10 +74,11 @@ export class RollHooks {
    * @param {BasicRollMessageConfiguration} message  Configuration data for the roll's message.
    */
   static preRollAttack(config, dialog, message) {
-    const item = config.origin?.item;
+    const item = config.subject?.item;
     if (!item) return;
     // get bonuses:
     const spellLevel = config.rolls[0].data.scaling.value;
+    console.warn({item, spellLevel});
     const bonuses = FilterManager.itemCheck(item, "attack", {spellLevel});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
@@ -130,7 +131,7 @@ export class RollHooks {
    * @param {BasicRollMessageConfiguration} message  Configuration data for the roll's message.
    */
   static preRollDamage(config, dialog, message) {
-    const item = config.origin?.item;
+    const item = config.subject?.item;
     if (!item) return;
     // get bonus:
     const spellLevel = config.rolls[0].data.scaling.value;
@@ -337,7 +338,7 @@ export class RollHooks {
    * @param {BasicRollMessageConfiguration} message  Configuration for the roll message.
    */
   static preRollHitDie(config, dialog, message) {
-    const actor = config.origin;
+    const actor = config.subject;
     const bonuses = FilterManager.hitDieCheck(actor);
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
