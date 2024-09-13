@@ -3,16 +3,10 @@
   "version": "1.0.0",
   "description": "Build-a-Bonus",
   "scripts": {
-    "build": "rollup -c rollup.config.mjs"
+    "build": "rollup -c rollup.config.mjs",
+    "createSymlinks": "node ./tools/create-symlinks.mjs",
+    "postinstall": "npm run createSymlinks"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/krbz999/babonus.git"
-  },
-  "keywords": [
-    "fvtt",
-    "module"
-  ],
   "author": "Zhell",
   "bugs": {
     "url": "https://github.com/krbz999/babonus"
@@ -21,6 +15,7 @@
   "devDependencies": {
     "@html-eslint/eslint-plugin": "^0.26.0",
     "@html-eslint/parser": "^0.26.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "eslint": "^8.57.0",
     "rollup": "^4.17.2"
   }

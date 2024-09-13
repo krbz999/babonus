@@ -6,11 +6,36 @@ import {
   HeaderButtonItem,
   injectRegionConfigElement
 } from "./applications/header-button.mjs";
-import {createAPI} from "./api.mjs";
-import {RollHooks, registry} from "./applications/roll-hooks.mjs";
+import {FilterManager} from "./applications/filter-manager.mjs";
 import {OptionalSelector} from "./applications/optional-selector.mjs";
+import {RollHooks, registry} from "./applications/roll-hooks.mjs";
+import api from "./api.mjs";
+import applications from "./applications/_module.mjs";
 import characterSheetTabSetup from "./applications/character-sheet-tab.mjs";
 import enricherSetup from "./applications/enrichers.mjs";
+import fields from "./models/_module.mjs";
+import filters from "./filters/_module.mjs";
+import models from "./models/babonus-model.mjs";
+
+// Setup API object.
+globalThis.babonus = {
+  ...api,
+  abstract: {
+    DataModels: models,
+    DataFields: {
+      filters: filters,
+      models: fields
+    },
+    TYPES: Object.keys(models),
+    applications: applications
+  },
+  filters: Object.keys(filters).reduce((acc, k) => {
+    acc[k] = FilterManager[k];
+    return acc;
+  }, {})
+};
+
+/* -------------------------------------------------- */
 
 /**
  * Render the optional bonus selector on a roll dialog.
@@ -140,7 +165,7 @@ async function setupTree() {
 // General setup.
 Hooks.once("init", _createSettings);
 Hooks.once("init", enricherSetup);
-Hooks.once("setup", createAPI);
+Hooks.once("init", () => game.modules.get(MODULE.ID).api = globalThis.babonus);
 Hooks.on("hotbarDrop", _onHotbarDrop);
 Hooks.once("setup", () => characterSheetTabSetup());
 
