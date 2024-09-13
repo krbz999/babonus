@@ -71,7 +71,7 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Creature Sizes.</em></strong> Filter the bonus to only apply if the actor performing the roll is a certain size, like medium, huge, or gargantuan.</p>
 <p><strong><em>Creature Types (Target).</em></strong> Filter the bonus to only apply if you are targeting an enemy belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not targeting any of the excluded creature types.</p>
 <p><strong><em>Creature Types.</em></strong> Filter the bonus to only apply if you are belonging to one of the included creature types, such as 'undead', 'fey', or 'humanoid', while not belonging to any of the excluded creature types.</p>
-<p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be fully synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, <code>token</code>, and <code>bonus</code> are always provided if possible, as well as an object, <code>details</code>, used for the iteration of parsing the validity of the bonuses. For those uncomfortable with having all clients execute these scripts, a setting is available for the module which will completely ignore the scripts and simply immediately return true.</p>
+<p><strong><em>Custom Scripts.</em></strong> A blank text field for users to write any JavaScript code they like. The script must be fully synchronous and return true or false. The available variables declared for the script will vary by the roll type, but <code>actor</code>, <code>item</code>, <code>activity</code>, <code>token</code>, and <code>bonus</code> are always provided if possible, as well as an object, <code>details</code>, used for the iteration of parsing the validity of the bonuses. For those uncomfortable with having all clients execute these scripts, a setting is available for the module which will completely ignore the scripts and simply immediately return true.</p>
 <p><strong><em>Damage Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has a damage formula with any of the included damage types while having none of the excluded damage types.</p>
 <p><strong><em>Feature Types.</em></strong> Filter the bonus to only apply if the item used to perform the attack or damage roll (or prompt for a saving throw) is a feature-type item of a specific type, and optionally also a specific subtype.</p>
 <p><strong><em>Health Percentages.</em></strong> A percentage value and whether the actor must have at least or at most this amount of remaining hit points for the bonus to apply.</p>
@@ -276,22 +276,21 @@ Hooks.call("babonus.applyOptionalBonus", babonus, roller, target, config);
 /**
  * A hook that is called before the collection of bonuses has been filtered.
  * @param {Collection<Babonus>} bonuses     The collection of bonuses, before filtering.
- * @param {Actor5e|Item5e} object           The actor or item performing the roll.
- * @param {object} [details]                Additional data passed along to perform the filtering.
- * @param {string} hookType                 The type of hook being executed ('attack',
- *                                          'damage', 'save', 'throw', 'test', 'hitdie').
+ * @param {SubjectConfig} subjects          Subject config.
+ * @param {object} [details={}]             Additional data passed along to perform the filtering.
+ * @param {string} hookType                 The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
  */
-Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
+Hooks.callAll("babonus.preFilterBonuses", bonuses, subjects, details, hookType);
 ```
 
 ```js
 /**
  * A hook that is called after the collection of bonuses has been filtered.
  * @param {Collection<Babonus>} bonuses     The array of bonuses, after filtering.
- * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+ * @param {SubjectConfig} subjects          Subject config.
  * @param {object} [details]                Additional data passed along to perform the filtering.
- * @param {string} hookType                 The type of hook being executed ('attack',
- *                                          'damage', 'save', 'throw', 'test', 'hitdie').
+ * @param {string} hookType                 The type of hook being executed ('attack', 'damage',
+ *                                          'save', 'throw', 'test', 'hitdie').
  */
-Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
+Hooks.callAll("babonus.filterBonuses", bonuses, subjects, details, hookType);
 ````

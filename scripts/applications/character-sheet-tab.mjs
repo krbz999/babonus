@@ -110,7 +110,10 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
     });
   });
 
-  html.querySelector(".tab-body").appendChild(div.firstElementChild);
+  const body = html.querySelector(".tab-body");
+  if (!body) return;
+
+  body.appendChild(div.firstElementChild);
   html.querySelectorAll("button.create-child").forEach(button => {
     // Assigning listener to all buttons due to weirdness on npc sheet.
     button.addEventListener("click", _createChildBonus.bind(sheet));

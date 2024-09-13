@@ -212,8 +212,16 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   _modifyAmount(die) {
     if (!this.hasAmount) return;
     const isMult = this.amount.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
-    if (isMult) die.number = Math.max(0, die.number * this.amount.value);
-    else die.number = Math.max(0, die.number + this.amount.value);
+
+    if ((die._number instanceof Roll) && die._number.isDeterministic) {
+      const total = die._number.evaluateSync().total;
+      die._number = total;
+    }
+
+    if (Number.isInteger(die._number)) {
+      if (isMult) die._number = Math.max(0, die._number * this.amount.value);
+      else die._number = Math.max(0, die._number + this.amount.value);
+    }
   }
 
   /* -------------------------------------------------- */
@@ -225,8 +233,16 @@ export class ModifiersModel extends foundry.abstract.DataModel {
   _modifySize(die) {
     if (!this.hasSize) return;
     const isMult = this.size.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
-    if (isMult) die.faces = Math.max(0, die.faces * this.size.value);
-    else die.faces = Math.max(0, die.faces + this.size.value);
+
+    if ((die._faces instanceof Roll) && die._faces.isDeterministic) {
+      const total = die._faces.evaluateSync().total;
+      die._faces = total;
+    }
+
+    if (Number.isInteger(die._faces)) {
+      if (isMult) die._faces = Math.max(0, die._faces * this.size.value);
+      else die._faces = Math.max(0, die._faces + this.size.value);
+    }
   }
 
   /* -------------------------------------------------- */

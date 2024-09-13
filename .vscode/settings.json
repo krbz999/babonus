@@ -42,5 +42,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
   },
-  "eslint.validate": ["javascript"]
+  "eslint.enable": true,
+  "eslint.validate": ["javascript", "handlebars", "html"]
 }

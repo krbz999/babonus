@@ -1,50 +1,22 @@
-import {MODULE} from "./constants.mjs";
 import {default as applications} from "./applications/_module.mjs";
-import {default as filters} from "./filters/_module.mjs";
 import {default as models} from "./models/babonus-model.mjs";
-import {default as fields} from "./models/_module.mjs";
-import {FilterManager} from "./applications/filter-manager.mjs";
 
-/**
- * Set up the public API.
- */
-export function createAPI() {
-  const API = {
-    getCollection,
-    fromUuid: babonusFromUuid,
-    fromUuidSync: babonusFromUuidSync,
-
-    createBabonus,
-    embedBabonus,
-    hotbarToggle: hotbarToggle,
-    duplicateBonus: duplicateBonus,
-
-    findEmbeddedDocumentsWithBonuses,
-    openBabonusWorkshop,
-
-    speaksLanguage: speaksLanguage,
-    hasWeaponProficiency: hasWeaponProficiency,
-    hasArmorProficiency: hasArmorProficiency,
-    hasToolProficiency: hasToolProficiency,
-    proficiencyTree: proficiencyTree,
-
-    abstract: {
-      DataModels: models,
-      DataFields: {
-        filters: filters,
-        models: fields
-      },
-      TYPES: Object.keys(models),
-      applications: applications
-    },
-
-    filters: Object.keys(filters).reduce((acc, key) => {
-      acc[key] = FilterManager[key];
-      return acc;
-    }, {})
-  };
-  window.babonus = game.modules.get(MODULE.ID).api = API;
-}
+export default {
+  createBabonus: createBabonus,
+  duplicateBonus: duplicateBonus,
+  embedBabonus: embedBabonus,
+  findEmbeddedDocumentsWithBonuses: findEmbeddedDocumentsWithBonuses,
+  fromUuid: babonusFromUuid,
+  fromUuidSync: babonusFromUuidSync,
+  getCollection: getCollection,
+  hasArmorProficiency: hasArmorProficiency,
+  hasToolProficiency: hasToolProficiency,
+  hasWeaponProficiency: hasWeaponProficiency,
+  hotbarToggle: hotbarToggle,
+  openBabonusWorkshop: openBabonusWorkshop,
+  proficiencyTree: proficiencyTree,
+  speaksLanguage: speaksLanguage
+};
 
 /* -------------------------------------------------- */
 

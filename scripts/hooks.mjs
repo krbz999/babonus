@@ -6,11 +6,36 @@ import {
   HeaderButtonItem,
   injectRegionConfigElement
 } from "./applications/header-button.mjs";
-import {createAPI} from "./api.mjs";
-import {RollHooks, registry} from "./applications/roll-hooks.mjs";
+import {FilterManager} from "./applications/filter-manager.mjs";
 import {OptionalSelector} from "./applications/optional-selector.mjs";
+import {RollHooks, registry} from "./applications/roll-hooks.mjs";
+import api from "./api.mjs";
+import applications from "./applications/_module.mjs";
 import characterSheetTabSetup from "./applications/character-sheet-tab.mjs";
 import enricherSetup from "./applications/enrichers.mjs";
+import fields from "./models/_module.mjs";
+import filters from "./filters/_module.mjs";
+import models from "./models/babonus-model.mjs";
+
+// Setup API object.
+globalThis.babonus = {
+  ...api,
+  abstract: {
+    DataModels: models,
+    DataFields: {
+      filters: filters,
+      models: fields
+    },
+    TYPES: Object.keys(models),
+    applications: applications
+  },
+  filters: Object.keys(filters).reduce((acc, k) => {
+    acc[k] = FilterManager[k];
+    return acc;
+  }, {})
+};
+
+/* -------------------------------------------------- */
 
 /**
  * Render the optional bonus selector on a roll dialog.
@@ -21,6 +46,7 @@ async function _renderDialog(dialog) {
   const m = dialog.options.babonus;
   if (!m) return;
   const r = registry.get(m.registry);
+  if (!r) return;
   r.dialog = dialog;
   new OptionalSelector(m.registry).render();
 }
@@ -140,7 +166,7 @@ async function setupTree() {
 // General setup.
 Hooks.once("init", _createSettings);
 Hooks.once("init", enricherSetup);
-Hooks.once("setup", createAPI);
+Hooks.once("init", () => game.modules.get(MODULE.ID).api = globalThis.babonus);
 Hooks.on("hotbarDrop", _onHotbarDrop);
 Hooks.once("setup", () => characterSheetTabSetup());
 
@@ -150,22 +176,23 @@ Hooks.on("getActorSheetHeaderButtons", (...T) => HeaderButtonActor.inject(...T))
 Hooks.on("getDialogHeaderButtons", (...T) => HeaderButtonDialog.inject(...T));
 Hooks.on("getItemSheetHeaderButtons", (...T) => HeaderButtonItem.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
+Hooks.on("renderDamageRollConfigurationDialog", _renderDialog);
 Hooks.on("renderRegionConfig", injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
 Hooks.once("ready", function() {
   Hooks.callAll("babonus.preInitializeRollHooks");
 
-  Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
+  Hooks.on("dnd5e.preUseActivity", RollHooks.preUseActivity);
   Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
-  Hooks.on("dnd5e.preRollAttack", RollHooks.preRollAttack);
-  Hooks.on("dnd5e.preRollDamage", RollHooks.preRollDamage);
+  Hooks.on("dnd5e.preRollAttackV2", RollHooks.preRollAttack);
+  Hooks.on("dnd5e.preRollDamageV2", RollHooks.preRollDamage);
   Hooks.on("dnd5e.preRollDeathSave", RollHooks.preRollDeathSave);
-  Hooks.on("dnd5e.preRollHitDie", RollHooks.preRollHitDie);
+  Hooks.on("dnd5e.preRollHitDieV2", RollHooks.preRollHitDie);
   Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
-  Hooks.on("dnd5e.preCreateItemTemplate", RollHooks.preCreateItemTemplate);
+  Hooks.on("dnd5e.preCreateActivityTemplate", RollHooks.preCreateActivityTemplate);
   setupTree();
 
   Hooks.callAll("babonus.initializeRollHooks");
