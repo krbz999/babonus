@@ -31,38 +31,32 @@ export const registry = new RollRegister();
 export class RollHooks {
   /**
    * When you force a saving throw...
-   * @param {Item5e} item         The item whose card is being displayed.
-   * @param {object} chatData     The chat data for the display.
+   * @param {Activity} activity                           Activity being used.
+   * @param {ActivityUseConfiguration} usageConfig        Configuration info for the activation.
+   * @param {ActivityDialogConfiguration} dialogConfig    Configuration info for the usage dialog.
+   * @param {ActivityMessageConfiguration} messageConfig  Configuration info for the created chat message.
    */
-  static preDisplayCard(item, chatData) {
-    if (!item.hasSave) return;
+  static preUseActivity(activity, usageConfig, dialogConfig, messageConfig) {
+    if (activity.type !== "save") return;
+
+    const subjects = {
+      activity: activity,
+      item: activity.item,
+      actor: activity.item.actor
+    };
 
     // Get bonuses:
-    const bonuses = FilterManager.itemCheck(item, "save", {spellLevel: item.system.level});
+    const bonuses = FilterManager.itemCheck(subjects, "save", {spellLevel: activity.item.system.level});
     if (!bonuses.size) return;
-    const id = registry.register(bonuses);
+    // const id = registry.register(bonuses); // TODO: useless
 
-    const rollConfig = {data: item.getRollData({deterministic: true})};
-    RollHooks._addTargetData(rollConfig);
+    const rollData = activity.getRollData({deterministic: true});
+    RollHooks._addTargetData({data: rollData});
     const totalBonus = bonuses.reduce((acc, bab) => {
-      return acc + dnd5e.utils.simplifyBonus(bab.bonuses.bonus, rollConfig.data);
+      return acc + dnd5e.utils.simplifyBonus(bab.bonuses.bonus, rollData);
     }, 0);
 
-    // Get all buttons:
-    const div = document.createElement("DIV");
-    div.innerHTML = chatData.content;
-    const saveButtons = div.querySelectorAll("button[data-action='save']");
-
-    const dc = Math.max(1, item.system.save.dc + totalBonus) || "";
-    for (const button of saveButtons) {
-      button.dataset.dc = dc;
-      button.innerHTML = `<i class="fa-solid fa-shield-heart"></i> ${game.i18n.format("DND5E.SavingThrowDC", {
-        dc: dc,
-        ability: CONFIG.DND5E.abilities[button.dataset.ability]?.label ?? ""
-      })}`;
-    }
-    foundry.utils.setProperty(chatData, `flags.${MODULE.ID}.saveDC`, dc);
-    chatData.content = div.innerHTML;
+    activity.save.dc.value += totalBonus;
   }
 
   /* -------------------------------------------------- */
@@ -76,10 +70,11 @@ export class RollHooks {
   static preRollAttack(config, dialog, message) {
     const item = config.subject?.item;
     if (!item) return;
+
+    const subjects = {activity: config.subject, item: item, actor: item.actor};
     // get bonuses:
     const spellLevel = config.rolls[0].data.scaling.value;
-    console.warn({item, spellLevel});
-    const bonuses = FilterManager.itemCheck(item, "attack", {spellLevel});
+    const bonuses = FilterManager.itemCheck(subjects, "attack", {spellLevel});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
 
@@ -100,10 +95,9 @@ export class RollHooks {
     }
 
     const id = registry.register({
+      ...subjects,
       optionals: optionals,
-      actor: item.actor,
       spellLevel: spellLevel,
-      item: item,
       bonuses: bonuses,
       configurations: {config, dialog, message}
     });
@@ -135,15 +129,20 @@ export class RollHooks {
     if (!item) return;
     // get bonus:
     const spellLevel = config.rolls[0].data.scaling.value;
-    const bonuses = FilterManager.itemCheck(item, "damage", {spellLevel});
+
+    const subjects = {
+      activity: config.subject,
+      item: item,
+      actor: item.actor
+    };
+    const bonuses = FilterManager.itemCheck(subjects, "damage", {spellLevel});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
 
     const id = registry.register({
+      ...subjects,
       optionals: RollHooks._getDamageParts(bonuses, config),
-      actor: item.actor,
       spellLevel: spellLevel,
-      item: item,
       bonuses: bonuses,
       configurations: {config, dialog, message}
     });
@@ -191,7 +190,7 @@ export class RollHooks {
    */
   static preRollSave(actor, rollConfig, {ability, isDeath, isConcentration} = {}) {
     // get bonus:
-    const bonuses = FilterManager.throwCheck(actor, {ability, isDeath, isConcentration});
+    const bonuses = FilterManager.throwCheck({actor}, {ability, isDeath, isConcentration});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -265,7 +264,7 @@ export class RollHooks {
    * @param {string} abilityId      The key for the ability being used.
    */
   static preRollAbilityTest(actor, rollConfig, abilityId) {
-    const bonuses = FilterManager.testCheck(actor, abilityId);
+    const bonuses = FilterManager.testCheck({actor}, abilityId);
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -289,7 +288,7 @@ export class RollHooks {
    */
   static preRollSkill(actor, rollConfig, skillId) {
     const abilityId = actor.system.skills[skillId].ability;
-    const bonuses = FilterManager.testCheck(actor, abilityId, {skillId});
+    const bonuses = FilterManager.testCheck({actor}, abilityId, {skillId});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -307,26 +306,27 @@ export class RollHooks {
   /**
    * When you roll a tool check...
    * @TODO Find the correct ability used, pending the system's roll refactor.
-   * @param {Actor5e} actor         The actor that is making the roll.
-   * @param {object} rollConfig     The configuration for the roll.
-   * @param {string} toolId         The key for the tool being used.
+   * @param {Actor5e} actor     The actor that is making the roll.
+   * @param {object} config     The configuration for the roll.
+   * @param {string} toolId     The key for the tool being used.
    */
-  static preRollToolCheck(actor, rollConfig, toolId) {
-    const abilityId = rollConfig.ability || rollConfig.data.defaultAbility;
-    const bonuses = FilterManager.testCheck(actor, abilityId, {
-      toolId,
-      item: rollConfig.item ?? null
-    });
+  static preRollToolCheck(actor, config, toolId) {
+    const subjects = {
+      actor: actor,
+      item: config.item
+    };
+    const abilityId = config.ability || config.data.defaultAbility;
+    const bonuses = FilterManager.testCheck(subjects, abilityId, {toolId});
     if (!bonuses.size) return;
-    RollHooks._addTargetData(rollConfig);
+    RollHooks._addTargetData(config);
 
     const id = registry.register({
-      optionals: RollHooks._getParts(bonuses, rollConfig),
-      actor: actor,
+      ...subjects,
+      optionals: RollHooks._getParts(bonuses, config),
       bonuses: bonuses
     });
 
-    foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
+    foundry.utils.setProperty(config, `dialogOptions.${MODULE.ID}.registry`, id);
   }
 
   /* -------------------------------------------------- */
@@ -339,7 +339,7 @@ export class RollHooks {
    */
   static preRollHitDie(config, dialog, message) {
     const actor = config.subject;
-    const bonuses = FilterManager.hitDieCheck(actor);
+    const bonuses = FilterManager.hitDieCheck({actor});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
 
@@ -359,7 +359,7 @@ export class RollHooks {
     // dialog.configure = true;
 
     const id = registry.register({
-      optionals: [], //RollHooks._getParts(bonuses, config),
+      optionals: [], // RollHooks._getParts(bonuses, config),
       actor: actor,
       bonuses: bonuses,
       configurations: {config, dialog, message}
@@ -378,12 +378,13 @@ export class RollHooks {
 
   /**
    * Inject babonus data on templates created by items.
-   * @param {Item5e} item             The item that creates the template.
-   * @param {object} templateData     The template data to create the template.
+   * @param {Activity} activity       Activity for which the template is being placed.
+   * @param {object} templateData     Data used to create the new template.
    */
-  static preCreateItemTemplate(item, templateData) {
+  static preCreateActivityTemplate(activity, templateData) {
+    const item = activity.item;
     if (!item?.isEmbedded) return;
-    const tokenDocument = item.actor.token ?? item.actor.getActiveTokens(false, true)[0];
+    const [tokenDocument] = item.actor.isToken ? [item.actor.token] : item.actor.getActiveTokens(false, true);
     const disp = tokenDocument?.disposition ?? item.actor.prototypeToken.disposition;
 
     const bonusData = babonus.getCollection(item).reduce((acc, bonus) => {

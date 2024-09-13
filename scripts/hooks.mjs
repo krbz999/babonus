@@ -46,6 +46,7 @@ async function _renderDialog(dialog) {
   const m = dialog.options.babonus;
   if (!m) return;
   const r = registry.get(m.registry);
+  if (!r) return;
   r.dialog = dialog;
   new OptionalSelector(m.registry).render();
 }
@@ -175,13 +176,14 @@ Hooks.on("getActorSheetHeaderButtons", (...T) => HeaderButtonActor.inject(...T))
 Hooks.on("getDialogHeaderButtons", (...T) => HeaderButtonDialog.inject(...T));
 Hooks.on("getItemSheetHeaderButtons", (...T) => HeaderButtonItem.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
+Hooks.on("renderDamageRollConfigurationDialog", _renderDialog);
 Hooks.on("renderRegionConfig", injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
 Hooks.once("ready", function() {
   Hooks.callAll("babonus.preInitializeRollHooks");
 
-  Hooks.on("dnd5e.preDisplayCard", RollHooks.preDisplayCard);
+  Hooks.on("dnd5e.preUseActivity", RollHooks.preUseActivity);
   Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
   Hooks.on("dnd5e.preRollAttackV2", RollHooks.preRollAttack);
@@ -190,7 +192,7 @@ Hooks.once("ready", function() {
   Hooks.on("dnd5e.preRollHitDieV2", RollHooks.preRollHitDie);
   Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
-  Hooks.on("dnd5e.preCreateItemTemplate", RollHooks.preCreateItemTemplate);
+  Hooks.on("dnd5e.preCreateActivityTemplate", RollHooks.preCreateActivityTemplate);
   setupTree();
 
   Hooks.callAll("babonus.initializeRollHooks");

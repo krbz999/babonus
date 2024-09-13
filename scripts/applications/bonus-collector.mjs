@@ -9,23 +9,17 @@
  * - effects being unavailable
  */
 export class BonusCollector {
-  constructor(data) {
-    // Set up type.
-    this.type = data.type;
+  constructor({activity, item, actor, type}) {
+    this.activity = activity;
+    this.item = item;
+    this.actor = actor;
+    this.type = type;
 
-    // Set up item and actor.
-    if (data.object instanceof Item) {
-      this.item = data.object;
-      this.actor = data.object.actor;
-    } else {
-      this.actor = data.object;
-    }
+    console.warn(activity, item, actor, type);
 
     // Set up canvas elements.
     this.token = this.actor.token?.object ?? this.actor.getActiveTokens()[0];
-    if (this.token) {
-      this.tokenCenters = this.constructor._collectTokenCenters(this.token);
-    }
+    if (this.token) this.tokenCenters = this.constructor._collectTokenCenters(this.token);
 
     this.bonuses = this._collectBonuses();
   }
@@ -45,6 +39,14 @@ export class BonusCollector {
    * @type {Babonus[]}
    */
   bonuses = [];
+
+  /* -------------------------------------------------- */
+
+  /**
+   * The activity being used.
+   * @type {Activity|null}
+   */
+  activity = null;
 
   /* -------------------------------------------------- */
 

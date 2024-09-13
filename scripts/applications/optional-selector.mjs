@@ -8,6 +8,7 @@ export class OptionalSelector {
    */
   constructor(id) {
     const registered = registry.get(id);
+    this._id = id;
 
     /**
      * The optional bonuses.
@@ -89,7 +90,7 @@ export class OptionalSelector {
    * @type {HTMLElement}
    */
   get field() {
-    return this.dialog.element[0].querySelector("[name=bonus]");
+    return this.dialog.element[0]?.querySelector?.("[name=bonus]") ?? null;
   }
 
   /* -------------------------------------------------- */
@@ -185,9 +186,17 @@ export class OptionalSelector {
     if (!data.bonuses.length && !data.reminders.length) return;
     this.form.innerHTML = await renderTemplate(this.template, data);
     this.activateListeners(this.form);
-    const group = this.dialog.element[0].querySelector(".dialog-content > form");
-    group.append(this.form.firstElementChild);
-    this.dialog.setPosition({height: "auto"});
+
+    if (this.dialog.constructor.name === "DamageRollConfigurationDialog") {
+      const group = this.dialog.element.querySelector("fieldset[data-application-part=configuration]");
+      group.insertAdjacentElement("afterend", this.form.firstElementChild);
+    } else {
+      const group = this.dialog.element[0].querySelector(".dialog-content > form");
+      group.append(this.form.firstElementChild);
+      this.dialog.setPosition({height: "auto"});
+    }
+
+    registry.delete(this._id);
   }
 
   /* -------------------------------------------------- */
@@ -519,9 +528,9 @@ export class OptionalSelector {
   _appendToField(bab, target, bonus, apply = true) {
     if (apply) {
       const rollData = this._getRollData(bab);
+      const field = this.field;
 
-      // TODO: replace this in 3.3 with new form submission method.
-      if (bab.hasDamageType) {
+      if (bab.hasDamageType && field) {
         // Need 'DamageRoll' in case of dice with no '.number', and need
         // to replace roll data to be able to properly append the damage type.
         const roll = new CONFIG.Dice.DamageRoll(bonus, rollData, {type: bab.bonuses.damageType});
@@ -537,8 +546,28 @@ export class OptionalSelector {
         if (modifiers && !b._halted) modifiers.modifyParts(parts, rollData, {ignoreFirst: true});
       }
 
-      if (!this.field.value.trim()) this.field.value = parts[0];
-      else this.field.value = `${this.field.value.trim()} + ${parts[0]}`;
+      if (field) {
+        // Old dialog
+        if (!this.field.value.trim()) this.field.value = parts[0];
+        else this.field.value = `${this.field.value.trim()} + ${parts[0]}`;
+      } else {
+        const existing = this.dialog.config.rolls.find(roll => {
+          return !bab.hasDamageType || (roll.options.type === bab.bonuses.damageType);
+        });
+        if (existing) existing.parts.push(bonus);
+        else {
+          this.dialog.config.rolls.push({
+            data: rollData,
+            options: {
+              properties: [],
+              type: bab.bonuses.damageType,
+              types: [bab.bonuses.damageType]
+            },
+            parts: [bonus]
+          });
+        }
+        this.dialog.rebuild();
+      }
     }
     target.closest(".optional").classList.toggle("active", true);
   }
