@@ -276,22 +276,21 @@ Hooks.call("babonus.applyOptionalBonus", babonus, roller, target, config);
 /**
  * A hook that is called before the collection of bonuses has been filtered.
  * @param {Collection<Babonus>} bonuses     The collection of bonuses, before filtering.
- * @param {Actor5e|Item5e} object           The actor or item performing the roll.
- * @param {object} [details]                Additional data passed along to perform the filtering.
- * @param {string} hookType                 The type of hook being executed ('attack',
- *                                          'damage', 'save', 'throw', 'test', 'hitdie').
+ * @param {SubjectConfig} subjects          Subject config.
+ * @param {object} [details={}]             Additional data passed along to perform the filtering.
+ * @param {string} hookType                 The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
  */
-Hooks.callAll("babonus.preFilterBonuses", bonuses, object, details, hookType);
+Hooks.callAll("babonus.preFilterBonuses", bonuses, subjects, details, hookType);
 ```
 
 ```js
 /**
  * A hook that is called after the collection of bonuses has been filtered.
  * @param {Collection<Babonus>} bonuses     The array of bonuses, after filtering.
- * @param {Actor5e|Item5e} object           The actor or item performing the roll.
+ * @param {SubjectConfig} subjects          Subject config.
  * @param {object} [details]                Additional data passed along to perform the filtering.
- * @param {string} hookType                 The type of hook being executed ('attack',
- *                                          'damage', 'save', 'throw', 'test', 'hitdie').
+ * @param {string} hookType                 The type of hook being executed ('attack', 'damage',
+ *                                          'save', 'throw', 'test', 'hitdie').
  */
-Hooks.callAll("babonus.filterBonuses", bonuses, object, details, hookType);
+Hooks.callAll("babonus.filterBonuses", bonuses, subjects, details, hookType);
 ````
