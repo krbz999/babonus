@@ -111,7 +111,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   });
 
   const body = html.querySelector(".tab-body");
-  if (!body) return;
+  if (!body || body.querySelector(":scope > .tab.babonus")) return;
 
   body.appendChild(div.firstElementChild);
   html.querySelectorAll("button.create-child").forEach(button => {
