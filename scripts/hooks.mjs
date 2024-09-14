@@ -6,7 +6,7 @@ import {
   HeaderButtonItem,
   injectRegionConfigElement
 } from "./applications/header-button.mjs";
-import * as filterings from "./applications/filter-manager.mjs";
+import * as filterings from "./applications/filterings.mjs";
 import {OptionalSelector} from "./applications/optional-selector.mjs";
 import {RollHooks, registry} from "./applications/roll-hooks.mjs";
 import api from "./api.mjs";

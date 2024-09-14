@@ -1,5 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import * as filterings from "./filter-manager.mjs";
+import * as filterings from "./filterings.mjs";
 
 /**
  * Utility extension of Map to keep track of rolls and bonuses that apply to them.
