@@ -15,8 +15,6 @@ export class BonusCollector {
     this.actor = actor;
     this.type = type;
 
-    console.warn(activity, item, actor, type);
-
     // Set up canvas elements.
     this.token = this.actor.token?.object ?? this.actor.getActiveTokens()[0];
     if (this.token) this.tokenCenters = this.constructor._collectTokenCenters(this.token);
