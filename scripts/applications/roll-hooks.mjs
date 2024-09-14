@@ -1,5 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {FilterManager} from "./filter-manager.mjs";
+import * as filterings from "./filter-manager.mjs";
 
 /**
  * Utility extension of Map to keep track of rolls and bonuses that apply to them.
@@ -46,7 +46,7 @@ export class RollHooks {
     };
 
     // Get bonuses:
-    const bonuses = FilterManager.itemCheck(subjects, "save", {spellLevel: activity.item.system.level});
+    const bonuses = filterings.itemCheck(subjects, "save", {spellLevel: activity.item.system.level});
     if (!bonuses.size) return;
     // const id = registry.register(bonuses); // TODO: useless
 
@@ -74,7 +74,7 @@ export class RollHooks {
     const subjects = {activity: config.subject, item: item, actor: item.actor};
     // get bonuses:
     const spellLevel = config.rolls[0].data.scaling.value;
-    const bonuses = FilterManager.itemCheck(subjects, "attack", {spellLevel});
+    const bonuses = filterings.itemCheck(subjects, "attack", {spellLevel});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
 
@@ -135,7 +135,7 @@ export class RollHooks {
       item: item,
       actor: item.actor
     };
-    const bonuses = FilterManager.itemCheck(subjects, "damage", {spellLevel});
+    const bonuses = filterings.itemCheck(subjects, "damage", {spellLevel});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
 
@@ -190,7 +190,7 @@ export class RollHooks {
    */
   static preRollSave(actor, rollConfig, {ability, isDeath, isConcentration} = {}) {
     // get bonus:
-    const bonuses = FilterManager.throwCheck({actor}, {ability, isDeath, isConcentration});
+    const bonuses = filterings.throwCheck({actor}, {ability, isDeath, isConcentration});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -264,7 +264,7 @@ export class RollHooks {
    * @param {string} abilityId      The key for the ability being used.
    */
   static preRollAbilityTest(actor, rollConfig, abilityId) {
-    const bonuses = FilterManager.testCheck({actor}, abilityId);
+    const bonuses = filterings.testCheck({actor}, abilityId);
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -288,7 +288,7 @@ export class RollHooks {
    */
   static preRollSkill(actor, rollConfig, skillId) {
     const abilityId = actor.system.skills[skillId].ability;
-    const bonuses = FilterManager.testCheck({actor}, abilityId, {skillId});
+    const bonuses = filterings.testCheck({actor}, abilityId, {skillId});
     if (!bonuses.size) return;
     RollHooks._addTargetData(rollConfig);
 
@@ -316,7 +316,7 @@ export class RollHooks {
       item: config.item
     };
     const abilityId = config.ability || config.data.defaultAbility;
-    const bonuses = FilterManager.testCheck(subjects, abilityId, {toolId});
+    const bonuses = filterings.testCheck(subjects, abilityId, {toolId});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
 
@@ -339,7 +339,7 @@ export class RollHooks {
    */
   static preRollHitDie(config, dialog, message) {
     const actor = config.subject;
-    const bonuses = FilterManager.hitDieCheck({actor});
+    const bonuses = filterings.hitDieCheck({actor});
     if (!bonuses.size) return;
     RollHooks._addTargetData(config);
 

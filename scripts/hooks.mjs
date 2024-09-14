@@ -6,7 +6,7 @@ import {
   HeaderButtonItem,
   injectRegionConfigElement
 } from "./applications/header-button.mjs";
-import {FilterManager} from "./applications/filter-manager.mjs";
+import * as filterings from "./applications/filter-manager.mjs";
 import {OptionalSelector} from "./applications/optional-selector.mjs";
 import {RollHooks, registry} from "./applications/roll-hooks.mjs";
 import api from "./api.mjs";
@@ -29,10 +29,7 @@ globalThis.babonus = {
     TYPES: Object.keys(models),
     applications: applications
   },
-  filters: Object.keys(filters).reduce((acc, k) => {
-    acc[k] = FilterManager[k];
-    return acc;
-  }, {})
+  filters: {...filterings.filters}
 };
 
 /* -------------------------------------------------- */
