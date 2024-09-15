@@ -1,20 +1,14 @@
 import {MODULE, SETTINGS} from "./constants.mjs";
-import {
-  HeaderButtonActor,
-  HeaderButtonDialog,
-  HeaderButtonEffect,
-  HeaderButtonItem,
-  injectRegionConfigElement
-} from "./applications/header-button.mjs";
-import * as filterings from "./applications/filterings.mjs";
 import {OptionalSelector} from "./applications/optional-selector.mjs";
 import {RollHooks, registry} from "./applications/roll-hooks.mjs";
+import * as filterings from "./applications/filterings.mjs";
 import api from "./api.mjs";
 import applications from "./applications/_module.mjs";
 import characterSheetTabSetup from "./applications/character-sheet-tab.mjs";
 import enricherSetup from "./applications/enrichers.mjs";
 import fields from "./models/_module.mjs";
 import filters from "./filters/_module.mjs";
+import injections from "./applications/injections.mjs";
 import models from "./models/babonus-model.mjs";
 
 // Setup API object.
@@ -168,13 +162,13 @@ Hooks.on("hotbarDrop", _onHotbarDrop);
 Hooks.once("setup", () => characterSheetTabSetup());
 
 // Any application injections.
-Hooks.on("getActiveEffectConfigHeaderButtons", (...T) => HeaderButtonEffect.inject(...T));
-Hooks.on("getActorSheetHeaderButtons", (...T) => HeaderButtonActor.inject(...T));
-Hooks.on("getDialogHeaderButtons", (...T) => HeaderButtonDialog.inject(...T));
-Hooks.on("getItemSheetHeaderButtons", (...T) => HeaderButtonItem.inject(...T));
+Hooks.on("getActiveEffectConfigHeaderButtons", (...T) => injections.HeaderButton.inject(...T));
+Hooks.on("getActorSheetHeaderButtons", (...T) => injections.HeaderButton.inject(...T));
+Hooks.on("getDialogHeaderButtons", (...T) => injections.HeaderButtonDialog.inject(...T));
+Hooks.on("getItemSheetHeaderButtons", (...T) => injections.HeaderButton.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
 Hooks.on("renderDamageRollConfigurationDialog", _renderDialog);
-Hooks.on("renderRegionConfig", injectRegionConfigElement);
+Hooks.on("renderRegionConfig", injections.injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
 Hooks.once("ready", function() {
