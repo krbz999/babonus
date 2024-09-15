@@ -2,7 +2,7 @@ import {MODULE} from "../constants.mjs";
 
 const {BooleanField, StringField, SchemaField, NumberField} = foundry.data.fields;
 
-export class ConsumptionModel extends foundry.abstract.DataModel {
+export default class ConsumptionModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {

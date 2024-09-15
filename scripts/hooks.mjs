@@ -4,10 +4,9 @@ import api from "./api.mjs";
 import applications from "./applications/_module.mjs";
 import characterSheetTabSetup from "./applications/character-sheet-tab.mjs";
 import enricherSetup from "./applications/enrichers.mjs";
-import fields from "./models/_module.mjs";
-import filters from "./filters/_module.mjs";
+import fields from "./fields/_module.mjs";
 import injections from "./applications/injections.mjs";
-import models from "./models/babonus-model.mjs";
+import models from "./models/_module.mjs";
 import mutators from "./mutators.mjs";
 import OptionalSelector from "./applications/optional-selector.mjs";
 import registry from "./registry.mjs";
@@ -16,12 +15,12 @@ import registry from "./registry.mjs";
 globalThis.babonus = {
   ...api,
   abstract: {
-    DataModels: models,
+    DataModels: models.Babonus,
     DataFields: {
-      filters: filters,
-      models: fields
+      fields: fields,
+      models: models
     },
-    TYPES: Object.keys(models),
+    TYPES: Object.keys(models.Babonus),
     applications: applications
   },
   filters: {...filterings.filters}

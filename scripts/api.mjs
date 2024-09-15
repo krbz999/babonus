@@ -184,7 +184,7 @@ async function embedBabonus(object, bonus, options = {}) {
 async function _embedBabonus(object, bonus) {
   const data = bonus.toObject();
   for (const id of Object.keys(data.filters)) {
-    if (!babonus.abstract.DataFields.filters[id].storage(bonus)) delete data.filters[id];
+    if (!babonus.abstract.DataFields.fields[id].storage(bonus)) delete data.filters[id];
   }
   data.id = foundry.utils.randomID();
   let collection = babonus.getCollection(object);
