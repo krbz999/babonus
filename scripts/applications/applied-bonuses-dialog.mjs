@@ -1,5 +1,5 @@
 import {MODULE} from "../constants.mjs";
-import {registry} from "./roll-hooks.mjs";
+import {registry} from "../mutators.mjs";
 
 export class AppliedBonusesDialog extends Dialog {
   constructor(options) {

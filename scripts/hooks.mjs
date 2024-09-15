@@ -1,6 +1,5 @@
 import {MODULE, SETTINGS} from "./constants.mjs";
-import {OptionalSelector} from "./applications/optional-selector.mjs";
-import {RollHooks, registry} from "./applications/roll-hooks.mjs";
+import {registry} from "./mutators.mjs";
 import * as filterings from "./applications/filterings.mjs";
 import api from "./api.mjs";
 import applications from "./applications/_module.mjs";
@@ -10,6 +9,8 @@ import fields from "./models/_module.mjs";
 import filters from "./filters/_module.mjs";
 import injections from "./applications/injections.mjs";
 import models from "./models/babonus-model.mjs";
+import mutators from "./mutators.mjs";
+import OptionalSelector from "./applications/optional-selector.mjs";
 
 // Setup API object.
 globalThis.babonus = {
@@ -174,16 +175,16 @@ Hooks.on("renderRegionConfig", injections.injectRegionConfigElement);
 Hooks.once("ready", function() {
   Hooks.callAll("babonus.preInitializeRollHooks");
 
-  Hooks.on("dnd5e.preUseActivity", RollHooks.preUseActivity);
-  Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
-  Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
-  Hooks.on("dnd5e.preRollAttackV2", RollHooks.preRollAttack);
-  Hooks.on("dnd5e.preRollDamageV2", RollHooks.preRollDamage);
-  Hooks.on("dnd5e.preRollDeathSave", RollHooks.preRollDeathSave);
-  Hooks.on("dnd5e.preRollHitDieV2", RollHooks.preRollHitDie);
-  Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
-  Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
-  Hooks.on("dnd5e.preCreateActivityTemplate", RollHooks.preCreateActivityTemplate);
+  Hooks.on("dnd5e.preUseActivity", mutators.preUseActivity);
+  Hooks.on("dnd5e.preRollAbilitySave", mutators.preRollAbilitySave);
+  Hooks.on("dnd5e.preRollAbilityTest", mutators.preRollAbilityTest);
+  Hooks.on("dnd5e.preRollAttackV2", mutators.preRollAttack);
+  Hooks.on("dnd5e.preRollDamageV2", mutators.preRollDamage);
+  Hooks.on("dnd5e.preRollDeathSave", mutators.preRollDeathSave);
+  Hooks.on("dnd5e.preRollHitDieV2", mutators.preRollHitDie);
+  Hooks.on("dnd5e.preRollSkill", mutators.preRollSkill);
+  Hooks.on("dnd5e.preRollToolCheck", mutators.preRollToolCheck);
+  Hooks.on("dnd5e.preCreateActivityTemplate", mutators.preCreateActivityTemplate);
   setupTree();
 
   Hooks.callAll("babonus.initializeRollHooks");

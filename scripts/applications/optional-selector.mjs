@@ -1,7 +1,7 @@
 import {MODULE} from "../constants.mjs";
-import {registry} from "./roll-hooks.mjs";
+import {registry} from "../mutators.mjs";
 
-export class OptionalSelector {
+export default class OptionalSelector {
   /**
    * @constructor
    * @param {string} id     Id for the registry.

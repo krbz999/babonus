@@ -8,7 +8,7 @@
  * - item attunement/equipped state (isSuppressed)
  * - effects being unavailable
  */
-export class BonusCollector {
+export default class BonusCollector {
   constructor({activity, item, actor, type}) {
     this.activity = activity;
     this.item = item;

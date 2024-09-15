@@ -2,7 +2,7 @@ import {MODULE} from "../constants.mjs";
 
 const {HandlebarsApplicationMixin, DocumentSheetV2} = foundry.applications.api;
 
-export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
+export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   /**
    * @param {Babonus} bonus        The babonus managed by this sheet.
    * @param {object} [options]     Optional configuration parameters for how the sheet behaves.

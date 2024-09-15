@@ -1,6 +1,6 @@
 import {MODULE} from "../constants.mjs";
 
-export class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application) {
+export default class BabonusWorkshop extends dnd5e.applications.DialogMixin(Application) {
   constructor(object, options) {
     super(object, options);
     this.object = object;

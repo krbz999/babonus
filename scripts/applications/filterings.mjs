@@ -1,5 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {BonusCollector} from "./bonus-collector.mjs";
+import BonusCollector from "./bonus-collector.mjs";
 
 /**
  * @typedef {object} SubjectConfig
