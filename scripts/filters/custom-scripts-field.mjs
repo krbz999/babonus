@@ -1,8 +1,8 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {JavaScriptField, StringField} = foundry.data.fields;
 
-export class CustomScriptsField extends FilterMixin(JavaScriptField) {
+export default class CustomScriptsField extends FilterMixin(JavaScriptField) {
   static name = "customScripts";
 
   /** @override */

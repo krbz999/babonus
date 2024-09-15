@@ -1,9 +1,9 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, StringField, ArrayField} = foundry.data.fields;
 
 // ArrayField that filters invalid comparison fields.
-export class ArbitraryComparisonField extends FilterMixin(ArrayField) {
+export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
   static name = "arbitraryComparisons";
   static repeatable = true;
 

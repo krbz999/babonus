@@ -1,4 +1,4 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SetField, StringField} = foundry.data.fields;
 

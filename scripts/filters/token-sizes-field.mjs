@@ -1,9 +1,8 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
 
-// SchemaField that requires a value in all fields.
-export class TokenSizesField extends FilterMixin(SchemaField) {
+export default class TokenSizesField extends FilterMixin(SchemaField) {
   static name = "tokenSizes";
 
   constructor(fields = {}, options = {}) {

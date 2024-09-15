@@ -1,8 +1,8 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
 
-export class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
+export default class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
   static name = "remainingSpellSlots";
 
   constructor(fields = {}, options = {}) {

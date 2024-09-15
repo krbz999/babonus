@@ -1,8 +1,8 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, StringField} = foundry.data.fields;
 
-export class FeatureTypesField extends FilterMixin(SchemaField) {
+export default class FeatureTypesField extends FilterMixin(SchemaField) {
   static name = "featureTypes";
 
   constructor(fields = {}, options = {}) {

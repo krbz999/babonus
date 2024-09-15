@@ -4,7 +4,7 @@
  * @returns {Class}
  * @mixin
  */
-export function FilterMixin(Base) {
+export default function FilterMixin(Base) {
   return class BaseFilter extends Base {
     // The name of this filter.
     static name = null;
