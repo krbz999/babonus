@@ -1,5 +1,6 @@
 import {MODULE, SETTINGS} from "./constants.mjs";
 import * as filterings from "./applications/filterings.mjs";
+import registry from "./registry.mjs";
 
 /**
  * @typedef {object} SavingThrowDetails
@@ -7,32 +8,6 @@ import * as filterings from "./applications/filterings.mjs";
  * @property {boolean} [isConcentration]      Whether this saving throw is to maintain concentration.
  * @property {boolean} [isDeath]              Whether this is a death saving throw.
  */
-
-/* -------------------------------------------------- */
-
-/**
- * Utility extension of Map to keep track of rolls and bonuses that apply to them.
- */
-class RollRegister extends Map {
-  /**
-   * Register an object of data with a generated id.
-   * @param {object} config     The data to store.
-   * @returns {string}          Randomly generated id to later retrieve the stored data.
-   */
-  register(config) {
-    const id = foundry.utils.randomID();
-    this.set(id, config);
-    return id;
-  }
-}
-
-/* -------------------------------------------------- */
-
-/**
- * The registry of rolls being made.
- * @type {RollRegister}
- */
-export const registry = new RollRegister();
 
 /* -------------------------------------------------- */
 /*   Mutators                                         */

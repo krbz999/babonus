@@ -1,5 +1,5 @@
 import {MODULE} from "../constants.mjs";
-import {registry} from "../mutators.mjs";
+import registry from "../registry.mjs";
 
 export default class OptionalSelector {
   /**
@@ -8,7 +8,7 @@ export default class OptionalSelector {
    */
   constructor(id) {
     const registered = registry.get(id);
-    this._id = id;
+    this.#id = id;
 
     /**
      * The optional bonuses.
@@ -75,6 +75,14 @@ export default class OptionalSelector {
      */
     this.dialog = registered.dialog;
   }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * The id used to register data for this optional selector.
+   * @type {string}
+   */
+  #id = null;
 
   /* -------------------------------------------------- */
 
@@ -196,7 +204,7 @@ export default class OptionalSelector {
       this.dialog.setPosition({height: "auto"});
     }
 
-    registry.delete(this._id);
+    registry.delete(this.#id);
   }
 
   /* -------------------------------------------------- */

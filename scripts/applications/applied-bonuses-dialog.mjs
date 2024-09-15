@@ -1,5 +1,5 @@
 import {MODULE} from "../constants.mjs";
-import {registry} from "../mutators.mjs";
+import registry from "../registry.mjs";
 
 export class AppliedBonusesDialog extends Dialog {
   constructor(options) {

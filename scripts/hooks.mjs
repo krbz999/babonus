@@ -1,5 +1,4 @@
 import {MODULE, SETTINGS} from "./constants.mjs";
-import {registry} from "./mutators.mjs";
 import * as filterings from "./applications/filterings.mjs";
 import api from "./api.mjs";
 import applications from "./applications/_module.mjs";
@@ -11,6 +10,7 @@ import injections from "./applications/injections.mjs";
 import models from "./models/babonus-model.mjs";
 import mutators from "./mutators.mjs";
 import OptionalSelector from "./applications/optional-selector.mjs";
+import registry from "./registry.mjs";
 
 // Setup API object.
 globalThis.babonus = {
