@@ -1,5 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
-import {AppliedBonusesDialog} from "./applied-bonuses-dialog.mjs";
+import AppliedBonusesDialog from "./applied-bonuses-dialog.mjs";
 
 /**
  * Utility class for injecting header buttons onto actor, item, and effect sheets.
