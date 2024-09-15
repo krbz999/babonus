@@ -2,16 +2,22 @@
 <section class="table">
   <header>
     <h3 class="value">{{localize "BABONUS.KeysDialogValue"}}</h3>
-    <h3 class="state"><a data-action="cycleAll">{{localize "BABONUS.KeysDialogState"}}</a></h3>
+    <h3 class="state">
+      <a data-action="cycleAll">{{localize "BABONUS.KeysDialogState"}}</a>
+    </h3>
   </header>
   <div class="body scrollable">
     {{#each values}}
     <div class="row {{#if isCategory}} category {{/if}}">
       <div class="value">
-        <a data-action="cycle">{{#if icon}}<img src="{{icon}}">{{/if}}{{label}}</a>
+        <a data-action="cycle">
+          {{#if icon}}<img src="{{icon}}" alt="">{{/if}}{{label}}
+        </a>
       </div>
       <div class="select">
-        <a data-action="cycleLeft"><i class="fa-solid fa-arrow-left"></i></a>
+        <a data-action="cycleLeft">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
         <select data-value="{{value}}">
           <option value="none">&mdash;</option>
           <option value="include" {{#if include}}selected{{/if}}>{{localize "BABONUS.KeysDialogInclude"}}</option>
@@ -19,7 +25,9 @@
           <option value="exclude" {{#if exclude}}selected{{/if}}>{{localize "BABONUS.KeysDialogExclude"}}</option>
           {{/if}}
         </select>
-        <a data-action="cycleRight"><i class="fa-solid fa-arrow-right"></i></a>
+        <a data-action="cycleRight">
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
       </div>
     </div>
     {{/each}}
