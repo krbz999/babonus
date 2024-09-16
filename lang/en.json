@@ -205,7 +205,7 @@
       "ValueLabel": "Threshold"
     },
     "Identifiers": {
-      "Hint": "Enter identifiers that an item must have for the bonus to apply. You can set an item's identifier in its source config.",
+      "Hint": "Filter by the identifiers that an item must have one of for the bonus to apply. You can set an item's identifier in its source config.",
       "Label": "Identifiers",
       "Placeholder": "Enter identifiers"
     },
@@ -235,6 +235,11 @@
     "SkillIds": {
       "Hint": "Filter by the types of skills the roll being performed must be one of or none of. For example if the bonus should apply only to skill checks made with Athletics, Nature, or Survival.",
       "Label": "Skills"
+    },
+    "SourceClasses": {
+      "Hint": "Filter by the identifiers of the classes that a spell should belong to. A source class identifier can be set in the spell on the Details tab.",
+      "Label": "Source Classes",
+      "Placeholder": "Enter identifiers"
     },
     "SpellComponents": {
       "Hint": "Filter by the components or tags the spell being cast must have. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration or all spells with a material component.",

@@ -256,6 +256,7 @@ export const filters = {
   remainingSpellSlots,
   saveAbilities,
   skillIds,
+  sourceClasses,
   spellComponents,
   spellLevels,
   spellSchools,
@@ -337,6 +338,20 @@ function baseArmors({actor}, filter) {
   if (included.size && !included.intersects(types)) return false;
   if (excluded.size && excluded.intersects(types)) return false;
   return true;
+}
+
+/* -------------------------------------------------- */
+
+/**
+ * Does this spell belong to a specific class?
+ * @param {SubjectConfig} subjects        Subject config.
+ * @param {object} filter                 The filter data.
+ * @param {Set<string>} filter.values     The set of class identifiers.
+ * @returns {boolean}                     Whether the source class of the spell is valid.
+ */
+function sourceClasses(subjects, filter) {
+  if (subjects.item.type !== "spell") return false;
+  return !filter.values.size || filter.values.has(subjects.item.system.sourceClass);
 }
 
 /* -------------------------------------------------- */

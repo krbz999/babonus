@@ -6,17 +6,19 @@ import HealthPercentagesField from "./health-percentages-field.mjs";
 import IdentifiersField from "./identifiers-field.mjs";
 import RemainingSpellSlotsField from "./remaining-spell-slots-field.mjs";
 import semicolonFields from "./semicolon-fields.mjs";
+import SourceClassesField from "./source-classes-field.mjs";
 import TokenSizesField from "./token-sizes-field.mjs";
 
 export default Object.values({
-  ArbitraryComparisonField,
   ...checkboxFields,
+  ...semicolonFields,
+  ArbitraryComparisonField,
   CustomScriptsField,
   FeatureTypesField,
   HealthPercentagesField,
   IdentifiersField,
   RemainingSpellSlotsField,
-  ...semicolonFields,
+  SourceClassesField,
   TokenSizesField
 }).reduce((acc, field) => {
   acc[field.name] = field;

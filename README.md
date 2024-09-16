@@ -75,11 +75,13 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Damage Types.</em></strong> Filter the bonus to only apply if the item used to perform the roll has a damage formula with any of the included damage types while having none of the excluded damage types.</p>
 <p><strong><em>Feature Types.</em></strong> Filter the bonus to only apply if the item used to perform the attack or damage roll (or prompt for a saving throw) is a feature-type item of a specific type, and optionally also a specific subtype.</p>
 <p><strong><em>Health Percentages.</em></strong> A percentage value and whether the actor must have at least or at most this amount of remaining hit points for the bonus to apply.</p>
+<p><strong><em>Identifiers.</em></strong> Filter by the identifiers that an item must have one of for the bonus to apply. You can set an item's identifier in its source config.</p>
 <p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells.</p>
 <p><strong><em>Proficiency Levels.</em></strong> The level of proficiency that the actor must have with the roll made. This is available for ability checks, saving throws, and attack rolls.</p>
 <p><strong><em>Save DC Ability.</em></strong> Filter the bonus such that it only applies if the DC is set using a specific ability. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.</p>
 <p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to (any ability score as well as death saving throws). If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
 <p><strong><em>Skills.</em></strong> The type of skill the roll must be for the bonus to apply. For example Athletics, Nature, or Survival.</p>
+<p><strong><em>Source Classes.</em></strong> Filter by the identifiers of the classes that a spell should belong to. A source class identifier can be set in the spell on the Details tab.</p>
 <p><strong><em>Spell Components.</em></strong> Filter the bonus to only apply if the item is a spell that has any one (or all) of the given components.</p>
 <p><strong><em>Spell Levels.</em></strong> Filter the bonus to only apply if the item is a spell and is or was cast at one of the given levels.</p>
 <p><strong><em>Spell Preparation Modes.</em></strong> Filter the bonus to only apply if the item is a spell and is set as one of a selected few preparation modes such as 'pact magic' or 'innate'.</p>
