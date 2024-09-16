@@ -795,6 +795,7 @@ class ItemBabonus extends Babonus {
       creatureTypes: new babonus.abstract.DataFields.fields.creatureTypes(),
       damageTypes: new babonus.abstract.DataFields.fields.damageTypes(),
       featureTypes: new babonus.abstract.DataFields.fields.featureTypes(),
+      identifiers: new babonus.abstract.DataFields.fields.identifiers(),
       itemTypes: new babonus.abstract.DataFields.fields.itemTypes(),
       preparationModes: new babonus.abstract.DataFields.fields.preparationModes(),
       spellComponents: new babonus.abstract.DataFields.fields.spellComponents(),

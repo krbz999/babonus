@@ -249,6 +249,7 @@ export const filters = {
   damageTypes,
   featureTypes,
   healthPercentages,
+  identifiers,
   itemTypes,
   preparationModes,
   proficiencyLevels,
@@ -265,6 +266,21 @@ export const filters = {
   tokenSizes,
   weaponProperties
 };
+
+/* -------------------------------------------------- */
+
+/**
+ * Find out if the item being used has the right identifier.
+ * @param {SubjectConfig} subjects        Subject config.
+ * @param {object} filter                 The filter data.
+ * @param {Set<string>} filter.values     The set of identifiers.
+ * @returns {boolean}                     Whether the identifier of the item is valid.
+ */
+function identifiers(subjects, filter) {
+  return !filter.values.size || filter.values.has(subjects.item.identifier);
+}
+
+/* -------------------------------------------------- */
 
 /**
  * Find out if the item's type is one of the valid ones in the filter.

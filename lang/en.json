@@ -204,6 +204,11 @@
       "TypeLabel": "Type",
       "ValueLabel": "Threshold"
     },
+    "Identifiers": {
+      "Hint": "Enter identifiers that an item must have for the bonus to apply. You can set an item's identifier in its source config.",
+      "Label": "Identifiers",
+      "Placeholder": "Enter identifiers"
+    },
     "ItemTypes": {
       "Hint": "Filter by the type of the item being used to perform the roll. For example if the bonus should only apply to spells or only to weapons.",
       "Label": "Item Types"

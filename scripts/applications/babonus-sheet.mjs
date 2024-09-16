@@ -409,10 +409,10 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
 
   /**
    * Prepare filters.
-   * @returns {string}
+   * @returns {string[]}
    */
   #prepareFilters() {
-    const div = document.createElement("DIV");
+    const htmls = [];
     const keys = [...this._filters].sort((a, b) => {
       a = game.i18n.localize(`BABONUS.Filters.${a.capitalize()}.Label`);
       b = game.i18n.localize(`BABONUS.Filters.${b.capitalize()}.Label`);
@@ -420,9 +420,12 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
     });
     for (const key of keys) {
       const filter = babonus.abstract.DataFields.fields[key];
-      if (filter) div.innerHTML += filter.render(this.bonus);
+      if (filter) {
+        const html = filter.render(this.bonus);
+        htmls.push(html);
+      }
     }
-    return div.innerHTML;
+    return htmls;
   }
 
   /* -------------------------------------------------- */
