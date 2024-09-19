@@ -3,7 +3,10 @@ import FilterMixin from "./filter-mixin.mjs";
 const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
 
 export default class TokenSizesField extends FilterMixin(SchemaField) {
+  /** @override */
   static name = "tokenSizes";
+
+  /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
     super({
@@ -29,6 +32,8 @@ export default class TokenSizesField extends FilterMixin(SchemaField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -66,6 +71,8 @@ export default class TokenSizesField extends FilterMixin(SchemaField) {
 
     return Handlebars.compile(template)(data);
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

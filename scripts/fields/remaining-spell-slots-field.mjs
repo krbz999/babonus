@@ -3,7 +3,10 @@ import FilterMixin from "./filter-mixin.mjs";
 const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
 
 export default class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
+  /** @override */
   static name = "remainingSpellSlots";
+
+  /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
     super({
@@ -28,6 +31,8 @@ export default class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -67,6 +72,8 @@ export default class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
 
     return Handlebars.compile(template)(data);
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

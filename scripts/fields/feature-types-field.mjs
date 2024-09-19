@@ -3,7 +3,10 @@ import FilterMixin from "./filter-mixin.mjs";
 const {SchemaField, StringField} = foundry.data.fields;
 
 export default class FeatureTypesField extends FilterMixin(SchemaField) {
+  /** @override */
   static name = "featureTypes";
+
+  /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
     super({
@@ -22,6 +25,8 @@ export default class FeatureTypesField extends FilterMixin(SchemaField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -61,6 +66,8 @@ export default class FeatureTypesField extends FilterMixin(SchemaField) {
 
     return Handlebars.compile(template)(data);
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

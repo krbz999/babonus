@@ -4,8 +4,15 @@ const {SchemaField, StringField, ArrayField} = foundry.data.fields;
 
 // ArrayField that filters invalid comparison fields.
 export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
+  /** @override */
   static name = "arbitraryComparisons";
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   static repeatable = true;
+
+  /* -------------------------------------------------- */
 
   /** @override */
   constructor(options = {}) {
@@ -33,6 +40,8 @@ export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -72,6 +81,8 @@ export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
 
     return data.comparisons.length ? Handlebars.compile(template)(data) : "";
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

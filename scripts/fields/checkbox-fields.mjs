@@ -23,6 +23,8 @@ class BaseField extends FilterMixin(SetField) {
     });
   }
 
+  /* -------------------------------------------------- */
+
   /** @override */
   _cleanType(value, source) {
     const choices = (this.element.choices instanceof Function) ? this.element.choices() : this.element.choices;
@@ -31,8 +33,13 @@ class BaseField extends FilterMixin(SetField) {
   }
 }
 
+/* -------------------------------------------------- */
+
 class ProficiencyLevelsField extends BaseField {
+  /** @override */
   static name = "proficiencyLevels";
+
+  /* -------------------------------------------------- */
 
   constructor() {
     super(new NumberField({
@@ -44,8 +51,13 @@ class ProficiencyLevelsField extends BaseField {
   }
 }
 
+/* -------------------------------------------------- */
+
 class ItemTypesField extends BaseField {
+  /** @override */
   static name = "itemTypes";
+
+  /* -------------------------------------------------- */
 
   constructor() {
     super(new StringField({
@@ -61,8 +73,13 @@ class ItemTypesField extends BaseField {
   }
 }
 
+/* -------------------------------------------------- */
+
 class SpellLevelsField extends BaseField {
+  /** @override */
   static name = "spellLevels";
+
+  /* -------------------------------------------------- */
 
   constructor() {
     super(new NumberField({
@@ -74,8 +91,13 @@ class SpellLevelsField extends BaseField {
   }
 }
 
+/* -------------------------------------------------- */
+
 class SpellComponentsField extends FilterMixin(SchemaField) {
+  /** @override */
   static name = "spellComponents";
+
+  /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
     super({
@@ -106,6 +128,8 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -140,15 +164,21 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
     });
   }
 
+  /* -------------------------------------------------- */
+
   /** @override */
   static storage(bonus) {
     return !!this.value(bonus).types?.filter(u => u).size;
   }
 }
 
+/* -------------------------------------------------- */
+
 class ActorCreatureSizesField extends BaseField {
   /** @override */
   static name = "actorCreatureSizes";
+
+  /* -------------------------------------------------- */
 
   constructor() {
     super(new StringField({
@@ -160,8 +190,13 @@ class ActorCreatureSizesField extends BaseField {
   }
 }
 
+/* -------------------------------------------------- */
+
 class PreparationModesField extends BaseField {
+  /** @override */
   static name = "preparationModes";
+
+  /* -------------------------------------------------- */
 
   constructor() {
     super(new StringField({
@@ -172,6 +207,8 @@ class PreparationModesField extends BaseField {
     });
   }
 }
+
+/* -------------------------------------------------- */
 
 export default {
   ActorCreatureSizesField,
