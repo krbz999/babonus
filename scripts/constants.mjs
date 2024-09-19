@@ -13,6 +13,9 @@ export const MODULE = {
     "hitdice"
   ])
 };
+
+/* -------------------------------------------------- */
+
 export const SETTINGS = {
   AURA: "showAuraRanges",
   LABEL: "headerLabel",
