@@ -8,6 +8,8 @@ import BonusCollector from "./bonus-collector.mjs";
  * @property {Actor5e} actor            The actor performing a roll or using an item.
  */
 
+/* -------------------------------------------------- */
+
 /**
  * @param {SubjectConfig} subjects      Subject config.
  * @param {string} type                 The type of roll.
@@ -68,14 +70,15 @@ export function testCheck(subjects, abilityId, {skillId, toolId} = {}) {
 
 /**
  * Initiate the collection and filtering of bonuses applying to attack rolls, damage rolls, and save DCs.
- * @param {SubjectConfig} subjects          Subject config.
- * @param {string} hookType                 The type of hook ('attack', 'damage', or 'save').
- * @param {object} [details]                Additional context for the filtering and checks.
- * @param {number} [details.spellLevel]     The level of the spell, if needed.
- * @returns {Collection<Babonus>}           The filtered Collection.
+ * @param {SubjectConfig} subjects                Subject config.
+ * @param {string} hookType                       The type of hook ('attack', 'damage', or 'save').
+ * @param {object} [details]                      Additional context for the filtering and checks.
+ * @param {number} [details.spellLevel]           The level of the spell, if needed.
+ * @param {Set<string>} [details.attackModes]     The available attack modes.
+ * @returns {Collection<Babonus>}                 The filtered Collection.
  */
-export function itemCheck(subjects, hookType, {spellLevel} = {}) {
-  return _check(subjects, hookType, {spellLevel});
+export function itemCheck(subjects, hookType, details = {}) {
+  return _check(subjects, hookType, details);
 }
 
 /* -------------------------------------------------- */
@@ -231,6 +234,22 @@ function _splitRaces(actor) {
 }
 
 /* -------------------------------------------------- */
+
+/**
+ * Return whether a set of values overlaps a non-empty set of required values,
+ * while also not overlapping a non-empty set of excluded values.
+ * @param {Set<*>} values       The current values.
+ * @param {Set<*>} included     Required values.
+ * @param {Set<*>} excluded     Excluded values.
+ * @returns {boolean}           Result of the test.
+ */
+function _testInclusion(values, included, excluded) {
+  if (included.size && !included.intersects(values)) return false;
+  if (excluded.size && excluded.intersects(values)) return false;
+  return true;
+}
+
+/* -------------------------------------------------- */
 /*   Filtering functions                              */
 /* -------------------------------------------------- */
 
@@ -240,7 +259,7 @@ export const filters = {
   actorCreatureTypes,
   actorLanguages,
   arbitraryComparisons,
-  attackTypes,
+  attackModes,
   baseArmors,
   baseTools,
   baseWeapons,
@@ -305,11 +324,8 @@ function baseWeapons({item}, filter) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
   if (item.type !== "weapon") return !included.size;
-
   const types = new Set([item.system.type.value, item.system.type.baseItem]);
-  if (included.size && !included.intersects(types)) return false;
-  if (excluded.size && excluded.intersects(types)) return false;
-  return true;
+  return _testInclusion(types, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -335,9 +351,7 @@ function baseArmors({actor}, filter) {
   // If no armor worn.
   if (!types.size) return !(included.size > 0);
 
-  if (included.size && !included.intersects(types)) return false;
-  if (excluded.size && excluded.intersects(types)) return false;
-  return true;
+  return _testInclusion(types, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -350,7 +364,7 @@ function baseArmors({actor}, filter) {
  * @returns {boolean}                     Whether the source class of the spell is valid.
  */
 function sourceClasses(subjects, filter) {
-  if (subjects.item.type !== "spell") return false;
+  if (subjects.item.type !== "spell") return true;
   return !filter.values.size || filter.values.has(subjects.item.system.sourceClass);
 }
 
@@ -381,9 +395,7 @@ function damageTypes({activity}, filter) {
   if (!filter.size) return true;
   const types = activity.damage.parts.reduce((acc, part) => acc.union(part.types), new Set());
   const {included, excluded} = _splitExlusion(filter);
-  if (included.size && !types.intersects(included)) return false;
-  if (excluded.size && types.intersects(excluded)) return false;
-  return true;
+  return _testInclusion(types, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -421,15 +433,15 @@ function abilities({activity, item, actor}, filter, {abilityId, toolId} = {}) {
   if (toolId) abi = abilityId;
 
   // Case 2: Attack/Damage rolls.
-  if (activity) abi = activity.ability;
+  else if (activity) abi = activity.ability;
 
   // Case 3: AbilityTest or Skill.
-  if (actor) abi = abilityId;
+  else if (actor) abi = abilityId;
+
+  if (!abi) return false;
 
   // Test the filters.
-  if (included.size && !included.has(abi)) return false;
-  if (excluded.size && excluded.has(abi)) return false;
-  return !!abi;
+  return _testInclusion(new Set([abi]), included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -476,15 +488,24 @@ function spellLevels({item}, filter, {spellLevel = null} = {}) {
 /* -------------------------------------------------- */
 
 /**
- * Find out if the item's action type is set to any of the required attack types.
- * TODO: Fix this in 4.1.
- * @param {SubjectConfig} subjects      Subject config.
- * @param {Set<string>} filter          The array of attack types.
- * @returns {boolean}                   Whether the item has any of the required attack types.
+ * For damage rolls only, filter by the attack classification and mode.
+ * @param {SubjectConfig} subjects                Subject config.
+ * @param {object} filter                         The array of attack types.
+ * @param {Set<string>} filter.value              The attack type (melee, ranged).
+ * @param {Set<string>} filter.classification     The attack classification (weapon, spell, unarmed).
+ * @param {Set<string>} filter.mode               The attack mode (offhand, one-handed, etc.).
+ * @param {object} [details]                      Additional details.
+ * @param {string} [details.attackMode]           The attack mode used if this damage roll comes after an attack.
+ * @returns {boolean}                             Whether the item has any of the required attack types.
  */
-function attackTypes({activity, item, actor}, filter) {
+function attackModes({activity, item, actor}, filter, details = {}) {
+  if (activity.type !== "attack") return false;
+  const {value, classification} = activity.attack.type;
+  if (filter.value.size && !filter.value.has(value)) return false;
+  if (filter.classification.size && !filter.classification.has(classification)) return false;
+  if (filter.mode.size && !filter.mode.has(details.attackMode)) return false;
+
   return true;
-  // return !filter.size || filter.has(item.system.actionType);
 }
 
 /* -------------------------------------------------- */
@@ -500,9 +521,7 @@ function weaponProperties({item}, filter) {
   const {included, excluded} = _splitExlusion(filter);
   if (item.type !== "weapon") return !included.size;
   const props = item.system.properties;
-  if (included.size && !included.intersects(props)) return false;
-  if (excluded.size && excluded.intersects(props)) return false;
-  return true;
+  return _testInclusion(props, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -528,9 +547,7 @@ function saveAbilities({activity, actor}, filter) {
     abl = activity.save.dc.calculation;
   }
 
-  if (included.size && !included.has(abl)) return false;
-  if (excluded.size && excluded.has(abl)) return false;
-  return true;
+  return _testInclusion(new Set([abl]), included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -599,9 +616,7 @@ function statusEffects({actor}, filter) {
     excluded.delete(k);
   }
 
-  if (included.size && !included.intersects(actor.statuses)) return false;
-  if (excluded.size && excluded.intersects(actor.statuses)) return false;
-  return true;
+  return _testInclusion(actor.statuses, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -626,9 +641,7 @@ function targetEffects(subjects, filter) {
     excluded.delete(k);
   }
 
-  if (included.size && !included.intersects(actor.statuses)) return false;
-  if (excluded.size && excluded.intersects(actor.statuses)) return false;
-  return true;
+  return _testInclusion(actor.statuses, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -669,9 +682,7 @@ function creatureTypes(subjects, filter) {
   // All the races the target is a member of.
   const races = _splitRaces(target.actor);
 
-  if (included.size && !included.intersects(races)) return false;
-  if (excluded.size && excluded.intersects(races)) return false;
-  return true;
+  return _testInclusion(races, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -692,9 +703,7 @@ function actorCreatureTypes({actor}, filter) {
   // All the races the rolling actor is a member of.
   const races = _splitRaces(actor);
 
-  if (included.length && !included.intersects(races)) return false;
-  if (excluded.length && excluded.intersects(races)) return false;
-  return true;
+  return _testInclusion(races, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -813,9 +822,7 @@ function baseTools(sujects, filter, {toolId}) {
   if (!toolId) return !included.size;
 
   const types = new Set(babonus.proficiencyTree(toolId, "tool"));
-  if (included.size && !included.intersects(types)) return false;
-  if (excluded.size && excluded.intersects(types)) return false;
-  return true;
+  return _testInclusion(types, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -832,9 +839,7 @@ function skillIds(subjects, filter, {skillId}) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
   if (!skillId) return !included.size;
-  if (included.size && !included.has(skillId)) return false;
-  if (excluded.size && excluded.has(skillId)) return false;
-  return true;
+  return _testInclusion(new Set([skillId]), included, excluded);
 }
 
 /* -------------------------------------------------- */

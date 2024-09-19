@@ -162,10 +162,6 @@
       "One": "Valor…",
       "Other": "Outro valor…"
     },
-    "AttackTypes": {
-      "Hint": "Filtre pelo tipo de jogada de ataque que o item deve ser capaz de realizar para que o bônus seja aplicado. Por exemplo, se você conjurar uma magia que deve envolver um ataque mágico à distância ou um ataque armado corpo a corpo.",
-      "Label": "Tipos de Ataque"
-    },
     "BaseArmors": {
       "Hint": "Filtre pelo tipo de armadura que o ator deve ou não usar (incluindo escudos). Por exemplo, se quiser que o bônus seja aplicado apenas ao usar Cota de Malha ou sem armadura. Este filtro também pode levar em consideração categorias de armaduras como 'Armadura Leve'.",
       "Label": "Tipos de Armadura"

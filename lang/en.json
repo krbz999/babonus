@@ -162,9 +162,12 @@
       "One": "Value…",
       "Other": "Other value…"
     },
-    "AttackTypes": {
-      "Hint": "Filter by the type of attack roll the item must be able to make for the bonus to apply. For example if you cast a spell that must involve a ranged spell attack or melee weapon attack.",
-      "Label": "Attack Types"
+    "AttackModes": {
+      "Hint": "Filter by the type of attack the item is performing, which decides the damage roll. For example, an unarmed strike, a two-handed weapon attack, or ranged spell attack.",
+      "Label": "Attack Modes",
+      "ValueLabel": "Range",
+      "ClassificationLabel": "Type",
+      "ModeLabel": "Mode"
     },
     "BaseArmors": {
       "Hint": "Filter by the type of armor the actor must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when wearing Chain Mail or while unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",

@@ -1,4 +1,5 @@
 import ArbitraryComparisonField from "./arbitrary-comparison-field.mjs";
+import AttackModesField from "./attack-modes-field.mjs";
 import checkboxFields from "./checkbox-fields.mjs";
 import CustomScriptsField from "./custom-scripts-field.mjs";
 import FeatureTypesField from "./feature-types-field.mjs";
@@ -13,6 +14,7 @@ export default Object.values({
   ...checkboxFields,
   ...semicolonFields,
   ArbitraryComparisonField,
+  AttackModesField,
   CustomScriptsField,
   FeatureTypesField,
   HealthPercentagesField,

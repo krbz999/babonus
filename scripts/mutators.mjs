@@ -111,15 +111,13 @@ function preRollAttack(config, dialog, message) {
 function preRollDamage(config, dialog, message) {
   const item = config.subject?.item;
   if (!item) return;
+
   // get bonus:
   const spellLevel = config.rolls[0].data.scaling.value;
+  const attackMode = config.attackMode ?? null;
 
-  const subjects = {
-    activity: config.subject,
-    item: item,
-    actor: item.actor
-  };
-  const bonuses = filterings.itemCheck(subjects, "damage", {spellLevel});
+  const subjects = {activity: config.subject, item: item, actor: item.actor};
+  const bonuses = filterings.itemCheck(subjects, "damage", {spellLevel, attackMode});
   if (!bonuses.size) return;
   _addTargetData(config);
 
@@ -128,7 +126,8 @@ function preRollDamage(config, dialog, message) {
     optionals: _getDamageParts(bonuses, config),
     spellLevel: spellLevel,
     bonuses: bonuses,
-    configurations: {config, dialog, message}
+    configurations: {config, dialog, message},
+    attackMode: attackMode
   });
 
   // Add parts.

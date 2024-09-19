@@ -61,22 +61,6 @@ class ItemTypesField extends BaseField {
   }
 }
 
-class AttackTypesField extends BaseField {
-  static name = "attackTypes";
-
-  constructor() {
-    super(new StringField({
-      choices: ["mwak", "rwak", "msak", "rsak"].reduce((acc, ak) => {
-        acc[ak] = CONFIG.DND5E.itemActionTypes[ak];
-        return acc;
-      }, {})
-    }), {
-      label: "BABONUS.Filters.AttackTypes.Label",
-      hint: "BABONUS.Filters.AttackTypes.Hint"
-    });
-  }
-}
-
 class SpellLevelsField extends BaseField {
   static name = "spellLevels";
 
@@ -190,11 +174,10 @@ class PreparationModesField extends BaseField {
 }
 
 export default {
-  ProficiencyLevelsField,
-  ItemTypesField,
-  AttackTypesField,
-  SpellLevelsField,
-  SpellComponentsField,
   ActorCreatureSizesField,
-  PreparationModesField
+  ItemTypesField,
+  PreparationModesField,
+  ProficiencyLevelsField,
+  SpellComponentsField,
+  SpellLevelsField
 };

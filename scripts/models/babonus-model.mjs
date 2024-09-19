@@ -790,7 +790,6 @@ class ItemBabonus extends Babonus {
     return {
       ...super._defineFilterSchema(),
       abilities: new babonus.abstract.DataFields.fields.abilities(),
-      attackTypes: new babonus.abstract.DataFields.fields.attackTypes(),
       baseWeapons: new babonus.abstract.DataFields.fields.baseWeapons(),
       creatureTypes: new babonus.abstract.DataFields.fields.creatureTypes(),
       damageTypes: new babonus.abstract.DataFields.fields.damageTypes(),
@@ -915,6 +914,15 @@ class DamageBabonus extends ItemBabonus {
       }),
       modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel, {})
     };
+  }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
+  static _defineFilterSchema() {
+    const schema = super._defineFilterSchema();
+    schema.attackModes = new babonus.abstract.DataFields.fields.attackModes();
+    return schema;
   }
 
   /* -------------------------------------------------- */
