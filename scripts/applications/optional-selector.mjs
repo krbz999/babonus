@@ -189,18 +189,23 @@ export default class OptionalSelector {
    * @returns {Promise}
    */
   async render() {
-    this.form = document.createElement("DIV");
+    const isV2 = !!this.dialog.element?.classList?.contains("dnd5e2");
+    this.form = document.createElement(isV2 ? "FIELDSET" : "DIV");
+
+    if (isV2) this.form.insertAdjacentHTML("beforeend", "<legend>Build-a-Bonus</legend>");
+    else this.form.classList.add("babonus", "optionals");
+
     const data = await this.getData();
     if (!data.bonuses.length && !data.reminders.length) return;
-    this.form.innerHTML = await renderTemplate(this.template, data);
+    this.form.insertAdjacentHTML("beforeend", await renderTemplate(this.template, data));
     this.activateListeners(this.form);
 
-    if (this.dialog.constructor.name === "DamageRollConfigurationDialog") {
+    if (isV2) {
       const group = this.dialog.element.querySelector("fieldset[data-application-part=configuration]");
-      group.insertAdjacentElement("afterend", this.form.firstElementChild);
+      group.insertAdjacentElement("afterend", this.form);
     } else {
       const group = this.dialog.element[0].querySelector(".dialog-content > form");
-      group.append(this.form.firstElementChild);
+      group.append(this.form);
       this.dialog.setPosition({height: "auto"});
     }
 
@@ -528,6 +533,7 @@ export default class OptionalSelector {
 
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
+   * On the new roll configuration dialog, simply append to a roll's parts rather than paste into the field.
    * @param {Babonus} bab             The Babonus.
    * @param {HTMLElement} target      The target of the initiating click event.
    * @param {string} bonus            The bonus to add.
@@ -559,21 +565,32 @@ export default class OptionalSelector {
         if (!this.field.value.trim()) this.field.value = parts[0];
         else this.field.value = `${this.field.value.trim()} + ${parts[0]}`;
       } else {
-        const existing = this.dialog.config.rolls.find(roll => {
-          return !bab.hasDamageType || (roll.options.type === bab.bonuses.damageType);
+        const roll = this.dialog.config.rolls.find(config => {
+          if (!bab.hasDamageType) return true;
+          return config.options.types.includes(bab.bonuses.damageType);
         });
-        if (existing) existing.parts.push(bonus);
-        else {
+
+        if (roll) {
+          roll.parts.push(bonus);
+        } else {
           this.dialog.config.rolls.push({
             data: rollData,
+            parts: [bonus],
             options: {
-              properties: [],
+              properties: [...this.dialog.config.rolls[0].options.properties ?? []],
               type: bab.bonuses.damageType,
               types: [bab.bonuses.damageType]
-            },
-            parts: [bonus]
+            }
           });
         }
+
+        // Add dice modifiers.
+        for (const {parts, data} of this.dialog.config.rolls) {
+          if (bab._halted) break;
+          const halted = bab.bonuses.modifiers.modifyParts(parts, data ?? rollData);
+          if (halted) bab._halted = true;
+        }
+
         this.dialog.rebuild();
       }
     }

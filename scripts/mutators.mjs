@@ -121,9 +121,10 @@ function preRollDamage(config, dialog, message) {
   if (!bonuses.size) return;
   _addTargetData(config);
 
+  const optionals = [];
   const id = registry.register({
     ...subjects,
-    optionals: _getDamageParts(bonuses, config),
+    optionals: optionals,
     spellLevel: spellLevel,
     bonuses: bonuses,
     configurations: {config, dialog, message},
@@ -134,29 +135,60 @@ function preRollDamage(config, dialog, message) {
   foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
 
   // Add to critical dice and critical damage.
-  config.critical ??= {};
+  const critical = config.critical ??= {};
+  critical.bonusDice ??= 0;
+  critical.bonusDamage ??= "";
 
-  // add to crit bonus dice:
-  config.critical.bonusDice = bonuses.reduce((acc, bab) => {
-    return acc + dnd5e.utils.simplifyBonus(bab.bonuses.criticalBonusDice, config.rolls[0].data);
-  }, config.critical.bonusDice ?? 0);
-  if (config.critical.bonusDice < 0) config.critical.bonusDice = 0;
-
-  // add to crit damage:
-  config.critical.bonusDamage = bonuses.reduce((acc, bab) => {
-    const bonus = bab.bonuses.criticalBonusDamage;
-    const valid = !!bonus && Roll.validate(bonus);
-    if (!valid) return acc;
-    return `${acc} + ${bonus}`;
-  }, config.critical.bonusDamage ?? "");
-
-  // Modify the parts if there are modifiers in the bab.
-  for (const bab of bonuses) {
-    for (const {parts, data} of config.rolls) {
-      if (bab._halted) break;
-      const halted = bab.bonuses.modifiers.modifyParts(parts, data ?? {});
-      if (halted) bab._halted = true;
+  for (const bonus of bonuses) {
+    if (bonus.isOptional) {
+      optionals.push(bonus);
+      continue;
     }
+
+    const rollData = config.rolls[0].data;
+    const {criticalBonusDamage: damage, criticalBonusDice: dice} = bonus.bonuses;
+
+    // Add to crit bonus dice.
+    if (dice) critical.bonusDice + dnd5e.utils.simplifyBonus(dice, rollData);
+
+    // Add to crit damage.
+    if (damage) critical.bonusDamage ? `${critical.bonusDamage} + ${damage}` : damage;
+
+    // Add damage parts.
+    if (bonus.bonuses.bonus) {
+      const roll = config.rolls.find(config => {
+        if (!bonus.hasDamageType) return true;
+        return config.options.types.includes(bonus.bonuses.damageType);
+      });
+
+      if (roll) {
+        roll.parts.push(bonus.bonuses.bonus);
+      } else {
+        config.rolls.push({
+          data: rollData,
+          parts: [bonus.bonuses.bonus],
+          options: {
+            properties: [...config.rolls[0].options.properties ?? []],
+            type: bonus.bonuses.damageType,
+            types: [bonus.bonuses.damageType]
+          }
+        });
+      }
+    }
+
+    // Add dice modifiers.
+    for (const {parts, data} of config.rolls) {
+      if (bonus._halted) break;
+      const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
+      if (halted) bonus._halted = true;
+    }
+  }
+
+  // Adjust values to fit within sensible bounds.
+  if (critical.bonusDice < 0) critical.bonusDice = 0;
+  if (critical.bonusDamage && !Roll.validate(critical.bonusDamage)) {
+    console.warn("Critical bonus damage resulted in invalid formula:", critical.bonusDamage);
+    critical.bonusDamage = "";
   }
 }
 
@@ -382,42 +414,6 @@ function preCreateActivityTemplate(activity, templateData) {
     bonuses: bonusData,
     templateDisposition: disp
   });
-}
-
-/* -------------------------------------------------- */
-
-/**
- * Gather optional bonuses and put non-optional bonuses into the roll config.
- * @param {Babonus[]} bonuses     An array of babonuses to apply.
- * @param {object} config         The roll config for this roll. **will be mutated**
- * @returns {string[]}            An array of optional bonuses to modify a roll.
- */
-function _getDamageParts(bonuses, config) {
-  const optionals = [];
-  for (const bab of bonuses) {
-    const bonus = bab.bonuses.bonus;
-    if (!bonus) continue;
-
-    if (bab.isOptional) {
-      optionals.push(bab);
-      continue;
-    }
-
-    let existing;
-    if (bab.hasDamageType) existing = config.rolls.find(config => config.options.types.includes(bab.bonuses.damageType));
-    else existing = config.rolls[0];
-
-    if (existing) existing.parts.push(bonus);
-    else config.rolls.push({
-      data: config.rolls[0].data,
-      options: {
-        type: bab.bonuses.damageType,
-        properties: [...config.rolls[0].options.properties ?? []]
-      },
-      parts: [bonus]
-    });
-  }
-  return optionals;
 }
 
 /* -------------------------------------------------- */

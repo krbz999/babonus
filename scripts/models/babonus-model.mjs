@@ -205,8 +205,8 @@ class Babonus extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get canRemind() {
-    const valid = ["attack", "damage", "throw", "test"].includes(this.type) && !this.hasBonuses;
-    return valid && this.optional && !this.bonuses.modifiers?.hasModifiers;
+    // TODO: Hit dice.
+    return ["attack", "damage", "throw", "test"].includes(this.type) && !this.hasBonuses && this.optional;
   }
 
   /* -------------------------------------------------- */
@@ -267,14 +267,22 @@ class Babonus extends foundry.abstract.DataModel {
 
   /**
    * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
-   * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog. The babonus must also
-   * apply an additive bonus on top, i.e., something that can normally go in the 'Situational Bonus' input.
-   * @TODO once hit die rolls have a dialog as well, this should be amended.
-   * @TODO once rolls can be "remade" in 4.1.0, optional bonuses should be able to apply to other properties as well.
+   * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog.
    * @type {boolean}
    */
   get isOptionable() {
-    return ["attack", "damage", "throw", "test"].includes(this.type) && !!this.bonuses.bonus;
+    switch (this.type) {
+      case "damage":
+        // TODO: hit dice.
+        return this.hasBonuses;
+      case "attack":
+      case "throw":
+      case "test":
+        // TODO: in 4.1, these will be able to be remade as well, allowing for dice modifiers to be optional.
+        return !!this.bonuses.bonus;
+      default:
+        return false;
+    }
   }
 
   /* -------------------------------------------------- */
