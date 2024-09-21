@@ -1,45 +1,35 @@
 import {MODULE, SETTINGS} from "./constants.mjs";
-import {
-  HeaderButtonActor,
-  HeaderButtonDialog,
-  HeaderButtonEffect,
-  HeaderButtonItem,
-  injectRegionConfigElement
-} from "./applications/header-button.mjs";
-import {FilterManager} from "./applications/filter-manager.mjs";
-import {OptionalSelector} from "./applications/optional-selector.mjs";
-import {RollHooks, registry} from "./applications/roll-hooks.mjs";
+import * as filterings from "./applications/filterings.mjs";
 import api from "./api.mjs";
 import applications from "./applications/_module.mjs";
 import characterSheetTabSetup from "./applications/character-sheet-tab.mjs";
 import enricherSetup from "./applications/enrichers.mjs";
-import fields from "./models/_module.mjs";
-import filters from "./filters/_module.mjs";
-import models from "./models/babonus-model.mjs";
+import fields from "./fields/_module.mjs";
+import injections from "./applications/injections.mjs";
+import models from "./models/_module.mjs";
+import mutators from "./mutators.mjs";
+import OptionalSelector from "./applications/optional-selector.mjs";
+import registry from "./registry.mjs";
 
 // Setup API object.
 globalThis.babonus = {
   ...api,
   abstract: {
-    DataModels: models,
+    DataModels: models.Babonus,
     DataFields: {
-      filters: filters,
-      models: fields
+      fields: fields,
+      models: models
     },
-    TYPES: Object.keys(models),
+    TYPES: Object.keys(models.Babonus),
     applications: applications
   },
-  filters: Object.keys(filters).reduce((acc, k) => {
-    acc[k] = FilterManager[k];
-    return acc;
-  }, {})
+  filters: {...filterings.filters}
 };
 
 /* -------------------------------------------------- */
 
 /**
  * Render the optional bonus selector on a roll dialog.
- * @TODO Await system PR that should allow for more data to be passed along, as well as the roll refactor.
  * @param {Dialog} dialog     The dialog being rendered.
  */
 async function _renderDialog(dialog) {
@@ -171,29 +161,33 @@ Hooks.on("hotbarDrop", _onHotbarDrop);
 Hooks.once("setup", () => characterSheetTabSetup());
 
 // Any application injections.
-Hooks.on("getActiveEffectConfigHeaderButtons", (...T) => HeaderButtonEffect.inject(...T));
-Hooks.on("getActorSheetHeaderButtons", (...T) => HeaderButtonActor.inject(...T));
-Hooks.on("getDialogHeaderButtons", (...T) => HeaderButtonDialog.inject(...T));
-Hooks.on("getItemSheetHeaderButtons", (...T) => HeaderButtonItem.inject(...T));
+Hooks.on("getActiveEffectConfigHeaderButtons", (...T) => injections.HeaderButton.inject(...T));
+Hooks.on("getActorSheetHeaderButtons", (...T) => injections.HeaderButton.inject(...T));
+Hooks.on("getDialogHeaderButtons", (...T) => injections.HeaderButtonDialog.inject(...T));
+Hooks.on("getItemSheetHeaderButtons", (...T) => injections.HeaderButton.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
-Hooks.on("renderDamageRollConfigurationDialog", _renderDialog);
-Hooks.on("renderRegionConfig", injectRegionConfigElement);
+Hooks.on("renderRollConfigurationDialog", _renderDialog);
+Hooks.on("renderRegionConfig", injections.injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.
 Hooks.once("ready", function() {
   Hooks.callAll("babonus.preInitializeRollHooks");
 
-  Hooks.on("dnd5e.preUseActivity", RollHooks.preUseActivity);
-  Hooks.on("dnd5e.preRollAbilitySave", RollHooks.preRollAbilitySave);
-  Hooks.on("dnd5e.preRollAbilityTest", RollHooks.preRollAbilityTest);
-  Hooks.on("dnd5e.preRollAttackV2", RollHooks.preRollAttack);
-  Hooks.on("dnd5e.preRollDamageV2", RollHooks.preRollDamage);
-  Hooks.on("dnd5e.preRollDeathSave", RollHooks.preRollDeathSave);
-  Hooks.on("dnd5e.preRollHitDieV2", RollHooks.preRollHitDie);
-  Hooks.on("dnd5e.preRollSkill", RollHooks.preRollSkill);
-  Hooks.on("dnd5e.preRollToolCheck", RollHooks.preRollToolCheck);
-  Hooks.on("dnd5e.preCreateActivityTemplate", RollHooks.preCreateActivityTemplate);
-  setupTree();
+  Hooks.on("dnd5e.preUseActivity", mutators.preUseActivity);
+  Hooks.on("dnd5e.preRollAbilitySave", mutators.preRollAbilitySave);
+  Hooks.on("dnd5e.preRollAbilityTest", mutators.preRollAbilityTest);
+  Hooks.on("dnd5e.preRollAttackV2", mutators.preRollAttack);
+  Hooks.on("dnd5e.preRollDamageV2", mutators.preRollDamage);
+  Hooks.on("dnd5e.preRollDeathSave", mutators.preRollDeathSave);
+  Hooks.on("dnd5e.preRollHitDieV2", mutators.preRollHitDie);
+  Hooks.on("dnd5e.preRollSkill", mutators.preRollSkill);
+  Hooks.on("dnd5e.preRollToolCheck", mutators.preRollToolCheck);
+  Hooks.on("dnd5e.preCreateActivityTemplate", mutators.preCreateActivityTemplate);
 
   Hooks.callAll("babonus.initializeRollHooks");
+});
+
+Hooks.once("init", function() {
+  const hook = game.modules.get("babele")?.active && (game.babele?.initialized === false) ? "babele.ready" : "ready";
+  Hooks.once(hook, () => setupTree());
 });

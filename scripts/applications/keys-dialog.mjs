@@ -1,6 +1,6 @@
 import {MODULE} from "../constants.mjs";
 
-export class KeysDialog extends foundry.applications.api.DialogV2 {
+export default class KeysDialog extends foundry.applications.api.DialogV2 {
   /** @override */
   static DEFAULT_OPTIONS = {
     classes: [MODULE.ID, "keys-dialog"],
@@ -14,10 +14,10 @@ export class KeysDialog extends foundry.applications.api.DialogV2 {
       width: 400
     },
     actions: {
+      cycle: this.#onCycleRight,
       cycleAll: this.#onCycleAll,
-      cycleRight: this.#onCycleRight,
       cycleLeft: this.#onCycleLeft,
-      cycle: this.#onCycleRight
+      cycleRight: this.#onCycleRight
     }
   };
 

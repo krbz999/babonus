@@ -1,7 +1,7 @@
 import {MODULE} from "../constants.mjs";
-import {registry} from "./roll-hooks.mjs";
+import registry from "../registry.mjs";
 
-export class AppliedBonusesDialog extends Dialog {
+export default class AppliedBonusesDialog extends Dialog {
   constructor(options) {
     super({}, options);
     this.dialog = options.dialog;

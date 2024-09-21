@@ -160,16 +160,18 @@ function getCollection(object) {
 
 /**
  * Embed a created babonus onto the target object.
- * @param {Document} object         The actor, item, effect, or region that should have the babonus.
- * @param {Babonus} bonus           The created babonus.
- * @param {object} [options]        Creation and return options.
- * @returns {Promise<Document>}     The actor, item, effect, or region that has received the babonus.
+ * @param {Document} object                   The actor, item, effect, or region that should have the babonus.
+ * @param {Babonus} bonus                     The created babonus.
+ * @param {object} [options]                  Creation and return options.
+ * @param {boolean} [options.renderSheet]     Render the sheet once created?
+ * @returns {Promise<Document>}               The actor, item, effect, or region that has received the babonus.
  */
-async function embedBabonus(object, bonus, options = {}) {
+async function embedBabonus(object, bonus, {renderSheet = true, ...options} = {}) {
   const validDocumentType = ["Actor", "Item", "ActiveEffect", "Region"].includes(object.documentName);
   if (!validDocumentType) throw new Error("The document provided is not a valid document type for Build-a-Bonus!");
   if (!Object.values(models).some(t => bonus instanceof t)) return null;
   const id = await _embedBabonus(object, bonus);
+  if (renderSheet) getCollection(object).get(id).sheet.render({force: true});
   return options.bonusId ? id : object;
 }
 
@@ -184,7 +186,7 @@ async function embedBabonus(object, bonus, options = {}) {
 async function _embedBabonus(object, bonus) {
   const data = bonus.toObject();
   for (const id of Object.keys(data.filters)) {
-    if (!babonus.abstract.DataFields.filters[id].storage(bonus)) delete data.filters[id];
+    if (!babonus.abstract.DataFields.fields[id].storage(bonus)) delete data.filters[id];
   }
   data.id = foundry.utils.randomID();
   let collection = babonus.getCollection(object);

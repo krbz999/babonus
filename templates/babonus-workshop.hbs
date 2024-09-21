@@ -39,11 +39,21 @@
             <i class="{{bonus.icon}}" data-tooltip="{{context.typeTooltip}}"></i> {{bonus.name}}
           </a>
           <div class="functions">
-            <a data-action="current-toggle"><i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i></a>
-            <a data-action="current-copy"><i class="fa-solid fa-copy"></i></a>
-            <a data-action="current-edit"><i class="fa-solid fa-edit"></i></a>
-            <a data-action="current-delete"><i class="fa-solid fa-trash"></i></a>
-            <a data-action="current-id"><i class="fa-solid fa-passport"></i></a>
+            <a data-action="current-toggle">
+              <i class="fa-solid fa-toggle-{{ifThen bonus.enabled 'on' 'off'}}"></i>
+            </a>
+            <a data-action="current-copy">
+              <i class="fa-solid fa-copy"></i>
+            </a>
+            <a data-action="current-edit">
+              <i class="fa-solid fa-edit"></i>
+            </a>
+            <a data-action="current-delete">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+            <a data-action="current-id">
+              <i class="fa-solid fa-passport"></i>
+            </a>
           </div>
         </div>
         <div class="description">{{{context.description}}}</div>

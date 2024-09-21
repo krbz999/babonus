@@ -1,4 +1,4 @@
-.babonus.optionals {
+div.babonus.optionals {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
@@ -68,13 +68,14 @@
     border-bottom: 2px groove;
     padding-bottom: 0.5em;
   }
+}
 
+.babonus.optionals {
   .description:empty::before,
   .description:not(:empty) > :first-child::before {
     content: var(--bonus-name);
     font-weight: bold;
     margin-right: 5px;
-    margin-left: 5px;
   }
 
   .reminder::before {

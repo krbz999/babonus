@@ -1,9 +1,12 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, NumberField} = foundry.data.fields;
 
-export class HealthPercentagesField extends FilterMixin(SchemaField) {
+export default class HealthPercentagesField extends FilterMixin(SchemaField) {
+  /** @override */
   static name = "healthPercentages";
+
+  /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
     super({
@@ -32,6 +35,8 @@ export class HealthPercentagesField extends FilterMixin(SchemaField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -62,6 +67,8 @@ export class HealthPercentagesField extends FilterMixin(SchemaField) {
 
     return Handlebars.compile(template)(data);
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

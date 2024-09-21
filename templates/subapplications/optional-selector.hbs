@@ -1,34 +1,32 @@
-<div class="babonus optionals">
-  {{#if reminders.length}}
-  <div class="reminders">
-    {{#each reminders}}
-    <div class="reminder notification info" data-bonus-uuid="{{uuid}}" style="--bonus-name: '{{name}}.'">
-      <span class="description">{{{description}}}</span>
-    </div>
-    {{/each}}
-  </div>
-  {{/if}}
-
-  {{#each bonuses}}
-  <div class="optional" data-bonus-uuid="{{babonus.uuid}}">
-
-    <div class="bonus-text" style="--bonus-name: '{{name}}.'">
-      <span class="description">{{{description}}}</span>
-    </div>
-
-    {{#if scales}}
-    <div class="consumption">
-      <label class="label">
-        {{localize "BABONUS.ConfigurationConsumptionConsume"}}
-      </label>
-      <select>{{selectOptions options}}</select>
-    </div>
-    {{/if}}
-
-    <button type="button" data-action="{{action}}">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-
+{{#if reminders.length}}
+<div class="reminders">
+  {{#each reminders}}
+  <div class="reminder notification info" data-bonus-uuid="{{uuid}}" style="--bonus-name: '{{name}}.'">
+    <span class="description">{{{description}}}</span>
   </div>
   {{/each}}
 </div>
+{{/if}}
+
+{{#each bonuses}}
+<div class="optional" data-bonus-uuid="{{babonus.uuid}}">
+
+  <div class="bonus-text" style="--bonus-name: '{{name}}.'">
+    <span class="description">{{{description}}}</span>
+  </div>
+
+  {{#if scales}}
+  <div class="consumption">
+    <label class="label">
+      {{localize "BABONUS.ConfigurationConsumptionConsume"}}
+    </label>
+    <select>{{selectOptions options}}</select>
+  </div>
+  {{/if}}
+
+  <button type="button" data-action="{{action}}">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+
+</div>
+{{/each}}

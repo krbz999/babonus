@@ -162,9 +162,12 @@
       "One": "Value…",
       "Other": "Other value…"
     },
-    "AttackTypes": {
-      "Hint": "Filter by the type of attack roll the item must be able to make for the bonus to apply. For example if you cast a spell that must involve a ranged spell attack or melee weapon attack.",
-      "Label": "Attack Types"
+    "AttackModes": {
+      "Hint": "Filter by the type of attack the item is performing, which decides the damage roll. For example, an unarmed strike, a two-handed weapon attack, or ranged spell attack.",
+      "Label": "Attack Modes",
+      "ValueLabel": "Range",
+      "ClassificationLabel": "Type",
+      "ModeLabel": "Mode"
     },
     "BaseArmors": {
       "Hint": "Filter by the type of armor the actor must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when wearing Chain Mail or while unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",
@@ -204,6 +207,11 @@
       "TypeLabel": "Type",
       "ValueLabel": "Threshold"
     },
+    "Identifiers": {
+      "Hint": "Filter by the identifiers that an item must have one of for the bonus to apply. You can set an item's identifier in its source config.",
+      "Label": "Identifiers",
+      "Placeholder": "Enter identifiers"
+    },
     "ItemTypes": {
       "Hint": "Filter by the type of the item being used to perform the roll. For example if the bonus should only apply to spells or only to weapons.",
       "Label": "Item Types"
@@ -230,6 +238,11 @@
     "SkillIds": {
       "Hint": "Filter by the types of skills the roll being performed must be one of or none of. For example if the bonus should apply only to skill checks made with Athletics, Nature, or Survival.",
       "Label": "Skills"
+    },
+    "SourceClasses": {
+      "Hint": "Filter by the identifiers of the classes that a spell should belong to. A source class identifier can be set in the spell on the Details tab.",
+      "Label": "Source Classes",
+      "Placeholder": "Enter identifiers"
     },
     "SpellComponents": {
       "Hint": "Filter by the components or tags the spell being cast must have. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration or all spells with a material component.",

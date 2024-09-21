@@ -2,7 +2,7 @@ import {MODULE} from "../constants.mjs";
 
 const {HandlebarsApplicationMixin, DocumentSheetV2} = foundry.applications.api;
 
-export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
+export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   /**
    * @param {Babonus} bonus        The babonus managed by this sheet.
    * @param {object} [options]     Optional configuration parameters for how the sheet behaves.
@@ -11,7 +11,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     super({...options, document: bonus.parent, bonus: bonus});
 
     const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => {
-      return babonus.abstract.DataFields.filters[id].storage(bonus);
+      return babonus.abstract.DataFields.fields[id].storage(bonus);
     });
 
     /**
@@ -391,9 +391,9 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   #prepareFilterPicker() {
     const keys = Object.keys(this.bonus.filters);
     return keys.reduce((acc, key) => {
-      if (!this._filters.has(key) || babonus.abstract.DataFields.filters[key].repeatable) acc.push({
+      if (!this._filters.has(key) || babonus.abstract.DataFields.fields[key].repeatable) acc.push({
         id: key,
-        repeats: babonus.abstract.DataFields.filters[key].repeatable ? this.bonus.filters[key].length : null,
+        repeats: babonus.abstract.DataFields.fields[key].repeatable ? this.bonus.filters[key].length : null,
         label: `BABONUS.Filters.${key.capitalize()}.Label`,
         hint: `BABONUS.Filters.${key.capitalize()}.Hint`
       });
@@ -409,20 +409,23 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
 
   /**
    * Prepare filters.
-   * @returns {string}
+   * @returns {string[]}
    */
   #prepareFilters() {
-    const div = document.createElement("DIV");
+    const htmls = [];
     const keys = [...this._filters].sort((a, b) => {
       a = game.i18n.localize(`BABONUS.Filters.${a.capitalize()}.Label`);
       b = game.i18n.localize(`BABONUS.Filters.${b.capitalize()}.Label`);
       return a.localeCompare(b);
     });
     for (const key of keys) {
-      const filter = babonus.abstract.DataFields.filters[key];
-      if (filter) div.innerHTML += filter.render(this.bonus);
+      const filter = babonus.abstract.DataFields.fields[key];
+      if (filter) {
+        const html = filter.render(this.bonus);
+        htmls.push(html);
+      }
     }
-    return div.innerHTML;
+    return htmls;
   }
 
   /* -------------------------------------------------- */
@@ -437,7 +440,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     labels.push(game.i18n.localize(`BABONUS.Type${this.bonus.type.capitalize()}.Label`));
 
     const filterLabels = Object.keys(this.bonus.filters).filter(key => {
-      return babonus.abstract.DataFields.filters[key].storage(this.bonus);
+      return babonus.abstract.DataFields.fields[key].storage(this.bonus);
     }).length;
     labels.push(game.i18n.format("BABONUS.Labels.Filters", {n: filterLabels}));
 
@@ -465,7 +468,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const id = target.dataset.id;
     const data = this.bonus.toObject();
 
-    if (babonus.abstract.DataFields.filters[id].repeatable) {
+    if (babonus.abstract.DataFields.fields[id].repeatable) {
       const idx = parseInt(target.dataset.idx);
       const property = foundry.utils.deepClone(data.filters[id]);
       property.splice(idx, 1);
@@ -491,7 +494,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   static #onAddFilter(event, target) {
     const id = target.closest("[data-id]").dataset.id;
     this._filters.add(id);
-    if (babonus.abstract.DataFields.filters[id].repeatable) {
+    if (babonus.abstract.DataFields.fields[id].repeatable) {
       const data = this.bonus.toObject();
       data.filters[id].push({});
       const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
@@ -512,7 +515,7 @@ export class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   static #onKeysDialog(event, target) {
     const bonus = this.bonus;
     const filterId = target.dataset.id;
-    const filter = babonus.abstract.DataFields.filters[filterId];
+    const filter = babonus.abstract.DataFields.fields[filterId];
     const property = target.dataset.property;
     const list = filter.choices();
     const values = foundry.utils.getProperty(bonus, property);

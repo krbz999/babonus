@@ -1,9 +1,12 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, StringField} = foundry.data.fields;
 
-export class FeatureTypesField extends FilterMixin(SchemaField) {
+export default class FeatureTypesField extends FilterMixin(SchemaField) {
+  /** @override */
   static name = "featureTypes";
+
+  /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
     super({
@@ -22,6 +25,8 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -61,6 +66,8 @@ export class FeatureTypesField extends FilterMixin(SchemaField) {
 
     return Handlebars.compile(template)(data);
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

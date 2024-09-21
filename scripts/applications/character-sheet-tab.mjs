@@ -44,7 +44,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   bonuses.all = {label: "BABONUS.Bonuses", key: "all", bonuses: []};
 
   const div = document.createElement("DIV");
-  const isActive = sheet._tabs[0].active === MODULE.ID ? "active" : "";
+  const isActive = (sheet._tabs[0].active === MODULE.ID) ? "active" : "";
   const isEdit = sheet.constructor.MODES.EDIT === sheet._mode;
 
   sheet._filters[MODULE.ID] ??= {name: "", properties: new Set()};
@@ -111,7 +111,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   });
 
   const body = html.querySelector(".tab-body");
-  if (!body) return;
+  if (!body || body.querySelector(":scope > .tab.babonus")) return;
 
   body.appendChild(div.firstElementChild);
   html.querySelectorAll("button.create-child").forEach(button => {

@@ -1,7 +1,7 @@
 const {SchemaField, BooleanField, NumberField, StringField} = foundry.data.fields;
 
 /* Child of Babonus#bonuses that holds all die modifiers. */
-export class ModifiersModel extends foundry.abstract.DataModel {
+export default class ModifiersModel extends foundry.abstract.DataModel {
   /**
    * The modifier modes for amount and size.
    * @type {number}

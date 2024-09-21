@@ -1,10 +1,12 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
 
-// SchemaField that requires a value in all fields.
-export class TokenSizesField extends FilterMixin(SchemaField) {
+export default class TokenSizesField extends FilterMixin(SchemaField) {
+  /** @override */
   static name = "tokenSizes";
+
+  /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
     super({
@@ -30,6 +32,8 @@ export class TokenSizesField extends FilterMixin(SchemaField) {
       ...options
     });
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -67,6 +71,8 @@ export class TokenSizesField extends FilterMixin(SchemaField) {
 
     return Handlebars.compile(template)(data);
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

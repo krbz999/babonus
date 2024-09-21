@@ -1,6 +1,6 @@
 <div class="tab scrollable {{tabs.configuration.cssClass}}" data-tab="configuration" data-group="main">
-  {{#unless filters}}
+  {{#unless filters.length}}
   <p class="notification info">{{localize "BABONUS.CurrentFiltersTooltip"}}</p>
   {{/unless}}
-  {{{filters}}}
+  {{#each filters}} {{{this}}} {{/each}}
 </div>

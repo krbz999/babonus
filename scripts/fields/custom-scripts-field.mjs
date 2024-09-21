@@ -1,9 +1,12 @@
-import {FilterMixin} from "./filter-mixin.mjs";
+import FilterMixin from "./filter-mixin.mjs";
 
 const {JavaScriptField, StringField} = foundry.data.fields;
 
-export class CustomScriptsField extends FilterMixin(JavaScriptField) {
+export default class CustomScriptsField extends FilterMixin(JavaScriptField) {
+  /** @override */
   static name = "customScripts";
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static render(bonus) {
@@ -34,6 +37,8 @@ export class CustomScriptsField extends FilterMixin(JavaScriptField) {
     });
   }
 
+  /* -------------------------------------------------- */
+
   constructor() {
     super({
       label: "BABONUS.Filters.CustomScripts.Label",
@@ -41,10 +46,14 @@ export class CustomScriptsField extends FilterMixin(JavaScriptField) {
     });
   }
 
+  /* -------------------------------------------------- */
+
   /** @override */
   _validateType(value, options) {
     return StringField.prototype._validateType.call(this, value, options);
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static storage(bonus) {

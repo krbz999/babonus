@@ -8,14 +8,12 @@
  * - item attunement/equipped state (isSuppressed)
  * - effects being unavailable
  */
-export class BonusCollector {
+export default class BonusCollector {
   constructor({activity, item, actor, type}) {
     this.activity = activity;
     this.item = item;
     this.actor = actor;
     this.type = type;
-
-    console.warn(activity, item, actor, type);
 
     // Set up canvas elements.
     this.token = this.actor.token?.object ?? this.actor.getActiveTokens()[0];
