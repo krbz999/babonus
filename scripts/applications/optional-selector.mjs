@@ -193,7 +193,7 @@ export default class OptionalSelector {
     this.form = document.createElement(isV2 ? "FIELDSET" : "DIV");
 
     if (isV2) this.form.insertAdjacentHTML("beforeend", "<legend>Build-a-Bonus</legend>");
-    else this.form.classList.add("babonus", "optionals");
+    this.form.classList.add("babonus", "optionals");
 
     const data = await this.getData();
     if (!data.bonuses.length && !data.reminders.length) return;

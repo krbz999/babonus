@@ -30,7 +30,6 @@ globalThis.babonus = {
 
 /**
  * Render the optional bonus selector on a roll dialog.
- * @TODO Await system PR that should allow for more data to be passed along, as well as the roll refactor.
  * @param {Dialog} dialog     The dialog being rendered.
  */
 async function _renderDialog(dialog) {
@@ -167,7 +166,7 @@ Hooks.on("getActorSheetHeaderButtons", (...T) => injections.HeaderButton.inject(
 Hooks.on("getDialogHeaderButtons", (...T) => injections.HeaderButtonDialog.inject(...T));
 Hooks.on("getItemSheetHeaderButtons", (...T) => injections.HeaderButton.inject(...T));
 Hooks.on("renderDialog", _renderDialog);
-Hooks.on("renderDamageRollConfigurationDialog", _renderDialog);
+Hooks.on("renderRollConfigurationDialog", _renderDialog);
 Hooks.on("renderRegionConfig", injections.injectRegionConfigElement);
 
 // Roll hooks. Delay these to let other modules modify behaviour first.

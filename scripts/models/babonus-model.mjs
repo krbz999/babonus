@@ -205,8 +205,7 @@ class Babonus extends foundry.abstract.DataModel {
    * @type {boolean}
    */
   get canRemind() {
-    // TODO: Hit dice.
-    return ["attack", "damage", "throw", "test"].includes(this.type) && !this.hasBonuses && this.optional;
+    return ["attack", "damage", "hitdie", "throw", "test"].includes(this.type) && !this.hasBonuses && this.optional;
   }
 
   /* -------------------------------------------------- */
@@ -273,7 +272,7 @@ class Babonus extends foundry.abstract.DataModel {
   get isOptionable() {
     switch (this.type) {
       case "damage":
-        // TODO: hit dice.
+      case "hitdie":
         return this.hasBonuses;
       case "attack":
       case "throw":

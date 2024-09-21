@@ -130,8 +130,6 @@ function preRollDamage(config, dialog, message) {
     configurations: {config, dialog, message},
     attackMode: attackMode
   });
-
-  // Add parts.
   foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
 
   // Add to critical dice and critical damage.
@@ -175,8 +173,11 @@ function preRollDamage(config, dialog, message) {
         });
       }
     }
+  }
 
-    // Add dice modifiers.
+  // Add dice modifiers.
+  for (const bonus of bonuses) {
+    if (bonus.isOptional) continue;
     for (const {parts, data} of config.rolls) {
       if (bonus._halted) break;
       const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
@@ -363,33 +364,38 @@ function preRollHitDie(config, dialog, message) {
 
   // Construct an array of parts.
   const parts = [`1${config.denomination}`, `@abilities.${CONFIG.DND5E.defaultAbilities.hitPoints}.mod`];
-  for (const bab of bonuses) {
-    const bonus = bab.bonuses.bonus;
-    if (!!bonus && Roll.validate(bonus)) parts.push(bonus);
-  }
 
-  // Add die modifiers.
-  for (const bonus of bonuses) {
-    bonus.bonuses.modifiers.modifyParts(parts, config.rolls[0].data);
-  }
-
-  // TODO: Force dialog when situational bonuses are implemented.
-  // dialog.configure = true;
-
+  const optionals = [];
   const id = registry.register({
-    optionals: [], // _getParts(bonuses, config),
+    optionals: optionals,
     actor: actor,
     bonuses: bonuses,
     configurations: {config, dialog, message}
   });
-
   foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
 
-  // Replace parts.
-  if (parts.length) {
-    const [denom, mod, ...rest] = parts;
-    config.rolls[0].parts = [`max(0, ${[denom, mod].join(" + ")})`, ...rest];
+  for (const bonus of bonuses) {
+    if (bonus.isOptional) {
+      optionals.push(bonus);
+      continue;
+    }
+
+    // Add bonus.
+    if (bonus.bonuses.bonus && Roll.validate(bonus.bonuses.bonus)) parts.push(bonus.bonuses.bonus);
   }
+
+  // Add die modifiers.
+  for (const bonus of bonuses) {
+    if (bonus.isOptional) continue;
+    bonus.bonuses.modifiers.modifyParts(parts, config.rolls[0].data);
+  }
+
+  // Force dialog if there is an optional bonus.
+  if (optionals.length) dialog.configure = true;
+
+  // Replace parts.
+  const [denom, mod, ...rest] = parts;
+  config.rolls[0].parts = [`max(0, ${[denom, mod].join(" + ")})`, ...rest];
 }
 
 /* -------------------------------------------------- */
