@@ -205,11 +205,15 @@ export default class BonusCollector {
         if (!this._matchTokenDisposition(token, bonus)) continue; // discard invalid targeting bonuses.
         if (!this._generalFilter(bonus)) continue;
 
-        const aura = new babonus.abstract.applications.TokenAura(token, bonus);
-        aura.initialize(this.token);
-
-        if (aura.isApplying) bonuses.push(bonus);
-        this.auras.add(aura);
+        // Skip creating pixi auras for infinite-range auras.
+        if (bonus.aura.range === -1) {
+          bonuses.push(bonus);
+        } else {
+          const aura = new babonus.abstract.applications.TokenAura(token, bonus);
+          aura.initialize(this.token);
+          if (aura.isApplying) bonuses.push(bonus);
+          this.auras.add(aura);
+        }
       }
     };
 

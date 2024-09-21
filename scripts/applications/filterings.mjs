@@ -380,7 +380,7 @@ function sourceClasses(subjects, filter) {
 function targetArmors(subjects, filter) {
   const target = game.user.targets.first()?.actor;
   if (!target) return !_splitExlusion(filter).included.size;
-  return baseArmors(target, filter);
+  return baseArmors({actor: target}, filter);
 }
 
 /* -------------------------------------------------- */
@@ -480,6 +480,7 @@ function spellComponents({item}, {types, match}) {
  * @returns {boolean}                       Whether the item is at one of the appropriate levels.
  */
 function spellLevels({item}, filter, {spellLevel = null} = {}) {
+  // TODO: activity scaling?
   if (!filter.size) return true;
   if (item.type !== "spell") return false;
   return filter.has(spellLevel ?? item.system.level);
