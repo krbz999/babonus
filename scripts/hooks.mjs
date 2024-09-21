@@ -183,7 +183,11 @@ Hooks.once("ready", function() {
   Hooks.on("dnd5e.preRollSkill", mutators.preRollSkill);
   Hooks.on("dnd5e.preRollToolCheck", mutators.preRollToolCheck);
   Hooks.on("dnd5e.preCreateActivityTemplate", mutators.preCreateActivityTemplate);
-  setupTree();
 
   Hooks.callAll("babonus.initializeRollHooks");
+});
+
+Hooks.once("init", function() {
+  const hook = game.modules.get("babele")?.active && (game.babele?.initialized === false) ? "babele.ready" : "ready";
+  Hooks.once(hook, () => setupTree());
 });
