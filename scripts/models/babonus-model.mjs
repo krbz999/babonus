@@ -265,8 +265,9 @@ class Babonus extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it applies to attack rolls, damage
-   * rolls, saving throws, or ability checks; any of the rolls that have a roll configuration dialog.
+   * Whether the bonus can toggle the 'Optional' icon in the builder. This requires that it
+   * applies to attack rolls, damage rolls, saving throws, or ability checks; any of the rolls
+   * that have a roll configuration dialog.
    * @type {boolean}
    */
   get isOptionable() {

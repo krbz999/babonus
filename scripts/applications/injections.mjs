@@ -118,7 +118,7 @@ class HeaderButton {
 
 /**
  * Add a header button to display the source of all applied bonuses.
- * // TODO: pending the roll refactor, redo this for new roll config dialog.
+ * TODO: pending the roll refactor, redo this for new roll config dialog.
  */
 class HeaderButtonDialog extends HeaderButton {
   /** @override */
