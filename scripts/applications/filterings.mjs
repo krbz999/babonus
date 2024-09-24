@@ -748,8 +748,8 @@ function customScripts({activity, item, actor}, script, details = {}) {
   if (game.settings.get(MODULE.ID, SETTINGS.SCRIPT)) return true;
   try {
     const func = Function("actor", "item", "token", "bonus", "activity", "details", script);
-    const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
-    const valid = func.call(object, actor, item, token, this, activity, details) === true;
+    const token = (actor.isToken ? actor.token.object : actor.getActiveTokens()[0]) ?? null;
+    const valid = func.call(func, actor, item, token, this, activity, details) === true;
     return valid;
   } catch (err) {
     console.error(err);

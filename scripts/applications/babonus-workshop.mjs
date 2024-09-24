@@ -251,7 +251,7 @@ export default class BabonusWorkshop extends dnd5e.applications.DialogMixin(Appl
    */
   async #onClickType(event) {
     const type = event.currentTarget.dataset.type;
-    const bonus = new babonus.abstract.DataModels[type]();
+    const bonus = new babonus.abstract.DataModels[type]({}, {parent: this.document});
     const id = await babonus.embedBabonus(this.document, bonus, {bonusId: true});
     this.collection.get(id).sheet.render(true);
   }

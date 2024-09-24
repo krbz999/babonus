@@ -173,7 +173,6 @@ async function _createChildBonus() {
     folders: [],
     folder: null,
     hasFolders: false,
-    name: game.i18n.localize("BABONUS.NewBabonus"),
     type: babonus.abstract.TYPES[0],
     types: babonus.abstract.TYPES.reduce((acc, type) => {
       const label = game.i18n.localize(`BABONUS.Type${type.capitalize()}.Label`);
@@ -203,7 +202,7 @@ async function _createChildBonus() {
     },
     callback: async (html) => {
       const data = new FormDataExtended(html.querySelector("FORM")).object;
-      if (!data.name?.trim()) data.name = game.i18n.localize("BABONUS.NewBabonus");
+      if (!data.name?.trim()) delete data.name;
       const bonus = babonus.createBabonus(data, this.document);
       return babonus.embedBabonus(this.document, bonus);
     },
