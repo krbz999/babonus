@@ -7,22 +7,22 @@ export default class ConsumptionModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       enabled: new BooleanField({
-        label: "BABONUS.Fields.Consume.Enabled.Label",
-        hint: "BABONUS.Fields.Consume.Enabled.Hint"
+        label: "BABONUS.FIELDS.Consume.Enabled.Label",
+        hint: "BABONUS.FIELDS.Consume.Enabled.Hint"
       }),
       type: new StringField({
         required: true,
         initial: "",
         blank: true,
-        label: "BABONUS.Fields.Consume.Type.Label",
+        label: "BABONUS.FIELDS.Consume.Type.Label",
         choices: {
           currency: "DND5E.Currency",
-          effect: "BABONUS.Fields.Consume.Type.OptionEffect",
+          effect: "BABONUS.FIELDS.Consume.Type.OptionEffect",
           health: "DND5E.HitPoints",
           hitdice: "DND5E.HitDice",
           inspiration: "DND5E.Inspiration",
           quantity: "DND5E.Quantity",
-          slots: "BABONUS.Fields.Consume.Type.OptionSlots",
+          slots: "BABONUS.FIELDS.Consume.Type.OptionSlots",
           uses: "DND5E.LimitedUses"
         }
       }),
@@ -34,13 +34,13 @@ export default class ConsumptionModel extends foundry.abstract.DataModel {
         hint: ""
       }),
       scales: new BooleanField({
-        label: "BABONUS.Fields.Consume.Scales.Label",
-        hint: "BABONUS.Fields.Consume.Scales.Hint"
+        label: "BABONUS.FIELDS.Consume.Scales.Label",
+        hint: "BABONUS.FIELDS.Consume.Scales.Hint"
       }),
       formula: new StringField({
         required: true,
-        label: "BABONUS.Fields.Consume.Formula.Label",
-        hint: "BABONUS.Fields.Consume.Formula.Hint"
+        label: "BABONUS.FIELDS.Consume.Formula.Label",
+        hint: "BABONUS.FIELDS.Consume.Formula.Hint"
       }),
       value: new SchemaField({
         min: new StringField({required: true}),
@@ -49,8 +49,8 @@ export default class ConsumptionModel extends foundry.abstract.DataModel {
           integer: true,
           min: 1,
           step: 1,
-          label: "BABONUS.Fields.Consume.ValueStep.Label",
-          hint: "BABONUS.Fields.Consume.ValueStep.Hint"
+          label: "BABONUS.FIELDS.Consume.ValueStep.Label",
+          hint: "BABONUS.FIELDS.Consume.ValueStep.Hint"
         })
       })
     };

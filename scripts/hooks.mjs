@@ -191,3 +191,9 @@ Hooks.once("init", function() {
   const hook = game.modules.get("babele")?.active && (game.babele?.initialized === false) ? "babele.ready" : "ready";
   Hooks.once(hook, () => setupTree());
 });
+
+Hooks.once("i18nInit", function() {
+  for (const model of Object.values(babonus.abstract.DataFields.models.Babonus)) {
+    Localization.localizeDataModel(model);
+  }
+});

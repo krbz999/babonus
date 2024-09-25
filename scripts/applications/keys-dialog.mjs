@@ -26,7 +26,7 @@ export default class KeysDialog extends foundry.applications.api.DialogV2 {
   /** @override */
   static async prompt({canExclude, values, filterId, ...configuration} = {}) {
     const description = (filterId === "auraBlockers")
-      ? "BABONUS.Fields.Aura.Blockers.Hint"
+      ? "BABONUS.FIELDS.Aura.Blockers.Hint"
       : `BABONUS.Filters.${filterId.capitalize()}.Hint`;
 
     configuration.content = await renderTemplate(`modules/${MODULE.ID}/templates/subapplications/keys-dialog.hbs`, {
@@ -44,7 +44,7 @@ export default class KeysDialog extends foundry.applications.api.DialogV2 {
   /** @override */
   get title() {
     const name = (this.options.filterId === "auraBlockers")
-      ? "BABONUS.Fields.Aura.Blockers.Label"
+      ? "BABONUS.FIELDS.Aura.Blockers.Label"
       : `BABONUS.Filters.${this.options.filterId.capitalize()}.Label`;
     return game.i18n.format("BABONUS.KeysDialogTitle", {name: game.i18n.localize(name)});
   }

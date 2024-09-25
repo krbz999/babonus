@@ -3,15 +3,15 @@
   <fieldset>
     <legend>{{localize "BABONUS.Toggles"}}</legend>
     {{#with fields}}
-    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
-    {{formGroup exclusive.field value=exclusive.value localize=true rootId=@root.rootId}}
-    {{formGroup optional.field value=optional.value localize=true rootId=@root.rootId}}
-    {{formGroup reminder.field value=reminder.value localize=true disabled=reminder.disabled rootId=@root.rootId}}
+    {{formGroup enabled.field value=enabled.value rootId=@root.rootId}}
+    {{formGroup exclusive.field value=exclusive.value rootId=@root.rootId}}
+    {{formGroup optional.field value=optional.value rootId=@root.rootId}}
+    {{formGroup reminder.field value=reminder.value disabled=reminder.disabled rootId=@root.rootId}}
     {{/with}}
   </fieldset>
 
   <fieldset>
-    <legend>{{localize "BABONUS.Fields.Consume.Label"}}</legend>
+    <legend>{{localize "BABONUS.FIELDS.Consume.Label"}}</legend>
     {{#with consume}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId disabled=enabled.disabled}}
     {{#if enabled.value}}
@@ -54,7 +54,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>{{localize "BABONUS.Fields.Aura.Label"}}</legend>
+    <legend>{{localize "BABONUS.FIELDS.Aura.Label"}}</legend>
     {{#with aura}}
     {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
 

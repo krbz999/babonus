@@ -123,7 +123,7 @@ export default class BabonusWorkshop extends dnd5e.applications.DialogMixin(Appl
             async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
           }),
           icon: bonus.icon,
-          typeTooltip: `BABONUS.Type${bonus.type.capitalize()}.Label`
+          typeTooltip: `BABONUS.${bonus.type.toUpperCase()}.Label`
         }
       });
     }
@@ -132,7 +132,7 @@ export default class BabonusWorkshop extends dnd5e.applications.DialogMixin(Appl
 
     // New babonus buttons.
     data.createButtons = Object.entries(babonus.abstract.DataModels).map(([type, cls]) => ({
-      type, icon: cls.metadata.icon, label: `BABONUS.Type${type.capitalize()}.Label`
+      type, icon: cls.metadata.icon, label: `BABONUS.${type.toUpperCase()}.Label`
     }));
 
     data.ICON = MODULE.ICON;

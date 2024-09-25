@@ -14,7 +14,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   async function _prepareBonus(bonus, rollData) {
     uuids.add(bonus.uuid);
     const section = bonuses[bonus.type] ??= {};
-    section.label ??= `BABONUS.Type${bonus.type.capitalize()}.Label`;
+    section.label ??= `BABONUS.${bonus.type.toUpperCase()}.Label`;
     section.key ??= bonus.type;
     section.bonuses ??= [];
     section.bonuses.push({
@@ -175,7 +175,7 @@ async function _createChildBonus() {
     hasFolders: false,
     type: babonus.abstract.TYPES[0],
     types: babonus.abstract.TYPES.reduce((acc, type) => {
-      const label = game.i18n.localize(`BABONUS.Type${type.capitalize()}.Label`);
+      const label = game.i18n.localize(`BABONUS.${type.toUpperCase()}.Label`);
       acc.push({
         type: type,
         label: label,

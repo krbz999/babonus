@@ -483,46 +483,24 @@ class Babonus extends foundry.abstract.DataModel {
     return {
       id: new DocumentIdField({initial: () => foundry.utils.randomID()}),
       sort: new IntegerSortField(),
-      name: new StringField({
-        required: true,
-        blank: false
-      }),
-      img: new FilePathField({
-        label: "BABONUS.Fields.Img.Label",
-        hint: "BABONUS.Fields.Img.Hint",
-        categories: ["IMAGE"]
-      }),
-      type: new StringField({
-        required: true,
-        initial: "base",
-        readonly: true
-      }),
-      enabled: new BooleanField({
-        initial: true,
-        label: "BABONUS.Fields.Enabled.Label",
-        hint: "BABONUS.Fields.Enabled.Hint"
-      }),
-      exclusive: new BooleanField({
-        label: "BABONUS.Fields.Exclusive.Label",
-        hint: "BABONUS.Fields.Exclusive.Hint"
-      }),
-      optional: new BooleanField({
-        label: "BABONUS.Fields.Optional.Label",
-        hint: "BABONUS.Fields.Optional.Hint"
-      }),
-      reminder: new BooleanField({
-        label: "BABONUS.Fields.Reminder.Label",
-        hint: "BABONUS.Fields.Reminder.Hint"
-      }),
-      description: new HTMLField({
-        label: "BABONUS.Fields.Description.Label",
-        hint: "BABONUS.Fields.Description.Hint"
-      }),
+      name: new StringField({required: true, blank: false}),
+      img: new FilePathField({categories: ["IMAGE"]}),
+      type: new StringField({required: true, initial: "base", readonly: true}),
+      enabled: new BooleanField({initial: true}),
+      exclusive: new BooleanField(),
+      optional: new BooleanField(),
+      reminder: new BooleanField(),
+      description: new HTMLField(),
       consume: new EmbeddedDataField(babonus.abstract.DataFields.models.ConsumptionModel),
       aura: new EmbeddedDataField(babonus.abstract.DataFields.models.AuraModel),
       flags: new ObjectField()
     };
   }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
+  static LOCALIZATION_PREFIXES = ["BABONUS"];
 
   /* -------------------------------------------------- */
 
@@ -841,24 +819,20 @@ class AttackBabonus extends ItemBabonus {
   /* -------------------------------------------------- */
 
   /** @override */
+  static LOCALIZATION_PREFIXES = [
+    ...super.LOCALIZATION_PREFIXES,
+    "BABONUS.ATTACK"
+  ];
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({
-        required: true,
-        hint: "BABONUS.TypeAttack.BonusHint",
-        label: "BABONUS.TypeAttack.BonusLabel"
-      }),
-      criticalRange: new StringField({
-        required: true,
-        hint: "BABONUS.TypeAttack.CriticalRangeHint",
-        label: "BABONUS.TypeAttack.CriticalRangeLabel"
-      }),
-      fumbleRange: new StringField({
-        required: true,
-        hint: "BABONUS.TypeAttack.FumbleRangeHint",
-        label: "BABONUS.TypeAttack.FumbleRangeLabel"
-      })
+      bonus: new StringField({required: true}),
+      criticalRange: new StringField({required: true}),
+      fumbleRange: new StringField({required: true})
     };
   }
 
@@ -897,29 +871,21 @@ class DamageBabonus extends ItemBabonus {
   /* -------------------------------------------------- */
 
   /** @override */
+  static LOCALIZATION_PREFIXES = [
+    ...super.LOCALIZATION_PREFIXES,
+    "BABONUS.DAMAGE"
+  ];
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({
-        required: true,
-        hint: "BABONUS.TypeDamage.BonusHint",
-        label: "BABONUS.TypeDamage.BonusLabel"
-      }),
-      damageType: new StringField({
-        required: true,
-        hint: "BABONUS.TypeDamage.DamageTypeHint",
-        label: "BABONUS.TypeDamage.DamageTypeLabel"
-      }),
-      criticalBonusDice: new StringField({
-        required: true,
-        hint: "BABONUS.TypeDamage.CriticalBonusDiceHint",
-        label: "BABONUS.TypeDamage.CriticalBonusDiceLabel"
-      }),
-      criticalBonusDamage: new StringField({
-        required: true,
-        hint: "BABONUS.TypeDamage.CriticalBonusDamageHint",
-        label: "BABONUS.TypeDamage.CriticalBonusDamageLabel"
-      }),
+      bonus: new StringField({required: true}),
+      damageType: new StringField({required: true}),
+      criticalBonusDice: new StringField({required: true}),
+      criticalBonusDamage: new StringField({required: true}),
       modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel, {})
     };
   }
@@ -966,14 +932,18 @@ class SaveBabonus extends ItemBabonus {
   /* -------------------------------------------------- */
 
   /** @override */
+  static LOCALIZATION_PREFIXES = [
+    ...super.LOCALIZATION_PREFIXES,
+    "BABONUS.SAVE"
+  ];
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({
-        required: true,
-        hint: "BABONUS.TypeSave.BonusHint",
-        label: "BABONUS.TypeSave.BonusLabel"
-      })
+      bonus: new StringField({required: true})
     };
   }
 
@@ -1012,24 +982,20 @@ class ThrowBabonus extends Babonus {
   /* -------------------------------------------------- */
 
   /** @override */
+  static LOCALIZATION_PREFIXES = [
+    ...super.LOCALIZATION_PREFIXES,
+    "BABONUS.THROW"
+  ];
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({
-        required: true,
-        hint: "BABONUS.TypeThrow.BonusHint",
-        label: "BABONUS.TypeThrow.BonusLabel"
-      }),
-      targetValue: new StringField({
-        required: true,
-        hint: "BABONUS.TypeThrow.TargetValueHint",
-        label: "BABONUS.TypeThrow.TargetValueLabel"
-      }),
-      deathSaveCritical: new StringField({
-        required: true,
-        hint: "BABONUS.TypeThrow.DeathSaveCriticalHint",
-        label: "BABONUS.TypeThrow.DeathSaveCriticalLabel"
-      })
+      bonus: new StringField({required: true}),
+      targetValue: new StringField({required: true}),
+      deathSaveCritical: new StringField({required: true})
     };
   }
 
@@ -1071,14 +1037,18 @@ class TestBabonus extends Babonus {
   /* -------------------------------------------------- */
 
   /** @override */
+  static LOCALIZATION_PREFIXES = [
+    ...super.LOCALIZATION_PREFIXES,
+    "BABONUS.TEST"
+  ];
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({
-        required: true,
-        hint: "BABONUS.TypeTest.BonusHint",
-        label: "BABONUS.TypeTest.BonusLabel"
-      })
+      bonus: new StringField({required: true})
     };
   }
 
@@ -1120,14 +1090,18 @@ class HitDieBabonus extends Babonus {
   /* -------------------------------------------------- */
 
   /** @override */
+  static LOCALIZATION_PREFIXES = [
+    ...super.LOCALIZATION_PREFIXES,
+    "BABONUS.HITDIE"
+  ];
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({
-        required: true,
-        hint: "BABONUS.TypeHitdie.BonusHint",
-        label: "BABONUS.TypeHitdie.BonusLabel"
-      }),
+      bonus: new StringField({required: true}),
       modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel)
     };
   }

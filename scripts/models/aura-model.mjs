@@ -5,41 +5,41 @@ export default class AuraModel extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       enabled: new BooleanField({
-        label: "BABONUS.Fields.Aura.Enabled.Label",
-        hint: "BABONUS.Fields.Aura.Enabled.Hint"
+        label: "BABONUS.FIELDS.Aura.Enabled.Label",
+        hint: "BABONUS.FIELDS.Aura.Enabled.Hint"
       }),
       template: new BooleanField({
-        label: "BABONUS.Fields.Aura.Template.Label",
-        hint: "BABONUS.Fields.Aura.Template.Hint"
+        label: "BABONUS.FIELDS.Aura.Template.Label",
+        hint: "BABONUS.FIELDS.Aura.Template.Hint"
       }),
       range: new StringField({
         required: true,
-        label: "BABONUS.Fields.Aura.Range.Label",
-        hint: "BABONUS.Fields.Aura.Range.Hint"
+        label: "BABONUS.FIELDS.Aura.Range.Label",
+        hint: "BABONUS.FIELDS.Aura.Range.Hint"
       }),
       self: new BooleanField({
         initial: true,
-        label: "BABONUS.Fields.Aura.Self.Label",
-        hint: "BABONUS.Fields.Aura.Self.Hint"
+        label: "BABONUS.FIELDS.Aura.Self.Label",
+        hint: "BABONUS.FIELDS.Aura.Self.Hint"
       }),
       disposition: new NumberField({
-        label: "BABONUS.Fields.Aura.Disposition.Label",
-        hint: "BABONUS.Fields.Aura.Disposition.Hint",
+        label: "BABONUS.FIELDS.Aura.Disposition.Label",
+        hint: "BABONUS.FIELDS.Aura.Disposition.Hint",
         initial: 2,
         choices: {
-          2: "BABONUS.Fields.Aura.Disposition.OptionAny",
-          1: "BABONUS.Fields.Aura.Disposition.OptionAlly",
-          "-1": "BABONUS.Fields.Aura.Disposition.OptionEnemy"
+          2: "BABONUS.FIELDS.Aura.Disposition.OptionAny",
+          1: "BABONUS.FIELDS.Aura.Disposition.OptionAlly",
+          "-1": "BABONUS.FIELDS.Aura.Disposition.OptionEnemy"
         }
       }),
       blockers: new babonus.abstract.DataFields.fields.auraBlockers({
-        label: "BABONUS.Fields.Aura.Blockers.Label",
-        hint: "BABONUS.Fields.Aura.Blockers.Hint"
+        label: "BABONUS.FIELDS.Aura.Blockers.Label",
+        hint: "BABONUS.FIELDS.Aura.Blockers.Hint"
       }),
       require: new SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
         acc[k] = new BooleanField({
-          label: `BABONUS.Fields.Aura.Require${k.capitalize()}.Label`,
-          hint: `BABONUS.Fields.Aura.Require${k.capitalize()}.Hint`
+          label: `BABONUS.FIELDS.Aura.Require${k.capitalize()}.Label`,
+          hint: `BABONUS.FIELDS.Aura.Require${k.capitalize()}.Hint`
         });
         return acc;
       }, {}))

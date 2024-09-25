@@ -236,17 +236,18 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       if (k === "modifiers") continue; // Handled separately.
       let options = {};
       if (k === "damageType") {
+        const dgroup = game.i18n.localize("DND5E.Damage");
+        const hgroup = game.i18n.localize("DND5E.Healing");
         options = {
           isDamage: true,
-          blank: "DND5E.None",
-          options: [],
-          groups: ["DND5E.Damage", "DND5E.Healing"]
+          blank: game.i18n.localize("DND5E.None"),
+          options: []
         };
         for (const [k, v] of Object.entries(CONFIG.DND5E.damageTypes)) {
-          options.options.push({group: "DND5E.Damage", value: k, label: v.label});
+          options.options.push({group: dgroup, value: k, label: v.label});
         }
         for (const [k, v] of Object.entries(CONFIG.DND5E.healingTypes)) {
-          options.options.push({group: "DND5E.Healing", value: k, label: v.label});
+          options.options.push({group: hgroup, value: k, label: v.label});
         }
       }
       const data = makeField(`bonuses.${k}`, options);
@@ -295,7 +296,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       consume.enabled = makeField("consume.enabled");
       consume.type = makeField("consume.type");
       consume.subtype = makeField("consume.subtype", {
-        label: `BABONUS.Fields.Consume.Subtype.${source.consume.type.capitalize()}Label`
+        label: `BABONUS.FIELDS.Consume.Subtype.${source.consume.type.capitalize()}Label`
       });
       consume.formula = makeField("consume.formula", {
         placeholder: bonus.bonuses.bonus,
@@ -310,13 +311,13 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       const v = bonus.consume.value;
       consume.value = {
         min: makeField("consume.value.min", {
-          placeholder: game.i18n.localize(`BABONUS.Fields.Consume.Values.Min${isSlot}`)
+          placeholder: game.i18n.localize(`BABONUS.FIELDS.Consume.Values.Min${isSlot}`)
         }),
         max: makeField("consume.value.max", {
-          placeholder: game.i18n.localize(`BABONUS.Fields.Consume.Values.Max${isSlot}`)
+          placeholder: game.i18n.localize(`BABONUS.FIELDS.Consume.Values.Max${isSlot}`)
         }),
-        label: `BABONUS.Fields.Consume.Values.Label${isSlot}`,
-        hint: `BABONUS.Fields.Consume.Values.Hint${scales ? "Scale" : ""}${isSlot}`,
+        label: `BABONUS.FIELDS.Consume.Values.Label${isSlot}`,
+        hint: `BABONUS.FIELDS.Consume.Values.Hint${scales ? "Scale" : ""}${isSlot}`,
         range: (scales && v.min && v.max) ? `(${v.min}&ndash;${v.max})` : null
       };
 
@@ -353,10 +354,10 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       let loc;
       let range;
       if (!bonus.aura.range || (bonus.aura.range > 0)) {
-        loc = "BABONUS.Fields.Aura.Range.LabelFt";
+        loc = "BABONUS.FIELDS.Aura.Range.LabelFt";
         range = bonus.aura.range;
       } else if (bonus.aura.range === -1) {
-        loc = "BABONUS.Fields.Aura.Range.LabelUnlimited";
+        loc = "BABONUS.FIELDS.Aura.Range.LabelUnlimited";
         range = game.i18n.localize("DND5E.Unlimited");
       }
       if (loc) {
@@ -437,7 +438,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
   _prepareLabels() {
     const labels = [];
 
-    labels.push(game.i18n.localize(`BABONUS.Type${this.bonus.type.capitalize()}.Label`));
+    labels.push(game.i18n.localize(`BABONUS.${this.bonus.type.toUpperCase()}.Label`));
 
     const filterLabels = Object.keys(this.bonus.filters).filter(key => {
       return babonus.abstract.DataFields.fields[key].storage(this.bonus);

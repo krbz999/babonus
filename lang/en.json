@@ -25,7 +25,7 @@
   "CurrentBonusesTooltip": "The bonuses you have created that are currently stored on this Actor, Item, or ActiveEffect.",
   "CurrentFiltersTooltip": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
   "Example": "Example",
-  "Fields": {
+  "FIELDS": {
     "Aura": {
       "Blockers": {
         "Hint": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious.",
@@ -114,29 +114,29 @@
         "Label": "Step"
       }
     },
-    "Description": {
-      "Hint": "The text that accompanies this bonus. While not required, this is shown in tooltips as well as any hints for optional bonuses.",
-      "Label": "Description"
+    "description": {
+      "hint": "The text that accompanies this bonus. While not required, this is shown in tooltips as well as any hints for optional bonuses.",
+      "label": "Description"
     },
-    "Enabled": {
-      "Hint": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored.",
-      "Label": "Enabled"
+    "enabled": {
+      "hint": "Toggle this bonus on or off. A bonus that is toggled off will be completely ignored.",
+      "label": "Enabled"
     },
-    "Exclusive": {
-      "Hint": "Toggle whether this bonus applies only to the item on which it is created. A bonus cannot be set to apply to one specific item only, unless created on said item, and applying to attack, damage, save DCs, or tool checks.",
-      "Label": "Exclusive"
+    "exclusive": {
+      "hint": "Toggle whether this bonus applies only to the item on which it is created. A bonus cannot be set to apply to one specific item only, unless created on said item, and applying to attack, damage, save DCs, or tool checks.",
+      "label": "Exclusive"
     },
-    "Img": {
-      "Hint": "The image of this bonus to display where relevant.",
-      "Label": "Image"
+    "img": {
+      "hint": "The image of this bonus to display where relevant.",
+      "label": "Image"
     },
-    "Optional": {
-      "Hint": "Toggle whether this bonus should be opted into when rolling. A bonus cannot be set to be optional unless it provides an additive bonus on top of an attack roll, damage roll, saving throw, or ability check.",
-      "Label": "Optional"
+    "optional": {
+      "hint": "Toggle whether this bonus should be opted into when rolling. A bonus cannot be set to be optional unless it provides an additive bonus on top of an attack roll, damage roll, saving throw, or ability check.",
+      "label": "Optional"
     },
-    "Reminder": {
-      "Hint": "Toggle whether this bonus simply serves as a reminder. To use this, it must not be granting any bonuses or dice modifications. This feature is also only available for rolls that have a configuration dialog.",
-      "Label": "Reminder"
+    "reminder": {
+      "hint": "Toggle whether this bonus simply serves as a reminder. To use this, it must not be granting any bonuses or dice modifications. This feature is also only available for rolls that have a configuration dialog.",
+      "label": "Reminder"
     }
   },
   "Filters": {
@@ -419,49 +419,99 @@
   },
   "ToggleBonus": "Toggle Bonus",
   "Toggles": "Toggles",
-  "TypeAttack": {
-    "BonusHint": "Additional parts to add on top of the attack roll.",
-    "BonusLabel": "Attack Roll Bonus",
-    "CriticalRangeHint": "An integer to subtract from the critical range of the attack roll. This field respects roll data, but not dice rolls.",
-    "CriticalRangeLabel": "Critical Range Modifier",
-    "FumbleRangeHint": "An integer to add to the fumble range of the attack roll. This field respects roll data, but not dice rolls.",
-    "FumbleRangeLabel": "Fumble Range Modifier",
-    "Label": "Attack Rolls"
+  "ATTACK": {
+    "Label": "Attack Rolls",
+    "FIELDS": {
+      "bonuses": {
+        "bonus": {
+          "label": "Attack Roll Bonus",
+          "hint": "Additional parts to add on top of the attack roll."
+        },
+        "criticalRange": {
+          "label": "Critical Range Modifier",
+          "hint": "An integer to subtract from the critical range of the attack roll. This field respects roll data, but not dice rolls."
+        },
+        "fumbleRange": {
+          "label": "Fumble Range Modifier",
+          "hint": "An integer to add to the fumble range of the attack roll. This field respects roll data, but not dice rolls."
+        }
+      }
+    }
   },
-  "TypeDamage": {
-    "BonusHint": "Additional parts to add on top of the damage roll.",
-    "BonusLabel": "Damage Roll Bonus",
-    "CriticalBonusDamageHint": "Additional parts to add on top of the damage roll on critical hits.",
-    "CriticalBonusDamageLabel": "Extra Critical Hit Damage",
-    "CriticalBonusDiceHint": "An additional number of dice that should be rolled on a critical hit. This field respects roll data, but not dice rolls.",
-    "CriticalBonusDiceLabel": "Extra Critical Hit Dice",
-    "DamageTypeHint": "The damage type of the parts added to the damage roll.",
-    "DamageTypeLabel": "Damage Type",
-    "Label": "Damage Rolls"
+  "DAMAGE": {
+    "Label": "Damage Rolls",
+    "FIELDS": {
+      "bonuses": {
+        "bonus": {
+          "label": "Damage Roll Bonus",
+          "hint": "Additional parts to add on top of the damage roll."
+        },
+        "criticalBonusDamage": {
+          "hint": "Additional parts to add on top of the damage roll on critical hits.",
+          "label": "Extra Critical Hit Damage"
+        },
+        "criticalBonusDice": {
+          "hint": "An additional number of dice that should be rolled on a critical hit. This field respects roll data, but not dice rolls.",
+          "label": "Extra Critical Hit Dice"
+        },
+        "damageType": {
+          "hint": "The damage type of the parts added to the damage roll.",
+          "label": "Damage Type"
+        }
+      }
+    }
   },
-  "TypeHitdie": {
-    "BonusHint": "Additional parts to add on top of the hit die roll.",
-    "BonusLabel": "Hit Die Roll Bonus",
-    "Label": "Hit Die Rolls"
+  "HITDIE": {
+    "Label": "Hit Die Rolls",
+    "FIELDS": {
+      "bonuses": {
+        "bonus": {
+          "label": "Hit Die Roll Bonus",
+          "hint": "Additional parts to add on top of the hit die roll."
+        }
+      }
+    }
   },
-  "TypeSave": {
-    "BonusHint": "An integer to add onto the DC of a saving throw. This field respects roll data, but not dice rolls.",
-    "BonusLabel": "Save DC Bonus",
-    "Label": "Save DCs"
+  "SAVE": {
+    "Label": "Save DCs",
+    "FIELDS": {
+      "bonuses": {
+        "bonus": {
+          "hint": "An integer to add onto the DC of a saving throw. This field respects roll data, but not dice rolls.",
+          "label": "Save DC Bonus"
+        }
+      }
+    }
   },
-  "TypeTest": {
-    "BonusHint": "Additional parts to add on top of the ability check.",
-    "BonusLabel": "Ability Check Bonus",
-    "Label": "Ability Checks"
+  "TEST": {
+    "Label": "Ability Checks",
+    "FIELDS": {
+      "bonuses": {
+        "bonus": {
+          "label": "Ability Check Bonus",
+          "hint": "Additional parts to add on top of the ability check."
+        }
+      }
+    }
   },
-  "TypeThrow": {
-    "BonusHint": "Additional parts to add on top of the saving throw roll.",
-    "BonusLabel": "Saving Throw Bonus",
-    "DeathSaveCriticalHint": "An integer to subtract from the threshold that decides when a Death Saving Throw results in restoring consciousness and 1 hit point. This field respects roll data, but not dice rolls.",
-    "DeathSaveCriticalLabel": "Death Save Critical Limit",
+  "THROW": {
     "Label": "Saving Throws",
-    "TargetValueHint": "An integer to subtract from the minimum requirement to pass a saving throw. This field respects roll data, but not dice rolls.",
-    "TargetValueLabel": "Target Value"
+    "FIELDS": {
+      "bonuses": {
+        "bonus": {
+          "hint": "Additional parts to add on top of the saving throw roll.",
+          "label": "Saving Throw Bonus"
+        },
+        "deathSaveCritical": {
+          "hint": "An integer to subtract from the threshold that decides when a Death Saving Throw results in restoring consciousness and 1 hit point. This field respects roll data, but not dice rolls.",
+          "label": "Death Save Critical Limit"
+        },
+        "targetValue": {
+          "hint": "An integer to subtract from the minimum requirement to pass a saving throw. This field respects roll data, but not dice rolls.",
+          "label": "Target Value"
+        }
+      }
+    }
   },
   "Warning": {
     "Consuming": {
