@@ -1,18 +1,7 @@
+import {MODULE} from "../constants.mjs";
 import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, SetField, StringField} = foundry.data.fields;
-
-/**
- * The different attack modes. This doesn't exist in a config object.
- * @enum {string}
- */
-const attackModes = {
-  offhand: "DND5E.ATTACK.Mode.Offhand",
-  oneHanded: "DND5E.ATTACK.Mode.OneHanded",
-  thrown: "DND5E.ATTACK.Mode.Thrown",
-  "thrown-offhand": "DND5E.ATTACK.Mode.ThrownOffhand",
-  twoHanded: "DND5E.ATTACK.Mode.TwoHanded"
-};
 
 /* -------------------------------------------------- */
 
@@ -24,25 +13,10 @@ export default class AttackModesField extends FilterMixin(SchemaField) {
 
   constructor(fields = {}, options = {}) {
     super({
-      value: new SetField(new StringField({
-        choices: CONFIG.DND5E.attackTypes
-      }), {
-        label: "BABONUS.Filters.AttackModes.ValueLabel"
-      }),
-      classification: new SetField(new StringField({
-        choices: CONFIG.DND5E.attackClassifications
-      }), {
-        label: "BABONUS.Filters.AttackModes.ClassificationLabel"
-      }),
-      mode: new SetField(new StringField({
-        choices: attackModes
-      }), {
-        label: "BABONUS.Filters.AttackModes.ModeLabel"
-      })
-    }, {
-      label: "BABONUS.Filters.AttackModes.Label",
-      hint: "BABONUS.Filters.AttackModes.Hint"
-    });
+      value: new SetField(new StringField({choices: CONFIG.DND5E.attackTypes})),
+      classification: new SetField(new StringField({choices: CONFIG.DND5E.attackClassifications})),
+      mode: new SetField(new StringField({choices: MODULE.ATTACK_MODES_CHOICES}))
+    }, options);
   }
 
   /* -------------------------------------------------- */
@@ -72,15 +46,15 @@ export default class AttackModesField extends FilterMixin(SchemaField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize legend}}
+        {{legend}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
-      {{formGroup value.field value=value.value localize=true}}
-      {{formGroup classification.field value=classification.value localize=true}}
-      {{formGroup mode.field value=mode.value localize=true}}
+      <p class="hint">{{hint}}</p>
+      {{formGroup value.field value=value.value}}
+      {{formGroup classification.field value=classification.value}}
+      {{formGroup mode.field value=mode.value}}
     </fieldset>`;
 
     return Handlebars.compile(template)(context);

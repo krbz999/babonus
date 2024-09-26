@@ -196,4 +196,18 @@ Hooks.once("i18nInit", function() {
   for (const model of Object.values(babonus.abstract.DataFields.models.Babonus)) {
     Localization.localizeDataModel(model);
   }
+
+  const localizeObject = object => {
+    for (const [k, v] of Object.entries(object)) {
+      object[k] = game.i18n.localize(v);
+    }
+  };
+
+  localizeObject(MODULE.ATTACK_MODES_CHOICES);
+  localizeObject(MODULE.CONSUMPTION_TYPES);
+  localizeObject(MODULE.DISPOSITION_TYPES);
+  localizeObject(MODULE.HEALTH_PERCENTAGES_CHOICES);
+  localizeObject(MODULE.MODIFIER_MODES);
+  localizeObject(MODULE.SPELL_COMPONENT_CHOICES);
+  localizeObject(MODULE.TOKEN_SIZES_CHOICES);
 });

@@ -10,26 +10,11 @@ export default class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
 
   constructor(fields = {}, options = {}) {
     super({
-      min: new NumberField({
-        min: 0,
-        step: 1,
-        integer: true
-      }),
-      max: new NumberField({
-        min: 0,
-        step: 1,
-        integer: true
-      }),
-      size: new BooleanField({
-        label: "BABONUS.Filters.RemainingSpellSlots.SizeLabel",
-        hint: "BABONUS.Filters.RemainingSpellSlots.SizeHint"
-      }),
+      min: new NumberField({min: 0, step: 1, integer: true}),
+      max: new NumberField({min: 0, step: 1, integer: true}),
+      size: new BooleanField(),
       ...fields
-    }, {
-      label: "BABONUS.Filters.RemainingSpellSlots.Label",
-      hint: "BABONUS.Filters.RemainingSpellSlots.Hint",
-      ...options
-    });
+    }, options);
   }
 
   /* -------------------------------------------------- */
@@ -39,21 +24,21 @@ export default class RemainingSpellSlotsField extends FilterMixin(SchemaField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize label}}
+        {{label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
+      <p class="hint">{{hint}}</p>
       <div class="form-group">
-        <label>{{localize "BABONUS.Filters.RemainingSpellSlots.RangesLabel"}}</label>
+        <label>{{localize "BABONUS.FIELDS.filters.remainingSpellSlots.rangeLabel"}}</label>
         <div class="form-fields">
           {{formInput minField value=min placeholder=phmin}}
           &mdash;
           {{formInput maxField value=max placeholder=phmax}}
         </div>
       </div>
-      {{formGroup sizeField value=size localize=true}}
+      {{formGroup sizeField value=size}}
     </fieldset>`;
 
     const schema = bonus.schema.getField(`filters.${this.name}`);

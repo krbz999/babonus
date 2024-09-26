@@ -9,16 +9,7 @@ export default class SourceClassesField extends FilterMixin(SchemaField) {
   /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
-    super({
-      values: new SetField(new StringField(), {
-        slug: true
-      }),
-      ...fields
-    }, {
-      label: "BABONUS.Filters.SourceClasses.Label",
-      hint: "BABONUS.Filters.SourceClasses.Hint",
-      ...options
-    });
+    super({values: new SetField(new StringField(), {slug: true}), ...fields}, options);
   }
 
   /* -------------------------------------------------- */
@@ -28,12 +19,12 @@ export default class SourceClassesField extends FilterMixin(SchemaField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize label}}
+        {{label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
+      <p class="hint">{{hint}}</p>
       <div class="form-group">
         <div class="form-fields">
           {{formInput field value=value slug=true placeholder=placeholder}}
@@ -50,7 +41,7 @@ export default class SourceClassesField extends FilterMixin(SchemaField) {
       hint: schema.hint,
       field: field,
       value: value,
-      placeholder: game.i18n.localize("BABONUS.Filters.SourceClasses.Placeholder")
+      placeholder: game.i18n.localize("BABONUS.FIELDS.filters.sourceClasses.value.placeholder")
     };
 
     return Handlebars.compile(template)(data);

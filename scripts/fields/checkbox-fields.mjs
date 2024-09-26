@@ -1,3 +1,4 @@
+import {MODULE} from "../constants.mjs";
 import FilterMixin from "./filter-mixin.mjs";
 
 const {SetField, NumberField, StringField, SchemaField} = foundry.data.fields;
@@ -10,13 +11,13 @@ class BaseField extends FilterMixin(SetField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize label}}
+        {{label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
-      {{formInput field value=value localize=true}}
+      <p class="hint">{{hint}}</p>
+      {{formInput field value=value}}
     </fieldset>`;
     return Handlebars.compile(template)({
       field: field, value: value, hint: field.hint, label: field.label
@@ -42,12 +43,7 @@ class ProficiencyLevelsField extends BaseField {
   /* -------------------------------------------------- */
 
   constructor() {
-    super(new NumberField({
-      choices: CONFIG.DND5E.proficiencyLevels
-    }), {
-      label: "BABONUS.Filters.ProficiencyLevels.Label",
-      hint: "BABONUS.Filters.ProficiencyLevels.Hint"
-    });
+    super(new NumberField({choices: CONFIG.DND5E.proficiencyLevels}));
   }
 }
 
@@ -66,10 +62,7 @@ class ItemTypesField extends BaseField {
         acc[type] = `TYPES.Item.${type}`;
         return acc;
       }, {})
-    }), {
-      label: "BABONUS.Filters.ItemTypes.Label",
-      hint: "BABONUS.Filters.ItemTypes.Hint"
-    });
+    }));
   }
 }
 
@@ -82,12 +75,7 @@ class SpellLevelsField extends BaseField {
   /* -------------------------------------------------- */
 
   constructor() {
-    super(new NumberField({
-      choices: CONFIG.DND5E.spellLevels
-    }), {
-      label: "BABONUS.Filters.SpellLevels.Label",
-      hint: "BABONUS.Filters.SpellLevels.Hint"
-    });
+    super(new NumberField({choices: CONFIG.DND5E.spellLevels}));
   }
 }
 
@@ -107,26 +95,14 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
           if (prop) acc[p] = prop;
           return acc;
         }, {})
-      }), {
-        label: "BABONUS.Filters.SpellComponents.TypesLabel",
-        hint: "BABONUS.Filters.SpellComponents.TypesHint"
-      }),
+      })),
       match: new StringField({
         required: true,
         initial: "ANY",
-        choices: {
-          ANY: "BABONUS.Filters.SpellComponents.MatchAny",
-          ALL: "BABONUS.Filters.SpellComponents.MatchAll"
-        },
-        label: "BABONUS.Filters.SpellComponents.MatchLabel",
-        hint: "BABONUS.Filters.SpellComponents.MatchHint"
+        choices: MODULE.SPELL_COMPONENT_CHOICES
       }),
       ...fields
-    }, {
-      label: "BABONUS.Filters.SpellComponents.Label",
-      hint: "BABONUS.Filters.SpellComponents.Hint",
-      ...options
-    });
+    }, options);
   }
 
   /* -------------------------------------------------- */
@@ -136,22 +112,22 @@ class SpellComponentsField extends FilterMixin(SchemaField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize types.parent.label}}
+        {{types.parent.label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize types.parent.hint}}</p>
+      <p class="hint">{{types.parent.hint}}</p>
       <div class="form-group">
-        <label>{{localize types.label}}</label>
+        <label>{{types.label}}</label>
         <div class="form-fields">
-          {{formInput types value=typesValue localize=true}}
+          {{formInput types value=typesValue}}
         </div>
       </div>
       <div class="form-group">
-        <label>{{localize match.label}}</label>
+        <label>{{match.label}}</label>
         <div class="form-fields">
-          {{formInput match value=matchValue localize=true sort=true}}
+          {{formInput match value=matchValue sort=true}}
         </div>
       </div>
     </fieldset>`;
@@ -181,12 +157,7 @@ class ActorCreatureSizesField extends BaseField {
   /* -------------------------------------------------- */
 
   constructor() {
-    super(new StringField({
-      choices: CONFIG.DND5E.actorSizes
-    }), {
-      label: "BABONUS.Filters.ActorCreatureSizes.Label",
-      hint: "BABONUS.Filters.ActorCreatureSizes.Hint"
-    });
+    super(new StringField({choices: CONFIG.DND5E.actorSizes}));
   }
 }
 
@@ -199,12 +170,7 @@ class PreparationModesField extends BaseField {
   /* -------------------------------------------------- */
 
   constructor() {
-    super(new StringField({
-      choices: CONFIG.DND5E.spellPreparationModes
-    }), {
-      label: "BABONUS.Filters.PreparationModes.Label",
-      hint: "BABONUS.Filters.PreparationModes.Hint"
-    });
+    super(new StringField({choices: CONFIG.DND5E.spellPreparationModes}));
   }
 }
 

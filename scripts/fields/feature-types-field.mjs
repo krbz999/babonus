@@ -10,20 +10,10 @@ export default class FeatureTypesField extends FilterMixin(SchemaField) {
 
   constructor(fields = {}, options = {}) {
     super({
-      type: new StringField({
-        required: false,
-        label: "BABONUS.Filters.FeatureTypes.TypeLabel"
-      }),
-      subtype: new StringField({
-        required: true,
-        label: "BABONUS.Filters.FeatureTypes.SubtypeLabel"
-      }),
+      type: new StringField({required: false}),
+      subtype: new StringField({required: true}),
       ...fields
-    }, {
-      label: "BABONUS.Filters.FeatureTypes.Label",
-      hint: "BABONUS.Filters.FeatureTypes.Hint",
-      ...options
-    });
+    }, options);
   }
 
   /* -------------------------------------------------- */
@@ -41,15 +31,15 @@ export default class FeatureTypesField extends FilterMixin(SchemaField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize label}}
+        {{label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
-      {{formGroup type value=value1 localize=true sort=true choices=choices1}}
+      <p class="hint">{{hint}}</p>
+      {{formGroup type value=value1 sort=true choices=choices1}}
       {{#if choices2}}
-      {{formGroup subtype value=value2 localize=true sort=true choices=choices2}}
+      {{formGroup subtype value=value2 sort=true choices=choices2}}
       {{/if}}
     </fieldset>`;
 

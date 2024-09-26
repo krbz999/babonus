@@ -13,13 +13,13 @@
 
   {{#if hasModifiers}}
   <fieldset>
-    <legend>{{localize "BABONUS.Modifiers.Config.Label"}}</legend>
+    <legend>{{localize "BABONUS.MODIFIERS.FIELDS.config.label"}}</legend>
     {{#with modifiers.config.first}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
+    {{formGroup field value=value rootId=@root.rootId}}
     {{/with}}
 
     {{#with modifiers.enabled}}
-    {{formGroup field value=value options=choices localize=true name="bonuses.modifiers.config.enabled" type="checkboxes" classes="stacked"}}
+    {{formGroup field value=value options=choices name="bonuses.modifiers.config.enabled" type="checkboxes" classes="stacked"}}
     {{/with}}
 
   </fieldset>
@@ -34,9 +34,9 @@
   {{#if modifiers.amount.enabled}}
   {{#with modifiers.amount}}
   <fieldset>
-    <legend>{{localize "BABONUS.Modifiers.Amount.Label"}}</legend>
-    {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
-    {{formGroup mode.field value=mode.value localize=true}}
+    <legend>{{localize "BABONUS.MODIFIERS.FIELDS.amount.label"}}</legend>
+    {{formGroup value.field value=value.value placeholder=value.field.label}}
+    {{formGroup mode.field value=mode.value}}
   </fieldset>
   {{/with}}
   {{/if}}
@@ -45,9 +45,9 @@
   {{#if modifiers.size.enabled}}
   {{#with modifiers.size}}
   <fieldset>
-    <legend>{{localize "BABONUS.Modifiers.Size.Label"}}</legend>
-    {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
-    {{formGroup mode.field value=mode.value localize=true}}
+    <legend>{{localize "BABONUS.MODIFIERS.FIELDS.size.label"}}</legend>
+    {{formGroup value.field value=value.value placeholder=value.field.label}}
+    {{formGroup mode.field value=mode.value}}
   </fieldset>
   {{/with}}
   {{/if}}
@@ -56,12 +56,12 @@
   {{#if modifiers.reroll.enabled}}
   {{#with modifiers.reroll}}
   <fieldset>
-    <legend>{{localize "BABONUS.Modifiers.Reroll.Label"}}</legend>
-    {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
-    {{formGroup invert.field value=invert.value localize=true rootId=@root.rootId}}
-    {{formGroup recursive.field value=recursive.value localize=true rootId=@root.rootId}}
+    <legend>{{localize "BABONUS.MODIFIERS.FIELDS.reroll.label"}}</legend>
+    {{formGroup value.field value=value.value placeholder=value.field.label}}
+    {{formGroup invert.field value=invert.value rootId=@root.rootId}}
+    {{formGroup recursive.field value=recursive.value rootId=@root.rootId}}
     {{#if recursive.value}}
-    {{formGroup limit.field value=limit.value localize=true placeholder=(localize limit.field.label)}}
+    {{formGroup limit.field value=limit.value placeholder=limit.field.label}}
     {{/if}}
   </fieldset>
   {{/with}}
@@ -71,11 +71,11 @@
   {{#if modifiers.explode.enabled}}
   {{#with modifiers.explode}}
   <fieldset>
-    <legend>{{localize "BABONUS.Modifiers.Explode.Label"}}</legend>
-    {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
-    {{formGroup once.field value=once.value localize=true rootId=@root.rootId}}
+    <legend>{{localize "BABONUS.MODIFIERS.FIELDS.explode.label"}}</legend>
+    {{formGroup value.field value=value.value placeholder=value.field.label}}
+    {{formGroup once.field value=once.value rootId=@root.rootId}}
     {{#unless once.value}}
-    {{formGroup limit.field value=limit.value localize=true placeholder=(localize limit.field.label)}}
+    {{formGroup limit.field value=limit.value placeholder=limit.field.label}}
     {{/unless}}
   </fieldset>
   {{/with}}
@@ -85,10 +85,10 @@
   {{#if modifiers.minimum.enabled}}
   {{#with modifiers.minimum}}
   <fieldset>
-    <legend>{{localize "BABONUS.Modifiers.Minimum.Label"}}</legend>
-    {{formGroup maximize.field value=maximize.value localize=true rootId=@root.rootId}}
+    <legend>{{localize "BABONUS.MODIFIERS.FIELDS.minimum.label"}}</legend>
+    {{formGroup maximize.field value=maximize.value rootId=@root.rootId}}
     {{#unless maximize.value}}
-    {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
+    {{formGroup value.field value=value.value placeholder=value.field.label}}
     {{/unless}}
   </fieldset>
   {{/with}}
@@ -98,9 +98,9 @@
   {{#if modifiers.maximum.enabled}}
   {{#with modifiers.maximum}}
   <fieldset>
-    <legend>{{localize "BABONUS.Modifiers.Maximum.Label"}}</legend>
-    {{formGroup value.field value=value.value localize=true placeholder=(localize value.field.label)}}
-    {{formGroup zero.field value=zero.value localize=true rootId=@root.rootId}}
+    <legend>{{localize "BABONUS.MODIFIERS.FIELDS.maximum.label"}}</legend>
+    {{formGroup value.field value=value.value placeholder=value.field.label}}
+    {{formGroup zero.field value=zero.value rootId=@root.rootId}}
   </fieldset>
   {{/with}}
   {{/if}}

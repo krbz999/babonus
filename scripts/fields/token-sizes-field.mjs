@@ -1,3 +1,4 @@
+import {MODULE} from "../constants.mjs";
 import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, NumberField, BooleanField} = foundry.data.fields;
@@ -10,27 +11,14 @@ export default class TokenSizesField extends FilterMixin(SchemaField) {
 
   constructor(fields = {}, options = {}) {
     super({
-      size: new NumberField({
-        min: 0.5,
-        step: 0.5
-      }),
+      size: new NumberField({min: 0.5, step: 0.5}),
       type: new NumberField({
-        choices: {
-          0: "BABONUS.Filters.TokenSizes.SizeGreaterThan",
-          1: "BABONUS.Filters.TokenSizes.SizeSmallerThan"
-        },
+        choices: MODULE.TOKEN_SIZES_CHOICES,
         initial: 0
       }),
-      self: new BooleanField({
-        label: "BABONUS.Filters.TokenSizes.SelfLabel",
-        hint: "BABONUS.Filters.TokenSizes.SelfHint"
-      }),
+      self: new BooleanField(),
       ...fields
-    }, {
-      label: "BABONUS.Filters.TokenSizes.Label",
-      hint: "BABONUS.Filters.TokenSizes.Hint",
-      ...options
-    });
+    }, options);
   }
 
   /* -------------------------------------------------- */
@@ -40,20 +28,20 @@ export default class TokenSizesField extends FilterMixin(SchemaField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize label}}
+        {{label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
+      <p class="hint">{{hint}}</p>
       <div class="form-group">
-        <label>{{localize "BABONUS.Filters.TokenSizes.RangeLabel"}}</label>
+        <label>{{sizeField.label}}</label>
         <div class="form-fields">
-          {{formInput typeField value=type localize=true}}
+          {{formInput typeField value=type}}
           {{formInput sizeField value=size placeholder=phSize}}
         </div>
       </div>
-      {{formGroup selfField value=self localize=true}}
+      {{formGroup selfField value=self}}
     </fieldset>`;
 
     const schema = bonus.schema.getField(`filters.${this.name}`);
@@ -66,7 +54,7 @@ export default class TokenSizesField extends FilterMixin(SchemaField) {
       typeField, type,
       sizeField, size,
       selfField, self,
-      phSize: game.i18n.localize("BABONUS.Filters.TokenSizes.SizePlaceholder")
+      phSize: game.i18n.localize("BABONUS.FIELDS.filters.tokenSizes.size.placeholder")
     };
 
     return Handlebars.compile(template)(data);

@@ -280,6 +280,7 @@ export const filters = {
   spellLevels,
   spellSchools,
   statusEffects,
+  tags,
   targetArmors,
   targetEffects,
   throwTypes,
@@ -860,6 +861,38 @@ function statusEffects({actor}, filter) {
   }
 
   return _testInclusion(actor.statuses, included, excluded);
+}
+
+/* -------------------------------------------------- */
+
+/**
+ * Find out if the actor or item has any of the valid tags.
+ * @param {SubjectConfig} subjects        Subject config.
+ * @param {object} filter                 The filter data.
+ * @param {Set<string>} filter.values     The set of valid tags.
+ * @returns {boolean}                     Whether the actor or item has any of the valid tags.
+ */
+function tags(subjects, filter) {
+  const tags = filter.values;
+  if (!tags.size) return true;
+
+  const _hasTag = document => {
+    const stored = document.getFlag("babonus", "tags") ?? [];
+    return stored.some(tag => tags.has(tag));
+  };
+
+  const hasTag = document => {
+    if (_hasTag(document)) return true;
+
+    for (const effect of document.allApplicableEffects?.() ?? []) {
+      if (effect.active && _hasTag(effect)) return true;
+    }
+
+    return false;
+  };
+
+  if (subjects.item && hasTag(subjects.item)) return true;
+  return hasTag(subjects.actor);
 }
 
 /* -------------------------------------------------- */

@@ -1,3 +1,4 @@
+import {MODULE} from "../constants.mjs";
 import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, NumberField} = foundry.data.fields;
@@ -16,24 +17,15 @@ export default class HealthPercentagesField extends FilterMixin(SchemaField) {
         step: 1,
         integer: true,
         nullable: true, // nullable required to be able to remove it
-        initial: 50,
-        label: "BABONUS.Filters.HealthPercentages.ValueLabel"
+        initial: 50
       }),
       type: new NumberField({
         initial: null,
         nullable: true, // nullable required to be able to remove it
-        choices: {
-          0: "BABONUS.Filters.HealthPercentages.OptionLess",
-          1: "BABONUS.Filters.HealthPercentages.OptionMore"
-        },
-        label: "BABONUS.Filters.HealthPercentages.TypeLabel"
+        choices: MODULE.HEALTH_PERCENTAGES_CHOICES
       }),
       ...fields
-    }, {
-      label: "BABONUS.Filters.HealthPercentages.Label",
-      hint: "BABONUS.Filters.HealthPercentages.Hint",
-      ...options
-    });
+    }, options);
   }
 
   /* -------------------------------------------------- */
@@ -43,14 +35,14 @@ export default class HealthPercentagesField extends FilterMixin(SchemaField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize label}}
+        {{label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
-      {{formGroup valueField value=value localize=true}}
-      {{formGroup typeField value=type localize=true}}
+      <p class="hint">{{hint}}</p>
+      {{formGroup valueField value=value}}
+      {{formGroup typeField value=type}}
     </fieldset>`;
 
     const schema = bonus.schema.getField(`filters.${this.name}`);

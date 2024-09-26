@@ -8,6 +8,7 @@ import IdentifiersField from "./identifiers-field.mjs";
 import RemainingSpellSlotsField from "./remaining-spell-slots-field.mjs";
 import semicolonFields from "./semicolon-fields.mjs";
 import SourceClassesField from "./source-classes-field.mjs";
+import TagsField from "./tags-field.mjs";
 import TokenSizesField from "./token-sizes-field.mjs";
 
 export default Object.values({
@@ -21,6 +22,7 @@ export default Object.values({
   IdentifiersField,
   RemainingSpellSlotsField,
   SourceClassesField,
+  TagsField,
   TokenSizesField
 }).reduce((acc, field) => {
   acc[field.name] = field;

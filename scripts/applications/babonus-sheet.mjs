@@ -279,8 +279,8 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
         }
       }
       modifiers.enabled.field = new foundry.data.fields.SetField(new foundry.data.fields.StringField(), {
-        label: "BABONUS.Modifiers.Config.Enabled",
-        hint: "BABONUS.Modifiers.Config.EnabledHint"
+        label: game.i18n.localize("BABONUS.MODIFIERS.FIELDS.config.enabled.label"),
+        hint: game.i18n.localize("BABONUS.MODIFIERS.FIELDS.config.enabled.hint")
       });
 
       const parts = ["3", "2d10", "1d4"];
@@ -295,9 +295,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
     if (!["save", "hitdie"].includes(bonus.type)) {
       consume.enabled = makeField("consume.enabled");
       consume.type = makeField("consume.type");
-      consume.subtype = makeField("consume.subtype", {
-        label: `BABONUS.FIELDS.Consume.Subtype.${source.consume.type.capitalize()}Label`
-      });
+      consume.subtype = makeField("consume.subtype");
       consume.formula = makeField("consume.formula", {
         placeholder: bonus.bonuses.bonus,
         show: bonus.consume.scales
@@ -311,13 +309,13 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       const v = bonus.consume.value;
       consume.value = {
         min: makeField("consume.value.min", {
-          placeholder: game.i18n.localize(`BABONUS.FIELDS.Consume.Values.Min${isSlot}`)
+          placeholder: game.i18n.localize(`BABONUS.FIELDS.consume.value.min.label${isSlot}`)
         }),
         max: makeField("consume.value.max", {
-          placeholder: game.i18n.localize(`BABONUS.FIELDS.Consume.Values.Max${isSlot}`)
+          placeholder: game.i18n.localize(`BABONUS.FIELDS.consume.value.max.label${isSlot}`)
         }),
-        label: `BABONUS.FIELDS.Consume.Values.Label${isSlot}`,
-        hint: `BABONUS.FIELDS.Consume.Values.Hint${scales ? "Scale" : ""}${isSlot}`,
+        label: game.i18n.localize(`BABONUS.FIELDS.consume.value.label${isSlot}`),
+        hint: game.i18n.localize(`BABONUS.FIELDS.consume.value.hint${scales ? "Scale" : ""}${isSlot}`),
         range: (scales && v.min && v.max) ? `(${v.min}&ndash;${v.max})` : null
       };
 
@@ -338,8 +336,8 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
           acc[d] = d;
           return acc;
         }, {
-          smallest: "DND5E.ConsumeHitDiceSmallest",
-          largest: "DND5E.ConsumeHitDiceLargest"
+          smallest: game.i18n.localize("DND5E.ConsumeHitDiceSmallest"),
+          largest: game.i18n.localize("DND5E.ConsumeHitDiceLargest")
         });
       } else consume.subtype.show = false;
     } else {
@@ -354,10 +352,10 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       let loc;
       let range;
       if (!bonus.aura.range || (bonus.aura.range > 0)) {
-        loc = "BABONUS.FIELDS.Aura.Range.LabelFt";
+        loc = "BABONUS.FIELDS.aura.range.labelFt";
         range = bonus.aura.range;
       } else if (bonus.aura.range === -1) {
-        loc = "BABONUS.FIELDS.Aura.Range.LabelUnlimited";
+        loc = "BABONUS.FIELDS.aura.range.labelUnlimited";
         range = game.i18n.localize("DND5E.Unlimited");
       }
       if (loc) {
@@ -395,13 +393,12 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       if (!this._filters.has(key) || babonus.abstract.DataFields.fields[key].repeatable) acc.push({
         id: key,
         repeats: babonus.abstract.DataFields.fields[key].repeatable ? this.bonus.filters[key].length : null,
-        label: `BABONUS.Filters.${key.capitalize()}.Label`,
-        hint: `BABONUS.Filters.${key.capitalize()}.Hint`
+        field: this.bonus.schema.getField(`filters.${key}`)
       });
       return acc;
     }, []).sort((a, b) => {
-      a = game.i18n.localize(`BABONUS.Filters.${a.id.capitalize()}.Label`);
-      b = game.i18n.localize(`BABONUS.Filters.${b.id.capitalize()}.Label`);
+      a = this.bonus.schema.getField(`filters.${a.id}`).label;
+      b = this.bonus.schema.getField(`filters.${b.id}`).label;
       return a.localeCompare(b);
     });
   }
@@ -415,8 +412,8 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
   #prepareFilters() {
     const htmls = [];
     const keys = [...this._filters].sort((a, b) => {
-      a = game.i18n.localize(`BABONUS.Filters.${a.capitalize()}.Label`);
-      b = game.i18n.localize(`BABONUS.Filters.${b.capitalize()}.Label`);
+      a = this.bonus.schema.getField(`filters.${a}`).label;
+      b = this.bonus.schema.getField(`filters.${b}`).label;
       return a.localeCompare(b);
     });
     for (const key of keys) {

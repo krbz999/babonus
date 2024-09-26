@@ -17,28 +17,14 @@ export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
   /** @override */
   constructor(options = {}) {
     super(new SchemaField({
-      one: new StringField({
-        blank: false
-      }),
-      other: new StringField({
-        blank: false
-      }),
+      one: new StringField({placeholder: "BABONUS.FIELDS.filters.arbitraryComparisons.one.placeholder"}),
+      other: new StringField({placeholder: "BABONUS.FIELDS.filters.arbitraryComparisons.other.placeholder"}),
       operator: new StringField({
         required: true,
         initial: "EQ",
-        choices: {
-          EQ: "=",
-          LT: "<",
-          GT: ">",
-          LE: "<=",
-          GE: ">="
-        }
+        choices: {EQ: "=", LT: "<", GT: ">", LE: "<=", GE: ">="}
       })
-    }), {
-      label: "BABONUS.Filters.ArbitraryComparisons.Label",
-      hint: "BABONUS.Filters.ArbitraryComparisons.Hint",
-      ...options
-    });
+    }), options);
   }
 
   /* -------------------------------------------------- */
@@ -47,8 +33,8 @@ export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
   static render(bonus) {
     const template = `
     <fieldset>
-      <legend>{{localize label}}</legend>
-      <p class="hint">{{localize hint}}</p>
+      <legend>{{label}}</legend>
+      <p class="hint">{{hint}}</p>
       {{#each comparisons as |c idx|}}
       <div class="form-group">
         <div class="form-fields">
@@ -68,8 +54,8 @@ export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
     const data = {
       label: field.label,
       hint: field.hint,
-      placeholder1: game.i18n.localize("BABONUS.Filters.ArbitraryComparisons.One"),
-      placeholder2: game.i18n.localize("BABONUS.Filters.ArbitraryComparisons.Other"),
+      placeholder1: game.i18n.localize(one.options.placeholder),
+      placeholder2: game.i18n.localize(other.options.placeholder),
       comparisons: bonus.filters.arbitraryComparisons.map((c, i) => {
         return {
           one: {field: one, value: c.one, name: `filters.${this.name}.${i}.one`},

@@ -97,7 +97,7 @@ class BaseField extends FilterMixin(SetField) {
 
   /** @override */
   static render(bonus) {
-    const template = "{{formGroup field value=value localize=true}}";
+    const template = "{{formGroup field value=value}}";
     const data = {
       field: bonus.schema.getField(`filters.${this.name}`),
       value: bonus.filters[this.name]
@@ -130,15 +130,6 @@ class AbilitiesField extends BaseField {
 
   /* -------------------------------------------------- */
 
-  constructor(options = {}) {
-    super(foundry.utils.mergeObject({
-      label: "BABONUS.Filters.Abilities.Label",
-      hint: "BABONUS.Filters.Abilities.Hint"
-    }, options));
-  }
-
-  /* -------------------------------------------------- */
-
   /** @override */
   static choices() {
     const abilities = Object.entries(CONFIG.DND5E.abilities);
@@ -151,15 +142,6 @@ class AbilitiesField extends BaseField {
 class SaveAbilitiesField extends AbilitiesField {
   /** @override */
   static name = "saveAbilities";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.SaveAbilities.Label",
-      hint: "BABONUS.Filters.SaveAbilities.Hint"
-    });
-  }
 }
 
 /* -------------------------------------------------- */
@@ -172,15 +154,6 @@ class ThrowTypesField extends AbilitiesField {
 
   /** @override */
   static canExclude = false;
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.ThrowTypes.Label",
-      hint: "BABONUS.Filters.ThrowTypes.Hint"
-    });
-  }
 
   /* -------------------------------------------------- */
 
@@ -208,15 +181,6 @@ class StatusEffectsField extends BaseField {
 
   /* -------------------------------------------------- */
 
-  constructor(options = {}) {
-    super(foundry.utils.mergeObject({
-      label: "BABONUS.Filters.StatusEffects.Label",
-      hint: "BABONUS.Filters.StatusEffects.Hint"
-    }, options));
-  }
-
-  /* -------------------------------------------------- */
-
   /** @override */
   static choices() {
     return CONFIG.statusEffects.reduce((acc, {id, img, name}) => {
@@ -231,15 +195,6 @@ class StatusEffectsField extends BaseField {
 class TargetEffectsField extends StatusEffectsField {
   /** @override */
   static name = "targetEffects";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.TargetEffects.Label",
-      hint: "BABONUS.Filters.TargetEffects.Hint"
-    });
-  }
 }
 
 /* -------------------------------------------------- */
@@ -272,15 +227,6 @@ class CreatureTypesField extends BaseField {
 
   /* -------------------------------------------------- */
 
-  constructor(options = {}) {
-    super(foundry.utils.mergeObject({
-      label: "BABONUS.Filters.CreatureTypes.Label",
-      hint: "BABONUS.Filters.CreatureTypes.Hint"
-    }, options));
-  }
-
-  /* -------------------------------------------------- */
-
   /** @override */
   static choices() {
     const types = Object.entries(CONFIG.DND5E.creatureTypes);
@@ -295,15 +241,6 @@ class CreatureTypesField extends BaseField {
 class ActorCreatureTypesField extends CreatureTypesField {
   /** @override */
   static name = "actorCreatureTypes";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.ActorCreatureTypes.Label",
-      hint: "BABONUS.Filters.ActorCreatureTypes.Hint"
-    });
-  }
 }
 
 /* -------------------------------------------------- */
@@ -311,16 +248,6 @@ class ActorCreatureTypesField extends CreatureTypesField {
 class BaseArmorsField extends BaseField {
   /** @override */
   static name = "baseArmors";
-
-  /* -------------------------------------------------- */
-
-  constructor(options = {}) {
-    options = foundry.utils.mergeObject({
-      label: "BABONUS.Filters.BaseArmors.Label",
-      hint: "BABONUS.Filters.BaseArmors.Hint"
-    }, options);
-    super(options);
-  }
 
   /* -------------------------------------------------- */
 
@@ -340,15 +267,6 @@ class BaseArmorsField extends BaseField {
 class TargetArmorsField extends BaseArmorsField {
   /** @override */
   static name = "targetArmors";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.TargetArmors.Label",
-      hint: "BABONUS.Filters.TargetArmors.Hint"
-    });
-  }
 }
 
 /* -------------------------------------------------- */
@@ -356,15 +274,6 @@ class TargetArmorsField extends BaseArmorsField {
 class BaseToolsField extends BaseField {
   /** @override */
   static name = "baseTools";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.BaseTools.Label",
-      hint: "BABONUS.Filters.BaseTools.Hint"
-    });
-  }
 
   /* -------------------------------------------------- */
 
@@ -387,15 +296,6 @@ class BaseWeaponsField extends BaseField {
 
   /* -------------------------------------------------- */
 
-  constructor() {
-    super({
-      label: "BABONUS.Filters.BaseWeapons.Label",
-      hint: "BABONUS.Filters.BaseWeapons.Hint"
-    });
-  }
-
-  /* -------------------------------------------------- */
-
   /** @override */
   static choices() {
     return Array.from(babonus.trees.weapon.asSet()).map(k => {
@@ -415,15 +315,6 @@ class DamageTypesField extends BaseField {
 
   /* -------------------------------------------------- */
 
-  constructor() {
-    super({
-      label: "BABONUS.Filters.DamageTypes.Label",
-      hint: "BABONUS.Filters.DamageTypes.Hint"
-    });
-  }
-
-  /* -------------------------------------------------- */
-
   /** @override */
   static choices() {
     const damages = Object.entries(CONFIG.DND5E.damageTypes);
@@ -437,15 +328,6 @@ class DamageTypesField extends BaseField {
 class SkillIdsField extends BaseField {
   /** @override */
   static name = "skillIds";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.SkillIds.Label",
-      hint: "BABONUS.Filters.SkillIds.Hint"
-    });
-  }
 
   /* -------------------------------------------------- */
 
@@ -468,15 +350,6 @@ class SpellSchoolsField extends BaseField {
 
   /* -------------------------------------------------- */
 
-  constructor() {
-    super({
-      label: "BABONUS.Filters.SpellSchools.Label",
-      hint: "BABONUS.Filters.SpellSchools.Hint"
-    });
-  }
-
-  /* -------------------------------------------------- */
-
   /** @override */
   static choices() {
     const schools = Object.entries(CONFIG.DND5E.spellSchools);
@@ -489,15 +362,6 @@ class SpellSchoolsField extends BaseField {
 class WeaponPropertiesField extends BaseField {
   /** @override */
   static name = "weaponProperties";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.WeaponProperties.Label",
-      hint: "BABONUS.Filters.WeaponProperties.Hint"
-    });
-  }
 
   /* -------------------------------------------------- */
 
@@ -518,15 +382,6 @@ class WeaponPropertiesField extends BaseField {
 class ActorLanguagesField extends BaseField {
   /** @override */
   static name = "actorLanguages";
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.ActorLanguages.Label",
-      hint: "BABONUS.Filters.ActorLanguages.Hint"
-    });
-  }
 
   /* -------------------------------------------------- */
 

@@ -2,6 +2,7 @@ import {default as applications} from "./applications/_module.mjs";
 import {default as models} from "./models/babonus-model.mjs";
 
 export default {
+  applyTags: applyTags,
   createBabonus: createBabonus,
   duplicateBonus: duplicateBonus,
   embedBabonus: embedBabonus,
@@ -17,6 +18,40 @@ export default {
   proficiencyTree: proficiencyTree,
   speaksLanguage: speaksLanguage
 };
+
+/* -------------------------------------------------- */
+
+/**
+ * Apply tags to a document for the 'tags' filter.
+ * @param {Document} document             The target document.
+ * @returns {Promise<Document|null>}      A promise that resolves to the result of the dialog prompt.
+ */
+async function applyTags(document) {
+  const {SetField, StringField} = foundry.data.fields;
+  const field = new SetField(new StringField());
+  const value = document.getFlag("babonus", "tags") ?? [];
+  const html = field.toFormGroup({
+    label: "BABONUS.TagsDialog.field.label",
+    hint: "BABONUS.TagsDialog.field.hint",
+    localize: true
+  }, {value: value, name: "tags", slug: true}).outerHTML;
+
+  return foundry.applications.api.DialogV2.prompt({
+    rejectClose: false,
+    content: `<fieldset>${html}</fieldset>`,
+    window: {
+      icon: "fa-solid fa-tags",
+      title: game.i18n.format("BABONUS.TagsDialog.title", {name: document.name})
+    },
+    position: {width: 400},
+    ok: {
+      callback: (event, button) => {
+        const tags = Array.from(new Set([...value, ...button.form.elements.tags.value]));
+        return document.setFlag("babonus", "tags", tags);
+      }
+    }
+  });
+}
 
 /* -------------------------------------------------- */
 

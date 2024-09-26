@@ -16,12 +16,12 @@ export default class CustomScriptsField extends FilterMixin(JavaScriptField) {
     const template = `
     <fieldset>
       <legend>
-        {{localize label}}
+        {{label}}
         <a data-action="deleteFilter" data-id="${this.name}">
           <i class="fa-solid fa-trash"></i>
         </a>
       </legend>
-      <p class="hint">{{localize hint}}</p>
+      <p class="hint">{{hint}}</p>
       <div class="form-group">
         <div class="form-fields">
           {{formInput field value=value}}
@@ -34,15 +34,6 @@ export default class CustomScriptsField extends FilterMixin(JavaScriptField) {
       value: value,
       label: field.label,
       hint: field.hint
-    });
-  }
-
-  /* -------------------------------------------------- */
-
-  constructor() {
-    super({
-      label: "BABONUS.Filters.CustomScripts.Label",
-      hint: "BABONUS.Filters.CustomScripts.Hint"
     });
   }
 

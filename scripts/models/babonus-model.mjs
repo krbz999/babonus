@@ -528,7 +528,8 @@ class Babonus extends foundry.abstract.DataModel {
       customScripts: new babonus.abstract.DataFields.fields.customScripts(),
       healthPercentages: new babonus.abstract.DataFields.fields.healthPercentages(),
       remainingSpellSlots: new babonus.abstract.DataFields.fields.remainingSpellSlots(),
-      statusEffects: new babonus.abstract.DataFields.fields.statusEffects()
+      statusEffects: new babonus.abstract.DataFields.fields.statusEffects(),
+      tags: new babonus.abstract.DataFields.fields.tags()
     };
   }
 

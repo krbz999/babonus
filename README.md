@@ -87,11 +87,21 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Spell Preparation Modes.</em></strong> Filter the bonus to only apply if the item is a spell and is set as one of a selected few preparation modes such as 'pact magic' or 'innate'.</p>
 <p><strong><em>Spell Schools.</em></strong> Filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.</p>
 <p><strong><em>Spoken Languages.</em></strong> Filter the bonus to only apply if the actor performing the roll is able to speak a certain language.</p>
+<p><strong><em>Tags.</em></strong> Filter by tags that must be stored on this document for the bonus to apply. The item being used, or its actor, must have at least one of these tags. Any tags stored on applied effects will also be valid. To apply tags to a document, use the `babonus.applyTags` api method.</p>
 <p><strong><em>Token Sizes (Target).</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a token of a certain size or greater (or smaller), and optionally clamped using the roller's token's size.</p>
 <p><strong><em>Weapon Properties.</em></strong> Filter the bonus to only apply if the item is a weapon that has at least one of the included weapon properties while having none of the excluded properties.</p>
 
 <h1 style="font-weight: bold;">API</h1>
 <p>An API can be accessed at <code>game.modules.get("babonus").api</code> or through the global namespace <code>babonus</code>. The parameter <code>object</code> below refers to an Actor, ActiveEffect, Item, or MeasuredTemplateDocument. The methods are currently:</p>
+
+```js
+/**
+ * Apply tags to a document for the 'tags' filter.
+ * @param {Document} document             The target document.
+ * @returns {Promise<Document|null>}      A promise that resolves to the result of the dialog prompt.
+ */
+async function applyTags(document)
+```
 
 ```js
 /**

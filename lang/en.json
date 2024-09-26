@@ -26,92 +26,97 @@
   "CurrentFiltersTooltip": "The filters currently applied to the bonus, further narrowing down which rolls it should apply to. Each filter must be true for the bonus to apply.",
   "Example": "Example",
   "FIELDS": {
-    "Aura": {
-      "Blockers": {
-        "Hint": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious.",
-        "Label": "Blocking Conditions"
+    "aura": {
+      "blockers": {
+        "hint": "The status conditions that block an aura from being transferred, such as a paladin's aura that is only active while the paladin is neither dead nor unconscious.",
+        "label": "Blocking Conditions"
       },
-      "Disposition": {
-        "Hint": "Which targets should be affected by this aura, relative to the disposition of the origin token.",
-        "Label": "Valid Targets",
-        "OptionAlly": "Allied Targets",
-        "OptionAny": "Any Targets",
-        "OptionEnemy": "Enemy Targets"
+      "disposition": {
+        "hint": "Which targets should be affected by this aura, relative to the disposition of the origin token.",
+        "label": "Valid Targets",
+        "optionAlly": "Allied Targets",
+        "optionAny": "Any Targets",
+        "optionEnemy": "Enemy Targets"
       },
-      "Enabled": {
-        "Hint": "Configure whether and how the bonus acts as an aura.",
-        "Label": "Enable"
+      "enabled": {
+        "hint": "Configure whether and how the bonus acts as an aura.",
+        "label": "Enable"
       },
-      "Label": "Aura Configuration",
-      "Range": {
-        "Hint": "The range of the aura, measured in feet (put in '-1' for an unlimited range).",
-        "Label": "Range",
-        "LabelFt": "Range ({range} ft)",
-        "LabelUnlimited": "Range ({range})"
+      "label": "Aura Configuration",
+      "range": {
+        "hint": "The range of the aura, measured in feet (put in '-1' for an unlimited range).",
+        "label": "Range",
+        "labelFt": "Range ({range} ft)",
+        "labelUnlimited": "Range ({range})"
       },
-      "RequireLight": {
-        "Hint": "If checked, the aura will be restricted by anything that blocks light.",
-        "Label": "Enforce Light Restrictions"
+      "require": {
+        "light": {
+          "hint": "If checked, the aura will be restricted by anything that blocks light.",
+          "label": "Enforce Light Restrictions"
+        },
+        "move": {
+          "hint": "If checked, the aura will be restricted by anything that blocks movement.",
+          "label": "Enforce Move Restrictions"
+        },
+        "sight": {
+          "hint": "If checked, the aura will be restricted by anything that blocks vision.",
+          "label": "Enforce Sight Restrictions"
+        },
+        "sound": {
+          "hint": "If checked, the aura will be restricted by anything that blocks sound.",
+          "label": "Enforce Sound Restrictions"
+        }
       },
-      "RequireMove": {
-        "Hint": "If checked, the aura will be restricted by anything that blocks movement.",
-        "Label": "Enforce Move Restrictions"
+      "self": {
+        "hint": "Whether the aura should affect its owner regardless of any other targeting behavior.",
+        "label": "Affect Self"
       },
-      "RequireSight": {
-        "Hint": "If checked, the aura will be restricted by anything that blocks vision.",
-        "Label": "Enforce Sight Restrictions"
-      },
-      "RequireSound": {
-        "Hint": "If checked, the aura will be restricted by anything that blocks sound.",
-        "Label": "Enforce Sound Restrictions"
-      },
-      "Self": {
-        "Hint": "Whether the aura should affect its owner regardless of any other targeting behavior.",
-        "Label": "Affect Self"
-      },
-      "Template": {
-        "Hint": "If the aura affects the area within a Measured Template instead of having a range (for items that are able to place a template).",
-        "Label": "Applies to Template"
+      "template": {
+        "hint": "If the aura affects the area within a Measured Template instead of having a range (for items that are able to place a template).",
+        "label": "Applies to Template"
       }
     },
-    "Consume": {
-      "Enabled": {
-        "Hint": "Configure whether and how the bonus consumes a property. A bonus cannot be set to consume unless it is optional.",
-        "Label": "Enable"
+    "consume": {
+      "enabled": {
+        "hint": "Configure whether and how the bonus consumes a property. A bonus cannot be set to consume unless it is optional.",
+        "label": "Enable"
       },
-      "Formula": {
-        "Hint": "The formula by which the bonus scales at each step.",
-        "Label": "Scaling Formula"
+      "formula": {
+        "hint": "The formula by which the bonus scales at each step.",
+        "label": "Scaling Formula"
       },
-      "Label": "Consumption Configuration",
-      "Scales": {
-        "Hint": "Decide whether this bonus can consume more than the base amount of the consumed property and scale its bonus accordingly.",
-        "Label": "Enable Scaling"
+      "label": "Consumption Configuration",
+      "scales": {
+        "hint": "Decide whether this bonus can consume more than the base amount of the consumed property and scale its bonus accordingly.",
+        "label": "Enable Scaling"
       },
-      "Subtype": {
-        "CurrencyLabel": "Denomination",
-        "HitdiceLabel": "Hit Die Size"
+      "subtype": {
+        "label": "Subtype"
       },
-      "Type": {
-        "Label": "Consumption Type",
-        "OptionEffect": "Active Effect",
-        "OptionSlots": "Spell Slot"
+      "type": {
+        "label": "Consumption Type",
+        "optionEffect": "Active Effect",
+        "optionSlots": "Spell Slot"
       },
-      "Values": {
-        "Hint": "The amount that will be consumed when opting into this bonus.",
-        "HintScale": "The minimum and maximum amounts that can be consumed when opting into this bonus.",
-        "HintScaleSlot": "The minimum and maximum sizes of a spell slot to opt into this bonus. If a spell slot greater than this maximum is consumed, it grants no additional benefit.",
-        "HintSlot": "The minimum size of a spell slot required to opt into this bonus.",
-        "Label": "Consumed Values",
-        "LabelSlot": "Spell Slot Size",
-        "Max": "Maximum",
-        "MaxSlot": "Largest",
-        "Min": "Minimum",
-        "MinSlot": "Smallest"
-      },
-      "ValueStep": {
-        "Hint": "The delta, or step, of the choices when consuming.",
-        "Label": "Step"
+      "value": {
+        "label": "Consumed Values",
+        "labelSlot": "Spell Slot Size",
+        "hint": "The amount that will be consumed when opting into this bonus.",
+        "hintScale": "The minimum and maximum amounts that can be consumed when opting into this bonus.",
+        "hintScaleSlot": "The minimum and maximum sizes of a spell slot to opt into this bonus. If a spell slot greater than this maximum is consumed, it grants no additional benefit.",
+        "hintSlot": "The minimum size of a spell slot required to opt into this bonus.",
+        "min": {
+          "label": "Minimum",
+          "labelSlot": "Smallest"
+        },
+        "max": {
+          "label": "Maximum",
+          "labelSlot": "Largest"
+        },
+        "step": {
+          "label": "Step",
+          "hint": "The delta, or step, of the choices when consuming."
+        }
       }
     },
     "description": {
@@ -137,158 +142,314 @@
     "reminder": {
       "hint": "Toggle whether this bonus simply serves as a reminder. To use this, it must not be granting any bonuses or dice modifications. This feature is also only available for rolls that have a configuration dialog.",
       "label": "Reminder"
+    },
+    "filters": {
+      "abilities": {
+        "hint": "Filter by the ability score being used for the roll. This filter will respect items that are set to use their Default ability score, such as spells set to use the Spellcasting ability, or weapons that are Finesse.",
+        "label": "Ability Modifier"
+      },
+      "actorCreatureSizes": {
+        "hint": "Filter by the creature size of the actor, requiring that the actor making the roll is one of the chosen creature sizes.",
+        "label": "Creature Sizes"
+      },
+      "actorCreatureTypes": {
+        "hint": "Filter by the type of creature the rolling actor must be one of (or have as a subtype), or the type of creature the rolling actor must not be one of. For example 'undead', 'fey', or 'construct'. To designate a creature type as a subtype, write as many as you like in the actor's Subtype field, separated by a '/'.",
+        "label": "Actor Creature Types"
+      },
+      "actorLanguages": {
+        "hint": "Filter by the languages the actor can or cannot speak, read, or write. This will take into account if an actor can speak an entire group of languages such as Primordial rather than only the specific dialects.",
+        "label": "Spoken Languages"
+      },
+      "arbitraryComparisons": {
+        "hint": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with '@target'.",
+        "label": "Arbitrary Comparisons",
+        "one": {
+          "placeholder": "Value…"
+        },
+        "other": {
+          "placeholder": "Other value…"
+        }
+      },
+      "attackModes": {
+        "hint": "Filter by the type of attack the item is performing, which decides the damage roll. For example, an unarmed strike, a two-handed weapon attack, or ranged spell attack.",
+        "label": "Attack Modes",
+        "value": {
+          "label": "Range"
+        },
+        "classification": {
+          "label": "Type"
+        },
+        "mode": {
+          "label": "Mode"
+        }
+      },
+      "baseArmors": {
+        "hint": "Filter by the type of armor the actor must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when wearing Chain Mail or while unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",
+        "label": "Armor Types"
+      },
+      "baseTools": {
+        "hint": "Filter by the types of tools the item making the roll must be one of or none of. For example if wanting the bonus to apply only when using an Herbalism Kit, Thieves' Tools, or Cobbler's Tools.",
+        "label": "Tool Types"
+      },
+      "baseWeapons": {
+        "hint": "Filter by the types of weapons the item making the roll must be one of or none of. For example if wanting the bonus to apply only when using a Battleaxe, Shortbow, or Longsword. This filter can take categories into account as well.",
+        "label": "Weapon Types"
+      },
+      "creatureTypes": {
+        "hint": "Filter by the type of creature the targeted actor must be one of (or have as a subtype), or the type of creature the targeted actor must not be one of. For example 'undead', 'fey', or 'construct'. To designate a creature type as a subtype, write as many as you like in the actor's Subtype field, separated by a '/'.",
+        "label": "Target Creature Types"
+      },
+      "customScripts": {
+        "hint": "Filter using any custom script you want to write yourself. The script has to be completely synchronous and must explicitly return true or false. As helper variables, the script is supplied with the actor and token of the one performing the roll ('actor' and 'token'), the item being used ('item', if any), and the bonus on which this script is attached ('bonus'). These variables can be accessed directly.",
+        "label": "Custom Script"
+      },
+      "damageTypes": {
+        "hint": "Filter by the type of damage that must be or must not be part of the roll. For example if a spell must be dealing fire or lightning damage.",
+        "label": "Damage Types"
+      },
+      "featureTypes": {
+        "hint": "Filter by the type and subtype a feature-type item must be. For example a class feature, ki feature, or monster feature.",
+        "label": "Feature Types",
+        "subtype": {
+          "label": "Subtype"
+        },
+        "type": {
+          "label": "Type"
+        }
+      },
+      "healthPercentages": {
+        "hint": "Filter by the percentage of health the actor must at least have, or at most have. For example if the actor performing the roll must be at or above 90% health remaining.",
+        "label": "Health Percentage",
+        "type": {
+          "label": "Type",
+          "optionLT": "Less than",
+          "optionGT": "More than"
+        },
+        "value": {
+          "label": "Threshold"
+        }
+      },
+      "identifiers": {
+        "hint": "Filter by the identifiers that an item must have one of for the bonus to apply. You can set an item's identifier in its source config.",
+        "label": "Identifiers",
+        "placeholder": "Enter identifiers"
+      },
+      "itemTypes": {
+        "hint": "Filter by the type of the item being used to perform the roll. For example if the bonus should only apply to spells or only to weapons.",
+        "label": "Item Types"
+      },
+      "preparationModes": {
+        "hint": "Filter by the type of preparation mode a spell must be set to for the bonus to apply. For example when using a spell that is prepared as Pact Magic or Ritual Spellcasting.",
+        "label": "Preparation Modes"
+      },
+      "proficiencyLevels": {
+        "hint": "Filter by the level of proficiency of the roll. For example, if the bonus should only apply if the tool being used is rolled with expertise, or if a saving throw is non-proficient.",
+        "label": "Proficiency Levels"
+      },
+      "remainingSpellSlots": {
+        "hint": "Filter by the minimum and maximum total number of spell slots the actor performing the roll must have remaining for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all. This can be toggled such that each remaining spell slot has a value equal to its size.",
+        "label": "Remaining Spell Slots",
+        "rangeLabel": "Range",
+        "size": {
+          "label": "Size",
+          "hint": "Take the size of the spell slot into account, meaning a spell slot of 5th level counts as a value of five. Otherwise, each spell slots count as one."
+        }
+      },
+      "saveAbilities": {
+        "hint": "Filter by the ability score that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with 'Spellcasting', the spellcasting ability of the actor performing the roll is used to compared.",
+        "label": "Save DC Abilities"
+      },
+      "skillIds": {
+        "hint": "Filter by the types of skills the roll being performed must be one of or none of. For example if the bonus should apply only to skill checks made with Athletics, Nature, or Survival.",
+        "label": "Skills"
+      },
+      "sourceClasses": {
+        "hint": "Filter by the identifiers of the classes that a spell should belong to. A source class identifier can be set in the spell on the Details tab.",
+        "label": "Source Classes",
+        "placeholder": "Enter identifiers"
+      },
+      "spellComponents": {
+        "hint": "Filter by the components or tags the spell being cast must have. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration or all spells with a material component.",
+        "label": "Spell Components",
+        "match": {
+          "label": "Matching",
+          "optionAll": "Match all",
+          "optionAny": "Match any"
+        },
+        "types": {
+          "label": "Types"
+        }
+      },
+      "spellLevels": {
+        "hint": "Filter by the level at which the spell must be cast. For example, you can have a bonus apply only to cantrips, only to leveled spells, or only to spells of 3rd level or below.",
+        "label": "Spell Levels"
+      },
+      "spellSchools": {
+        "hint": "Filter by the school a spell must belong to. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination or Evocation spells.",
+        "label": "Spell Schools"
+      },
+      "statusEffects": {
+        "hint": "Filter by the conditions the actor performing the roll must be affected by or must not be affected by. This will take into account any condition immunities the actor has, such as immunity to being paralyzed.",
+        "label": "Actor Conditions"
+      },
+      "tags": {
+        "label": "Tags",
+        "hint": "Filter by tags that must be stored on this document for the bonus to apply. The item being used, or its actor, must have at least one of these tags. Any tags stored on applied effects will also be valid.",
+        "values": {
+          "placeholder": "Enter tag…"
+        }
+      },
+      "targetArmors": {
+        "hint": "Filter by the type of armor the target must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when the target is wearing Chain Mail or is unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",
+        "label": "Target Armor"
+      },
+      "targetEffects": {
+        "hint": "Filter by the conditions the targeted actor must be affected by or must not be affected by. This will take into account any condition immunities the actor has, such as immunity to being paralyzed.",
+        "label": "Target Conditions"
+      },
+      "throwTypes": {
+        "hint": "Filter by the type of saving throw the bonus should apply to. For example if the bonus should apply only to Intelligence or Charisma saving throws, or even to Death saving throws or saving throws to maintain concentration on an effect.",
+        "label": "Saving Throw Types"
+      },
+      "tokenSizes": {
+        "hint": "Filter by the size of a targeted token, and whether to compare against the rolling token as well. For example if it should be required that a targeted token is at least 2-by-2 but also larger than the token of the actor performing the roll.",
+        "label": "Token Sizes",
+        "self": {
+          "label": "Compare to self",
+          "hint": "If checked, the target token must be larger/smaller than the rolling actor's token size in addition to the above value."
+        },
+        "size": {
+          "label": "Size",
+          "placeholder": "Size…"
+        },
+        "type": {
+          "optionGT": "Greater than",
+          "optionLT": "Smaller than"
+        }
+      },
+      "weaponProperties": {
+        "hint": "Filter by the weapon properties that the item being used to perform the roll either must have some of or cannot have any of. For example if the bonus should apply only to Two-Handed weapons or Versatile weapons.",
+        "label": "Weapon Properties"
+      }
     }
   },
-  "Filters": {
-    "Abilities": {
-      "Hint": "Filter by the ability score being used for the roll. This filter will respect items that are set to use their Default ability score, such as spells set to use the Spellcasting ability, or weapons that are Finesse.",
-      "Label": "Ability Modifier"
-    },
-    "ActorCreatureSizes": {
-      "Hint": "Filter by the creature size of the actor, requiring that the actor making the roll is one of the chosen creature sizes.",
-      "Label": "Creature Sizes"
-    },
-    "ActorCreatureTypes": {
-      "Hint": "Filter by the type of creature the rolling actor must be one of (or have as a subtype), or the type of creature the rolling actor must not be one of. For example 'undead', 'fey', or 'construct'. To designate a creature type as a subtype, write as many as you like in the actor's Subtype field, separated by a '/'.",
-      "Label": "Actor Creature Types"
-    },
-    "ActorLanguages": {
-      "Hint": "Filter by the languages the actor can or cannot speak, read, or write. This will take into account if an actor can speak an entire group of languages such as Primordial rather than only the specific dialects.",
-      "Label": "Spoken Languages"
-    },
-    "ArbitraryComparisons": {
-      "Hint": "Insert numbers, roll data properties, strings, or a combination of the three, that must be in a specific relationship for the bonus to apply. This comparison can evaluate substrings by using either of the inequalities. You can also use roll data from a targeted token's actor by prepending with '@target'.",
-      "Label": "Arbitrary Comparisons",
-      "One": "Value…",
-      "Other": "Other value…"
-    },
-    "AttackModes": {
-      "Hint": "Filter by the type of attack the item is performing, which decides the damage roll. For example, an unarmed strike, a two-handed weapon attack, or ranged spell attack.",
-      "Label": "Attack Modes",
-      "ValueLabel": "Range",
-      "ClassificationLabel": "Type",
-      "ModeLabel": "Mode"
-    },
-    "BaseArmors": {
-      "Hint": "Filter by the type of armor the actor must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when wearing Chain Mail or while unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",
-      "Label": "Armor Types"
-    },
-    "BaseTools": {
-      "Hint": "Filter by the types of tools the item making the roll must be one of or none of. For example if wanting the bonus to apply only when using an Herbalism Kit, Thieves' Tools, or Cobbler's Tools.",
-      "Label": "Tool Types"
-    },
-    "BaseWeapons": {
-      "Hint": "Filter by the types of weapons the item making the roll must be one of or none of. For example if wanting the bonus to apply only when using a Battleaxe, Shortbow, or Longsword. This filter can take categories into account as well.",
-      "Label": "Weapon Types"
-    },
-    "CreatureTypes": {
-      "Hint": "Filter by the type of creature the targeted actor must be one of (or have as a subtype), or the type of creature the targeted actor must not be one of. For example 'undead', 'fey', or 'construct'. To designate a creature type as a subtype, write as many as you like in the actor's Subtype field, separated by a '/'.",
-      "Label": "Target Creature Types"
-    },
-    "CustomScripts": {
-      "Hint": "Filter using any custom script you want to write yourself. The script has to be completely synchronous and must explicitly return true or false. As helper variables, the script is supplied with the actor and token of the one performing the roll ('actor' and 'token'), the item being used ('item', if any), and the bonus on which this script is attached ('bonus'). These variables can be accessed directly.",
-      "Label": "Custom Script"
-    },
-    "DamageTypes": {
-      "Hint": "Filter by the type of damage that must be or must not be part of the roll. For example if a spell must be dealing fire or lightning damage.",
-      "Label": "Damage Types"
-    },
-    "FeatureTypes": {
-      "Hint": "Filter by the type and subtype a feature-type item must be. For example a class feature, ki feature, or monster feature.",
-      "Label": "Feature Types",
-      "SubtypeLabel": "Subtype",
-      "TypeLabel": "Type"
-    },
-    "HealthPercentages": {
-      "Hint": "Filter by the percentage of health the actor must at least have, or at most have. For example if the actor performing the roll must be at or above 90% health remaining.",
-      "Label": "Health Percentage",
-      "OptionLess": "Less Than",
-      "OptionMore": "More Than",
-      "TypeLabel": "Type",
-      "ValueLabel": "Threshold"
-    },
-    "Identifiers": {
-      "Hint": "Filter by the identifiers that an item must have one of for the bonus to apply. You can set an item's identifier in its source config.",
-      "Label": "Identifiers",
-      "Placeholder": "Enter identifiers"
-    },
-    "ItemTypes": {
-      "Hint": "Filter by the type of the item being used to perform the roll. For example if the bonus should only apply to spells or only to weapons.",
-      "Label": "Item Types"
-    },
-    "PreparationModes": {
-      "Hint": "Filter by the type of preparation mode a spell must be set to for the bonus to apply. For example when using a spell that is prepared as Pact Magic or Ritual Spellcasting.",
-      "Label": "Preparation Modes"
-    },
-    "ProficiencyLevels": {
-      "Hint": "Filter by the level of proficiency of the roll. For example, if the bonus should only apply if the tool being used is rolled with expertise, or if a saving throw is non-proficient.",
-      "Label": "Proficiency Levels"
-    },
-    "RemainingSpellSlots": {
-      "Hint": "Filter by the minimum and maximum total number of spell slots the actor performing the roll must have remaining for the bonus to apply. For example if you want a bonus to apply only if you have 3 spell slots or more remaining, or no spell slots remaining at all. This can be toggled such that each remaining spell slot has a value equal to its size.",
-      "Label": "Remaining Spell Slots",
-      "RangesLabel": "Range",
-      "SizeHint": "Take the size of the spell slot into account, meaning a spell slot of 5th level counts as a value of five. Otherwise, each spell slots count as one.",
-      "SizeLabel": "Size"
-    },
-    "SaveAbilities": {
-      "Hint": "Filter by the ability score that must be used to set the saving throw DC of the item for the bonus to apply; for example a Battle Master fighter who determines their Maneuver DC with Dexterity. This can be different from the ability the item otherwise uses. If an item is set to scale with 'Spellcasting', the spellcasting ability of the actor performing the roll is used to compared.",
-      "Label": "Save DC Abilities"
-    },
-    "SkillIds": {
-      "Hint": "Filter by the types of skills the roll being performed must be one of or none of. For example if the bonus should apply only to skill checks made with Athletics, Nature, or Survival.",
-      "Label": "Skills"
-    },
-    "SourceClasses": {
-      "Hint": "Filter by the identifiers of the classes that a spell should belong to. A source class identifier can be set in the spell on the Details tab.",
-      "Label": "Source Classes",
-      "Placeholder": "Enter identifiers"
-    },
-    "SpellComponents": {
-      "Hint": "Filter by the components or tags the spell being cast must have. You can choose whether the spell must have all of the given components or tags, or at least one of them. For example if you want a bonus to apply to all spells that require concentration or all spells with a material component.",
-      "Label": "Spell Components",
-      "MatchAll": "Match all",
-      "MatchAny": "Match any",
-      "MatchLabel": "Matching",
-      "TypesLabel": "Types"
-    },
-    "SpellLevels": {
-      "Hint": "Filter by the level at which the spell must be cast. For example, you can have a bonus apply only to cantrips, only to leveled spells, or only to spells of 3rd level or below.",
-      "Label": "Spell Levels"
-    },
-    "SpellSchools": {
-      "Hint": "Filter by the school a spell must belong to. If multiple schools are selected, the spell must belong to any one of them. For example, if you want a bonus to apply only to Divination or Evocation spells.",
-      "Label": "Spell Schools"
-    },
-    "StatusEffects": {
-      "Hint": "Filter by the conditions the actor performing the roll must be affected by or must not be affected by. This will take into account any condition immunities the actor has, such as immunity to being paralyzed.",
-      "Label": "Actor Conditions"
-    },
-    "TargetArmors": {
-      "Hint": "Filter by the type of armor the target must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when the target is wearing Chain Mail or is unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",
-      "Label": "Target Armor"
-    },
-    "TargetEffects": {
-      "Hint": "Filter by the conditions the targeted actor must be affected by or must not be affected by. This will take into account any condition immunities the actor has, such as immunity to being paralyzed.",
-      "Label": "Target Conditions"
-    },
-    "ThrowTypes": {
-      "Hint": "Filter by the type of saving throw the bonus should apply to. For example if the bonus should apply only to Intelligence or Charisma saving throws, or even to Death saving throws or saving throws to maintain concentration on an effect.",
-      "Label": "Saving Throw Types"
-    },
-    "TokenSizes": {
-      "Hint": "Filter by the size of a targeted token, and whether to compare against the rolling token as well. For example if it should be required that a targeted token is at least 2-by-2 but also larger than the token of the actor performing the roll.",
-      "Label": "Token Sizes",
-      "RangeLabel": "Size",
-      "SelfHint": "If checked, the target token must be larger/smaller than the rolling actor's token size in addition to the above value.",
-      "SelfLabel": "Compare to self",
-      "SizeGreaterThan": "Greater than",
-      "SizePlaceholder": "Size…",
-      "SizeSmallerThan": "Smaller than"
-    },
-    "WeaponProperties": {
-      "Hint": "Filter by the weapon properties that the item being used to perform the roll either must have some of or cannot have any of. For example if the bonus should apply only to Two-Handed weapons or Versatile weapons.",
-      "Label": "Weapon Properties"
+  "MODIFIERS": {
+    "FIELDS": {
+      "amount": {
+        "label": "Dice Quantity",
+        "enabled": {
+          "label": "Quantity Modification"
+        },
+        "mode": {
+          "hint": "Whether to add the additional dice on top or multiply the value by this amount.",
+          "label": "Mode"
+        },
+        "value": {
+          "hint": "The increase to the amount of dice rolled.",
+          "label": "Additional Dice"
+        }
+      },
+      "config": {
+        "label": "Dice Configuration",
+        "enabled": {
+          "label": "Enabled Modifications",
+          "hint": "Toggle which dice modifications should be configurable and applying to the die rolls."
+        },
+        "first": {
+          "hint": "If checked, the die modifiers only apply to the first die in the full expression.",
+          "label": "First Die Only"
+        }
+      },
+      "explode": {
+        "label": "Exploding Dice",
+        "enabled": {
+          "label": "Exploding Dice"
+        },
+        "limit": {
+          "hint": "The maximum amount of explosions allowed. If left blank, there will not be any limit enforced.",
+          "label": "Maximum Explosions"
+        },
+        "once": {
+          "hint": "Limit the dice to explode at most once.",
+          "label": "Explode Once"
+        },
+        "value": {
+          "hint": "The threshold for the explosive behaviour.",
+          "label": "Threshold"
+        }
+      },
+      "maximum": {
+        "label": "Maximum Results",
+        "enabled": {
+          "hint": "Allow this bonus to configure the maximum result rolled on each die.",
+          "label": "Maximum Results"
+        },
+        "value": {
+          "hint": "The maximum result able to be rolled. By using negative values, the ceiling will be calculated from the top rather than the bottom.",
+          "label": "Maximum Value"
+        },
+        "zero": {
+          "hint": "Allow 0 as a final value. Otherwise the minimum result allowed will be 1.",
+          "label": "Allow Zero"
+        }
+      },
+      "minimum": {
+        "label": "Minimum Results",
+        "enabled": {
+          "hint": "Allow this bonus to configure the minimum result rolled on each die.",
+          "label": "Minimum Results"
+        },
+        "value": {
+          "hint": "The minimum result able to be rolled. By using negative values, the floor will be calculated from the top rather than the bottom.",
+          "label": "Minimum Value"
+        },
+        "maximize": {
+          "hint": "Cause all dice to be maximized.",
+          "label": "Maximize"
+        }
+      },
+      "mode": {
+        "optionAdd": "Add",
+        "optionMultiply": "Multiply"
+      },
+      "reroll": {
+        "label": "Rerolling Dice",
+        "enabled": {
+          "hint": "Allow this bonus to cause the dice to reroll.",
+          "label": "Rerolling Behaviour"
+        },
+        "invert": {
+          "hint": "Whether to reroll dice that roll above the threshold instead of below the threshold.",
+          "label": "Inverted"
+        },
+        "limit": {
+          "hint": "The maximum amount of rerolls allowed if recursive. If left blank, there will not be any limit enforced.",
+          "label": "Maximum Rerolls"
+        },
+        "recursive": {
+          "hint": "Whether to reroll the dice recursively.",
+          "label": "Recursive"
+        },
+        "value": {
+          "hint": "The threshold for the reroll behaviour.",
+          "label": "Threshold"
+        }
+      },
+      "size": {
+        "label": "Dice Size",
+        "enabled": {
+          "hint": "Allow this bonus to make changes to the size of dice rolled.",
+          "label": "Size Modification"
+        },
+        "mode": {
+          "hint": "Whether to increase the dice sizes by the amount or multiply the faces.",
+          "label": "Mode"
+        },
+        "value": {
+          "hint": "The increase to the size of the dice rolled.",
+          "label": "Size Increase"
+        }
+      }
     }
   },
   "ID": "ID",
@@ -310,79 +471,6 @@
     "TokenAura": "Token Aura"
   },
   "Largest": "Largest",
-  "Modifiers": {
-    "Amount": {
-      "EnabledHint": "Allow this bonus to make changes to the amount of dice rolled.",
-      "EnabledLabel": "Quantity Modification",
-      "Label": "Dice Quantity",
-      "ModeHint": "Whether to add the additional dice on top or multiply the value by this amount.",
-      "ModeLabel": "Mode",
-      "ValueHint": "The increase to the amount of dice rolled.",
-      "ValueLabel": "Additional Dice"
-    },
-    "Config": {
-      "FirstHint": "If checked, the die modifiers only apply to the first die in the full expression.",
-      "FirstLabel": "First Die Only",
-      "Label": "Dice Configuration",
-      "Enabled": "Enabled Modifications",
-      "EnabledHint": "Toggle which dice modifications should be configurable and applying to the die rolls."
-    },
-    "Explode": {
-      "EnabledHint": "Allow this bonus to cause the dice to explode.",
-      "EnabledLabel": "Exploding Dice",
-      "Label": "Exploding Dice",
-      "LimitHint": "The maximum amount of explosions allowed. If left blank, there will not be any limit enforced.",
-      "LimitLabel": "Maximum Explosions",
-      "OnceHint": "Limit the dice to explode at most once.",
-      "OnceLabel": "Explode Once",
-      "ValueHint": "The threshold for the explosive behaviour.",
-      "ValueLabel": "Threshold"
-    },
-    "Maximum": {
-      "EnabledHint": "Allow this bonus to configure the maximum result rolled on each die.",
-      "EnabledLabel": "Maximum Results",
-      "Label": "Maximum Results",
-      "ValueHint": "The maximum result able to be rolled. By using negative values, the ceiling will be calculated from the top rather than the bottom.",
-      "ValueLabel": "Maximum Value",
-      "ZeroHint": "Allow 0 as a final value. Otherwise the minimum result allowed will be 1.",
-      "ZeroLabel": "Allow Zero"
-    },
-    "Minimum": {
-      "EnabledHint": "Allow this bonus to configure the minimum result rolled on each die.",
-      "EnabledLabel": "Minimum Results",
-      "Label": "Minimum Results",
-      "MaximizeHint": "Cause all dice to be maximized.",
-      "MaximizeLabel": "Maximize",
-      "ValueHint": "The minimum result able to be rolled. By using negative values, the floor will be calculated from the top rather than the bottom.",
-      "ValueLabel": "Minimum Value"
-    },
-    "Modes": {
-      "ChoiceAdd": "Add",
-      "ChoiceMultiply": "Multiply"
-    },
-    "Reroll": {
-      "EnabledHint": "Allow this bonus to cause the dice to reroll.",
-      "EnabledLabel": "Rerolling Behaviour",
-      "InvertHint": "Whether to reroll dice that roll above the threshold instead of below the threshold.",
-      "InvertLabel": "Inverted",
-      "Label": "Rerolling Dice",
-      "LimitHint": "The maximum amount of rerolls allowed if recursive. If left blank, there will not be any limit enforced.",
-      "LimitLabel": "Maximum Rerolls",
-      "RecursiveHint": "Whether to reroll the dice recursively.",
-      "RecursiveLabel": "Recursive",
-      "ValueHint": "The threshold for the reroll behaviour.",
-      "ValueLabel": "Threshold"
-    },
-    "Size": {
-      "EnabledHint": "Allow this bonus to make changes to the size of dice rolled.",
-      "EnabledLabel": "Size Modification",
-      "Label": "Dice Size",
-      "ModeHint": "Whether to increase the dice sizes by the amount or multiply the faces.",
-      "ModeLabel": "Mode",
-      "ValueHint": "The increase to the size of the dice rolled.",
-      "ValueLabel": "Size Increase"
-    }
-  },
   "ModuleTitle": "Build-a-Bonus",
   "NewBabonus": "New Babonus",
   "OriginName": "Origin: {name}",
@@ -416,6 +504,13 @@
     "Configuration": "Configuration",
     "Description": "Description",
     "Filters": "Filters"
+  },
+  "TagsDialog": {
+    "field": {
+      "label": "Tags",
+      "hint": "Apply tags to this document for the purpose of the 'Tags' filter."
+    },
+    "title": "Apply Tags: {name}"
   },
   "ToggleBonus": "Toggle Bonus",
   "Toggles": "Toggles",

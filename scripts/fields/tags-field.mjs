@@ -2,9 +2,9 @@ import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, SetField, StringField} = foundry.data.fields;
 
-export default class IdentifiersField extends FilterMixin(SchemaField) {
+export default class TagsField extends FilterMixin(SchemaField) {
   /** @override */
-  static name = "identifiers";
+  static name = "tags";
 
   /* -------------------------------------------------- */
 
@@ -34,14 +34,14 @@ export default class IdentifiersField extends FilterMixin(SchemaField) {
 
     const schema = bonus.schema.getField(`filters.${this.name}`);
     const field = bonus.schema.getField(`filters.${this.name}.values`);
-    const value = bonus.filters.identifiers.values;
+    const value = bonus.filters[this.name].values;
 
     const data = {
       label: schema.label,
       hint: schema.hint,
       field: field,
       value: value,
-      placeholder: game.i18n.localize("BABONUS.FIELDS.filters.identifiers.value.placeholder")
+      placeholder: game.i18n.localize(`BABONUS.FIELDS.filters.${this.name}.values.placeholder`)
     };
 
     return Handlebars.compile(template)(data);
@@ -51,6 +51,6 @@ export default class IdentifiersField extends FilterMixin(SchemaField) {
 
   /** @override */
   static storage(bonus) {
-    return !!bonus.filters.identifiers?.values?.size;
+    return !!bonus.filters[this.name]?.values?.size;
   }
 }

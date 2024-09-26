@@ -11,22 +11,22 @@
   </fieldset>
 
   <fieldset>
-    <legend>{{localize "BABONUS.FIELDS.Consume.Label"}}</legend>
+    <legend>{{localize "BABONUS.FIELDS.consume.label"}}</legend>
     {{#with consume}}
-    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId disabled=enabled.disabled}}
+    {{formGroup enabled.field value=enabled.value rootId=@root.rootId disabled=enabled.disabled}}
     {{#if enabled.value}}
-    {{formGroup type.field value=type.value localize=true sort=true blank="-"}}
+    {{formGroup type.field value=type.value sort=true blank="-"}}
     {{#unless scales.unavailable}}
     {{#if subtype.show}}
-    {{formGroup subtype.field value=subtype.value localize=true sort=false blank="-" choices=subtype.choices label=subtype.label}}
+    {{formGroup subtype.field value=subtype.value sort=false blank="-" choices=subtype.choices label=subtype.label}}
     {{/if}}
     {{#unless scales.unavailable}}
-    {{formGroup scales.field localize=true value=scales.value rootId=@root.rootId}}
+    {{formGroup scales.field value=scales.value rootId=@root.rootId}}
     {{/unless}}
 
     <div class="form-group values">
       <label>
-        {{localize value.label}}
+        {{value.label}}
         {{{value.range}}}
       </label>
       <div class="form-fields">
@@ -36,15 +36,15 @@
         {{formInput value.max.field value=value.max.value placeholder=value.max.placeholder}}
         {{/if}}
       </div>
-      <p class="hint">{{localize value.hint}}</p>
+      <p class="hint">{{value.hint}}</p>
     </div>
 
     {{#if step.show}}
-    {{formGroup step.field value=step.value localize=true placeholder=(localize step.field.label)}}
+    {{formGroup step.field value=step.value placeholder=step.field.label}}
     {{/if}}
 
     {{#if formula.show}}
-    {{formGroup formula.field value=formula.value localize=true placeholder=formula.placeholder}}
+    {{formGroup formula.field value=formula.value placeholder=formula.placeholder}}
     {{/if}}
 
     {{/unless}}
@@ -54,21 +54,21 @@
   </fieldset>
 
   <fieldset>
-    <legend>{{localize "BABONUS.FIELDS.Aura.Label"}}</legend>
+    <legend>{{localize "BABONUS.FIELDS.aura.label"}}</legend>
     {{#with aura}}
-    {{formGroup enabled.field value=enabled.value localize=true rootId=@root.rootId}}
+    {{formGroup enabled.field value=enabled.value rootId=@root.rootId}}
 
     {{#if enabled.value}}
-    {{formGroup template.field value=template.value localize=true rootId=@root.rootId}}
+    {{formGroup template.field value=template.value rootId=@root.rootId}}
     {{#unless template.value}}
-    {{formGroup range.field value=range.value localize=true label=range.label placeholder=(localize range.field.label)}}
+    {{formGroup range.field value=range.value label=range.label placeholder=range.field.label}}
     {{/unless}}
-    {{formGroup disposition.field value=disposition.value localize=true sort=false}}
-    {{formGroup self.field value=self.value localize=true rootId=@root.rootId}}
-    {{formGroup blockers.field value=blockers.value localize=true}}
+    {{formGroup disposition.field value=disposition.value sort=false}}
+    {{formGroup self.field value=self.value rootId=@root.rootId}}
+    {{formGroup blockers.field value=blockers.value}}
     {{#unless template.value}}
     {{#each requirements}}
-    {{formGroup field value=value localize=true rootId=@root.rootId}}
+    {{formGroup field value=value rootId=@root.rootId}}
     {{/each}}
     {{/unless}}
     {{/if}}

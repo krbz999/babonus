@@ -1,46 +1,22 @@
+import {MODULE} from "../constants.mjs";
+
 const {BooleanField, StringField, NumberField, SchemaField} = foundry.data.fields;
 
 export default class AuraModel extends foundry.abstract.DataModel {
   /** @override */
   static defineSchema() {
     return {
-      enabled: new BooleanField({
-        label: "BABONUS.FIELDS.Aura.Enabled.Label",
-        hint: "BABONUS.FIELDS.Aura.Enabled.Hint"
-      }),
-      template: new BooleanField({
-        label: "BABONUS.FIELDS.Aura.Template.Label",
-        hint: "BABONUS.FIELDS.Aura.Template.Hint"
-      }),
-      range: new StringField({
-        required: true,
-        label: "BABONUS.FIELDS.Aura.Range.Label",
-        hint: "BABONUS.FIELDS.Aura.Range.Hint"
-      }),
-      self: new BooleanField({
-        initial: true,
-        label: "BABONUS.FIELDS.Aura.Self.Label",
-        hint: "BABONUS.FIELDS.Aura.Self.Hint"
-      }),
+      enabled: new BooleanField(),
+      template: new BooleanField(),
+      range: new StringField({required: true}),
+      self: new BooleanField({initial: true}),
       disposition: new NumberField({
-        label: "BABONUS.FIELDS.Aura.Disposition.Label",
-        hint: "BABONUS.FIELDS.Aura.Disposition.Hint",
         initial: 2,
-        choices: {
-          2: "BABONUS.FIELDS.Aura.Disposition.OptionAny",
-          1: "BABONUS.FIELDS.Aura.Disposition.OptionAlly",
-          "-1": "BABONUS.FIELDS.Aura.Disposition.OptionEnemy"
-        }
+        choices: MODULE.DISPOSITION_TYPES
       }),
-      blockers: new babonus.abstract.DataFields.fields.auraBlockers({
-        label: "BABONUS.FIELDS.Aura.Blockers.Label",
-        hint: "BABONUS.FIELDS.Aura.Blockers.Hint"
-      }),
+      blockers: new babonus.abstract.DataFields.fields.auraBlockers(),
       require: new SchemaField(CONST.WALL_RESTRICTION_TYPES.reduce((acc, k) => {
-        acc[k] = new BooleanField({
-          label: `BABONUS.FIELDS.Aura.Require${k.capitalize()}.Label`,
-          hint: `BABONUS.FIELDS.Aura.Require${k.capitalize()}.Hint`
-        });
+        acc[k] = new BooleanField();
         return acc;
       }, {}))
     };
