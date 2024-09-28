@@ -446,7 +446,7 @@ function arbitraryComparisons({activity, item, actor}, filter) {
  * @returns {boolean}                             Whether the item has any of the required attack types.
  */
 function attackModes({activity, item, actor}, filter, details = {}) {
-  if (activity.type !== "attack") return false;
+  if (activity.type !== "attack") return true;
   const {value, classification} = activity.attack.type;
   if (filter.value.size && !filter.value.has(value)) return false;
   if (filter.classification.size && !filter.classification.has(classification)) return false;
