@@ -9,7 +9,11 @@ export default class MarkersField extends FilterMixin(SchemaField) {
   /* -------------------------------------------------- */
 
   constructor(fields = {}, options = {}) {
-    super({values: new SetField(new StringField(), {slug: true}), ...fields}, options);
+    super({
+      values: new SetField(new StringField(), {slug: true}),
+      target: new SetField(new StringField(), {slug: true}),
+      ...fields
+    }, options);
   }
 
   /* -------------------------------------------------- */
@@ -25,23 +29,20 @@ export default class MarkersField extends FilterMixin(SchemaField) {
         </a>
       </legend>
       <p class="hint">{{hint}}</p>
-      <div class="form-group">
-        <div class="form-fields">
-          {{formInput field value=value slug=true placeholder=placeholder}}
-        </div>
-      </div>
+      {{formGroup values.field value=values.value slug=true placeholder=placeholder}}
+      {{formGroup target.field value=target.value slug=true placeholder=placeholder}}
     </fieldset>`;
 
     const schema = bonus.schema.getField(`filters.${this.name}`);
     const field = bonus.schema.getField(`filters.${this.name}.values`);
-    const value = bonus.filters[this.name].values;
+    const target = bonus.schema.getField(`filters.${this.name}.target`);
 
     const data = {
       label: schema.label,
       hint: schema.hint,
-      field: field,
-      value: value,
-      placeholder: game.i18n.localize(`BABONUS.FIELDS.filters.${this.name}.values.placeholder`)
+      values: {field: field, value: bonus.filters[this.name].values},
+      target: {field: target, value: bonus.filters[this.name].target},
+      placeholder: game.i18n.localize(`BABONUS.FIELDS.filters.${this.name}.placeholder`)
     };
 
     return Handlebars.compile(template)(data);
@@ -51,6 +52,7 @@ export default class MarkersField extends FilterMixin(SchemaField) {
 
   /** @override */
   static storage(bonus) {
-    return !!bonus.filters[this.name]?.values?.size;
+    const {values, target} = bonus.filters[this.name] ?? {};
+    return !!values?.size || !!target?.size;
   }
 }

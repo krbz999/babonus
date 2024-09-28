@@ -244,8 +244,14 @@
       "markers": {
         "label": "Markers",
         "hint": "Filter by markers that must be stored on this document for the bonus to apply. The item being used, or its actor, must have at least one of these markers. Any markers stored on applied effects will also be valid.",
+        "placeholder": "Enter marker…",
+        "target": {
+          "label": "Target Markers",
+          "hint": "Markers of which one must be present on the target."
+        },
         "values": {
-          "placeholder": "Enter marker…"
+          "label": "Markers",
+          "hint": "Markers of which one must be present on the person performing the roll."
         }
       },
       "preparationModes": {

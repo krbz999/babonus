@@ -650,6 +650,46 @@ function itemTypes({item}, filter) {
 /* -------------------------------------------------- */
 
 /**
+ * Find out if the actor or item has any of the valid markers, as well as the target.
+ * @param {SubjectConfig} subjects        Subject config.
+ * @param {object} filter                 The filter data.
+ * @param {Set<string>} filter.values     The set of valid markers on the one performing the roll.
+ * @param {Set<string>} filter.target     The set of valid markers on the target.
+ * @returns {boolean}                     Whether the actor or item has any of the valid markers.
+ */
+function markers(subjects, {values, target}) {
+
+  const _hasMarker = (document, markers) => {
+    const stored = document.getFlag("babonus", "markers") ?? [];
+    return stored.some(marker => markers.has(marker));
+  };
+
+  const hasMarker = (document, markers) => {
+    if (_hasMarker(document, markers)) return true;
+
+    for (const effect of document.allApplicableEffects?.() ?? []) {
+      if (effect.active && _hasMarker(effect, markers)) return true;
+    }
+
+    return false;
+  };
+
+  if (values.size) {
+    const itemMarked = !subjects.item || hasMarker(subjects.item, values);
+    if (!itemMarked && !hasMarker(subjects.actor, values)) return false;
+  }
+
+  if (target.size) {
+    const targetActor = game.user.targets.first()?.actor;
+    if (!targetActor || !hasMarker(targetActor, target)) return false;
+  }
+
+  return true;
+}
+
+/* -------------------------------------------------- */
+
+/**
  * Find out if the spell that is cast is one able to consume a spell slot.
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The types of preparation modes allowed.
@@ -861,38 +901,6 @@ function statusEffects({actor}, filter) {
   }
 
   return _testInclusion(actor.statuses, included, excluded);
-}
-
-/* -------------------------------------------------- */
-
-/**
- * Find out if the actor or item has any of the valid markers.
- * @param {SubjectConfig} subjects        Subject config.
- * @param {object} filter                 The filter data.
- * @param {Set<string>} filter.values     The set of valid markers.
- * @returns {boolean}                     Whether the actor or item has any of the valid markers.
- */
-function markers(subjects, filter) {
-  const markers = filter.values;
-  if (!markers.size) return true;
-
-  const _hasMarker = document => {
-    const stored = document.getFlag("babonus", "markers") ?? [];
-    return stored.some(marker => markers.has(marker));
-  };
-
-  const hasMarker = document => {
-    if (_hasMarker(document)) return true;
-
-    for (const effect of document.allApplicableEffects?.() ?? []) {
-      if (effect.active && _hasMarker(effect)) return true;
-    }
-
-    return false;
-  };
-
-  if (subjects.item && hasMarker(subjects.item)) return true;
-  return hasMarker(subjects.actor);
 }
 
 /* -------------------------------------------------- */

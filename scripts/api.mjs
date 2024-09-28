@@ -45,9 +45,10 @@ async function applyMarkers(document) {
     },
     position: {width: 400},
     ok: {
-      callback: (event, button) => {
+      callback: async (event, button) => {
         const markers = Array.from(button.form.elements.markers.value);
-        return document.setFlag("babonus", "markers", markers);
+        await document.setFlag("babonus", "markers", markers);
+        return document;
       }
     }
   });
