@@ -59,7 +59,7 @@ class ItemTypesField extends BaseField {
     super(new StringField({
       choices: Object.keys(dnd5e.dataModels.item.config).reduce((acc, type) => {
         if (!dnd5e.dataModels.item.config[type].schema.getField("activities")) return acc;
-        acc[type] = `TYPES.Item.${type}`;
+        acc[type] = game.i18n.localize(`TYPES.Item.${type}`);
         return acc;
       }, {})
     }));
