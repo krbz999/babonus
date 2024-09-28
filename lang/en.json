@@ -9,7 +9,10 @@
   "ThrowBabonus": "Saving Throw Babonus",
   "BasicBonuses": "Basic Bonuses",
   "BonusCopy": "{name} (Copy)",
-  "ConfigurationConsumptionConsume": "Consume:",
+  "OptionalSelector": {
+    "LabelApply": "Apply",
+    "LabelConsume": "Consume"
+  },
   "ConfigurationCopyTooltip": "Create a duplicate of this bonus",
   "ConfigurationEditTooltip": "Edit this bonus",
   "ConsumptionOption": "({value}) of {max} {label}",

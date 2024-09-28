@@ -21,7 +21,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
       bonus: bonus,
       labels: bonus.sheet._prepareLabels().slice(1).filterJoin(" &bull; "),
       tooltip: await TextEditor.enrichHTML(bonus.description, {
-        async: true, rollData: rollData, relativeTo: bonus.origin
+        rollData: rollData, relativeTo: bonus.origin
       }),
       isEmbedded: bonus.parent.isEmbedded,
       parentName: bonus.parent.name
@@ -64,16 +64,20 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
       const uuid = target.closest("[data-item-uuid]")?.dataset.itemUuid;
       if (!uuid) return;
       switch (action) {
-        case "toggle": return (await babonus.fromUuid(uuid)).toggle();
-        case "edit": return (await babonus.fromUuid(uuid)).sheet.render(true);
-        case "delete": return (await babonus.fromUuid(uuid)).deleteDialog();
+        case "toggle":
+          return (await babonus.fromUuid(uuid)).toggle();
+        case "edit":
+          return (await babonus.fromUuid(uuid)).sheet.render(true);
+        case "delete":
+          return (await babonus.fromUuid(uuid)).deleteDialog();
         case "contextMenu":
           event.preventDefault();
           event.stopPropagation();
           return target.dispatchEvent(new PointerEvent("contextmenu", {
             view: window, bubbles: true, cancelable: true, clientX, clientY
           }));
-        default: return;
+        default:
+          return;
       }
     });
   });

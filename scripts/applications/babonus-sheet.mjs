@@ -226,7 +226,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
     fields.description = makeField("description", {
       height: 200,
       enriched: await TextEditor.enrichHTML(bonus.description, {
-        rollData: rollData, async: true, relativeTo: bonus.origin
+        rollData: rollData, relativeTo: bonus.origin
       })
     });
 

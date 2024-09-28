@@ -121,8 +121,9 @@ export default class OptionalSelector {
         tooltip: this._getTooltip(bonus),
         babonus: bonus,
         name: bonus.name.replaceAll("'", "\\'"),
+        label: `BABONUS.OptionalSelector.Label${bonus.consume.enabled ? "Consume" : "Apply"}`,
         description: await TextEditor.enrichHTML(bonus.description, {
-          async: true, rollData: bonus.getRollData(), relativeTo: bonus.origin
+          rollData: bonus.getRollData(), relativeTo: bonus.origin
         })
       };
       if (bonus.consume.enabled) {
@@ -142,7 +143,7 @@ export default class OptionalSelector {
         uuid: reminder.uuid,
         name: reminder.name.replaceAll("'", "\\'"),
         description: await TextEditor.enrichHTML(reminder.description, {
-          async: true, rollData: reminder.getRollData(), relativeTo: reminder.origin
+          rollData: reminder.getRollData(), relativeTo: reminder.origin
         })
       });
     }
@@ -197,6 +198,7 @@ export default class OptionalSelector {
 
     const data = await this.getData();
     if (!data.bonuses.length && !data.reminders.length) return;
+    data.isV2 = isV2;
     this.form.insertAdjacentHTML("beforeend", await renderTemplate(this.template, data));
     this.activateListeners(this.form);
 
@@ -374,7 +376,7 @@ export default class OptionalSelector {
     const {actor, item, effect} = bonus;
     const consumeMin = parseInt(bonus.consume.value.min || 1);
     const consumeMax = bonus.consume.value.max || Infinity;
-    const scaleValue = target.closest(".optional").querySelector(".consumption select")?.value;
+    const scaleValue = target.closest(".optional").querySelector(":is(.consumption, .form-group) select")?.value;
 
     switch (type) {
       case "uses":

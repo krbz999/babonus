@@ -147,13 +147,19 @@ export default class ConsumptionModel extends foundry.abstract.DataModel {
     switch (this.type) {
       case "uses":
       case "quantity":
-      case "effect": return this.bonus.parent.isOwner;
-      case "slots": return !!actor.system.spells && actor.isOwner;
-      case "health": return !!actor.system.attributes?.hp && actor.isOwner;
-      case "currency": return !!actor.system.currency && actor.isOwner;
+      case "effect":
+        return this.bonus.parent.isOwner;
+      case "slots":
+        return !!actor.system.spells && actor.isOwner;
+      case "health":
+        return !!actor.system.attributes?.hp && actor.isOwner;
+      case "currency":
+        return !!actor.system.currency && actor.isOwner;
       case "inspiration":
-      case "hitdice": return (actor.type === "character") && actor.isOwner;
-      default: return false;
+      case "hitdice":
+        return (actor.type === "character") && actor.isOwner;
+      default:
+        return false;
     }
   }
 
@@ -169,26 +175,27 @@ export default class ConsumptionModel extends foundry.abstract.DataModel {
     if (!this.isValidConsumption) return false;
 
     min ??= this.value.min;
+    const {hd, hp} = document.system?.attributes ?? {};
 
     switch (this.type) {
-      case "uses": return document.system.uses.value >= min;
-      case "quantity": return document.system.quantity >= min;
-      case "effect": return document.parent.effects.has(document.id);
-      case "slots": return Object.values(document.system.spells).some(({value, max, level}) => {
-        return value && max && level && (level >= min);
-      });
-      case "health": {
-        const hp = document.system.attributes.hp;
+      case "uses":
+        return document.system.uses.value >= min;
+      case "quantity":
+        return document.system.quantity >= min;
+      case "effect":
+        return document.parent.effects.has(document.id);
+      case "slots":
+        return Object.values(document.system.spells).some(s => s.value && s.max && s.level && (s.level >= min));
+      case "health":
         return (hp.value + hp.temp) >= min;
-      }
-      case "currency": return document.system.currency[this.subtype] >= min;
-      case "inspiration": return document.system.attributes.inspiration;
-      case "hitdice": {
-        const hd = document.system.attributes.hd;
-        const value = ["smallest", "largest"].includes(this.subtype) ? hd.value : hd.bySize[this.subtype] ?? 0;
-        return value >= min;
-      }
-      default: return false;
+      case "currency":
+        return document.system.currency[this.subtype] >= min;
+      case "inspiration":
+        return document.system.attributes.inspiration;
+      case "hitdice":
+        return (["smallest", "largest"].includes(this.subtype) ? hd.value : hd.bySize[this.subtype] ?? 0) >= min;
+      default:
+        return false;
     }
   }
 

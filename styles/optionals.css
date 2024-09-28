@@ -82,3 +82,34 @@ div.babonus.optionals {
     display: none;
   }
 }
+
+fieldset.babonus.optionals {
+  .optional:last-of-type + hr { display: none; }
+
+  .optional .form-group button {
+    flex: 0 0 var(--form-field-height);
+    height: var(--form-field-height);
+    padding: 0;
+    margin-left: 0.5rem;
+
+    .fa-solid {
+      margin: 0;
+    }
+
+    &:hover {
+      box-shadow: 0 0 6px var(--dnd5e-color-gold);
+    }
+  }
+
+  .optional.active .form-group :is(select, button) {
+    pointer-events: none;
+    background: inherit;
+    color: gray;
+    border-color: rgba(255, 255, 255, 0);
+    box-shadow: none;
+  }
+
+  .optional.active .form-group button .fa-solid::before {
+    content: "\f00c";
+  }
+}

@@ -1,3 +1,8 @@
+import fields from "../fields/_module.mjs";
+import AuraModel from "./aura-model.mjs";
+import ConsumptionModel from "./consumption-model.mjs";
+import ModifiersModel from "./modifiers-model.mjs";
+
 const {
   DocumentIdField, IntegerSortField, StringField, FilePathField,
   BooleanField, EmbeddedDataField, ObjectField, SchemaField, HTMLField
@@ -483,8 +488,8 @@ class Babonus extends foundry.abstract.DataModel {
       optional: new BooleanField(),
       reminder: new BooleanField(),
       description: new HTMLField(),
-      consume: new EmbeddedDataField(babonus.abstract.DataFields.models.ConsumptionModel),
-      aura: new EmbeddedDataField(babonus.abstract.DataFields.models.AuraModel),
+      consume: new EmbeddedDataField(ConsumptionModel),
+      aura: new EmbeddedDataField(AuraModel),
       flags: new ObjectField()
     };
   }
@@ -512,16 +517,16 @@ class Babonus extends foundry.abstract.DataModel {
    */
   static _defineFilterSchema() {
     return {
-      actorCreatureSizes: new babonus.abstract.DataFields.fields.actorCreatureSizes(),
-      actorCreatureTypes: new babonus.abstract.DataFields.fields.actorCreatureTypes(),
-      actorLanguages: new babonus.abstract.DataFields.fields.actorLanguages(),
-      arbitraryComparisons: new babonus.abstract.DataFields.fields.arbitraryComparisons(),
-      baseArmors: new babonus.abstract.DataFields.fields.baseArmors(),
-      customScripts: new babonus.abstract.DataFields.fields.customScripts(),
-      healthPercentages: new babonus.abstract.DataFields.fields.healthPercentages(),
-      remainingSpellSlots: new babonus.abstract.DataFields.fields.remainingSpellSlots(),
-      statusEffects: new babonus.abstract.DataFields.fields.statusEffects(),
-      tags: new babonus.abstract.DataFields.fields.tags()
+      actorCreatureSizes: new fields.actorCreatureSizes(),
+      actorCreatureTypes: new fields.actorCreatureTypes(),
+      actorLanguages: new fields.actorLanguages(),
+      arbitraryComparisons: new fields.arbitraryComparisons(),
+      baseArmors: new fields.baseArmors(),
+      customScripts: new fields.customScripts(),
+      healthPercentages: new fields.healthPercentages(),
+      remainingSpellSlots: new fields.remainingSpellSlots(),
+      statusEffects: new fields.statusEffects(),
+      tags: new fields.tags()
     };
   }
 
@@ -747,7 +752,10 @@ class Babonus extends foundry.abstract.DataModel {
         title: `Build-a-Bonus: ${this.name}`,
         icon: "fa-solid fa-otter"
       },
-      content: `<p>${game.i18n.localize("AreYouSure")}</p><p>${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
+      position: {
+        width: 400
+      },
+      content: `<p>${game.i18n.localize("AreYouSure")} ${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
       yes: {
         callback: () => this.delete(),
         default: true
@@ -768,22 +776,22 @@ class ItemBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      abilities: new babonus.abstract.DataFields.fields.abilities(),
-      baseWeapons: new babonus.abstract.DataFields.fields.baseWeapons(),
-      creatureTypes: new babonus.abstract.DataFields.fields.creatureTypes(),
-      damageTypes: new babonus.abstract.DataFields.fields.damageTypes(),
-      featureTypes: new babonus.abstract.DataFields.fields.featureTypes(),
-      identifiers: new babonus.abstract.DataFields.fields.identifiers(),
-      itemTypes: new babonus.abstract.DataFields.fields.itemTypes(),
-      preparationModes: new babonus.abstract.DataFields.fields.preparationModes(),
-      sourceClasses: new babonus.abstract.DataFields.fields.sourceClasses(),
-      spellComponents: new babonus.abstract.DataFields.fields.spellComponents(),
-      spellLevels: new babonus.abstract.DataFields.fields.spellLevels(),
-      spellSchools: new babonus.abstract.DataFields.fields.spellSchools(),
-      targetArmors: new babonus.abstract.DataFields.fields.targetArmors(),
-      targetEffects: new babonus.abstract.DataFields.fields.targetEffects(),
-      tokenSizes: new babonus.abstract.DataFields.fields.tokenSizes(),
-      weaponProperties: new babonus.abstract.DataFields.fields.weaponProperties()
+      abilities: new fields.abilities(),
+      baseWeapons: new fields.baseWeapons(),
+      creatureTypes: new fields.creatureTypes(),
+      damageTypes: new fields.damageTypes(),
+      featureTypes: new fields.featureTypes(),
+      identifiers: new fields.identifiers(),
+      itemTypes: new fields.itemTypes(),
+      preparationModes: new fields.preparationModes(),
+      sourceClasses: new fields.sourceClasses(),
+      spellComponents: new fields.spellComponents(),
+      spellLevels: new fields.spellLevels(),
+      spellSchools: new fields.spellSchools(),
+      targetArmors: new fields.targetArmors(),
+      targetEffects: new fields.targetEffects(),
+      tokenSizes: new fields.tokenSizes(),
+      weaponProperties: new fields.weaponProperties()
     };
   }
 }
@@ -835,7 +843,7 @@ class AttackBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      proficiencyLevels: new babonus.abstract.DataFields.fields.proficiencyLevels()
+      proficiencyLevels: new fields.proficiencyLevels()
     };
   }
 }
@@ -879,7 +887,7 @@ class DamageBabonus extends ItemBabonus {
       damageType: new StringField({required: true}),
       criticalBonusDice: new StringField({required: true}),
       criticalBonusDamage: new StringField({required: true}),
-      modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel, {})
+      modifiers: new EmbeddedDataField(ModifiersModel)
     };
   }
 
@@ -888,7 +896,7 @@ class DamageBabonus extends ItemBabonus {
   /** @override */
   static _defineFilterSchema() {
     const schema = super._defineFilterSchema();
-    schema.attackModes = new babonus.abstract.DataFields.fields.attackModes();
+    schema.attackModes = new fields.attackModes();
     return schema;
   }
 
@@ -946,7 +954,7 @@ class SaveBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      saveAbilities: new babonus.abstract.DataFields.fields.saveAbilities()
+      saveAbilities: new fields.saveAbilities()
     };
   }
 }
@@ -998,10 +1006,10 @@ class ThrowBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      creatureTypes: new babonus.abstract.DataFields.fields.creatureTypes(),
-      proficiencyLevels: new babonus.abstract.DataFields.fields.proficiencyLevels(),
-      targetEffects: new babonus.abstract.DataFields.fields.targetEffects(),
-      throwTypes: new babonus.abstract.DataFields.fields.throwTypes()
+      creatureTypes: new fields.creatureTypes(),
+      proficiencyLevels: new fields.proficiencyLevels(),
+      targetEffects: new fields.targetEffects(),
+      throwTypes: new fields.throwTypes()
     };
   }
 }
@@ -1051,10 +1059,10 @@ class TestBabonus extends Babonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      abilities: new babonus.abstract.DataFields.fields.abilities(),
-      baseTools: new babonus.abstract.DataFields.fields.baseTools(),
-      proficiencyLevels: new babonus.abstract.DataFields.fields.proficiencyLevels(),
-      skillIds: new babonus.abstract.DataFields.fields.skillIds()
+      abilities: new fields.abilities(),
+      baseTools: new fields.baseTools(),
+      proficiencyLevels: new fields.proficiencyLevels(),
+      skillIds: new fields.skillIds()
     };
   }
 }
@@ -1095,7 +1103,7 @@ class HitDieBabonus extends Babonus {
     return {
       ...super._defineBonusSchema(),
       bonus: new StringField({required: true}),
-      modifiers: new EmbeddedDataField(babonus.abstract.DataFields.models.ModifiersModel)
+      modifiers: new EmbeddedDataField(ModifiersModel)
     };
   }
 }
