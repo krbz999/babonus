@@ -114,14 +114,13 @@ export default class BabonusWorkshop extends dnd5e.applications.DialogMixin(Appl
 
     // Get current bonuses on the document.
     data.currentBonuses = [];
-    const rollData = this.document.getRollData();
     for (const bonus of this.collection) {
       data.currentBonuses.push({
         bonus: bonus,
         context: {
           collapsed: this.#collapsedBonuses.has(bonus.id),
           description: await TextEditor.enrichHTML(bonus.description, {
-            rollData: rollData, relativeTo: bonus.origin
+            rollData: bonus.getRollData(), relativeTo: bonus.origin
           }),
           icon: bonus.icon,
           typeTooltip: `BABONUS.${bonus.type.toUpperCase()}.Label`
