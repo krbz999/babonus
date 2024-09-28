@@ -4,8 +4,9 @@ import ConsumptionModel from "./consumption-model.mjs";
 import ModifiersModel from "./modifiers-model.mjs";
 
 const {
-  DocumentIdField, IntegerSortField, StringField, FilePathField,
-  BooleanField, EmbeddedDataField, ObjectField, SchemaField, HTMLField
+  BooleanField, DocumentIdField, EmbeddedDataField,
+  FilePathField, HTMLField, IntegerSortField,
+  ObjectField, SchemaField, SetField, StringField
 } = foundry.data.fields;
 
 /**
@@ -884,7 +885,7 @@ class DamageBabonus extends ItemBabonus {
     return {
       ...super._defineBonusSchema(),
       bonus: new StringField({required: true}),
-      damageType: new StringField({required: true}),
+      damageType: new SetField(new StringField()),
       criticalBonusDice: new StringField({required: true}),
       criticalBonusDamage: new StringField({required: true}),
       modifiers: new EmbeddedDataField(ModifiersModel)
@@ -903,9 +904,19 @@ class DamageBabonus extends ItemBabonus {
   /* -------------------------------------------------- */
 
   /** @override */
+  static migrateData(source) {
+    if (!source.damageType) return;
+    if (foundry.utils.getType(source.damageType) === "string") {
+      source.damageType = [source.damageType];
+    }
+  }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
   get hasDamageType() {
-    const type = this.bonuses.damageType;
-    return (type in CONFIG.DND5E.damageTypes) || (type in CONFIG.DND5E.healingTypes);
+    const types = this.bonuses.damageType;
+    return types.some(type => (type in CONFIG.DND5E.damageTypes) || (type in CONFIG.DND5E.healingTypes));
   }
 }
 

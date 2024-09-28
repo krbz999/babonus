@@ -240,7 +240,6 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
         const hgroup = game.i18n.localize("DND5E.Healing");
         options = {
           isDamage: true,
-          blank: game.i18n.localize("DND5E.None"),
           options: []
         };
         for (const [k, v] of Object.entries(CONFIG.DND5E.damageTypes)) {

@@ -131,9 +131,24 @@ export default class OptionalSelector {
         data.scales = this.doesBonusScale(bonus);
         data.action = data.scales ? `consume-${type}-scale` : `consume-${type}`;
         data.options = data.scales ? this._constructScalingOptions(bonus) : null;
+
+        data.scaleValue = new foundry.data.fields.StringField({required: true, choices: data.options});
+        data.scaleDataset = {select: "scaleValue"};
       } else {
         data.action = "consume-none";
       }
+
+      // Has multiple damage types
+      if (bonus.bonuses.damageType?.size > 1) {
+        const choices = {};
+        for (const type of bonus.bonuses.damageType) {
+          const label = CONFIG.DND5E.damageTypes[type].label;
+          if (label) choices[type] = label;
+        }
+        data.damageTypes = new foundry.data.fields.StringField({required: true, choices: choices});
+        data.damageTypeDataset = {select: "damageType"};
+      }
+
       bonuses.push(data);
     }
 
@@ -376,7 +391,8 @@ export default class OptionalSelector {
     const {actor, item, effect} = bonus;
     const consumeMin = parseInt(bonus.consume.value.min || 1);
     const consumeMax = bonus.consume.value.max || Infinity;
-    const scaleValue = target.closest(".optional").querySelector(":is(.consumption, .form-group) select")?.value;
+    const scaleValue = target.closest(".optional").querySelector("[data-select=scaleValue]")?.value;
+    const damageType = target.closest(".optional").querySelector("[data-select=damageType]")?.value;
 
     switch (type) {
       case "uses":
@@ -396,7 +412,7 @@ export default class OptionalSelector {
         const scale = scales ? (parseInt(value) - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         const apply = this.callHook(bonus, item, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
       case "slots": {
@@ -413,7 +429,7 @@ export default class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
       case "health": {
@@ -429,7 +445,7 @@ export default class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.applyDamage(value);
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
       case "effect": {
@@ -440,14 +456,14 @@ export default class OptionalSelector {
         }
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, effect, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
       case "inspiration": {
         await this.actor.update({"system.attributes.inspiration": false});
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
       case "currency": {
@@ -464,7 +480,7 @@ export default class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
       case "hitdice": {
@@ -498,14 +514,14 @@ export default class OptionalSelector {
         const scale = scales ? (parseInt(value) - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
       default: {
         // Optional bonus that does not consume.
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, null, config);
-        this._appendToField(bonus, target, config.bonus, apply);
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
         break;
       }
     }
@@ -536,25 +552,17 @@ export default class OptionalSelector {
   /**
    * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
    * On the new roll configuration dialog, simply append to a roll's parts rather than paste into the field.
-   * @param {Babonus} bab             The Babonus.
-   * @param {HTMLElement} target      The target of the initiating click event.
-   * @param {string} bonus            The bonus to add.
-   * @param {boolean} [apply]         Whether the bonus should be applied.
+   * @param {object} config                   Appending configuration data.
+   * @param {Babonus} config.babonus          The Babonus.
+   * @param {HTMLElement} config.target       The target of the initiating click event.
+   * @param {string} config.bonus             The bonus to add.
+   * @param {boolean} [config.apply]          Whether the bonus should be applied.
+   * @param {string} [config.damageType]      The damage type, if a damage bonus.
    */
-  _appendToField(bab, target, bonus, apply = true) {
+  _appendToField({babonus, target, bonus, apply = true, damageType}) {
     if (apply) {
-      const rollData = this._getRollData(bab);
+      const rollData = this._getRollData(babonus);
       const field = this.field;
-
-      if (bab.hasDamageType && field) {
-        // Need 'DamageRoll' in case of dice with no '.number', and need
-        // to replace roll data to be able to properly append the damage type.
-        const roll = new CONFIG.Dice.DamageRoll(bonus, rollData, {type: bab.bonuses.damageType});
-        for (const term of roll.terms) if ("flavor" in term.options) {
-          if (!term.options.flavor) term.options.flavor = bab.bonuses.damageType;
-        }
-        bonus = roll.formula;
-      }
 
       const parts = [bonus];
       for (const b of this.allBonuses) {
@@ -564,12 +572,14 @@ export default class OptionalSelector {
 
       if (field) {
         // Old dialog
-        if (!this.field.value.trim()) this.field.value = parts[0];
-        else this.field.value = `${this.field.value.trim()} + ${parts[0]}`;
+        if (!field.value.trim()) field.value = parts[0];
+        else field.value = `${field.value.trim()} + ${parts[0]}`;
       } else {
+        // New dialog.
         const roll = this.dialog.config.rolls.find(config => {
-          if (!bab.hasDamageType) return true;
-          return config.options.types.includes(bab.bonuses.damageType);
+          if (!damageType) return true;
+          const types = config.options.types;
+          return (types.length === 1) && (types[0] === damageType);
         });
 
         if (roll) {
@@ -580,17 +590,17 @@ export default class OptionalSelector {
             parts: [bonus],
             options: {
               properties: [...this.dialog.config.rolls[0].options.properties ?? []],
-              type: bab.bonuses.damageType,
-              types: [bab.bonuses.damageType]
+              type: damageType,
+              types: [damageType]
             }
           });
         }
 
         // Add dice modifiers.
         for (const {parts, data} of this.dialog.config.rolls) {
-          if (bab._halted) break;
-          const halted = bab.bonuses.modifiers.modifyParts(parts, data ?? rollData);
-          if (halted) bab._halted = true;
+          if (babonus._halted) break;
+          const halted = babonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
+          if (halted) babonus._halted = true;
         }
 
         this.dialog.rebuild();

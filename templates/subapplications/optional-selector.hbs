@@ -20,7 +20,10 @@
     <label>{{localize label}}</label>
     {{#if scales}}
     <div class="form-fields">
-      <select>{{selectOptions options}}</select>
+      {{formInput scaleValue dataset=scaleDataset}}
+      {{#if damageTypes}}
+      {{formInput damageTypes dataset=damageTypeDataset}}
+      {{/if}}
     </div>
     {{/if}}
     <button type="button" data-action="{{action}}">
@@ -46,7 +49,7 @@
     <label class="label">
       {{localize label}}
     </label>
-    <select>{{selectOptions options}}</select>
+    {{formInput scaleValue dataset=scaleDataset}}
   </div>
   {{/if}}
 

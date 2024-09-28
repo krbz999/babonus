@@ -4,7 +4,7 @@
     <legend>{{localize "BABONUS.BasicBonuses"}}</legend>
     {{#each bonuses}}
     {{#if isDamage}}
-    {{formGroup field value=value options=options blank=blank}}
+    {{formGroup field value=value options=options}}
     {{else}}
     {{formGroup field value=value}}
     {{/if}}

@@ -155,8 +155,12 @@ function preRollDamage(config, dialog, message) {
     // Add damage parts.
     if (bonus.bonuses.bonus) {
       const roll = config.rolls.find(config => {
+        // If this has no damage type, append to first roll.
         if (!bonus.hasDamageType) return true;
-        return config.options.types.includes(bonus.bonuses.damageType);
+        // If this has multiple types, never append.
+        if (bonus.bonuses.damageType.size > 1) return false;
+        // Else append if the type matches.
+        return config.options.types.includes(bonus.bonuses.damageType.first());
       });
 
       if (roll) {
@@ -167,8 +171,8 @@ function preRollDamage(config, dialog, message) {
           parts: [bonus.bonuses.bonus],
           options: {
             properties: [...config.rolls[0].options.properties ?? []],
-            type: bonus.bonuses.damageType,
-            types: [bonus.bonuses.damageType]
+            type: bonus.bonuses.damageType.first(),
+            types: Array.from(bonus.bonuses.damageType)
           }
         });
       }
