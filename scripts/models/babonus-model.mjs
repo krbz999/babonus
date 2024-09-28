@@ -172,16 +172,6 @@ class Babonus extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * An object of applications that re-render when this bonus is updated.
-   * @type {object}
-   */
-  get apps() {
-    return this._apps ??= {};
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
    * Whether a babonus is valid for being 'item only' in the builder. It must be embedded in an item (or an
    * effect on an item which targets the item's actor), must not be an aura or template aura, and the item
    * must be able to use activities.
@@ -423,8 +413,10 @@ class Babonus extends foundry.abstract.DataModel {
    * @type {BabonusSheet}
    */
   get sheet() {
-    if (this._sheet) return this._sheet;
-    return this._sheet = new babonus.abstract.applications.BabonusSheet(this);
+    const Cls = babonus.abstract.applications.BabonusSheet;
+    const sheet = foundry.applications.instances.get(`${Cls.name}-${this.uuid}`);
+    if (sheet) return sheet;
+    return new Cls(this);
   }
 
   /* -------------------------------------------------- */

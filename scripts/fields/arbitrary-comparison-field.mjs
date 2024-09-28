@@ -17,8 +17,8 @@ export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
   /** @override */
   constructor(options = {}) {
     super(new SchemaField({
-      one: new StringField({placeholder: "BABONUS.FIELDS.filters.arbitraryComparisons.one.placeholder"}),
-      other: new StringField({placeholder: "BABONUS.FIELDS.filters.arbitraryComparisons.other.placeholder"}),
+      one: new StringField(),
+      other: new StringField(),
       operator: new StringField({
         required: true,
         initial: "EQ",
@@ -54,8 +54,8 @@ export default class ArbitraryComparisonField extends FilterMixin(ArrayField) {
     const data = {
       label: field.label,
       hint: field.hint,
-      placeholder1: game.i18n.localize(one.options.placeholder),
-      placeholder2: game.i18n.localize(other.options.placeholder),
+      placeholder1: game.i18n.localize("BABONUS.FIELDS.filters.arbitraryComparisons.one.placeholder"),
+      placeholder2: game.i18n.localize("BABONUS.FIELDS.filters.arbitraryComparisons.other.placeholder"),
       comparisons: bonus.filters.arbitraryComparisons.map((c, i) => {
         return {
           one: {field: one, value: c.one, name: `filters.${this.name}.${i}.one`},

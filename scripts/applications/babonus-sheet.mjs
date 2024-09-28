@@ -19,7 +19,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
      * @type {Set<string>}
      */
     this._filters = ids;
-    this.#bonus = bonus;
+    this.#bonusId = bonus.id;
   }
 
   /* -------------------------------------------------- */
@@ -77,16 +77,16 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
    * @type {Babonus}
    */
   get bonus() {
-    return this.#bonus;
+    return babonus.getCollection(this.document).get(this.#bonusId);
   }
 
   /* -------------------------------------------------- */
 
   /**
    * The babonus represented by this sheet.
-   * @type {Babonus}
+   * @type {string}
    */
-  #bonus = null;
+  #bonusId = null;
 
   /* -------------------------------------------------- */
 
@@ -99,7 +99,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
 
   /** @override */
   get isEditable() {
-    return super.isEditable && !!this.bonus?.parent?.isOwner;
+    return super.isEditable && !!this.document.isOwner;
   }
 
   /* -------------------------------------------------- */
@@ -126,11 +126,13 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       }
     }
 
-    this.bonus.validate({changes: submitData, clean: true, fallback: false});
-    submitData.id = this.bonus.id;
+    const bonus = this.bonus;
+
+    bonus.validate({changes: submitData, clean: true, fallback: false});
+    submitData.id = bonus.id;
     const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
-    this.bonus.updateSource(submitData);
-    collection.findSplice(k => k.id === this.bonus.id, this.bonus.toObject());
+    bonus.updateSource(submitData);
+    collection.findSplice(k => k.id === bonus.id, bonus.toObject());
     return {flags: {babonus: {bonuses: collection}}};
   }
 
@@ -138,9 +140,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
 
   /** @override */
   render(...T) {
-    const bonus = babonus.getCollection(this.document).get(this.bonus.id);
-    if (!bonus) return this.close();
-    this.#bonus = bonus;
+    if (!this.bonus) return this.close();
     return super.render(...T);
   }
 
@@ -388,17 +388,18 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
    * @returns {object[]}
    */
   #prepareFilterPicker() {
-    const keys = Object.keys(this.bonus.filters);
+    const bonus = this.bonus;
+    const keys = Object.keys(bonus.filters);
     return keys.reduce((acc, key) => {
       if (!this._filters.has(key) || babonus.abstract.DataFields.fields[key].repeatable) acc.push({
         id: key,
-        repeats: babonus.abstract.DataFields.fields[key].repeatable ? this.bonus.filters[key].length : null,
-        field: this.bonus.schema.getField(`filters.${key}`)
+        repeats: babonus.abstract.DataFields.fields[key].repeatable ? bonus.filters[key].length : null,
+        field: bonus.schema.getField(`filters.${key}`)
       });
       return acc;
     }, []).sort((a, b) => {
-      a = this.bonus.schema.getField(`filters.${a.id}`).label;
-      b = this.bonus.schema.getField(`filters.${b.id}`).label;
+      a = bonus.schema.getField(`filters.${a.id}`).label;
+      b = bonus.schema.getField(`filters.${b.id}`).label;
       return a.localeCompare(b);
     });
   }
@@ -411,17 +412,15 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
    */
   #prepareFilters() {
     const htmls = [];
+    const bonus = this.bonus;
     const keys = [...this._filters].sort((a, b) => {
-      a = this.bonus.schema.getField(`filters.${a}`).label;
-      b = this.bonus.schema.getField(`filters.${b}`).label;
+      a = bonus.schema.getField(`filters.${a}`).label;
+      b = bonus.schema.getField(`filters.${b}`).label;
       return a.localeCompare(b);
     });
     for (const key of keys) {
       const filter = babonus.abstract.DataFields.fields[key];
-      if (filter) {
-        const html = filter.render(this.bonus);
-        htmls.push(html);
-      }
+      htmls.push(filter.render(bonus));
     }
     return htmls;
   }
@@ -434,23 +433,24 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
    */
   _prepareLabels() {
     const labels = [];
+    const bonus = this.bonus;
 
-    labels.push(game.i18n.localize(`BABONUS.${this.bonus.type.toUpperCase()}.Label`));
+    labels.push(game.i18n.localize(`BABONUS.${bonus.type.toUpperCase()}.Label`));
 
-    const filterLabels = Object.keys(this.bonus.filters).filter(key => {
-      return babonus.abstract.DataFields.fields[key].storage(this.bonus);
+    const filterLabels = Object.keys(bonus.filters).filter(key => {
+      return babonus.abstract.DataFields.fields[key].storage(bonus);
     }).length;
     labels.push(game.i18n.format("BABONUS.Labels.Filters", {n: filterLabels}));
 
-    if (!this.bonus.enabled) labels.push(game.i18n.localize("BABONUS.Labels.Disabled"));
-    if (this.bonus.isExclusive) labels.push(game.i18n.localize("BABONUS.Labels.Exclusive"));
-    if (this.bonus.isOptional) labels.push(game.i18n.localize("BABONUS.Labels.Optional"));
-    if (this.bonus.consume.isValidConsumption && this.bonus.consume.enabled) {
+    if (!bonus.enabled) labels.push(game.i18n.localize("BABONUS.Labels.Disabled"));
+    if (bonus.isExclusive) labels.push(game.i18n.localize("BABONUS.Labels.Exclusive"));
+    if (bonus.isOptional) labels.push(game.i18n.localize("BABONUS.Labels.Optional"));
+    if (bonus.consume.isValidConsumption && bonus.consume.enabled) {
       labels.push(game.i18n.localize("BABONUS.Labels.Consuming"));
     }
-    if (this.bonus.aura.isToken) labels.push(game.i18n.localize("BABONUS.Labels.TokenAura"));
-    if (this.bonus.aura.isTemplate) labels.push(game.i18n.localize("BABONUS.Labels.TemplateAura"));
-    if (this.bonus.isReminder) labels.push(game.i18n.localize("BABONUS.Labels.Reminder"));
+    if (bonus.aura.isToken) labels.push(game.i18n.localize("BABONUS.Labels.TokenAura"));
+    if (bonus.aura.isTemplate) labels.push(game.i18n.localize("BABONUS.Labels.TemplateAura"));
+    if (bonus.isReminder) labels.push(game.i18n.localize("BABONUS.Labels.Reminder"));
 
     return labels;
   }
@@ -463,8 +463,9 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
    * @param {HTMLElement} target      Targeted html element.
    */
   static #onDeleteFilter(event, target) {
+    const bonus = this.bonus;
     const id = target.dataset.id;
-    const data = this.bonus.toObject();
+    const data = bonus.toObject();
 
     if (babonus.abstract.DataFields.fields[id].repeatable) {
       const idx = parseInt(target.dataset.idx);
@@ -478,7 +479,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
     }
 
     const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
-    collection.findSplice(k => k.id === this.bonus.id, data);
+    collection.findSplice(k => k.id === bonus.id, data);
     this.document.update({"flags.babonus.bonuses": collection});
   }
 
@@ -490,13 +491,14 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
    * @param {HTMLElement} target      Targeted html element.
    */
   static #onAddFilter(event, target) {
+    const bonus = this.bonus;
     const id = target.closest("[data-id]").dataset.id;
     this._filters.add(id);
     if (babonus.abstract.DataFields.fields[id].repeatable) {
-      const data = this.bonus.toObject();
+      const data = bonus.toObject();
       data.filters[id].push({});
       const collection = babonus.getCollection(this.document).contents.map(k => k.toObject());
-      collection.findSplice(k => k.id === this.bonus.id, data);
+      collection.findSplice(k => k.id === bonus.id, data);
       this.document.update({"flags.babonus.bonuses": collection});
     } else {
       this.render();
@@ -577,9 +579,11 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
     event.preventDefault(); // Don't open context menu
     event.stopPropagation(); // Don't trigger other events
     if (event.detail > 1) return; // Ignore repeated clicks
-    const id = (event.button === 2) ? this.bonus.id : this.bonus.uuid;
+
+    const bonus = this.bonus;
+    const id = (event.button === 2) ? bonus.id : bonus.uuid;
     const type = (event.button === 2) ? "id" : "uuid";
-    const label = game.i18n.localize(this.bonus.constructor.metadata.label);
+    const label = game.i18n.localize(bonus.constructor.metadata.label);
     game.clipboard.copyPlainText(id);
     ui.notifications.info(game.i18n.format("DOCUMENT.IdCopiedClipboard", {label, type, id}));
   }
