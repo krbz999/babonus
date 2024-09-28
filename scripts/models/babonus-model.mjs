@@ -525,9 +525,9 @@ class Babonus extends foundry.abstract.DataModel {
       baseArmors: new fields.baseArmors(),
       customScripts: new fields.customScripts(),
       healthPercentages: new fields.healthPercentages(),
+      markers: new fields.markers(),
       remainingSpellSlots: new fields.remainingSpellSlots(),
-      statusEffects: new fields.statusEffects(),
-      tags: new fields.tags()
+      statusEffects: new fields.statusEffects()
     };
   }
 

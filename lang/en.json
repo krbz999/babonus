@@ -241,6 +241,13 @@
         "hint": "Filter by the type of the item being used to perform the roll. For example if the bonus should only apply to spells or only to weapons.",
         "label": "Item Types"
       },
+      "markers": {
+        "label": "Markers",
+        "hint": "Filter by markers that must be stored on this document for the bonus to apply. The item being used, or its actor, must have at least one of these markers. Any markers stored on applied effects will also be valid.",
+        "values": {
+          "placeholder": "Enter marker…"
+        }
+      },
       "preparationModes": {
         "hint": "Filter by the type of preparation mode a spell must be set to for the bonus to apply. For example when using a spell that is prepared as Pact Magic or Ritual Spellcasting.",
         "label": "Preparation Modes"
@@ -294,13 +301,6 @@
       "statusEffects": {
         "hint": "Filter by the conditions the actor performing the roll must be affected by or must not be affected by. This will take into account any condition immunities the actor has, such as immunity to being paralyzed.",
         "label": "Actor Conditions"
-      },
-      "tags": {
-        "label": "Tags",
-        "hint": "Filter by tags that must be stored on this document for the bonus to apply. The item being used, or its actor, must have at least one of these tags. Any tags stored on applied effects will also be valid.",
-        "values": {
-          "placeholder": "Enter tag…"
-        }
       },
       "targetArmors": {
         "hint": "Filter by the type of armor the target must be wearing or must not be wearing (including shields). For example if wanting the bonus to apply only when the target is wearing Chain Mail or is unarmored. This filter can take into account armor categories such as 'Light Armor' as well.",
@@ -508,12 +508,12 @@
     "Description": "Description",
     "Filters": "Filters"
   },
-  "TagsDialog": {
+  "MarkersDialog": {
     "field": {
-      "label": "Tags",
-      "hint": "Apply tags to this document for the purpose of the 'Tags' filter."
+      "label": "Markers",
+      "hint": "Apply markers to this document for the purpose of the 'Markers' filter."
     },
-    "title": "Apply Tags: {name}"
+    "title": "Apply Markers: {name}"
   },
   "ToggleBonus": "Toggle Bonus",
   "Toggles": "Toggles",

@@ -5,10 +5,10 @@ import CustomScriptsField from "./custom-scripts-field.mjs";
 import FeatureTypesField from "./feature-types-field.mjs";
 import HealthPercentagesField from "./health-percentages-field.mjs";
 import IdentifiersField from "./identifiers-field.mjs";
+import MarkersField from "./markers-field.mjs";
 import RemainingSpellSlotsField from "./remaining-spell-slots-field.mjs";
 import semicolonFields from "./semicolon-fields.mjs";
 import SourceClassesField from "./source-classes-field.mjs";
-import TagsField from "./tags-field.mjs";
 import TokenSizesField from "./token-sizes-field.mjs";
 
 export default Object.values({
@@ -20,9 +20,9 @@ export default Object.values({
   FeatureTypesField,
   HealthPercentagesField,
   IdentifiersField,
+  MarkersField,
   RemainingSpellSlotsField,
   SourceClassesField,
-  TagsField,
   TokenSizesField
 }).reduce((acc, field) => {
   acc[field.name] = field;

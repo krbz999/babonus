@@ -77,6 +77,7 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Health Percentages.</em></strong> A percentage value and whether the actor must have at least or at most this amount of remaining hit points for the bonus to apply.</p>
 <p><strong><em>Identifiers.</em></strong> Filter by the identifiers that an item must have one of for the bonus to apply. You can set an item's identifier in its source config.</p>
 <p><strong><em>Item Types.</em></strong> The type of item the bonus should apply to. For example if you want to increase the save DC globally but only for equipment type items, not spells.</p>
+<p><strong><em>Markers.</em></strong> Filter by markers that must be stored on this document for the bonus to apply. The item being used, or its actor, must have at least one of these markers. Any markers stored on applied effects will also be valid. To apply markers to a document, use the `babonus.applyMarkers` api method.</p>
 <p><strong><em>Proficiency Levels.</em></strong> The level of proficiency that the actor must have with the roll made. This is available for ability checks, saving throws, and attack rolls.</p>
 <p><strong><em>Save DC Ability.</em></strong> Filter the bonus such that it only applies if the DC is set using a specific ability. This respects spellcasting abilities in case the item has its save DC set using 'Spellcasting'.</p>
 <p><strong><em>Saving Throw Types.</em></strong> The type of saving throw the bonus should apply to (any ability score as well as death saving throws). If you are using the module Concentration Notifier, you can also apply a bonus specifically to saves for maintaining concentration.</p>
@@ -87,7 +88,6 @@ Interested in following along with development of any of my modules? Join the [D
 <p><strong><em>Spell Preparation Modes.</em></strong> Filter the bonus to only apply if the item is a spell and is set as one of a selected few preparation modes such as 'pact magic' or 'innate'.</p>
 <p><strong><em>Spell Schools.</em></strong> Filter the bonus to only apply if the item is a spell belonging to one of the given spell schools.</p>
 <p><strong><em>Spoken Languages.</em></strong> Filter the bonus to only apply if the actor performing the roll is able to speak a certain language.</p>
-<p><strong><em>Tags.</em></strong> Filter by tags that must be stored on this document for the bonus to apply. The item being used, or its actor, must have at least one of these tags. Any tags stored on applied effects will also be valid. To apply tags to a document, use the `babonus.applyTags` api method.</p>
 <p><strong><em>Token Sizes (Target).</em></strong> Filter the bonus to only apply if the target (of the client performing the roll) is a token of a certain size or greater (or smaller), and optionally clamped using the roller's token's size.</p>
 <p><strong><em>Weapon Properties.</em></strong> Filter the bonus to only apply if the item is a weapon that has at least one of the included weapon properties while having none of the excluded properties.</p>
 
@@ -96,11 +96,11 @@ Interested in following along with development of any of my modules? Join the [D
 
 ```js
 /**
- * Apply tags to a document for the 'tags' filter.
+ * Apply markers to a document for the 'Markers' filter.
  * @param {Document} document             The target document.
  * @returns {Promise<Document|null>}      A promise that resolves to the result of the dialog prompt.
  */
-async function applyTags(document)
+async function applyMarkers(document)
 ```
 
 ```js

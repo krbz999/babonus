@@ -2,9 +2,9 @@ import FilterMixin from "./filter-mixin.mjs";
 
 const {SchemaField, SetField, StringField} = foundry.data.fields;
 
-export default class TagsField extends FilterMixin(SchemaField) {
+export default class MarkersField extends FilterMixin(SchemaField) {
   /** @override */
-  static name = "tags";
+  static name = "markers";
 
   /* -------------------------------------------------- */
 
