@@ -392,7 +392,13 @@ export default class OptionalSelector {
     const consumeMin = parseInt(bonus.consume.value.min || 1);
     const consumeMax = bonus.consume.value.max || Infinity;
     const scaleValue = target.closest(".optional").querySelector("[data-select=scaleValue]")?.value;
-    const damageType = target.closest(".optional").querySelector("[data-select=damageType]")?.value;
+
+    // Set the damage type.
+    let damageType;
+    if (bonus.type === "damage") {
+      damageType = target.closest(".optional").querySelector("[data-select=damageType]")?.value;
+      if (!damageType && bonus.bonuses.damageType.size) damageType = bonus.bonuses.damageType.first();
+    }
 
     switch (type) {
       case "uses":
@@ -557,7 +563,7 @@ export default class OptionalSelector {
    * @param {HTMLElement} config.target       The target of the initiating click event.
    * @param {string} config.bonus             The bonus to add.
    * @param {boolean} [config.apply]          Whether the bonus should be applied.
-   * @param {string} [config.damageType]      The damage type, if a damage bonus.
+   * @param {string} [config.damageType]      A selected damage type (required if a damage bonus).
    */
   _appendToField({babonus, target, bonus, apply = true, damageType}) {
     if (apply) {
