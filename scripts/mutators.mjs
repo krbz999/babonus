@@ -36,8 +36,8 @@ function preUseActivity(activity, usageConfig, dialogConfig, messageConfig) {
 
   const rollData = activity.getRollData({deterministic: true});
   _addTargetData({data: rollData});
-  const totalBonus = bonuses.reduce((acc, bab) => {
-    return acc + dnd5e.utils.simplifyBonus(bab.bonuses.bonus, rollData);
+  const totalBonus = bonuses.all.reduce((acc, bonus) => {
+    return acc + dnd5e.utils.simplifyBonus(bonus.bonuses.bonus, rollData);
   }, 0);
 
   activity.save.dc.value += totalBonus;
@@ -65,24 +65,20 @@ function preRollAttack(config, dialog, message) {
   const {data: rollData} = config.rolls[0];
 
   // Gather up all bonuses.
-  const optionals = [];
   const mods = {criticalSuccess: 0, criticalFailure: 0};
-  for (const bab of bonuses) {
-    const bonus = bab.bonuses.bonus;
-    const valid = !!bonus && Roll.validate(bonus);
-    if (valid) {
-      if (bab.isOptional) optionals.push(bab);
-      else config.rolls[0].parts.push(bonus);
+  for (const bonus of bonuses.nonoptional) {
+    if (bonus.hasAdditiveBonus) config.rolls[0].parts.push(bonus.bonuses.bonus);
+    if (bonus.hasPropertyBonuses) {
+      mods.criticalSuccess += dnd5e.utils.simplifyBonus(bonus.bonuses.criticalRange, rollData);
+      mods.criticalFailure += dnd5e.utils.simplifyBonus(bonus.bonuses.fumbleRange, rollData);
     }
-    mods.criticalSuccess += dnd5e.utils.simplifyBonus(bab.bonuses.criticalRange, rollData);
-    mods.criticalFailure += dnd5e.utils.simplifyBonus(bab.bonuses.fumbleRange, rollData);
   }
 
   const id = registry.register({
     ...subjects,
-    optionals: optionals,
-    spellLevel: spellLevel,
     bonuses: bonuses,
+    modifiers: new foundry.utils.Collection(), // TODO: 4.1, this can be used and should be like damage rolls
+    spellLevel: spellLevel,
     configurations: {config, dialog, message}
   });
 
@@ -121,12 +117,14 @@ function preRollDamage(config, dialog, message) {
   if (!bonuses.size) return;
   _addTargetData(config);
 
-  const optionals = [];
+  // Used in the optional selector to determine which bonuses have and still should apply dice modifications.
+  const modifiers = new foundry.utils.Collection();
+
   const id = registry.register({
     ...subjects,
-    optionals: optionals,
     spellLevel: spellLevel,
     bonuses: bonuses,
+    modifiers: modifiers,
     configurations: {config, dialog, message},
     attackMode: attackMode
   });
@@ -137,23 +135,18 @@ function preRollDamage(config, dialog, message) {
   critical.bonusDice ??= 0;
   critical.bonusDamage ??= "";
 
-  for (const bonus of bonuses) {
-    if (bonus.isOptional) {
-      optionals.push(bonus);
-      continue;
+  for (const bonus of bonuses.nonoptional) {
+    const rollData = config.rolls[0].data;
+
+    if (bonus.hasPropertyBonuses) {
+      critical.bonusDice += dnd5e.utils.simplifyBonus(bonus.bonuses.criticalBonusDice, rollData);
+      critical.bonusDamage = critical.bonusDamage
+        ? `${critical.bonusDamage} + ${bonus.bonuses.criticalBonusDamage}`
+        : bonus.bonuses.criticalBonusDamage;
     }
 
-    const rollData = config.rolls[0].data;
-    const {criticalBonusDamage: damage, criticalBonusDice: dice} = bonus.bonuses;
-
-    // Add to crit bonus dice.
-    if (dice) critical.bonusDice + dnd5e.utils.simplifyBonus(dice, rollData);
-
-    // Add to crit damage.
-    if (damage) critical.bonusDamage ? `${critical.bonusDamage} + ${damage}` : damage;
-
     // Add damage parts.
-    if (bonus.bonuses.bonus) {
+    if (bonus.hasAdditiveBonus) {
       const roll = config.rolls.find(config => {
         // If this has no damage type, append to first roll.
         if (!bonus.hasDamageType) return true;
@@ -180,13 +173,14 @@ function preRollDamage(config, dialog, message) {
   }
 
   // Add dice modifiers.
-  for (const bonus of bonuses) {
-    if (bonus.isOptional) continue;
+  for (const bonus of bonuses.nonoptional) {
+    if (!bonus.hasDiceModifiers) continue;
     for (const {parts, data} of config.rolls) {
       if (bonus._halted) break;
-      const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
+      const halted = bonus.bonuses.modifiers.modifyParts(parts, data);
       if (halted) bonus._halted = true;
     }
+    if (!bonus._halted) modifiers.set(bonus.uuid, bonus);
   }
 
   // Adjust values to fit within sensible bounds.
@@ -213,22 +207,16 @@ function _preRollSave(actor, rollConfig, details) {
 
   // Gather up all bonuses.
   const accum = {targetValue: 0, critical: 0};
-  const optionals = [];
-  for (const bab of bonuses) {
-    const bonus = bab.bonuses.bonus;
-    const valid = !!bonus && Roll.validate(bonus);
-    if (valid) {
-      if (bab.isOptional) optionals.push(bab);
-      else rollConfig.parts.push(bonus);
-    }
-    accum.targetValue += dnd5e.utils.simplifyBonus(bab.bonuses.targetValue, rollConfig.data);
-    accum.critical += dnd5e.utils.simplifyBonus(bab.bonuses.deathSaveCritical, rollConfig.data);
+  for (const bonus of bonuses.nonoptional) {
+    if (bonus.hasAdditiveBonus) rollConfig.parts.push(bonus.bonuses.bonus);
+    accum.targetValue += dnd5e.utils.simplifyBonus(bonus.bonuses.targetValue, rollConfig.data);
+    accum.critical += dnd5e.utils.simplifyBonus(bonus.bonuses.deathSaveCritical, rollConfig.data);
   }
 
   const id = registry.register({
-    optionals: optionals,
     actor: actor,
     bonuses: bonuses,
+    modifiers: new foundry.utils.Collection(), // TODO: 4.1, see attack roll method
     details: details
   });
 
@@ -291,10 +279,14 @@ function preRollAbilityTest(actor, rollConfig, abilityId) {
   if (!bonuses.size) return;
   _addTargetData(rollConfig);
 
+  for (const bonus of bonuses.nonoptional) {
+    if (bonus.hasAdditiveBonus) rollConfig.parts.push(bonus.bonuses.bonus);
+  }
+
   const id = registry.register({
-    optionals: _getParts(bonuses, rollConfig),
     actor: actor,
-    bonuses: bonuses
+    bonuses: bonuses,
+    modifiers: new foundry.utils.Collection() // TODO: 4.1, see attack method
   });
 
   foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
@@ -315,10 +307,14 @@ function preRollSkill(actor, rollConfig, skillId) {
   if (!bonuses.size) return;
   _addTargetData(rollConfig);
 
+  for (const bonus of bonuses.nonoptional) {
+    if (bonus.hasAdditiveBonus) rollConfig.parts.push(bonus.bonuses.bonus);
+  }
+
   const id = registry.register({
-    optionals: _getParts(bonuses, rollConfig),
     actor: actor,
-    bonuses: bonuses
+    bonuses: bonuses,
+    modifiers: new foundry.utils.Collection() // TODO: 4.1, see attack method
   });
 
   foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
@@ -343,10 +339,14 @@ function preRollToolCheck(actor, config, toolId) {
   if (!bonuses.size) return;
   _addTargetData(config);
 
+  for (const bonus of bonuses.nonoptional) {
+    if (bonus.hasAdditiveBonus) config.parts.push(bonus.bonuses.bonus);
+  }
+
   const id = registry.register({
     ...subjects,
-    optionals: _getParts(bonuses, config),
-    bonuses: bonuses
+    bonuses: bonuses,
+    modifiers: new foundry.utils.Collection() // TODO: see 4.1 and attack method
   });
 
   foundry.utils.setProperty(config, `dialogOptions.${MODULE.ID}.registry`, id);
@@ -369,37 +369,35 @@ function preRollHitDie(config, dialog, message) {
   // Construct an array of parts.
   const parts = [`1${config.denomination}`, `@abilities.${CONFIG.DND5E.defaultAbilities.hitPoints}.mod`];
 
-  const optionals = [];
+  const modifiers = new foundry.utils.Collection();
   const id = registry.register({
-    optionals: optionals,
     actor: actor,
     bonuses: bonuses,
+    modifiers: modifiers,
     configurations: {config, dialog, message}
   });
   foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
 
-  for (const bonus of bonuses) {
-    if (bonus.isOptional) {
-      optionals.push(bonus);
-      continue;
-    }
-
-    // Add bonus.
-    if (bonus.bonuses.bonus && Roll.validate(bonus.bonuses.bonus)) parts.push(bonus.bonuses.bonus);
+  for (const bonus of bonuses.nonoptional) {
+    if (bonus.hasAdditiveBonus) parts.push(bonus.bonuses.bonus);
   }
 
   // Add die modifiers.
-  for (const bonus of bonuses) {
-    if (bonus.isOptional) continue;
-    bonus.bonuses.modifiers.modifyParts(parts, config.rolls[0].data);
+  for (const bonus of bonuses.nonoptional) {
+    if (!bonus.hasDiceModifiers) continue;
+    for (const {data} of config.rolls) { // intentionally not using the original parts
+      if (bonus._halted) break;
+      const halted = bonus.bonuses.modifiers.modifyParts(parts, data);
+      if (halted) bonus._halted = true;
+    }
+    if (!bonus._halted) modifiers.set(bonus.uuid, bonus);
   }
 
   // Force dialog if there is an optional bonus.
-  if (optionals.length) dialog.configure = true;
+  if (bonuses.optionals.size) dialog.configure = true;
 
   // Replace parts.
-  const [denom, mod, ...rest] = parts;
-  config.rolls[0].parts = [`max(0, ${[denom, mod].join(" + ")})`, ...rest];
+  config.rolls[0].parts = parts;
 }
 
 /* -------------------------------------------------- */
@@ -424,24 +422,6 @@ function preCreateActivityTemplate(activity, templateData) {
     bonuses: bonusData,
     templateDisposition: disp
   });
-}
-
-/* -------------------------------------------------- */
-
-/**
- * Gather optional bonuses and put non-optional bonuses into the roll config.
- * @param {Babonus[]} bonuses     An array of babonuses to apply.
- * @param {object} rollConfig     The roll config for this roll. **will be mutated**
- * @returns {string[]}            An array of optional bonuses to modify a roll.
- */
-function _getParts(bonuses, rollConfig) {
-  return bonuses.reduce((acc, bab) => {
-    const bonus = bab.bonuses.bonus;
-    if (!bonus || !Roll.validate(bonus)) return acc;
-    if (bab.isOptional) acc.push(bab);
-    else rollConfig.parts.push(bonus);
-    return acc;
-  }, []);
 }
 
 /* -------------------------------------------------- */

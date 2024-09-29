@@ -9,20 +9,15 @@ export default class OptionalSelector {
   constructor(id) {
     const registered = registry.get(id);
     this.#id = id;
+    this.#registry = registered;
+
+    /* -------------------------------------------------- */
 
     /**
      * The optional bonuses.
      * @type {Collection<Babonus>}
      */
-    this.bonuses = new foundry.utils.Collection(registered.optionals.map(o => [o.uuid, o]));
-
-    /* -------------------------------------------------- */
-
-    /**
-     * All bonuses.
-     * @type {Collection<Babonus>}
-     */
-    this.allBonuses = new foundry.utils.Collection(registered.bonuses.map(o => [o.uuid, o]));
+    this.optionals = registered.bonuses.optionals;
 
     /* -------------------------------------------------- */
 
@@ -30,10 +25,7 @@ export default class OptionalSelector {
      * The bonuses that just serve as reminders
      * @type {Collection<Babonus>}
      */
-    this.reminders = registered.bonuses.reduce((acc, bonus) => {
-      if (bonus.isReminder) acc.set(bonus.uuid, bonus);
-      return acc;
-    }, new foundry.utils.Collection());
+    this.reminders = registered.bonuses.reminders;
 
     /* -------------------------------------------------- */
 
@@ -79,6 +71,14 @@ export default class OptionalSelector {
   /* -------------------------------------------------- */
 
   /**
+     * The retrieved registry.
+     * @type {object}
+     */
+  #registry = null;
+
+  /* -------------------------------------------------- */
+
+  /**
    * The id used to register data for this optional selector.
    * @type {string}
    */
@@ -109,7 +109,7 @@ export default class OptionalSelector {
    */
   async getData() {
     const bonuses = [];
-    for (const bonus of this.bonuses) {
+    for (const bonus of this.optionals) {
 
       // For bonuses that consume, skip them if they are invalid.
       if (bonus.consume.enabled) {
@@ -385,7 +385,7 @@ export default class OptionalSelector {
   async _onApplyOption(event) {
     const target = event.currentTarget;
     target.disabled = true;
-    const bonus = this.bonuses.get(target.closest(".optional").dataset.bonusUuid);
+    const bonus = this.optionals.get(target.closest(".optional").dataset.bonusUuid);
     const type = (target.dataset.action === "consume-none") ? null : bonus.consume.type;
     const scales = target.dataset.action.endsWith("-scale");
     const {actor, item, effect} = bonus;
@@ -561,58 +561,87 @@ export default class OptionalSelector {
    * @param {object} config                   Appending configuration data.
    * @param {Babonus} config.babonus          The Babonus.
    * @param {HTMLElement} config.target       The target of the initiating click event.
-   * @param {string} config.bonus             The bonus to add.
+   * @param {string} [config.bonus]           The bonus to add (not required if the type supports modifiers).
    * @param {boolean} [config.apply]          Whether the bonus should be applied.
    * @param {string} [config.damageType]      A selected damage type (required if a damage bonus).
    */
   _appendToField({babonus, target, bonus, apply = true, damageType}) {
-    if (apply) {
-      const rollData = this._getRollData(babonus);
-      const field = this.field;
-
-      const parts = [bonus];
-      for (const b of this.allBonuses) {
-        const modifiers = b.bonuses.modifiers;
-        if (modifiers && !b._halted) modifiers.modifyParts(parts, rollData, {ignoreFirst: true});
-      }
-
-      if (field) {
-        // Old dialog
-        if (!field.value.trim()) field.value = parts[0];
-        else field.value = `${field.value.trim()} + ${parts[0]}`;
-      } else {
-        // New dialog.
-        const roll = this.dialog.config.rolls.find(config => {
-          if (!damageType) return true;
-          const types = config.options.types;
-          return (types.length === 1) && (types[0] === damageType);
-        });
-
-        if (roll) {
-          roll.parts.push(bonus);
-        } else {
-          this.dialog.config.rolls.push({
-            data: rollData,
-            parts: [bonus],
-            options: {
-              properties: [...this.dialog.config.rolls[0].options.properties ?? []],
-              type: damageType,
-              types: [damageType]
-            }
-          });
-        }
-
-        // Add dice modifiers.
-        for (const {parts, data} of this.dialog.config.rolls) {
-          if (babonus._halted) break;
-          const halted = babonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
-          if (halted) babonus._halted = true;
-        }
-
-        this.dialog.rebuild();
-      }
-    }
+    if (!apply) return;
+    this.#applyPropertyModifications();
+    this.#applyAdditiveBonus(babonus, bonus, damageType);
+    this.#applyDiceModifications(babonus);
+    this.dialog.rebuild?.(); // TODO: no optional chaining needed in 4.1 when all dialogs are the same.
     target.closest(".optional").classList.toggle("active", true);
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Apply property modifications such as critical threshold.
+   */
+  #applyPropertyModifications() {
+    // TODO: This does nothing yet.
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Apply the additive bonus of a babonus when it is toggled active.
+   * @param {Babonus} babonus         The bonus being toggled active.
+   * @param {string} bonus            The additive bonus.
+   * @param {string} [damageType]     A selected damage type (required if damage bonus).
+   */
+  #applyAdditiveBonus(babonus, bonus, damageType) {
+    if (!babonus.hasAdditiveBonus) return;
+
+    // TODO: get rid of using this old field from the old roll config dialog in 4.1
+    const field = this.field;
+
+    if (field) {
+      if (!field.value.trim()) field.value = bonus;
+      else field.value = `${field.value.trim()} + ${bonus}`;
+      return;
+    }
+
+    const roll = this.dialog.config.rolls.find(config => {
+      if (!damageType) return true;
+      const types = config.options.types;
+      return (types.length === 1) && (types[0] === damageType);
+    });
+
+    if (roll) roll.parts.push(bonus);
+    else {
+      this.dialog.config.rolls.push({
+        data: this._getRollData(babonus),
+        parts: [bonus],
+        options: {
+          properties: [...this.dialog.config.rolls[0].options.properties ?? []],
+          type: damageType,
+          types: [damageType]
+        }
+      });
+    }
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Apply dice modifiers to all parts in the roll config.
+   * @param {Babonus} babonus     A new bonus being toggled active.
+   */
+  #applyDiceModifications(babonus) {
+    // Store for later if other additive bonuses get added.
+    if (babonus.hasDiceModifiers) this.#registry.modifiers.set(babonus.uuid, babonus);
+
+    for (const bonus of this.#registry.modifiers) {
+      const rollData = this._getRollData(bonus);
+      for (const {parts, data} of this.dialog.config.rolls) {
+        if (bonus._halted) break;
+        const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
+        if (halted) bonus._halted = true;
+      }
+      if (bonus._halted) this.#registry.modifiers.delete(bonus.uuid);
+    }
   }
 
   /* -------------------------------------------------- */

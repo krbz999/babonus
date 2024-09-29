@@ -1,4 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
+import BonusCollection from "./bonus-collection.mjs";
 import BonusCollector from "./bonus-collector.mjs";
 
 /**
@@ -14,14 +15,14 @@ import BonusCollector from "./bonus-collector.mjs";
  * @param {SubjectConfig} subjects      Subject config.
  * @param {string} type                 The type of roll.
  * @param {object} [details]            Details for filtering.
- * @returns {Collection<Babonus>}       The filtered Collection.
+ * @returns {BonusCollection}           The filtered Collection.
  */
 function _check(subjects, type, details = {}) {
   const collector = new BonusCollector({...subjects, type: type});
   const bonuses = collector.returnBonuses();
   const filtered = _finalFilterBonuses(type, bonuses, subjects, details);
   setTimeout(() => collector.destroyAuras(), 2000);
-  return filtered;
+  return new BonusCollection(filtered);
 }
 
 /* -------------------------------------------------- */
@@ -29,7 +30,7 @@ function _check(subjects, type, details = {}) {
 /**
  * Initiate the collection and filtering of bonuses applying to hit die rolls.
  * @param {SubjectConfig} subjects      Subject config.
- * @returns {Collection<Babonus>}       The filtered Collection.
+ * @returns {BonusCollection}           The filtered Collection.
  */
 export function hitDieCheck(subjects) {
   return _check(subjects, "hitdie");
@@ -44,7 +45,7 @@ export function hitDieCheck(subjects) {
  * @param {string} [details.ability]              The ability used for the saving throw.
  * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
  * @param {boolean} [details.isDeath]             Is this a death saving throw?
- * @returns {Collection<Babonus>}                 The filtered Collection.
+ * @returns {BonusCollection}                     The filtered Collection.
  */
 export function throwCheck(subjects, {ability, isConcentration, isDeath}) {
   return _check(subjects, "throw", {ability, isConcentration, isDeath});
@@ -60,7 +61,7 @@ export function throwCheck(subjects, {ability, isConcentration, isDeath}) {
  * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
  * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
  * @param {Item5e} [details.item]         The tool being used if rolled from an item instead.
- * @returns {Collection<Babonus>}         The filtered Collection.
+ * @returns {BonusCollection}             The filtered Collection.
  */
 export function testCheck(subjects, abilityId, {skillId, toolId} = {}) {
   return _check(subjects, "test", {abilityId, skillId, toolId});
@@ -75,7 +76,7 @@ export function testCheck(subjects, abilityId, {skillId, toolId} = {}) {
  * @param {object} [details]                      Additional context for the filtering and checks.
  * @param {number} [details.spellLevel]           The level of the spell, if needed.
  * @param {Set<string>} [details.attackModes]     The available attack modes.
- * @returns {Collection<Babonus>}                 The filtered Collection.
+ * @returns {BonusCollection}                     The filtered Collection.
  */
 export function itemCheck(subjects, hookType, details = {}) {
   return _check(subjects, hookType, details);

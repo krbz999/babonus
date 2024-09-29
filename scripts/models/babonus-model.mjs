@@ -107,7 +107,7 @@ const {
  * @property {BonusConfiguration} bonuses
  *
  */
-class Babonus extends foundry.abstract.DataModel {
+export class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
     data = foundry.utils.mergeObject({
       name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
@@ -217,15 +217,42 @@ class Babonus extends foundry.abstract.DataModel {
   /* -------------------------------------------------- */
 
   /**
-   * Is this providing a bonus to any properties, or dice modifiers?
+   * Does this babonus have an additive bonus?
+   * @type {boolean}
+   */
+  get hasAdditiveBonus() {
+    return !!this.bonuses.bonus && Roll.validate(this.bonuses.bonus);
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Does this bonus modify a property that isn't an additive bonus or dice modifier?
+   * Such as critical thresholds or bonus critical damage.
+   * @type {boolean}
+   */
+  get hasPropertyBonuses() {
+    return false;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Does this bonus add dice modifiers?
+   * @type {boolean}
+   */
+  get hasDiceModifiers() {
+    return !!this.bonuses.modifiers?.hasModifiers;
+  }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Is this providing a bonus to parts, any properties, or dice modifiers?
    * @type {boolean}
    */
   get hasBonuses() {
-    for (const [k, v] of Object.entries(this.bonuses)) {
-      if (k === "modifiers") continue;
-      if (v) return true;
-    }
-    return !!this.bonuses.modifiers?.hasModifiers;
+    return this.hasAdditiveBonus || this.hasPropertyBonuses || this.hasDiceModifiers;
   }
 
   /* -------------------------------------------------- */
@@ -847,6 +874,13 @@ class AttackBabonus extends ItemBabonus {
       proficiencyLevels: new fields.proficiencyLevels()
     };
   }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
+  get hasPropertyBonuses() {
+    return !!this.bonuses.criticalRange || !!this.bonuses.fumbleRange;
+  }
 }
 
 class DamageBabonus extends ItemBabonus {
@@ -917,6 +951,13 @@ class DamageBabonus extends ItemBabonus {
   get hasDamageType() {
     const types = this.bonuses.damageType;
     return types.some(type => (type in CONFIG.DND5E.damageTypes) || (type in CONFIG.DND5E.healingTypes));
+  }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
+  get hasPropertyBonuses() {
+    return !!this.bonuses.criticalBonusDice || !!this.bonuses.criticalBonusDamage;
   }
 }
 
@@ -1022,6 +1063,13 @@ class ThrowBabonus extends Babonus {
       targetEffects: new fields.targetEffects(),
       throwTypes: new fields.throwTypes()
     };
+  }
+
+  /* -------------------------------------------------- */
+
+  /** @override */
+  get hasPropertyBonuses() {
+    return !!this.bonuses.targetValue || !!this.bonuses.deathSaveCritical;
   }
 }
 
