@@ -140,7 +140,7 @@
       "label": "Image"
     },
     "optional": {
-      "hint": "Toggle whether this bonus should be opted into when rolling. A bonus cannot be set to be optional unless it provides an additive bonus on top of an attack roll, damage roll, saving throw, or ability check.",
+      "hint": "Toggle whether this bonus should be opted into when rolling. Note that this feature is not available for bonuses to save DCs.",
       "label": "Optional"
     },
     "reminder": {

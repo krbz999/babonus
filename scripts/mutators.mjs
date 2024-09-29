@@ -20,7 +20,7 @@ import registry from "./registry.mjs";
  * @param {ActivityDialogConfiguration} dialogConfig    Configuration info for the usage dialog.
  * @param {ActivityMessageConfiguration} messageConfig  Configuration info for the created chat message.
  */
-function preUseActivity(activity, usageConfig, dialogConfig, messageConfig) {
+function postActivityConsumption(activity, usageConfig, dialogConfig, messageConfig) {
   if (activity.type !== "save") return;
 
   const subjects = {
@@ -29,8 +29,10 @@ function preUseActivity(activity, usageConfig, dialogConfig, messageConfig) {
     actor: activity.item.actor
   };
 
+  const spellLevel = usageConfig.scaling + subjects.item.system.level;
+
   // Get bonuses:
-  const bonuses = filterings.itemCheck(subjects, "save", {spellLevel: activity.item.system.level});
+  const bonuses = filterings.itemCheck(subjects, "save", {spellLevel});
   if (!bonuses.size) return;
   // const id = registry.register(bonuses); // TODO: useless
 
@@ -57,7 +59,7 @@ function preRollAttack(config, dialog, message) {
 
   const subjects = {activity: config.subject, item: item, actor: item.actor};
   // get bonuses:
-  const spellLevel = config.rolls[0].data.scaling.value;
+  const spellLevel = config.rolls[0].data.item.level;
   const bonuses = filterings.itemCheck(subjects, "attack", {spellLevel});
   if (!bonuses.size) return;
   _addTargetData(config);
@@ -109,7 +111,7 @@ function preRollDamage(config, dialog, message) {
   if (!item) return;
 
   // get bonus:
-  const spellLevel = config.rolls[0].data.scaling.value;
+  const spellLevel = config.rolls[0].data.item.level;
   const attackMode = config.attackMode ?? null;
 
   const subjects = {activity: config.subject, item: item, actor: item.actor};
@@ -443,6 +445,7 @@ function _addTargetData(config, deterministic = false) {
 /* -------------------------------------------------- */
 
 export default {
+  postActivityConsumption,
   preCreateActivityTemplate,
   preRollAbilitySave,
   preRollAbilityTest,
@@ -451,6 +454,5 @@ export default {
   preRollDeathSave,
   preRollHitDie,
   preRollSkill,
-  preRollToolCheck,
-  preUseActivity
+  preRollToolCheck
 };

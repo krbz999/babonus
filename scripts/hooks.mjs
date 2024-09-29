@@ -173,7 +173,7 @@ Hooks.on("renderRegionConfig", injections.injectRegionConfigElement);
 Hooks.once("ready", function() {
   Hooks.callAll("babonus.preInitializeRollHooks");
 
-  Hooks.on("dnd5e.preUseActivity", mutators.preUseActivity);
+  Hooks.on("dnd5e.postActivityConsumption", mutators.postActivityConsumption);
   Hooks.on("dnd5e.preRollAbilitySave", mutators.preRollAbilitySave);
   Hooks.on("dnd5e.preRollAbilityTest", mutators.preRollAbilityTest);
   Hooks.on("dnd5e.preRollAttackV2", mutators.preRollAttack);
