@@ -1,17 +1,21 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
 
+const SHEET_MAPPINGS = new Map();
+
 /**
  * Handle rendering a new tab on the v2 character sheet.
- * @param {ActorSheet5eCharacter2|ActorSheet5eNPC2} sheet     The rendered sheet.
- * @param {HTMLElement} html                                  The element of the sheet.
+ * @param {ActorSheet} sheet      The rendered sheet.
+ * @param {HTMLElement} html      The element of the sheet.
  */
 async function _onRenderCharacterSheet2(sheet, [html]) {
   const template = "modules/babonus/templates/subapplications/character-sheet-tab.hbs";
 
   const bonuses = {};
   const uuids = new Set();
+  SHEET_MAPPINGS.set(sheet.document.uuid, new Map());
 
   async function _prepareBonus(bonus, rollData) {
+    SHEET_MAPPINGS.get(sheet.document.uuid).set(bonus.uuid, bonus);
     uuids.add(bonus.uuid);
     const section = bonuses[bonus.type] ??= {};
     section.label ??= `BABONUS.${bonus.type.toUpperCase()}.Label`;
@@ -65,11 +69,11 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
       if (!uuid) return;
       switch (action) {
         case "toggle":
-          return (await babonus.fromUuid(uuid)).toggle();
+          return SHEET_MAPPINGS.get(sheet.document.uuid).get(uuid).toggle();
         case "edit":
-          return (await babonus.fromUuid(uuid)).sheet.render(true);
+          return SHEET_MAPPINGS.get(sheet.document.uuid).get(uuid).sheet.render({force: true});
         case "delete":
-          return (await babonus.fromUuid(uuid)).deleteDialog();
+          return SHEET_MAPPINGS.get(sheet.document.uuid).get(uuid).deleteDialog();
         case "contextMenu":
           event.preventDefault();
           event.stopPropagation();
@@ -93,7 +97,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   div.querySelectorAll("[data-item-uuid][draggable]").forEach(n => {
     n.addEventListener("dragstart", async (event) => {
       const uuid = event.currentTarget.dataset.itemUuid;
-      const bab = await babonus.fromUuid(uuid);
+      const bab = SHEET_MAPPINGS.get(sheet.document.uuid).get(uuid);
       const dragData = bab.toDragData();
       if (!dragData) return;
       event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
@@ -124,7 +128,7 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
   });
 
   new dnd5e.applications.ContextMenu5e(html, ".item[data-item-uuid]", [], {
-    onOpen: (...args) => _onOpenContextMenu(...args)
+    onOpen: _onOpenContextMenu.bind(sheet)
   });
 }
 
@@ -132,14 +136,15 @@ async function _onRenderCharacterSheet2(sheet, [html]) {
 
 /**
  * Populate the context menu options.
+ * @this {ActorSheet}
  * @param {HTMLElement} element     The targeted element.
  */
 function _onOpenContextMenu(element) {
-  const bonus = babonus.fromUuidSync(element.dataset.itemUuid);
+  const bonus = SHEET_MAPPINGS.get(this.document.uuid).get(element.dataset.itemUuid);
   ui.context.menuItems = [{
     name: "BABONUS.ContextMenu.Edit",
     icon: "<i class='fa-solid fa-edit'></i>",
-    callback: () => bonus.sheet.render(true)
+    callback: () => bonus.sheet.render({force: true})
   }, {
     name: "BABONUS.ContextMenu.Duplicate",
     icon: "<i class='fa-solid fa-copy'></i>",
@@ -167,7 +172,7 @@ function _onOpenContextMenu(element) {
 
 /**
  * Utility method that creates a popup dialog for a new bonus.
- * @this {ActorSheet5eCharacter2}
+ * @this {ActorSheet}
  * @returns {Promise}
  */
 async function _createChildBonus() {
