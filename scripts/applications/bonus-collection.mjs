@@ -26,7 +26,7 @@ export default class BonusCollection {
    * @type {number}
    */
   get size() {
-    return [...this.#bonuses].length;
+    return this.all.size;
   }
 
   /* -------------------------------------------------- */
@@ -36,12 +36,23 @@ export default class BonusCollection {
    * @type {Collection<string, Babonus>}
    */
   get all() {
-    const collection = new Collection();
-    for (const bonus of this.#bonuses) {
-      collection.set(bonus.uuid, bonus);
+    if (!this.#all) {
+      const collection = new Collection();
+      for (const bonus of this.#bonuses) {
+        collection.set(bonus.uuid, bonus);
+      }
+      this.#all = collection;
     }
-    return collection;
+    return this.#all;
   }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * All the bonuses regardless of bonus, type, or modifiers.
+   * @type {Collection<string, Babonus>}
+   */
+  #all = null;
 
   /* -------------------------------------------------- */
 
@@ -50,12 +61,23 @@ export default class BonusCollection {
    * @type {Collection<string, Babonus>}
    */
   get reminders() {
-    const collection = new Collection();
-    for (const bonus of this.#bonuses) {
-      if (bonus.isReminder) collection.set(bonus.uuid, bonus);
+    if (!this.#reminders) {
+      const collection = new Collection();
+      for (const bonus of this.#bonuses) {
+        if (bonus.isReminder) collection.set(bonus.uuid, bonus);
+      }
+      this.#reminders = collection;
     }
-    return collection;
+    return this.#reminders;
   }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * All the bonuses that are just reminders.
+   * @type {Collection<string, Babonus>}
+   */
+  #reminders = null;
 
   /* -------------------------------------------------- */
 
@@ -64,12 +86,23 @@ export default class BonusCollection {
    * @type {Collection<string, Babonus>}
    */
   get modifiers() {
-    const collection = new Collection();
-    for (const bonus of this.#bonuses) {
-      if (bonus.hasDiceModifiers) collection.set(bonus.uuid, bonus);
+    if (!this.#modifiers) {
+      const collection = new Collection();
+      for (const bonus of this.#bonuses) {
+        if (bonus.hasDiceModifiers) collection.set(bonus.uuid, bonus);
+      }
+      this.#modifiers = collection;
     }
-    return collection;
+    return this.#modifiers;
   }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * All the bonuses that have dice modifiers.
+   * @type {Collection<string, Babonus>}
+   */
+  #modifiers = null;
 
   /* -------------------------------------------------- */
 
@@ -78,12 +111,23 @@ export default class BonusCollection {
    * @type {Collection<string, Babonus>}
    */
   get optionals() {
-    const collection = new Collection();
-    for (const bonus of this.#bonuses) {
-      if (bonus.isOptional) collection.set(bonus.uuid, bonus);
+    if (!this.#optionals) {
+      const collection = new Collection();
+      for (const bonus of this.#bonuses) {
+        if (bonus.isOptional) collection.set(bonus.uuid, bonus);
+      }
+      this.#optionals = collection;
     }
-    return collection;
+    return this.#optionals;
   }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * All the bonuses that are optional.
+   * @type {Collection<string, Babonus>}
+   */
+  #optionals = null;
 
   /* -------------------------------------------------- */
 
@@ -92,11 +136,22 @@ export default class BonusCollection {
    * @type {Collection<string, Babonus>}
    */
   get nonoptional() {
-    const collection = new Collection();
-    for (const bonus of this.#bonuses) {
-      if (bonus.isOptional || bonus.isReminder) continue;
-      if (bonus.hasBonuses) collection.set(bonus.uuid, bonus);
+    if (!this.#nonoptional) {
+      const collection = new Collection();
+      for (const bonus of this.#bonuses) {
+        if (bonus.isOptional || bonus.isReminder) continue;
+        if (bonus.hasBonuses) collection.set(bonus.uuid, bonus);
+      }
+      this.#nonoptional = collection;
     }
-    return collection;
+    return this.#nonoptional;
   }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * All the bonuses that apply immediately with no configuration.
+   * @type {Collection<string, Babonus>}
+   */
+  #nonoptional = null;
 }
