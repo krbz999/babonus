@@ -12,12 +12,28 @@ import BonusCollector from "./bonus-collector.mjs";
 /* -------------------------------------------------- */
 
 /**
+ * @typedef {object} DetailsConfig
+ * @property {string} [ability]               If a saving throw, the ability used.
+ * @property {boolean} [isConcentration]      If a saving throw, whether this is for concentration.
+ * @property {boolean} [isDeath]              If a saving throw, whether this is a death save.
+ *
+ * @property {string} [abilityId]             If an ability check, the ability used.
+ * @property {string} [skillId]               If a skill check, the id of the skill.
+ * @property {string} [toolId]                If a tool check, the id of the tool type.
+ *
+ * @property {number} [spellLevel]            The level of the spell, when available.
+ * @property {string} [attackMode]            If a damage roll, the attack mode.
+ */
+
+/* -------------------------------------------------- */
+
+/**
  * @param {SubjectConfig} subjects      Subject config.
  * @param {string} type                 The type of roll.
- * @param {object} [details]            Details for filtering.
+ * @param {DetailsConfig} details       Details config.
  * @returns {BonusCollection}           The filtered Collection.
  */
-function _check(subjects, type, details = {}) {
+function _check(subjects, type, details) {
   const collector = new BonusCollector({...subjects, type: type});
   const bonuses = collector.returnBonuses();
   const filtered = _finalFilterBonuses(type, bonuses, subjects, details);
@@ -33,52 +49,43 @@ function _check(subjects, type, details = {}) {
  * @returns {BonusCollection}           The filtered Collection.
  */
 export function hitDieCheck(subjects) {
-  return _check(subjects, "hitdie");
+  return _check(subjects, "hitdie", {});
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Initiate the collection and filtering of bonuses applying to saving throws.
- * @param {SubjectConfig} subjects                Subject config.
- * @param {object} details                        Additional context for the filtering and checks.
- * @param {string} [details.ability]              The ability used for the saving throw.
- * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
- * @param {boolean} [details.isDeath]             Is this a death saving throw?
- * @returns {BonusCollection}                     The filtered Collection.
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {BonusCollection}           The filtered Collection.
  */
-export function throwCheck(subjects, {ability, isConcentration, isDeath}) {
-  return _check(subjects, "throw", {ability, isConcentration, isDeath});
+export function throwCheck(subjects, details) {
+  return _check(subjects, "throw", details);
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Initiate the collection and filtering of bonuses applying to ability checks.
- * @param {SubjectConfig} subjects        Subject config.
- * @param {string} abilityId              The ability used for the test.
- * @param {object} [details]              Additional context for the filtering and checks.
- * @param {string} [details.skillId]      The id of the skill, in case of skill checks.
- * @param {string} [details.toolId]       The id of the tool type, in case of tool checks.
- * @param {Item5e} [details.item]         The tool being used if rolled from an item instead.
- * @returns {BonusCollection}             The filtered Collection.
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {BonusCollection}           The filtered Collection.
  */
-export function testCheck(subjects, abilityId, {skillId, toolId} = {}) {
-  return _check(subjects, "test", {abilityId, skillId, toolId});
+export function testCheck(subjects, details) {
+  return _check(subjects, "test", details);
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Initiate the collection and filtering of bonuses applying to attack rolls, damage rolls, and save DCs.
- * @param {SubjectConfig} subjects                Subject config.
- * @param {string} hookType                       The type of hook ('attack', 'damage', or 'save').
- * @param {object} [details]                      Additional context for the filtering and checks.
- * @param {number} [details.spellLevel]           The level of the spell, if needed.
- * @param {Set<string>} [details.attackModes]     The available attack modes.
- * @returns {BonusCollection}                     The filtered Collection.
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {string} hookType             The type of hook ('attack', 'damage', or 'save').
+ * @param {DetailsConfig} details       Details config.
+ * @returns {BonusCollection}           The filtered Collection.
  */
-export function itemCheck(subjects, hookType, details = {}) {
+export function itemCheck(subjects, hookType, details) {
   return _check(subjects, hookType, details);
 }
 
@@ -87,24 +94,17 @@ export function itemCheck(subjects, hookType, details = {}) {
 /**
  * Filters the Collection of bonuses using the filters of Babonus.
  * @param {string} hookType                        The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
- * @param {Collection<Babonus>} bonuses            The babonuses to filter. **will be mutated**
- * @param {SubjectConfig} subjects                 Subject config.
- * @param {object} [details]                       Additional data necessary to pass along.
- * @param {string} [details.ability]               The ability used for the saving throw.
- * @param {boolean} [details.isConcentration]      Is this a concentration saving throw?
- * @param {boolean} [detail.isDeath]               Is this a death saving throw?
- * @param {string} [details.abilityId]             The ability used for an ability check.
- * @param {string} [details.skillId]               The id of the skill, in case of skill checks.
- * @param {number} [details.spellLevel]            The level of the spell, if needed.
- * @param {string} [details.toolId]                The id of the tool type, in case of tool checks.
- * @returns {Collection<Babonus>}                  The filtered Collection.
+ * @param {Collection<Babonus>} bonuses     The babonuses to filter. **will be mutated**
+ * @param {SubjectConfig} subjects          Subject config.
+ * @param {DetailsConfig} details           Details config.
+ * @returns {Collection<Babonus>}           The filtered Collection.
  */
-function _finalFilterBonuses(hookType, bonuses, subjects, details = {}) {
+function _finalFilterBonuses(hookType, bonuses, subjects, details) {
   /**
    * A hook that is called before the collection of bonuses has been filtered.
    * @param {Collection<Babonus>} bonuses     The collection of bonuses, before filtering.
    * @param {SubjectConfig} subjects          Subject config.
-   * @param {object} [details={}]             Additional data passed along to perform the filtering.
+   * @param {DetailsConfig} details           Details config.
    * @param {string} hookType                 The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
    */
   Hooks.callAll("babonus.preFilterBonuses", bonuses, subjects, details, hookType);
@@ -125,7 +125,7 @@ function _finalFilterBonuses(hookType, bonuses, subjects, details = {}) {
    * A hook that is called after the collection of bonuses has been filtered.
    * @param {Collection<Babonus>} bonuses     The array of bonuses, after filtering.
    * @param {SubjectConfig} subjects          Subject config.
-   * @param {object} [details]                Additional data passed along to perform the filtering.
+   * @param {DetailsConfig} details           Details config.
    * @param {string} hookType                 The type of hook being executed ('attack', 'damage',
    *                                          'save', 'throw', 'test', 'hitdie').
    */
@@ -296,26 +296,25 @@ export const filters = {
  * by the system itself for items set to 'Default' to look for finesse weapons and spellcasting
  * abilities. Note that this is the ability set at the top level of the item's action, and
  * is NOT the ability used to determine the dc of the saving throw.
- * @param {SubjectConfig} subjects          Subject config.
- * @param {Set<string>} filter              The set of abilities.
- * @param {object} [details]                Additional context for the roll being performed.
- * @param {string} [details.abilityId]      The three-letter key of the ability used in the roll (checks only).
- * @param {string} [details.toolId]         The key for a tool type (tool checks only).
- * @returns {boolean}                       Whether the actor or item is using one of the abilities.
+ * @this {Babonus}
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {Set<string>} filter          The set of abilities.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {boolean}                   Whether the actor or item is using one of the abilities.
  */
-function abilities({activity, item, actor}, filter, {abilityId, toolId} = {}) {
+function abilities(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
   let abi;
 
   // Case 1: Tool Checks.
-  if (toolId) abi = abilityId;
+  if (details.toolId) abi = details.abilityId;
 
   // Case 2: Attack/Damage rolls.
-  else if (activity) abi = activity.ability;
+  else if (subjects.activity) abi = subjects.activity.ability;
 
   // Case 3: AbilityTest or Skill.
-  else if (actor) abi = abilityId;
+  else if (subjects.actor) abi = details.abilityId;
 
   if (!abi) return false;
 
@@ -327,13 +326,15 @@ function abilities({activity, item, actor}, filter, {abilityId, toolId} = {}) {
 
 /**
  * Find out if the actor is one of the correct creature sizes.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of valid creature sizes.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the actor is a correct creature size.
  */
-function actorCreatureSizes({actor}, filter) {
+function actorCreatureSizes(subjects, filter, details) {
   if (!filter.size) return true;
-  const size = actor.system.traits?.size;
+  const size = subjects.actor.system.traits?.size;
   return !!size && filter.has(size);
 }
 
@@ -342,18 +343,20 @@ function actorCreatureSizes({actor}, filter) {
 /**
  * Find out if the rolling actor is one of the included creature etypes and none of the excluded types.
  * In the case of no values, refer to whether any specific creature type was included.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of creature types the rolling actor must or must not be.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the rolling actor is of a valid creature type.
  */
-function actorCreatureTypes({actor}, filter) {
+function actorCreatureTypes(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
-  const details = actor.system.details;
-  if (!details) return !included.size;
+  const ad = subjects.actor.system.details;
+  if (!ad) return !included.size;
 
   // All the races the rolling actor is a member of.
-  const races = _splitRaces(actor);
+  const races = _splitRaces(subjects.actor);
 
   return _testInclusion(races, included, excluded);
 }
@@ -362,18 +365,20 @@ function actorCreatureTypes({actor}, filter) {
 
 /**
  * Find out if the actor speaks one of the included languages while not any of the excluded languages.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of languages the actor must speak or not speak.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}
  */
-function actorLanguages({actor}, filter) {
+function actorLanguages(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
 
-  const values = actor.system.traits?.languages?.value;
+  const values = subjects.actor.system.traits?.languages?.value;
   if (!values) return false;
 
-  const speaksAny = included.some(lang => babonus.speaksLanguage(actor, lang));
+  const speaksAny = included.some(lang => babonus.speaksLanguage(subjects.actor, lang));
   if (included.size && !speaksAny) return false;
 
   if (!excluded.size) return true;
@@ -393,17 +398,19 @@ function actorLanguages({actor}, filter) {
  * If 'one' and 'other' do not both evaluate to numbers, string comparison is instead used.
  * For string comparison, inequality operators are taken to mean substrings. The comparisons
  * are done after replacing any roll data.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects        Subject config.
  * @param {object[]} filter               An array of objects with 'one', 'other', and 'operator'.
  * @param {string} filter[].one           One value to compare against another.
  * @param {string} filter[].other         One value to compare against another.
  * @param {string} filter[].operator      The kind of comparison to make between the two values.
+ * @param {DetailsConfig} details         Details config.
  * @returns {boolean}                     Whether every comparison were in the correct relationship.
  */
-function arbitraryComparisons({activity, item, actor}, filter) {
+function arbitraryComparisons(subjects, filter, details) {
   if (!filter.length) return true;
 
-  const rollData = (activity ?? item ?? actor).getRollData();
+  const rollData = (subjects.activity ?? subjects.item ?? subjects.actor).getRollData();
   const target = game.user.targets.first();
   if (target?.actor) rollData.target = target.actor.getRollData();
 
@@ -437,18 +444,18 @@ function arbitraryComparisons({activity, item, actor}, filter) {
 
 /**
  * For damage rolls only, filter by the attack classification and mode.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects                Subject config.
  * @param {object} filter                         The array of attack types.
  * @param {Set<string>} filter.value              The attack type (melee, ranged).
  * @param {Set<string>} filter.classification     The attack classification (weapon, spell, unarmed).
  * @param {Set<string>} filter.mode               The attack mode (offhand, one-handed, etc.).
- * @param {object} [details]                      Additional details.
- * @param {string} [details.attackMode]           The attack mode used if this damage roll comes after an attack.
+ * @param {DetailsConfig} details                 Details config.
  * @returns {boolean}                             Whether the item has any of the required attack types.
  */
-function attackModes({activity, item, actor}, filter, details = {}) {
-  if (activity.type !== "attack") return true;
-  const {value, classification} = activity.attack.type;
+function attackModes(subjects, filter, details) {
+  if (subjects.activity.type !== "attack") return true;
+  const {value, classification} = subjects.activity.attack.type;
   if (filter.value.size && !filter.value.has(value)) return false;
   if (filter.classification.size && !filter.classification.has(classification)) return false;
   if (filter.mode.size && !filter.mode.has(details.attackMode)) return false;
@@ -461,14 +468,16 @@ function attackModes({activity, item, actor}, filter, details = {}) {
 /**
  * Find out if the actor is wearing one of the included armor types
  * in the filter and none of the excluded types. Note that this includes shields as well.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of base armor keys.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the rolling actor is wearing appropriate armor.
  */
-function baseArmors({actor}, filter) {
+function baseArmors(subjects, filter, details) {
   const {included, excluded} = _splitExlusion(filter);
 
-  const ac = actor.system.attributes?.ac ?? {};
+  const ac = subjects.actor.system.attributes?.ac ?? {};
   const shield = ac?.equippedShield ?? null;
   const armor = ac?.equippedArmor ?? null;
   const types = new Set();
@@ -486,17 +495,18 @@ function baseArmors({actor}, filter) {
 
 /**
  * Find out if the tool being rolled for a check is one of the correct types.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The types of tool types.
- * @param {string} toolId               The type of tool being rolled.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the tool type matches the filter.
  */
-function baseTools(sujects, filter, {toolId}) {
+function baseTools(sujects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
-  if (!toolId) return !included.size;
+  if (!details.toolId) return !included.size;
 
-  const types = new Set(babonus.proficiencyTree(toolId, "tool"));
+  const types = new Set(babonus.proficiencyTree(details.toolId, "tool"));
   return _testInclusion(types, included, excluded);
 }
 
@@ -504,15 +514,17 @@ function baseTools(sujects, filter, {toolId}) {
 
 /**
  * Find out if the item's base weapon type is one of the valid ones in the filter.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of weapon baseItem keys.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the item's baseItem was in the filter.
  */
-function baseWeapons({item}, filter) {
+function baseWeapons(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
-  if (item.type !== "weapon") return !included.size;
-  const types = new Set([item.system.type.value, item.system.type.baseItem]);
+  if (subjects.item.type !== "weapon") return !included.size;
+  const types = new Set([subjects.item.system.type.value, subjects.item.system.type.baseItem]);
   return _testInclusion(types, included, excluded);
 }
 
@@ -521,16 +533,18 @@ function baseWeapons({item}, filter) {
 /**
  * Find out if the target is one of the included creature types and none of the excluded types.
  * In the case of no targets, refer to whether any specific creature type was included.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of creature types the target must or must not be.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the target is of a valid creature type.
  */
-function creatureTypes(subjects, filter) {
+function creatureTypes(subjects, filter, details) {
   if (!filter.size) return true;
   const target = game.user.targets.first();
   const {included, excluded} = _splitExlusion(filter);
-  const details = target?.actor?.system.details;
-  if (!details) return !included.size;
+  const ad = target?.actor?.system.details;
+  if (!ad) return !included.size;
 
   // All the races the target is a member of.
   const races = _splitRaces(target.actor);
@@ -542,22 +556,17 @@ function creatureTypes(subjects, filter) {
 
 /**
  * Find out if the embedded script returns true.
- * @param {SubjectConfig} subjects                Subject config.
- * @param {string} script                         The script saved in the filter.
- * @param {object} [details]                      Additional context to help filter the bonus.
- * @param {string} [details.ability]              The ability used for the saving throw.
- * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
- * @param {boolean} [details.isDeath]             Is this a death saving throw?
- * @param {string} [details.abilityId]            The ability used for an ability check.
- * @param {string} [details.skillId]              The id of the skill, in case of skill checks.
- * @param {string} [details.toolId]               The id of the tool type, in case of tool checks.
- * @param {number} [details.spellLevel]           The level of the spell, if needed.
- * @returns {boolean}                             True if the script returns true, otherwise false.
+ * @this {Babonus}
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {string} script               The script saved in the filter.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {boolean}                   True if the script returns true, otherwise false.
  */
-function customScripts({activity, item, actor}, script, details = {}) {
+function customScripts(subjects, script, details) {
   if (!script?.length) return true;
   if (game.settings.get(MODULE.ID, SETTINGS.SCRIPT)) return true;
   try {
+    const {actor, item, activity} = subjects;
     const func = Function("actor", "item", "token", "bonus", "activity", "details", script);
     const token = (actor.isToken ? actor.token.object : actor.getActiveTokens()[0]) ?? null;
     const valid = func.call(func, actor, item, token, this, activity, details) === true;
@@ -572,13 +581,15 @@ function customScripts({activity, item, actor}, script, details = {}) {
 
 /**
  * Find out if the item has any of the included damage types in its damage parts and none of the excluded types.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of damage types.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the item's damage types overlap with the filter.
  */
-function damageTypes({activity}, filter) {
+function damageTypes(subjects, filter, details) {
   if (!filter.size) return true;
-  const types = activity.damage.parts.reduce((acc, part) => acc.union(part.types), new Set());
+  const types = subjects.activity.damage.parts.reduce((acc, part) => acc.union(part.types), new Set());
   const {included, excluded} = _splitExlusion(filter);
   return _testInclusion(types, included, excluded);
 }
@@ -587,52 +598,58 @@ function damageTypes({activity}, filter) {
 
 /**
  * Find out if the item that made the roll was the correct feature type and feature subtype.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {object} filter               The filter object.
  * @param {string} [filter.type]        The feature type.
  * @param {string} [filter.subtype]     The feature subtype.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the feature is the correct type.
  */
-function featureTypes({item}, {type, subtype}) {
+function featureTypes(subjects, {type, subtype}, details) {
   const config = CONFIG.DND5E.featureTypes;
   if (!type || !(type in config)) return true;
-  if (item.type !== "feat") return false;
-  if (type !== item.system.type.value) return false;
+  if (subjects.item.type !== "feat") return false;
+  if (type !== subjects.item.system.type.value) return false;
 
   const subtypes = config[type]?.subtypes ?? {};
   const hasSubtype = !foundry.utils.isEmpty(subtypes);
   if (!hasSubtype || !subtype) return true;
 
-  return item.system.type.subtype === subtype;
+  return subjects.item.system.type.subtype === subtype;
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Find out if the health of the actor is at or above/below the threshold.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {object} filter               The object used for the filtering.
  * @param {number} filter.value         The hit point percentage threshold.
  * @param {number} filter.type          The type of threshold (0 for 'x or lower' and 1 for 'x and higher').
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the threshold is obeyed.
  */
-function healthPercentages({actor}, {value, type}) {
-  if (!Number.isNumeric(value) || ![0, 1].includes(type)) return true;
-  if (!actor.system.attributes?.hp) return false;
-  const hp = actor.system.attributes.hp.pct; // this takes tempmax into account, but not temphp.
-  return ((type === 0) && (hp <= value)) || ((type === 1) && (hp >= value));
+function healthPercentages(subjects, filter, details) {
+  if (!Number.isNumeric(filter.value) || ![0, 1].includes(filter.type)) return true;
+  if (!subjects.actor.system.attributes?.hp) return false;
+  const hp = subjects.actor.system.attributes.hp.pct; // this takes tempmax into account, but not temphp.
+  return ((filter.type === 0) && (hp <= filter.value)) || ((filter.type === 1) && (hp >= filter.value));
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Find out if the item being used has the right identifier.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects        Subject config.
  * @param {object} filter                 The filter data.
  * @param {Set<string>} filter.values     The set of identifiers.
+ * @param {DetailsConfig} details         Details config.
  * @returns {boolean}                     Whether the identifier of the item is valid.
  */
-function identifiers(subjects, filter) {
+function identifiers(subjects, filter, details) {
   return !filter.values.size || filter.values.has(subjects.item.identifier);
 }
 
@@ -640,25 +657,29 @@ function identifiers(subjects, filter) {
 
 /**
  * Find out if the item's type is one of the valid ones in the filter.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of item type keys.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the item's type was in the filter.
  */
-function itemTypes({item}, filter) {
-  return !filter.size || filter.has(item.type);
+function itemTypes(subjects, filter, details) {
+  return !filter.size || filter.has(subjects.item.type);
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Find out if the actor or item has any of the valid markers, as well as the target.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects        Subject config.
  * @param {object} filter                 The filter data.
  * @param {Set<string>} filter.values     The set of valid markers on the one performing the roll.
  * @param {Set<string>} filter.target     The set of valid markers on the target.
+ * @param {DetailsConfig} details         Details config.
  * @returns {boolean}                     Whether the actor or item has any of the valid markers.
  */
-function markers(subjects, {values, target}) {
+function markers(subjects, filter, details) {
 
   const _hasMarker = (document, markers) => {
     const stored = document.getFlag("babonus", "markers") ?? [];
@@ -675,14 +696,14 @@ function markers(subjects, {values, target}) {
     return false;
   };
 
-  if (values.size) {
-    const itemMarked = !subjects.item || hasMarker(subjects.item, values);
-    if (!itemMarked && !hasMarker(subjects.actor, values)) return false;
+  if (filter.values.size) {
+    const itemMarked = !subjects.item || hasMarker(subjects.item, filter.values);
+    if (!itemMarked && !hasMarker(subjects.actor, filter.values)) return false;
   }
 
-  if (target.size) {
+  if (filter.target.size) {
     const targetActor = game.user.targets.first()?.actor;
-    if (!targetActor || !hasMarker(targetActor, target)) return false;
+    if (!targetActor || !hasMarker(targetActor, filter.target)) return false;
   }
 
   return true;
@@ -692,59 +713,57 @@ function markers(subjects, {values, target}) {
 
 /**
  * Find out if the spell that is cast is one able to consume a spell slot.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The types of preparation modes allowed.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the spell matches the preparation mode.
  */
-function preparationModes({item}, filter) {
-  return !filter.size || ((item.type === "spell") && filter.has(item.system.preparation.mode));
+function preparationModes(subjects, filter, details) {
+  return !filter.size || ((subjects.item.type === "spell") && filter.has(subjects.item.system.preparation.mode));
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Find out if the roll was proficient, and if at a valid level.
- * @param {SubjectConfig} subjects          Subject config.
- * @param {Set<number>} filter              The levels of valid proficiencies.
- * @param {object} details                  Additional properties for the filtering.
- * @param {string} [details.ability]        The type of saving throw.
- * @param {boolean} [details.isDeath]       Is this a death saving throw?
- * @param {string} [details.abilityId]      The type of ability check.
- * @param {string} [details.skillId]        The type of skill check.
- * @param {string} [details.toolId]         The type of tool check.
- * @returns {boolean}                       Whether the roll was one of the proficiency levels.
+ * @this {Babonus}
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {Set<number>} filter          The levels of valid proficiencies.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {boolean}                   Whether the roll was one of the proficiency levels.
  */
-function proficiencyLevels({activity, item, actor}, filter, details) {
+function proficiencyLevels(subjects, filter, details) {
   if (!filter.size) return true;
 
   // Case 1: Skill.
   if (details.skillId) {
-    return filter.has(actor.system.skills[details.skillId]?.prof.multiplier || 0);
+    return filter.has(subjects.actor.system.skills[details.skillId]?.prof.multiplier || 0);
   }
 
   // Case 2: Ability Check.
   else if (details.abilityId && !details.toolId) {
-    return filter.has(actor.system.abilities[details.abilityId]?.checkProf.multiplier || 0);
+    return filter.has(subjects.actor.system.abilities[details.abilityId]?.checkProf.multiplier || 0);
   }
 
   // Case 3: Death Saving Throw.
   else if (details.isDeath) {
-    return filter.has(Number(actor.flags.dnd5e?.diamondSoul || false));
+    return filter.has(Number(subjects.actor.flags.dnd5e?.diamondSoul || false));
   }
 
   // Case 4: Saving Throw.
   else if (details.ability) {
-    return filter.has(actor.system.abilities[details.ability]?.saveProf.multiplier || 0);
+    return filter.has(subjects.actor.system.abilities[details.ability]?.saveProf.multiplier || 0);
   }
 
   // Case 5: Weapon, equipment, spell, tool item.
-  else if (item) {
-    return filter.has(item.system.prof.multiplier);
+  else if (subjects.item) {
+    return filter.has(subjects.item.system.prof.multiplier);
   }
 
   // Case 6: Tool check without an item.
   else if (details.toolId) {
-    return filter.has(actor.system.tools[details.toolId]?.prof.multiplier || 0);
+    return filter.has(subjects.actor.system.tools[details.toolId]?.prof.multiplier || 0);
   }
 
   // Else somehow return false.
@@ -755,16 +774,18 @@ function proficiencyLevels({activity, item, actor}, filter, details) {
 
 /**
  * Find out if the actor has a number of spell slots remaining between the min and max.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {object} filter               The filtering for the bonus.
  * @param {number} filter.min           The minimum value available required for the bonus to apply.
  * @param {number} filter.max           The maximum value available required for the bonus to apply.
  * @param {boolean} [filter.size]       Whether to take the size of the spell slot into account.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the number of spell slots remaining falls within the bounds.
  */
-function remainingSpellSlots({actor}, {min, max, size = false}) {
+function remainingSpellSlots(subjects, {min, max, size = false}, details) {
   if (![min, max].some(m => Number.isInteger(m))) return true;
-  const spells = Object.values(actor.system.spells ?? {}).reduce((acc, val) => {
+  const spells = Object.values(subjects.actor.system.spells ?? {}).reduce((acc, val) => {
     if (!val.level || !val.value || !val.max) return acc;
     return acc + Math.clamp(val.value, 0, val.max) * (size ? val.level : 1);
   }, 0);
@@ -774,24 +795,26 @@ function remainingSpellSlots({actor}, {min, max, size = false}) {
 /* -------------------------------------------------- */
 
 /**
- * Find out if the saving throw in the item is set using an ability in the filter.
+ * Find out if the saving throw in the activity is set using an ability in the filter.
  * This filter is only available for bonuses applying specifically to saving throw DCs.
- * Special consideration is made for items with save DC set using spellcasting ability.
+ * Special consideration is made for activities with save DC set using spellcasting ability.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The ability that is used to set the DC of the item's saving throw.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the item's saving throw is set using an ability in the filter.
  */
-function saveAbilities({activity, actor}, filter) {
+function saveAbilities(subjects, filter, details) {
   if (!filter.size) return true;
-  if (activity.type !== "save") return false;
-  if (!activity.save.dc.calculation) return false;
+  if (subjects.activity.type !== "save") return false;
+  if (!subjects.activity.save.dc.calculation) return false;
 
   const {included, excluded} = _splitExlusion(filter);
   let abl;
-  if (activity.save.dc.calculation === "spellcasting") {
-    abl = activity.spellcastingAbility;
+  if (subjects.activity.save.dc.calculation === "spellcasting") {
+    abl = subjects.activity.spellcastingAbility;
   } else {
-    abl = activity.save.dc.calculation;
+    abl = subjects.activity.save.dc.calculation;
   }
 
   return _testInclusion(new Set([abl]), included, excluded);
@@ -801,29 +824,31 @@ function saveAbilities({activity, actor}, filter) {
 
 /**
  * Find out if the skill being rolled is one of the correct types.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The types of skill ids.
- * @param {object} details              Additional properties for the filtering.
- * @param {string} details.skillId      The id of the skill being rolled.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the skill matches the filter.
  */
-function skillIds(subjects, filter, {skillId}) {
+function skillIds(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
-  if (!skillId) return !included.size;
-  return _testInclusion(new Set([skillId]), included, excluded);
+  if (!details.skillId) return !included.size;
+  return _testInclusion(new Set([details.skillId]), included, excluded);
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Does this spell belong to a specific class?
+ * @this {Babonus}
  * @param {SubjectConfig} subjects        Subject config.
  * @param {object} filter                 The filter data.
  * @param {Set<string>} filter.values     The set of class identifiers.
+ * @param {DetailsConfig} details         Details config.
  * @returns {boolean}                     Whether the source class of the spell is valid.
  */
-function sourceClasses(subjects, filter) {
+function sourceClasses(subjects, filter, details) {
   if (subjects.item.type !== "spell") return true;
   return !filter.values.size || filter.values.has(subjects.item.system.sourceClass);
 }
@@ -833,22 +858,27 @@ function sourceClasses(subjects, filter) {
 /**
  * Find out if the item is a spell and has any, or all, of the required spell components.
  * The item must match either all or at least one, depending on what is set.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects        Subject config.
  * @param {object} filter                 The filtering object.
  * @param {Set<string>} filter.types      The array of spell components in the filter.
- * @param {string} filter.match           The type of matching, either ALL or ANY.
+ * @param {string} filter.match           The type of matching, either 'ALL' or 'ANY'.
+ * @param {DetailsConfig} details         Details config.
  * @returns {boolean}                     Whether the item matched correctly with the components.
  */
-function spellComponents({item}, {types, match}) {
-  if (!types.size) return true;
-  if (item.type !== "spell") return false;
-  const comps = item.system.properties;
+function spellComponents(subjects, filter, details) {
+  if (!filter.types.size) return true;
+  if (subjects.item.type !== "spell") return false;
+  const comps = subjects.item.system.properties;
 
-  /**
-   * If it must match all, then `types` is a (proper) subset of the spell's components,
-   * otherwise we ensure that it matches at least one component.
-   */
-  return ((match === "ALL") && types.isSubset(comps)) || ((match === "ANY") && types.intersects(comps));
+  switch (filter.match) {
+    case "ALL":
+      return filter.types.isSubset(comps);
+    case "ANY":
+      return filter.types.intersects(comps);
+    default:
+      return false;
+  }
 }
 
 /* -------------------------------------------------- */
@@ -857,51 +887,54 @@ function spellComponents({item}, {types, match}) {
  * Find out if the item was cast at any of the required spell levels. When a spell is upcast,
  * the item here is the cloned spell only in the case of save dc bonuses, meaning we need to
  * pass on the correct spell level for attack and damage roll bonuses.
- * @param {SubjectConfig} subjects          Subject config.
- * @param {Set<number>} filter              The set of spell levels in the filter.
- * @param {object} [details]                Additional context for the filtering.
- * @param {number} [details.spellLevel]     The level at which the spell was cast.
- * @returns {boolean}                       Whether the item is at one of the appropriate levels.
+ * @this {Babonus}
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {Set<number>} filter          The set of spell levels in the filter.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {boolean}                   Whether the item is at one of the appropriate levels.
  */
-function spellLevels({item}, filter, {spellLevel = null} = {}) {
-  // TODO: activity scaling?
+function spellLevels(subjects, filter, details) {
   if (!filter.size) return true;
-  if (item.type !== "spell") return false;
-  return filter.has(spellLevel ?? item.system.level);
+  if (subjects.item.type !== "spell") return false;
+  return filter.has(details.spellLevel ?? subjects.item.system.level);
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Find out if the item is a spell and belongs to one of the filter's spell schools.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of spell schools.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the item is a spell and is of one of these schools.
  */
-function spellSchools({item}, filter) {
-  return !filter.size || ((item.type === "spell") && filter.has(item.system.school));
+function spellSchools(subjects, filter, details) {
+  return !filter.size || ((subjects.item.type === "spell") && filter.has(subjects.item.system.school));
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Find out if the actor has any of the included effects and none of the excluded effects.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of effect statuses you must have or must not have.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the actor has any included effects and no excluded effects.
  */
-function statusEffects({actor}, filter) {
+function statusEffects(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
 
   // Discard any conditions the actor is immune to.
-  const ci = actor.system.traits?.ci?.value ?? new Set();
+  const ci = subjects.actor.system.traits?.ci?.value ?? new Set();
   for (const k of ci) {
     included.delete(k);
     excluded.delete(k);
   }
 
-  return _testInclusion(actor.statuses, included, excluded);
+  return _testInclusion(subjects.actor.statuses, included, excluded);
 }
 
 /* -------------------------------------------------- */
@@ -909,14 +942,16 @@ function statusEffects({actor}, filter) {
 /**
  * Find out if the actor is wearing one of the included armor types
  * in the filter and none of the excluded types. Note that this includes shields as well.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of base armor keys.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the rolling actor is wearing appropriate armor.
  */
-function targetArmors(subjects, filter) {
+function targetArmors(subjects, filter, details) {
   const target = game.user.targets.first()?.actor;
   if (!target) return !_splitExlusion(filter).included.size;
-  return baseArmors({actor: target}, filter);
+  return baseArmors({actor: target}, filter, details);
 }
 
 /* -------------------------------------------------- */
@@ -924,11 +959,13 @@ function targetArmors(subjects, filter) {
 /**
  * Find out if the target actor has any of the status conditions required.
  * The bonus will apply if the target actor exists and has at least one.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of effect statuses the target must have or must not have.
+ * @param {DetailsConfig} details       Details config.
  * @returns {boolean}                   Whether the target actor has any of the status effects.
  */
-function targetEffects(subjects, filter) {
+function targetEffects(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
   const actor = game.user.targets.first()?.actor;
@@ -948,19 +985,17 @@ function targetEffects(subjects, filter) {
 
 /**
  * Find out if the bonus should apply to this type of saving throw.
- * @param {SubjectConfig} subjects                Subject config.
- * @param {Set<string>} filter                    The set of saving throw types to check for.
- * @param {object} details                        Additional context to help filter the bonus.
- * @param {string} [details.ability]              The ability used for the saving throw.
- * @param {boolean} [details.isConcentration]     Is this a concentration saving throw?
- * @param {boolean} [details.isDeath]             Is this a death saving throw?
- * @returns {boolean}                             Whether the throw type is in the filter.
+ * @this {Babonus}
+ * @param {SubjectConfig} subjects      Subject config.
+ * @param {Set<string>} filter          The set of saving throw types to check for.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {boolean}                   Whether the throw type is in the filter.
  */
-function throwTypes(subjects, filter, {ability, isConcentration, isDeath}) {
+function throwTypes(subjects, filter, details) {
   if (!filter.size) return true;
-  return (!!ability && filter.has(ability))
-    || (filter.has("concentration") && isConcentration)
-    || (filter.has("death") && isDeath);
+  return (!!details.ability && filter.has(details.ability))
+    || (filter.has("concentration") && details.isConcentration)
+    || (filter.has("death") && details.isDeath);
 }
 
 /* -------------------------------------------------- */
@@ -968,52 +1003,54 @@ function throwTypes(subjects, filter, {ability, isConcentration, isDeath}) {
 /**
  * Find out if the targeted token is at least x-by-x or larger, or at most x-by-x or smaller,
  * while optionally also at most as big or small as the roller's token.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {object} filter               The filtering for the bonus.
  * @param {number} filter.size          The minimum/maximum size of the targeted token.
  * @param {number} filter.type          Whether it is 'at least' (0) or 'at most' (1).
  * @param {boolean} filter.self         Whether to clamp using the rolling token's size.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {boolean}                   Whether the targeted token matches the filter.
  */
-function tokenSizes({actor}, {size, type, self}) {
-  if (!(size > 0)) return true;
+function tokenSizes(subjects, filter, details) {
+  if (!(filter.size > 0)) return true;
   const target = game.user.targets.first()?.document;
   if (!target) return false;
   const enemySize = Math.max(target.width, target.height);
 
   let se;
-  if (self) {
-    const token = actor.token ?? actor.getActiveTokens(false, true)[0];
+  if (filter.self) {
+    const token = subjects.actor.token ?? subjects.actor.getActiveTokens(false, true)[0];
     if (!token) return false;
     se = Math.max(token.width, token.height);
   } else {
-    se = size;
+    se = filter.size;
   }
 
-  // Greater than
-  if (type === 0) {
-    return enemySize >= Math.max(se, size);
+  switch (filter.type) {
+    case 0:
+      return enemySize >= Math.max(se, filter.size);
+    case 1:
+      return enemySize <= Math.min(se, filter.size);
+    default:
+      return false;
   }
-
-  // Less than
-  if (type === 1) {
-    return enemySize <= Math.min(se, size);
-  }
-
-  return false;
 }
 
 /* -------------------------------------------------- */
 
 /**
  * Find out if the item has any of the included weapon properties and none of the excluded properties.
+ * @this {Babonus}
  * @param {SubjectConfig} subjects      Subject config.
  * @param {Set<string>} filter          The set of properties you must have one of or none of.
- * @returns {boolean}                   Whether the item has any of the included properties and none of the excluded properties.
+ * @param {DetailsConfig} details       Details config.
+ * @returns {boolean}                   Whether the item has any of the included and none of the excluded properties.
  */
-function weaponProperties({item}, filter) {
+function weaponProperties(subjects, filter, details) {
   if (!filter.size) return true;
   const {included, excluded} = _splitExlusion(filter);
-  if (item.type !== "weapon") return !included.size;
-  const props = item.system.properties;
+  if (subjects.item.type !== "weapon") return !included.size;
+  const props = subjects.item.system.properties;
   return _testInclusion(props, included, excluded);
 }

@@ -277,7 +277,7 @@ function preRollDeathSave(actor, rollConfig) {
  * @param {string} abilityId      The key for the ability being used.
  */
 function preRollAbilityTest(actor, rollConfig, abilityId) {
-  const bonuses = filterings.testCheck({actor}, abilityId);
+  const bonuses = filterings.testCheck({actor}, {abilityId});
   if (!bonuses.size) return;
   _addTargetData(rollConfig);
 
@@ -305,7 +305,7 @@ function preRollAbilityTest(actor, rollConfig, abilityId) {
  */
 function preRollSkill(actor, rollConfig, skillId) {
   const abilityId = actor.system.skills[skillId].ability;
-  const bonuses = filterings.testCheck({actor}, abilityId, {skillId});
+  const bonuses = filterings.testCheck({actor}, {abilityId, skillId});
   if (!bonuses.size) return;
   _addTargetData(rollConfig);
 
@@ -337,7 +337,7 @@ function preRollToolCheck(actor, config, toolId) {
     item: config.item
   };
   const abilityId = config.ability || config.data.defaultAbility;
-  const bonuses = filterings.testCheck(subjects, abilityId, {toolId});
+  const bonuses = filterings.testCheck(subjects, {abilityId, toolId});
   if (!bonuses.size) return;
   _addTargetData(config);
 
