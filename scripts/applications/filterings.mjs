@@ -589,7 +589,19 @@ function customScripts(subjects, script, details) {
  */
 function damageTypes(subjects, filter, details) {
   if (!filter.size) return true;
-  const types = subjects.activity.damage.parts.reduce((acc, part) => acc.union(part.types), new Set());
+  let parts;
+  switch (subjects.activity.type) {
+    case "heal":
+      parts = [subjects.activity.healing];
+      break;
+    case "attack":
+    case "damage":
+      parts = subjects.activity.damage.parts;
+      break;
+    default:
+      return false;
+  }
+  const types = parts.reduce((acc, part) => acc.union(part.types), new Set());
   const {included, excluded} = _splitExlusion(filter);
   return _testInclusion(types, included, excluded);
 }
