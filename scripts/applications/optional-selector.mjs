@@ -403,9 +403,17 @@ export default class OptionalSelector {
     switch (type) {
       case "uses":
       case "quantity": {
-        const value = scales ? scaleValue : consumeMin;
-        const property = {uses: "system.uses.value", quantity: "system.quantity"}[type];
-        const newValue = foundry.utils.getProperty(item, property) - parseInt(value);
+        const value = parseInt(scales ? scaleValue : consumeMin);
+
+        let property;
+        let newValue;
+        if (type === "uses") {
+          property = "systen.uses.spent";
+          newValue = item.system.uses.spent + value;
+        } else {
+          property = "system.quantity";
+          newValue = item.system.quantity - value;
+        }
         if ((newValue === 0) && (type === "uses") && item.system.uses.autoDestroy) {
           const confirm = await item.deleteDialog();
           if (!confirm) {
@@ -415,7 +423,7 @@ export default class OptionalSelector {
         } else {
           await item.update({[property]: newValue});
         }
-        const scale = scales ? (parseInt(value) - consumeMin) : 0;
+        const scale = scales ? (value - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         const apply = this.callHook(bonus, item, config);
         this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});

@@ -91,11 +91,7 @@ export default class ConsumptionModel extends foundry.abstract.DataModel {
         // The bonus must be on an item that you own, and with limited uses.
         const item = this.bonus.parent;
         if (!(item instanceof Item)) return false;
-        let hasUses = item.hasLimitedUses;
-        if (item.type === "feat") {
-          hasUses = hasUses && (!!item.system.uses.per) && (item.system.uses.max > 0);
-        }
-        return !invalidScale && hasUses && (value.min > 0);
+        return !invalidScale && item.hasLimitedUses && (value.min > 0);
       }
       case "quantity": {
         const item = this.bonus.parent;
