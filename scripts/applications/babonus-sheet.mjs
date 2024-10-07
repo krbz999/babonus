@@ -1,14 +1,15 @@
+import {Babonus} from "../models/babonus-model.mjs";
 import {MODULE} from "../constants.mjs";
 
-const {HandlebarsApplicationMixin, DocumentSheetV2} = foundry.applications.api;
-
-export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
+export default class BabonusSheet extends foundry.applications.api.HandlebarsApplicationMixin(
+  foundry.applications.api.DocumentSheetV2
+) {
   /**
-   * @param {Babonus} bonus        The babonus managed by this sheet.
-   * @param {object} [options]     Optional configuration parameters for how the sheet behaves.
+   * @param {object} options            Optional configuration parameters for how the sheet behaves.
+   * @param {Babonus} options.bonus     The babonus managed by this sheet.
    */
-  constructor(bonus, options = {}) {
-    super({...options, document: bonus.parent, bonus: bonus});
+  constructor({bonus, ...options}) {
+    super({...options, document: bonus.parent, bonusId: bonus.id});
 
     const ids = new Set(Object.keys(bonus.toObject().filters)).filter(id => {
       return babonus.abstract.DataFields.fields[id].storage(bonus);
@@ -19,7 +20,6 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
      * @type {Set<string>}
      */
     this._filters = ids;
-    this.#bonusId = bonus.id;
   }
 
   /* -------------------------------------------------- */
@@ -42,25 +42,45 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
       closeOnSubmit: false
     },
     actions: {
-      keysDialog: this.#onKeysDialog,
       addFilter: this.#onAddFilter,
-      deleteFilter: this.#onDeleteFilter,
       copyUuid: {handler: this.#onCopyUuid, buttons: [0, 2]},
+      deleteFilter: this.#onDeleteFilter,
+      keysDialog: this.#onKeysDialog,
       viewFilter: this.#onViewFilter
-    }
+    },
+    bonusId: null
   };
 
   /* -------------------------------------------------- */
 
   /** @override */
   static PARTS = {
-    header: {template: "modules/babonus/templates/sheet-header.hbs"},
-    navigation: {template: "modules/babonus/templates/sheet-navigation.hbs"},
-    description: {template: "modules/babonus/templates/sheet-description.hbs", scrollable: [""]},
-    bonuses: {template: "modules/babonus/templates/sheet-bonuses.hbs", scrollable: [""]},
-    configuration: {template: "modules/babonus/templates/sheet-configuration.hbs", scrollable: [""]},
-    filters: {template: "modules/babonus/templates/sheet-filters.hbs", scrollable: [".toc", ".picker"]},
-    advanced: {template: "modules/babonus/templates/sheet-advanced.hbs", scrollable: [""]}
+    header: {
+      template: "modules/babonus/templates/sheet-header.hbs"
+    },
+    navigation: {
+      template: "modules/babonus/templates/sheet-navigation.hbs"
+    },
+    description: {
+      template: "modules/babonus/templates/sheet-description.hbs",
+      scrollable: [""]
+    },
+    bonuses: {
+      template: "modules/babonus/templates/sheet-bonuses.hbs",
+      scrollable: [""]
+    },
+    configuration: {
+      template: "modules/babonus/templates/sheet-configuration.hbs",
+      scrollable: [""]
+    },
+    filters: {
+      template: "modules/babonus/templates/sheet-filters.hbs",
+      scrollable: [".toc", ".picker"]
+    },
+    advanced: {
+      template: "modules/babonus/templates/sheet-advanced.hbs",
+      scrollable: [""]
+    }
   };
 
   /* -------------------------------------------------- */
@@ -77,16 +97,8 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
    * @type {Babonus}
    */
   get bonus() {
-    return babonus.getCollection(this.document).get(this.#bonusId);
+    return babonus.getCollection(this.document).get(this.options.bonusId);
   }
-
-  /* -------------------------------------------------- */
-
-  /**
-   * The babonus represented by this sheet.
-   * @type {string}
-   */
-  #bonusId = null;
 
   /* -------------------------------------------------- */
 
@@ -107,7 +119,7 @@ export default class BabonusSheet extends HandlebarsApplicationMixin(DocumentShe
   /** @override */
   _initializeApplicationOptions(options) {
     options = super._initializeApplicationOptions(options);
-    options.uniqueId = `${this.constructor.name}-${options.bonus.uuid}`;
+    options.uniqueId += `.Babonus.${options.bonusId}`;
     return options;
   }
 

@@ -449,7 +449,7 @@ export class Babonus extends foundry.abstract.DataModel {
     const Cls = babonus.abstract.applications.BabonusSheet;
     const sheet = foundry.applications.instances.get(`${Cls.name}-${this.uuid}`);
     if (sheet) return sheet;
-    return new Cls(this);
+    return new Cls({bonus: this});
   }
 
   /* -------------------------------------------------- */

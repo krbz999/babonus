@@ -266,7 +266,7 @@ export default class BabonusWorkshop extends dnd5e.applications.DialogMixin(Appl
   #onClickBonus(event) {
     const id = event.currentTarget.closest(".bonus").dataset.id;
     const bonus = this.collection.get(id);
-    return bonus.sheet.render(true);
+    return bonus.sheet.render({force: true});
   }
 
   /* -------------------------------------------------- */

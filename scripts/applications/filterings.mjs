@@ -1,4 +1,5 @@
 import {MODULE, SETTINGS} from "../constants.mjs";
+import {Babonus} from "../models/babonus-model.mjs";
 import BonusCollection from "./bonus-collection.mjs";
 import BonusCollector from "./bonus-collector.mjs";
 
@@ -93,7 +94,8 @@ export function itemCheck(subjects, hookType, details) {
 
 /**
  * Filters the Collection of bonuses using the filters of Babonus.
- * @param {string} hookType                        The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
+ * @param {string} hookType                 The type of hook being executed ('attack', 'damage',
+ *                                          'save', 'throw', 'test', 'hitdie').
  * @param {Collection<Babonus>} bonuses     The babonuses to filter. **will be mutated**
  * @param {SubjectConfig} subjects          Subject config.
  * @param {DetailsConfig} details           Details config.
