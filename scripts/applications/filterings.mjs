@@ -105,7 +105,8 @@ function _finalFilterBonuses(hookType, bonuses, subjects, details) {
    * @param {Collection<Babonus>} bonuses     The collection of bonuses, before filtering.
    * @param {SubjectConfig} subjects          Subject config.
    * @param {DetailsConfig} details           Details config.
-   * @param {string} hookType                 The type of hook being executed ('attack', 'damage', 'save', 'throw', 'test', 'hitdie').
+   * @param {string} hookType                 The type of hook being executed ('attack', 'damage',
+   *                                          'save', 'throw', 'test', 'hitdie').
    */
   Hooks.callAll("babonus.preFilterBonuses", bonuses, subjects, details, hookType);
 
@@ -154,7 +155,7 @@ function _replaceRollDataOfBonuses(bonuses, {activity, item, actor}) {
     // Don't bother with different roll data if the origin is the item being rolled.
     if (src.uuid === item?.uuid) continue;
 
-    const data = src.getRollData();
+    const data = src.getRollData(); // TODO: when adding rolls, we might be able to just use the bonus' roll data entirely.
 
     // If the bonus was retrieved from the template of a spell, modify the roll data.
     if (bonus.parent instanceof MeasuredTemplateDocument) {
