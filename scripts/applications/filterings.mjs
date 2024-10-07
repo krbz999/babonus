@@ -599,6 +599,7 @@ function damageTypes(subjects, filter, details) {
       break;
     case "attack":
     case "damage":
+    case "save":
       parts = subjects.activity.damage.parts;
       break;
     default:
