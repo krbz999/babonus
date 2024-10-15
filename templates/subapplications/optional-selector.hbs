@@ -18,14 +18,14 @@
 
   <div class="form-group">
     <label>{{localize label}}</label>
-    {{#if scales}}
     <div class="form-fields">
+      {{#if scales}}
       {{formInput scaleValue dataset=scaleDataset}}
+      {{/if}}
       {{#if damageTypes}}
       {{formInput damageTypes dataset=damageTypeDataset}}
       {{/if}}
     </div>
-    {{/if}}
     <button type="button" data-action="{{action}}">
       <i class="fa-solid fa-plus"></i>
     </button>
