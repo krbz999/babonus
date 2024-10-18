@@ -177,11 +177,28 @@ function preRollDamage(config, dialog, message) {
   // Add dice modifiers.
   for (const bonus of bonuses.nonoptional) {
     if (!bonus.hasDiceModifiers) continue;
-    for (const {parts, data} of config.rolls) {
+    for (const {parts, data, options} of config.rolls) {
       if (bonus._halted) break;
       const halted = bonus.bonuses.modifiers.modifyParts(parts, data);
       if (halted) bonus._halted = true;
+
+      // Modify critical bonus damage.
+      if (!bonus._halted && options.critical?.bonusDamage) {
+        const parts = [options.critical.bonusDamage];
+        const halted = bonus.bonuses.modifiers.modifyParts(parts, bonus.getRollData());
+        if (halted) bonus._halted = true;
+        options.critical.bonusDamage = parts[0];
+      }
     }
+
+    // Modify critical bonus damage.
+    if (!bonus._halted && config.critical?.bonusDamage) {
+      const parts = [config.critical.bonusDamage];
+      const halted = bonus.bonuses.modifiers.modifyParts(parts, bonus.getRollData());
+      if (halted) bonus._halted = true;
+      config.critical.bonusDamage = parts[0];
+    }
+
     if (!bonus._halted) modifiers.set(bonus.uuid, bonus);
   }
 

@@ -1,4 +1,5 @@
 import {MODULE} from "../constants.mjs";
+import {Babonus} from "../models/babonus-model.mjs";
 import registry from "../registry.mjs";
 
 export default class OptionalSelector {
@@ -575,7 +576,7 @@ export default class OptionalSelector {
    */
   _appendToField({babonus, target, bonus, apply = true, damageType}) {
     if (!apply) return;
-    this.#applyPropertyModifications();
+    this.#applyPropertyModifications(babonus);
     this.#applyAdditiveBonus(babonus, bonus, damageType);
     this.#applyDiceModifications(babonus);
     this.dialog.rebuild?.(); // TODO: no optional chaining needed in 4.1 when all dialogs are the same.
@@ -586,9 +587,26 @@ export default class OptionalSelector {
 
   /**
    * Apply property modifications such as critical threshold.
+   * @param {Babonus} bonus     The bonus being applied.
    */
-  #applyPropertyModifications() {
-    // TODO: This does nothing yet.
+  #applyPropertyModifications(bonus) {
+    const config = this.dialog.config;
+    const rollData = this._getRollData(bonus);
+
+    switch (bonus.type) {
+      case "damage":
+        if (!config.critical) config.critical = {};
+        if (bonus.bonuses.criticalBonusDamage) {
+          const addition = Roll.replaceFormulaData(bonus.bonuses.criticalBonusDamage, rollData);
+          config.critical.bonusDamage = config.critical.bonusDamage ?
+            `${config.critical.bonusDamage} + ${addition}` :
+            addition;
+        }
+        if (bonus.bonuses.criticalBonusDice) {
+          const addition = Roll.create(bonus.bonuses.criticalBonusDice, rollData).evaluateSync({strict: false}).total;
+          config.critical.bonusDice = config.critical.bonusDice ? config.critical.bonusDice + addition : addition;
+        }
+    }
   }
 
   /* -------------------------------------------------- */
@@ -643,11 +661,28 @@ export default class OptionalSelector {
 
     for (const bonus of this.#registry.modifiers) {
       const rollData = this._getRollData(bonus);
-      for (const {parts, data} of this.dialog.config.rolls) {
+      for (const {parts, data, options} of this.dialog.config.rolls) {
         if (bonus._halted) break;
         const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
         if (halted) bonus._halted = true;
+
+        // Modify critical bonus damage.
+        if ((babonus.type === "damage") && !bonus._halted && options.critical?.bonusDamage) {
+          const parts = [options.critical.bonusDamage];
+          const halted = bonus.bonuses.modifiers.modifyParts(parts, rollData);
+          if (halted) bonus._halted = true;
+          options.critical.bonusDamage = parts[0];
+        }
       }
+
+      // Modify critical bonus damage.
+      if ((babonus.type === "damage") && !bonus._halted && this.dialog.config.critical?.bonusDamage) {
+        const parts = [this.dialog.config.critical.bonusDamage];
+        const halted = bonus.bonuses.modifiers.modifyParts(parts, rollData);
+        if (halted) bonus._halted = true;
+        this.dialog.config.critical.bonusDamage = parts[0];
+      }
+
       if (bonus._halted) this.#registry.modifiers.delete(bonus.uuid);
     }
   }
