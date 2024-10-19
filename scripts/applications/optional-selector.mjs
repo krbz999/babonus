@@ -39,10 +39,18 @@ export default class OptionalSelector {
     /* -------------------------------------------------- */
 
     /**
-     * The item being rolled.
-     * @type {Item5e}
+     * The item being used.
+     * @type {Item5e|void}
      */
     this.item = registered.item;
+
+    /* -------------------------------------------------- */
+
+    /**
+     * The activity being used.
+     * @type {Activity|void}
+     */
+    this.activity = registered.activity;
 
     /* -------------------------------------------------- */
 
@@ -427,7 +435,7 @@ export default class OptionalSelector {
         const scale = scales ? (value - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         const apply = this.callHook(bonus, item, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "slots": {
@@ -444,7 +452,7 @@ export default class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "health": {
@@ -460,7 +468,7 @@ export default class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.applyDamage(value);
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "effect": {
@@ -471,14 +479,14 @@ export default class OptionalSelector {
         }
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, effect, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
         break;
       }
       case "inspiration": {
         await this.actor.update({"system.attributes.inspiration": false});
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
         break;
       }
       case "currency": {
@@ -495,7 +503,7 @@ export default class OptionalSelector {
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "hitdice": {
@@ -529,14 +537,14 @@ export default class OptionalSelector {
         const scale = scales ? (parseInt(value) - consumeMin) : 0;
         const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
         const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       default: {
         // Optional bonus that does not consume.
         const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
         const apply = this.callHook(bonus, null, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType});
+        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
         break;
       }
     }
@@ -554,7 +562,7 @@ export default class OptionalSelector {
    */
   _scaleOptionalBonus(bonus, scale) {
     const bonusFormula = scale ? (bonus.consume.formula || bonus.bonuses.bonus) : bonus.bonuses.bonus;
-    const data = this._getRollData(bonus);
+    const data = this._getRollData(bonus, scale);
     const roll = new CONFIG.Dice.DamageRoll(bonusFormula, data);
     if (!scale) return roll.formula;
     const formula = roll.alter(scale, 0, {multiplyNumeric: true}).formula;
@@ -573,12 +581,13 @@ export default class OptionalSelector {
    * @param {string} [config.bonus]           The bonus to add (not required if the type supports modifiers).
    * @param {boolean} [config.apply]          Whether the bonus should be applied.
    * @param {string} [config.damageType]      A selected damage type (required if a damage bonus).
+   * @param {number} [scale]                  Upscaling property.
    */
-  _appendToField({babonus, target, bonus, apply = true, damageType}) {
+  _appendToField({babonus, target, bonus, apply = true, damageType, scale = 0}) {
     if (!apply) return;
-    this.#applyPropertyModifications(babonus);
-    this.#applyAdditiveBonus(babonus, bonus, damageType);
-    this.#applyDiceModifications(babonus);
+    this.#applyPropertyModifications(babonus, scale);
+    this.#applyAdditiveBonus(babonus, bonus, damageType, scale);
+    this.#applyDiceModifications(babonus, scale);
     this.dialog.rebuild?.(); // TODO: no optional chaining needed in 4.1 when all dialogs are the same.
     target.closest(".optional").classList.toggle("active", true);
   }
@@ -587,11 +596,12 @@ export default class OptionalSelector {
 
   /**
    * Apply property modifications such as critical threshold.
-   * @param {Babonus} bonus     The bonus being applied.
+   * @param {Babonus} bonus       The bonus being applied.
+   * @param {number} [scale]      Upscaling property.
    */
-  #applyPropertyModifications(bonus) {
+  #applyPropertyModifications(bonus, scale) {
     const config = this.dialog.config;
-    const rollData = this._getRollData(bonus);
+    const rollData = this._getRollData(bonus, scale);
 
     switch (bonus.type) {
       case "damage":
@@ -616,8 +626,9 @@ export default class OptionalSelector {
    * @param {Babonus} babonus         The bonus being toggled active.
    * @param {string} bonus            The additive bonus.
    * @param {string} [damageType]     A selected damage type (required if damage bonus).
+   * @param {number} [scale]          Upscaling property.
    */
-  #applyAdditiveBonus(babonus, bonus, damageType) {
+  #applyAdditiveBonus(babonus, bonus, damageType, scale) {
     if (!babonus.hasAdditiveBonus) return;
 
     // TODO: get rid of using this old field from the old roll config dialog in 4.1
@@ -638,7 +649,7 @@ export default class OptionalSelector {
     if (roll) roll.parts.push(bonus);
     else {
       this.dialog.config.rolls.push({
-        data: this._getRollData(babonus),
+        data: this._getRollData(babonus, scale),
         parts: [bonus],
         options: {
           properties: [...this.dialog.config.rolls[0].options.properties ?? []],
@@ -654,13 +665,14 @@ export default class OptionalSelector {
   /**
    * Apply dice modifiers to all parts in the roll config.
    * @param {Babonus} babonus     A new bonus being toggled active.
+   * @param {number} [scale]      Upscaling property.
    */
-  #applyDiceModifications(babonus) {
+  #applyDiceModifications(babonus, scale) {
     // Store for later if other additive bonuses get added.
     if (babonus.hasDiceModifiers) this.#registry.modifiers.set(babonus.uuid, babonus);
 
     for (const bonus of this.#registry.modifiers) {
-      const rollData = this._getRollData(bonus);
+      const rollData = this._getRollData(bonus, scale);
       for (const {parts, data, options} of this.dialog.config.rolls) {
         if (bonus._halted) break;
         const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
@@ -725,21 +737,19 @@ export default class OptionalSelector {
   /* -------------------------------------------------- */
 
   /**
-   * Construct the roll data for upscaling a bonus. The priority goes origin, then rolling item,
-   * then rolling actor. If the bonus originates from the rolling item, the upcast level of the item
-   * should be taken into account.
-   * @param {Babonus} bonus     The babonus.
-   * @returns {object}          The roll data.
+   * Construct the roll data for upscaling a bonus to ensure we use the roll data from the correct source.
+   * This is because it may be an outside source, such as from an aura, or a granted effect, or it may be
+   * a previously placed measured template aura using a different item level.
+   * @param {Babonus} bonus       The babonus.
+   * @param {number} [scale]      Upscaling property.
+   * @returns {object}            The roll data.
    */
-  _getRollData(bonus) {
-    const src = bonus.origin ?? this.item ?? this.actor;
-    const data = src.getRollData();
-
-    if (bonus.item && (bonus.item.uuid === this.item?.uuid)) {
-      foundry.utils.setProperty(data, "item.level", this.level);
-    }
-
-    return data;
+  _getRollData(bonus, scale = 0) {
+    const src = bonus.origin;
+    if (!bonus.template && this.activity && (src.uuid === this.activity.item.uuid)) return this.activity.getRollData();
+    const rollData = src.getRollData();
+    rollData.scaling = new dnd5e.documents.Scaling(scale);
+    return rollData;
   }
 
   /* -------------------------------------------------- */

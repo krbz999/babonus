@@ -146,24 +146,21 @@ function _finalFilterBonuses(hookType, bonuses, subjects, details) {
  */
 function _replaceRollDataOfBonuses(bonuses, {activity, item, actor}) {
   for (const bonus of bonuses) {
+    // Do not replace roll data of optional bonuses as this is done later.
+    if (bonus.isOptional) continue;
+
     const src = bonus.origin;
 
     // Don't bother if the origin could not be found.
     if (!src) continue;
 
     // Don't bother with different roll data if the origin is the current actor rolling.
-    if (src === actor) continue;
+    if (src.uuid === actor.uuid) continue;
 
     // Don't bother with different roll data if the origin is the item being rolled.
     if (src.uuid === item?.uuid) continue;
 
     const data = src.getRollData(); // TODO: when adding rolls, we might be able to just use the bonus' roll data entirely.
-
-    // If the bonus was retrieved from the template of a spell, modify the roll data.
-    if (bonus.parent instanceof MeasuredTemplateDocument) {
-      const spellLevel = parseInt(bonus.parent.flags.dnd5e?.spellLevel);
-      if (Number.isInteger(spellLevel)) foundry.utils.setProperty(data, "item.level", spellLevel);
-    }
 
     const update = Object.entries(bonus.bonuses).reduce((acc, [key, val]) => {
       if (!val || (typeof val !== "string")) return acc;

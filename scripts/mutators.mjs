@@ -29,14 +29,13 @@ function postActivityConsumption(activity, usageConfig, dialogConfig, messageCon
     actor: activity.item.actor
   };
 
-  const spellLevel = usageConfig.scaling + subjects.item.system.level;
+  const rollData = activity.getRollData({deterministic: true});
 
   // Get bonuses:
-  const bonuses = filterings.itemCheck(subjects, "save", {spellLevel});
+  const bonuses = filterings.itemCheck(subjects, "save", {spellLevel: rollData.item.level});
   if (!bonuses.size) return;
   // const id = registry.register(bonuses); // TODO: useless
 
-  const rollData = activity.getRollData({deterministic: true});
   _addTargetData({data: rollData});
   const totalBonus = bonuses.all.reduce((acc, bonus) => {
     return acc + dnd5e.utils.simplifyBonus(bonus.bonuses.bonus, rollData);
@@ -59,12 +58,11 @@ function preRollAttack(config, dialog, message) {
 
   const subjects = {activity: config.subject, item: item, actor: item.actor};
   // get bonuses:
-  const spellLevel = config.rolls[0].data.item.level;
+  const rollData = config.subject.getRollData();
+  const spellLevel = rollData.item.level;
   const bonuses = filterings.itemCheck(subjects, "attack", {spellLevel});
   if (!bonuses.size) return;
   _addTargetData(config);
-
-  const {data: rollData} = config.rolls[0];
 
   // Gather up all bonuses.
   const mods = {criticalSuccess: 0, criticalFailure: 0};
@@ -111,7 +109,7 @@ function preRollDamage(config, dialog, message) {
   if (!item) return;
 
   // get bonus:
-  const spellLevel = config.rolls[0].data.item.level;
+  const spellLevel = config.subject.getRollData().item.level;
   const attackMode = config.attackMode ?? null;
 
   const subjects = {activity: config.subject, item: item, actor: item.actor};

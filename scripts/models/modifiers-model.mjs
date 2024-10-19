@@ -4,17 +4,6 @@ const {SchemaField, BooleanField, NumberField, StringField} = foundry.data.field
 
 /* Child of Babonus#bonuses that holds all die modifiers. */
 export default class ModifiersModel extends foundry.abstract.DataModel {
-  /**
-   * The modifier modes for amount and size.
-   * @type {number}
-   */
-  static MODIFIER_MODES = Object.freeze({
-    ADD: 0,
-    MULTIPLY: 1
-  });
-
-  /* -------------------------------------------------- */
-
   /** @override */
   static defineSchema() {
     return {
@@ -134,7 +123,7 @@ export default class ModifiersModel extends foundry.abstract.DataModel {
    */
   _modifyAmount(die) {
     if (!this.hasAmount) return;
-    const isMult = this.amount.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+    const isMult = this.amount.mode === MODULE.MODIFIER_MODES.MULTIPLY;
 
     if ((die._number instanceof Roll) && die._number.isDeterministic) {
       const total = die._number.evaluateSync().total;
@@ -155,7 +144,7 @@ export default class ModifiersModel extends foundry.abstract.DataModel {
    */
   _modifySize(die) {
     if (!this.hasSize) return;
-    const isMult = this.size.mode === ModifiersModel.MODIFIER_MODES.MULTIPLY;
+    const isMult = this.size.mode === MODULE.MODIFIER_MODES.MULTIPLY;
 
     if ((die._faces instanceof Roll) && die._faces.isDeterministic) {
       const total = die._faces.evaluateSync().total;

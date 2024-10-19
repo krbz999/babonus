@@ -160,7 +160,12 @@ export class Babonus extends foundry.abstract.DataModel {
     }
 
     if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
+      const uuid = this.parent.flags.dnd5e?.origin ?? "";
+      if (!uuid) return null;
+      const parts = uuid.split(".");
+      parts.pop(); parts.pop();
+      const itemUuid = parts.join(".");
+      const item = fromUuidSync(itemUuid);
       return (item instanceof Item) ? (item.parent ?? null) : null;
     }
 
@@ -373,7 +378,12 @@ export class Babonus extends foundry.abstract.DataModel {
     if (this.parent instanceof Item) return this.parent;
 
     if (this.parent instanceof MeasuredTemplateDocument) {
-      const item = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
+      const uuid = this.parent.flags.dnd5e?.origin ?? "";
+      if (!uuid) return null;
+      const parts = uuid.split(".");
+      parts.pop(); parts.pop();
+      const itemUuid = parts.join(".");
+      const item = fromUuidSync(itemUuid);
       return (item instanceof Item) ? item : null;
     }
 
@@ -402,8 +412,13 @@ export class Babonus extends foundry.abstract.DataModel {
    */
   get origin() {
     if (this.parent instanceof MeasuredTemplateDocument) {
-      const retrieved = fromUuidSync(this.parent.flags.dnd5e?.origin ?? "");
-      return (retrieved instanceof Item) ? retrieved : null;
+      const uuid = this.parent.flags.dnd5e?.origin ?? "";
+      if (!uuid) return null;
+      const parts = uuid.split(".");
+      parts.pop(); parts.pop();
+      const itemUuid = parts.join(".");
+      const item = fromUuidSync(itemUuid);
+      return (item instanceof Item) ? item : null;
     }
 
     if (this.parent instanceof Item) return this.parent;
@@ -658,7 +673,10 @@ export class Babonus extends foundry.abstract.DataModel {
    * @returns {object}                  The roll data.
    */
   getRollData({deterministic = false} = {}) {
-    return this.origin?.getRollData({deterministic}) ?? {};
+    const rollData = this.origin?.getRollData({deterministic}) ?? {};
+    const level = this.template ? this.template.getFlag("dnd5e", "spellLevel") : null;
+    if (level) foundry.utils.setProperty(rollData, "item.level", level);
+    return rollData;
   }
 
   /* -------------------------------------------------- */

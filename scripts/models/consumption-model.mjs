@@ -87,40 +87,28 @@ export default class ConsumptionModel extends foundry.abstract.DataModel {
     const invalidScale = this.scales && ((this.value.max ?? Infinity) < this.value.min);
 
     switch (type) {
-      case "uses": {
-        // The bonus must be on an item that you own, and with limited uses.
-        const item = this.bonus.parent;
-        if (!(item instanceof Item)) return false;
-        return !invalidScale && item.hasLimitedUses && (value.min > 0);
-      }
-      case "quantity": {
-        const item = this.bonus.parent;
-        if (!(item instanceof Item)) return false;
-        if (invalidScale) return false;
-        const hasQuantity = "quantity" in item.system;
-        return hasQuantity && (value.min > 0);
-      }
-      case "slots": {
-        return !invalidScale && (value.min > 0);
-      }
-      case "effect": {
+      case "uses":
+        if (!(this.bonus.parent instanceof Item) || invalidScale) return false;
+        return this.bonus.parent.hasLimitedUses && (value.min > 0);
+      case "quantity":
+        if (!(this.bonus.parent instanceof Item) || invalidScale) return false;
+        return this.bonus.parent.system.schema.has("quantity") && (value.min > 0);
+      case "effect":
         return this.bonus.parent instanceof ActiveEffect;
-      }
-      case "health": {
-        return !invalidScale && (value.min > 0);
-      }
-      case "currency": {
-        const subtypes = new Set(Object.keys(CONFIG.DND5E.currencies));
-        return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
-      }
-      case "inspiration": {
+      case "health":
+      case "slots":
+        if (invalidScale) return false;
+        return value.min > 0;
+      case "currency":
+        if (invalidScale) return false;
+        return Object.keys(CONFIG.DND5E.currencies).includes(this.subtype) && (value.min > 0);
+      case "inspiration":
         return true;
-      }
-      case "hitdice": {
-        const subtypes = new Set(["smallest", "largest"].concat(CONFIG.DND5E.hitDieTypes));
-        return !invalidScale && subtypes.has(this.subtype) && (value.min > 0);
-      }
-      default: return false;
+      case "hitdice":
+        if (invalidScale) return false;
+        return ["smallest", "largest"].concat(CONFIG.DND5E.hitDieTypes).includes(this.subtype) && (value.min > 0);
+      default:
+        return false;
     }
   }
 
