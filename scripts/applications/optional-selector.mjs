@@ -417,7 +417,7 @@ export default class OptionalSelector {
         let property;
         let newValue;
         if (type === "uses") {
-          property = "systen.uses.spent";
+          property = "system.uses.spent";
           newValue = item.system.uses.spent + value;
         } else {
           property = "system.quantity";
