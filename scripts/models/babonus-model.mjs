@@ -957,6 +957,7 @@ class DamageBabonus extends ItemBabonus {
 
   /** @override */
   static migrateData(source) {
+    super.migrateData(source);
     if (!source.damageType) return;
     if (foundry.utils.getType(source.damageType) === "string") {
       source.damageType = [source.damageType];
