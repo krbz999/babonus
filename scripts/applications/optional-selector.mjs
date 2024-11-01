@@ -103,16 +103,6 @@ export default class OptionalSelector {
   /* -------------------------------------------------- */
 
   /**
-   * The situational bonus field to append bonuses to.
-   * @type {HTMLElement}
-   */
-  get field() {
-    return this.dialog.element[0]?.querySelector?.("[name=bonus]") ?? null;
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
    * Custom helper method for retrieving all the data for the template.
    * @returns {Promise<object>}
    */
@@ -122,12 +112,12 @@ export default class OptionalSelector {
 
       // For bonuses that consume, skip them if they are invalid.
       if (bonus.consume.enabled) {
-        const valid = this.testMinimumConsumption(bonus);
+        const valid = this.#testMinimumConsumption(bonus);
         if (!valid) continue;
       }
 
       const data = {
-        tooltip: this._getTooltip(bonus),
+        tooltip: this.#getTooltip(bonus),
         babonus: bonus,
         name: bonus.name.replaceAll("'", "\\'"),
         label: `BABONUS.OptionalSelector.Label${bonus.consume.enabled ? "Consume" : "Apply"}`,
@@ -137,9 +127,9 @@ export default class OptionalSelector {
       };
       if (bonus.consume.enabled) {
         const type = ["uses", "quantity"].includes(bonus.consume.type) ? "item" : bonus.consume.type;
-        data.scales = this.doesBonusScale(bonus);
+        data.scales = this.#doesBonusScale(bonus);
         data.action = data.scales ? `consume-${type}-scale` : `consume-${type}`;
-        data.options = data.scales ? this._constructScalingOptions(bonus) : null;
+        data.options = data.scales ? this.#constructScalingOptions(bonus) : null;
 
         data.scaleValue = new foundry.data.fields.StringField({required: true, choices: data.options});
         data.scaleDataset = {select: "scaleValue"};
@@ -182,7 +172,7 @@ export default class OptionalSelector {
    * @param {Babonus} bonus     A bonus to test.
    * @returns {boolean}         Whether it is set up to scale.
    */
-  doesBonusScale(bonus) {
+  #doesBonusScale(bonus) {
     if (!bonus.consume.scales || !bonus.consume.isValidConsumption) return false;
 
     // Cannot scale.
@@ -201,9 +191,9 @@ export default class OptionalSelector {
    * Helper method to activate listeners on the optional bonuses' buttons.
    * @param {HTMLElement} html     The entire list of html injected onto the dialog.
    */
-  activateListeners(html) {
+  #activateListeners(html) {
     html.querySelectorAll("[data-action^='consume']").forEach(n => {
-      n.addEventListener("click", this._onApplyOption.bind(this));
+      n.addEventListener("click", this.#onApplyOption.bind(this));
     });
   }
 
@@ -214,26 +204,18 @@ export default class OptionalSelector {
    * @returns {Promise}
    */
   async render() {
-    const isV2 = !!this.dialog.element?.classList?.contains("dnd5e2");
-    this.form = document.createElement(isV2 ? "FIELDSET" : "DIV");
+    this.form = document.createElement("FIELDSET");
 
-    if (isV2) this.form.insertAdjacentHTML("beforeend", "<legend>Build-a-Bonus</legend>");
+    this.form.insertAdjacentHTML("beforeend", "<legend>Build-a-Bonus</legend>");
     this.form.classList.add("babonus", "optionals");
 
     const data = await this.getData();
     if (!data.bonuses.length && !data.reminders.length) return;
-    data.isV2 = isV2;
     this.form.insertAdjacentHTML("beforeend", await renderTemplate(this.template, data));
-    this.activateListeners(this.form);
+    this.#activateListeners(this.form);
 
-    if (isV2) {
-      const group = this.dialog.element.querySelector("fieldset[data-application-part=configuration]");
-      group.insertAdjacentElement("afterend", this.form);
-    } else {
-      const group = this.dialog.element[0].querySelector(".dialog-content > form");
-      group.append(this.form);
-      this.dialog.setPosition({height: "auto"});
-    }
+    const group = this.dialog.element.querySelector("fieldset[data-application-part=configuration]");
+    group.insertAdjacentElement("afterend", this.form);
 
     registry.delete(this.#id);
   }
@@ -245,7 +227,7 @@ export default class OptionalSelector {
    * @param {Babonus} bonus     The babonus.
    * @returns {string}          A localized string.
    */
-  _getTooltip(bonus) {
+  #getTooltip(bonus) {
     let name;
     const docName = bonus.parent.constructor.documentName;
     if (bonus.parent instanceof MeasuredTemplateDocument) {
@@ -259,21 +241,11 @@ export default class OptionalSelector {
   /* -------------------------------------------------- */
 
   /**
-   * Display a warning about lack of limited uses, quantity, spell slots, or missing effect.
-   * @param {string} type     The consumption type of the babonus.
-   */
-  _displayConsumptionWarning(type) {
-    ui.notifications.warn(`BABONUS.Warning.Consuming.${type.capitalize()}Unavailable`, {localize: true});
-  }
-
-  /* -------------------------------------------------- */
-
-  /**
    * Construct options for a scaling bonus.
    * @param {Babonus} bonus     The bonus.
    * @returns {string}          The string of select options.
    */
-  _constructScalingOptions(bonus) {
+  #constructScalingOptions(bonus) {
     switch (bonus.consume.type) {
       case "uses":
       case "quantity": {
@@ -380,7 +352,7 @@ export default class OptionalSelector {
    * @param {Babonus} bonus
    * @returns {boolean}
    */
-  testMinimumConsumption(bonus) {
+  #testMinimumConsumption(bonus) {
     const target = ["uses", "quantity", "effect"].includes(bonus.consume.type) ? bonus.parent : this.actor;
     return bonus.consume.canActorConsume(this.actor) && bonus.consume.canBeConsumed(target);
   }
@@ -391,7 +363,7 @@ export default class OptionalSelector {
    * Apply an optional bonus. Depending on the bonus, consume a document or property and scale the applied value.
    * @param {Event} event     The initiating click event.
    */
-  async _onApplyOption(event) {
+  async #onApplyOption(event) {
     const target = event.currentTarget;
     target.disabled = true;
     const bonus = this.optionals.get(target.closest(".optional").dataset.bonusUuid);
@@ -433,9 +405,9 @@ export default class OptionalSelector {
           await item.update({[property]: newValue});
         }
         const scale = scales ? (value - consumeMin) : 0;
-        const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
-        const apply = this.callHook(bonus, item, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
+        const apply = this.#callHook(bonus, item, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "slots": {
@@ -446,13 +418,13 @@ export default class OptionalSelector {
           const s = this.actor.system.spells[key];
           scale = Math.min(s.level - consumeMin, consumeMax - 1);
         } else {
-          key = this._getLowestValidSpellSlotProperty(bonus);
+          key = this.#getLowestValidSpellSlotProperty(bonus);
           scale = 0;
         }
-        const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
+        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
-        const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        const apply = this.#callHook(bonus, this.actor, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "health": {
@@ -465,10 +437,10 @@ export default class OptionalSelector {
           value = consumeMin;
           scale = 0;
         }
-        const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
+        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
         await this.actor.applyDamage(value);
-        const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        const apply = this.#callHook(bonus, this.actor, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "effect": {
@@ -477,16 +449,16 @@ export default class OptionalSelector {
           target.disabled = false;
           return null;
         }
-        const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
-        const apply = this.callHook(bonus, effect, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
+        const config = {bonus: this.#scaleOptionalBonus(bonus, 0)};
+        const apply = this.#callHook(bonus, effect, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
         break;
       }
       case "inspiration": {
         await this.actor.update({"system.attributes.inspiration": false});
-        const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
-        const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
+        const config = {bonus: this.#scaleOptionalBonus(bonus, 0)};
+        const apply = this.#callHook(bonus, this.actor, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
         break;
       }
       case "currency": {
@@ -500,10 +472,10 @@ export default class OptionalSelector {
           scale = 0;
         }
         const currency = this.actor.system.currency[bonus.consume.subtype];
-        const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
+        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
         await this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
-        const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        const apply = this.#callHook(bonus, this.actor, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       case "hitdice": {
@@ -535,16 +507,16 @@ export default class OptionalSelector {
         await this.actor.updateEmbeddedDocuments("Item", updates);
 
         const scale = scales ? (parseInt(value) - consumeMin) : 0;
-        const config = {bonus: this._scaleOptionalBonus(bonus, scale)};
-        const apply = this.callHook(bonus, this.actor, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
+        const apply = this.#callHook(bonus, this.actor, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
         break;
       }
       default: {
         // Optional bonus that does not consume.
-        const config = {bonus: this._scaleOptionalBonus(bonus, 0)};
-        const apply = this.callHook(bonus, null, config);
-        this._appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
+        const config = {bonus: this.#scaleOptionalBonus(bonus, 0)};
+        const apply = this.#callHook(bonus, null, config);
+        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
         break;
       }
     }
@@ -560,9 +532,9 @@ export default class OptionalSelector {
    * @param {number} scale      The number to upscale by multiplicatively.
    * @returns {string}          The upscaled bonus, simplified, and with the base attached.
    */
-  _scaleOptionalBonus(bonus, scale) {
+  #scaleOptionalBonus(bonus, scale) {
     const bonusFormula = scale ? (bonus.consume.formula || bonus.bonuses.bonus) : bonus.bonuses.bonus;
-    const data = this._getRollData(bonus, scale);
+    const data = this.#getRollData(bonus, scale);
     const roll = new CONFIG.Dice.DamageRoll(bonusFormula, data);
     if (!scale) return roll.formula;
     const formula = roll.alter(scale, 0, {multiplyNumeric: true}).formula;
@@ -573,8 +545,7 @@ export default class OptionalSelector {
   /* -------------------------------------------------- */
 
   /**
-   * Appends a bonus to the situational bonus field. If the field is empty, don't add a leading sign.
-   * On the new roll configuration dialog, simply append to a roll's parts rather than paste into the field.
+   * Append a bonus to a roll's parts.
    * @param {object} config                   Appending configuration data.
    * @param {Babonus} config.babonus          The Babonus.
    * @param {HTMLElement} config.target       The target of the initiating click event.
@@ -583,12 +554,12 @@ export default class OptionalSelector {
    * @param {string} [config.damageType]      A selected damage type (required if a damage bonus).
    * @param {number} [scale]                  Upscaling property.
    */
-  _appendToField({babonus, target, bonus, apply = true, damageType, scale = 0}) {
+  #appendToField({babonus, target, bonus, apply = true, damageType, scale = 0}) {
     if (!apply) return;
     this.#applyPropertyModifications(babonus, scale);
     this.#applyAdditiveBonus(babonus, bonus, damageType, scale);
     this.#applyDiceModifications(babonus, scale);
-    this.dialog.rebuild?.(); // TODO: no optional chaining needed in 4.1 when all dialogs are the same.
+    this.dialog.rebuild();
     target.closest(".optional").classList.toggle("active", true);
   }
 
@@ -601,7 +572,7 @@ export default class OptionalSelector {
    */
   #applyPropertyModifications(bonus, scale) {
     const config = this.dialog.config;
-    const rollData = this._getRollData(bonus, scale);
+    const rollData = this.#getRollData(bonus, scale);
 
     switch (bonus.type) {
       case "damage":
@@ -631,15 +602,6 @@ export default class OptionalSelector {
   #applyAdditiveBonus(babonus, bonus, damageType, scale) {
     if (!babonus.hasAdditiveBonus) return;
 
-    // TODO: get rid of using this old field from the old roll config dialog in 4.1
-    const field = this.field;
-
-    if (field) {
-      if (!field.value.trim()) field.value = bonus;
-      else field.value = `${field.value.trim()} + ${bonus}`;
-      return;
-    }
-
     const roll = this.dialog.config.rolls.find(config => {
       if (!damageType) return true;
       const types = config.options.types;
@@ -649,7 +611,7 @@ export default class OptionalSelector {
     if (roll) roll.parts.push(bonus);
     else {
       this.dialog.config.rolls.push({
-        data: this._getRollData(babonus, scale),
+        data: this.#getRollData(babonus, scale),
         parts: [bonus],
         options: {
           properties: [...this.dialog.config.rolls[0].options.properties ?? []],
@@ -672,7 +634,7 @@ export default class OptionalSelector {
     if (babonus.hasDiceModifiers) this.#registry.modifiers.set(babonus.uuid, babonus);
 
     for (const bonus of this.#registry.modifiers) {
-      const rollData = this._getRollData(bonus, scale);
+      const rollData = this.#getRollData(bonus, scale);
       for (const {parts, data, options} of this.dialog.config.rolls) {
         if (bonus._halted) break;
         const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
@@ -708,7 +670,7 @@ export default class OptionalSelector {
    * @param {Babonus} bonus     The bonus used to determine the minimum spell level required.
    * @returns {string}          The attribute key.
    */
-  _getLowestValidSpellSlotProperty(bonus) {
+  #getLowestValidSpellSlotProperty(bonus) {
     const spells = this.actor.system.spells;
     const min = bonus.consume.value.min || 1;
 
@@ -744,7 +706,7 @@ export default class OptionalSelector {
    * @param {number} [scale]      Upscaling property.
    * @returns {object}            The roll data.
    */
-  _getRollData(bonus, scale = 0) {
+  #getRollData(bonus, scale = 0) {
     const src = bonus.origin;
     if (!bonus.template && this.activity && (src.uuid === this.activity.item.uuid)) return this.activity.getRollData();
     const rollData = src.getRollData();
@@ -763,7 +725,7 @@ export default class OptionalSelector {
    * @param {string} config.bonus                         The bonus that will be applied.
    * @returns {boolean}                                   Explicitly return false to cancel the application of the bonus.
    */
-  callHook(babonus, target, config) {
+  #callHook(babonus, target, config) {
     const roller = this.item ?? this.actor;
     const apply = Hooks.call("babonus.applyOptionalBonus", babonus, roller, target, config);
     return apply !== false;

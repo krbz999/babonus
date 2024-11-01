@@ -300,14 +300,14 @@ export class Babonus extends foundry.abstract.DataModel {
    */
   get isOptionable() {
     switch (this.type) {
+      case "attack":
       case "damage":
       case "hitdie":
-        return this.hasBonuses;
-      case "attack":
-      case "throw":
       case "test":
-        // TODO: in 4.1, these will be able to be remade as well, allowing for dice modifiers to be optional.
-        return !!this.bonuses.bonus;
+      case "throw":
+        return this.hasBonuses;
+      case "save":
+        return false;
       default:
         return false;
     }

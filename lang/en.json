@@ -617,17 +617,5 @@
         }
       }
     }
-  },
-  "Warning": {
-    "Consuming": {
-      "CurrencyUnavailable": "You do not have the required amount of that denomination.",
-      "EffectUnavailable": "The associated effect no longer exists.",
-      "HealthUnavailable": "You do not have enough hit points remaining.",
-      "HitdiceUnavailable": "You do not have enough hit dice remaining.",
-      "InspirationUnavailable": "You do not have inspiration.",
-      "QuantityUnavailable": "You do not have the required quantity of the associated item.",
-      "SlotsUnavailable": "You do not have any remaining spell slots of that level.",
-      "UsesUnavailable": "You do not have the required number of charges on the item."
-    }
   }
 }}

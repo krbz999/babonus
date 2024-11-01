@@ -8,8 +8,6 @@
 </div>
 {{/if}}
 
-{{#if isV2}}
-
 {{#each bonuses}}
 <div class="optional" data-bonus-uuid="{{babonus.uuid}}">
   <div class="bonus-text" style="--bonus-name: '{{name}}.'">
@@ -34,30 +32,3 @@
 
 <hr>
 {{/each}}
-
-{{else}}
-
-{{#each bonuses}}
-<div class="optional" data-bonus-uuid="{{babonus.uuid}}">
-
-  <div class="bonus-text" style="--bonus-name: '{{name}}.'">
-    <span class="description">{{{description}}}</span>
-  </div>
-
-  {{#if scales}}
-  <div class="consumption">
-    <label class="label">
-      {{localize label}}
-    </label>
-    {{formInput scaleValue dataset=scaleDataset}}
-  </div>
-  {{/if}}
-
-  <button type="button" data-action="{{action}}">
-    <i class="fa-solid fa-plus"></i>
-  </button>
-
-</div>
-{{/each}}
-
-{{/if}}
