@@ -6,7 +6,7 @@ import ModifiersModel from "./modifiers-model.mjs";
 const {
   BooleanField, DocumentIdField, EmbeddedDataField,
   FilePathField, HTMLField, IntegerSortField,
-  ObjectField, SchemaField, SetField, StringField
+  ObjectField, SchemaField, SetField, StringField,
 } = foundry.data.fields;
 
 /**
@@ -111,7 +111,7 @@ export class Babonus extends foundry.abstract.DataModel {
   constructor(data, options = {}) {
     data = foundry.utils.mergeObject({
       name: options.parent?.name ?? game.i18n.localize("BABONUS.NewBabonus"),
-      img: options.parent?.img ?? "icons/svg/dice-target.svg"
+      img: options.parent?.img ?? "icons/svg/dice-target.svg",
     }, data);
     super(data, options);
   }
@@ -125,7 +125,7 @@ export class Babonus extends foundry.abstract.DataModel {
     label: "BABONUS.BaseBabonus",
     documentName: "babonus",
     icon: null,
-    defaultImg: null
+    defaultImg: null,
   });
 
   /* -------------------------------------------------- */
@@ -140,7 +140,7 @@ export class Babonus extends foundry.abstract.DataModel {
     "hitdie",
     "save",
     "test",
-    "throw"
+    "throw",
   ]);
 
   /* -------------------------------------------------- */
@@ -533,7 +533,7 @@ export class Babonus extends foundry.abstract.DataModel {
       description: new HTMLField(),
       consume: new EmbeddedDataField(ConsumptionModel),
       aura: new EmbeddedDataField(AuraModel),
-      flags: new ObjectField()
+      flags: new ObjectField(),
     };
   }
 
@@ -569,7 +569,7 @@ export class Babonus extends foundry.abstract.DataModel {
       healthPercentages: new fields.healthPercentages(),
       markers: new fields.markers(),
       remainingSpellSlots: new fields.remainingSpellSlots(),
-      statusEffects: new fields.statusEffects()
+      statusEffects: new fields.statusEffects(),
     };
   }
 
@@ -796,22 +796,22 @@ export class Babonus extends foundry.abstract.DataModel {
     return foundry.applications.api.DialogV2.confirm({
       window: {
         title: `Build-a-Bonus: ${this.name}`,
-        icon: "fa-solid fa-otter"
+        icon: "fa-solid fa-otter",
       },
       position: {
-        width: 400
+        width: 400,
       },
       content: `<p>${game.i18n.localize("AreYouSure")} ${game.i18n.format("SIDEBAR.DeleteWarning", {type})}</p>`,
       yes: {
         callback: () => this.delete(),
-        default: true
+        default: true,
       },
       no: {
-        default: false
+        default: false,
       },
       rejectClose: false,
       modal: true,
-      ...options
+      ...options,
     });
   }
 }
@@ -837,7 +837,7 @@ class ItemBabonus extends Babonus {
       targetArmors: new fields.targetArmors(),
       targetEffects: new fields.targetEffects(),
       tokenSizes: new fields.tokenSizes(),
-      weaponProperties: new fields.weaponProperties()
+      weaponProperties: new fields.weaponProperties(),
     };
   }
 }
@@ -847,7 +847,7 @@ class AttackBabonus extends ItemBabonus {
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
     label: "BABONUS.AttackBabonus",
     icon: "fa-solid fa-location-crosshairs",
-    defaultImg: "systems/dnd5e/icons/svg/trait-weapon-proficiencies.svg"
+    defaultImg: "systems/dnd5e/icons/svg/trait-weapon-proficiencies.svg",
   }, {inplace: false}));
 
   /* -------------------------------------------------- */
@@ -858,7 +858,7 @@ class AttackBabonus extends ItemBabonus {
     schema.type = new StringField({
       required: true,
       readonly: true,
-      initial: "attack"
+      initial: "attack",
     });
     return schema;
   }
@@ -868,7 +868,7 @@ class AttackBabonus extends ItemBabonus {
   /** @override */
   static LOCALIZATION_PREFIXES = [
     ...super.LOCALIZATION_PREFIXES,
-    "BABONUS.ATTACK"
+    "BABONUS.ATTACK",
   ];
 
   /* -------------------------------------------------- */
@@ -879,7 +879,7 @@ class AttackBabonus extends ItemBabonus {
       ...super._defineBonusSchema(),
       bonus: new StringField({required: true}),
       criticalRange: new StringField({required: true}),
-      fumbleRange: new StringField({required: true})
+      fumbleRange: new StringField({required: true}),
     };
   }
 
@@ -889,7 +889,7 @@ class AttackBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      proficiencyLevels: new fields.proficiencyLevels()
+      proficiencyLevels: new fields.proficiencyLevels(),
     };
   }
 
@@ -906,7 +906,7 @@ class DamageBabonus extends ItemBabonus {
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
     label: "BABONUS.DamageBabonus",
     icon: "fa-solid fa-burst",
-    defaultImg: "systems/dnd5e/icons/svg/properties/magical.svg"
+    defaultImg: "systems/dnd5e/icons/svg/properties/magical.svg",
   }, {inplace: false}));
 
   /* -------------------------------------------------- */
@@ -917,7 +917,7 @@ class DamageBabonus extends ItemBabonus {
     schema.type = new StringField({
       required: true,
       readonly: true,
-      initial: "damage"
+      initial: "damage",
     });
     return schema;
   }
@@ -927,7 +927,7 @@ class DamageBabonus extends ItemBabonus {
   /** @override */
   static LOCALIZATION_PREFIXES = [
     ...super.LOCALIZATION_PREFIXES,
-    "BABONUS.DAMAGE"
+    "BABONUS.DAMAGE",
   ];
 
   /* -------------------------------------------------- */
@@ -940,7 +940,7 @@ class DamageBabonus extends ItemBabonus {
       damageType: new SetField(new StringField()),
       criticalBonusDice: new StringField({required: true}),
       criticalBonusDamage: new StringField({required: true}),
-      modifiers: new EmbeddedDataField(ModifiersModel)
+      modifiers: new EmbeddedDataField(ModifiersModel),
     };
   }
 
@@ -985,7 +985,7 @@ class SaveBabonus extends ItemBabonus {
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
     label: "BABONUS.SaveBabonus",
     icon: "fa-solid fa-hand-sparkles",
-    defaultImg: "systems/dnd5e/icons/svg/trait-damage-resistances.svg"
+    defaultImg: "systems/dnd5e/icons/svg/trait-damage-resistances.svg",
   }, {inplace: false}));
 
   /* -------------------------------------------------- */
@@ -996,7 +996,7 @@ class SaveBabonus extends ItemBabonus {
     schema.type = new StringField({
       required: true,
       readonly: true,
-      initial: "save"
+      initial: "save",
     });
     return schema;
   }
@@ -1006,7 +1006,7 @@ class SaveBabonus extends ItemBabonus {
   /** @override */
   static LOCALIZATION_PREFIXES = [
     ...super.LOCALIZATION_PREFIXES,
-    "BABONUS.SAVE"
+    "BABONUS.SAVE",
   ];
 
   /* -------------------------------------------------- */
@@ -1015,7 +1015,7 @@ class SaveBabonus extends ItemBabonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true})
+      bonus: new StringField({required: true}),
     };
   }
 
@@ -1025,7 +1025,7 @@ class SaveBabonus extends ItemBabonus {
   static _defineFilterSchema() {
     return {
       ...super._defineFilterSchema(),
-      saveAbilities: new fields.saveAbilities()
+      saveAbilities: new fields.saveAbilities(),
     };
   }
 }
@@ -1035,7 +1035,7 @@ class ThrowBabonus extends Babonus {
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
     label: "BABONUS.ThrowBabonus",
     icon: "fa-solid fa-person-falling-burst",
-    defaultImg: "systems/dnd5e/icons/svg/trait-saves.svg"
+    defaultImg: "systems/dnd5e/icons/svg/trait-saves.svg",
   }, {inplace: false}));
 
   /* -------------------------------------------------- */
@@ -1046,7 +1046,7 @@ class ThrowBabonus extends Babonus {
     schema.type = new StringField({
       required: true,
       readonly: true,
-      initial: "throw"
+      initial: "throw",
     });
     return schema;
   }
@@ -1056,7 +1056,7 @@ class ThrowBabonus extends Babonus {
   /** @override */
   static LOCALIZATION_PREFIXES = [
     ...super.LOCALIZATION_PREFIXES,
-    "BABONUS.THROW"
+    "BABONUS.THROW",
   ];
 
   /* -------------------------------------------------- */
@@ -1067,7 +1067,7 @@ class ThrowBabonus extends Babonus {
       ...super._defineBonusSchema(),
       bonus: new StringField({required: true}),
       targetValue: new StringField({required: true}),
-      deathSaveCritical: new StringField({required: true})
+      deathSaveCritical: new StringField({required: true}),
     };
   }
 
@@ -1080,7 +1080,7 @@ class ThrowBabonus extends Babonus {
       creatureTypes: new fields.creatureTypes(),
       proficiencyLevels: new fields.proficiencyLevels(),
       targetEffects: new fields.targetEffects(),
-      throwTypes: new fields.throwTypes()
+      throwTypes: new fields.throwTypes(),
     };
   }
 
@@ -1097,7 +1097,7 @@ class TestBabonus extends Babonus {
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
     label: "BABONUS.TestBabonus",
     icon: "fa-solid fa-bolt",
-    defaultImg: "systems/dnd5e/icons/svg/trait-skills.svg"
+    defaultImg: "systems/dnd5e/icons/svg/trait-skills.svg",
   }, {inplace: false}));
 
   /* -------------------------------------------------- */
@@ -1108,7 +1108,7 @@ class TestBabonus extends Babonus {
     schema.type = new StringField({
       required: true,
       readonly: true,
-      initial: "test"
+      initial: "test",
     });
     return schema;
   }
@@ -1118,7 +1118,7 @@ class TestBabonus extends Babonus {
   /** @override */
   static LOCALIZATION_PREFIXES = [
     ...super.LOCALIZATION_PREFIXES,
-    "BABONUS.TEST"
+    "BABONUS.TEST",
   ];
 
   /* -------------------------------------------------- */
@@ -1127,7 +1127,7 @@ class TestBabonus extends Babonus {
   static _defineBonusSchema() {
     return {
       ...super._defineBonusSchema(),
-      bonus: new StringField({required: true})
+      bonus: new StringField({required: true}),
     };
   }
 
@@ -1140,7 +1140,7 @@ class TestBabonus extends Babonus {
       abilities: new fields.abilities(),
       baseTools: new fields.baseTools(),
       proficiencyLevels: new fields.proficiencyLevels(),
-      skillIds: new fields.skillIds()
+      skillIds: new fields.skillIds(),
     };
   }
 }
@@ -1150,7 +1150,7 @@ class HitDieBabonus extends Babonus {
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
     label: "BABONUS.HitdieBabonus",
     icon: "fa-solid fa-heart-pulse",
-    defaultImg: "systems/dnd5e/icons/svg/hit-points.svg"
+    defaultImg: "systems/dnd5e/icons/svg/hit-points.svg",
   }, {inplace: false}));
 
   /* -------------------------------------------------- */
@@ -1161,7 +1161,7 @@ class HitDieBabonus extends Babonus {
     schema.type = new StringField({
       required: true,
       readonly: true,
-      initial: "hitdie"
+      initial: "hitdie",
     });
     return schema;
   }
@@ -1171,7 +1171,7 @@ class HitDieBabonus extends Babonus {
   /** @override */
   static LOCALIZATION_PREFIXES = [
     ...super.LOCALIZATION_PREFIXES,
-    "BABONUS.HITDIE"
+    "BABONUS.HITDIE",
   ];
 
   /* -------------------------------------------------- */
@@ -1181,7 +1181,7 @@ class HitDieBabonus extends Babonus {
     return {
       ...super._defineBonusSchema(),
       bonus: new StringField({required: true}),
-      modifiers: new EmbeddedDataField(ModifiersModel)
+      modifiers: new EmbeddedDataField(ModifiersModel),
     };
   }
 }
@@ -1192,5 +1192,5 @@ export default {
   hitdie: HitDieBabonus,
   save: SaveBabonus,
   test: TestBabonus,
-  throw: ThrowBabonus
+  throw: ThrowBabonus,
 };

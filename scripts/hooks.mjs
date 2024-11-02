@@ -18,12 +18,12 @@ globalThis.babonus = {
     DataModels: models.Babonus,
     DataFields: {
       fields: fields,
-      models: models
+      models: models,
     },
     TYPES: Object.keys(models.Babonus),
-    applications: applications
+    applications: applications,
   },
-  filters: {...filterings.filters}
+  filters: {...filterings.filters},
 };
 
 /* -------------------------------------------------- */
@@ -51,7 +51,7 @@ function _createSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: true
+    default: true,
   });
 
   game.settings.register(MODULE.ID, SETTINGS.LABEL, {
@@ -60,7 +60,7 @@ function _createSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false
+    default: false,
   });
 
   game.settings.register(MODULE.ID, SETTINGS.SCRIPT, {
@@ -70,7 +70,7 @@ function _createSettings() {
     config: true,
     type: Boolean,
     default: false,
-    requiresReload: true
+    requiresReload: true,
   });
 
   game.settings.register(MODULE.ID, SETTINGS.AURA, {
@@ -80,7 +80,7 @@ function _createSettings() {
     config: true,
     type: Boolean,
     default: false,
-    requiresReload: false
+    requiresReload: false,
   });
 
   game.settings.register(MODULE.ID, SETTINGS.RADIUS, {
@@ -90,7 +90,7 @@ function _createSettings() {
     config: true,
     type: Boolean,
     default: true,
-    requiresReload: false
+    requiresReload: false,
   });
 
   // Allow for modifiers to the fumble range to go below 1?
@@ -101,7 +101,7 @@ function _createSettings() {
     config: true,
     type: Boolean,
     default: false,
-    requiresReload: false
+    requiresReload: false,
   });
 
   game.settings.register(MODULE.ID, SETTINGS.SHEET_TAB, {
@@ -111,7 +111,7 @@ function _createSettings() {
     config: true,
     type: Boolean,
     default: false,
-    requiresReload: true
+    requiresReload: true,
   });
 }
 
@@ -132,7 +132,7 @@ async function _onHotbarDrop(bar, {type, uuid}, slot) {
     img: bonus.img,
     command: `babonus.hotbarToggle("${uuid}");`,
     name: `${game.i18n.localize("BABONUS.ToggleBonus")}: ${bonus.name}`,
-    type: CONST.MACRO_TYPES.SCRIPT
+    type: CONST.MACRO_TYPES.SCRIPT,
   };
   const macro = game.macros.find(m => {
     return Object.entries(data).every(([k, v]) => m[k] === v) && m.isAuthor;
@@ -173,15 +173,44 @@ Hooks.on("renderRegionConfig", injections.injectRegionConfigElement);
 Hooks.once("ready", function() {
   Hooks.callAll("babonus.preInitializeRollHooks");
 
+  // Save dcs
   Hooks.on("dnd5e.postActivityConsumption", mutators.postActivityConsumption);
-  Hooks.on("dnd5e.preRollAbilitySave", mutators.preRollAbilitySave);
-  Hooks.on("dnd5e.preRollAbilityTest", mutators.preRollAbilityTest);
+
+  for (const name of [
+    "d20Test",
+    "savingThrow", "concentration", "deathSave",
+    "abilityCheck", "skill", "tool",
+    "attack", "damage",
+    "hitDie",
+  ]) {
+    Hooks.on(`dnd5e.post${name.capitalize()}RollConfiguration`, (rolls, c, d, m) => {
+      console.warn(name, {rolls, config: c, dialog: d, message: m});
+    });
+  }
+
+  // All d20s
+  Hooks.on("dnd5e.preRollD20TestV2", mutators.preRollD20);
+
+  // Saving throws
+  Hooks.on("dnd5e.preRollSavingThrowV2", mutators.preRollAbilitySave);
+  Hooks.on("dnd5e.preRollConcentrationV2", mutators.preRollConcentration);
+  Hooks.on("dnd5e.preRollDeathSaveV2", mutators.preRollDeathSave);
+
+  // Checks
+  Hooks.on("dnd5e.preRollAbilityCheckV2", mutators.preRollAbilityTest);
+  Hooks.on("dnd5e.preRollSkillV2", mutators.preRollSkill);
+  Hooks.on("dnd5e.preRollToolV2", mutators.preRollToolCheck);
+
+  // Attacks
   Hooks.on("dnd5e.preRollAttackV2", mutators.preRollAttack);
+
+  // Damage
   Hooks.on("dnd5e.preRollDamageV2", mutators.preRollDamage);
-  Hooks.on("dnd5e.preRollDeathSave", mutators.preRollDeathSave);
+
+  // Hit dice
   Hooks.on("dnd5e.preRollHitDieV2", mutators.preRollHitDie);
-  Hooks.on("dnd5e.preRollSkill", mutators.preRollSkill);
-  Hooks.on("dnd5e.preRollToolCheck", mutators.preRollToolCheck);
+
+  // Store data on templates
   Hooks.on("dnd5e.preCreateActivityTemplate", mutators.preCreateActivityTemplate);
 
   Hooks.callAll("babonus.initializeRollHooks");

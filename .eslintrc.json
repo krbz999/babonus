@@ -26,7 +26,7 @@
     "array-bracket-newline": ["error", "consistent"],
     "no-unused-vars": 0,
     "key-spacing": "error",
-    "comma-dangle": "error",
+    "comma-dangle": ["error", "always-multiline"],
     "space-in-parens": ["error", "never"],
     "space-infix-ops": 2,
     "keyword-spacing": 2,

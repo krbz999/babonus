@@ -26,7 +26,7 @@ function postActivityConsumption(activity, usageConfig, dialogConfig, messageCon
   const subjects = {
     activity: activity,
     item: activity.item,
-    actor: activity.item.actor
+    actor: activity.item.actor,
   };
 
   const rollData = activity.getRollData({deterministic: true});
@@ -46,6 +46,13 @@ function postActivityConsumption(activity, usageConfig, dialogConfig, messageCon
 
 /* -------------------------------------------------- */
 
+function preRollD20(config, dialog, message) {
+  console.warn("D20", {config, dialog, message});
+  return;
+}
+
+/* -------------------------------------------------- */
+
 /**
  * When you make an attack roll...
  * @param {AttackRollProcessConfiguration} config  Configuration data for the pending roll.
@@ -57,44 +64,55 @@ function preRollAttack(config, dialog, message) {
   if (!item) return;
 
   const subjects = {activity: config.subject, item: item, actor: item.actor};
-  // get bonuses:
-  const rollData = config.subject.getRollData();
-  const spellLevel = rollData.item.level;
-  const bonuses = filterings.itemCheck(subjects, "attack", {spellLevel});
-  if (!bonuses.size) return;
+  const details = {spellLevel: config.subject.getRollData().item.level};
+  const collection = filterings.itemCheck(subjects, "attack", details);
+
+  const id = registry.register({
+    collection: collection,
+    configurations: {config, dialog, message},
+    details: details,
+    subjects: subjects,
+  });
+  foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
+}
+
+Hooks.on("dnd5e.postAttackRollConfiguration", function(rolls, config, dialog, message) {
+  const id = dialog.options?.babonus?.registry;
+  if (!id) return;
+
+  const {collection, configurations, details, subjects} = registry.get(id);
+  registry.delete(id);
+
+  // The roll configuration dialog was cancelled.
+  if (!rolls.length) return;
+
   _addTargetData(config);
 
-  // Gather up all bonuses.
   const mods = {criticalSuccess: 0, criticalFailure: 0};
-  for (const bonus of bonuses.nonoptional) {
-    if (bonus.hasAdditiveBonus) config.rolls[0].parts.push(bonus.bonuses.bonus);
+  const parts = [];
+
+  const rollData = rolls[0].data;
+  for (const bonus of collection.applyingBonuses(subjects, details)) {
+    if (bonus.hasAdditiveBonus) parts.push(bonus.bonuses.bonus);
     if (bonus.hasPropertyBonuses) {
       mods.criticalSuccess += dnd5e.utils.simplifyBonus(bonus.bonuses.criticalRange, rollData);
       mods.criticalFailure += dnd5e.utils.simplifyBonus(bonus.bonuses.fumbleRange, rollData);
     }
   }
+  parts.unshift(rolls[0].formula);
 
-  const id = registry.register({
-    ...subjects,
-    bonuses: bonuses,
-    modifiers: new foundry.utils.Collection(), // TODO: 4.1, this can be used and should be like damage rolls
-    spellLevel: spellLevel,
-    configurations: {config, dialog, message}
-  });
+  const options = foundry.utils.deepClone(rolls[0].options);
+  // Add modifiers to raise/lower the critical and fumble.
+  options.criticalSuccess = (options.criticalSuccess ?? 20) - mods.criticalSuccess;
+  options.criticalFailure = (options.criticalFailure ?? 1) + mods.criticalFailure;
 
-  // Add parts.
-  foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
+  // Don't set crit to below 1, and don't set fumble to below 1 unless allowed.
+  if (options.criticalSuccess < 1) options.criticalSuccess = 1;
+  if ((options.criticalFailure < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) options.criticalFailure = 1;
 
-  for (const {options} of config.rolls) {
-    // Add modifiers to raise/lower the criticial and fumble.
-    options.criticalSuccess = (options.criticalSuccess ?? 20) - mods.criticalSuccess;
-    options.criticalFailure = (options.criticalFailure ?? 1) + mods.criticalFailure;
-
-    // Don't set crit to below 1, and don't set fumble to below 1 unless allowed.
-    if (options.criticalSuccess < 1) options.criticalSuccess = 1;
-    if ((options.criticalFailure < 1) && !game.settings.get(MODULE.ID, SETTINGS.FUMBLE)) options.criticalFailure = 1;
-  }
-}
+  rolls[0] = new rolls[0].constructor(parts.join(" + "), rollData, options);
+  rolls[0].configureModifiers();
+});
 
 /* -------------------------------------------------- */
 
@@ -108,115 +126,50 @@ function preRollDamage(config, dialog, message) {
   const item = config.subject?.item;
   if (!item) return;
 
-  // get bonus:
-  const spellLevel = config.subject.getRollData().item.level;
-  const attackMode = config.attackMode ?? null;
-
   const subjects = {activity: config.subject, item: item, actor: item.actor};
-  const bonuses = filterings.itemCheck(subjects, "damage", {spellLevel, attackMode});
-  if (!bonuses.size) return;
-  _addTargetData(config);
-
-  // Used in the optional selector to determine which bonuses have and still should apply dice modifications.
-  const modifiers = new foundry.utils.Collection();
+  const details = {spellLevel: config.subject.getRollData().item.level, attackMode: config.attackMode ?? null};
+  const collection = filterings.itemCheck(subjects, "damage", details);
 
   const id = registry.register({
-    ...subjects,
-    spellLevel: spellLevel,
-    bonuses: bonuses,
-    modifiers: modifiers,
+    collection: collection,
     configurations: {config, dialog, message},
-    attackMode: attackMode
+    details: details,
+    subjects: subjects,
   });
   foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
-
-  // Add to critical dice and critical damage.
-  const critical = config.critical ??= {};
-  critical.bonusDice ??= 0;
-  critical.bonusDamage ??= "";
-
-  for (const bonus of bonuses.nonoptional) {
-    const rollData = config.rolls[0].data;
-
-    if (bonus.hasPropertyBonuses) {
-      critical.bonusDice += dnd5e.utils.simplifyBonus(bonus.bonuses.criticalBonusDice, rollData);
-      critical.bonusDamage = critical.bonusDamage
-        ? `${critical.bonusDamage} + ${bonus.bonuses.criticalBonusDamage}`
-        : bonus.bonuses.criticalBonusDamage;
-    }
-
-    // Add damage parts.
-    if (bonus.hasAdditiveBonus) {
-      const roll = config.rolls.find(config => {
-        // If this has no damage type, append to first roll.
-        if (!bonus.hasDamageType) return true;
-        // If this has multiple types, never append.
-        if (bonus.bonuses.damageType.size > 1) return false;
-        // Else append if the type matches.
-        return config.options.types.includes(bonus.bonuses.damageType.first());
-      });
-
-      if (roll) {
-        roll.parts.push(bonus.bonuses.bonus);
-      } else {
-        config.rolls.push({
-          data: rollData,
-          parts: [bonus.bonuses.bonus],
-          options: {
-            properties: [...config.rolls[0].options.properties ?? []],
-            type: bonus.bonuses.damageType.first(),
-            types: Array.from(bonus.bonuses.damageType)
-          }
-        });
-      }
-    }
-  }
-
-  // Add dice modifiers.
-  for (const bonus of bonuses.nonoptional) {
-    if (!bonus.hasDiceModifiers) continue;
-    for (const {parts, data, options} of config.rolls) {
-      if (bonus._halted) break;
-      const halted = bonus.bonuses.modifiers.modifyParts(parts, data);
-      if (halted) bonus._halted = true;
-
-      // Modify critical bonus damage.
-      if (!bonus._halted && options.critical?.bonusDamage) {
-        const parts = [options.critical.bonusDamage];
-        const halted = bonus.bonuses.modifiers.modifyParts(parts, bonus.getRollData());
-        if (halted) bonus._halted = true;
-        options.critical.bonusDamage = parts[0];
-      }
-    }
-
-    // Modify critical bonus damage.
-    if (!bonus._halted && config.critical?.bonusDamage) {
-      const parts = [config.critical.bonusDamage];
-      const halted = bonus.bonuses.modifiers.modifyParts(parts, bonus.getRollData());
-      if (halted) bonus._halted = true;
-      config.critical.bonusDamage = parts[0];
-    }
-
-    if (!bonus._halted) modifiers.set(bonus.uuid, bonus);
-  }
-
-  // Adjust values to fit within sensible bounds.
-  if (critical.bonusDice < 0) critical.bonusDice = 0;
-  if (critical.bonusDamage && !Roll.validate(critical.bonusDamage)) {
-    console.warn("Critical bonus damage resulted in invalid formula:", critical.bonusDamage);
-    critical.bonusDamage = "";
-  }
 }
+
+Hooks.on("dnd5e.postDamageRollConfiguration", function(rolls, config, dialog, message) {
+  const id = dialog.options?.babonus?.registry;
+  if (!id) return;
+
+  const {collection, configurations, details, subjects} = registry.get(id);
+  registry.delete(id);
+
+  if (!rolls.length) return;
+
+  _addTargetData(config);
+
+  const rollData = config.rolls[0].data;
+  for (const bonus of collection.applyingBonuses(subjects, details)) {
+    if (!bonus.hasAdditiveBonus) continue;
+    const options = {
+      properties: [...config.rolls[0].options.properties ?? []],
+      type: bonus.bonuses.damageType.first(),
+      types: Array.from(bonus.bonuses.damageType),
+    };
+    rolls.push(new dnd5e.dice.DamageRoll(bonus.bonuses.bonus, rollData, options));
+  }
+});
 
 /* -------------------------------------------------- */
 
 /**
- * When you roll a saving throw...
- * @param {Actor5e} actor                   The actor that is making the roll.
- * @param {object} rollConfig               The configuration for the roll.
- * @param {SavingThrowDetails} details      Properties of the saving throw.
+ * When you roll a saving throw.
  */
-function _preRollSave(actor, rollConfig, details) {
+function _preRollSave(...rest) {
+  console.warn("SAVE", {rest});
+  return;
   // get bonus:
   const bonuses = filterings.throwCheck({actor}, details);
   if (!bonuses.size) return;
@@ -234,7 +187,7 @@ function _preRollSave(actor, rollConfig, details) {
     actor: actor,
     bonuses: bonuses,
     modifiers: new foundry.utils.Collection(), // TODO: 4.1, see attack roll method
-    details: details
+    details: details,
   });
 
   // Add parts.
@@ -256,42 +209,53 @@ function _preRollSave(actor, rollConfig, details) {
 
 /**
  * When you roll an ability or concentration saving throw...
- * @param {Actor5e} actor         The actor that is making the roll.
- * @param {object} rollConfig     The configuration for the roll.
- * @param {string} abilityId      The key for the ability being used.
+ * @param {AbilityRollProcessConfiguration} config  Configuration information for the roll.
+ * @param {BasicRollDialogConfiguration} dialog     Configuration for the roll dialog.
+ * @param {BasicRollMessageConfiguration} message   Configuration for the roll message.
  */
-function preRollAbilitySave(actor, rollConfig, abilityId) {
+function preRollAbilitySave(config, dialog, message) {
+  console.warn("ABILITY SAVE", {config, dialog, message});
+  return;
   return _preRollSave(actor, rollConfig, {
     ability: abilityId,
     isConcentration: rollConfig.isConcentration ?? false,
-    isDeath: false
+    isDeath: false,
   });
 }
 
 /* -------------------------------------------------- */
 
 /**
- * When you roll a death saving throw...
- * @param {Actor5e} actor         The actor that is making the roll.
- * @param {object} rollConfig     The configuration for the roll.
+ * When you roll a death saving throw.
  */
-function preRollDeathSave(actor, rollConfig) {
+function preRollDeathSave(config, dialog, message) {
+  console.warn("DEATH SAVE", {config, dialog, message});
+  return;
   return _preRollSave(actor, rollConfig, {
     ability: rollConfig.ability,
     isConcentration: false,
-    isDeath: true
+    isDeath: true,
   });
+}
+
+/* -------------------------------------------------- */
+
+function preRollConcentration(config, dialog, message) {
+  console.warn("CONCENTRATION", {config, dialog, message});
+  return; // TODO
 }
 
 /* -------------------------------------------------- */
 
 /**
  * When you roll an ability check...
- * @param {Actor5e} actor         The actor that is making the roll.
- * @param {object} rollConfig     The configuration for the roll.
- * @param {string} abilityId      The key for the ability being used.
+ * @param {AbilityRollProcessConfiguration} config  Configuration information for the roll.
+ * @param {BasicRollDialogConfiguration} dialog     Configuration for the roll dialog.
+ * @param {BasicRollMessageConfiguration} message   Configuration for the roll message.
  */
-function preRollAbilityTest(actor, rollConfig, abilityId) {
+function preRollAbilityTest(config, dialog, message) {
+  console.warn("ABILITY CHECK", {config, dialog, message});
+  return;
   const bonuses = filterings.testCheck({actor}, {abilityId});
   if (!bonuses.size) return;
   _addTargetData(rollConfig);
@@ -303,7 +267,7 @@ function preRollAbilityTest(actor, rollConfig, abilityId) {
   const id = registry.register({
     actor: actor,
     bonuses: bonuses,
-    modifiers: new foundry.utils.Collection() // TODO: 4.1, see attack method
+    modifiers: new foundry.utils.Collection(), // TODO: 4.1, see attack method
   });
 
   foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
@@ -312,13 +276,15 @@ function preRollAbilityTest(actor, rollConfig, abilityId) {
 /* -------------------------------------------------- */
 
 /**
- * When you roll a skill...
- * @TODO Find the correct ability used, pending the system's roll refactor.
- * @param {Actor5e} actor         The actor that is making the roll.
- * @param {object} rollConfig     The configuration for the roll.
- * @param {string} skillId        The key for the skill being used.
+ * When you make a skill check.
+ * @TODO: correct ability used?
+ * @param {SkillToolRollProcessConfiguration} config  Configuration information for the roll.
+ * @param {SkillToolRollDialogConfiguration} dialog   Configuration for the roll dialog.
+ * @param {BasicRollMessageConfiguration} message     Configuration for the roll message.
  */
-function preRollSkill(actor, rollConfig, skillId) {
+function preRollSkill(config, dialog, message) {
+  console.warn("SKILL", {config, dialog, message});
+  return;
   const abilityId = actor.system.skills[skillId].ability;
   const bonuses = filterings.testCheck({actor}, {abilityId, skillId});
   if (!bonuses.size) return;
@@ -331,7 +297,7 @@ function preRollSkill(actor, rollConfig, skillId) {
   const id = registry.register({
     actor: actor,
     bonuses: bonuses,
-    modifiers: new foundry.utils.Collection() // TODO: 4.1, see attack method
+    modifiers: new foundry.utils.Collection(), // TODO: 4.1, see attack method
   });
 
   foundry.utils.setProperty(rollConfig, `dialogOptions.${MODULE.ID}.registry`, id);
@@ -342,14 +308,13 @@ function preRollSkill(actor, rollConfig, skillId) {
 /**
  * When you roll a tool check...
  * @TODO Find the correct ability used, pending the system's roll refactor.
- * @param {Actor5e} actor     The actor that is making the roll.
- * @param {object} config     The configuration for the roll.
- * @param {string} toolId     The key for the tool being used.
  */
-function preRollToolCheck(actor, config, toolId) {
+function preRollToolCheck(config, dialog, message) {
+  console.warn("TOOL CHECK", {config, dialog, message});
+  return;
   const subjects = {
     actor: actor,
-    item: config.item
+    item: config.item,
   };
   const abilityId = config.ability || config.data.defaultAbility;
   const bonuses = filterings.testCheck(subjects, {abilityId, toolId});
@@ -363,7 +328,7 @@ function preRollToolCheck(actor, config, toolId) {
   const id = registry.register({
     ...subjects,
     bonuses: bonuses,
-    modifiers: new foundry.utils.Collection() // TODO: see 4.1 and attack method
+    modifiers: new foundry.utils.Collection(), // TODO: see 4.1 and attack method
   });
 
   foundry.utils.setProperty(config, `dialogOptions.${MODULE.ID}.registry`, id);
@@ -391,7 +356,7 @@ function preRollHitDie(config, dialog, message) {
     actor: actor,
     bonuses: bonuses,
     modifiers: modifiers,
-    configurations: {config, dialog, message}
+    configurations: {config, dialog, message},
   });
   foundry.utils.setProperty(dialog, `options.${MODULE.ID}.registry`, id);
 
@@ -437,7 +402,7 @@ function preCreateActivityTemplate(activity, templateData) {
   if (foundry.utils.isEmpty(bonusData)) return;
   foundry.utils.setProperty(templateData, `flags.${MODULE.ID}`, {
     bonuses: bonusData,
-    templateDisposition: disp
+    templateDisposition: disp,
   });
 }
 
@@ -465,9 +430,11 @@ export default {
   preRollAbilitySave,
   preRollAbilityTest,
   preRollAttack,
+  preRollConcentration,
+  preRollD20,
   preRollDamage,
   preRollDeathSave,
   preRollHitDie,
   preRollSkill,
-  preRollToolCheck
+  preRollToolCheck,
 };

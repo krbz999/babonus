@@ -1,6 +1,7 @@
 import {MODULE} from "../constants.mjs";
 import {Babonus} from "../models/babonus-model.mjs";
 import registry from "../registry.mjs";
+import BonusCollection from "./bonus-collection.mjs";
 
 export default class OptionalSelector {
   /**
@@ -15,10 +16,18 @@ export default class OptionalSelector {
     /* -------------------------------------------------- */
 
     /**
+     * The collection of bonuses.
+     * @type {BonusCollection}
+     */
+    this.collection = registered.collection;
+
+    /* -------------------------------------------------- */
+
+    /**
      * The optional bonuses.
      * @type {Collection<Babonus>}
      */
-    this.optionals = registered.bonuses.optionals;
+    this.optionals = registered.collection.optionals;
 
     /* -------------------------------------------------- */
 
@@ -26,7 +35,7 @@ export default class OptionalSelector {
      * The bonuses that just serve as reminders
      * @type {Collection<Babonus>}
      */
-    this.reminders = registered.bonuses.reminders;
+    this.reminders = registered.collection.reminders;
 
     /* -------------------------------------------------- */
 
@@ -34,7 +43,7 @@ export default class OptionalSelector {
      * The actor performing the roll.
      * @type {Actor5e}
      */
-    this.actor = registered.actor;
+    this.actor = registered.subjects.actor;
 
     /* -------------------------------------------------- */
 
@@ -42,7 +51,7 @@ export default class OptionalSelector {
      * The item being used.
      * @type {Item5e|void}
      */
-    this.item = registered.item;
+    this.item = registered.subjects.item;
 
     /* -------------------------------------------------- */
 
@@ -50,7 +59,7 @@ export default class OptionalSelector {
      * The activity being used.
      * @type {Activity|void}
      */
-    this.activity = registered.activity;
+    this.activity = registered.subjects.activity;
 
     /* -------------------------------------------------- */
 
@@ -58,7 +67,7 @@ export default class OptionalSelector {
      * The spell level of any item being rolled.
      * @type {number}
      */
-    this.level = registered.spellLevel;
+    this.level = registered.details.spellLevel;
 
     /* -------------------------------------------------- */
 
@@ -80,9 +89,9 @@ export default class OptionalSelector {
   /* -------------------------------------------------- */
 
   /**
-     * The retrieved registry.
-     * @type {object}
-     */
+   * The retrieved registry.
+   * @type {object}
+   */
   #registry = null;
 
   /* -------------------------------------------------- */
@@ -122,8 +131,8 @@ export default class OptionalSelector {
         name: bonus.name.replaceAll("'", "\\'"),
         label: `BABONUS.OptionalSelector.Label${bonus.consume.enabled ? "Consume" : "Apply"}`,
         description: await TextEditor.enrichHTML(bonus.description, {
-          rollData: bonus.getRollData(), relativeTo: bonus.origin
-        })
+          rollData: bonus.getRollData(), relativeTo: bonus.origin,
+        }),
       };
       if (bonus.consume.enabled) {
         const type = ["uses", "quantity"].includes(bonus.consume.type) ? "item" : bonus.consume.type;
@@ -157,8 +166,8 @@ export default class OptionalSelector {
         uuid: reminder.uuid,
         name: reminder.name.replaceAll("'", "\\'"),
         description: await TextEditor.enrichHTML(reminder.description, {
-          rollData: reminder.getRollData(), relativeTo: reminder.origin
-        })
+          rollData: reminder.getRollData(), relativeTo: reminder.origin,
+        }),
       });
     }
 
@@ -204,6 +213,7 @@ export default class OptionalSelector {
    * @returns {Promise}
    */
   async render() {
+    return; // temporarily disabled
     this.form = document.createElement("FIELDSET");
 
     this.form.insertAdjacentHTML("beforeend", "<legend>Build-a-Bonus</legend>");
@@ -216,8 +226,6 @@ export default class OptionalSelector {
 
     const group = this.dialog.element.querySelector("fieldset[data-application-part=configuration]");
     group.insertAdjacentElement("afterend", this.form);
-
-    registry.delete(this.#id);
   }
 
   /* -------------------------------------------------- */
@@ -253,7 +261,7 @@ export default class OptionalSelector {
         const item = bonus.item;
         const bounds = {
           min: isUses ? item.system.uses.value : item.system.quantity,
-          max: isUses ? item.system.uses.max : item.system.quantity
+          max: isUses ? item.system.uses.max : item.system.quantity,
         };
         if (bounds.min <= 0) return {};
         const min = bonus.consume.value.min || 1;
@@ -263,7 +271,7 @@ export default class OptionalSelector {
           acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
             value: n,
             label: game.i18n.format(isUses ? "DND5E.Uses" : "DND5E.Quantity"),
-            max: isUses ? `${bounds.min}/${bounds.max}` : bounds.min
+            max: isUses ? `${bounds.min}/${bounds.max}` : bounds.min,
           });
           return acc;
         }, {});
@@ -275,7 +283,7 @@ export default class OptionalSelector {
           const isLeveled = /spell[0-9]+/.test(k);
           const label = game.i18n.format(`DND5E.SpellLevel${isLeveled ? "Slot" : k.capitalize()}`, {
             level: isLeveled ? game.i18n.localize(`DND5E.SpellLevel${v.level}`) : v.level,
-            n: `${v.value}/${v.max}`
+            n: `${v.value}/${v.max}`,
           });
           acc[k] = label;
           return acc;
@@ -294,7 +302,7 @@ export default class OptionalSelector {
           options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
             value: i,
             label: game.i18n.localize("DND5E.HitPoints"),
-            max: `${min}/${max}`
+            max: `${min}/${max}`,
           });
         }
         return options;
@@ -310,7 +318,7 @@ export default class OptionalSelector {
           options[i] = game.i18n.format("BABONUS.ConsumptionOption", {
             value: i,
             label: label,
-            max: currency
+            max: currency,
           });
         }
         return options;
@@ -324,7 +332,7 @@ export default class OptionalSelector {
             acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
               value: n,
               label: game.i18n.localize(`DND5E.ConsumeHitDice${subtype.capitalize()}`),
-              max: `${hd.value}/${hd.max}`
+              max: `${hd.value}/${hd.max}`,
             });
             return acc;
           }, {});
@@ -334,7 +342,7 @@ export default class OptionalSelector {
           acc[n] = game.i18n.format("BABONUS.ConsumptionOption", {
             value: n,
             label: `${game.i18n.localize("DND5E.HitDice")} (${subtype})`,
-            max: hd.bySize[subtype]
+            max: hd.bySize[subtype],
           });
           return acc;
         }, {});
@@ -381,10 +389,26 @@ export default class OptionalSelector {
       if (!damageType && bonus.bonuses.damageType.size) damageType = bonus.bonuses.damageType.first();
     }
 
+    /**
+     * @type {import("./bonus-collection.mjs").OptionalBonusConfiguration}
+     */
+    const configuration = {
+      bonus: bonus,
+      addition: undefined,
+      damageType: damageType,
+      scale: undefined,
+      uuid: undefined,
+      update: undefined,
+      isDeletion: false,
+      isDamage: false,
+      isEmbedded: false,
+    };
+
     switch (type) {
       case "uses":
       case "quantity": {
         const value = parseInt(scales ? scaleValue : consumeMin);
+        configuration.uuid = item.uuid;
 
         let property;
         let newValue;
@@ -396,18 +420,12 @@ export default class OptionalSelector {
           newValue = item.system.quantity - value;
         }
         if ((newValue === 0) && (type === "uses") && item.system.uses.autoDestroy) {
-          const confirm = await item.deleteDialog();
-          if (!confirm) {
-            target.disabled = false;
-            return null;
-          }
+          configuration.isDeletion = true;
         } else {
-          await item.update({[property]: newValue});
+          configuration.update = {[property]: newValue};
         }
-        const scale = scales ? (value - consumeMin) : 0;
-        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
-        const apply = this.#callHook(bonus, item, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        configuration.scale = scales ? (value - consumeMin) : 0;
+        configuration.addition = this.#scaleOptionalBonus(bonus, configuration.scale);
         break;
       }
       case "slots": {
@@ -421,10 +439,11 @@ export default class OptionalSelector {
           key = this.#getLowestValidSpellSlotProperty(bonus);
           scale = 0;
         }
-        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
-        await this.actor.update({[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1});
-        const apply = this.#callHook(bonus, this.actor, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+
+        configuration.uuid = this.actor.uuid;
+        configuration.update = {[`system.spells.${key}.value`]: this.actor.system.spells[key].value - 1};
+        configuration.addition = this.#scaleOptionalBonus(bonus, scale);
+        configuration.scale = scale;
         break;
       }
       case "health": {
@@ -437,28 +456,25 @@ export default class OptionalSelector {
           value = consumeMin;
           scale = 0;
         }
-        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
-        await this.actor.applyDamage(value);
-        const apply = this.#callHook(bonus, this.actor, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        configuration.addition = this.#scaleOptionalBonus(bonus, scale);
+        configuration.scale = scale;
+        configuration.uuid = this.actor.uuid;
+        configuration.update = value;
+        configuration.isDamage = true;
         break;
       }
       case "effect": {
-        const confirm = await effect.deleteDialog();
-        if (!confirm) {
-          target.disabled = false;
-          return null;
-        }
-        const config = {bonus: this.#scaleOptionalBonus(bonus, 0)};
-        const apply = this.#callHook(bonus, effect, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
+        configuration.addition = this.#scaleOptionalBonus(bonus, 0);
+        configuration.scale = 0;
+        configuration.uuid = effect.uuid;
+        configuration.isDeletion = true;
         break;
       }
       case "inspiration": {
-        await this.actor.update({"system.attributes.inspiration": false});
-        const config = {bonus: this.#scaleOptionalBonus(bonus, 0)};
-        const apply = this.#callHook(bonus, this.actor, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
+        configuration.addition = this.#scaleOptionalBonus(bonus, 0);
+        configuration.scale = 0;
+        configuration.uuid = this.actor.uuid;
+        configuration.update = {"system.attributes.inspiration": false};
         break;
       }
       case "currency": {
@@ -472,10 +488,11 @@ export default class OptionalSelector {
           scale = 0;
         }
         const currency = this.actor.system.currency[bonus.consume.subtype];
-        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
-        await this.actor.update({[`system.currency.${bonus.consume.subtype}`]: currency - value});
-        const apply = this.#callHook(bonus, this.actor, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+
+        configuration.addition = this.#scaleOptionalBonus(bonus, scale);
+        configuration.scale = scale;
+        configuration.uuid = this.actor.uuid;
+        configuration.update = {[`system.currency.${bonus.consume.subtype}`]: currency - value};
         break;
       }
       case "hitdice": {
@@ -504,22 +521,22 @@ export default class OptionalSelector {
           }
         }
 
-        await this.actor.updateEmbeddedDocuments("Item", updates);
-
-        const scale = scales ? (parseInt(value) - consumeMin) : 0;
-        const config = {bonus: this.#scaleOptionalBonus(bonus, scale)};
-        const apply = this.#callHook(bonus, this.actor, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale});
+        configuration.uuid = this.actor.uuid;
+        configuration.update = updates;
+        configuration.scale = scales ? (parseInt(value) - consumeMin) : 0;
+        configuration.addition = this.#scaleOptionalBonus(bonus, configuration.scale);
+        configuration.isEmbedded = true;
         break;
       }
       default: {
         // Optional bonus that does not consume.
-        const config = {bonus: this.#scaleOptionalBonus(bonus, 0)};
-        const apply = this.#callHook(bonus, null, config);
-        this.#appendToField({babonus: bonus, target, bonus: config.bonus, apply, damageType, scale: 0});
+        configuration.scale = 0;
+        configuration.addition = this.#scaleOptionalBonus(bonus, configuration.scale);
         break;
       }
     }
+
+    this.collection.configuredOptionals.set(bonus.uuid, configuration);
   }
 
   /* -------------------------------------------------- */
@@ -544,122 +561,129 @@ export default class OptionalSelector {
 
   /* -------------------------------------------------- */
 
-  /**
-   * Append a bonus to a roll's parts.
-   * @param {object} config                   Appending configuration data.
-   * @param {Babonus} config.babonus          The Babonus.
-   * @param {HTMLElement} config.target       The target of the initiating click event.
-   * @param {string} [config.bonus]           The bonus to add (not required if the type supports modifiers).
-   * @param {boolean} [config.apply]          Whether the bonus should be applied.
-   * @param {string} [config.damageType]      A selected damage type (required if a damage bonus).
-   * @param {number} [scale]                  Upscaling property.
-   */
-  #appendToField({babonus, target, bonus, apply = true, damageType, scale = 0}) {
-    if (!apply) return;
-    this.#applyPropertyModifications(babonus, scale);
-    this.#applyAdditiveBonus(babonus, bonus, damageType, scale);
-    this.#applyDiceModifications(babonus, scale);
-    this.dialog.rebuild();
-    target.closest(".optional").classList.toggle("active", true);
-  }
+  // /**
+  //  * Append a bonus to a roll's parts.
+  //  * @param {object} config                   Appending configuration data.
+  //  * @param {Babonus} config.babonus          The Babonus.
+  //  * @param {HTMLElement} config.target       The target of the initiating click event.
+  //  * @param {string} [config.bonus]           The bonus to add (not required if the type supports modifiers).
+  //  * @param {boolean} [config.apply]          Whether the bonus should be applied.
+  //  * @param {string} [config.damageType]      A selected damage type (required if a damage bonus).
+  //  * @param {number} [scale]                  Upscaling property.
+  //  */
+  // #appendToField({babonus, target, bonus, apply = true, damageType, scale = 0}) {
+  //   if (!apply) return;
+  //   // this.#applyPropertyModifications(babonus, scale);
+  //   // this.#applyAdditiveBonus(babonus, bonus, damageType, scale);
+  //   // this.#applyDiceModifications(babonus, scale);
+  //   // this.dialog.rebuild();
+  //   // target.closest(".optional").classList.toggle("active", true);
 
-  /* -------------------------------------------------- */
+  //   this.collection.configuredOptionals.set(babonus.uuid, {
+  //     bonus: babonus,
+  //     damageType: damageType,
+  //     scale: scale,
+  //     addition: bonus,
+  //   });
+  // }
 
-  /**
-   * Apply property modifications such as critical threshold.
-   * @param {Babonus} bonus       The bonus being applied.
-   * @param {number} [scale]      Upscaling property.
-   */
-  #applyPropertyModifications(bonus, scale) {
-    const config = this.dialog.config;
-    const rollData = this.#getRollData(bonus, scale);
+  // /* -------------------------------------------------- */
 
-    switch (bonus.type) {
-      case "damage":
-        if (!config.critical) config.critical = {};
-        if (bonus.bonuses.criticalBonusDamage) {
-          const addition = Roll.replaceFormulaData(bonus.bonuses.criticalBonusDamage, rollData);
-          config.critical.bonusDamage = config.critical.bonusDamage ?
-            `${config.critical.bonusDamage} + ${addition}` :
-            addition;
-        }
-        if (bonus.bonuses.criticalBonusDice) {
-          const addition = Roll.create(bonus.bonuses.criticalBonusDice, rollData).evaluateSync({strict: false}).total;
-          config.critical.bonusDice = config.critical.bonusDice ? config.critical.bonusDice + addition : addition;
-        }
-    }
-  }
+  // /**
+  //  * Apply property modifications such as critical threshold.
+  //  * @param {Babonus} bonus       The bonus being applied.
+  //  * @param {number} [scale]      Upscaling property.
+  //  */
+  // #applyPropertyModifications(bonus, scale) {
+  //   const config = this.dialog.config;
+  //   const rollData = this.#getRollData(bonus, scale);
 
-  /* -------------------------------------------------- */
+  //   switch (bonus.type) {
+  //     case "damage":
+  //       if (!config.critical) config.critical = {};
+  //       if (bonus.bonuses.criticalBonusDamage) {
+  //         const addition = Roll.replaceFormulaData(bonus.bonuses.criticalBonusDamage, rollData);
+  //         config.critical.bonusDamage = config.critical.bonusDamage ?
+  //           `${config.critical.bonusDamage} + ${addition}` :
+  //           addition;
+  //       }
+  //       if (bonus.bonuses.criticalBonusDice) {
+  //         const addition = Roll.create(bonus.bonuses.criticalBonusDice, rollData).evaluateSync({strict: false}).total;
+  //         config.critical.bonusDice = config.critical.bonusDice ? config.critical.bonusDice + addition : addition;
+  //       }
+  //   }
+  // }
 
-  /**
-   * Apply the additive bonus of a babonus when it is toggled active.
-   * @param {Babonus} babonus         The bonus being toggled active.
-   * @param {string} bonus            The additive bonus.
-   * @param {string} [damageType]     A selected damage type (required if damage bonus).
-   * @param {number} [scale]          Upscaling property.
-   */
-  #applyAdditiveBonus(babonus, bonus, damageType, scale) {
-    if (!babonus.hasAdditiveBonus) return;
+  // /* -------------------------------------------------- */
 
-    const roll = this.dialog.config.rolls.find(config => {
-      if (!damageType) return true;
-      const types = config.options.types;
-      return (types.length === 1) && (types[0] === damageType);
-    });
+  // /**
+  //  * Apply the additive bonus of a babonus when it is toggled active.
+  //  * @param {Babonus} babonus         The bonus being toggled active.
+  //  * @param {string} bonus            The additive bonus.
+  //  * @param {string} [damageType]     A selected damage type (required if damage bonus).
+  //  * @param {number} [scale]          Upscaling property.
+  //  */
+  // #applyAdditiveBonus(babonus, bonus, damageType, scale) {
+  //   if (!babonus.hasAdditiveBonus) return;
 
-    if (roll) roll.parts.push(bonus);
-    else {
-      this.dialog.config.rolls.push({
-        data: this.#getRollData(babonus, scale),
-        parts: [bonus],
-        options: {
-          properties: [...this.dialog.config.rolls[0].options.properties ?? []],
-          type: damageType,
-          types: [damageType]
-        }
-      });
-    }
-  }
+  //   const roll = this.dialog.config.rolls.find(config => {
+  //     if (!damageType) return true;
+  //     const types = config.options.types;
+  //     return (types.length === 1) && (types[0] === damageType);
+  //   });
 
-  /* -------------------------------------------------- */
+  //   if (roll) roll.parts.push(bonus);
+  //   else {
+  //     this.dialog.config.rolls.push({
+  //       data: this.#getRollData(babonus, scale),
+  //       parts: [bonus],
+  //       options: {
+  //         properties: [...this.dialog.config.rolls[0].options.properties ?? []],
+  //         type: damageType,
+  //         types: [damageType],
+  //       },
+  //     });
+  //   }
+  // }
 
-  /**
-   * Apply dice modifiers to all parts in the roll config.
-   * @param {Babonus} babonus     A new bonus being toggled active.
-   * @param {number} [scale]      Upscaling property.
-   */
-  #applyDiceModifications(babonus, scale) {
-    // Store for later if other additive bonuses get added.
-    if (babonus.hasDiceModifiers) this.#registry.modifiers.set(babonus.uuid, babonus);
+  // /* -------------------------------------------------- */
 
-    for (const bonus of this.#registry.modifiers) {
-      const rollData = this.#getRollData(bonus, scale);
-      for (const {parts, data, options} of this.dialog.config.rolls) {
-        if (bonus._halted) break;
-        const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
-        if (halted) bonus._halted = true;
+  // /**
+  //  * Apply dice modifiers to all parts in the roll config.
+  //  * @param {Babonus} babonus     A new bonus being toggled active.
+  //  * @param {number} [scale]      Upscaling property.
+  //  */
+  // #applyDiceModifications(babonus, scale) {
+  //   // Store for later if other additive bonuses get added.
+  //   if (babonus.hasDiceModifiers) this.#registry.modifiers.set(babonus.uuid, babonus);
 
-        // Modify critical bonus damage.
-        if ((babonus.type === "damage") && !bonus._halted && options.critical?.bonusDamage) {
-          const parts = [options.critical.bonusDamage];
-          const halted = bonus.bonuses.modifiers.modifyParts(parts, rollData);
-          if (halted) bonus._halted = true;
-          options.critical.bonusDamage = parts[0];
-        }
-      }
+  //   for (const bonus of this.#registry.modifiers) {
+  //     const rollData = this.#getRollData(bonus, scale);
+  //     for (const {parts, data, options} of this.dialog.config.rolls) {
+  //       if (bonus._halted) break;
+  //       const halted = bonus.bonuses.modifiers.modifyParts(parts, data ?? rollData);
+  //       if (halted) bonus._halted = true;
 
-      // Modify critical bonus damage.
-      if ((babonus.type === "damage") && !bonus._halted && this.dialog.config.critical?.bonusDamage) {
-        const parts = [this.dialog.config.critical.bonusDamage];
-        const halted = bonus.bonuses.modifiers.modifyParts(parts, rollData);
-        if (halted) bonus._halted = true;
-        this.dialog.config.critical.bonusDamage = parts[0];
-      }
+  //       // Modify critical bonus damage.
+  //       if ((babonus.type === "damage") && !bonus._halted && options.critical?.bonusDamage) {
+  //         const parts = [options.critical.bonusDamage];
+  //         const halted = bonus.bonuses.modifiers.modifyParts(parts, rollData);
+  //         if (halted) bonus._halted = true;
+  //         options.critical.bonusDamage = parts[0];
+  //       }
+  //     }
 
-      if (bonus._halted) this.#registry.modifiers.delete(bonus.uuid);
-    }
-  }
+  //     // Modify critical bonus damage.
+  //     if ((babonus.type === "damage") && !bonus._halted && this.dialog.config.critical?.bonusDamage) {
+  //       const parts = [this.dialog.config.critical.bonusDamage];
+  //       const halted = bonus.bonuses.modifiers.modifyParts(parts, rollData);
+  //       if (halted) bonus._halted = true;
+  //       this.dialog.config.critical.bonusDamage = parts[0];
+  //     }
+
+  //     if (bonus._halted) this.#registry.modifiers.delete(bonus.uuid);
+  //   }
+  // }
 
   /* -------------------------------------------------- */
 
@@ -714,20 +738,20 @@ export default class OptionalSelector {
     return rollData;
   }
 
-  /* -------------------------------------------------- */
+  // /* -------------------------------------------------- */
 
-  /**
-   * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.
-   * @param {Babonus} babonus                             The babonus that holds the optional bonus to apply.
-   * @param {Actor5e|Item5e} roller                       The actor or item performing a roll or usage.
-   * @param {Actor5e|Item5e|ActiveEffect5e} [target]      The actor or item that was updated or deleted, if any.
-   * @param {object} config
-   * @param {string} config.bonus                         The bonus that will be applied.
-   * @returns {boolean}                                   Explicitly return false to cancel the application of the bonus.
-   */
-  #callHook(babonus, target, config) {
-    const roller = this.item ?? this.actor;
-    const apply = Hooks.call("babonus.applyOptionalBonus", babonus, roller, target, config);
-    return apply !== false;
-  }
+  // /**
+  //  * A hook that is called after an actor, item, or effect is updated or deleted, but before any bonuses are applied.
+  //  * @param {Babonus} babonus                             The babonus that holds the optional bonus to apply.
+  //  * @param {Actor5e|Item5e} roller                       The actor or item performing a roll or usage.
+  //  * @param {Actor5e|Item5e|ActiveEffect5e} [target]      The actor or item that was updated or deleted, if any.
+  //  * @param {object} config
+  //  * @param {string} config.bonus                         The bonus that will be applied.
+  //  * @returns {boolean}                                   Explicitly return false to cancel the application of the bonus.
+  //  */
+  // #callHook(babonus, target, config) {
+  //   const roller = this.item ?? this.actor;
+  //   const apply = Hooks.call("babonus.applyOptionalBonus", babonus, roller, target, config);
+  //   return apply !== false;
+  // }
 }

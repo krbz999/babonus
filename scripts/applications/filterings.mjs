@@ -39,7 +39,8 @@ function _check(subjects, type, details) {
   const bonuses = collector.returnBonuses();
   const filtered = _finalFilterBonuses(type, bonuses, subjects, details);
   setTimeout(() => collector.destroyAuras(), 2000);
-  return new BonusCollection(filtered);
+  // return new BonusCollection(filtered);
+  return new BonusCollection(bonuses);
 }
 
 /* -------------------------------------------------- */
@@ -286,7 +287,7 @@ export const filters = {
   targetEffects,
   throwTypes,
   tokenSizes,
-  weaponProperties
+  weaponProperties,
 };
 
 /* -------------------------------------------------- */
