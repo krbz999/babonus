@@ -123,7 +123,7 @@ export default class ModifiersModel extends foundry.abstract.DataModel {
    */
   _modifyAmount(die) {
     if (!this.hasAmount) return;
-    const isMult = this.amount.mode === MODULE.MODIFIER_MODES.MULTIPLY;
+    const isMult = this.amount.mode === 1;
 
     if ((die._number instanceof Roll) && die._number.isDeterministic) {
       const total = die._number.evaluateSync().total;
@@ -144,7 +144,7 @@ export default class ModifiersModel extends foundry.abstract.DataModel {
    */
   _modifySize(die) {
     if (!this.hasSize) return;
-    const isMult = this.size.mode === MODULE.MODIFIER_MODES.MULTIPLY;
+    const isMult = this.size.mode === 1;
 
     if ((die._faces instanceof Roll) && die._faces.isDeterministic) {
       const total = die._faces.evaluateSync().total;
